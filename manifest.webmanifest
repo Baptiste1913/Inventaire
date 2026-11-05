@@ -1,0 +1,13 @@
+{
+  "name": "Tare Paniettes",
+  "short_name": "Tare",
+  "description": "Calcul rapide du poids net des fruits et légumes.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f5f1",
+  "theme_color": "#173f35",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
