@@ -36,3 +36,8 @@ button,select,input,.weight-field{touch-action:manipulation;}
 .weight-field input::-webkit-input-placeholder{color:#c6cbd0;opacity:1;font-weight:800}
 .weight-field input:focus,.weight-field input:focus-visible{outline:none!important;box-shadow:none!important;border:0!important;-webkit-appearance:none;appearance:none}
 .weight-field:focus-within{outline:none;box-shadow:none}
+
+/* V15 : indicateur discret de connexion, masqué en ligne */
+.offline-indicator[hidden]{display:none!important}
+.offline-indicator{display:flex;align-items:center;gap:9px;padding:10px 13px;margin:0 0 18px;border-radius:12px;background:#e9f6f5;color:#006b75;font-size:12px;font-weight:700;line-height:1.4}
+.offline-indicator svg{flex:none}

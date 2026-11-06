@@ -73,3 +73,13 @@ $('copyBtn').addEventListener('click',async()=>{if(netGrams===null)return;const 
 $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({app:'Inventaires U',version:2,unit:'g',baskets},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='inventaires-u-paniers.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);$('backupStatus').textContent='Sauvegarde téléchargée.';});
 $('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');if(!confirm(`Importer ${items.length} panier(s) ? Cela remplacera ta liste actuelle.`))return;baskets=sanitize(items);cancelEdit();persist();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 render();renderHistory();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.warn));
+
+// V15 : statut réseau (indicateur uniquement, sans bloquer les calculs).
+(function(){
+  const indicator=document.getElementById('offlineIndicator');
+  if(!indicator)return;
+  function updateConnectionStatus(){indicator.hidden=navigator.onLine;}
+  window.addEventListener('online',updateConnectionStatus);
+  window.addEventListener('offline',updateConnectionStatus);
+  updateConnectionStatus();
+})();
