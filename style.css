@@ -24,3 +24,9 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:auto}body{overscroll-behavior
 .history-chevron{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .24s cubic-bezier(.2,.75,.25,1)}
 .history-toggle[aria-expanded="true"] .history-chevron{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){.history-chevron{transition:none}}
+
+/* V11 — exemple de saisie plus discret et prévention du double-tap zoom */
+.weight-field input::placeholder{color:#b3b8bf;opacity:1;font-weight:500;}
+.weight-field input::-webkit-input-placeholder{color:#b3b8bf;opacity:1;font-weight:500;}
+html,body{touch-action:pan-y;}
+button,select,input,.weight-field{touch-action:manipulation;}
