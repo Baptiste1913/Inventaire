@@ -25,3 +25,6 @@ Remplacer les fichiers à la racine du dépôt GitHub par ceux du ZIP (les fichi
 ## Remarque
 
 Ce site est un outil indépendant, non affilié officiellement à la Coopérative U. L'identité visuelle est inspirée de son univers rouge/blanc, sans reprendre ses ressources graphiques officielles.
+
+## Version graphique turquoise et violet
+Cette version reprend les couleurs turquoise, violet, blanc et noir du site de référence fourni, avec le logo fourni par l'utilisateur. Le projet est personnel et indépendant, non affilié à Coopérative U. Remplacer les fichiers du dépôt à la racine, y compris `logo-u.png`. Les paniers existants restent stockés sous les mêmes clés de navigateur et ne sont pas effacés par cette mise à jour.
