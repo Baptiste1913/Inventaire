@@ -1,34 +1,27 @@
-# Tare Paniettes
+# Inventaires U
 
-Petite application web mobile pour soustraire automatiquement la tare des paniettes.
+Application web mobile de calcul de tare, prête pour GitHub Pages.
 
-## Fonctionnalités
-- Saisie du poids brut en grammes.
-- Sélection d'un modèle de paniette et calcul immédiat du poids net.
-- Ajout, modification et suppression de modèles.
-- Sauvegarde locale dans le navigateur.
-- Export/import JSON pour sauvegarder ou transférer les modèles.
-- Installation sur l'écran d'accueil et cache hors connexion via PWA.
+## Mise à jour du site
 
-## Publication gratuite avec GitHub Pages
-1. Crée un compte sur https://github.com si nécessaire.
-2. Crée un nouveau dépôt, par exemple `tare-paniettes`.
-3. Décompresse l'archive et ajoute **tous les fichiers** à la racine du dépôt.
-4. Dans GitHub, ouvre **Settings → Pages**.
-5. Dans **Build and deployment**, choisis **Deploy from a branch**.
-6. Sélectionne la branche `main` et le dossier `/ (root)`, puis clique sur **Save**.
-7. Attends quelques instants : GitHub affichera l'adresse de ton site, généralement `https://TON-PSEUDO.github.io/tare-paniettes/`.
+Remplacer les fichiers à la racine du dépôt GitHub par ceux du ZIP (les fichiers doivent être à la racine, pas dans un sous-dossier). Conserver le dépôt existant pour garder l'adresse GitHub Pages pendant la transition. La nouvelle version reprend automatiquement les paniers sauvegardés avec la clé locale `tare-paniettes-v1` **uniquement sur la même origine (protocole + domaine + port)**. Les valeurs sont enregistrées en grammes en interne, affichées et saisies en kilogrammes à 3 décimales.
 
-## Installer sur iPhone
-1. Ouvre l'adresse GitHub Pages dans Safari.
-2. Appuie sur le bouton **Partager**.
-3. Choisis **Sur l'écran d'accueil**.
-4. Active **Ouvrir comme app web** si l'option est proposée, puis touche **Ajouter**.
+## Domaine inventaires-u.com
 
-## Important pour les données
-Les modèles sont stockés dans le stockage local du navigateur sur cet appareil. Ils ne sont pas envoyés à GitHub. Effacer les données de Safari, changer de navigateur ou utiliser un autre appareil peut les faire disparaître. Utilise régulièrement **Exporter mes modèles** et conserve le fichier JSON dans Fichiers/iCloud Drive.
+1. Acheter/posséder le domaine et accéder à sa zone DNS. Le fichier `CNAME` fourni indique le domaine à GitHub Pages.
+2. GitHub → dépôt → Settings → Pages → Custom domain → saisir `inventaires-u.com`, enregistrer.
+3. Chez le registrar, créer les quatre enregistrements A du domaine racine pointant vers les adresses IPv4 GitHub Pages officielles : `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`. Supprimer les enregistrements A/AAAA contradictoires. Pour `www`, créer un CNAME vers `<utilisateur>.github.io` (remplacer `<utilisateur>` par le compte GitHub exact, sans chemin).
+4. Attendre la propagation et la validation HTTPS dans GitHub Pages, puis activer `Enforce HTTPS` quand proposé. Vérifier la documentation GitHub Pages si l'interface change.
+5. **Avant de changer de domaine**, ouvrir l'ancienne adresse dans Safari, exporter les paniers JSON. Sur `https://inventaires-u.com`, importer le fichier JSON. Le stockage local ne suit pas le changement de domaine.
 
-Les fichiers du site sont destinés à être publics dans le dépôt GitHub. N'y place aucune donnée personnelle ou confidentielle.
+## Utilisation
 
-## Personnalisation
-Les trois modèles initiaux (85 g, 120 g et 175 g) sont fictifs : modifie-les ou supprime-les pour saisir les vraies tares de tes paniettes.
+- Saisir `1.230` ou `1,230` dans Poids affiché sur la balance.
+- Sélectionner le panier : le résultat s'affiche en gros et peut être copié.
+- Réorganiser la liste en glissant la poignée ⠿ ; les flèches ▲ ▼ sont également disponibles.
+- Ajouter, modifier, supprimer, exporter et importer les paniers.
+- Depuis Safari iPhone : Partager → Sur l'écran d'accueil.
+
+## Remarque
+
+Ce site est un outil indépendant, non affilié officiellement à la Coopérative U. L'identité visuelle est inspirée de son univers rouge/blanc, sans reprendre ses ressources graphiques officielles.
