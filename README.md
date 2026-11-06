@@ -20,3 +20,6 @@ Si la mise à jour n'apparaît pas immédiatement, ouvrir le site en ligne et re
 
 
 V16 : notification flottante Liquid Glass du mode hors ligne, refermable, sans modification des données.
+
+## V19 — Correction de mise à jour
+Les références CSS et JS de index.html sont désormais alignées avec le précache du service worker (v19). Notification plus translucide, icône redessinée, animation plus marquée. Après déploiement, ouvrir le site avec Internet puis le relancer pour permettre la prise de contrôle du nouveau service worker.

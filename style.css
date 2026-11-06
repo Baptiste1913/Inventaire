@@ -49,34 +49,38 @@ button,select,input,.weight-field{touch-action:manipulation;}
   padding:13px 13px 13px 16px;
   border:1px solid rgba(255,255,255,.66);
   border-radius:27px;
-  background:rgba(239,247,250,.38);
-  -webkit-backdrop-filter:blur(34px) saturate(155%);
-  backdrop-filter:blur(34px) saturate(155%);
+  background:rgba(235,248,250,.27);
+  -webkit-backdrop-filter:blur(26px) saturate(170%);
+  backdrop-filter:blur(26px) saturate(170%);
   box-shadow:0 12px 36px rgba(20,46,58,.14),inset 0 1px 0 rgba(255,255,255,.7);
   color:#153942;
   transform-origin:50% 0;
   will-change:transform,opacity;
 }
-.offline-symbol{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:16px;background:rgba(224,247,249,.48);color:#006f7c}
+.offline-symbol{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:16px;background:rgba(255,255,255,.24);color:#006f7c}
 .offline-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px;line-height:1.25}
 .offline-copy strong{font-size:14px;font-weight:800;letter-spacing:-.15px}
 .offline-copy>span{font-size:12px;color:#41616a}
-.offline-dismiss{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:rgba(224,237,240,.46);color:#315761;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.offline-dismiss{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.28);color:#315761;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .offline-dismiss:focus-visible{outline:2px solid #007f8b;outline-offset:3px}
 /* Arrivée souple, léger rebond, puis remontée et fondu comme une notification iOS. */
-.offline-indicator.is-entering{animation:offline-enter .62s cubic-bezier(.22,1,.36,1) both}
-.offline-indicator.is-leaving{animation:offline-exit .38s cubic-bezier(.4,0,.7,1) both;pointer-events:none}
+.offline-indicator.is-entering{animation:offline-enter .72s cubic-bezier(.18,1.25,.32,1) both}
+.offline-indicator.is-leaving{animation:offline-exit .48s cubic-bezier(.32,0,.65,1) both;pointer-events:none}
 @keyframes offline-enter{
-  0%{opacity:0;transform:translate(-50%,-36px) scale(.88);filter:blur(5px)}
-  65%{opacity:1;transform:translate(-50%,3px) scale(1.015);filter:blur(0)}
+  0%{opacity:0;transform:translate(-50%,-85px) scale(.83);filter:blur(5px)}
+  65%{opacity:1;transform:translate(-50%,9px) scale(1.025);filter:blur(0)}
   100%{opacity:1;transform:translate(-50%,0) scale(1);filter:blur(0)}
 }
 @keyframes offline-exit{
   0%{opacity:1;transform:translate(-50%,0) scale(1);filter:blur(0)}
-  100%{opacity:0;transform:translate(-50%,-22px) scale(.94);filter:blur(3px)}
+  100%{opacity:0;transform:translate(-50%,-65px) scale(.88);filter:blur(3px)}
 }
 @media(prefers-reduced-motion:reduce){.offline-indicator.is-entering,.offline-indicator.is-leaving{animation:none}}
 @media(max-width:360px){.offline-indicator{gap:8px;padding:11px}.offline-symbol{flex-basis:37px;width:37px;height:37px}.offline-copy strong{font-size:13px}.offline-copy>span{font-size:11px}}
 
 /* V18: lisibilité si le flou de fond est indisponible. */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.offline-indicator{background:rgba(239,247,250,.94)}}
+
+/* V19 : garantir la lisibilité malgré une vitre plus transparente. */
+.offline-copy strong{color:#102f39;text-shadow:0 1px 1px rgba(255,255,255,.7)}
+.offline-copy>span{color:#294d57;text-shadow:0 1px 1px rgba(255,255,255,.6)}

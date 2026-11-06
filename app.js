@@ -89,7 +89,7 @@ render();renderHistory();if('serviceWorker'in navigator)window.addEventListener(
     indicator.classList.add('is-leaving');
     finishTimer=setTimeout(()=>{
       if(!visible){indicator.hidden=true;indicator.classList.remove('is-leaving');}
-    },420);
+    },520);
   }
   function showNotification(){
     clearTimers();
