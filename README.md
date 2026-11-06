@@ -55,3 +55,9 @@ Version V6 : icône intermédiaire entre V4 et V5, avec marges blanches équilib
 - Le bouton « Nouvelle pesée » est placé à droite de la saisie.
 - L'historique affiche les 5 dernières pesées, avec commandes identiques en haut et en bas pour tout afficher ou réduire.
 - L'historique reste limité aux 100 dernières pesées, enregistré localement sur l'appareil.
+
+
+## Version 10
+- Historique limité aux 15 dernières pesées (les plus anciennes sont supprimées au prochain chargement/enregistrement).
+- 5 pesées affichées par défaut ; bouton unique au-dessus pour afficher les 15 et les réduire, avec chevron animé.
+- Titres renforcés par un trait CSS supplémentaire (les valeurs 900 seules ne rendaient pas Arial plus gras sur iOS).

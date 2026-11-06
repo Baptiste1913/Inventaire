@@ -15,3 +15,12 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:auto}body{overscroll-behavior
 
 /* V9 — saisie et historique */
 .weight-row{display:flex;gap:9px;align-items:stretch}.weight-row .weight-field{flex:1;min-width:0}.weight-row .weight-field input{padding:13px 12px;font-size:clamp(23px,6.5vw,30px)}.weight-row .weight-field span{padding-right:12px}.new-weigh-btn{display:flex;flex:0 0 105px;align-items:center;justify-content:center;gap:5px;border:1px solid #b4dfe1;border-radius:17px;background:#e2f2f3;color:#007985;font-weight:850;font-size:19px;line-height:1.15;cursor:pointer}.new-weigh-btn span{font-size:12px}.history-toggle{display:block;width:100%;margin:10px 0;padding:12px 10px;border:1px solid #b4dfe1;border-radius:24px;background:#e2f2f3;color:#007985;font-size:13px;font-weight:800;cursor:pointer}.history-toggle[hidden]{display:none}.weigh-status:empty{display:none}@media(max-width:380px){.new-weigh-btn{flex-basis:88px}.new-weigh-btn span{font-size:11px}}
+
+/* V10 — titres visiblement plus épais, sans police externe. */
+.brand h1{font-family:Arial,Helvetica,sans-serif;font-weight:900!important;-webkit-text-stroke:.65px currentColor;letter-spacing:-.75px;text-rendering:geometricPrecision}
+.intro h2,.intro h2 em{font-family:Arial,Helvetica,sans-serif;font-weight:900!important;-webkit-text-stroke:1.05px currentColor;letter-spacing:-1.15px;text-rendering:geometricPrecision}
+/* Une seule commande, avec chevron animé et état accessible. */
+.history-toggle{display:flex;align-items:center;justify-content:center;gap:9px}
+.history-chevron{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .24s cubic-bezier(.2,.75,.25,1)}
+.history-toggle[aria-expanded="true"] .history-chevron{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){.history-chevron{transition:none}}
