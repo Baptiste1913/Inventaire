@@ -74,39 +74,42 @@ $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify
 $('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');if(!confirm(`Importer ${items.length} panier(s) ? Cela remplacera ta liste actuelle.`))return;baskets=sanitize(items);cancelEdit();persist();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 render();renderHistory();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.warn));
 
-// V17 : notification éphémère, entrée/sortie inspirées des notifications iOS.
+// V20 : notification persistante jusqu'au retour en ligne ou fermeture manuelle.
 (function(){
   const indicator=document.getElementById('offlineIndicator');
   const dismiss=document.getElementById('offlineDismiss');
   if(!indicator||!dismiss)return;
-  let hideTimer=null, finishTimer=null, visible=false;
-  const clearTimers=()=>{clearTimeout(hideTimer);clearTimeout(finishTimer);};
-  function hideNotification(){
-    clearTimers();
-    if(!visible)return;
+  let dismissed=false;
+  let finishTimer=null;
+  let visible=false;
+  const stopExit=()=>{if(finishTimer!==null){clearTimeout(finishTimer);finishTimer=null;}};
+  function show(){
+    if(dismissed||visible)return;
+    stopExit();
+    indicator.hidden=false;
+    indicator.classList.remove('is-leaving','is-entering');
+    void indicator.offsetWidth;
+    indicator.classList.add('is-entering');
+    visible=true;
+  }
+  function hide(){
+    stopExit();
+    if(!visible){indicator.hidden=true;indicator.classList.remove('is-entering','is-leaving');return;}
     visible=false;
     indicator.classList.remove('is-entering');
     indicator.classList.add('is-leaving');
     finishTimer=setTimeout(()=>{
       if(!visible){indicator.hidden=true;indicator.classList.remove('is-leaving');}
-    },520);
+      finishTimer=null;
+    },390);
   }
-  function showNotification(){
-    clearTimers();
-    indicator.hidden=false;
-    indicator.classList.remove('is-leaving','is-entering');
-    // Redémarre l'animation, y compris après un retour rapide du réseau.
-    void indicator.offsetWidth;
-    indicator.classList.add('is-entering');
-    visible=true;
-    hideTimer=setTimeout(hideNotification,4200);
+  function sync(){
+    if(navigator.onLine){dismissed=false;hide();}
+    else show();
   }
-  dismiss.addEventListener('click',hideNotification);
-  window.addEventListener('online',hideNotification);
-  window.addEventListener('offline',showNotification);
-  window.addEventListener('pageshow',()=>{
-    if(!navigator.onLine && !visible)showNotification();
-    else if(navigator.onLine)hideNotification();
-  });
-  if(!navigator.onLine)showNotification();
+  dismiss.addEventListener('click',()=>{dismissed=true;hide();});
+  window.addEventListener('online',sync);
+  window.addEventListener('offline',()=>{dismissed=false;sync();});
+  window.addEventListener('pageshow',sync);
+  sync();
 })();
