@@ -47,3 +47,11 @@ Version V6 : icône intermédiaire entre V4 et V5, avec marges blanches équilib
 - Confirmation visuelle à l’enregistrement, sans vibration requise.
 - Texte d’aide sous le champ retiré. Point et virgule restent acceptés.
 - Les sauvegardes JSON existantes exportent/importent les paniers uniquement, pas l’historique.
+
+
+## Version 9 — historique automatique
+- Une pesée valide est sauvegardée automatiquement après 1,1 seconde sans modification, ou à la sortie du champ.
+- Tant que « Nouvelle pesée » n'est pas pressé, les corrections de poids ou de panier mettent à jour la même entrée, sans doublons.
+- Le bouton « Nouvelle pesée » est placé à droite de la saisie.
+- L'historique affiche les 5 dernières pesées, avec commandes identiques en haut et en bas pour tout afficher ou réduire.
+- L'historique reste limité aux 100 dernières pesées, enregistré localement sur l'appareil.
