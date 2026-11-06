@@ -74,12 +74,26 @@ $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify
 $('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');if(!confirm(`Importer ${items.length} panier(s) ? Cela remplacera ta liste actuelle.`))return;baskets=sanitize(items);cancelEdit();persist();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 render();renderHistory();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.warn));
 
-// V15 : statut réseau (indicateur uniquement, sans bloquer les calculs).
+// V16 : notification flottante Liquid Glass, sans décaler le contenu.
 (function(){
   const indicator=document.getElementById('offlineIndicator');
-  if(!indicator)return;
-  function updateConnectionStatus(){indicator.hidden=navigator.onLine;}
+  const dismiss=document.getElementById('offlineDismiss');
+  if(!indicator||!dismiss)return;
+  let dismissed=false;
+  function updateConnectionStatus(){
+    if(navigator.onLine){
+      dismissed=false;
+      indicator.hidden=true;
+    }else{
+      indicator.hidden=dismissed;
+    }
+  }
+  dismiss.addEventListener('click',()=>{
+    dismissed=true;
+    indicator.hidden=true;
+  });
   window.addEventListener('online',updateConnectionStatus);
-  window.addEventListener('offline',updateConnectionStatus);
+  window.addEventListener('offline',()=>{dismissed=false;updateConnectionStatus();});
+  window.addEventListener('pageshow',updateConnectionStatus);
   updateConnectionStatus();
 })();

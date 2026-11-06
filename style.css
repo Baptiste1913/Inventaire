@@ -38,6 +38,30 @@ button,select,input,.weight-field{touch-action:manipulation;}
 .weight-field:focus-within{outline:none;box-shadow:none}
 
 /* V15 : indicateur discret de connexion, masqué en ligne */
+/* V16 — toast iOS Liquid Glass : flottant, non intrusif et accessible. */
 .offline-indicator[hidden]{display:none!important}
-.offline-indicator{display:flex;align-items:center;gap:9px;padding:10px 13px;margin:0 0 18px;border-radius:12px;background:#e9f6f5;color:#006b75;font-size:12px;font-weight:700;line-height:1.4}
-.offline-indicator svg{flex:none}
+.offline-indicator{
+  position:fixed;z-index:1000;
+  top:calc(env(safe-area-inset-top, 0px) + 12px);
+  left:50%;transform:translateX(-50%);
+  width:min(calc(100% - 28px),440px);
+  display:flex;align-items:center;gap:12px;
+  padding:13px 13px 13px 16px;
+  border:1px solid rgba(255,255,255,.75);
+  border-radius:27px;
+  background:rgba(239,247,250,.78);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  backdrop-filter:blur(28px) saturate(180%);
+  box-shadow:0 12px 36px rgba(20,46,58,.17),inset 0 1px 0 rgba(255,255,255,.8);
+  color:#153942;
+  animation:offline-appear .35s cubic-bezier(.2,.8,.2,1) both;
+}
+.offline-symbol{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:16px;background:rgba(0,128,139,.13);color:#006f7c}
+.offline-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px;line-height:1.25}
+.offline-copy strong{font-size:14px;font-weight:800;letter-spacing:-.15px}
+.offline-copy>span{font-size:12px;color:#41616a}
+.offline-dismiss{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:rgba(92,122,132,.17);color:#315761;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.offline-dismiss:focus-visible{outline:2px solid #007f8b;outline-offset:3px}
+@keyframes offline-appear{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){.offline-indicator{animation:none}}
+@media(max-width:360px){.offline-indicator{gap:8px;padding:11px}.offline-symbol{flex-basis:37px;width:37px;height:37px}.offline-copy strong{font-size:13px}.offline-copy>span{font-size:11px}}

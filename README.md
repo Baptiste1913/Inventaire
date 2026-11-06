@@ -17,3 +17,6 @@
 5. Réactiver Internet : l'indicateur disparaît.
 
 Si la mise à jour n'apparaît pas immédiatement, ouvrir le site en ligne et relancer l'application. Ne pas supprimer les données Safari : elles contiennent les paniers et l'historique.
+
+
+V16 : notification flottante Liquid Glass du mode hors ligne, refermable, sans modification des données.
