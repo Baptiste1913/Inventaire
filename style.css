@@ -30,3 +30,9 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:auto}body{overscroll-behavior
 .weight-field input::-webkit-input-placeholder{color:#b3b8bf;opacity:1;font-weight:500;}
 html,body{touch-action:pan-y;}
 button,select,input,.weight-field{touch-action:manipulation;}
+
+/* V14 : exemple discret mais gras, sans halo bleu de focus sur le poids */
+.weight-field input::placeholder{color:#c6cbd0;opacity:1;font-weight:800}
+.weight-field input::-webkit-input-placeholder{color:#c6cbd0;opacity:1;font-weight:800}
+.weight-field input:focus,.weight-field input:focus-visible{outline:none!important;box-shadow:none!important;border:0!important;-webkit-appearance:none;appearance:none}
+.weight-field:focus-within{outline:none;box-shadow:none}
