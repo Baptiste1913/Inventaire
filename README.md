@@ -28,3 +28,7 @@ Ce site est un outil indépendant, non affilié officiellement à la Coopérativ
 
 ## Version graphique turquoise et violet
 Cette version reprend les couleurs turquoise, violet, blanc et noir du site de référence fourni, avec le logo fourni par l'utilisateur. Le projet est personnel et indépendant, non affilié à Coopérative U. Remplacer les fichiers du dépôt à la racine, y compris `logo-u.png`. Les paniers existants restent stockés sous les mêmes clés de navigateur et ne sont pas effacés par cette mise à jour.
+
+
+## Mise à jour V5
+Titre OUTIL D’INVENTAIRE, retrait de la balance, poignée à six points centrés et réorganisation par appui long sur toute la ligne (hors boutons d’action). Les paniers déjà enregistrés sont conservés.
