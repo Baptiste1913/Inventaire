@@ -38,3 +38,12 @@ V4 : titre UTILITAIRE D’INVENTAIRE, suppression de MON MAGASIN U, icones avec 
 
 
 Version V6 : icône intermédiaire entre V4 et V5, avec marges blanches équilibrées.
+
+
+## Nouveautés V7
+- Sélection du panier avant la saisie du poids.
+- Historique local des 100 dernières pesées validées avec « Enregistrer la pesée ». L’historique est distinct des paniers et peut être effacé.
+- Bouton « Nouvelle pesée » : efface le poids brut, conserve le panier choisi et remet le focus sur le champ.
+- Confirmation visuelle à l’enregistrement, sans vibration requise.
+- Texte d’aide sous le champ retiré. Point et virgule restent acceptés.
+- Les sauvegardes JSON existantes exportent/importent les paniers uniquement, pas l’historique.
