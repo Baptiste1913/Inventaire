@@ -24,7 +24,7 @@ V16 : notification flottante Liquid Glass du mode hors ligne, refermable, sans m
 ## V19 — Correction de mise à jour
 Les références CSS et JS de index.html sont désormais alignées avec le précache du service worker (v19). Notification plus translucide, icône redessinée, animation plus marquée. Après déploiement, ouvrir le site avec Internet puis le relancer pour permettre la prise de contrôle du nouveau service worker.
 
-## V20 — Notification Liquid Glass
+## V21 — Notification Liquid Glass
 - Effet de verre translucide inspiré de la capture Apple (simulation CSS, pas le matériau natif).
 - Nouvelle icône de liaison interrompue.
 - Entrée et sortie animées. Aucune disparition automatique : fermeture uniquement au retour de la connexion ou avec la croix.

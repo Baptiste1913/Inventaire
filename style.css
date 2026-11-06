@@ -37,7 +37,7 @@ button,select,input,.weight-field{touch-action:manipulation;}
 .weight-field input:focus,.weight-field input:focus-visible{outline:none!important;box-shadow:none!important;border:0!important;-webkit-appearance:none;appearance:none}
 .weight-field:focus-within{outline:none;box-shadow:none}
 
-/* V20 — verre transparent inspiré des commandes iOS (approximation CSS). */
+/* V21 — notification Liquid Glass peaufinée. */
 .offline-indicator[hidden]{display:none!important}
 .offline-indicator{
   position:fixed;z-index:1000;
@@ -55,10 +55,11 @@ button,select,input,.weight-field{touch-action:manipulation;}
   isolation:isolate;
 }
 .offline-indicator::before{content:"";position:absolute;inset:1px;border-radius:inherit;pointer-events:none;z-index:-1;background:linear-gradient(125deg,rgba(255,255,255,.25),transparent 34%,transparent 70%,rgba(255,255,255,.12));}
-.offline-symbol{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.20);border:1px solid rgba(255,255,255,.29);color:#173e48}
-.offline-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px;line-height:1.25;text-shadow:0 1px 2px rgba(255,255,255,.8)}
-.offline-copy strong{font-size:14px;font-weight:780;letter-spacing:-.15px;color:#102b33}
-.offline-copy>span{font-size:12px;color:#29464e}
+.offline-symbol{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.20);border:1px solid rgba(255,255,255,.29);overflow:hidden}
+.offline-symbol img{display:block;width:20px;height:20px;object-fit:contain;opacity:.96}
+.offline-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px;line-height:1.25;text-shadow:0 1px 1px rgba(255,255,255,.40)}
+.offline-copy strong{font-size:15px;font-weight:820;letter-spacing:-.18px;color:#102b33}
+.offline-copy>span{font-size:13px;font-weight:620;color:#29464e}
 .offline-dismiss{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;padding:0;border:1px solid rgba(255,255,255,.3);border-radius:50%;background:rgba(255,255,255,.20);color:#24454d;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .offline-dismiss:focus-visible{outline:2px solid #007f8b;outline-offset:3px}
 .offline-indicator.is-entering{animation:glass-enter .58s cubic-bezier(.22,1.15,.33,1) both}
@@ -66,5 +67,5 @@ button,select,input,.weight-field{touch-action:manipulation;}
 @keyframes glass-enter{0%{opacity:0;transform:translate3d(-50%,-68px,0) scale(.90)}70%{opacity:1;transform:translate3d(-50%,5px,0) scale(1.012)}100%{opacity:1;transform:translate3d(-50%,0,0) scale(1)}}
 @keyframes glass-leave{0%{opacity:1;transform:translate3d(-50%,0,0) scale(1)}100%{opacity:0;transform:translate3d(-50%,-43px,0) scale(.96)}}
 @media(prefers-reduced-motion:reduce){.offline-indicator.is-entering,.offline-indicator.is-leaving{animation:none}}
-@media(max-width:360px){.offline-indicator{gap:8px;padding:11px}.offline-symbol{flex-basis:37px;width:37px;height:37px}.offline-copy strong{font-size:13px}.offline-copy>span{font-size:11px}}
+@media(max-width:360px){.offline-indicator{gap:8px;padding:11px}.offline-symbol{flex-basis:37px;width:37px;height:37px}.offline-symbol img{width:18px;height:18px}.offline-copy strong{font-size:14px}.offline-copy>span{font-size:12px}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.offline-indicator{background:rgba(220,235,237,.94)}}
