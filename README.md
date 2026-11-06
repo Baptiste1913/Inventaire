@@ -32,3 +32,9 @@ Cette version reprend les couleurs turquoise, violet, blanc et noir du site de r
 
 ## Mise à jour V5
 Titre OUTIL D’INVENTAIRE, retrait de la balance, poignée à six points centrés et réorganisation par appui long sur toute la ligne (hors boutons d’action). Les paniers déjà enregistrés sont conservés.
+
+
+V4 : titre UTILITAIRE D’INVENTAIRE, suppression de MON MAGASIN U, icones avec fond blanc et logo reduit.
+
+
+Version V6 : icône intermédiaire entre V4 et V5, avec marges blanches équilibrées.
