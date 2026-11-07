@@ -534,3 +534,59 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 }
 .intro-jump:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @media(max-width:380px){.intro{padding:23px 19px 22px}.intro h2{font-size:28px}.intro-bottom{margin-top:15px}}
+
+
+/* V30.2 — finitions visuelles sans changement des données ni du calcul */
+/* Suppression du trait turquoise entre le logo et la bannière violette. */
+.header{border-bottom:0}
+/* La bannière respire davantage verticalement. */
+.intro{padding-top:37px;padding-bottom:36px}
+.intro-bottom{margin-top:23px}
+.intro h2{margin-bottom:13px}
+@media(max-width:380px){.intro{padding-top:33px;padding-bottom:32px}}
+/* États animés doux : neutre, actif, pause. */
+.intro-session-dot{position:relative;flex:0 0 8px;width:8px;height:8px;background:#d6e3f1;box-shadow:none}
+.intro-session-dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;background:rgba(215,229,243,.22);animation:soft-session-pulse 2s ease-in-out infinite}
+.intro-session-state.is-running .intro-session-dot{background:#58e3aa;box-shadow:none}
+.intro-session-state.is-running .intro-session-dot::after{background:rgba(88,227,170,.24)}
+.intro-session-state.is-paused .intro-session-dot{background:#ffd18a;box-shadow:none}
+.intro-session-state.is-paused .intro-session-dot::after{background:rgba(255,209,138,.23)}
+@keyframes soft-session-pulse{0%,100%{transform:scale(.8);opacity:.6}50%{transform:scale(1.13);opacity:1}}
+.session-pill{padding-left:31px;background:#edf0f1;color:#5e6370}
+.session-pill::before{content:"";position:absolute;left:13px;top:50%;width:9px;height:9px;border-radius:50%;background:#a9b5bd;transform:translateY(-50%);z-index:1}
+.session-pill::after{content:"";position:absolute;left:8px;top:50%;width:19px;height:19px;border-radius:50%;background:rgba(169,181,189,.2);transform:translateY(-50%);animation:session-pill-pulse 1.9s ease-in-out infinite}
+.session-pill.active{background:#dff5e8;color:#0b6b4f;padding-left:31px}
+.session-pill.active::before{background:#20bf63;width:9px;height:9px}
+.session-pill.active::after{background:rgba(32,191,99,.17);width:19px;height:19px}
+.session-pill.is-paused{background:#fff3e3;color:#99621e;padding-left:31px}
+.session-pill.is-paused::before{background:#eca941}
+.session-pill.is-paused::after{background:rgba(236,169,65,.22)}
+/* Glissement à ressort légèrement élastique avec un très bref reflet. */
+.weigh-preferences-mode .mode-slide-thumb{transition:transform .36s cubic-bezier(.19,1.22,.35,1),box-shadow .32s ease}
+.weigh-preferences-mode.is-switching .mode-slide-thumb{animation:mode-thumb-shimmer .36s ease-out both}
+@keyframes mode-thumb-shimmer{0%,100%{filter:brightness(1);box-shadow:0 2px 9px rgba(21,84,105,.11)}45%{filter:brightness(1.045);box-shadow:0 2px 13px rgba(21,103,140,.18),inset 0 1px 0 rgba(255,255,255,.9)}}
+/* Harmonisation des coins et des boutons de session. */
+.calc-card .weight-field{border-radius:17px}
+.session-actions .session-btn{border-radius:16px!important}
+.session-actions #startSession,.session-actions #resumeSession{
+ background:linear-gradient(126deg,#008b9a 0%,#087c8f 48%,#136d8a 100%);
+ color:#fff;border:1px solid rgba(182,234,240,.32);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 3px 12px rgba(0,99,119,.14);
+}
+.session-actions #startSession:active:not(:disabled),.session-actions #resumeSession:active:not(:disabled){background:linear-gradient(126deg,#007b8b,#096778)}
+.session-actions #pauseSession,.session-actions #finishSession{border-radius:16px!important}
+/* Les confirmations de suppression se lisent sans toucher au repli. */
+.bilan-notice:not(:empty){margin:8px 0 17px;padding:1px 1px 3px;line-height:1.55}
+/* Les détails secondaires restent découpés par un séparateur clair, jamais noir. */
+.v22-session-item>summary,.weigh-preferences-alerts>.calc-alerts-summary{
+ border-bottom:1px solid transparent;transition:border-bottom-color .18s ease;
+}
+.v22-session-item[open]>summary{border-bottom-color:#e3eaeb}
+.weigh-preferences-alerts[open]>.calc-alerts-summary{border-bottom-color:#dfecef}
+.v22-session-item.is-detail-closing>summary,.weigh-preferences-alerts.is-detail-closing>.calc-alerts-summary{border-bottom-color:transparent}
+@media(prefers-reduced-motion:reduce){
+ .intro-session-dot::after,.session-pill::after,.weigh-preferences-mode.is-switching .mode-slide-thumb{animation:none!important}
+ .weigh-preferences-mode .mode-slide-thumb,.v22-session-item>summary,.weigh-preferences-alerts>.calc-alerts-summary{transition:none!important}
+}
+
+#calc-title{scroll-margin-top:24px}

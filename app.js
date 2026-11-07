@@ -193,7 +193,7 @@ function renderHeroSummary(){
  const count=session?session.entries.length:0;
  text.textContent=!session?'Aucune session en cours':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
 }
-function renderSessionControls(){const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionLive').hidden=!s;
+function renderSessionControls(){const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionBadge').classList.toggle('is-paused',Boolean(s&&s.pausedAt));$('sessionLive').hidden=!s;
  $('startSession').hidden=Boolean(s);$('pauseSession').hidden=!s||Boolean(s.pausedAt);$('resumeSession').hidden=!s||!s.pausedAt;$('finishSession').hidden=!s;
  $('sessionHelp').textContent=s?(s.pausedAt?'En pause : reprends pour enregistrer tes pesées.':`Début : ${dateLabel(s.startedAt)} · Suivi automatique actif.`):'Démarre une session pour conserver les statistiques de ton inventaire.';
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
@@ -213,20 +213,20 @@ function startSession(){
  const created={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};
  sessions=[created,...sessions];activeSessionId=created.id;
  if(!persistSessions()){sessions=before;activeSessionId=prevId;return;}
- clearWeigh();renderV22();$('sessionMessage').textContent='Session démarrée. Tes pesées sont comptabilisées automatiquement.';
+ clearWeigh();renderV22();$('sessionMessage').textContent='';
 }
 function pauseSession(){
  const session=getActiveSession();if(!session||session.pausedAt||!flushPending())return;
  session.pausedAt=Date.now();
  if(!persistSessions()){session.pausedAt=null;return;}
- clearWeigh();renderV22();$('sessionMessage').textContent='Session en pause.';
+ clearWeigh();renderV22();$('sessionMessage').textContent='';
 }
 function resumeSession(){
  const session=getActiveSession();if(!session||!session.pausedAt)return;
  const oldPausedAt=session.pausedAt,oldPausedMs=session.pausedMs;
  session.pausedMs+=Date.now()-session.pausedAt;session.pausedAt=null;
  if(!persistSessions()){session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;return;}
- clearWeigh();renderV22();$('sessionMessage').textContent='Session reprise.';
+ clearWeigh();renderV22();$('sessionMessage').textContent='';
 }
 function finishSession(){
  const session=getActiveSession();if(!session)return;
@@ -279,10 +279,19 @@ function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedA
   quickRemove.addEventListener('click',event=>{event.stopPropagation();deleteSession(s.id);});
   // Le bouton doit rester EN DEHORS du <details> : ses enfants sont masqués quand le bilan est fermé.
   const shell=document.createElement('div');shell.className='v30-session-shell';
-  item.append(sum,summaryElement(s));shell.append(item,quickRemove);list.append(shell);}
+  item.append(sum,summaryElement(s));shell.append(item,quickRemove);list.append(shell);setupSecondaryDetailsAnimation(item,'.v22-bilan');}
 }
 function renderV22(){renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('modeSlideThumb').parentElement.classList.toggle('is-rapid',entryMode==='g');$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);$('confirmDuplicates').checked=confirmDuplicates;renderBackupSummary();}
-function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{localStorage.setItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();}
+let modeMotionCleanup=null;
+function animateModeSwitch(){
+ const control=document.querySelector('.weigh-preferences-mode');
+ if(!control||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ control.classList.remove('is-switching');void control.offsetWidth;
+ control.classList.add('is-switching');
+ clearTimeout(modeMotionCleanup);
+ modeMotionCleanup=setTimeout(()=>control.classList.remove('is-switching'),390);
+}
+function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{localStorage.setItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();animateModeSwitch();}
 function setLimit(){const n=parseKg($('maxGrossLimit').value);if(n===null||n<1000||n>1000000){$('maxGrossLimit').value=fmt(maxGrossGrams);$('weighStatus').textContent='Choisis un seuil entre 1 et 1000 kg.';return;}maxGrossGrams=n;try{localStorage.setItem(LIMIT_KEY,fmt(n));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();}
 function download(data,name,type){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 function exportCSV(items,name){const head=['Session','Début session','Fin session','Durée active (min)','Pesée','Date/heure pesée','Groupe de pesées','Type de panier','Poids brut (kg)','Tare (kg)','Poids net (kg)'];
@@ -417,11 +426,15 @@ $('modeG').addEventListener('click',()=>switchMode('g'));
   if(!touch||e.pointerId!==touch.id)return;
   const state=touch;touch=null;
   if(!state.dragging)return;
-  control.classList.remove('is-dragging');thumb.style.removeProperty('transform');
+  const width=Math.max(1,(control.getBoundingClientRect().width-8)/2);
+  thumb.style.transform=`translate3d(${state.progress*width}px,0,0)`;
+  control.classList.remove('is-dragging');
   // Une glissade horizontale suffisante valide le changement.
   const target=cancelled?state.initial:(state.initial===0?(state.progress>=.28?1:0):(state.progress<=.72?0:1));
   ignoreClick=true;
   if(!cancelled)switchMode(target?'g':'kg');
+  // La prochaine frame lance la fin du glissement depuis la position du doigt.
+  requestAnimationFrame(()=>thumb.style.removeProperty('transform'));
   // Safari peut déclencher un click après pointerup : ne pas revenir en arrière.
   window.setTimeout(()=>{ignoreClick=false;},350);
  };
@@ -576,4 +589,63 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
       };
     });
   }
+})();
+
+
+// V30.2 — accordéons secondaires (bilans et réglages d’alertes).
+// Même durée et même courbe que les grandes catégories, sans modifier leurs données.
+function setupSecondaryDetailsAnimation(card,bodySelector){
+ if(!card||card.dataset.detailsMotionReady==='yes')return;
+ const summary=card.querySelector(':scope > summary');
+ const content=card.querySelector(`:scope > ${bodySelector}`);
+ if(!summary||!content)return;
+ card.dataset.detailsMotionReady='yes';
+ const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let motion=null,fade=null,targetOpen=card.open;
+ summary.addEventListener('click',event=>{
+  if(reduceMotion.matches||typeof card.animate!=='function')return;
+  event.preventDefault();
+  const next=!targetOpen;targetOpen=next;
+  const from=card.getBoundingClientRect().height;
+  if(motion){motion.cancel();motion=null;}
+  if(fade){fade.cancel();fade=null;}
+  if(next)card.open=true;
+  card.classList.toggle('is-detail-closing',!next);
+  const style=getComputedStyle(card);
+  const px=value=>parseFloat(value)||0;
+  const outer=px(style.borderTopWidth)+px(style.borderBottomWidth)+px(style.paddingTop)+px(style.paddingBottom);
+  const collapsed=summary.offsetHeight+outer;
+  const expanded=collapsed+content.offsetHeight;
+  const to=next?expanded:collapsed;
+  if(Math.abs(from-to)<.5){card.open=next;card.classList.remove('is-detail-closing');return;}
+  const duration=260,easing='cubic-bezier(.32,.65,.25,1)';
+  const anim=card.animate([{height:`${from}px`},{height:`${to}px`}],{duration,easing,fill:'both'});
+  motion=anim;
+  fade=content.animate([
+   {opacity:next?0:1,transform:next?'translateY(-6px)':'translateY(0)'},
+   {opacity:next?1:0,transform:next?'translateY(0)':'translateY(-6px)'}
+  ],{duration,easing,fill:'both'});
+  anim.onfinish=()=>{
+   if(motion!==anim)return;
+   motion=null;
+   if(!next)card.open=false;
+   anim.cancel();
+   if(fade){fade.cancel();fade=null;}
+   card.classList.remove('is-detail-closing');
+  };
+ });
+}
+setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
+
+
+// Défilement doux vers le calculateur depuis la bannière.
+(function setupHeroJump(){
+ const link=document.querySelector('.intro-jump');
+ const destination=$('calc-title');
+ if(!link||!destination)return;
+ link.addEventListener('click',event=>{
+  if(!destination.scrollIntoView)return;
+  event.preventDefault();
+  destination.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+ });
 })();

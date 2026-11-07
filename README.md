@@ -1,18 +1,21 @@
-# Mettre à jour Inventaires U — V30.1
+# Mettre à jour Inventaires U — V30.2
 
-1. Dans la version actuelle, fais d’abord **Sauvegarde → Télécharger ma sauvegarde** et conserve ton fichier JSON.
-2. Décompresse l’archive et remplace les fichiers **à la racine** du dépôt GitHub Pages.
-3. Fais **Commit changes**, puis ouvre `inventaires-u.com` avec Internet afin de récupérer les fichiers V30.1.
-4. Ferme et rouvre l’application sur l’écran d’accueil de l’iPhone ; vérifie le calculateur et teste une fois le mode avion.
+1. Dans **Sauvegarde**, télécharge une copie complète de tes données avant de publier.
+2. Décompresse cette archive et remplace tous les fichiers à la racine de ton dépôt GitHub Pages.
+3. Valide avec **Commit changes** et ouvre le site avec Internet après le déploiement.
+4. Recharge la page et relance l’application depuis l’écran d’accueil pour obtenir les nouveaux styles et scripts en cache.
 
-## Modifications V30.1
+## Modifications V30.2
 
-- Bloc **poids net** : retour à la teinte turquoise d’origine, avec un très léger dégradé bleu, un reflet et un contour de verre fin.
-- Banderole d’introduction : suppression de « TON ESPACE INVENTAIRE » et du « U », texte désormais direct et explicatif.
-- Bandeau violet adouci, effet verre léger, bordure très fine (sans halo lumineux marqué).
-- Raccourci **Aller à la pesée** et statut de session conservés. Libellé inactif rendu plus factuel.
-- Cache hors ligne actualisé pour HTML/CSS/JavaScript.
+- Retrait de la ligne turquoise au-dessus de la bannière violette ; bannière un peu plus haute.
+- Points d’état animés (aucune session, en cours, en pause), dont l’étiquette « En pause » de Ma session.
+- Petite animation lumineuse et glissement plus souple du sélecteur de saisie, avec glissement tactile conservé.
+- Ouverture et fermeture animées des bilans détaillés et des réglages d’alertes, sur le modèle des catégories.
+- Suppression des messages de statut redondants au pied de Ma session pour les états actifs et en pause.
+- Défilement fluide via « Aller à la pesée » (avec respect du réglage système de réduction du mouvement).
+- Marge après confirmation de suppression d’un bilan.
+- Arrondis réduits du champ Poids brut et des quatre boutons de session.
+- Boutons Démarrer et Reprendre avec un dégradé bleu turquoise doux et un reflet discret.
+- Cache hors ligne V30.2 synchronisé avec les ressources HTML, CSS et JavaScript.
 
-## Données et fonctionnalités
-
-Aucune migration ni remise à zéro : les paniers, pesées, sessions, réglages, sauvegardes, animations de saisie et suppressions de bilans de la V30 sont conservés.
+Les données existantes, les tares, les sessions et les sauvegardes restent compatibles : aucune migration du stockage.
