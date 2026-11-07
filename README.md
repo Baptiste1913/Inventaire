@@ -62,3 +62,10 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Nouveau sous-titre : « Votre utilitaire d’inventaire dédié au rayon **Fruits et Légumes**. Sélectionnez un panier, saisissez son poids brut et obtenez automatiquement le poids net après déduction de la tare. »
 - Seuls les textes de la banderole changent. Toutes les fonctionnalités, le design global et le pied de page sont conservés.
 - Ressources et cache hors ligne versionnés V30.10 pour la mise à jour.
+
+## Modification V30.11 — libellés des titres
+
+- En-tête (sous « MON ESPACE PERSONNEL ») : « OUTIL INDÉPENDANT » à la place de « UTILITAIRE D’INVENTAIRE ».
+- Titre de la banderole : « Utilitaire d’inventaire » à la place de « Fruits et Légumes ».
+- Sous-titre, bouton, indicateur de session, pied de page, design, calculs et données inchangés.
+- Cache hors ligne et versions des ressources rafraîchis V30.11.
