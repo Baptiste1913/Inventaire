@@ -22,3 +22,10 @@
 - Mention **Utilisation non commerciale uniquement** déplacée en première ligne du pied de page, en gras avec un espace inférieur.
 - Suppression du délai visuel du séparateur lors de la fermeture des catégories : il s’estompe dès le début de la fermeture, sans couper l’animation du contenu.
 - Cache hors ligne actualisé pour récupérer les nouveaux fichiers CSS et JavaScript.
+
+## Correction V27.2
+
+- La carte entière se replie immédiatement pendant les 260 ms de l'animation (plus d'attente visuelle).
+- La barre de séparation passe uniquement du transparent au gris clair : suppression du flash noir à l'ouverture.
+- Les clics rapides ouverture/fermeture sont pris en charge ; animation réduite si préférence d'accessibilité.
+- Cache hors ligne mis à jour. Les paniers, pesées et sessions sont inchangés.

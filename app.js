@@ -285,40 +285,58 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
 })();
 
 
-// V27 — animation symétrique des catégories (ouverture ET fermeture).
-// Le <details> reste ouvert le temps de l'animation sortante.
+// V27.2 — animer la hauteur de la CARTE (et non le seul contenu).
+// L'ancien système laissait la carte à sa pleine hauteur jusqu'à la fin,
+// ce qui donnait une attente avant le repli visuel.
 (function setupFoldAnimations(){
   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
   for(const card of document.querySelectorAll('.fold-card')){
     const summary=card.querySelector(':scope > .fold-summary');
     const content=card.querySelector(':scope > .fold-body');
     if(!summary||!content)continue;
-    let motion=null;
+    let motion=null, fade=null;
     let targetOpen=card.open;
     summary.addEventListener('click',event=>{
-      if(reduceMotion.matches||typeof content.animate!=='function')return;
+      if(reduceMotion.matches||typeof card.animate!=='function')return;
       event.preventDefault();
       const next=!targetOpen;
       targetOpen=next;
-      // Dès que la fermeture commence, le séparateur s'estompe ;
-      // la section reste ouverte uniquement le temps du repli du contenu.
-      card.classList.toggle('is-fold-closing',!next);
-      const currentHeight=card.open?content.getBoundingClientRect().height:0;
+      // Lire la hauteur visible AVANT d'annuler une éventuelle animation.
+      const from=card.getBoundingClientRect().height;
       if(motion){motion.cancel();motion=null;}
+      if(fade){fade.cancel();fade=null;}
+      // Le corps doit être mesurable pendant la fermeture, mais le masque
+      // descend dès la première image : aucun délai ni espace vide.
       if(next)card.open=true;
-      const goalHeight=next?content.scrollHeight:0;
-      if(Math.abs(currentHeight-goalHeight)<1){card.open=next;card.classList.remove('is-fold-closing');return;}
-      content.style.overflow='hidden';
-      const animation=content.animate([
-        {height:`${currentHeight}px`,opacity:next?0:1,transform:next?'translateY(-7px)':'translateY(0)'},
-        {height:`${goalHeight}px`,opacity:next?1:0,transform:next?'translateY(0)':'translateY(-7px)'}
-      ],{duration:250,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});
-      motion=animation;
-      animation.onfinish=()=>{
-        if(motion!==animation)return;
+      card.classList.toggle('is-fold-closing',!next);
+      const border=getComputedStyle(card);
+      const borders=parseFloat(border.borderTopWidth)+parseFloat(border.borderBottomWidth);
+      const collapsed=summary.offsetHeight+borders;
+      const expanded=collapsed+content.offsetHeight;
+      const to=next?expanded:collapsed;
+      if(Math.abs(from-to)<.5){
+        card.open=next;
+        card.classList.remove('is-fold-closing');
+        return;
+      }
+      const duration=260;
+      const ease='cubic-bezier(.32,.65,.25,1)';
+      const anim=card.animate(
+        [{height:`${from}px`},{height:`${to}px`}],
+        {duration,easing:ease,fill:'both'}
+      );
+      motion=anim;
+      // Le fondu participe au repli, sans piloter sa hauteur.
+      fade=content.animate(
+        [{opacity:next?0:1,transform:next?'translateY(-6px)':'translateY(0)'},
+         {opacity:next?1:0,transform:next?'translateY(0)':'translateY(-6px)'}],
+        {duration,easing:ease,fill:'both'}
+      );
+      anim.onfinish=()=>{
+        if(motion!==anim)return;
         motion=null;
-        animation.cancel();
-        content.style.overflow='';
+        anim.cancel();
+        if(fade){fade.cancel();fade=null;}
         if(!next)card.open=false;
         card.classList.remove('is-fold-closing');
       };
