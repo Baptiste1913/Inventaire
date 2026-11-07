@@ -643,3 +643,31 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 @media(prefers-reduced-motion:reduce){
  .calc-card .weigh-preferences-alerts>.calc-alerts-summary::after{transition:none;}
 }
+
+
+/* V30.5 — harmonie des libellés, des espaces et du focus de saisie. */
+/* Les deux titres du bloc de réglages ont la même taille et graisse. */
+.calc-card .weigh-preferences-title,
+.calc-card .weigh-preferences-alerts .calc-alerts-title strong{
+  font-size:12px;
+  font-weight:830;
+  line-height:1.2;
+}
+/* Moins de vide sous « Seuil de poids et confirmation des doublons ». */
+.calc-card .weigh-preferences-alerts>.calc-alerts-summary{
+  padding-bottom:9px;
+}
+@media(max-width:380px){
+  .calc-card .weigh-preferences-alerts>.calc-alerts-summary{padding-bottom:8px;}
+}
+/* Contour discret au repos ; turquoise d'origine dès que l'on saisit. */
+.calc-card .weight-field{
+  border-color:#b5d7db;
+  transition:border-color .18s ease;
+}
+.calc-card .weight-field:focus-within{
+  border-color:#00818b;
+}
+@media(prefers-reduced-motion:reduce){
+  .calc-card .weight-field{transition:none;}
+}
