@@ -822,3 +822,14 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 @media (max-width:380px) {
   #intro-title { font-size:clamp(20px,6.2vw,23px); letter-spacing:.12px; }
 }
+
+
+/* V30.17 — réduction supplémentaire des icônes Play. */
+.session-actions #startSession .start-btn-icon,
+.session-actions #resumeSession .start-btn-icon{
+  width:7px !important;
+  height:7px !important;
+  flex:0 0 7px !important;
+  object-fit:contain;
+  filter:brightness(0) invert(1);
+}
