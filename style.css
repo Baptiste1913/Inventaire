@@ -285,15 +285,46 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 /* V27.3 — calcul de hauteur corrigé dans app.js ; style visuel inchangé. */
 
 
-/* V27.4 — réglage de pesée rendu plus explicite et icône de démarrage personnalisée */
+/* V27.6 — icône de démarrage conservée et alertes replacées dans le calculateur. */
 .brand h1{color:#515860;}
-.weigh-setup{margin:2px 0 14px;padding:13px 14px;border:1px solid #dfe9eb;border-radius:15px;background:linear-gradient(180deg,#fbfdfd 0%,#f5fafb 100%);}
-.weigh-setup-copy{display:grid;gap:5px;margin-bottom:11px;}
-.weigh-setup-title{font-size:12px;font-weight:850;letter-spacing:.55px;text-transform:uppercase;color:#2d6f79;}
-.weigh-setup-text{margin:0;font-size:12px;line-height:1.45;color:#6b767b;}
-.weigh-setup .v22-mode{margin:0;}
-.weigh-setup-mode .mode-btn{min-height:46px;padding:12px 8px;font-size:12.5px;}
 .btn-icon-img{object-fit:contain;}
 .start-btn-icon{width:16px;height:16px;filter:brightness(0) invert(1);}
 #startSession .start-btn-icon{transform:translateX(.5px);}
-@media(max-width:380px){.weigh-setup{padding:12px 12px 13px}.weigh-setup-copy{margin-bottom:10px}.weigh-setup-title{font-size:11px}.weigh-setup-text{font-size:11px}.weigh-setup-mode .mode-btn{font-size:11.5px;padding:11px 6px;}}
+
+/* Le réglage est identifiable, replié par défaut, sans surcharger la pesée. */
+.calc-card>.calc-alerts{
+  margin:1px 0 15px;
+  background:#fff7f7;
+  border:1px solid #efcbd0;
+  border-radius:14px;
+  overflow:hidden;
+}
+.calc-alerts>.calc-alerts-summary{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  list-style:none;cursor:pointer;min-height:60px;padding:12px 14px;
+  color:#934d57!important;user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.calc-alerts>.calc-alerts-summary::-webkit-details-marker{display:none;}
+.calc-alerts>.calc-alerts-summary::marker{content:'';}
+.calc-alerts-title{display:grid;gap:4px;min-width:0;}
+.calc-alerts-title strong{font-size:13px;font-weight:830;line-height:1.2;}
+.calc-alerts-title small{font-size:11px;font-weight:520;line-height:1.35;color:#966d72;}
+.calc-alerts-chevron{width:17px;height:17px;flex:0 0 17px;stroke:#ac747c;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:transform .22s ease;}
+.calc-alerts[open]>.calc-alerts-summary{border-bottom:1px solid #f2d9dc;}
+.calc-alerts[open] .calc-alerts-chevron{transform:rotate(180deg);}
+.calc-alerts-body{padding:1px 0 14px;}
+.calc-alerts-body>label:not(.duplicate-toggle){display:block;font-size:12px;font-weight:750;margin:12px 14px 8px!important;color:#78484f;}
+.calc-alerts-body>input{width:calc(100% - 28px);margin:0 14px 10px;max-width:200px;}
+.calc-alerts-body>.duplicate-toggle{display:flex;align-items:flex-start;gap:12px;margin:7px 14px 9px!important;padding:12px;background:rgba(255,255,255,.76);border:1px solid #f4d6d8;border-radius:12px;cursor:pointer;}
+.calc-alerts-body>.duplicate-toggle input[type="checkbox"]{width:20px;min-width:20px;height:20px;flex:0 0 20px;margin:1px 0 0;padding:0;accent-color:#bd5561;cursor:pointer;}
+.calc-alerts-body>.duplicate-toggle span{display:grid;gap:4px;line-height:1.4;}
+.calc-alerts-body>.duplicate-toggle strong{font-size:12px;font-weight:810;color:#713b40;}
+.calc-alerts-body>.duplicate-toggle small{font-size:11px;line-height:1.5;color:#8d6569;font-weight:500;}
+.calc-alerts-body>.alerts-help{margin:5px 14px 0!important;color:#875d60;font-size:11px;line-height:1.45;}
+@media(max-width:380px){
+  .calc-alerts>.calc-alerts-summary{padding:11px 12px;}
+  .calc-alerts-title strong{font-size:12px;}
+  .calc-alerts-title small{font-size:10.5px;}
+}
+@media(prefers-reduced-motion:reduce){.calc-alerts-chevron{transition:none;}}
