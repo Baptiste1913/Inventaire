@@ -1,10 +1,9 @@
-# Mises à jour
+# Mise à jour d’Inventaires U — V25
 
-## V24
-- Retrait du calculateur « même produit ».
-- Remplacement du pop-up d’inventaire par un indicateur discret « En cours » avec point vert animé.
-- Correction du rendu des bilans d’inventaire pour afficher correctement les statistiques détaillées.
+1. Fais d’abord une sauvegarde complète depuis la V24 (rubrique « Mes données »).
+2. Décompresse l’archive V25 et remplace les fichiers du dépôt GitHub Pages avec **tout le contenu** du ZIP.
+3. Enregistre avec « Commit changes » et attends la publication GitHub Pages.
+4. Ouvre `inventaires-u.com` une fois **avec Internet**, puis relance l’app pour charger les nouveaux fichiers hors ligne.
+5. Vérifie avec une pesée fictive le mode « Rapide · sans virgule », les bilans et les sections repliables.
 
-## Déploiement
-- Remplacer les fichiers du dépôt GitHub Pages par ceux de cette version.
-- Ouvrir le site une première fois en ligne pour mettre à jour le cache hors ligne.
+Les paniers, historiques, sessions, calculs et exports conservent leurs clés de stockage existantes.

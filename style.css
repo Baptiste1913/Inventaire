@@ -150,3 +150,40 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 
 /* V23 — Capsule de suivi inspirée de Dynamic Island, verre anthracite discret.
    Aucun effet natif Apple : imitation CSS. Halo coloré réduit au minimum. */
+
+/* V25 — simplification de l'interface ; en-tête et introduction V24 inchangés. */
+.fold-card{padding:0;overflow:visible}
+.fold-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:78px;padding:17px;cursor:pointer;list-style:none;user-select:none;-webkit-user-select:none;border-radius:18px;touch-action:manipulation}
+.fold-summary::-webkit-details-marker{display:none}
+.fold-summary::marker{content:''}
+.fold-heading{display:grid;gap:5px;min-width:0}
+.fold-label{font-size:20px;font-weight:850;letter-spacing:-.45px;line-height:1.2;color:#202126}
+.fold-trailing{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.fold-chevron{width:18px;height:18px;fill:none;stroke:#607981;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .22s ease}
+.fold-card[open]>.fold-summary .fold-chevron{transform:rotate(180deg)}
+.fold-summary:focus-visible{outline:2px solid #00818b;outline-offset:2px}
+.fold-card[open]>.fold-summary{border-bottom:1px solid #f0f2f3;border-radius:18px 18px 0 0}
+.fold-body{padding:4px 17px 19px}
+.fold-body>.muted:first-child{margin:6px 0 11px}
+.fold-card .basket-list{margin-top:13px}
+.calc-card>.card-heading{margin-bottom:15px}
+.calc-card>label[for="basketSelect"]{margin-top:10px}
+.v22-mode{margin-bottom:8px}
+.mode-btn{padding:11px 5px;line-height:1.2;min-width:0}
+.v22-hint{margin:7px 1px 0;line-height:1.45;font-size:12px}
+.calc-card .result{margin-top:14px;padding:20px 17px}
+.calc-card .net-line{margin:13px 0 8px}
+.calc-card .result-subtitle{margin:10px 0 12px}
+.calc-equation{margin-top:13px;padding:0 3px;display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap;color:#717a7e;font-size:12px;line-height:1.5}
+.calc-equation strong{color:#273b41;font-weight:850;font-variant-numeric:tabular-nums}
+.calc-equation-minus{color:#98a6ab;font-size:17px;font-weight:500}
+.v22-settings{border:1px solid #e6eff0;border-radius:12px;padding:0;margin:0 0 17px;background:#f8fbfb}
+.v22-settings>summary{list-style:inside;padding:14px;font-size:13px!important;color:#28515b!important}
+.v22-settings>label,.v22-settings>.muted{margin-left:14px!important;margin-right:14px!important}
+.v22-settings>input{width:calc(100% - 28px);margin:0 14px 11px}
+.backup-subhead{font-size:15px;color:#273c43;margin:12px 0 8px;font-weight:850}
+.backup-card .backup-buttons,.backup-card .v22-backup-actions{gap:10px}
+@media(max-width:380px){.fold-summary{padding:15px 12px}.fold-body{padding:4px 12px 16px}.fold-label{font-size:18px}.fold-trailing{gap:6px}.mode-btn{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.fold-chevron{transition:none}.session-pill.active::after{animation:none}}
+
+.fold-summary .fold-label{margin:0}
