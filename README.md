@@ -1,9 +1,15 @@
-# Mise à jour d’Inventaires U — V25
+# Mise à jour de l’application — V26.1
 
-1. Fais d’abord une sauvegarde complète depuis la V24 (rubrique « Mes données »).
-2. Décompresse l’archive V25 et remplace les fichiers du dépôt GitHub Pages avec **tout le contenu** du ZIP.
-3. Enregistre avec « Commit changes » et attends la publication GitHub Pages.
-4. Ouvre `inventaires-u.com` une fois **avec Internet**, puis relance l’app pour charger les nouveaux fichiers hors ligne.
-5. Vérifie avec une pesée fictive le mode « Rapide · sans virgule », les bilans et les sections repliables.
+1. Exporter une sauvegarde complète depuis Inventaires U par précaution.
+2. Décompresser l’archive et remplacer les fichiers à la racine du dépôt GitHub Pages.
+3. Valider les modifications avec **Commit changes**.
+4. Ouvrir le site en ligne pour laisser le service worker actualiser le cache.
+5. Tester les boutons d’inventaire, les catégories et la pesée, puis vérifier le mode hors ligne.
 
-Les paniers, historiques, sessions, calculs et exports conservent leurs clés de stockage existantes.
+## Modifications V26.1
+- Espacements légèrement optimisés, sans modifier l’en-tête.
+- Boutons de session de même hauteur et alignés ; « Démarrer » utilise toute la largeur.
+- Bouton « Terminer » plus discret, pour le distinguer de « Reprendre » sans créer de contraste excessif.
+- Catégories repliables moins hautes ; animation préservée.
+- Correction des références de cache CSS et JavaScript : elles sont cohérentes avec V26.1.
+- Aucune migration de données ni modification des calculs, sessions, ou du stockage.
