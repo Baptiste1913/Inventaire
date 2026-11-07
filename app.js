@@ -3,27 +3,43 @@ const STORAGE_KEY='inventaires-u-v2';
 const LEGACY_KEY='tare-paniettes-v1';
 const HISTORY_KEY='inventaires-u-history-v1';
 const $=id=>document.getElementById(id);
-// V30.20 : annulation temporaire sans corbeille ni stockage supplémentaire.
+// V30.21 : animation douce de la notification ; logique d'annulation V30.20 conservée.
 const UNDO_DELAY_MS=8000;
-let pendingUndo=null,undoTimeout=null;
-function dismissUndo(){
+const UNDO_EXIT_MS=280;
+let pendingUndo=null,undoTimeout=null,undoExitTimeout=null;
+function dismissUndo(immediate=false){
   if(undoTimeout!==null)clearTimeout(undoTimeout);
-  undoTimeout=null;pendingUndo=null;
+  if(undoExitTimeout!==null)clearTimeout(undoExitTimeout);
+  undoTimeout=null;undoExitTimeout=null;pendingUndo=null;
   const toast=$('undoToast');
-  if(toast)toast.hidden=true;
+  if(!toast)return;
+  toast.classList.remove('undo-entering');
+  if(toast.hidden)return;
+  const reducedMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(immediate||reducedMotion){
+    toast.hidden=true;
+    toast.classList.remove('undo-leaving','undo-ticking');
+    return;
+  }
+  toast.classList.add('undo-leaving');
+  undoExitTimeout=setTimeout(()=>{
+    toast.hidden=true;
+    toast.classList.remove('undo-leaving','undo-ticking');
+    undoExitTimeout=null;
+  },UNDO_EXIT_MS);
 }
 function offerUndo(message,restore){
-  dismissUndo();
+  // Une nouvelle suppression remplace immédiatement l'ancienne notification.
+  dismissUndo(true);
   const toast=$('undoToast');
   if(!toast)return;
   pendingUndo={restore,expires:Date.now()+UNDO_DELAY_MS};
   $('undoToastMessage').textContent=message;
   toast.hidden=false;
-  // Relancer la petite barre de temps lorsque deux suppressions se suivent.
-  toast.classList.remove('undo-ticking');
+  toast.classList.remove('undo-entering','undo-leaving','undo-ticking');
   void toast.offsetWidth;
-  toast.classList.add('undo-ticking');
-  undoTimeout=setTimeout(dismissUndo,UNDO_DELAY_MS);
+  toast.classList.add('undo-entering','undo-ticking');
+  undoTimeout=setTimeout(()=>dismissUndo(),UNDO_DELAY_MS);
 }
 function undoLastDeletion(){
   const pending=pendingUndo;

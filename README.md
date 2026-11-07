@@ -125,3 +125,12 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Les pesées d'un inventaire terminé restent dans son bilan même si l'historique récent est effacé.
 - Restauration/importation d'une sauvegarde remplace les données et efface le bouton d'annulation précédent.
 - Les confirmations natives ne sont pas rétablies. Cache et fichiers de V30.20 actualisés.
+
+
+## V30.21 — notification d'annulation harmonisée et animée
+
+- Notification au fond blanc subtilement turquoise, texte sombre, icône de validation et bouton « Annuler » assortis au reste du site.
+- Apparition depuis le bas en 400 ms et disparition vers le bas en 280 ms.
+- Préférence d'accessibilité « réduire les animations » respectée.
+- La restauration des bilans, paniers et historiques, et le délai de 8 secondes restent inchangés.
+- Cache hors ligne et versions CSS/JS mis à jour.
