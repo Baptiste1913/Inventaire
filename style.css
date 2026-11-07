@@ -604,3 +604,42 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 .v22-session-item>summary{min-height:68px;align-content:center;}
 /* Halo neutre nettement plus discret ; conserver la pulsation des états actifs et pause. */
 .intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot::after{background:rgba(215,229,243,.075);}
+
+
+/* V30.4 — ajustements ciblés ; aucun changement du moteur de pesée. */
+/* Espacement plus lisible des lettres du titre principal. */
+.brand h1{letter-spacing:.18px!important;}
+/* Davantage d'air au-dessus des réglages d’alertes. */
+.calc-card .weigh-preferences-alerts{margin-top:15px;}
+.calc-card .weigh-preferences-alerts>.calc-alerts-summary{
+  position:relative;
+  padding-top:15px;
+  padding-bottom:12px;
+  /* Bordure native constamment transparente pour éliminer le flash sombre
+     lors du changement d'état <details> (particulièrement sur Safari). */
+  border-bottom:1px solid transparent!important;
+  transition:none!important;
+  outline-color:#3e91a0;
+}
+/* Le séparateur clair est dessiné séparément de la bordure native. */
+.calc-card .weigh-preferences-alerts>.calc-alerts-summary::after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:14px;
+  right:14px;
+  height:1px;
+  background:#d9e8ec;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .16s ease;
+}
+.calc-card .weigh-preferences-alerts[open]>.calc-alerts-summary::after{opacity:1;}
+.calc-card .weigh-preferences-alerts.is-detail-closing>.calc-alerts-summary::after{opacity:0;}
+@media(max-width:380px){
+ .calc-card .weigh-preferences-alerts>.calc-alerts-summary{padding-top:14px;padding-bottom:11px;}
+ .calc-card .weigh-preferences-alerts>.calc-alerts-summary::after{left:11px;right:11px;}
+}
+@media(prefers-reduced-motion:reduce){
+ .calc-card .weigh-preferences-alerts>.calc-alerts-summary::after{transition:none;}
+}

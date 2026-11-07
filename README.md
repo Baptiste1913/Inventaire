@@ -1,18 +1,16 @@
-# Mettre à jour Inventaires U — V30.3
+# Mettre à jour Inventaires U — V30.4
 
-1. Depuis **Sauvegarde**, télécharge une copie complète de tes données avant de publier.
-2. Décompresse le ZIP et remplace tous les fichiers de ton dépôt GitHub Pages.
-3. Valide avec **Commit changes** et ouvre le site en ligne après le déploiement.
-4. Recharge, rouvre l'application depuis l'écran d'accueil et vérifie les retouches.
+1. Avant de publier, télécharge une sauvegarde complète depuis la section **Sauvegarde**.
+2. Décompresse l’archive et remplace les fichiers à la racine du dépôt GitHub Pages.
+3. Publie les modifications, ouvre le site avec Internet et recharge la page.
+4. Vérifie l’ouverture et la fermeture des **Réglages d’alertes** sur iPhone.
 
-## Modifications V30.3
+## Modifications V30.4
 
-- Titre violet : **« Du brut au net, simplement. »**
-- Un petit espace en plus au-dessus de **Réglages d’alertes**.
-- Boutons **Suppr.** des bilans centrés verticalement dans leur ligne, y compris quand le détail est ouvert.
-- Texte **UTILITAIRE D’INVENTAIRE** légèrement plus contrasté.
-- Défilement vers la pesée ralenti à environ **800 ms**, et annulable par un geste manuel ; respect de la réduction du mouvement.
-- Effet circulaire gris autour du point **Aucune session en cours** atténué.
-- Cache hors ligne actualisé et synchronisé.
+- Titre de la banderole : **« Inventaire Fruits et Légumes »**.
+- Lettres de **UTILITAIRE D’INVENTAIRE** légèrement plus espacées.
+- Un peu plus d’espace avant le titre **Réglages d’alertes**.
+- Suppression du flash noir du séparateur : le trait gris clair utilise un pseudo-élément, indépendant des bordures natives du composant dépliable.
+- Cache hors ligne synchronisé avec les nouveaux fichiers.
 
-Aucun changement de format de stockage ni de logique de calcul ; les paniers, pesées, sessions, sauvegardes et modes de saisie restent compatibles.
+Le calcul, la saisie rapide, les données locales et les sessions ne sont pas modifiés.
