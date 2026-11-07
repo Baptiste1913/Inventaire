@@ -824,12 +824,12 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 }
 
 
-/* V30.17 — réduction supplémentaire des icônes Play. */
+/* V30.18 — ajustement des icônes Play à 8,5 px. */
 .session-actions #startSession .start-btn-icon,
 .session-actions #resumeSession .start-btn-icon{
-  width:7px !important;
-  height:7px !important;
-  flex:0 0 7px !important;
+  width:8.5px !important;
+  height:8.5px !important;
+  flex:0 0 8.5px !important;
   object-fit:contain;
   filter:brightness(0) invert(1);
 }

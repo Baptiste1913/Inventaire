@@ -100,3 +100,9 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Corrige la règle CSS plus spécifique qui maintenait les icônes play à 15 px.
 - Icônes « Démarrer un inventaire » et « Reprendre » réglées à 10 px pour harmoniser leur taille apparente avec « Pause ».
 - Ressources statiques et cache hors ligne actualisés ; aucun autre changement.
+
+
+## V30.18 — taille de l’icône Play
+
+- Icône Play des boutons « Démarrer un inventaire » et « Reprendre » passée de 7 px à 8,5 px.
+- Cache hors ligne actualisé ; aucune autre modification.
