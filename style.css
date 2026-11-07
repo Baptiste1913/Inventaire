@@ -288,8 +288,8 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 /* V27.6 — icône de démarrage conservée et alertes replacées dans le calculateur. */
 .brand h1{color:#515860;}
 .btn-icon-img{object-fit:contain;}
-.start-btn-icon{width:16px;height:16px;filter:brightness(0) invert(1);}
-#startSession .start-btn-icon{transform:translateX(.5px);}
+.start-btn-icon{width:12px;height:12px;filter:brightness(0) invert(1);}
+#startSession .start-btn-icon,#resumeSession .start-btn-icon{transform:translateX(.35px);}
 
 /* Le réglage est identifiable, replié par défaut, sans surcharger la pesée. */
 .calc-card>.calc-alerts{
