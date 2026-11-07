@@ -69,3 +69,18 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Titre de la banderole : « Utilitaire d’inventaire » à la place de « Fruits et Légumes ».
 - Sous-titre, bouton, indicateur de session, pied de page, design, calculs et données inchangés.
 - Cache hors ligne et versions des ressources rafraîchis V30.11.
+
+## Modification V30.12 — inversion des titres
+
+- En-tête (sous « MON ESPACE PERSONNEL ») : « UTILITAIRE D’INVENTAIRE ».
+- Titre de la banderole violette : « Outil indépendant ».
+- Sous-titre, bouton, indicateur de session, pied de page, style, calculs et données inchangés.
+- Versions des ressources et du cache hors ligne rafraîchies V30.12.
+
+
+## Modification V30.13 — titre de la banderole
+
+- Titre de la banderole violette remplacé par « FRUITS ET LÉGUMES », en majuscules.
+- Taille de ce titre légèrement réduite sur mobile et ordinateur.
+- En-tête « UTILITAIRE D’INVENTAIRE », sous-titre, bouton, indicateur de session, pied de page et fonctionnalités inchangés.
+- Cache hors ligne et ressources actualisés V30.13.
