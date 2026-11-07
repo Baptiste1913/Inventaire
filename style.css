@@ -671,3 +671,139 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 @media(prefers-reduced-motion:reduce){
   .calc-card .weight-field{transition:none;}
 }
+
+/* V30.7 — conserver le texte d’origine sous la nouvelle signature. */
+.footer-identity,.footer-original{display:block}
+.footer-original{margin-top:6px}
+
+
+/* V30.8 — Adaptation responsive et accessibilité multi-écrans.
+   Ajouts isolés en fin de feuille pour préserver les styles de V30.7. */
+:root { color-scheme:light; }
+html { min-width:0; overflow-wrap:break-word; }
+body {
+  min-width:0;
+  padding-top:env(safe-area-inset-top, 0px);
+  padding-right:env(safe-area-inset-right, 0px);
+  padding-left:env(safe-area-inset-left, 0px);
+}
+.app {
+  width:100%; min-width:0;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+}
+.app > *, .card, .card-heading > *, .fold-summary > *,
+.session-top > *, .session-actions > *, .session-live > *,
+.v22-group-head > *, .v22-group-entry > *, .intro-bottom > *,
+.backup-panel-heading > *, .weigh-preferences > * { min-width:0; }
+img, svg { max-width:100%; }
+button, input, select { max-width:100%; }
+button { touch-action:manipulation; }
+button, .intro-jump { -webkit-tap-highlight-color:transparent; }
+.brand { min-width:0; }
+.brand h1 { overflow-wrap:anywhere; }
+.card-heading h2,.session-top h2,.fold-label { overflow-wrap:break-word; }
+.session-top, .v22-group-head { flex-wrap:wrap; }
+.session-pill { max-width:100%; white-space:normal; line-height:1.3; }
+.intro-session-state { min-width:0; }
+.intro-session-state > span:last-child { overflow-wrap:anywhere; }
+.weight-row .weight-field input { min-width:0; }
+.net-line strong { min-width:0; max-width:100%; overflow-wrap:anywhere; }
+.history-info { min-width:0; overflow-wrap:anywhere; }
+.basket-item .basket-info { overflow-wrap:anywhere; }
+.backup-panel-heading strong,.backup-panel-heading>div>span { overflow-wrap:anywhere; }
+.footer-original,.footer-identity { overflow-wrap:break-word; }
+
+/* Petits téléphones, multi-fenêtre et forts niveaux de zoom. */
+@media (max-width:480px) {
+  .intro { padding-right:clamp(14px,5vw,24px); padding-left:clamp(14px,5vw,24px); }
+  .session-top { row-gap:9px; }
+  .fold-trailing { min-width:0; }
+  .fold-trailing .count { flex-shrink:0; }
+  .v22-session-export { flex-wrap:wrap; }
+  .v22-session-export > * { flex:1 1 100%; }
+  .v22-group-entry { flex-wrap:wrap; }
+  .v22-group-right { margin-left:auto; }
+  .v22-undo-row { flex-wrap:wrap; }
+  .v22-undo-row .muted { text-align:left; }
+}
+@media (max-width:380px) {
+  .weight-row { gap:8px; }
+  .new-weigh-btn { flex-basis:85px; font-size:17px; gap:3px; }
+  .new-weigh-btn span { font-size:10px; }
+  .weight-row .weight-field input { font-size:clamp(20px,6.5vw,27px); padding-left:10px; padding-right:5px; }
+  .weight-row .weight-field span { padding-right:9px; font-size:16px; }
+  .result-heading { letter-spacing:.35px; }
+  .net-line strong { font-size:clamp(38px,12vw,54px); letter-spacing:-1px; }
+  .session-actions { grid-template-columns:minmax(0,1fr); }
+  .session-actions #startSession { grid-column:1; }
+  .basket-item { display:grid; grid-template-columns:38px minmax(0,1fr); align-items:center; }
+  .basket-item > .drag-handle { grid-column:1; grid-row:1 / span 2; }
+  .basket-item > .basket-info { grid-column:2; grid-row:1; }
+  .basket-item > .item-actions { grid-column:2; grid-row:2; justify-content:flex-end; flex-wrap:wrap; }
+  .item-actions { max-width:100%; }
+  .history-item { flex-wrap:wrap; }
+  .history-net { margin-left:auto; }
+  .v22-group-head { align-items:flex-start; }
+  .v22-group-total strong { font-size:clamp(22px,7vw,29px); overflow-wrap:anywhere; }
+  .v22-session-item > summary { padding-right:75px; }
+}
+@media (max-width:320px) {
+  .header { gap:10px; padding:13px 12px; }
+  .logo { width:55px; height:55px; }
+  .brand h1 { font-size:clamp(15px,5.7vw,19px); }
+  .kicker, .section-kicker { letter-spacing:.8px; }
+  .intro h2 { font-size:clamp(24px,8vw,28px); }
+  .card { margin-right:8px; margin-left:8px; }
+  .session-card, .calc-card { padding-right:12px; padding-left:12px; }
+  .fold-summary { flex-wrap:wrap; row-gap:7px; }
+  .fold-trailing { margin-left:auto; }
+  .weigh-preferences-subtitle { width:100%; }
+  .weigh-preferences-mode .mode-btn { font-size:10px; line-height:1.25; }
+  .session-pill { font-size:10px; }
+  .backup-panel { padding:10px; }
+  .backup-panel-icon { flex-basis:32px; height:32px; width:32px; }
+  .footer-identity, .footer-original { line-height:1.5; }
+}
+/* Tablets and resized desktop windows get additional breathing room. */
+@media (min-width:700px) and (max-width:899px) {
+  .app { max-width:760px; }
+  .header { padding:19px 26px; }
+  .intro { padding-right:30px; padding-left:30px; }
+  .card { margin-right:16px; margin-left:16px; padding:24px 24px; }
+  .fold-card { padding:0; }
+  .fold-summary { padding:20px 24px; }
+  .fold-body { padding:5px 24px 20px; }
+}
+/* Desktop: more room to read; secondary sections can sit side by side. */
+@media (min-width:900px) {
+  .app {
+    max-width:980px;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:16px;
+    align-content:start;
+    padding:20px 20px 40px;
+  }
+  .app > .header, .app > .intro, .app > .session-card,
+  .app > .calc-card, .app > footer { grid-column:1 / -1; }
+  .app > .card { margin-right:0; margin-left:0; }
+  .header { border-radius:18px 18px 0 0; padding:20px 26px; }
+  .intro { border-radius:0 0 18px 18px; padding:40px 32px; }
+  .session-card, .calc-card { padding:26px 30px; }
+  .calc-card > .weigh-preferences { max-width:100%; }
+  .calc-card .result { padding:24px 26px; }
+  .fold-summary { padding:18px; }
+  .fold-body { padding:5px 18px 20px; }
+  .app > footer { padding-top:16px; }
+}
+/* High contrast / Windows forced colors: keep controls and results recognizable. */
+@media (forced-colors:active) {
+  .primary-btn,.copy-btn,.outline-btn,.backup-main-btn,.backup-restore-btn,
+  .new-weigh-btn,.mode-btn { border:1px solid ButtonText; }
+  .card,.intro,.result,.weigh-preferences { border:1px solid CanvasText; }
+  .session-pill,.count { border:1px solid CanvasText; }
+  .weigh-preferences-mode .mode-slide-thumb { border:2px solid Highlight; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { scroll-behavior:auto!important; }
+}

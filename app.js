@@ -3,6 +3,8 @@ const STORAGE_KEY='inventaires-u-v2';
 const LEGACY_KEY='tare-paniettes-v1';
 const HISTORY_KEY='inventaires-u-history-v1';
 const $=id=>document.getElementById(id);
+// Some privacy modes forbid reading localStorage: keep the app usable without crashing.
+const safeGet=key=>{try{return localStorage.getItem(key);}catch{return null;}};
 const uid=()=>globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const DEFAULT_BASKETS=[{id:uid(),name:'Panier normal',tare:554},{id:uid(),name:'Demi-panier',tare:324},{id:uid(),name:'Panier ovale',tare:538},{id:uid(),name:'Grand panier',tare:1064}];
 const fmt=grams=>(grams/1000).toFixed(3);
@@ -81,9 +83,9 @@ const loadedSessions=readJSON(SESSION_KEY,{sessions:[],activeId:null});
 let sessions=(Array.isArray(loadedSessions?.sessions)?loadedSessions.sessions:[]).map(cleanSession).filter(Boolean);
 let activeSessionId=typeof loadedSessions?.activeId==='string'&&sessions.some(s=>s.id===loadedSessions.activeId&&!s.endedAt)?loadedSessions.activeId:null;
 let activeGroup=null,lastGroup=null;
-let entryMode=localStorage.getItem(MODE_KEY)==='g'?'g':'kg';
-let maxGrossGrams=parseKg(localStorage.getItem(LIMIT_KEY)||'20.000')||20000;
-let confirmDuplicates=localStorage.getItem(DUPLICATE_CONFIRM_KEY)!=='false';
+let entryMode=safeGet(MODE_KEY)==='g'?'g':'kg';
+let maxGrossGrams=parseKg(safeGet(LIMIT_KEY)||'20.000')||20000;
+let confirmDuplicates=safeGet(DUPLICATE_CONFIRM_KEY)!=='false';
 let acceptedAnomalyKey='',sessionsExpanded=false;
 function getActiveSession(){return sessions.find(s=>s.id===activeSessionId&&!s.endedAt)||null;}
 function activeStats(s){
@@ -303,16 +305,20 @@ function animateModeSwitch(){
 }
 function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{localStorage.setItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();animateModeSwitch();}
 function setLimit(){const n=parseKg($('maxGrossLimit').value);if(n===null||n<1000||n>1000000){$('maxGrossLimit').value=fmt(maxGrossGrams);$('weighStatus').textContent='Choisis un seuil entre 1 et 1000 kg.';return;}maxGrossGrams=n;try{localStorage.setItem(LIMIT_KEY,fmt(n));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();}
+function readTextFile(file){
+  if(typeof file.text==='function')return file.text();
+  return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(reader.error||Error('Lecture impossible'));reader.readAsText(file);});
+}
 function download(data,name,type){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 function exportCSV(items,name){const head=['Session','Début session','Fin session','Durée active (min)','Pesée','Date/heure pesée','Groupe de pesées','Type de panier','Poids brut (kg)','Tare (kg)','Poids net (kg)'];
- const csvCell=x=>`"${String(x??'').replaceAll('"','""')}"`;const lines=[head.map(csvCell).join(';')];for(const s of items){const st=activeStats(s);for(const [i,e] of s.entries.entries()){lines.push([s.id,dateLabel(s.startedAt),s.endedAt?dateLabel(s.endedAt):'En cours',(st.duration/60000).toFixed(1).replace('.',','),i+1,dateLabel(e.at),e.groupId,e.name,fmt(e.gross).replace('.',','),fmt(e.tare).replace('.',','),fmt(e.net).replace('.',',')].map(csvCell).join(';'));}}
+ const csvCell=x=>`"${String(x??'').replace(/"/g,'""')}"`;const lines=[head.map(csvCell).join(';')];for(const s of items){const st=activeStats(s);for(const [i,e] of s.entries.entries()){lines.push([s.id,dateLabel(s.startedAt),s.endedAt?dateLabel(s.endedAt):'En cours',(st.duration/60000).toFixed(1).replace('.',','),i+1,dateLabel(e.at),e.groupId,e.name,fmt(e.gross).replace('.',','),fmt(e.tare).replace('.',','),fmt(e.net).replace('.',',')].map(csvCell).join(';'));}}
  download('\ufeff'+lines.join('\r\n'),name,'text/csv;charset=utf-8');}
 const BACKUP_LAST_KEY='inventaires-u-last-backup-created-v1';
 function renderBackupSummary(){
   const sessionCount=sessions.length;
   const archivedCount=sessions.reduce((n,s)=>n+s.entries.length,0);
   $('backupSummary').textContent=`${baskets.length} panier${baskets.length>1?'s':''} · ${sessionCount} inventaire${sessionCount>1?'s':''} · ${archivedCount} pesée${archivedCount>1?'s':''} archivée${archivedCount>1?'s':''}`;
-  const last=Number(localStorage.getItem(BACKUP_LAST_KEY));
+  const last=Number(safeGet(BACKUP_LAST_KEY));
   $('backupLast').textContent=Number.isFinite(last)&&last>0?`Dernier export généré : ${dateLabel(last)}`:'Aucun export généré sur cet appareil.';
 }
 // Le fichier JSON contient également les préférences de saisie et d'alerte.
@@ -380,7 +386,7 @@ async function fullImport(event){
  const file=event.target.files?.[0];if(!file)return;
  try{
   if(file.size>10*1024*1024)throw Error('Fichier trop volumineux (10 Mo maximum).');
-  const data=JSON.parse(await file.text());
+  const data=JSON.parse(await readTextFile(file));
   const checked=validateFullBackup(data);
   const count=checked.ss.reduce((n,s)=>n+s.entries.length,0);
   const date=Number.isFinite(data.exportedAt)?`\nDate de la sauvegarde : ${dateLabel(data.exportedAt)}`:'';
@@ -481,10 +487,26 @@ $('resetBtn').addEventListener('click',newWeigh);
 $('historyToggleTop').addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory();});
 $('clearHistoryBtn').addEventListener('click',()=>{if(!confirm('Effacer les 15 dernières pesées visibles ? Les pesées des sessions restent conservées.'))return;const previous=history;clearTimeout(autoSaveTimer);autoSaveTimer=null;history=[];if(!persistHistory()){history=previous;return;}currentWeighId=null;historyExpanded=false;renderHistory();$('weighStatus').textContent='Historique récent effacé.';});
 $('cancelEditBtn').addEventListener('click',cancelEdit);
-$('copyBtn').addEventListener('click',async()=>{if(netGrams===null||renderWarning()||!flushPending())return;const value=fmt(netGrams);try{await navigator.clipboard.writeText(value);$('copyBtn').textContent='Copié : '+value;setTimeout(()=>$('copyBtn').textContent='Copier le poids net',1700);}catch(e){prompt('Copie ce poids :',value);}});
+$('copyBtn').addEventListener('click',async()=>{
+ if(netGrams===null||renderWarning()||!flushPending())return;
+ const value=fmt(netGrams);
+ let copied=false;
+ if(navigator.clipboard && typeof navigator.clipboard.writeText==='function'){
+  try{await navigator.clipboard.writeText(value);copied=true;}catch{}
+ }
+ if(!copied){
+  const field=document.createElement('textarea');field.value=value;field.setAttribute('readonly','');
+  field.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+  document.body.appendChild(field);field.focus();field.select();
+  try{copied=document.execCommand('copy');}catch{}
+  field.remove();
+ }
+ if(copied){$('copyBtn').textContent='Copié : '+value;setTimeout(()=>$('copyBtn').textContent='Copier le poids net',1700);}
+ else prompt('Copie ce poids :',value);
+});
 
 $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({app:'Inventaires U',version:2,unit:'g',baskets},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='inventaires-u-paniers.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);$('backupStatus').textContent='Export des paniers généré.';});
-$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');if(!confirm(`Importer ${items.length} panier(s) ? Cela remplacera ta liste actuelle.`))return;baskets=sanitize(items);cancelEdit();persist();renderBackupSummary();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
+$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');if(!confirm(`Importer ${items.length} panier(s) ? Cela remplacera ta liste actuelle.`))return;baskets=sanitize(items);cancelEdit();persist();renderBackupSummary();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 
 
 render();renderHistory();renderV22();
