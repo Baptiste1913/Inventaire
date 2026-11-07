@@ -106,3 +106,12 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 
 - Icône Play des boutons « Démarrer un inventaire » et « Reprendre » passée de 7 px à 8,5 px.
 - Cache hors ligne actualisé ; aucune autre modification.
+
+
+## V30.19 — actions sans confirmations du navigateur
+
+- Retrait des six `confirm()` natifs : terminer une session, supprimer un bilan, supprimer un panier, vider l’historique récent, restaurer une sauvegarde complète et importer des paniers. Ces actions s’exécutent désormais directement.
+- Les messages d’erreur de formulaire et d’échec de copie utilisent les messages intégrés au site au lieu de `alert()` et `prompt()`.
+- Les alertes de pesée (doublons, seuil) restent actives et inchangées.
+- **Attention :** les suppressions et restaurations sont irréversibles sans sauvegarde préalable.
+- Cache hors ligne mis à jour en V30.19, sans changement de mise en page en dehors du message de validation du formulaire panier.

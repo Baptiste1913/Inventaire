@@ -62,7 +62,7 @@ function reorder(from,to){const i=baskets.findIndex(b=>b.id===from),j=baskets.fi
 function moveBy(id,delta){const i=baskets.findIndex(b=>b.id===id),j=i+delta;if(i<0||j<0||j>=baskets.length)return;[baskets[i],baskets[j]]=[baskets[j],baskets[i]];persist();}
 function startEdit(id){const b=baskets.find(x=>x.id===id);if(!b)return;editingId=id;$('basketName').value=b.name;$('basketTare').value=fmt(b.tare);$('formTitle').textContent='Modifier le panier';$('saveBasketBtn').textContent='Enregistrer les modifications';$('cancelEditBtn').classList.remove('hidden');$('basketForm').scrollIntoView({behavior:'smooth',block:'center'});}
 function cancelEdit(){editingId=null;$('basketForm').reset();$('formTitle').textContent='Ajouter un panier';$('saveBasketBtn').textContent='+ Ajouter le panier';$('cancelEditBtn').classList.add('hidden');}
-function removeBasket(id){const b=baskets.find(x=>x.id===id);if(!b||!confirm(`Supprimer « ${b.name} » ?`))return;baskets=baskets.filter(x=>x.id!==id);if(editingId===id)cancelEdit();persist();}
+function removeBasket(id){const b=baskets.find(x=>x.id===id);if(!b)return;baskets=baskets.filter(x=>x.id!==id);if(editingId===id)cancelEdit();persist();}
 // Inventaires U V24 — sessions locales simplifiées, sans totaliseur produit, avec bilans renforcés.
 const SESSION_KEY='inventaires-u-sessions-v1';
 const MODE_KEY='inventaires-u-weight-mode-v1';
@@ -233,7 +233,6 @@ function resumeSession(){
 function finishSession(){
  const session=getActiveSession();if(!session)return;
  if(!session.pausedAt&&!flushPending())return;
- if(!confirm('Terminer cette session et enregistrer son bilan ?'))return;
  const oldPausedAt=session.pausedAt,oldPausedMs=session.pausedMs;
  const now=Date.now();
  if(session.pausedAt){session.pausedMs+=now-session.pausedAt;session.pausedAt=null;}
@@ -259,7 +258,6 @@ function deleteSession(id){
  const target=sessions.find(s=>s.id===id&&Boolean(s.endedAt));
  if(!target)return;
  const label=dateLabel(target.startedAt);
- if(!confirm(`Supprimer définitivement le bilan du ${label} et ses ${target.entries.length} pesées archivées ?\nCette action ne peut pas être annulée. Les 15 dernières pesées du suivi rapide ne seront pas modifiées.`))return;
  const previous=sessions;
  sessions=sessions.filter(s=>s.id!==id);
  if(!persistSessions()){
@@ -388,9 +386,6 @@ async function fullImport(event){
   if(file.size>10*1024*1024)throw Error('Fichier trop volumineux (10 Mo maximum).');
   const data=JSON.parse(await readTextFile(file));
   const checked=validateFullBackup(data);
-  const count=checked.ss.reduce((n,s)=>n+s.entries.length,0);
-  const date=Number.isFinite(data.exportedAt)?`\nDate de la sauvegarde : ${dateLabel(data.exportedAt)}`:'';
-  if(!confirm(`Restaurer ce fichier ?${date}\n\n${checked.bb.length} panier(s) · ${checked.ss.length} inventaire(s) · ${count} pesée(s) archivées.\n\nATTENTION : tes données actuelles seront remplacées. Exporte-les avant si tu veux les conserver.`))return;
   const values=[
    [STORAGE_KEY,JSON.stringify(checked.bb)],
    [HISTORY_KEY,JSON.stringify(checked.hh)],
@@ -472,7 +467,9 @@ $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
 setInterval(()=>{if(!document.hidden)renderLiveSessionStats();},1000);
 
-$('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){alert('Indique un nom et une tare valide en kg (ex. 0.554).');return;}if(editingId){const b=baskets.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else baskets.push({id:uid(),name,tare});cancelEdit();persist();});
+$('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){$('basketFormError').textContent='Indique un nom et une tare valide en kg (ex. 0.554).';return;}$('basketFormError').textContent='';if(editingId){const b=baskets.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else baskets.push({id:uid(),name,tare});cancelEdit();persist();});
+$('basketName').addEventListener('input',()=>{$('basketFormError').textContent='';});
+$('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='';});
 
 
 $('grossWeight').addEventListener('input',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
@@ -485,7 +482,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)saveBeforeS
 window.addEventListener('pagehide',saveBeforeSuspend);
 $('resetBtn').addEventListener('click',newWeigh);
 $('historyToggleTop').addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory();});
-$('clearHistoryBtn').addEventListener('click',()=>{if(!confirm('Effacer les 15 dernières pesées visibles ? Les pesées des sessions restent conservées.'))return;const previous=history;clearTimeout(autoSaveTimer);autoSaveTimer=null;history=[];if(!persistHistory()){history=previous;return;}currentWeighId=null;historyExpanded=false;renderHistory();$('weighStatus').textContent='Historique récent effacé.';});
+$('clearHistoryBtn').addEventListener('click',()=>{const previous=history;clearTimeout(autoSaveTimer);autoSaveTimer=null;history=[];if(!persistHistory()){history=previous;return;}currentWeighId=null;historyExpanded=false;renderHistory();$('weighStatus').textContent='Historique récent effacé.';});
 $('cancelEditBtn').addEventListener('click',cancelEdit);
 $('copyBtn').addEventListener('click',async()=>{
  if(netGrams===null||renderWarning()||!flushPending())return;
@@ -502,11 +499,11 @@ $('copyBtn').addEventListener('click',async()=>{
   field.remove();
  }
  if(copied){$('copyBtn').textContent='Copié : '+value;setTimeout(()=>$('copyBtn').textContent='Copier le poids net',1700);}
- else prompt('Copie ce poids :',value);
+ else $('weighStatus').textContent=`Copie automatique indisponible. Sélectionne manuellement le poids net : ${value} kg.`;
 });
 
 $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({app:'Inventaires U',version:2,unit:'g',baskets},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='inventaires-u-paniers.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);$('backupStatus').textContent='Export des paniers généré.';});
-$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');if(!confirm(`Importer ${items.length} panier(s) ? Cela remplacera ta liste actuelle.`))return;baskets=sanitize(items);cancelEdit();persist();renderBackupSummary();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
+$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');baskets=sanitize(items);cancelEdit();persist();renderBackupSummary();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 
 
 render();renderHistory();renderV22();
