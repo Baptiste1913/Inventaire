@@ -115,3 +115,13 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Les alertes de pesée (doublons, seuil) restent actives et inchangées.
 - **Attention :** les suppressions et restaurations sont irréversibles sans sauvegarde préalable.
 - Cache hors ligne mis à jour en V30.19, sans changement de mise en page en dehors du message de validation du formulaire panier.
+
+
+## V30.20 — annuler une suppression accidentelle
+
+- Notification discrète « Annuler » pendant 8 secondes après suppression d'un bilan terminé, d'un panier ou effacement de l'historique récent.
+- Les suppressions restent immédiates et sauvegardées localement. La donnée supprimée ne subsiste que dans la mémoire de la page pendant 8 secondes et peut être réinsérée dans le stockage local par « Annuler ».
+- Fermeture/rechargement de la page, expiration du délai ou autre suppression : la possibilité d'annuler la suppression précédente disparaît. Pas de corbeille permanente.
+- Les pesées d'un inventaire terminé restent dans son bilan même si l'historique récent est effacé.
+- Restauration/importation d'une sauvegarde remplace les données et efface le bouton d'annulation précédent.
+- Les confirmations natives ne sont pas rétablies. Cache et fichiers de V30.20 actualisés.

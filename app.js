@@ -3,6 +3,38 @@ const STORAGE_KEY='inventaires-u-v2';
 const LEGACY_KEY='tare-paniettes-v1';
 const HISTORY_KEY='inventaires-u-history-v1';
 const $=id=>document.getElementById(id);
+// V30.20 : annulation temporaire sans corbeille ni stockage supplémentaire.
+const UNDO_DELAY_MS=8000;
+let pendingUndo=null,undoTimeout=null;
+function dismissUndo(){
+  if(undoTimeout!==null)clearTimeout(undoTimeout);
+  undoTimeout=null;pendingUndo=null;
+  const toast=$('undoToast');
+  if(toast)toast.hidden=true;
+}
+function offerUndo(message,restore){
+  dismissUndo();
+  const toast=$('undoToast');
+  if(!toast)return;
+  pendingUndo={restore,expires:Date.now()+UNDO_DELAY_MS};
+  $('undoToastMessage').textContent=message;
+  toast.hidden=false;
+  // Relancer la petite barre de temps lorsque deux suppressions se suivent.
+  toast.classList.remove('undo-ticking');
+  void toast.offsetWidth;
+  toast.classList.add('undo-ticking');
+  undoTimeout=setTimeout(dismissUndo,UNDO_DELAY_MS);
+}
+function undoLastDeletion(){
+  const pending=pendingUndo;
+  if(!pending)return;
+  if(Date.now()>=pending.expires){dismissUndo();return;}
+  let restored=false;
+  try{restored=pending.restore()===true;}catch(error){console.warn('Annulation impossible',error);}
+  if(restored){dismissUndo();return;}
+  // Si le stockage est refusé, ne pas annoncer une annulation réussie.
+  $('undoToastMessage').textContent='Impossible de restaurer : stockage local indisponible.';
+}
 // Some privacy modes forbid reading localStorage: keep the app usable without crashing.
 const safeGet=key=>{try{return localStorage.getItem(key);}catch{return null;}};
 const uid=()=>globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -62,7 +94,26 @@ function reorder(from,to){const i=baskets.findIndex(b=>b.id===from),j=baskets.fi
 function moveBy(id,delta){const i=baskets.findIndex(b=>b.id===id),j=i+delta;if(i<0||j<0||j>=baskets.length)return;[baskets[i],baskets[j]]=[baskets[j],baskets[i]];persist();}
 function startEdit(id){const b=baskets.find(x=>x.id===id);if(!b)return;editingId=id;$('basketName').value=b.name;$('basketTare').value=fmt(b.tare);$('formTitle').textContent='Modifier le panier';$('saveBasketBtn').textContent='Enregistrer les modifications';$('cancelEditBtn').classList.remove('hidden');$('basketForm').scrollIntoView({behavior:'smooth',block:'center'});}
 function cancelEdit(){editingId=null;$('basketForm').reset();$('formTitle').textContent='Ajouter un panier';$('saveBasketBtn').textContent='+ Ajouter le panier';$('cancelEditBtn').classList.add('hidden');}
-function removeBasket(id){const b=baskets.find(x=>x.id===id);if(!b)return;baskets=baskets.filter(x=>x.id!==id);if(editingId===id)cancelEdit();persist();}
+function removeBasket(id){
+ const index=baskets.findIndex(b=>b.id===id);if(index<0)return;
+ const removed={...baskets[index]};
+ const next=baskets.filter(b=>b.id!==id);
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(next));}
+ catch{$('backupStatus').textContent='Suppression impossible : stockage local indisponible.';return;}
+ const selected=$('basketSelect').value;
+ baskets=next;
+ if(editingId===id)cancelEdit();
+ render();renderBackupSummary();
+ offerUndo('Panier supprimé.',()=>{
+   if(baskets.some(b=>b.id===removed.id))return false;
+   const restored=baskets.slice();restored.splice(Math.min(index,restored.length),0,removed);
+   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch{return false;}
+   baskets=restored;render();
+   if(selected===removed.id){$('basketSelect').value=removed.id;calculate();}
+   renderBackupSummary();
+   return true;
+ });
+}
 // Inventaires U V24 — sessions locales simplifiées, sans totaliseur produit, avec bilans renforcés.
 const SESSION_KEY='inventaires-u-sessions-v1';
 const MODE_KEY='inventaires-u-weight-mode-v1';
@@ -255,9 +306,9 @@ function summaryElement(s){const stats=activeStats(s);const box=document.createE
  if(!sorted.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Aucune pesée dans cette session.';hist.append(empty);}
  box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:30,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
 function deleteSession(id){
- const target=sessions.find(s=>s.id===id&&Boolean(s.endedAt));
- if(!target)return;
- const label=dateLabel(target.startedAt);
+ const index=sessions.findIndex(s=>s.id===id&&Boolean(s.endedAt));
+ if(index<0)return;
+ const removed=safeClone(sessions[index]),label=dateLabel(removed.startedAt);
  const previous=sessions;
  sessions=sessions.filter(s=>s.id!==id);
  if(!persistSessions()){
@@ -267,6 +318,16 @@ function deleteSession(id){
  }
  renderSessionsHistory();renderBackupSummary();
  $('bilanNotice').textContent=`Bilan du ${label} supprimé.`;
+ offerUndo('Bilan supprimé.',()=>{
+   if(sessions.some(s=>s.id===removed.id))return false;
+   const before=sessions;
+   const restored=sessions.slice();restored.splice(Math.min(index,restored.length),0,removed);
+   sessions=restored;
+   if(!persistSessions()){sessions=before;return false;}
+   renderSessionsHistory();renderBackupSummary();
+   $('bilanNotice').textContent=`Bilan du ${label} restauré.`;
+   return true;
+ });
 }
 // Dimension réelle des en-têtes des bilans pour placer « Suppr. » au milieu, même une fois ouverts.
 const sessionSummaryObserver=typeof ResizeObserver==='function' ? new ResizeObserver(entries=>{
@@ -399,6 +460,7 @@ async function fullImport(event){
   // Si l'écriture échoue, aucune variable en mémoire n'est remplacée.
   commitRestoredData(values);
   clearTimeout(autoSaveTimer);autoSaveTimer=null;
+  dismissUndo();
   baskets=checked.bb;sessions=checked.ss;history=checked.hh;
   activeSessionId=checked.active;activeGroup=null;lastGroup=null;currentWeighId=null;
   if(checked.settings){entryMode=checked.settings.entryMode;maxGrossGrams=checked.settings.maxGrossGrams;confirmDuplicates=checked.settings.confirmDuplicates;}
@@ -482,7 +544,26 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)saveBeforeS
 window.addEventListener('pagehide',saveBeforeSuspend);
 $('resetBtn').addEventListener('click',newWeigh);
 $('historyToggleTop').addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory();});
-$('clearHistoryBtn').addEventListener('click',()=>{const previous=history;clearTimeout(autoSaveTimer);autoSaveTimer=null;history=[];if(!persistHistory()){history=previous;return;}currentWeighId=null;historyExpanded=false;renderHistory();$('weighStatus').textContent='Historique récent effacé.';});
+$('clearHistoryBtn').addEventListener('click',()=>{
+ if(!history.length)return;
+ const previous=history.map(e=>({...e})),previousExpanded=historyExpanded;
+ clearTimeout(autoSaveTimer);autoSaveTimer=null;
+ history=[];
+ if(!persistHistory()){history=previous;return;}
+ currentWeighId=null;historyExpanded=false;renderHistory();renderBackupSummary();
+ $('weighStatus').textContent='Historique récent effacé.';
+ offerUndo('Historique effacé.',()=>{
+   // Conserver les nouvelles pesées éventuellement créées depuis la suppression.
+   const existing=new Set(history.map(e=>e.id));
+   const restored=[...history,...previous.filter(e=>!existing.has(e.id))]
+     .sort((a,b)=>b.at-a.at).slice(0,15);
+   try{localStorage.setItem(HISTORY_KEY,JSON.stringify(restored));}catch{return false;}
+   history=restored;historyExpanded=previousExpanded;
+   renderHistory();renderBackupSummary();
+   $('weighStatus').textContent='Historique restauré.';
+   return true;
+ });
+});
 $('cancelEditBtn').addEventListener('click',cancelEdit);
 $('copyBtn').addEventListener('click',async()=>{
  if(netGrams===null||renderWarning()||!flushPending())return;
@@ -503,9 +584,10 @@ $('copyBtn').addEventListener('click',async()=>{
 });
 
 $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({app:'Inventaires U',version:2,unit:'g',baskets},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='inventaires-u-paniers.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);$('backupStatus').textContent='Export des paniers généré.';});
-$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');baskets=sanitize(items);cancelEdit();persist();renderBackupSummary();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
+$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');dismissUndo();baskets=sanitize(items);cancelEdit();persist();renderBackupSummary();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 
 
+$('undoToastButton').addEventListener('click',undoLastDeletion);
 render();renderHistory();renderV22();
 renderBackupSummary();
 $('backupCard').addEventListener('toggle',()=>{if($('backupCard').open)renderBackupSummary();});
