@@ -184,10 +184,20 @@ function renderGroup(){}
 // Mise à jour légère du HUD, sans retraitement des historiques.
 function islandDurationLabel(ms){const minutes=Math.floor(Math.max(0,ms)/60000),h=Math.floor(minutes/60),m=minutes%60;return h?`${h} h ${String(m).padStart(2,'0')}`:`${m} min`;}
 function renderInventoryIsland(){}
+function renderHeroSummary(){
+ const status=$('heroStatus'),text=$('heroStatusText');
+ if(!status||!text)return;
+ const session=getActiveSession();
+ status.classList.toggle('is-running',Boolean(session&&!session.pausedAt));
+ status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
+ const count=session?session.entries.length:0;
+ text.textContent=!session?'Aucune session en cours':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
+}
 function renderSessionControls(){const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionLive').hidden=!s;
  $('startSession').hidden=Boolean(s);$('pauseSession').hidden=!s||Boolean(s.pausedAt);$('resumeSession').hidden=!s||!s.pausedAt;$('finishSession').hidden=!s;
  $('sessionHelp').textContent=s?(s.pausedAt?'En pause : reprends pour enregistrer tes pesées.':`Début : ${dateLabel(s.startedAt)} · Suivi automatique actif.`):'Démarre une session pour conserver les statistiques de ton inventaire.';
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
+ renderHeroSummary();
 }
 function renderLiveSessionStats(){
  const session=getActiveSession();if(!session)return;
@@ -195,6 +205,7 @@ function renderLiveSessionStats(){
  $('sessionDuration').textContent=durationLabel(stats.duration);
  $('sessionWeighCount').textContent=String(stats.count);
  $('sessionNet').textContent=`${fmt(stats.net)} kg`;
+ renderHeroSummary();
 }
 function startSession(){
  if(getActiveSession()||!flushPending())return;
@@ -241,7 +252,7 @@ function summaryElement(s){const stats=activeStats(s);const box=document.createE
  const bins=new Map();for(const e of s.entries){const d=new Date(e.at);d.setMinutes(Math.floor(d.getMinutes()/30)*30,0,0);const key=d.getTime();bins.set(key,(bins.get(key)||0)+1);}
  const sorted=[...bins.entries()].sort((a,b)=>a[0]-b[0]);const max=Math.max(1,...sorted.map(x=>x[1]));for(const [at,count] of sorted){const row=document.createElement('div');row.className='v22-bar-row';const label=document.createElement('span');label.textContent=new Date(at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});const bar=document.createElement('div');bar.className='v22-bar-track';const fill=document.createElement('div');fill.className='v22-bar-fill';fill.style.width=`${count/max*100}%`;bar.append(fill);const amount=document.createElement('strong');amount.textContent=String(count);row.append(label,bar,amount);hist.append(row);}
  if(!sorted.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Aucune pesée dans cette session.';hist.append(empty);}
- box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:29,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
+ box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:30,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
 function deleteSession(id){
  const target=sessions.find(s=>s.id===id&&Boolean(s.endedAt));
  if(!target)return;
@@ -260,9 +271,17 @@ function deleteSession(id){
 function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedAt)).sort((a,b)=>b.startedAt-a.startedAt);$('sessionsCount').textContent=`${ended.length} session${ended.length>1?'s':''}`;
  const list=$('sessionsHistoryList');list.replaceChildren();$('sessionsToggle').hidden=ended.length<=5;$('sessionsToggle').textContent=sessionsExpanded?'Réduire la liste':`Voir les ${ended.length} sessions`;
  if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune session terminée pour le moment.';list.append(p);return;}
- for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');name.textContent=new Date(s.startedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=`${stats.count} pesées · ${fmt(stats.net)} kg · ${durationLabel(stats.duration)}`;sum.append(name,meta);item.append(sum,summaryElement(s));list.append(item);}
+ for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');name.textContent=new Date(s.startedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=`${stats.count} pesées · ${fmt(stats.net)} kg · ${durationLabel(stats.duration)}`;sum.append(name,meta);
+  const quickRemove=document.createElement('button');
+  quickRemove.type='button';quickRemove.className='quick-delete-session-btn';quickRemove.textContent='Suppr.';
+  quickRemove.setAttribute('aria-label',`Supprimer rapidement le bilan du ${dateLabel(s.startedAt)}`);
+  quickRemove.title='Supprimer ce bilan';
+  quickRemove.addEventListener('click',event=>{event.stopPropagation();deleteSession(s.id);});
+  // Le bouton doit rester EN DEHORS du <details> : ses enfants sont masqués quand le bilan est fermé.
+  const shell=document.createElement('div');shell.className='v30-session-shell';
+  item.append(sum,summaryElement(s));shell.append(item,quickRemove);list.append(shell);}
 }
-function renderV22(){renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);$('confirmDuplicates').checked=confirmDuplicates;renderBackupSummary();}
+function renderV22(){renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('modeSlideThumb').parentElement.classList.toggle('is-rapid',entryMode==='g');$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);$('confirmDuplicates').checked=confirmDuplicates;renderBackupSummary();}
 function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{localStorage.setItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();}
 function setLimit(){const n=parseKg($('maxGrossLimit').value);if(n===null||n<1000||n>1000000){$('maxGrossLimit').value=fmt(maxGrossGrams);$('weighStatus').textContent='Choisis un seuil entre 1 et 1000 kg.';return;}maxGrossGrams=n;try{localStorage.setItem(LIMIT_KEY,fmt(n));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();}
 function download(data,name,type){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
@@ -373,6 +392,44 @@ async function fullImport(event){
 // Commandes V22.
 $('modeKg').addEventListener('click',()=>switchMode('kg'));
 $('modeG').addEventListener('click',()=>switchMode('g'));
+
+// V30 — interrupteur glissable au doigt, avec clics et navigation clavier conservés.
+(function setupSwipeMode(){
+ const control=document.querySelector('.weigh-preferences-mode');
+ const thumb=$('modeSlideThumb');
+ if(!control||!thumb)return;
+ let touch=null,ignoreClick=false;
+ control.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch'&&e.pointerType!=='pen')return;
+  touch={id:e.pointerId,x:e.clientX,initial:entryMode==='g'?1:0,progress:entryMode==='g'?1:0,dragging:false};
+ });
+ control.addEventListener('pointermove',e=>{
+  if(!touch||e.pointerId!==touch.id)return;
+  const dx=e.clientX-touch.x;
+  if(!touch.dragging&&Math.abs(dx)<9)return;
+  touch.dragging=true;
+  const width=Math.max(1,(control.getBoundingClientRect().width-8)/2);
+  touch.progress=Math.min(1,Math.max(0,touch.initial+dx/width));
+  control.classList.add('is-dragging');
+  thumb.style.transform=`translate3d(${touch.progress*width}px,0,0)`;
+ });
+ const finish=(e,cancelled)=>{
+  if(!touch||e.pointerId!==touch.id)return;
+  const state=touch;touch=null;
+  if(!state.dragging)return;
+  control.classList.remove('is-dragging');thumb.style.removeProperty('transform');
+  // Une glissade horizontale suffisante valide le changement.
+  const target=cancelled?state.initial:(state.initial===0?(state.progress>=.28?1:0):(state.progress<=.72?0:1));
+  ignoreClick=true;
+  if(!cancelled)switchMode(target?'g':'kg');
+  // Safari peut déclencher un click après pointerup : ne pas revenir en arrière.
+  window.setTimeout(()=>{ignoreClick=false;},350);
+ };
+ control.addEventListener('pointerup',e=>finish(e,false));
+ control.addEventListener('pointercancel',e=>finish(e,true));
+ control.addEventListener('click',e=>{if(!ignoreClick)return;e.preventDefault();e.stopImmediatePropagation();ignoreClick=false;},true);
+})();
+
 $('maxGrossLimit').addEventListener('change',setLimit);
 $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{localStorage.setItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});

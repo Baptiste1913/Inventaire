@@ -450,3 +450,87 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 
 /* V29 — titre légèrement plus contrasté et espacement des lettres adouci. */
 .brand h1{color:#444B53;letter-spacing:-.30px!important;}
+
+
+/* V30 — Interrupteur glissable (clic, tactile, clavier), poids net bleu dégradé, bandeau actif. */
+.weigh-preferences-mode{position:relative;isolation:isolate;touch-action:pan-y;user-select:none;-webkit-user-select:none;}
+.weigh-preferences-mode .mode-slide-thumb{
+ position:absolute;left:3px;top:3px;bottom:3px;width:calc((100% - 6px)/2);
+ background:rgba(255,255,255,.97);border:1px solid rgba(148,195,208,.5);
+ border-radius:9px;box-shadow:0 2px 9px rgba(21,84,105,.11);
+ transform:translate3d(0,0,0);transition:transform .3s cubic-bezier(.22,1,.32,1);
+ pointer-events:none;z-index:0;
+}
+.weigh-preferences-mode.is-rapid .mode-slide-thumb{transform:translate3d(100%,0,0)}
+.weigh-preferences-mode.is-dragging .mode-slide-thumb{transition:none!important}
+.weigh-preferences-mode .mode-btn{z-index:1;position:relative;background:transparent!important;box-shadow:none!important;transition:color .22s ease}
+.weigh-preferences-mode .mode-btn[aria-pressed=true]{color:#075f77}
+.weigh-preferences-mode .mode-btn[aria-pressed=false]{color:#5b7f8a}
+.weigh-preferences-mode .mode-btn:focus-visible{outline:2px solid #248eac;outline-offset:-2px}
+/* Même gamme azur / turquoise que les réglages, mais plus saturée pour un meilleur contraste. */
+.calc-card .result{position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(135deg,#087f92 0%,#106e92 53%,#26588a 100%);box-shadow:0 10px 24px rgba(15,81,116,.17)}
+.calc-card .result::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 100% 0%,rgba(167,235,252,.18),transparent 60%),linear-gradient(120deg,rgba(255,255,255,.06),transparent 65%)}
+.calc-card .result-subtitle{color:#e6f6ff}
+.calc-card .copy-btn{color:#146886}
+.quick-delete-session-btn{position:absolute;top:12px;right:12px;z-index:2;min-height:34px;padding:8px 11px;border:1px solid #edcbd0;border-radius:12px;background:#fff8f9;color:#a34d57;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.quick-delete-session-btn:focus-visible{outline:2px solid #a34d57;outline-offset:2px}
+.quick-delete-session-btn:active:not(:disabled){background:#ffe9eb}
+.v30-session-shell{position:relative;min-width:0}
+.v22-session-item>summary{padding-right:82px}
+.intro{position:relative;isolation:isolate;overflow:hidden;padding:27px 24px 24px;background:linear-gradient(124deg,#50468a 0%,#4b5a9b 58%,#286e96 100%);border-bottom:3px solid #328b9a}
+.intro::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 100% 0%,rgba(144,214,249,.20),transparent 48%),radial-gradient(circle at 0% 100%,rgba(123,87,184,.27),transparent 48%)}
+.intro-topline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.intro-top-label{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:850;letter-spacing:1.15px;color:#d3eef7}
+.intro-top-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:#7fdfd6;box-shadow:0 0 0 4px rgba(127,223,214,.10)}
+.intro-top-mark{font-size:17px;font-weight:900;letter-spacing:-.3px;color:rgba(255,255,255,.42)}
+.intro h2{margin:15px 0 10px;font-size:clamp(28px,6.5vw,41px);line-height:1.12;letter-spacing:-1px}
+.intro p{max-width:400px;font-size:13px;color:#f0f5ff;line-height:1.55}
+.intro-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
+.intro-session-state{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:#eff9ff;font-weight:700}
+.intro-session-dot{width:7px;height:7px;border-radius:50%;background:#b9ddf2;box-shadow:0 0 0 3px rgba(217,240,255,.13)}
+.intro-session-state.is-running .intro-session-dot{background:#59e5aa;box-shadow:0 0 0 4px rgba(89,229,170,.16)}
+.intro-session-state.is-paused .intro-session-dot{background:#ffd18a;box-shadow:0 0 0 4px rgba(255,209,138,.16)}
+.intro-jump{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:10px 13px;background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.55);border-radius:24px;text-decoration:none;color:#285576;font-size:12px;font-weight:850;box-shadow:0 3px 13px rgba(18,35,87,.12);transition:transform .15s ease,background .15s ease}
+.intro-jump svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.intro-jump:focus-visible{outline:2px solid white;outline-offset:3px}
+.intro-jump:active{transform:scale(.98)}
+.session-actions #startSession .start-btn-icon,.session-actions #resumeSession .start-btn-icon{width:10px;height:10px;flex:0 0 10px;object-fit:contain;filter:brightness(0) invert(1)}
+@media(max-width:380px){.intro{padding:24px 19px 22px}.intro-bottom{gap:9px}.intro-jump{min-height:38px;padding:9px 12px}.quick-delete-session-btn{padding:7px 9px;font-size:10px}}
+@media(prefers-reduced-motion:reduce){.weigh-preferences-mode .mode-slide-thumb,.weigh-preferences-mode .mode-btn,.intro-jump{transition:none!important}}
+
+/* V30.1 — poids net turquoise, variation très discrète et reflet façon verre */
+.calc-card .result{
+ background:linear-gradient(127deg,#007f8b 0%,#037e8b 44%,#0a7988 100%);
+ border:1px solid rgba(218,250,252,.25);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.27),0 7px 20px rgba(0,78,90,.12);
+}
+.calc-card .result::before{
+ background:radial-gradient(ellipse 90% 75% at 6% -12%,rgba(255,255,255,.18),transparent 68%),
+  linear-gradient(155deg,rgba(233,254,255,.095) 0%,rgba(255,255,255,.015) 34%,transparent 62%);
+}
+.calc-card .result-subtitle{color:#e5f6f6}
+.calc-card .copy-btn{color:#007985}
+/* Bandeau explicatif, violet sobre, bordure de verre très fine */
+.intro{
+ position:relative;isolation:isolate;overflow:hidden;
+ padding:26px 24px 24px;color:#fff;
+ background:linear-gradient(118deg,#504483 0%,#514985 55%,#485780 100%);
+ border:1px solid rgba(221,232,255,.23);border-left:0;border-right:0;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.08);
+}
+.intro::before{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(ellipse 92% 85% at 0% 0%,rgba(255,255,255,.115),transparent 73%),
+  linear-gradient(165deg,rgba(255,255,255,.035),transparent 56%);
+}
+.intro h2{margin:0 0 11px;font-size:clamp(27px,6.2vw,38px);line-height:1.15;letter-spacing:-.75px}
+.intro p{max-width:510px;font-size:13px;line-height:1.6;color:rgba(255,255,255,.90)}
+.intro-bottom{margin-top:18px;gap:10px}
+.intro-jump{
+ min-height:40px;padding:10px 13px;
+ background:rgba(255,255,255,.90);border:1px solid rgba(255,255,255,.72);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.62),0 3px 10px rgba(22,37,76,.08);
+ color:#315879;
+}
+.intro-jump:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-width:380px){.intro{padding:23px 19px 22px}.intro h2{font-size:28px}.intro-bottom{margin-top:15px}}
