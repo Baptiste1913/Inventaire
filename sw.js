@@ -1,7 +1,7 @@
-/* Inventaires U V27 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v27';
+/* Inventaires U V27.1 — application shell hors ligne */
+const CACHE = 'inventaires-u-offline-v27-1';
 const CORE = [
-  './', './index.html', './style.css?v=27', './app.js?v=27',
+  './', './index.html', './style.css?v=27.1', './app.js?v=27.1',
   './manifest.webmanifest?v=13', './icon.png?v=11',
   './icon-512.png', './logo-u.png', './favicon.ico?v=13',
   './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png'

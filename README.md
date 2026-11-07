@@ -1,4 +1,4 @@
-# Mettre à jour Inventaires U — V27
+# Mettre à jour Inventaires U — V27.1
 
 1. Avant toute mise à jour, ouvrir **Réglages et données** et **Exporter toutes mes données (JSON)** pour conserver une sauvegarde.
 2. Décompresser le ZIP et remplacer **tous les fichiers à la racine** du dépôt GitHub Pages.
@@ -16,3 +16,9 @@
 - Case à cocher **Confirmer les doublons potentiels** ; préférence enregistrée localement, activée par défaut. La confirmation des poids inhabituellement élevés reste active.
 - Mention « Utilisation non commerciale uniquement » en pied de page.
 - Nouveau cache hors ligne V27, sans migration des paniers ni des sessions.
+
+## Changements V27.1
+
+- Mention **Utilisation non commerciale uniquement** déplacée en première ligne du pied de page, en gras avec un espace inférieur.
+- Suppression du délai visuel du séparateur lors de la fermeture des catégories : il s’estompe dès le début de la fermeture, sans couper l’animation du contenu.
+- Cache hors ligne actualisé pour récupérer les nouveaux fichiers CSS et JavaScript.

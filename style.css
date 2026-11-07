@@ -246,3 +246,21 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 .delete-session-btn:focus-visible{outline:2px solid #a34c56;outline-offset:2px}
 .delete-session-btn:active{background:#ffecee}
 @media(prefers-reduced-motion:reduce){.fold-chevron{transition:none}}
+
+
+/* V27.1 — pied de page, et séparateur synchronisé avec la fermeture. */
+.footer-noncommercial{
+  display:block;
+  margin-bottom:10px;
+  font-weight:800;
+  color:#60666c;
+}
+.fold-card>.fold-summary{
+  transition:border-bottom-color .12s ease;
+}
+.fold-card.is-fold-closing>.fold-summary{
+  border-bottom-color:transparent;
+}
+@media(prefers-reduced-motion:reduce){
+  .fold-card>.fold-summary{transition:none}
+}
