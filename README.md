@@ -84,3 +84,12 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Taille de ce titre légèrement réduite sur mobile et ordinateur.
 - En-tête « UTILITAIRE D’INVENTAIRE », sous-titre, bouton, indicateur de session, pied de page et fonctionnalités inchangés.
 - Cache hors ligne et ressources actualisés V30.13.
+
+
+## Modification V30.14 — sous-titre et icône de lecture
+
+- Suppression de la première phrase du sous-titre de la banderole.
+- Sous-titre conservé : « Sélectionnez un panier, saisissez son poids brut et obtenez automatiquement le poids net après déduction de la tare. »
+- Icône « play » du bouton Démarrer un inventaire (et Reprendre) remplacée par l’image PNG fournie, conservée sur fond transparent.
+- Taille de cette icône ajustée à 15 px pour assurer sa lisibilité.
+- Cache hors ligne et versions des ressources actualisés V30.14 ; autres contenus et fonctionnalités inchangés.
