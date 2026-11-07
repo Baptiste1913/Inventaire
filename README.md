@@ -1,4 +1,4 @@
-# Mettre à jour Inventaires U — V30.5
+# Mettre à jour Inventaires U — V30.6
 
 1. Avant de publier, télécharge une sauvegarde complète depuis la section **Sauvegarde**.
 2. Décompresse l’archive et remplace les fichiers à la racine du dépôt GitHub Pages.
@@ -22,3 +22,11 @@ Le calcul, la saisie rapide, les données locales et les sessions ne sont pas mo
 - Espace inférieur réduit sous le sous-titre des alertes.
 - Bordure du champ de poids plus douce au repos ; retour à la couleur turquoise d'origine pendant la saisie.
 - Aucune modification des calculs, du stockage et des bilans. Cache hors ligne actualisé.
+
+## Modification V30.6
+
+- Pied de page sur deux lignes uniquement : « Utilisation non commerciale uniquement » et « Baptiste • Super U Saint-Germain ».
+- Cache hors ligne actualisé pour afficher le nouveau pied de page.
+- Autres fonctions et styles inchangés.
+
+Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.flaticon.com/free-icons/no-wifi).
