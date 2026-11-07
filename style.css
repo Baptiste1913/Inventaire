@@ -590,3 +590,17 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 }
 
 #calc-title{scroll-margin-top:24px}
+
+
+/* V30.3 — retouches ciblées, aucune modification du moteur de pesée. */
+/* Titre de l'en-tête : légèrement plus contrasté, sans revenir au noir pur. */
+.brand h1{color:#303941;}
+/* Laisser un peu d'air entre la saisie rapide et les alertes. */
+.calc-card .weigh-preferences-alerts{margin-top:10px;}
+/* Centrage vertical précis sur la rangée d'en-tête, indépendamment du bilan ouvert. */
+.quick-delete-session-btn{top:calc(var(--session-summary-height, 76px)/2);transform:translateY(-50%);}
+.quick-delete-session-btn:active:not(:disabled){transform:translateY(-50%) scale(.97);}
+/* Éviter que la taille du bouton ne déplace l'alignement visuel. */
+.v22-session-item>summary{min-height:68px;align-content:center;}
+/* Halo neutre nettement plus discret ; conserver la pulsation des états actifs et pause. */
+.intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot::after{background:rgba(215,229,243,.075);}

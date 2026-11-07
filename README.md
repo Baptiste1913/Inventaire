@@ -1,21 +1,18 @@
-# Mettre à jour Inventaires U — V30.2
+# Mettre à jour Inventaires U — V30.3
 
-1. Dans **Sauvegarde**, télécharge une copie complète de tes données avant de publier.
-2. Décompresse cette archive et remplace tous les fichiers à la racine de ton dépôt GitHub Pages.
-3. Valide avec **Commit changes** et ouvre le site avec Internet après le déploiement.
-4. Recharge la page et relance l’application depuis l’écran d’accueil pour obtenir les nouveaux styles et scripts en cache.
+1. Depuis **Sauvegarde**, télécharge une copie complète de tes données avant de publier.
+2. Décompresse le ZIP et remplace tous les fichiers de ton dépôt GitHub Pages.
+3. Valide avec **Commit changes** et ouvre le site en ligne après le déploiement.
+4. Recharge, rouvre l'application depuis l'écran d'accueil et vérifie les retouches.
 
-## Modifications V30.2
+## Modifications V30.3
 
-- Retrait de la ligne turquoise au-dessus de la bannière violette ; bannière un peu plus haute.
-- Points d’état animés (aucune session, en cours, en pause), dont l’étiquette « En pause » de Ma session.
-- Petite animation lumineuse et glissement plus souple du sélecteur de saisie, avec glissement tactile conservé.
-- Ouverture et fermeture animées des bilans détaillés et des réglages d’alertes, sur le modèle des catégories.
-- Suppression des messages de statut redondants au pied de Ma session pour les états actifs et en pause.
-- Défilement fluide via « Aller à la pesée » (avec respect du réglage système de réduction du mouvement).
-- Marge après confirmation de suppression d’un bilan.
-- Arrondis réduits du champ Poids brut et des quatre boutons de session.
-- Boutons Démarrer et Reprendre avec un dégradé bleu turquoise doux et un reflet discret.
-- Cache hors ligne V30.2 synchronisé avec les ressources HTML, CSS et JavaScript.
+- Titre violet : **« Du brut au net, simplement. »**
+- Un petit espace en plus au-dessus de **Réglages d’alertes**.
+- Boutons **Suppr.** des bilans centrés verticalement dans leur ligne, y compris quand le détail est ouvert.
+- Texte **UTILITAIRE D’INVENTAIRE** légèrement plus contrasté.
+- Défilement vers la pesée ralenti à environ **800 ms**, et annulable par un geste manuel ; respect de la réduction du mouvement.
+- Effet circulaire gris autour du point **Aucune session en cours** atténué.
+- Cache hors ligne actualisé et synchronisé.
 
-Les données existantes, les tares, les sessions et les sauvegardes restent compatibles : aucune migration du stockage.
+Aucun changement de format de stockage ni de logique de calcul ; les paniers, pesées, sessions, sauvegardes et modes de saisie restent compatibles.

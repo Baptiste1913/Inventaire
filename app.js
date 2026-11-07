@@ -268,8 +268,15 @@ function deleteSession(id){
  renderSessionsHistory();renderBackupSummary();
  $('bilanNotice').textContent=`Bilan du ${label} supprimé.`;
 }
+// Dimension réelle des en-têtes des bilans pour placer « Suppr. » au milieu, même une fois ouverts.
+const sessionSummaryObserver=typeof ResizeObserver==='function' ? new ResizeObserver(entries=>{
+ for(const entry of entries){
+  const shell=entry.target.closest('.v30-session-shell');
+  if(shell) shell.style.setProperty('--session-summary-height',`${entry.target.getBoundingClientRect().height}px`);
+ }
+}) : null;
 function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedAt)).sort((a,b)=>b.startedAt-a.startedAt);$('sessionsCount').textContent=`${ended.length} session${ended.length>1?'s':''}`;
- const list=$('sessionsHistoryList');list.replaceChildren();$('sessionsToggle').hidden=ended.length<=5;$('sessionsToggle').textContent=sessionsExpanded?'Réduire la liste':`Voir les ${ended.length} sessions`;
+ const list=$('sessionsHistoryList');if(sessionSummaryObserver)sessionSummaryObserver.disconnect();list.replaceChildren();$('sessionsToggle').hidden=ended.length<=5;$('sessionsToggle').textContent=sessionsExpanded?'Réduire la liste':`Voir les ${ended.length} sessions`;
  if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune session terminée pour le moment.';list.append(p);return;}
  for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');name.textContent=new Date(s.startedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=`${stats.count} pesées · ${fmt(stats.net)} kg · ${durationLabel(stats.duration)}`;sum.append(name,meta);
   const quickRemove=document.createElement('button');
@@ -279,7 +286,10 @@ function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedA
   quickRemove.addEventListener('click',event=>{event.stopPropagation();deleteSession(s.id);});
   // Le bouton doit rester EN DEHORS du <details> : ses enfants sont masqués quand le bilan est fermé.
   const shell=document.createElement('div');shell.className='v30-session-shell';
-  item.append(sum,summaryElement(s));shell.append(item,quickRemove);list.append(shell);setupSecondaryDetailsAnimation(item,'.v22-bilan');}
+  item.append(sum,summaryElement(s));shell.append(item,quickRemove);list.append(shell);
+  shell.style.setProperty('--session-summary-height',`${sum.getBoundingClientRect().height}px`);
+  if(sessionSummaryObserver)sessionSummaryObserver.observe(sum);
+  setupSecondaryDetailsAnimation(item,'.v22-bilan');}
 }
 function renderV22(){renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('modeSlideThumb').parentElement.classList.toggle('is-rapid',entryMode==='g');$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);$('confirmDuplicates').checked=confirmDuplicates;renderBackupSummary();}
 let modeMotionCleanup=null;
@@ -638,14 +648,30 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
 
 
-// Défilement doux vers le calculateur depuis la bannière.
+// Défilement volontairement un peu plus lent (durée contrôlée, contrairement au smooth natif).
 (function setupHeroJump(){
  const link=document.querySelector('.intro-jump');
  const destination=$('calc-title');
  if(!link||!destination)return;
+ let animationId=null;
+ const cancel=()=>{if(animationId!==null){cancelAnimationFrame(animationId);animationId=null;}};
  link.addEventListener('click',event=>{
-  if(!destination.scrollIntoView)return;
-  event.preventDefault();
-  destination.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  event.preventDefault();cancel();
+  const maxScroll=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+  const target=Math.max(0,Math.min(maxScroll,window.scrollY+destination.getBoundingClientRect().top-24));
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){window.scrollTo(0,target);return;}
+  const from=window.scrollY,distance=target-from;
+  if(Math.abs(distance)<2)return;
+  const duration=800,start=performance.now();
+  const step=now=>{
+   const t=Math.min(1,(now-start)/duration);
+   const eased=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+   window.scrollTo(0,from+distance*eased);
+   if(t<1)animationId=requestAnimationFrame(step);else animationId=null;
+  };
+  animationId=requestAnimationFrame(step);
  });
+ // Un mouvement manuel reprend toujours la priorité sur l'animation.
+ window.addEventListener('touchstart',cancel,{passive:true});
+ window.addEventListener('wheel',cancel,{passive:true});
 })();
