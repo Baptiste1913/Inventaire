@@ -12,7 +12,7 @@ function loadBaskets(){for(const key of [STORAGE_KEY,LEGACY_KEY]){try{const raw=
 let baskets=loadBaskets(),editingId=null,netGrams=null,dragId=null;
 function loadHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.net)&&Number.isFinite(x.gross)&&Number.isFinite(x.tare)&&typeof x.at==='number').slice(0,15):[];}catch{return [];}}
 let history=loadHistory(),historyExpanded=false,autoSaveTimer=null,currentWeighId=null;
-function persistHistory(){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(history));}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';}renderHistory();}
+function persistHistory(){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(history));renderHistory();return true;}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';return false;}}
 function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
 const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('aria-expanded',String(historyExpanded));const label=btn.querySelector('.history-toggle-label');if(label)label.textContent=historyExpanded?'Réduire l’historique':`Voir les ${history.length} pesées`;
 if(!history.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
@@ -122,14 +122,48 @@ function saveCurrentWeigh(){
  const b=baskets.find(x=>x.id===$('basketSelect').value),gross=parseWeight($('grossWeight').value);
  if(!b||gross===null||gross<b.tare)return false;
  if(renderWarning()){$('weighStatus').textContent='⚠️ Confirme cette valeur avant son enregistrement.';return false;}
- const prev=history.find(x=>x.id===currentWeighId);
- // Évite une seconde écriture si le poids et la tare n'ont pas changé.
- if(prev&&prev.gross===gross&&prev.tare===b.tare&&prev.name===b.name)return true;
+ const previous=history.find(x=>x.id===currentWeighId);
+ if(previous&&previous.gross===gross&&previous.tare===b.tare&&previous.name===b.name)return true;
  const entry={id:currentWeighId||uid(),at:Date.now(),name:b.name,tare:b.tare,gross,net:gross-b.tare};
- const oldIndex=history.findIndex(x=>x.id===entry.id);if(oldIndex>=0)history.splice(oldIndex,1);
- currentWeighId=entry.id;history.unshift(entry);history=history.slice(0,15);
- const session=getActiveSession();if(session&&!session.pausedAt){const existing=session.entries.findIndex(x=>x.id===entry.id);const rec={...entry,groupId:entry.id};if(existing>=0)session.entries[existing]=rec;else session.entries.push(rec);persistSessions();}
- persistHistory();renderV22();$('weighStatus').textContent='Pesée enregistrée automatiquement';animateConfirmation();return true;
+ const newHistory=[entry,...history.filter(x=>x.id!==entry.id)].slice(0,15);
+ const session=getActiveSession();
+ const trackSession=session&&!session.pausedAt;
+ let newEntries=null;
+ if(trackSession){
+  const existing=session.entries.findIndex(x=>x.id===entry.id);
+  const rec={...entry,groupId:entry.id};
+  newEntries=session.entries.slice();
+  if(existing>=0)newEntries[existing]=rec;else newEntries.push(rec);
+ }
+ // Ne confirmer la pesée que lorsque les écritures locales ont réussi.
+ // En cas de refus du stockage, garder les données en mémoire telles qu'avant.
+ try{
+  const oldHistory=localStorage.getItem(HISTORY_KEY);
+  const oldSessions=trackSession?localStorage.getItem(SESSION_KEY):null;
+  try{
+   if(trackSession)localStorage.setItem(SESSION_KEY,JSON.stringify({sessions:sessions.map(s=>s===session?{...s,entries:newEntries}:s),activeId:activeSessionId}));
+   localStorage.setItem(HISTORY_KEY,JSON.stringify(newHistory));
+  }catch(error){
+   // Restaurer la clé session si l'écriture de l'historique a échoué.
+   if(trackSession){try{if(oldSessions===null)localStorage.removeItem(SESSION_KEY);else localStorage.setItem(SESSION_KEY,oldSessions);}catch{}}
+   // L'historique n'est normalement pas touché si setItem a échoué.
+   // Revenir à l'ancienne valeur par précaution si besoin.
+   try{if(oldHistory===null)localStorage.removeItem(HISTORY_KEY);else localStorage.setItem(HISTORY_KEY,oldHistory);}catch{}
+   throw error;
+  }
+ }catch{
+  $('weighStatus').textContent='⚠️ Pesée non enregistrée : stockage indisponible. Vérifie l’espace libre et exporte tes données.';
+  return false;
+ }
+ history=newHistory;
+ if(trackSession)session.entries=newEntries;
+ currentWeighId=entry.id;
+ renderHistory();
+ if(trackSession)renderLiveSessionStats();
+ if($('backupCard').open)renderBackupSummary();
+ $('weighStatus').textContent='Pesée enregistrée automatiquement';
+ animateConfirmation();
+ return true;
 }
 function scheduleAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=null;$('weighStatus').textContent='';if(netGrams!==null&&!renderWarning())autoSaveTimer=setTimeout(saveCurrentWeigh,1100);}
 function flushPending(){if(autoSaveTimer!==null)return saveCurrentWeigh();if(netGrams!==null&&renderWarning()){$('weighStatus').textContent='⚠️ Confirme cette pesée avant de continuer.';return false;}
@@ -155,12 +189,48 @@ function renderSessionControls(){const s=getActiveSession();$('sessionBadge').te
  $('sessionHelp').textContent=s?(s.pausedAt?'En pause : reprends pour enregistrer tes pesées.':`Début : ${dateLabel(s.startedAt)} · Suivi automatique actif.`):'Démarre une session pour conserver les statistiques de ton inventaire.';
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
 }
-function startSession(){if(getActiveSession())return;if(!flushPending())return;clearWeigh();const s={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};sessions.unshift(s);activeSessionId=s.id;persistSessions();renderV22();$('sessionMessage').textContent='Session démarrée. Tes pesées sont comptabilisées automatiquement.';}
-function pauseSession(){const s=getActiveSession();if(!s||s.pausedAt||!flushPending())return;s.pausedAt=Date.now();clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Session en pause.';}
-function resumeSession(){const s=getActiveSession();if(!s||!s.pausedAt)return;s.pausedMs+=Date.now()-s.pausedAt;s.pausedAt=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Session reprise.';}
-function finishSession(){const s=getActiveSession();if(!s)return;if(!s.pausedAt&&!flushPending())return;
+function renderLiveSessionStats(){
+ const session=getActiveSession();if(!session)return;
+ const stats=activeStats(session);
+ $('sessionDuration').textContent=durationLabel(stats.duration);
+ $('sessionWeighCount').textContent=String(stats.count);
+ $('sessionNet').textContent=`${fmt(stats.net)} kg`;
+}
+function startSession(){
+ if(getActiveSession()||!flushPending())return;
+ const before=sessions,prevId=activeSessionId;
+ const created={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};
+ sessions=[created,...sessions];activeSessionId=created.id;
+ if(!persistSessions()){sessions=before;activeSessionId=prevId;return;}
+ clearWeigh();renderV22();$('sessionMessage').textContent='Session démarrée. Tes pesées sont comptabilisées automatiquement.';
+}
+function pauseSession(){
+ const session=getActiveSession();if(!session||session.pausedAt||!flushPending())return;
+ session.pausedAt=Date.now();
+ if(!persistSessions()){session.pausedAt=null;return;}
+ clearWeigh();renderV22();$('sessionMessage').textContent='Session en pause.';
+}
+function resumeSession(){
+ const session=getActiveSession();if(!session||!session.pausedAt)return;
+ const oldPausedAt=session.pausedAt,oldPausedMs=session.pausedMs;
+ session.pausedMs+=Date.now()-session.pausedAt;session.pausedAt=null;
+ if(!persistSessions()){session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;return;}
+ clearWeigh();renderV22();$('sessionMessage').textContent='Session reprise.';
+}
+function finishSession(){
+ const session=getActiveSession();if(!session)return;
+ if(!session.pausedAt&&!flushPending())return;
  if(!confirm('Terminer cette session et enregistrer son bilan ?'))return;
- const now=Date.now();if(s.pausedAt){s.pausedMs+=now-s.pausedAt;s.pausedAt=null;}s.endedAt=now;activeSessionId=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';}
+ const oldPausedAt=session.pausedAt,oldPausedMs=session.pausedMs;
+ const now=Date.now();
+ if(session.pausedAt){session.pausedMs+=now-session.pausedAt;session.pausedAt=null;}
+ session.endedAt=now;activeSessionId=null;
+ if(!persistSessions()){
+  session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
+  return;
+ }
+ clearWeigh();renderV22();$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';
+}
 function sessionBreakdown(s){const map=new Map();for(const e of s.entries)map.set(e.name,(map.get(e.name)||0)+1);return [...map.entries()].sort((a,b)=>b[1]-a[1]);}
 function makeStat(label,value){const box=document.createElement('div');box.className='v22-stat';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;box.append(small,strong);return box;}
 function summaryElement(s){const stats=activeStats(s);const box=document.createElement('div');box.className='v22-bilan';const grid=document.createElement('div');grid.className='v22-stats-grid';
@@ -171,7 +241,7 @@ function summaryElement(s){const stats=activeStats(s);const box=document.createE
  const bins=new Map();for(const e of s.entries){const d=new Date(e.at);d.setMinutes(Math.floor(d.getMinutes()/30)*30,0,0);const key=d.getTime();bins.set(key,(bins.get(key)||0)+1);}
  const sorted=[...bins.entries()].sort((a,b)=>a[0]-b[0]);const max=Math.max(1,...sorted.map(x=>x[1]));for(const [at,count] of sorted){const row=document.createElement('div');row.className='v22-bar-row';const label=document.createElement('span');label.textContent=new Date(at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});const bar=document.createElement('div');bar.className='v22-bar-track';const fill=document.createElement('div');fill.className='v22-bar-fill';fill.style.width=`${count/max*100}%`;bar.append(fill);const amount=document.createElement('strong');amount.textContent=String(count);row.append(label,bar,amount);hist.append(row);}
  if(!sorted.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Aucune pesée dans cette session.';hist.append(empty);}
- box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:28,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
+ box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:29,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
 function deleteSession(id){
  const target=sessions.find(s=>s.id===id&&Boolean(s.endedAt));
  if(!target)return;
@@ -209,7 +279,7 @@ function renderBackupSummary(){
 }
 // Le fichier JSON contient également les préférences de saisie et d'alerte.
 function createBackupData(){return {
- app:'Inventaires U',version:28,backupFormatVersion:2,unit:'g',exportedAt:Date.now(),
+ app:'Inventaires U',version:29,backupFormatVersion:2,unit:'g',exportedAt:Date.now(),
  baskets,history,sessions,activeSessionId,activeGroup:null,lastGroup:null,
  settings:{entryMode,maxGrossGrams,confirmDuplicates}
 };}
@@ -226,7 +296,7 @@ function fullExport(){
   }
 }
 function validateFullBackup(data){
- if(!data||typeof data!=='object'||Array.isArray(data)||data.app!=='Inventaires U'||![22,23,24,25,26,27,28].includes(data.version))throw Error('Format non reconnu');
+ if(!data||typeof data!=='object'||Array.isArray(data)||data.app!=='Inventaires U'||![22,23,24,25,26,27,28,29].includes(data.version))throw Error('Format non reconnu');
  if(!Array.isArray(data.baskets)||!Array.isArray(data.sessions)||!Array.isArray(data.history))throw Error('Champs manquants');
  if(data.baskets.length>1000||data.sessions.length>10000||data.history.length>1000)throw Error('Trop de données');
  // Ne supprimer silencieusement aucune donnée invalide pendant une restauration.
@@ -314,7 +384,7 @@ $('sessionsToggle').addEventListener('click',()=>{sessionsExpanded=!sessionsExpa
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
-setInterval(()=>{const s=getActiveSession();if(s){$('sessionDuration').textContent=durationLabel(activeStats(s).duration);}},1000);
+setInterval(()=>{if(!document.hidden)renderLiveSessionStats();},1000);
 
 $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){alert('Indique un nom et une tare valide en kg (ex. 0.554).');return;}if(editingId){const b=baskets.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else baskets.push({id:uid(),name,tare});cancelEdit();persist();});
 
@@ -322,9 +392,14 @@ $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('b
 $('grossWeight').addEventListener('input',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('basketSelect').addEventListener('change',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('grossWeight').addEventListener('blur',()=>{if(autoSaveTimer!==null)saveCurrentWeigh();});
+// iOS peut suspendre le timer de 1,1 s dès que l'application se verrouille.
+// Forcer une sauvegarde synchrone des données valides avant la suspension.
+function saveBeforeSuspend(){if(autoSaveTimer!==null)saveCurrentWeigh();}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveBeforeSuspend();else renderLiveSessionStats();});
+window.addEventListener('pagehide',saveBeforeSuspend);
 $('resetBtn').addEventListener('click',newWeigh);
 $('historyToggleTop').addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory();});
-$('clearHistoryBtn').addEventListener('click',()=>{if(!confirm('Effacer les 15 dernières pesées visibles ? Les pesées des sessions restent conservées.'))return;clearTimeout(autoSaveTimer);autoSaveTimer=null;currentWeighId=null;history=[];historyExpanded=false;persistHistory();$('weighStatus').textContent='Historique récent effacé.';});
+$('clearHistoryBtn').addEventListener('click',()=>{if(!confirm('Effacer les 15 dernières pesées visibles ? Les pesées des sessions restent conservées.'))return;const previous=history;clearTimeout(autoSaveTimer);autoSaveTimer=null;history=[];if(!persistHistory()){history=previous;return;}currentWeighId=null;historyExpanded=false;renderHistory();$('weighStatus').textContent='Historique récent effacé.';});
 $('cancelEditBtn').addEventListener('click',cancelEdit);
 $('copyBtn').addEventListener('click',async()=>{if(netGrams===null||renderWarning()||!flushPending())return;const value=fmt(netGrams);try{await navigator.clipboard.writeText(value);$('copyBtn').textContent='Copié : '+value;setTimeout(()=>$('copyBtn').textContent='Copier le poids net',1700);}catch(e){prompt('Copie ce poids :',value);}});
 

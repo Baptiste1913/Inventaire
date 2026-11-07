@@ -447,3 +447,6 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 .backup-status:empty{display:none}
 @media(max-width:380px){.backup-panel{padding:13px}.backup-panel-heading strong{font-size:14px}.backup-main-btn,.backup-restore-btn{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.backup-advanced>summary svg{transition:none}}
+
+/* V29 — titre légèrement plus contrasté et espacement des lettres adouci. */
+.brand h1{color:#444B53;letter-spacing:-.30px!important;}

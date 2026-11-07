@@ -1,18 +1,22 @@
-# Inventaires U — V28 : sauvegardes simplifiées
+# Inventaires U — V29 : performances et stabilité
 
 ## Installation
-1. Dans l'ancienne version, ouvrir « Réglages et données » et exporter une sauvegarde complète, avant toute mise à jour.
-2. Décompresser le ZIP. Copier les 15 fichiers à la racine du dépôt GitHub Pages, sans supprimer le contenu.
-3. Commit changes. Ouvrir le site une première fois avec Internet et relancer l'application installée sur iPhone.
+1. **Avant de publier**, ouvrir la V28 et utiliser **Sauvegarde → Télécharger ma sauvegarde**. Conserver le fichier JSON.
+2. Décompresser l’archive V29 et transférer tous les fichiers à la racine du dépôt GitHub Pages.
+3. Valider les modifications, puis ouvrir le site **en ligne** et le recharger pour installer le nouveau cache.
+4. Tester à nouveau l’application depuis l’écran d’accueil en mode avion (Wi-Fi désactivé).
 
 ## Changements
-- « Réglages et données » devient « Sauvegarde ».
-- Deux actions principales : télécharger une sauvegarde **complète** et restaurer un fichier JSON.
-- Résumé du nombre de paniers, inventaires et pesées archivées.
-- Date du dernier **export généré** sur cet appareil (ne prouve pas que le fichier a été conservé).
-- Exports CSV et panier uniquement rangés dans « Autres options d'export ».
-- Sauvegarde JSON v28 incluant les préférences (mode de saisie, seuil de poids, confirmation des doublons).
-- Restauration compatible avec les sauvegardes complètes des versions V22 à V28. Contrôle du contenu, confirmation explicite, écritures avec tentative de retour arrière en cas d'échec.
-- L'application fonctionne toujours sans serveur et hors ligne ; les fichiers téléchargés doivent être conservés dans l'application Fichiers ou ailleurs par l'utilisateur.
+- Enregistrement des pesées plus robuste : aucune confirmation de réussite si le stockage local refuse l’écriture.
+- Limitation des reconstructions du DOM pendant une session : le compteur et le total se mettent à jour sans redessiner les anciens bilans à chaque pesée.
+- Sauvegarde immédiate d’une pesée valide en attente quand l’application passe en arrière-plan ou que l’écran se verrouille, dans les limites imposées par iOS.
+- Démarrage, pause, reprise et clôture d’une session restaurés à leur état précédent si l’écriture locale échoue.
+- Nettoyage de l’historique sécurisé si son enregistrement local échoue.
+- Sauvegardes JSON V29, restauration toujours compatible avec les formats complets V22–V29.
+- Titre **UTILITAIRE D’INVENTAIRE** légèrement plus sombre et lettres légèrement plus espacées.
+- Cache hors ligne V29 : les ressources HTML/CSS/JS, images, icônes et manifeste sont préchargés.
 
-**Important :** l'import de paniers uniquement est distinct d'une restauration complète. Une restauration complète remplace les paniers, l'historique rapide et les sessions. Les données existantes ne sont pas modifiées par la simple mise à jour.
+## Important
+- Les données restent locales : elles peuvent disparaître si Safari supprime son stockage ; faire régulièrement une copie JSON.
+- Sans réseau, les calculs, les paniers, les sessions, les bilans et les exports locaux restent fonctionnels *si l’installation hors ligne a été faite en ligne auparavant et que les fichiers sont encore dans le cache*.
+- Le test sur Safari iOS réel reste nécessaire, même si les tests automatiques passent sur Chromium.
