@@ -283,3 +283,17 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 }
 
 /* V27.3 — calcul de hauteur corrigé dans app.js ; style visuel inchangé. */
+
+
+/* V27.4 — réglage de pesée rendu plus explicite et icône de démarrage personnalisée */
+.brand h1{color:#515860;}
+.weigh-setup{margin:2px 0 14px;padding:13px 14px;border:1px solid #dfe9eb;border-radius:15px;background:linear-gradient(180deg,#fbfdfd 0%,#f5fafb 100%);}
+.weigh-setup-copy{display:grid;gap:5px;margin-bottom:11px;}
+.weigh-setup-title{font-size:12px;font-weight:850;letter-spacing:.55px;text-transform:uppercase;color:#2d6f79;}
+.weigh-setup-text{margin:0;font-size:12px;line-height:1.45;color:#6b767b;}
+.weigh-setup .v22-mode{margin:0;}
+.weigh-setup-mode .mode-btn{min-height:46px;padding:12px 8px;font-size:12.5px;}
+.btn-icon-img{object-fit:contain;}
+.start-btn-icon{width:16px;height:16px;filter:brightness(0) invert(1);}
+#startSession .start-btn-icon{transform:translateX(.5px);}
+@media(max-width:380px){.weigh-setup{padding:12px 12px 13px}.weigh-setup-copy{margin-bottom:10px}.weigh-setup-title{font-size:11px}.weigh-setup-text{font-size:11px}.weigh-setup-mode .mode-btn{font-size:11.5px;padding:11px 6px;}}
