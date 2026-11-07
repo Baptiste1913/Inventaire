@@ -195,8 +195,8 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 
 .fold-card{overflow:hidden}
 .fold-body{padding:4px 17px 18px}
-.fold-card[open] > .fold-body{animation:foldOpen .24s ease}
-@keyframes foldOpen{0%{opacity:0;transform:translateY(-8px)}100%{opacity:1;transform:translateY(0)}}
+
+
 
 /* V26.1 — finitions compactes et cohérentes : aucune modification de logique. */
 /* Les espaces ont été légèrement resserrés, sans descendre sous les cibles tactiles recommandées. */
@@ -226,4 +226,23 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
  .session-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  .session-actions .session-btn{font-size:13px;padding:11px 8px;gap:7px}
 }
-@media(prefers-reduced-motion:reduce){.fold-card[open]>.fold-body{animation:none}}
+
+
+/* V27 — finitions discrètes */
+.weight-field input::placeholder{color:#c6cbd0;opacity:.56;font-weight:800}
+.weight-field input::-webkit-input-placeholder{color:#c6cbd0;opacity:.56;font-weight:800}
+.v22-settings{margin-top:17px;background:#fff7f7;border:1px solid #f0c7cb;overflow:hidden}
+.v22-settings>summary{color:#91414b!important;font-weight:830}
+.v22-settings[open]>summary{border-bottom:1px solid #f6dfe1}
+.v22-settings>.alerts-help{color:#875d60;font-size:11px;margin-bottom:14px}
+.v22-settings label.duplicate-toggle{display:flex;align-items:flex-start;gap:12px;margin:5px 14px 11px!important;padding:13px 12px;background:rgba(255,255,255,.75);border:1px solid #f4d6d8;border-radius:12px;cursor:pointer;font-size:12px}
+.v22-settings .duplicate-toggle input[type="checkbox"]{width:20px;min-width:20px;height:20px;flex:0 0 20px;margin:1px 0 0;padding:0;border-radius:6px;accent-color:#bd5561;cursor:pointer}
+.v22-settings .duplicate-toggle span{display:grid;gap:4px;line-height:1.4}
+.v22-settings .duplicate-toggle strong{font-size:12px;font-weight:810;color:#713b40}
+.v22-settings .duplicate-toggle small{font-size:11px;line-height:1.5;color:#8d6569;font-weight:500}
+.bilan-notice{font-size:12px;color:#177b72;font-weight:700;margin:0}
+.bilan-notice:empty{display:none}
+.delete-session-btn{display:block;width:100%;min-height:42px;margin-top:11px;background:#fff9f9;color:#a34c56;border:1px solid #edc9ce;border-radius:13px;font-size:12px;font-weight:780;cursor:pointer}
+.delete-session-btn:focus-visible{outline:2px solid #a34c56;outline-offset:2px}
+.delete-session-btn:active{background:#ffecee}
+@media(prefers-reduced-motion:reduce){.fold-chevron{transition:none}}

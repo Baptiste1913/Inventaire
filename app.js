@@ -65,6 +65,7 @@ function removeBasket(id){const b=baskets.find(x=>x.id===id);if(!b||!confirm(`Su
 const SESSION_KEY='inventaires-u-sessions-v1';
 const MODE_KEY='inventaires-u-weight-mode-v1';
 const LIMIT_KEY='inventaires-u-warning-limit-v1';
+const DUPLICATE_CONFIRM_KEY='inventaires-u-duplicate-confirm-v1';
 const safeClone=x=>JSON.parse(JSON.stringify(x));
 const readJSON=(key,fallback)=>{try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw);}catch{return fallback;}};
 function cleanWeigh(x){
@@ -82,6 +83,7 @@ let activeSessionId=typeof loadedSessions?.activeId==='string'&&sessions.some(s=
 let activeGroup=null,lastGroup=null;
 let entryMode=localStorage.getItem(MODE_KEY)==='g'?'g':'kg';
 let maxGrossGrams=parseKg(localStorage.getItem(LIMIT_KEY)||'20.000')||20000;
+let confirmDuplicates=localStorage.getItem(DUPLICATE_CONFIRM_KEY)!=='false';
 let acceptedAnomalyKey='',sessionsExpanded=false;
 function getActiveSession(){return sessions.find(s=>s.id===activeSessionId&&!s.endedAt)||null;}
 function activeStats(s){
@@ -97,7 +99,7 @@ function persistGroup(){return true;}
 function parseWeight(value){if(entryMode==='kg')return parseKg(value);const s=String(value).trim();return /^\d{1,9}$/.test(s)?Number(s):null;}
 function weightFromGrams(g){return entryMode==='g'?String(g):fmt(g);}
 function issueFor(gross,b){if(gross>maxGrossGrams)return `Poids brut inhabituel (${fmt(gross)} kg). Vérifie la balance.`;
-  if(currentWeighId===null){const prev=history[0];if(prev&&prev.gross===gross&&prev.tare===b.tare&&Date.now()-prev.at<120000)return 'Ce poids et cette tare sont identiques à la pesée précédente. Vérifie qu’il ne s’agit pas d’un doublon.';}
+  if(confirmDuplicates&&currentWeighId===null){const prev=history[0];if(prev&&prev.gross===gross&&prev.tare===b.tare&&Date.now()-prev.at<120000)return 'Ce poids et cette tare sont identiques à la pesée précédente. Vérifie qu’il ne s’agit pas d’un doublon.';}
   return '';
 }
 function anomalyKey(gross,b){return `${b.id}:${gross}`;}
@@ -127,7 +129,7 @@ function saveCurrentWeigh(){
  const oldIndex=history.findIndex(x=>x.id===entry.id);if(oldIndex>=0)history.splice(oldIndex,1);
  currentWeighId=entry.id;history.unshift(entry);history=history.slice(0,15);
  const session=getActiveSession();if(session&&!session.pausedAt){const existing=session.entries.findIndex(x=>x.id===entry.id);const rec={...entry,groupId:entry.id};if(existing>=0)session.entries[existing]=rec;else session.entries.push(rec);persistSessions();}
- persistHistory();renderV22();$('weighStatus').textContent='✓ Pesée enregistrée automatiquement';animateConfirmation();return true;
+ persistHistory();renderV22();$('weighStatus').textContent='Pesée enregistrée automatiquement';animateConfirmation();return true;
 }
 function scheduleAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=null;$('weighStatus').textContent='';if(netGrams!==null&&!renderWarning())autoSaveTimer=setTimeout(saveCurrentWeigh,1100);}
 function flushPending(){if(autoSaveTimer!==null)return saveCurrentWeigh();if(netGrams!==null&&renderWarning()){$('weighStatus').textContent='⚠️ Confirme cette pesée avant de continuer.';return false;}
@@ -153,12 +155,12 @@ function renderSessionControls(){const s=getActiveSession();$('sessionBadge').te
  $('sessionHelp').textContent=s?(s.pausedAt?'En pause : reprends pour enregistrer tes pesées.':`Début : ${dateLabel(s.startedAt)} · Suivi automatique actif.`):'Démarre une session pour conserver les statistiques de ton inventaire.';
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
 }
-function startSession(){if(getActiveSession())return;if(!flushPending())return;clearWeigh();const s={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};sessions.unshift(s);activeSessionId=s.id;persistSessions();renderV22();$('sessionMessage').textContent='✓ Session démarrée. Tes pesées sont comptabilisées automatiquement.';}
+function startSession(){if(getActiveSession())return;if(!flushPending())return;clearWeigh();const s={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};sessions.unshift(s);activeSessionId=s.id;persistSessions();renderV22();$('sessionMessage').textContent='Session démarrée. Tes pesées sont comptabilisées automatiquement.';}
 function pauseSession(){const s=getActiveSession();if(!s||s.pausedAt||!flushPending())return;s.pausedAt=Date.now();clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Session en pause.';}
-function resumeSession(){const s=getActiveSession();if(!s||!s.pausedAt)return;s.pausedMs+=Date.now()-s.pausedAt;s.pausedAt=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='✓ Session reprise.';}
+function resumeSession(){const s=getActiveSession();if(!s||!s.pausedAt)return;s.pausedMs+=Date.now()-s.pausedAt;s.pausedAt=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Session reprise.';}
 function finishSession(){const s=getActiveSession();if(!s)return;if(!s.pausedAt&&!flushPending())return;
  if(!confirm('Terminer cette session et enregistrer son bilan ?'))return;
- const now=Date.now();if(s.pausedAt){s.pausedMs+=now-s.pausedAt;s.pausedAt=null;}s.endedAt=now;activeSessionId=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='✓ Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';}
+ const now=Date.now();if(s.pausedAt){s.pausedMs+=now-s.pausedAt;s.pausedAt=null;}s.endedAt=now;activeSessionId=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';}
 function sessionBreakdown(s){const map=new Map();for(const e of s.entries)map.set(e.name,(map.get(e.name)||0)+1);return [...map.entries()].sort((a,b)=>b[1]-a[1]);}
 function makeStat(label,value){const box=document.createElement('div');box.className='v22-stat';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;box.append(small,strong);return box;}
 function summaryElement(s){const stats=activeStats(s);const box=document.createElement('div');box.className='v22-bilan';const grid=document.createElement('div');grid.className='v22-stats-grid';
@@ -169,31 +171,47 @@ function summaryElement(s){const stats=activeStats(s);const box=document.createE
  const bins=new Map();for(const e of s.entries){const d=new Date(e.at);d.setMinutes(Math.floor(d.getMinutes()/30)*30,0,0);const key=d.getTime();bins.set(key,(bins.get(key)||0)+1);}
  const sorted=[...bins.entries()].sort((a,b)=>a[0]-b[0]);const max=Math.max(1,...sorted.map(x=>x[1]));for(const [at,count] of sorted){const row=document.createElement('div');row.className='v22-bar-row';const label=document.createElement('span');label.textContent=new Date(at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});const bar=document.createElement('div');bar.className='v22-bar-track';const fill=document.createElement('div');fill.className='v22-bar-fill';fill.style.width=`${count/max*100}%`;bar.append(fill);const amount=document.createElement('strong');amount.textContent=String(count);row.append(label,bar,amount);hist.append(row);}
  if(!sorted.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Aucune pesée dans cette session.';hist.append(empty);}
- box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:25,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));actions.append(csv,json);box.append(actions);return box;}
+ box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:27,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
+function deleteSession(id){
+ const target=sessions.find(s=>s.id===id&&Boolean(s.endedAt));
+ if(!target)return;
+ const label=dateLabel(target.startedAt);
+ if(!confirm(`Supprimer définitivement le bilan du ${label} et ses ${target.entries.length} pesées archivées ?\nCette action ne peut pas être annulée. Les 15 dernières pesées du suivi rapide ne seront pas modifiées.`))return;
+ const previous=sessions;
+ sessions=sessions.filter(s=>s.id!==id);
+ if(!persistSessions()){
+   sessions=previous;
+   $('bilanNotice').textContent='Suppression impossible : stockage local indisponible.';
+   return;
+ }
+ renderSessionsHistory();
+ $('bilanNotice').textContent=`Bilan du ${label} supprimé.`;
+}
 function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedAt)).sort((a,b)=>b.startedAt-a.startedAt);$('sessionsCount').textContent=`${ended.length} session${ended.length>1?'s':''}`;
  const list=$('sessionsHistoryList');list.replaceChildren();$('sessionsToggle').hidden=ended.length<=5;$('sessionsToggle').textContent=sessionsExpanded?'Réduire la liste':`Voir les ${ended.length} sessions`;
  if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune session terminée pour le moment.';list.append(p);return;}
  for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');name.textContent=new Date(s.startedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=`${stats.count} pesées · ${fmt(stats.net)} kg · ${durationLabel(stats.duration)}`;sum.append(name,meta);item.append(sum,summaryElement(s));list.append(item);}
 }
-function renderV22(){renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);}
+function renderV22(){renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);$('confirmDuplicates').checked=confirmDuplicates;}
 function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{localStorage.setItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();}
 function setLimit(){const n=parseKg($('maxGrossLimit').value);if(n===null||n<1000||n>1000000){$('maxGrossLimit').value=fmt(maxGrossGrams);$('weighStatus').textContent='Choisis un seuil entre 1 et 1000 kg.';return;}maxGrossGrams=n;try{localStorage.setItem(LIMIT_KEY,fmt(n));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();}
 function download(data,name,type){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 function exportCSV(items,name){const head=['Session','Début session','Fin session','Durée active (min)','Pesée','Date/heure pesée','Groupe de pesées','Type de panier','Poids brut (kg)','Tare (kg)','Poids net (kg)'];
  const csvCell=x=>`"${String(x??'').replaceAll('"','""')}"`;const lines=[head.map(csvCell).join(';')];for(const s of items){const st=activeStats(s);for(const [i,e] of s.entries.entries()){lines.push([s.id,dateLabel(s.startedAt),s.endedAt?dateLabel(s.endedAt):'En cours',(st.duration/60000).toFixed(1).replace('.',','),i+1,dateLabel(e.at),e.groupId,e.name,fmt(e.gross).replace('.',','),fmt(e.tare).replace('.',','),fmt(e.net).replace('.',',')].map(csvCell).join(';'));}}
  download('\ufeff'+lines.join('\r\n'),name,'text/csv;charset=utf-8');}
-function fullExport(){if(autoSaveTimer!==null)saveCurrentWeigh();download(JSON.stringify({app:'Inventaires U',version:25,unit:'g',exportedAt:Date.now(),baskets,history,sessions,activeSessionId,activeGroup:null,lastGroup:null},null,2),`inventaires-u-sauvegarde-${new Date().toISOString().slice(0,10)}.json`,'application/json');$('backupStatus').textContent='✓ Sauvegarde complète exportée.';}
+function fullExport(){if(autoSaveTimer!==null)saveCurrentWeigh();download(JSON.stringify({app:'Inventaires U',version:27,unit:'g',exportedAt:Date.now(),baskets,history,sessions,activeSessionId,activeGroup:null,lastGroup:null},null,2),`inventaires-u-sauvegarde-${new Date().toISOString().slice(0,10)}.json`,'application/json');$('backupStatus').textContent='Sauvegarde complète exportée.';}
 async function fullImport(event){const file=event.target.files?.[0];if(!file)return;try{
- if(file.size>10*1024*1024)throw Error('Taille excessive');const data=JSON.parse(await file.text());if(!data||data.app!=='Inventaires U'||![22,23,24,25].includes(data.version)||!Array.isArray(data.baskets)||!Array.isArray(data.sessions)||!Array.isArray(data.history))throw Error('Format incorrect');
+ if(file.size>10*1024*1024)throw Error('Taille excessive');const data=JSON.parse(await file.text());if(!data||data.app!=='Inventaires U'||![22,23,24,25,26,27].includes(data.version)||!Array.isArray(data.baskets)||!Array.isArray(data.sessions)||!Array.isArray(data.history))throw Error('Format incorrect');
  const bb=sanitize(data.baskets),ss=data.sessions.map(cleanSession);if(ss.some(x=>!x))throw Error('Session incorrecte');const hh=data.history.map(cleanWeigh);if(hh.some(x=>!x))throw Error('Historique incorrect');
  if(!confirm(`Restaurer ${bb.length} panier(s), ${ss.length} session(s) et ${hh.length} pesée(s) ? Les données actuelles seront remplacées. Exporte-les d’abord si nécessaire.`))return;
  clearTimeout(autoSaveTimer);autoSaveTimer=null;baskets=bb;sessions=ss;history=hh.slice(0,15);activeSessionId=typeof data.activeSessionId==='string'&&sessions.some(s=>s.id===data.activeSessionId&&!s.endedAt)?data.activeSessionId:null;activeGroup=null;lastGroup=null;currentWeighId=null;
- try{localStorage.setItem(STORAGE_KEY,JSON.stringify(baskets));}catch{}persistHistory();persistSessions();persistGroup();render();renderV22();$('backupStatus').textContent='✓ Sauvegarde complète restaurée.';
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(baskets));}catch{}persistHistory();persistSessions();persistGroup();render();renderV22();$('backupStatus').textContent='Sauvegarde complète restaurée.';
  }catch(e){$('backupStatus').textContent='Importation impossible : sauvegarde invalide.';}finally{event.target.value='';}}
 // Commandes V22.
 $('modeKg').addEventListener('click',()=>switchMode('kg'));
 $('modeG').addEventListener('click',()=>switchMode('g'));
 $('maxGrossLimit').addEventListener('change',setLimit);
+$('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{localStorage.setItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
 $('startSession').addEventListener('click',startSession);
 $('pauseSession').addEventListener('click',pauseSession);
@@ -202,7 +220,7 @@ $('finishSession').addEventListener('click',finishSession);
 $('sessionsToggle').addEventListener('click',()=>{sessionsExpanded=!sessionsExpanded;renderSessionsHistory();});
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
-$('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='✓ CSV des sessions exporté.';});
+$('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
 setInterval(()=>{const s=getActiveSession();if(s){$('sessionDuration').textContent=durationLabel(activeStats(s).duration);}},1000);
 
 $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){alert('Indique un nom et une tare valide en kg (ex. 0.554).');return;}if(editingId){const b=baskets.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else baskets.push({id:uid(),name,tare});cancelEdit();persist();});
@@ -215,7 +233,7 @@ $('resetBtn').addEventListener('click',newWeigh);
 $('historyToggleTop').addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory();});
 $('clearHistoryBtn').addEventListener('click',()=>{if(!confirm('Effacer les 15 dernières pesées visibles ? Les pesées des sessions restent conservées.'))return;clearTimeout(autoSaveTimer);autoSaveTimer=null;currentWeighId=null;history=[];historyExpanded=false;persistHistory();$('weighStatus').textContent='Historique récent effacé.';});
 $('cancelEditBtn').addEventListener('click',cancelEdit);
-$('copyBtn').addEventListener('click',async()=>{if(netGrams===null||renderWarning()||!flushPending())return;const value=fmt(netGrams);try{await navigator.clipboard.writeText(value);$('copyBtn').textContent='✓ Copié : '+value;setTimeout(()=>$('copyBtn').textContent='Copier le poids net',1700);}catch(e){prompt('Copie ce poids :',value);}});
+$('copyBtn').addEventListener('click',async()=>{if(netGrams===null||renderWarning()||!flushPending())return;const value=fmt(netGrams);try{await navigator.clipboard.writeText(value);$('copyBtn').textContent='Copié : '+value;setTimeout(()=>$('copyBtn').textContent='Copier le poids net',1700);}catch(e){prompt('Copie ce poids :',value);}});
 
 $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({app:'Inventaires U',version:2,unit:'g',baskets},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='inventaires-u-paniers.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);$('backupStatus').textContent='Sauvegarde téléchargée.';});
 $('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');if(!confirm(`Importer ${items.length} panier(s) ? Cela remplacera ta liste actuelle.`))return;baskets=sanitize(items);cancelEdit();persist();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
@@ -264,4 +282,42 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
   window.addEventListener('offline',()=>{dismissed=false;sync();});
   window.addEventListener('pageshow',sync);
   sync();
+})();
+
+
+// V27 — animation symétrique des catégories (ouverture ET fermeture).
+// Le <details> reste ouvert le temps de l'animation sortante.
+(function setupFoldAnimations(){
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  for(const card of document.querySelectorAll('.fold-card')){
+    const summary=card.querySelector(':scope > .fold-summary');
+    const content=card.querySelector(':scope > .fold-body');
+    if(!summary||!content)continue;
+    let motion=null;
+    let targetOpen=card.open;
+    summary.addEventListener('click',event=>{
+      if(reduceMotion.matches||typeof content.animate!=='function')return;
+      event.preventDefault();
+      const next=!targetOpen;
+      targetOpen=next;
+      const currentHeight=card.open?content.getBoundingClientRect().height:0;
+      if(motion){motion.cancel();motion=null;}
+      if(next)card.open=true;
+      const goalHeight=next?content.scrollHeight:0;
+      if(Math.abs(currentHeight-goalHeight)<1){card.open=next;return;}
+      content.style.overflow='hidden';
+      const animation=content.animate([
+        {height:`${currentHeight}px`,opacity:next?0:1,transform:next?'translateY(-7px)':'translateY(0)'},
+        {height:`${goalHeight}px`,opacity:next?1:0,transform:next?'translateY(0)':'translateY(-7px)'}
+      ],{duration:250,easing:'cubic-bezier(.22,1,.36,1)',fill:'both'});
+      motion=animation;
+      animation.onfinish=()=>{
+        if(motion!==animation)return;
+        motion=null;
+        animation.cancel();
+        content.style.overflow='';
+        if(!next)card.open=false;
+      };
+    });
+  }
 })();

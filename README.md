@@ -1,15 +1,18 @@
-# Mise à jour de l’application — V26.1
+# Mettre à jour Inventaires U — V27
 
-1. Exporter une sauvegarde complète depuis Inventaires U par précaution.
-2. Décompresser l’archive et remplacer les fichiers à la racine du dépôt GitHub Pages.
-3. Valider les modifications avec **Commit changes**.
-4. Ouvrir le site en ligne pour laisser le service worker actualiser le cache.
-5. Tester les boutons d’inventaire, les catégories et la pesée, puis vérifier le mode hors ligne.
+1. Avant toute mise à jour, ouvrir **Réglages et données** et **Exporter toutes mes données (JSON)** pour conserver une sauvegarde.
+2. Décompresser le ZIP et remplacer **tous les fichiers à la racine** du dépôt GitHub Pages.
+3. Faire **Commit changes** et attendre le déploiement.
+4. Ouvrir `inventaires-u.com` avec Internet, recharger une fois puis rouvrir l’application depuis l’écran d’accueil.
+5. Tester l’ouverture/fermeture des catégories, l’option de détection des doublons, la suppression d’un bilan fictif et le mode hors ligne.
 
-## Modifications V26.1
-- Espacements légèrement optimisés, sans modifier l’en-tête.
-- Boutons de session de même hauteur et alignés ; « Démarrer » utilise toute la largeur.
-- Bouton « Terminer » plus discret, pour le distinguer de « Reprendre » sans créer de contraste excessif.
-- Catégories repliables moins hautes ; animation préservée.
-- Correction des références de cache CSS et JavaScript : elles sont cohérentes avec V26.1.
-- Aucune migration de données ni modification des calculs, sessions, ou du stockage.
+## Changements V27
+
+- Retrait des coches décoratives et des coches dans les messages de confirmation.
+- Exemple de saisie plus discret.
+- Animation identique à l’ouverture et à la fermeture des catégories principales.
+- Suppression individuelle des bilans terminés, avec confirmation. Les pesées de l’historique rapide restent indépendantes.
+- Encadré « Alertes de pesée » rose/rouge clair, avec espace supplémentaire au-dessus.
+- Case à cocher **Confirmer les doublons potentiels** ; préférence enregistrée localement, activée par défaut. La confirmation des poids inhabituellement élevés reste active.
+- Mention « Utilisation non commerciale uniquement » en pied de page.
+- Nouveau cache hors ligne V27, sans migration des paniers ni des sessions.
