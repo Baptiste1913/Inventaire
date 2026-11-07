@@ -1,15 +1,12 @@
-# Mise à jour Inventaires U — V27.6
+# Mise à jour — Inventaires U V27.8
 
-1. Dans **Réglages et données**, exporte **toutes tes données (JSON)** avant la mise à jour.
-2. Décompresse cette archive et remplace les fichiers à la racine de ton dépôt GitHub Pages.
-3. Valide avec **Commit changes**, attends le déploiement, puis ouvre le site une fois avec Internet pour actualiser son cache.
-4. Vérifie la section **Nouvelle pesée** : les **Alertes de pesée** sont maintenant visibles (et repliées) avant **Type de panier**. Leur seuil et l'option de confirmation des doublons se trouvent dans ce bloc.
-5. Le mode **Classique (kg) / Rapide · sans virgule** est revenu à sa disposition de la V26, juste sous **Poids brut**.
+1. Avant la mise à jour, exporter une sauvegarde complète de tes données.
+2. Décompresser cette archive et remplacer tous les fichiers à la racine du dépôt GitHub Pages.
+3. Valider avec « Commit changes » et ouvrir une fois l’application avec Internet pour actualiser le cache hors ligne.
 
-## Changements
+## Modifications
 
-- Déplacement exclusif du bloc **Alertes de pesée**, avec encadré rouge clair, intitulé explicite et chevron indiquant qu'il se déplie.
-- Conservation des réglages et des préférences existants (mêmes identifiants et clés de stockage).
-- Rétablissement de la présentation du mode de saisie rapide de V26, sans modifier sa logique.
-- Icône personnalisée blanche conservée dans **Démarrer un inventaire**.
-- Cache hors ligne renouvelé pour la V27.6.
+- Bloc « Réglages de la pesée » : dégradé bleu très clair, proche du rendu de la V27.4, sans changement de disposition ni de comportement.
+- Intitulé « Alertes de pesée » remplacé par « Réglages d’alertes ».
+- Icône de démarrage, modes de saisie, alertes, sessions et données conservés.
+- Références de cache mises à jour en V27.8.

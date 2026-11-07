@@ -328,3 +328,90 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
   .calc-alerts-title small{font-size:10.5px;}
 }
 @media(prefers-reduced-motion:reduce){.calc-alerts-chevron{transition:none;}}
+
+
+/* V27.7 — Mode de saisie et alertes réunis dans un seul réglage discret */
+.calc-card>.weigh-preferences{
+  border:1px solid #efcbd0;
+  border-radius:15px;
+  background:#fff8f8;
+  padding:13px 14px 7px;
+  margin:0 0 16px;
+}
+.weigh-preferences-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:3px 9px;margin-bottom:11px;}
+.weigh-preferences-title{color:#85454f;font-size:13px;font-weight:850;letter-spacing:.05px;line-height:1.35;}
+.weigh-preferences-subtitle{font-size:11px;line-height:1.4;color:#9d7179;}
+.calc-card .weigh-preferences-mode{
+  margin:0 0 10px;
+  padding:3px;
+  background:#f4e8ea;
+  border:1px solid #f0dfe1;
+  border-radius:11px;
+}
+.weigh-preferences-mode .mode-btn{min-height:39px;padding:10px 7px;font-weight:800;color:#8b565f;}
+.weigh-preferences-mode .mode-btn[aria-pressed="true"]{
+  background:#fff;
+  color:#8b4551;
+  box-shadow:0 2px 7px rgba(133,63,73,.11);
+}
+/* Les alertes forment une sous-section du même bloc, pas une seconde carte. */
+.calc-card .weigh-preferences-alerts{
+  border:0;
+  border-top:1px solid #f1dadd;
+  border-radius:0;
+  background:transparent;
+  margin:0 -14px;
+  padding:0;
+  overflow:hidden;
+}
+.calc-card .weigh-preferences-alerts>.calc-alerts-summary{
+  min-height:49px;
+  padding:10px 14px;
+  border:0;
+}
+.weigh-preferences-alerts .calc-alerts-title strong{font-size:12px;}
+.weigh-preferences-alerts .calc-alerts-title small{font-size:10.5px;}
+.weigh-preferences-alerts[open]>.calc-alerts-summary{border-bottom:1px solid #f1dadd;}
+.weigh-preferences-alerts .calc-alerts-body{padding-bottom:13px;}
+.calc-card>.weigh-preferences+label[for="basketSelect"]{margin-top:14px;}
+.session-actions #startSession .start-btn-icon{width:12px;height:12px;flex:0 0 12px;object-fit:contain;}
+@media(max-width:380px){
+  .calc-card>.weigh-preferences{padding:12px 11px 6px;}
+  .calc-card .weigh-preferences-alerts{margin:0 -11px;}
+  .calc-card .weigh-preferences-alerts>.calc-alerts-summary{padding:10px 11px;}
+  .weigh-preferences-head{gap:2px 7px;}
+  .weigh-preferences-subtitle{font-size:10.5px;}
+  .weigh-preferences-mode .mode-btn{font-size:11px;padding:9px 5px;}
+}
+
+/* V27.8 — dégradé bleu doux pour le bloc unifié, sans modifier son ergonomie. */
+.calc-card>.weigh-preferences{
+  border-color:#d6e8ed;
+  background:linear-gradient(160deg,#fcfefe 0%,#f4fafa 56%,#eaf4f8 100%);
+}
+.weigh-preferences-title{color:#2d6f79;}
+.weigh-preferences-subtitle{color:#6a8089;}
+.calc-card .weigh-preferences-mode{
+  background:rgba(78,143,158,.075);
+  border-color:#dae9ed;
+}
+.weigh-preferences-mode .mode-btn{color:#52747e;}
+.weigh-preferences-mode .mode-btn[aria-pressed="true"]{
+  background:#fff;
+  color:#087480;
+  box-shadow:0 2px 7px rgba(19,91,110,.09);
+}
+.calc-card .weigh-preferences-alerts{border-top-color:#d9e8ec;}
+.calc-card .weigh-preferences-alerts>.calc-alerts-summary{color:#306d79!important;}
+.weigh-preferences-alerts .calc-alerts-title small{color:#708a92;}
+.weigh-preferences-alerts .calc-alerts-chevron{stroke:#7896a1;}
+.weigh-preferences-alerts[open]>.calc-alerts-summary{border-bottom-color:#dfecef;}
+.weigh-preferences-alerts .calc-alerts-body>label:not(.duplicate-toggle){color:#466c78;}
+.weigh-preferences-alerts .calc-alerts-body>.duplicate-toggle{
+  background:rgba(255,255,255,.77);
+  border-color:#dbeaec;
+}
+.weigh-preferences-alerts .duplicate-toggle input[type="checkbox"]{accent-color:#00818b;}
+.weigh-preferences-alerts .duplicate-toggle strong{color:#315e68;}
+.weigh-preferences-alerts .duplicate-toggle small,
+.weigh-preferences-alerts .calc-alerts-body>.alerts-help{color:#69828a;}
