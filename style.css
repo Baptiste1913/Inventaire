@@ -807,3 +807,17 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { scroll-behavior:auto!important; }
 }
+
+/* V30.9 — Typographie du sélecteur et titre de banderole. */
+#basketSelect, #basketSelect option {
+  font-family:inherit;
+  font-weight:800;
+}
+#intro-title {
+  font-size:clamp(25px,5.7vw,35px);
+  letter-spacing:.18px;
+  line-height:1.16;
+}
+@media (max-width:380px) {
+  #intro-title { font-size:clamp(22px,6.8vw,25px); letter-spacing:.12px; }
+}

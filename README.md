@@ -50,3 +50,8 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Cache hors ligne V30.8, feuilles de style et script versionnés pour faciliter la mise à jour.
 
 **Navigateurs ciblés :** versions récentes de Safari (iOS/macOS), Chrome (Android/Windows/macOS), Firefox et Edge. Une compatibilité absolue avec tous les navigateurs et toutes les anciennes versions d’OS ne peut pas être garantie.
+
+## Modification V30.9 — typographie
+- Sélecteur de panier : police héritée du site, noms et poids en gras (selon prise en charge du sélecteur natif par le navigateur/OS).
+- Banderole violette : titre « Utilitaire d’inventaire pour le rayon Fruits et Légumes », légèrement réduit, avec un espacement des lettres augmenté.
+- Mise à jour des versions de ressources et du cache hors ligne, sans changement du calcul ni des données locales.
