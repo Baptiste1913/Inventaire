@@ -494,7 +494,8 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 .intro-jump svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .intro-jump:focus-visible{outline:2px solid white;outline-offset:3px}
 .intro-jump:active{transform:scale(.98)}
-.session-actions #startSession .start-btn-icon,.session-actions #resumeSession .start-btn-icon{width:15px;height:15px;flex:0 0 15px;object-fit:contain;filter:brightness(0) invert(1)}
+/* V30.16 : alignement optique de la lecture sur les barres du bouton Pause. */
+.session-actions #startSession .start-btn-icon,.session-actions #resumeSession .start-btn-icon{width:10px;height:10px;flex:0 0 10px;object-fit:contain;filter:brightness(0) invert(1)}
 @media(max-width:380px){.intro{padding:24px 19px 22px}.intro-bottom{gap:9px}.intro-jump{min-height:38px;padding:9px 12px}.quick-delete-session-btn{padding:7px 9px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){.weigh-preferences-mode .mode-slide-thumb,.weigh-preferences-mode .mode-btn,.intro-jump{transition:none!important}}
 

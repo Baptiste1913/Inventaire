@@ -93,3 +93,10 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Icône « play » du bouton Démarrer un inventaire (et Reprendre) remplacée par l’image PNG fournie, conservée sur fond transparent.
 - Taille de cette icône ajustée à 15 px pour assurer sa lisibilité.
 - Cache hors ligne et versions des ressources actualisés V30.15 ; autres contenus et fonctionnalités inchangés.
+
+
+## V30.16 — Taille des icônes play
+
+- Corrige la règle CSS plus spécifique qui maintenait les icônes play à 15 px.
+- Icônes « Démarrer un inventaire » et « Reprendre » réglées à 10 px pour harmoniser leur taille apparente avec « Pause ».
+- Ressources statiques et cache hors ligne actualisés ; aucun autre changement.
