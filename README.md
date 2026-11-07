@@ -29,3 +29,14 @@
 - La barre de séparation passe uniquement du transparent au gris clair : suppression du flash noir à l'ouverture.
 - Les clics rapides ouverture/fermeture sont pris en charge ; animation réduite si préférence d'accessibilité.
 - Cache hors ligne mis à jour. Les paniers, pesées et sessions sont inchangés.
+
+## Correction V27.3
+
+- Correction de la hauteur finale des catégories : prise en compte des paddings et des bordures dans l'animation de 260 ms.
+- Suppression du rétrécissement excessif juste avant la fermeture et du saut de taille final.
+- État fermé synchronisé avant la fin de l'animation pour Safari iOS.
+- Design, données et autres fonctionnalités inchangés.
+
+## Installer cette version
+
+Remplacer les fichiers du dépôt GitHub Pages par les fichiers de cette archive. Ouvrir une première fois le site avec Internet pour mettre à jour le cache de l'application hors ligne.

@@ -285,7 +285,7 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
 })();
 
 
-// V27.2 — animer la hauteur de la CARTE (et non le seul contenu).
+// V27.3 — animer la hauteur réelle, bordures ET paddings compris.
 // L'ancien système laissait la carte à sa pleine hauteur jusqu'à la fin,
 // ce qui donnait une attente avant le repli visuel.
 (function setupFoldAnimations(){
@@ -309,9 +309,14 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
       // descend dès la première image : aucun délai ni espace vide.
       if(next)card.open=true;
       card.classList.toggle('is-fold-closing',!next);
-      const border=getComputedStyle(card);
-      const borders=parseFloat(border.borderTopWidth)+parseFloat(border.borderBottomWidth);
-      const collapsed=summary.offsetHeight+borders;
+      // La tuile conserve 20px de padding en haut et en bas.
+      // La hauteur calculée précédemment les ignorait : la fermeture allait
+      // trop loin puis revenait d'un coup à sa vraie hauteur.
+      const style=getComputedStyle(card);
+      const px=value=>parseFloat(value)||0;
+      const outer=px(style.borderTopWidth)+px(style.borderBottomWidth)
+        +px(style.paddingTop)+px(style.paddingBottom);
+      const collapsed=summary.offsetHeight+outer;
       const expanded=collapsed+content.offsetHeight;
       const to=next?expanded:collapsed;
       if(Math.abs(from-to)<.5){
@@ -335,9 +340,11 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
       anim.onfinish=()=>{
         if(motion!==anim)return;
         motion=null;
+        // Synchroniser l'état natif AVANT de rendre la hauteur à auto.
+        // Safari ne voit donc jamais une hauteur intermédiaire incohérente.
+        if(!next)card.open=false;
         anim.cancel();
         if(fade){fade.cancel();fade=null;}
-        if(!next)card.open=false;
         card.classList.remove('is-fold-closing');
       };
     });

@@ -281,3 +281,5 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 @media(prefers-reduced-motion:reduce){
   .fold-card>.fold-summary{transition:none}
 }
+
+/* V27.3 — calcul de hauteur corrigé dans app.js ; style visuel inchangé. */
