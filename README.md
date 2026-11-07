@@ -55,3 +55,10 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Sélecteur de panier : police héritée du site, noms et poids en gras (selon prise en charge du sélecteur natif par le navigateur/OS).
 - Banderole violette : titre « Utilitaire d’inventaire pour le rayon Fruits et Légumes », légèrement réduit, avec un espacement des lettres augmenté.
 - Mise à jour des versions de ressources et du cache hors ligne, sans changement du calcul ni des données locales.
+
+## Modification V30.10 — titre et sous-titre de la banderole
+
+- Titre raccourci à « Fruits et Légumes ».
+- Nouveau sous-titre : « Votre utilitaire d’inventaire dédié au rayon **Fruits et Légumes**. Sélectionnez un panier, saisissez son poids brut et obtenez automatiquement le poids net après déduction de la tare. »
+- Seuls les textes de la banderole changent. Toutes les fonctionnalités, le design global et le pied de page sont conservés.
+- Ressources et cache hors ligne versionnés V30.10 pour la mise à jour.
