@@ -61,9 +61,8 @@ function moveBy(id,delta){const i=baskets.findIndex(b=>b.id===id),j=i+delta;if(i
 function startEdit(id){const b=baskets.find(x=>x.id===id);if(!b)return;editingId=id;$('basketName').value=b.name;$('basketTare').value=fmt(b.tare);$('formTitle').textContent='Modifier le panier';$('saveBasketBtn').textContent='Enregistrer les modifications';$('cancelEditBtn').classList.remove('hidden');$('basketForm').scrollIntoView({behavior:'smooth',block:'center'});}
 function cancelEdit(){editingId=null;$('basketForm').reset();$('formTitle').textContent='Ajouter un panier';$('saveBasketBtn').textContent='+ Ajouter le panier';$('cancelEditBtn').classList.add('hidden');}
 function removeBasket(id){const b=baskets.find(x=>x.id===id);if(!b||!confirm(`Supprimer « ${b.name} » ?`))return;baskets=baskets.filter(x=>x.id!==id);if(editingId===id)cancelEdit();persist();}
-// Inventaires U V22 — sessions locales, totaliseur sans nom et saisie rapide.
+// Inventaires U V24 — sessions locales simplifiées, sans totaliseur produit, avec bilans renforcés.
 const SESSION_KEY='inventaires-u-sessions-v1';
-const GROUP_KEY='inventaires-u-current-group-v1';
 const MODE_KEY='inventaires-u-weight-mode-v1';
 const LIMIT_KEY='inventaires-u-warning-limit-v1';
 const safeClone=x=>JSON.parse(JSON.stringify(x));
@@ -80,8 +79,7 @@ function cleanGroup(x){if(!x||typeof x!=='object'||!Array.isArray(x.entries))ret
 const loadedSessions=readJSON(SESSION_KEY,{sessions:[],activeId:null});
 let sessions=(Array.isArray(loadedSessions?.sessions)?loadedSessions.sessions:[]).map(cleanSession).filter(Boolean);
 let activeSessionId=typeof loadedSessions?.activeId==='string'&&sessions.some(s=>s.id===loadedSessions.activeId&&!s.endedAt)?loadedSessions.activeId:null;
-const loadedGroup=readJSON(GROUP_KEY,{active:null,last:null});
-let activeGroup=cleanGroup(loadedGroup?.active),lastGroup=cleanGroup(loadedGroup?.last);
+let activeGroup=null,lastGroup=null;
 let entryMode=localStorage.getItem(MODE_KEY)==='g'?'g':'kg';
 let maxGrossGrams=parseKg(localStorage.getItem(LIMIT_KEY)||'20.000')||20000;
 let acceptedAnomalyKey='',undoState=null,sessionsExpanded=false;
@@ -95,7 +93,7 @@ function activeStats(s){
 function durationLabel(ms){const sec=Math.floor(Math.max(0,ms)/1000),h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h} h ${String(m).padStart(2,'0')} min`:`${m} min ${String(s).padStart(2,'0')} s`;}
 const dateLabel=t=>new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 function persistSessions(){try{localStorage.setItem(SESSION_KEY,JSON.stringify({sessions,activeId:activeSessionId}));return true;}catch{const el=$('sessionMessage');if(el)el.textContent='⚠️ Espace local insuffisant : exporte tes données pour éviter toute perte.';return false;}}
-function persistGroup(){try{localStorage.setItem(GROUP_KEY,JSON.stringify({active:activeGroup,last:lastGroup}));return true;}catch{$('weighStatus').textContent='⚠️ Impossible de conserver ce totaliseur sur cet appareil.';return false;}}
+function persistGroup(){return true;}
 function snapshot(label){undoState={label,baskets:safeClone(baskets),history:safeClone(history),sessions:safeClone(sessions),activeSessionId,activeGroup:safeClone(activeGroup),lastGroup:safeClone(lastGroup),currentWeighId,weight:$('grossWeight').value,basketId:$('basketSelect').value,entryMode,acceptedAnomalyKey};renderUndo();}
 function renderUndo(){const b=$('undoBtn');b.disabled=!undoState;$('undoHint').textContent=undoState?undoState.label:'Une seule action récupérable';}
 function undoAction(){if(!undoState)return;clearTimeout(autoSaveTimer);autoSaveTimer=null;const s=undoState;undoState=null;baskets=s.baskets;history=s.history;sessions=s.sessions;activeSessionId=s.activeSessionId;activeGroup=s.activeGroup;lastGroup=s.lastGroup;currentWeighId=s.currentWeighId;entryMode=s.entryMode;acceptedAnomalyKey=s.acceptedAnomalyKey;persistHistory();persistSessions();persistGroup();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(baskets));}catch{}render();$('basketSelect').value=s.basketId;$('grossWeight').value=s.weight;calculate();renderV22();$('weighStatus').textContent=`↶ Action annulée : ${s.label.toLowerCase()}.`;}
@@ -118,8 +116,7 @@ function calculate(){
  const blocked=renderWarning();$('copyBtn').disabled=blocked;refreshActionButtons();
 }
 function refreshActionButtons(){
- const start=$('sameProductBtn');start.disabled=Boolean(activeGroup)||netGrams===null||$('copyBtn').disabled;start.hidden=Boolean(activeGroup);
- const resetLabel=$('resetBtn').querySelector('span');if(resetLabel)resetLabel.innerHTML=activeGroup?'Panier<br>suivant':'Nouvelle<br>pesée';
+ const resetLabel=$('resetBtn').querySelector('span');if(resetLabel)resetLabel.innerHTML='Nouvelle<br>pesée';
 }
 function saveCurrentWeigh(){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
@@ -134,8 +131,7 @@ function saveCurrentWeigh(){
  const entry={id:currentWeighId||uid(),at:Date.now(),name:b.name,tare:b.tare,gross,net:gross-b.tare};
  const oldIndex=history.findIndex(x=>x.id===entry.id);if(oldIndex>=0)history.splice(oldIndex,1);
  currentWeighId=entry.id;history.unshift(entry);history=history.slice(0,15);
- if(activeGroup){const rec={...entry,groupId:activeGroup.id};const index=activeGroup.entries.findIndex(x=>x.id===entry.id);if(index>=0)activeGroup.entries[index]=rec;else activeGroup.entries.push(rec);persistGroup();}
- const session=getActiveSession();if(session&&!session.pausedAt){const existing=session.entries.findIndex(x=>x.id===entry.id);const rec={...entry,groupId:activeGroup?.id||session.entries[existing]?.groupId||entry.id};if(existing>=0)session.entries[existing]=rec;else session.entries.push(rec);persistSessions();}
+ const session=getActiveSession();if(session&&!session.pausedAt){const existing=session.entries.findIndex(x=>x.id===entry.id);const rec={...entry,groupId:entry.id};if(existing>=0)session.entries[existing]=rec;else session.entries.push(rec);persistSessions();}
  persistHistory();renderV22();$('weighStatus').textContent='✓ Pesée enregistrée automatiquement';animateConfirmation();return true;
 }
 function scheduleAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=null;$('weighStatus').textContent='';if(netGrams!==null&&!renderWarning())autoSaveTimer=setTimeout(saveCurrentWeigh,1100);}
@@ -146,75 +142,43 @@ function flushPending(){if(autoSaveTimer!==null)return saveCurrentWeigh();if(net
  return true;
 }
 function clearWeigh(){clearTimeout(autoSaveTimer);autoSaveTimer=null;currentWeighId=null;acceptedAnomalyKey='';$('grossWeight').value='';$('weighStatus').textContent='';calculate();}
-function newWeigh(){if(!flushPending())return;if(!netGrams&&!activeGroup&&$('grossWeight').value.trim()){$('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;}
- if(!$('grossWeight').value.trim()){if(!activeGroup){$('grossWeight').focus();}return;}
- snapshot(activeGroup?'Panier suivant':'Nouvelle pesée');clearWeigh();$('grossWeight').focus();}
-function beginGroup(){if(activeGroup||netGrams===null||!flushPending())return;const entry=history.find(x=>x.id===currentWeighId);if(!entry)return;
- snapshot('Démarrage du totaliseur');activeGroup={id:uid(),at:Date.now(),entries:[{...entry,groupId:null}]};activeGroup.entries[0].groupId=activeGroup.id;lastGroup=null;
- const session=getActiveSession();if(session){const match=session.entries.find(x=>x.id===entry.id);if(match)match.groupId=activeGroup.id;persistSessions();}
- persistGroup();clearWeigh();renderV22();$('grossWeight').focus();}
-function finishGroup(){if(!activeGroup)return false;if(!flushPending())return false;
- if(!activeGroup.entries.length){activeGroup=null;persistGroup();renderV22();return true;}
- snapshot('Fin du totaliseur');lastGroup=activeGroup;activeGroup=null;persistGroup();renderV22();$('weighStatus').textContent='✓ Total du produit prêt à copier.';return true;
-}
-function removeGroupEntry(id){if(!activeGroup)return;const match=activeGroup.entries.find(x=>x.id===id);if(!match||!confirm(`Retirer cette pesée de ${fmt(match.net)} kg du total ?`))return;
- snapshot('Retrait d’un panier du total');activeGroup.entries=activeGroup.entries.filter(x=>x.id!==id);history=history.filter(x=>x.id!==id);for(const s of sessions)s.entries=s.entries.filter(x=>x.id!==id);
- if(currentWeighId===id)clearWeigh();persistHistory();persistSessions();persistGroup();renderV22();}
-function groupSum(g){return g.entries.reduce((n,e)=>n+e.net,0);}
-function renderGroup(){const g=activeGroup;const panel=$('groupPanel');panel.hidden=!g;
- if(g){$('groupCount').textContent=`${g.entries.length} panier${g.entries.length>1?'s':''}`;$('groupTotal').textContent=`${fmt(groupSum(g))} kg`;
- const list=$('groupEntries');list.replaceChildren();for(const [i,e] of g.entries.entries()){
-  const row=document.createElement('div');row.className='v22-group-entry';const left=document.createElement('div');const label=document.createElement('strong');label.textContent=`${i+1}. ${e.name}`;const details=document.createElement('small');details.textContent=`${fmt(e.gross)} − ${fmt(e.tare)} kg`;left.append(label,details);
-  const right=document.createElement('div');right.className='v22-group-right';const val=document.createElement('strong');val.textContent=`${fmt(e.net)} kg`;const del=document.createElement('button');del.type='button';del.textContent='×';del.className='v22-entry-delete';del.setAttribute('aria-label',`Retirer la pesée ${i+1}`);del.addEventListener('click',()=>removeGroupEntry(e.id));right.append(val,del);row.append(left,right);list.append(row);
- }
- $('finishGroupBtn').disabled=!g.entries.length;
- }
- $('completedGroup').hidden=!lastGroup||Boolean(g);if(lastGroup){$('completedGroupNet').textContent=`${fmt(groupSum(lastGroup))} kg`;$('completedGroupCount').textContent=`${lastGroup.entries.length} panier${lastGroup.entries.length>1?'s':''}`;}
- refreshActionButtons();
-}
+function newWeigh(){if(!flushPending())return;if(!netGrams&&$('grossWeight').value.trim()){$('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;}
+ if(!$('grossWeight').value.trim()){$('grossWeight').focus();return;}
+ snapshot('Nouvelle pesée');clearWeigh();$('grossWeight').focus();}
+function beginGroup(){return false;}
+function finishGroup(){return true;}
+function removeGroupEntry(id){return false;}
+function groupSum(g){return 0;}
+function renderGroup(){}
 // Mise à jour légère du HUD, sans retraitement des historiques.
 function islandDurationLabel(ms){const minutes=Math.floor(Math.max(0,ms)/60000),h=Math.floor(minutes/60),m=minutes%60;return h?`${h} h ${String(m).padStart(2,'0')}`:`${m} min`;}
-function renderInventoryIsland(){
- const el=$('sessionIsland');if(!el)return;
- const s=getActiveSession();el.hidden=!s;
- // La capsule ne s'affiche qu'au cours d'une session, même si l'app est rechargée.
- if(!s)return;
- const paused=Boolean(s.pausedAt),duration=Math.max(0,(s.endedAt||Date.now())-s.startedAt-(s.pausedMs||0)-(s.pausedAt?(s.endedAt||Date.now())-s.pausedAt:0));
- const count=s.entries.length;
- const pace=duration>=60000&&count>0?Math.round(count*3600000/duration):null;
- el.classList.toggle('is-paused',paused);
- $('islandStatus').textContent=paused?'Inventaire en pause':'Inventaire en cours';
- $('islandCount').textContent=String(count);
- $('islandDuration').textContent=islandDurationLabel(duration);
- $('islandPace').textContent=pace===null?'—/h':`${pace}/h`;
- el.setAttribute('aria-label',`${paused?'Inventaire en pause':'Inventaire en cours'}, ${count} pesées, ${islandDurationLabel(duration)}, ${pace===null?'rythme bientôt disponible':`${pace} pesées par heure`}. Voir ma session.`);
-}
-function renderSessionControls(){renderInventoryIsland();const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionLive').hidden=!s;
+function renderInventoryIsland(){}
+function renderSessionControls(){const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionLive').hidden=!s;
  $('startSession').hidden=Boolean(s);$('pauseSession').hidden=!s||Boolean(s.pausedAt);$('resumeSession').hidden=!s||!s.pausedAt;$('finishSession').hidden=!s;
- $('startSession').disabled=Boolean(activeGroup);$('sessionHelp').textContent=s?(s.pausedAt?'Session en pause : reprends pour enregistrer les pesées dans ses statistiques.':`Début : ${dateLabel(s.startedAt)} · Les pesées sont suivies automatiquement.`):activeGroup?'Termine ton totaliseur avant de commencer une nouvelle session.':'Démarre une session pour obtenir tes statistiques, sans nommer les produits.';
+ $('sessionHelp').textContent=s?(s.pausedAt?'Session en pause : reprends pour enregistrer les pesées dans ses statistiques.':`Début : ${dateLabel(s.startedAt)} · Les pesées sont suivies automatiquement.`):'Démarre une session pour obtenir tes statistiques, sans nommer les produits.';
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
 }
-function startSession(){if(getActiveSession()||activeGroup)return;if(!flushPending())return;snapshot('Démarrage d’une session');clearWeigh();const s={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};sessions.unshift(s);activeSessionId=s.id;persistSessions();renderV22();$('sessionMessage').textContent='✓ Session démarrée. Tes pesées sont comptabilisées automatiquement.';}
-function pauseSession(){const s=getActiveSession();if(!s||s.pausedAt||!flushPending())return;if(activeGroup&&!finishGroup())return;snapshot('Mise en pause de la session');s.pausedAt=Date.now();clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Session en pause.';}
+function startSession(){if(getActiveSession())return;if(!flushPending())return;snapshot('Démarrage d’une session');clearWeigh();const s={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};sessions.unshift(s);activeSessionId=s.id;persistSessions();renderV22();$('sessionMessage').textContent='✓ Session démarrée. Tes pesées sont comptabilisées automatiquement.';}
+function pauseSession(){const s=getActiveSession();if(!s||s.pausedAt||!flushPending())return;snapshot('Mise en pause de la session');s.pausedAt=Date.now();clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='Session en pause.';}
 function resumeSession(){const s=getActiveSession();if(!s||!s.pausedAt)return;snapshot('Reprise de la session');s.pausedMs+=Date.now()-s.pausedAt;s.pausedAt=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='✓ Session reprise.';}
-function finishSession(){const s=getActiveSession();if(!s)return;if(!s.pausedAt&&!flushPending())return;if(activeGroup&&!finishGroup())return;
+function finishSession(){const s=getActiveSession();if(!s)return;if(!s.pausedAt&&!flushPending())return;
  if(!confirm('Terminer cette session et enregistrer son bilan ?'))return;
  snapshot('Clôture de la session');const now=Date.now();if(s.pausedAt){s.pausedMs+=now-s.pausedAt;s.pausedAt=null;}s.endedAt=now;activeSessionId=null;clearWeigh();persistSessions();renderV22();$('sessionMessage').textContent='✓ Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';}
 function sessionBreakdown(s){const map=new Map();for(const e of s.entries)map.set(e.name,(map.get(e.name)||0)+1);return [...map.entries()].sort((a,b)=>b[1]-a[1]);}
 function makeStat(label,value){const box=document.createElement('div');box.className='v22-stat';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;box.append(small,strong);return box;}
 function summaryElement(s){const stats=activeStats(s);const box=document.createElement('div');box.className='v22-bilan';const grid=document.createElement('div');grid.className='v22-stats-grid';
- for(const [label,value] of [['Début',dateLabel(s.startedAt)],['Fin',s.endedAt?dateLabel(s.endedAt):'—'],['Durée active',durationLabel(stats.duration)],['Pesées',String(stats.count)],['Poids brut',`${fmt(stats.gross)} kg`],['Tares cumulées',`${fmt(stats.tare)} kg`],['Poids net',`${fmt(stats.net)} kg`],['Moyenne / pesée',`${fmt(stats.average)} kg`],['Plus petite',`${fmt(stats.min)} kg`],['Plus grande',`${fmt(stats.max)} kg`],['Groupes de pesées',String(stats.groups)],['Groupes multipaniers',String(stats.multi)],['Pesées / heure',stats.duration?((stats.count*3600000)/stats.duration).toFixed(1).replace('.',','):'—']])grid.append(makeStat(label,value));box.append(grid);
+ for(const [label,value] of [['Début',dateLabel(s.startedAt)],['Fin',s.endedAt?dateLabel(s.endedAt):'—'],['Durée active',durationLabel(stats.duration)],['Pesées',String(stats.count)],['Poids brut',`${fmt(stats.gross)} kg`],['Tares cumulées',`${fmt(stats.tare)} kg`],['Poids net',`${fmt(stats.net)} kg`],['Moyenne / pesée',stats.count?`${fmt(stats.average)} kg`:'—'],['Plus petite',stats.count?`${fmt(stats.min)} kg`:'—'],['Plus grande',stats.count?`${fmt(stats.max)} kg`:'—'],['Pesées / heure',stats.duration&&stats.count?((stats.count*3600000)/stats.duration).toFixed(1).replace('.',','):'—']]) grid.append(makeStat(label,value));
+ box.append(grid);
  const breakdown=sessionBreakdown(s);if(breakdown.length){const h=document.createElement('h4');h.textContent='Types de paniers utilisés';box.append(h);for(const [name,count] of breakdown){const p=document.createElement('p');p.className='v22-stat-line';p.textContent=`${name} : ${count} pesée${count>1?'s':''}`;box.append(p);}}
  const hist=document.createElement('div');hist.className='v22-activity';const title=document.createElement('h4');title.textContent='Activité par demi-heure';hist.append(title);
  const bins=new Map();for(const e of s.entries){const d=new Date(e.at);d.setMinutes(Math.floor(d.getMinutes()/30)*30,0,0);const key=d.getTime();bins.set(key,(bins.get(key)||0)+1);}
  const sorted=[...bins.entries()].sort((a,b)=>a[0]-b[0]);const max=Math.max(1,...sorted.map(x=>x[1]));for(const [at,count] of sorted){const row=document.createElement('div');row.className='v22-bar-row';const label=document.createElement('span');label.textContent=new Date(at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});const bar=document.createElement('div');bar.className='v22-bar-track';const fill=document.createElement('div');fill.className='v22-bar-fill';fill.style.width=`${count/max*100}%`;bar.append(fill);const amount=document.createElement('strong');amount.textContent=String(count);row.append(label,bar,amount);hist.append(row);}
  if(!sorted.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Aucune pesée dans cette session.';hist.append(empty);}
- box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:22,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));actions.append(csv,json);box.append(actions);return box;}
+ box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:24,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));actions.append(csv,json);box.append(actions);return box;}
 function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedAt)).sort((a,b)=>b.startedAt-a.startedAt);$('sessionsCount').textContent=`${ended.length} session${ended.length>1?'s':''}`;
  const list=$('sessionsHistoryList');list.replaceChildren();$('sessionsToggle').hidden=ended.length<=5;$('sessionsToggle').textContent=sessionsExpanded?'Réduire la liste':`Voir les ${ended.length} sessions`;
  if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune session terminée pour le moment.';list.append(p);return;}
- for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');name.textContent=new Date(s.startedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=`${stats.count} pesées · ${fmt(stats.net)} kg · ${durationLabel(stats.duration)}`;sum.append(name,meta);item.append(sum);
- item.addEventListener('toggle',()=>{if(item.open&&!item.dataset.loaded){item.append(summaryElement(s));item.dataset.loaded='yes';}});list.append(item);}
+ for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');name.textContent=new Date(s.startedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=`${stats.count} pesées · ${fmt(stats.net)} kg · ${durationLabel(stats.duration)}`;sum.append(name,meta);item.append(sum,summaryElement(s));list.append(item);}
 }
 function renderV22(){renderUndo();renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('inputHint').textContent=entryMode==='g'?'Saisie rapide : 1250 g = 1.250 kg.':'En kg : saisis par exemple 1.250.';$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);}
 function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{localStorage.setItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();}
@@ -223,22 +187,19 @@ function download(data,name,type){const blob=new Blob([data],{type}),url=URL.cre
 function exportCSV(items,name){const head=['Session','Début session','Fin session','Durée active (min)','Pesée','Date/heure pesée','Groupe de pesées','Type de panier','Poids brut (kg)','Tare (kg)','Poids net (kg)'];
  const csvCell=x=>`"${String(x??'').replaceAll('"','""')}"`;const lines=[head.map(csvCell).join(';')];for(const s of items){const st=activeStats(s);for(const [i,e] of s.entries.entries()){lines.push([s.id,dateLabel(s.startedAt),s.endedAt?dateLabel(s.endedAt):'En cours',(st.duration/60000).toFixed(1).replace('.',','),i+1,dateLabel(e.at),e.groupId,e.name,fmt(e.gross).replace('.',','),fmt(e.tare).replace('.',','),fmt(e.net).replace('.',',')].map(csvCell).join(';'));}}
  download('\ufeff'+lines.join('\r\n'),name,'text/csv;charset=utf-8');}
-function fullExport(){if(autoSaveTimer!==null)saveCurrentWeigh();download(JSON.stringify({app:'Inventaires U',version:22,unit:'g',exportedAt:Date.now(),baskets,history,sessions,activeSessionId,activeGroup,lastGroup},null,2),`inventaires-u-sauvegarde-${new Date().toISOString().slice(0,10)}.json`,'application/json');$('backupStatus').textContent='✓ Sauvegarde complète exportée.';}
+function fullExport(){if(autoSaveTimer!==null)saveCurrentWeigh();download(JSON.stringify({app:'Inventaires U',version:24,unit:'g',exportedAt:Date.now(),baskets,history,sessions,activeSessionId,activeGroup:null,lastGroup:null},null,2),`inventaires-u-sauvegarde-${new Date().toISOString().slice(0,10)}.json`,'application/json');$('backupStatus').textContent='✓ Sauvegarde complète exportée.';}
 async function fullImport(event){const file=event.target.files?.[0];if(!file)return;try{
- if(file.size>10*1024*1024)throw Error('Taille excessive');const data=JSON.parse(await file.text());if(!data||data.app!=='Inventaires U'||data.version!==22||!Array.isArray(data.baskets)||!Array.isArray(data.sessions)||!Array.isArray(data.history))throw Error('Format incorrect');
+ if(file.size>10*1024*1024)throw Error('Taille excessive');const data=JSON.parse(await file.text());if(!data||data.app!=='Inventaires U'||![22,23,24].includes(data.version)||!Array.isArray(data.baskets)||!Array.isArray(data.sessions)||!Array.isArray(data.history))throw Error('Format incorrect');
  const bb=sanitize(data.baskets),ss=data.sessions.map(cleanSession);if(ss.some(x=>!x))throw Error('Session incorrecte');const hh=data.history.map(cleanWeigh);if(hh.some(x=>!x))throw Error('Historique incorrect');
  if(!confirm(`Restaurer ${bb.length} panier(s), ${ss.length} session(s) et ${hh.length} pesée(s) ? Les données actuelles seront remplacées. Exporte-les d’abord si nécessaire.`))return;
- snapshot('Restauration de sauvegarde');clearTimeout(autoSaveTimer);autoSaveTimer=null;baskets=bb;sessions=ss;history=hh.slice(0,15);activeSessionId=typeof data.activeSessionId==='string'&&sessions.some(s=>s.id===data.activeSessionId&&!s.endedAt)?data.activeSessionId:null;activeGroup=cleanGroup(data.activeGroup);lastGroup=cleanGroup(data.lastGroup);currentWeighId=null;
+ snapshot('Restauration de sauvegarde');clearTimeout(autoSaveTimer);autoSaveTimer=null;baskets=bb;sessions=ss;history=hh.slice(0,15);activeSessionId=typeof data.activeSessionId==='string'&&sessions.some(s=>s.id===data.activeSessionId&&!s.endedAt)?data.activeSessionId:null;activeGroup=null;lastGroup=null;currentWeighId=null;
  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(baskets));}catch{}persistHistory();persistSessions();persistGroup();render();renderV22();$('backupStatus').textContent='✓ Sauvegarde complète restaurée.';
- }catch(e){$('backupStatus').textContent='Importation impossible : sauvegarde V22 invalide.';}finally{event.target.value='';}}
+ }catch(e){$('backupStatus').textContent='Importation impossible : sauvegarde invalide.';}finally{event.target.value='';}}
 // Commandes V22.
 $('modeKg').addEventListener('click',()=>switchMode('kg'));
 $('modeG').addEventListener('click',()=>switchMode('g'));
 $('maxGrossLimit').addEventListener('change',setLimit);
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
-$('sameProductBtn').addEventListener('click',beginGroup);
-$('finishGroupBtn').addEventListener('click',finishGroup);
-$('copyGroupTotal').addEventListener('click',async()=>{if(!lastGroup)return;const val=fmt(groupSum(lastGroup));try{await navigator.clipboard.writeText(val);$('weighStatus').textContent=`✓ Total copié : ${val} kg`;}catch{prompt('Copie ce total :',val);}});
 $('undoBtn').addEventListener('click',undoAction);
 $('startSession').addEventListener('click',startSession);
 $('pauseSession').addEventListener('click',pauseSession);
@@ -248,8 +209,7 @@ $('sessionsToggle').addEventListener('click',()=>{sessionsExpanded=!sessionsExpa
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='✓ CSV des sessions exporté.';});
-setInterval(()=>{const s=getActiveSession();if(s){$('sessionDuration').textContent=durationLabel(activeStats(s).duration);renderInventoryIsland();}},1000);
-$('sessionIsland').addEventListener('click',()=>{$('session-title').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});});
+setInterval(()=>{const s=getActiveSession();if(s){$('sessionDuration').textContent=durationLabel(activeStats(s).duration);}},1000);
 
 $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){alert('Indique un nom et une tare valide en kg (ex. 0.554).');return;}if(editingId){const b=baskets.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else baskets.push({id:uid(),name,tare});cancelEdit();persist();});
 
