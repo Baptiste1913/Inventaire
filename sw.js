@@ -1,10 +1,10 @@
-/* Inventaires U V31.25 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v31-25';
+/* Inventaires U V31.26 — application shell hors ligne */
+const CACHE = 'inventaires-u-offline-v31-26';
 const CORE = [
-  './', './index.html', './style.css?v=31.25', './app.js?v=31.25',
-  './auth-config.js?v=31.25', './auth.js?v=31.25', './manifest.webmanifest?v=13', './icon.png?v=11',
+  './', './index.html', './style.css?v=31.26', './app.js?v=31.26',
+  './auth-config.js?v=31.26', './auth.js?v=31.26', './manifest.webmanifest?v=13', './icon.png?v=11',
   './icon-512.png', './logo-u.png', './favicon.ico?v=13',
-  './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png', './start-inventory-icon.png?v=31.25'
+  './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png', './start-inventory-icon.png?v=31.26'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
