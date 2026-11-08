@@ -82,7 +82,7 @@ try{if(!localStorage.getItem(SCOPE_KEY)){writeWorkspace('guest',snapshot());loca
 const stamp=()=>lastSuccessAt?' · Dernière sauvegarde : '+new Date(lastSuccessAt).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'';
 const feedback=msg=>{$('accountFeedback').textContent=msg||'';};
 const isMissingSession=e=>/auth session missing|session missing/i.test(String(e?.message||''));
-const status=msg=>{$('cloudStatus').textContent=msg;};
+const status=msg=>{$('cloudStatus').textContent=msg;renderDashboard();};
 const localStatus=msg=>{const el=$('localSaveStatus');if(el)el.textContent=msg;};
 function snapshot(){const out={};for(const key of KEYS){try{out[key]=localStorage.getItem(key);}catch{out[key]=null;}}return out;}
 const serialize=o=>JSON.stringify(o);
@@ -91,7 +91,38 @@ function restore(data){if(!data||typeof data!=='object'||KEYS.some(k=>!(k in dat
   // Store a complete rollback copy before touching any user data.
   const previous=snapshot();if(!preserveRecovery('avant-restauration',previous))throw Error('Espace de stockage saturé : exporte tes données avant de restaurer.');try{for(const key of KEYS){if(data[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,data[key]);}}catch(err){for(const key of KEYS){try{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);}catch{}}throw err;}
   localBaseline=serialize(data);saveActive();status('Données récupérées. Actualisation nécessaire.');window.scrollTo(0,0);location.reload();}
-function render(){const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Connecté'):'Non connecté';$('accountActionLabel').textContent=user?'Mon compte':'Connexion';$('accountSummaryStatus').textContent=user?'Connecté':'Non connecté';$('accountSummaryStatus').classList.toggle('is-connected',!!user);$('accountProfileName').textContent=name;$('accountProfileHint').textContent=user?(user.email||'Compte synchronisé'):'Mode local · Données sur cet appareil';$('accountStatusDot').classList.toggle('is-connected',!!user);const avatar=$('accountAvatarImage');const avatarUrl=user&&(user.user_metadata?.avatar_url||user.user_metadata?.picture);let validAvatar=false;try{validAvatar=!!avatarUrl&&new URL(avatarUrl).protocol==='https:';}catch{}avatar.hidden=!validAvatar;avatar.parentElement.classList.toggle('has-photo',validAvatar);if(validAvatar&&avatar.src!==avatarUrl)avatar.src=avatarUrl;else if(!validAvatar)avatar.removeAttribute('src');$('accountCard').title=user?name:'Ouvrir les options de connexion';$('accountSignedOut').hidden=!!user;$('accountSignedIn').hidden=!user;$('accountIdentity').textContent=user?name:'';if(!user)status('Stockage local uniquement');}
+function renderDashboard(){
+ const panel=$('accountDashboard');if(!panel)return;
+ panel.hidden=!user;if(!user)return;
+ let all=[];try{const parsed=JSON.parse(localStorage.getItem('inventaires-u-sessions-v1')||'{}');all=Array.isArray(parsed.sessions)?parsed.sessions:[];}catch{}
+ const completed=all.filter(x=>x&&Number.isFinite(x.startedAt)&&Number.isFinite(x.endedAt)&&x.endedAt>=x.startedAt);
+ const entries=completed.flatMap(x=>Array.isArray(x.entries)?x.entries:[]).filter(x=>x&&Number.isSafeInteger(x.net)&&x.net>=0);
+ const total=entries.reduce((sum,x)=>sum+x.net,0);
+ const durations=completed.map(x=>Math.max(0,x.endedAt-x.startedAt-Math.max(0,Number(x.pausedMs)||0)));
+ const avg=durations.length?Math.round(durations.reduce((sum,x)=>sum+x,0)/durations.length/60000):null;
+ const number=n=>n.toLocaleString('fr-FR');
+ $('dashCompleted').textContent=number(completed.length);
+ $('dashWeighs').textContent=number(entries.length);
+ $('dashDuration').textContent=avg===null?'—':avg>=60?`${Math.floor(avg/60)} h ${String(avg%60).padStart(2,'0')}`:`${avg} min`;
+ $('dashNet').textContent=(total/1000).toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3})+' kg';
+ const recent=[...completed].sort((x,y)=>y.endedAt-x.endedAt).slice(0,4);
+ $('dashRecentCount').textContent=completed.length?`${Math.min(completed.length,4)} affiché${completed.length>1?'s':''}`:'';
+ const list=$('dashRecentList');list.replaceChildren();
+ if(!recent.length){const p=document.createElement('p');p.className='dashboard-empty';p.textContent='Aucun inventaire terminé pour le moment.';list.append(p);}
+ for(const item of recent){
+  const row=document.createElement('div');row.className='dashboard-recent-row';
+  const info=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('span'),count=document.createElement('strong');
+  title.textContent=new Date(item.endedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+  const valid=(Array.isArray(item.entries)?item.entries:[]).filter(x=>x&&Number.isSafeInteger(x.net)&&x.net>=0);
+  sub.textContent=valid.reduce((sum,x)=>sum+x.net,0)/1000+' kg net';
+  count.textContent=`${valid.length} pesée${valid.length>1?'s':''}`;
+  info.append(title,sub);row.append(info,count);list.append(row);
+ }
+ const cloud=$('cloudStatus')?.textContent||'';
+ const pill=$('dashboardCloudPill');pill.textContent=cloud.includes('Synchronisé')?'Cloud synchronisé':cloud.includes('Choix nécessaire')?'Conflit à résoudre':cloud.includes('attente')?'En attente':'Cloud à vérifier';
+ pill.classList.toggle('is-synced',cloud.includes('Synchronisé'));
+}
+function render(){const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Connecté'):'Non connecté';$('accountActionLabel').textContent=user?'Mon compte':'Connexion';$('accountSummaryStatus').textContent=user?'Connecté':'Non connecté';$('accountSummaryStatus').classList.toggle('is-connected',!!user);$('accountProfileName').textContent=name;$('accountProfileHint').textContent=user?(user.email||'Compte synchronisé'):'Mode local · Données sur cet appareil';$('accountStatusDot').classList.toggle('is-connected',!!user);const avatar=$('accountAvatarImage');const avatarUrl=user&&(user.user_metadata?.avatar_url||user.user_metadata?.picture);let validAvatar=false;try{validAvatar=!!avatarUrl&&new URL(avatarUrl).protocol==='https:';}catch{}avatar.hidden=!validAvatar;avatar.parentElement.classList.toggle('has-photo',validAvatar);if(validAvatar&&avatar.src!==avatarUrl)avatar.src=avatarUrl;else if(!validAvatar)avatar.removeAttribute('src');$('accountCard').title=user?name:'Ouvrir les options de connexion';$('accountSignedOut').hidden=!!user;$('accountSignedIn').hidden=!user;$('accountIdentity').textContent=user?name:'';if(!user)status('Stockage local uniquement');renderDashboard();}
 async function sb(){if(client)return client;if(!configured())throw Error('Connexion Google indisponible : configuration manquante.');const mod=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');client=mod.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{flowType:'pkce',detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});return client;}
 async function readRemote(){const {data,error}=await client.from('provider_backups').select('data,updated_at').eq('user_id',user.id).eq('provider',activeProvider).maybeSingle();if(error)throw error;return data;}
 async function upload(local){
@@ -238,3 +269,5 @@ $('otherTabReload')?.addEventListener('click',()=>location.reload());
 $('otherTabLater')?.addEventListener('click',()=>{$('otherTabDialog')?.close();localStatus('Attention : cet onglet peut contenir des données anciennes');});
 init();
 })();
+window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
+setInterval(()=>{if(user&&$('accountCard')?.open)renderDashboard();},5000);
