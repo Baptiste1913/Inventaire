@@ -1,0 +1,1 @@
+V32.1 — Interface « Copies de récupération » harmonisée avec « Réglages d’alertes ». Accordéon avec chevron et animation, explication pour débutants et rappel de sécurité. Aucun changement SQL nécessaire.

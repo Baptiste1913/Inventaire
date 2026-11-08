@@ -129,5 +129,24 @@ function showRecoveries(){
  }
 }
 $('recoveryCard')?.addEventListener('toggle',showRecoveries);
+// Même animation d'accordéon que les réglages d'alertes : le contenu se replie en douceur.
+(function animateRecovery(){
+ const card=$('recoveryCard');const summary=card?.querySelector(':scope > summary');const body=card?.querySelector(':scope > .recovery-body');
+ if(!card||!summary||!body)return;
+ let running=null;
+ summary.addEventListener('click',event=>{
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  event.preventDefault();
+  if(running){running.cancel();running=null;}
+  const isOpen=card.open;
+  const start=card.getBoundingClientRect().height;
+  if(!isOpen)card.open=true;
+  const end=isOpen?summary.getBoundingClientRect().height:summary.getBoundingClientRect().height+body.scrollHeight;
+  card.style.overflow='hidden';
+  running=card.animate([{height:start+'px'},{height:end+'px'}],{duration:380,easing:'cubic-bezier(.22,1,.36,1)'});
+  running.onfinish=()=>{card.open=!isOpen;card.style.overflow='';running=null;};
+  running.oncancel=()=>{card.style.overflow='';};
+ });
+})();
 init();
 })();
