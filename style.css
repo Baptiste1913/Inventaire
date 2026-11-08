@@ -999,3 +999,56 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 .undo-toast.toast-warning .undo-toast-symbol{background:#e2f4f2}
 .undo-toast.toast-warning::after{display:none}
 @media(prefers-reduced-motion:reduce){.calc-card .weight-field:focus-within::after{animation:none;opacity:0}}
+
+
+/* V31.3 — liseré Liquid Glass, lumière orbitale uniquement sur le contour.
+   Le texte et l'intérieur du champ restent fixes et parfaitement lisibles. */
+@property --glass-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.calc-card .weight-field {
+  position:relative;
+  isolation:isolate;
+  border:2px solid #00818b;
+  background:#fff;
+  transition:box-shadow .3s ease, background-color .3s ease, border-color .3s ease;
+}
+.calc-card .weight-field::after { content:none!important; animation:none!important; }
+.calc-card .weight-field::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  padding:2px;
+  pointer-events:none;
+  z-index:2;
+  opacity:0;
+  background:conic-gradient(from var(--glass-angle),
+    rgba(255,255,255,.12) 0deg,
+    rgba(255,255,255,.12) 175deg,
+    rgba(45,195,202,.42) 215deg,
+    rgba(231,255,255,.98) 250deg,
+    rgba(47,193,203,.72) 280deg,
+    rgba(255,255,255,.12) 330deg,
+    rgba(255,255,255,.12) 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;
+  transition:opacity .28s ease;
+}
+.calc-card .weight-field:focus-within {
+  border-color:rgba(0,129,139,.35);
+  background:linear-gradient(145deg,#fff 0%,#faffff 100%);
+  box-shadow:0 0 0 1px rgba(0,129,139,.10),0 4px 16px rgba(0,129,139,.10),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.calc-card .weight-field:focus-within::before {
+  opacity:1;
+  animation:glass-orbit 4.5s linear infinite;
+}
+@keyframes glass-orbit { to { --glass-angle:360deg; } }
+@media(prefers-reduced-motion:reduce){
+  .calc-card .weight-field:focus-within::before {animation:none;}
+}
