@@ -20,7 +20,7 @@
   return drainPromise;
  }
  async function flush(){while(drainPromise||dirty.size){await drain();}if(writeError)throw writeError;}
- const schedule=()=>queueMicrotask(drain);
+ const schedule=()=>queueMicrotask(()=>{void drain().catch(e=>console.warn('Sauvegarde IndexedDB en attente de reprise',e));});
  const store={
   getItem(k){k=String(k);return cache.has(k)?cache.get(k):null;},
   setItem(k,v){k=String(k);v=String(v);cache.set(k,v);dirty.set(k,v);schedule();},

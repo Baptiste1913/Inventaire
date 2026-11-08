@@ -118,24 +118,16 @@ askConflict(remote.data);return false;
 async function connect(provider){if(provider!=='google'){feedback('Connexion non disponible.');return;}feedback('Ouverture de la connexion…');try{const s=await sb();const {error}=await s.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+location.pathname}});if(error)throw error;}catch(e){feedback(e.message||'Connexion impossible.');}}
 async function logout(){
  if($('accountLogout').disabled)return;
- $('accountLogout').disabled=true;feedback('Vérification de la sauvegarde avant déconnexion…');
+ $('accountLogout').disabled=true;feedback('Déconnexion en cours…');
  try{
+  // Save the active workspace before ending the session. Cloud sync is independent
+  // and must never leave Safari blocked on a network request during sign-out.
+  saveActive();await window.InventoryStore.flush();
   const s=await sb();
-  if(user){
-   if(!navigator.onLine)throw Error('Connexion Internet nécessaire pour sécuriser la sauvegarde avant la déconnexion.');
-   // A pending operation must finish before we inspect the final state.
-   for(let i=0;busy&&i<40;i++)await new Promise(r=>setTimeout(r,150));
-   if(busy)throw Error('Synchronisation en cours. Réessaie dans quelques instants.');
-   const ok=await reconcile();
-   if(!ok||!$('cloudConflict').hidden)throw Error('La sauvegarde cloud n’est pas confirmée. Réessaie ou résous le conflit avant de te déconnecter.');
-   // User edits may have occurred while the upload was in flight.
-   if(lastSynced!==serialize(snapshot())){
-    const retry=await reconcile();
-    if(!retry||lastSynced!==serialize(snapshot()))throw Error('Des modifications restent à synchroniser. Réessaie avant de te déconnecter.');
-   }
-  }
-  const {error}=await s.auth.signOut();if(error&&!isMissingSession(error))throw error;
-  user=null;activeProvider=null;lastSynced=null;localBaseline=null;remoteBaseline=null;clearInterval(interval);
+  const {error}=await s.auth.signOut({scope:'local'});
+  if(error&&!isMissingSession(error))throw error;
+  user=null;activeProvider=null;lastSynced=null;localBaseline=null;remoteBaseline=null;
+  if(interval)clearInterval(interval);
   sessionStorage.setItem('inventaires-u-logout-feedback','Déconnexion réussie');
   if(switchWorkspace('guest'))return;
   render();feedback('Déconnexion réussie');sessionStorage.removeItem('inventaires-u-logout-feedback');
@@ -171,7 +163,15 @@ async function activateUser(u){
   if(changed&&shouldClaimGuest)window.InventoryStore.setItem(IMPORT_KEY,provider+':'+u.id);
   return changed;
 }
-async function init(){render();const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{user:u},error}=await s.auth.getUser();if(error&&!isMissingSession(error))throw error;if(await activateUser(u))return;if(user)await reconcile();s.auth.onAuthStateChange((event,session)=>{queueMicrotask(async()=>{try{const previous=user?accountId(user,activeProvider):null;if(await activateUser(session?.user||null))return;if(user&&accountId(user,activeProvider)!==previous){lastSynced=null;remoteBaseline=null;await reconcile();}}catch(e){feedback(e.message||'Changement de compte impossible.');}});});interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);window.addEventListener('online',()=>reconcile());document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
+async function init(){render();const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{session},error}=await s.auth.getSession();if(error&&!isMissingSession(error))throw error;const u=session?.user||null;if(await activateUser(u))return;if(user)void reconcile();s.auth.onAuthStateChange((event,session)=>{
+ if(event!=='SIGNED_IN'&&event!=='SIGNED_OUT')return;
+ const incoming=session?.user||null;
+ if((incoming?.id||null)===(user?.id||null))return;
+ queueMicrotask(async()=>{try{
+  if(await activateUser(incoming))return;
+  if(user)void reconcile();
+ }catch(e){feedback(e.message||'Changement de compte impossible.');}});
+});interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);window.addEventListener('online',()=>reconcile());document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
 $('accountGoogle').addEventListener('click',()=>connect('google'));$('accountAvatarImage').addEventListener('error',()=>{const avatar=$('accountAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountLogout').addEventListener('click',logout);
 $('cloudKeepLocal').addEventListener('click',async()=>{if(!user||busy)return;busy=true;try{const remote=JSON.parse($('cloudConflict').dataset.payload);if(!preserveRecovery('cloud-avant-remplacement-local',snapshot())||!preserveRecovery('cloud-avant-remplacement-distant',remote))throw Error('Impossible de créer la copie de sécurité.');const current=await readRemote();if(serialize(current?.data)!==serialize(remote)){askConflict(current?.data);throw Error('Le cloud a encore changé. Vérifie les nouvelles données.');}remoteBaseline=remote;await upload(snapshot());$('cloudConflict').hidden=true;}catch(e){feedback(e.message);}finally{busy=false;}});
