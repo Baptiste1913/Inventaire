@@ -1046,3 +1046,56 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
  bottom:auto!important;
 }
 @media(max-width:360px){.toast-stack{gap:7px;padding:0 7px}.toast-stack .toast-close{flex-basis:24px;width:24px}}
+
+
+/* V31.15 — Correctif Safari : les anciennes animations utilisaient translateX(-50%),
+   alors que les cartes sont maintenant centrées par le conteneur flex.
+   Animations verticales uniquement, sans translation horizontale. */
+.toast-stack{
+ box-sizing:border-box;
+ width:100%;
+ max-height:calc(100dvh - 105px);
+ overflow-x:visible;
+ overflow-y:auto;
+ scrollbar-width:none;
+ -webkit-overflow-scrolling:touch;
+}
+.toast-stack::-webkit-scrollbar{display:none}
+.toast-stack>.undo-toast,
+.toast-stack>.offline-indicator{
+ position:relative!important;
+ inset:auto!important;
+ left:auto!important;
+ right:auto!important;
+ bottom:auto!important;
+ top:auto!important;
+ transform:translate3d(0,0,0);
+ width:max-content;
+ max-width:100%;
+ min-width:0;
+ box-sizing:border-box;
+ align-self:center;
+ flex-shrink:0;
+}
+.toast-stack>.undo-toast.undo-entering,
+.toast-stack>.offline-indicator.is-entering{
+ animation:toast-stack-enter .4s cubic-bezier(.22,1,.36,1) both!important;
+}
+.toast-stack>.undo-toast.undo-leaving,
+.toast-stack>.offline-indicator.is-leaving{
+ animation:toast-stack-leave .28s cubic-bezier(.4,0,.75,.25) both!important;
+}
+@keyframes toast-stack-enter{
+ from{opacity:0;transform:translate3d(0,36px,0) scale(.98)}
+ to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes toast-stack-leave{
+ from{opacity:1;transform:translate3d(0,0,0) scale(1)}
+ to{opacity:0;transform:translate3d(0,30px,0) scale(.98)}
+}
+@media(prefers-reduced-motion:reduce){
+ .toast-stack>.undo-toast.undo-entering,
+ .toast-stack>.offline-indicator.is-entering,
+ .toast-stack>.undo-toast.undo-leaving,
+ .toast-stack>.offline-indicator.is-leaving{animation:none!important}
+}
