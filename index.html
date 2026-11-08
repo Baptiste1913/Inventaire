@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.7" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.8" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
 <body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
@@ -65,12 +65,15 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
     <p id="accountFeedback" class="account-feedback" role="status" aria-live="polite"></p>
   </div>
 </details>
-<section class="inventory-calendar card" aria-labelledby="calendarHeading">
-  <div class="dashboard-subheading"><strong id="calendarHeading">Calendrier des inventaires</strong><span>Dates prévisionnelles</span></div>
-  <div class="inventory-calendar-controls"><button type="button" id="calendarPrev" aria-label="Année précédente">‹</button><strong id="calendarYear">2026</strong><button type="button" id="calendarNext" aria-label="Année suivante">›</button></div>
+<details class="inventory-calendar card" id="inventoryCalendar" aria-labelledby="calendarHeading">
+  <summary class="inventory-calendar-summary">
+    <span class="inventory-calendar-summary-content"><span class="section-kicker">PLANIFICATION / INVENTAIRES</span><strong id="calendarHeading">Calendrier des inventaires</strong><span class="calendar-next-label">PROCHAIN INVENTAIRE PRÉVU</span><span class="calendar-next-date" id="calendarNextDate">Calcul de la date…</span><span class="calendar-next-month" id="calendarNextMonth"></span></span>
+    <span class="inventory-calendar-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+  </summary>
+  <div class="inventory-calendar-expanded"><div class="inventory-calendar-controls"><button type="button" id="calendarPrev" aria-label="Année précédente">‹</button><strong id="calendarYear">2026</strong><button type="button" id="calendarNext" aria-label="Année suivante">›</button></div>
   <div class="inventory-calendar-grid" id="inventoryCalendarGrid"></div>
-  <p class="dashboard-footnote">Chaque inventaire est prévu le lundi le plus proche du 1er du mois, y compris si ce lundi tombe le mois précédent. Les dates peuvent être modifiées par le magasin.</p>
-</section>
+  <p class="dashboard-footnote">Chaque inventaire est prévu le lundi le plus proche du 1er du mois, même si ce lundi tombe le mois précédent. Dates prévisionnelles susceptibles d’être modifiées par le magasin.</p></div>
+</details>
 <section aria-labelledby="session-title" class="card session-card">
 <div class="session-top"><div><span class="section-kicker">SERVICES U / INVENTAIRE</span><h2 id="session-title">Ma session</h2></div><span class="session-pill" id="sessionBadge">Aucune session</span></div>
 <div id="sessionQualityReview" class="session-quality-review" hidden aria-live="polite"></div><p class="muted" id="sessionHelp">Démarre une session pour obtenir tes statistiques d'inventaire, sans nommer les produits.</p>
@@ -129,4 +132,4 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.6"></script><script defer="" src="app.js?v=33.5"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="calendar.js?v=33.7"></script></body></html>
+<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.6"></script><script defer="" src="app.js?v=33.5"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="calendar.js?v=33.8"></script></body></html>
