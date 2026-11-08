@@ -136,3 +136,6 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Cache hors ligne et versions CSS/JS mis à jour.
 
 V31.10 : immersion bleue limitée au contour, texte inchangé.
+
+
+V31.12 : contour gris bleuté au repos, fondu turquoise au focus ; suppression des calques animés du champ de poids.

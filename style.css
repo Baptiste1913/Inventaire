@@ -954,26 +954,6 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
   0%,100% { transform:translateY(-50%) scale(.78);opacity:.64; }
   50% { transform:translateY(-50%) scale(1.06);opacity:1; }
 }
-/* Saisie active : bordure turquoise lumineuse et respiration douce, sans déplacer le contenu. */
-.calc-card .weight-field {
-  transition:border-color .2s ease, box-shadow .25s ease, background-color .2s ease;
-}
-.calc-card .weight-field:focus-within {
-  border-color:#00818b;
-  background-color:#fbffff;
-  animation:weight-field-active-glow 2.4s ease-in-out infinite;
-}
-@keyframes weight-field-active-glow {
-  0%,100% { box-shadow:0 0 0 3px rgba(0,129,139,.10),0 0 0 0 rgba(0,129,139,0); }
-  50% { box-shadow:0 0 0 4px rgba(0,129,139,.19),0 0 18px 1px rgba(0,129,139,.12); }
-}
-@media(prefers-reduced-motion:reduce) {
-  .intro-session-dot::after,.session-pill::after,.session-pill.active::after,.session-pill.is-paused::after,
-  .calc-card .weight-field:focus-within { animation:none!important; }
-  .calc-card .weight-field:focus-within { box-shadow:0 0 0 3px rgba(0,129,139,.17); }
-}
-
-
 /* V31.2 — titres plus discrets et halos compacts, sans changer les points. */
 .card-heading h2,.session-top h2{font-size:19px}
 .fold-label{font-size:17px}
@@ -999,55 +979,23 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 
 
 
-/* V31.11 — Quatre naissances de couleur sur la bordure, puis courant bleu lent.
-   Les calques peignent leur propre intérieur gris : pas de masque composite WebKit. */
+
+/* V31.12 — Simple fondu de bordure, sans calques ni animation permanente. */
 .calc-card .weight-field {
-  position:relative; isolation:isolate; overflow:hidden;
   border:2px solid #b6c9d2;
+  border-radius:17px;
   background:#f5f8fa;
-  box-shadow:inset 0 1px 2px rgba(45,72,87,.025);
-  animation:none!important;
-  transition:box-shadow .35s ease;
+  box-shadow:none;
+  transition:border-color .35s ease;
 }
 .calc-card .weight-field:focus-within {
-  border-color:#b6c9d2;
+  border-color:#00818b;
   background:#f5f8fa;
-  box-shadow:0 0 0 2px rgba(0,127,139,.05);
-  animation:none!important;
+  box-shadow:none;
 }
-.calc-card .weight-field::before,.calc-card .weight-field::after {content:none!important}
-.calc-card .weight-field .weight-fill {
-  position:absolute; inset:-2px; display:block;
-  box-sizing:border-box; pointer-events:none; z-index:0;
-  border:2px solid transparent; border-radius:inherit;
-  background:
-    linear-gradient(#f5f8fa,#f5f8fa) padding-box,
-    linear-gradient(115deg,#007c89 0%,#4ba7bb 23%,#0b8a9b 46%,#66b2c0 69%,#007c89 100%) border-box;
-  background-size:100% 100%,250% 250%;
-  background-position:center,0% 45%;
-  clip-path:circle(0% at var(--fill-x) var(--fill-y));
-  -webkit-clip-path:circle(0% at var(--fill-x) var(--fill-y));
-  transition:clip-path 1.15s cubic-bezier(.22,.78,.22,1),
-             -webkit-clip-path 1.15s cubic-bezier(.22,.78,.22,1);
-  transition-delay:var(--fill-delay);
-  animation:weight-border-current 8s ease-in-out infinite alternate;
-}
-.calc-card .weight-field .weight-fill-a {--fill-x:12%;--fill-y:12%;--fill-delay:0ms}
-.calc-card .weight-field .weight-fill-b {--fill-x:88%;--fill-y:22%;--fill-delay:80ms}
-.calc-card .weight-field .weight-fill-c {--fill-x:83%;--fill-y:88%;--fill-delay:145ms}
-.calc-card .weight-field .weight-fill-d {--fill-x:16%;--fill-y:83%;--fill-delay:205ms}
-.calc-card .weight-field:focus-within .weight-fill {
-  clip-path:circle(165% at var(--fill-x) var(--fill-y));
-  -webkit-clip-path:circle(165% at var(--fill-x) var(--fill-y));
-}
-@keyframes weight-border-current {
-  0% {background-position:center,0% 40%}
-  50% {background-position:center,65% 58%}
-  100% {background-position:center,100% 42%}
-}
-.calc-card .weight-field input {position:relative;z-index:1;background:transparent!important;color:#243b45!important;transition:none!important}
-.calc-card .weight-field #inputUnit {position:relative;z-index:1;color:#64838d!important;transition:none!important}
+.calc-card .weight-field::before,
+.calc-card .weight-field::after {content:none!important}
+.calc-card .weight-field input {background:transparent!important;color:#243b45!important}
+.calc-card .weight-field #inputUnit {color:#64838d!important}
 .calc-card .weight-field input::placeholder {color:#8c9da6!important;opacity:1}
-@media(prefers-reduced-motion:reduce){
-  .calc-card .weight-field .weight-fill {animation:none!important;transition:none!important}
-}
+@media(prefers-reduced-motion:reduce){.calc-card .weight-field{transition:none}}
