@@ -1415,3 +1415,7 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .account-body .idb-recovery-separate{margin-top:16px;padding-top:16px;border-top:1px solid #dfecef;display:flex;justify-content:flex-start}
 .account-body .idb-recovery-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:8px 12px;border:1px solid #8dc7ca;border-radius:9px;background:#fff;color:#126a71;font:inherit;font-size:12px;font-weight:750;line-height:1.4;text-align:center;cursor:pointer}
 .account-body .idb-recovery-button:focus-visible{outline:3px solid #007f8b;outline-offset:3px}
+
+/* V33.3 : icône du profil local dans le bouton, aucun point de statut dans la fiche */
+.account-card .account-open-button .account-login-icon{width:18px;height:18px;flex:none;display:block}
+.account-card .account-profile .account-status-dot{display:none!important}
