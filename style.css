@@ -1185,3 +1185,11 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .account-provider{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid #d5e1e2;border-radius:11px;background:#fff;color:#263b3f;padding:13px 12px;font-size:14px;font-weight:650;cursor:pointer;margin-top:10px}
 .account-apple{background:#111;color:#fff;border-color:#111}.account-provider-icon{font-size:15px}.account-google-mark{font-size:18px;font-weight:800;color:#4285f4}.account-local-note{text-align:center;margin-bottom:0}.account-identity{font-weight:700;overflow-wrap:anywhere}.account-feedback:not(:empty){margin-top:12px;color:#087b88;font-weight:600}
 @media(max-width:390px){.account-dialog{padding:18px}.account-area{margin-top:6px}}
+
+/* V31.20 — Connexion par lien e-mail */
+.account-email-form{display:grid;gap:8px;margin-top:18px;padding-top:15px;border-top:1px solid #e2ebec}
+.account-email-form label{font-size:12px;font-weight:650;color:#506b72}
+.account-email-form input{width:100%;box-sizing:border-box;min-height:44px;border:1px solid #cbdcdf;border-radius:10px;padding:10px 12px;background:#fff;color:#203e44;font:inherit;font-size:14px}
+.account-email-form input:focus{outline:2px solid #71bfc3;outline-offset:1px}
+.account-email-form .account-email{margin-top:2px;background:#edf7f7;color:#126f78;border-color:#b8d9db}
+.account-email-form button:disabled{opacity:.55;cursor:wait}

@@ -1,6 +1,5 @@
-/* Configuration à compléter avec les valeurs publiques du projet Supabase.
-   Ne jamais placer une clé service_role ou un secret OAuth ici. */
+/* Configuration publique Supabase — ne jamais ajouter de clé secrète ici. */
 window.INVENTAIRES_AUTH_CONFIG = {
-  supabaseUrl: '',
-  supabaseAnonKey: ''
+  supabaseUrl: 'https://algtlmodwimfrsitzhlb.supabase.co',
+  supabaseAnonKey: 'sb_publishable_C-0IR5sdInoxZQwyuflA3w__uTwZFwg'
 };
