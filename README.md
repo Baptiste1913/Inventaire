@@ -134,3 +134,5 @@ Crédit de l’icône Wi-Fi hors ligne : [Icon Mart — Flaticon](https://www.fl
 - Préférence d'accessibilité « réduire les animations » respectée.
 - La restauration des bilans, paniers et historiques, et le délai de 8 secondes restent inchangés.
 - Cache hors ligne et versions CSS/JS mis à jour.
+
+V31.10 : immersion bleue limitée au contour, texte inchangé.
