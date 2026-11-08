@@ -972,3 +972,30 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
   .calc-card .weight-field:focus-within { animation:none!important; }
   .calc-card .weight-field:focus-within { box-shadow:0 0 0 3px rgba(0,129,139,.17); }
 }
+
+
+/* V31.2 — titres plus discrets et halos compacts, sans changer les points. */
+.card-heading h2,.session-top h2{font-size:19px}
+.fold-label{font-size:17px}
+@media(max-width:380px){.card-heading h2,.session-top h2{font-size:18px}.fold-label{font-size:15px}}
+/* Le dégradé neutre est explicite, y compris en l'absence de session. */
+.intro-session-dot::after,
+.intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot::after{
+  inset:-4px;
+  background:radial-gradient(circle,rgba(215,229,243,.53) 0%,rgba(215,229,243,.27) 38%,rgba(215,229,243,.07) 72%,transparent 100%);
+  animation:halo-breathe 2.35s ease-in-out infinite;
+}
+.intro-session-state.is-running .intro-session-dot::after{background:radial-gradient(circle,rgba(88,227,170,.59),rgba(88,227,170,.27) 45%,transparent 100%)}
+.intro-session-state.is-paused .intro-session-dot::after{background:radial-gradient(circle,rgba(255,209,138,.60),rgba(255,209,138,.28) 45%,transparent 100%)}
+.session-pill::after,.session-pill.active::after,.session-pill.is-paused::after{left:8px;width:19px;height:19px}
+/* Bordure animée en reflet glissant, plutôt qu'une lumière qui pulse. */
+.calc-card .weight-field{position:relative;isolation:isolate;overflow:hidden;transition:border-color .22s ease,background-color .22s ease,box-shadow .22s ease}
+.calc-card .weight-field:focus-within{animation:none;border-color:#00818b;background:#fcffff;box-shadow:0 0 0 2px rgba(0,129,139,.09),0 4px 16px rgba(0,129,139,.08)}
+.calc-card .weight-field::after{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;opacity:0;background:linear-gradient(110deg,transparent 12%,rgba(29,180,184,.025) 34%,rgba(47,188,190,.18) 49%,rgba(29,180,184,.025) 64%,transparent 86%);transform:translateX(-110%)}
+.calc-card .weight-field:focus-within::after{opacity:1;animation:weight-sheen 3.8s cubic-bezier(.45,0,.55,1) infinite}
+.calc-card .weight-field input,.calc-card .weight-field span{position:relative;z-index:1}
+@keyframes weight-sheen{0%,13%{transform:translateX(-110%)}58%,100%{transform:translateX(110%)}}
+.undo-toast.toast-warning{border-color:#b5d9dd;background:linear-gradient(135deg,#fff,#f2fafa)}
+.undo-toast.toast-warning .undo-toast-symbol{background:#e2f4f2}
+.undo-toast.toast-warning::after{display:none}
+@media(prefers-reduced-motion:reduce){.calc-card .weight-field:focus-within::after{animation:none;opacity:0}}

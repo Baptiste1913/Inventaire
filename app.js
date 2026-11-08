@@ -35,11 +35,29 @@ function offerUndo(message,restore){
   if(!toast)return;
   pendingUndo={restore,expires:Date.now()+UNDO_DELAY_MS};
   $('undoToastMessage').textContent=message;
+  const undoButton=$('undoToastButton');undoButton.textContent='Annuler';undoButton.setAttribute('aria-label','Annuler la dernière action');undoButton.onclick=null;toast.classList.remove('toast-warning');
   toast.hidden=false;
   toast.classList.remove('undo-entering','undo-leaving','undo-ticking');
   void toast.offsetWidth;
   toast.classList.add('undo-entering','undo-ticking');
   undoTimeout=setTimeout(()=>dismissUndo(),UNDO_DELAY_MS);
+}
+// Notifications d'information / erreur : même composant que l'annulation, sans action destructive.
+function showActionToast(message,{reload=false,persistent=false}={}){
+  dismissUndo(true);
+  const toast=$('undoToast');
+  if(!toast)return;
+  $('undoToastMessage').textContent=message;
+  const button=$('undoToastButton');
+  button.textContent=reload?'Actualiser':'Fermer';
+  button.setAttribute('aria-label',reload?'Actualiser la page':'Fermer la notification');
+  button.onclick=reload?()=>window.location.reload():()=>dismissUndo();
+  toast.classList.toggle('toast-warning',true);
+  toast.hidden=false;
+  toast.classList.remove('undo-entering','undo-leaving','undo-ticking');
+  void toast.offsetWidth;
+  toast.classList.add('undo-entering');
+  if(!persistent)undoTimeout=setTimeout(()=>dismissUndo(),8000);
 }
 function undoLastDeletion(){
   const pending=pendingUndo;
@@ -70,11 +88,11 @@ for(const entry of (historyExpanded?history:history.slice(0,5))){const row=docum
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
 function persist(){
  try{safeSetItem(STORAGE_KEY,JSON.stringify(baskets));render();return true;}
- catch(e){baskets=loadBaskets();render();$('basketFormError').textContent='Enregistrement impossible : stockage local indisponible. Modification annulée.';return false;}
+ catch(e){baskets=loadBaskets();render();showActionToast('Enregistrement du panier impossible. Modification annulée.',{reload:true,persistent:true});return false;}
 }
 function commitBaskets(next){
  try{safeSetItem(STORAGE_KEY,JSON.stringify(next));}
- catch{$('basketFormError').textContent='Enregistrement impossible : stockage local indisponible.';return false;}
+ catch{showActionToast(externalDataChanged?'Données modifiées dans un autre onglet. Actualise la page.':'Enregistrement du panier impossible : stockage local indisponible.',{reload:true,persistent:true});return false;}
  baskets=next;render();renderBackupSummary();return true;
 }
 // Long appui sur toute la ligne : défilement normal avant activation, glissement fluide ensuite.
@@ -640,7 +658,7 @@ $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify
 $('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');const next=sanitize(items);if(!commitBaskets(next))throw Error('Stockage indisponible');dismissUndo();cancelEdit();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 
 
-$('undoToastButton').addEventListener('click',undoLastDeletion);
+$('undoToastButton').addEventListener('click',()=>{if(pendingUndo)undoLastDeletion();});
 render();renderHistory();renderV22();
 renderBackupSummary();
 $('backupCard').addEventListener('toggle',()=>{if($('backupCard').open)renderBackupSummary();});
@@ -836,8 +854,6 @@ let externalDataChanged=false;
 window.addEventListener('storage',event=>{
  if(![STORAGE_KEY,HISTORY_KEY,SESSION_KEY,MODE_KEY,LIMIT_KEY,DUPLICATE_CONFIRM_KEY].includes(event.key))return;
  externalDataChanged=true;
- $('backupStatus').textContent='Données modifiées dans un autre onglet. Recharge cette page avant de continuer.';
- $('basketFormError').textContent='Un autre onglet a modifié les données : recharge la page.';
- $('sessionMessage').textContent='Données modifiées dans un autre onglet : recharge la page.';
+ showActionToast('Données modifiées dans un autre onglet. Actualise cette page avant de continuer.',{reload:true,persistent:true});
 });
 function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet détecté');localStorage.setItem(key,value);}
