@@ -1489,3 +1489,26 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .inventory-calendar-month.is-current{box-shadow:0 0 0 1px rgba(20,145,154,.15)}
 .inventory-calendar-summary:focus-visible{outline:2px solid #168e9a;outline-offset:-3px;border-radius:17px}
 @media(prefers-reduced-motion:reduce){.inventory-calendar-chevron{transition:none}}
+
+/* V33.9 : calendrier harmonisé avec les cartes et boutons Inventaires U */
+.inventory-calendar.card{box-sizing:border-box;margin:18px 0;padding:0!important;background:#fff!important;border:1px solid #e1e5e7;border-radius:24px;box-shadow:0 7px 25px rgba(32,56,63,.055);overflow:hidden}
+.inventory-calendar-summary{box-sizing:border-box;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;padding:23px 20px 18px!important;cursor:pointer;list-style:none}
+.inventory-calendar-summary::-webkit-details-marker{display:none}
+.inventory-calendar-heading{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;min-width:0}
+.inventory-calendar-heading .section-kicker{margin:0;color:#21858b;font-size:11px;font-weight:850;letter-spacing:.12em}
+.inventory-calendar-heading>strong{font-size:clamp(21px,5.5vw,26px);line-height:1.22;letter-spacing:-.03em;color:#202f34;font-weight:800}
+.inventory-calendar-next-card{box-sizing:border-box;display:flex;flex-direction:column;gap:6px;width:100%;padding:18px 17px;border:1px solid rgba(182,234,240,.32);border-radius:18px;background:linear-gradient(126deg,#008b9a 0%,#087c8f 48%,#136d8a 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 3px 12px rgba(0,99,119,.14);min-width:0}
+.inventory-calendar-next-card .calendar-next-label{margin:0;color:rgba(255,255,255,.79);font-size:10px;font-weight:850;letter-spacing:.12em}
+.inventory-calendar-next-card .calendar-next-date{color:#fff;font-size:clamp(18px,5vw,23px);line-height:1.3;font-weight:850;letter-spacing:-.03em;overflow-wrap:anywhere;text-transform:capitalize}
+.inventory-calendar-next-card .calendar-next-month{color:rgba(255,255,255,.84);font-size:12px;line-height:1.45}
+.inventory-calendar-toggle{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:17px;color:#197e89;font-size:12px;font-weight:800}
+.inventory-calendar-toggle .inventory-calendar-chevron{box-sizing:content-box;flex:none;padding:5px;background:#e8f5f5;border-radius:9px;color:#197e89;transition:transform .25s ease}
+.inventory-calendar[open] .inventory-calendar-toggle .inventory-calendar-chevron{transform:rotate(180deg)}
+.inventory-calendar[open] .inventory-calendar-toggle>span{font-size:0}
+.inventory-calendar[open] .inventory-calendar-toggle>span:after{content:'Masquer le calendrier annuel';font-size:12px}
+.inventory-calendar-expanded{padding:18px 20px 22px;border-top:1px solid #e5edef;background:#fff}
+.inventory-calendar-controls{margin:0 0 16px;background:#edf7f7}
+.inventory-calendar-grid{gap:9px}
+.inventory-calendar-month{background:#fff;border:1px solid #dce9eb;border-radius:14px}
+.inventory-calendar-month.is-current{background:#edfafa;border-color:#48aab2}
+@media(max-width:360px){.inventory-calendar-summary{padding:20px 15px 16px!important}.inventory-calendar-expanded{padding:16px 15px 20px}.inventory-calendar-next-card{padding:16px 13px}.inventory-calendar-grid{gap:6px}}
