@@ -1409,3 +1409,9 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .account-body #recoveryList{font-size:12px;line-height:1.5;color:#426b74}
 .account-body .recovery-row{flex-wrap:wrap}
 @media(prefers-reduced-motion:reduce){.account-body .recovery-card .calc-alerts-chevron{transition:none}}
+
+/* V33.1 — icône utilisateur compacte et bouton IndexedDB harmonisé */
+.account-card .account-open-button .account-user-icon{width:18px;height:18px;flex:none;object-fit:contain;display:block}
+.account-body .idb-recovery-separate{margin-top:16px;padding-top:16px;border-top:1px solid #dfecef;display:flex;justify-content:flex-start}
+.account-body .idb-recovery-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:8px 12px;border:1px solid #8dc7ca;border-radius:9px;background:#fff;color:#126a71;font:inherit;font-size:12px;font-weight:750;line-height:1.4;text-align:center;cursor:pointer}
+.account-body .idb-recovery-button:focus-visible{outline:3px solid #007f8b;outline-offset:3px}
