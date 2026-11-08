@@ -1,0 +1,1 @@
+V34.1 bêta — Correction de la connexion Google sur Safari : attendre la validation des écritures IndexedDB avant de recharger après changement d’espace. Correction du flush des écritures concurrentes.\n

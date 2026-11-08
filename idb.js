@@ -2,13 +2,24 @@
 (()=>{'use strict';
  const DB='inventaires-u-v34',STORE='kv',BACKUP_DB='inventaires-u-v33',BACKUP_STORE='workspaces';
  const prefix='inventaires-u-', legacy='tare-paniettes-v1';
- const cache=new Map();let db=null,dirty=new Map(),draining=false,writeError=null;const tabId=Math.random().toString(36).slice(2);let channel=null;
+ const cache=new Map();let db=null,dirty=new Map(),draining=false,drainPromise=null,writeError=null;const tabId=Math.random().toString(36).slice(2);let channel=null;
  const isAppKey=k=>typeof k==='string'&&(k.startsWith(prefix)||k===legacy);
  function open(){return new Promise((ok,no)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE);};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);r.onblocked=()=>no(Error('IndexedDB bloquée par un autre onglet'));});}
  function readAll(){return new Promise((ok,no)=>{const tx=db.transaction(STORE,'readonly'),s=tx.objectStore(STORE),a=s.getAllKeys(),b=s.getAll();tx.oncomplete=()=>ok(a.result.map((k,i)=>[k,b.result[i]]));tx.onerror=()=>no(tx.error);});}
  function commit(entries){return new Promise((ok,no)=>{const tx=db.transaction(STORE,'readwrite'),s=tx.objectStore(STORE);for(const [k,v] of entries){if(v===null)s.delete(k);else s.put(v,k);}tx.oncomplete=ok;tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error);});}
  function report(e){writeError=e;console.error('IndexedDB : écriture impossible',e);window.dispatchEvent(new CustomEvent('inventory-storage-error',{detail:String(e)}));}
- async function drain(){if(draining)return;draining=true;try{while(dirty.size){const batch=[...dirty];dirty.clear();try{await commit(batch);if(channel)channel.postMessage({tabId,keys:batch.map(x=>x[0])});}catch(e){for(const [k,v] of batch)if(!dirty.has(k))dirty.set(k,v);report(e);break;}}}finally{draining=false;}}
+ function drain(){
+  if(drainPromise)return drainPromise;
+  drainPromise=(async()=>{draining=true;try{
+   while(dirty.size){
+    const batch=[...dirty];dirty.clear();
+    try{await commit(batch);writeError=null;if(channel)channel.postMessage({tabId,keys:batch.map(x=>x[0])});}
+    catch(e){for(const [k,v] of batch)if(!dirty.has(k))dirty.set(k,v);report(e);throw e;}
+   }
+  }finally{draining=false;drainPromise=null;}})();
+  return drainPromise;
+ }
+ async function flush(){while(drainPromise||dirty.size){await drain();}if(writeError)throw writeError;}
  const schedule=()=>queueMicrotask(drain);
  const store={
   getItem(k){k=String(k);return cache.has(k)?cache.get(k):null;},
@@ -17,7 +28,7 @@
   key(i){return [...cache.keys()][i]??null;},
   get length(){return cache.size;},
   keys(){return [...cache.keys()];},
-  async flush(){await drain();if(writeError)throw writeError;},
+  async flush(){await flush();},
   get error(){return writeError;}
  };
  async function init(){db=await open();let all=await readAll();

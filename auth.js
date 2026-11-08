@@ -75,7 +75,7 @@ function readWorkspace(id){try{const raw=window.InventoryStore.getItem(workspace
 function writeWorkspace(id,data){window.InventoryStore.setItem(workspaceKey(id),JSON.stringify(data));}
 function saveActive(){const data=snapshot();writeWorkspace(scopeId(),data);window.InventairesIDB?.put(scopeId(),data).catch(e=>console.warn('Copie IndexedDB indisponible',e));}
 function applyWorkspace(data){const previous=snapshot();try{for(const key of KEYS){const val=data?.[key]??null;if(val===null)window.InventoryStore.removeItem(key);else window.InventoryStore.setItem(key,val);}}catch(e){for(const key of KEYS){try{if(previous[key]===null)window.InventoryStore.removeItem(key);else window.InventoryStore.setItem(key,previous[key]);}catch{}}throw e;}}
-function switchWorkspace(id,initial=null){if(scopeId()===id)return false;saveActive();const next=readWorkspace(id)||initial||Object.fromEntries(KEYS.map(k=>[k,null]));applyWorkspace(next);writeWorkspace(id,snapshot());window.InventoryStore.setItem(SCOPE_KEY,id);location.reload();return true;}
+function switchWorkspace(id,initial=null){if(scopeId()===id)return false;saveActive();const next=readWorkspace(id)||initial||Object.fromEntries(KEYS.map(k=>[k,null]));applyWorkspace(next);writeWorkspace(id,snapshot());window.InventoryStore.setItem(SCOPE_KEY,id);window.InventoryStore.flush().then(()=>location.reload()).catch(e=>{feedback('Sauvegarde locale impossible avant rechargement : '+e.message);console.error(e);});return true;}
 // Save a copy of the pre-existing local data as the guest workspace on upgrade.
 try{if(!window.InventoryStore.getItem(SCOPE_KEY)){writeWorkspace('guest',snapshot());window.InventoryStore.setItem(SCOPE_KEY,'guest');}}catch(e){console.warn('Workspace initialization',e);}
 
