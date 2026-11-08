@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
-<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=31.22" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
-<body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header><div class="account-area"><button type="button" id="accountTrigger" class="account-trigger" aria-haspopup="dialog" aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 3-6 7-6s6.6 2 7 6"/></svg><span id="accountLabel">Non connecté</span></button></div>
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=31.23" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
+<body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
 <span class="offline-copy"><strong>Mode hors ligne</strong><span>Vos pesées restent disponibles.</span></span>
@@ -15,6 +15,28 @@
     <a class="intro-jump" href="#calc-title" aria-label="Accéder au calculateur de pesées"><span>Aller à la pesée</span><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
   </div>
 </section>
+<details id="accountCard" class="card fold-card account-card" aria-labelledby="accountSectionTitle">
+  <summary class="fold-summary account-fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / COMPTE</span><span class="fold-label" id="accountSectionTitle">Mon espace</span></span><span class="fold-trailing"><span class="account-summary-status" id="accountSummaryStatus">Non connecté</span><svg aria-hidden="true" class="fold-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span><span class="account-open-button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 3-6 7-6s6.6 2 7 6"/></svg><span id="accountActionLabel">Connexion</span><svg aria-hidden="true" class="account-action-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+  <div class="fold-body account-body">
+    <div class="account-profile"><span class="account-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 3-6 7-6s6.6 2 7 6"/></svg></span><div class="account-profile-text"><strong id="accountProfileName">Non connecté</strong><span id="accountProfileHint">Mode local · Données sur cet appareil</span></div><span class="account-status-dot" id="accountStatusDot" aria-hidden="true"></span></div>
+    <p class="account-explanation" id="accountDescription">Connectez-vous pour retrouver vos inventaires sur vos appareils. Sans compte, Inventaires U continue de fonctionner localement.</p>
+    <div id="accountSignedOut">
+      <button type="button" id="accountGoogle" class="account-provider account-google"><span class="account-google-mark" aria-hidden="true">G</span><span>Continuer avec Google</span></button>
+      <div class="account-divider"><span>ou par e-mail</span></div>
+      <form id="accountEmailForm" class="account-email-form"><label for="accountEmail">Adresse e-mail</label><input id="accountEmail" type="email" inputmode="email" autocomplete="email" placeholder="adresse@exemple.fr" required maxlength="254"/><button id="accountEmailSubmit" type="submit" class="account-provider account-email">Recevoir mon lien de connexion</button></form>
+      <p class="account-local-note">Aucun compte requis pour utiliser l'application.</p>
+    </div>
+    <div id="accountSignedIn" hidden>
+      <div class="account-info-line"><span>Compte</span><strong id="accountIdentity"></strong></div>
+      <div class="account-info-line"><span>État du cloud</span><strong id="cloudStatus" role="status">Connexion au cloud…</strong></div>
+      <div id="cloudConflict" class="account-conflict" hidden><p><strong>Deux sauvegardes différentes détectées.</strong> Choisis celle à conserver. L’autre sera remplacée.</p><button type="button" id="cloudKeepLocal" class="account-provider account-google">Conserver les données de cet appareil</button><button type="button" id="cloudUseRemote" class="account-provider account-google">Récupérer les données du cloud</button></div>
+      <button type="button" id="cloudSyncNow" class="account-provider account-sync">Synchroniser maintenant</button>
+      <button type="button" id="accountLogout" class="account-provider account-logout">Se déconnecter</button>
+      <p class="account-local-note">La déconnexion conserve les données locales de cet appareil.</p>
+    </div>
+    <p id="accountFeedback" class="account-feedback" role="status" aria-live="polite"></p>
+  </div>
+</details>
 <section aria-labelledby="session-title" class="card session-card">
 <div class="session-top"><div><span class="section-kicker">SERVICES U / INVENTAIRE</span><h2 id="session-title">Ma session</h2></div><span class="session-pill" id="sessionBadge">Aucune session</span></div>
 <p class="muted" id="sessionHelp">Démarre une session pour obtenir tes statistiques d'inventaire, sans nommer les produits.</p>
@@ -39,28 +61,7 @@
 <details aria-labelledby="history-title" class="card history-card fold-card"><summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / SUIVI</span><h2 class="fold-label" id="history-title">Historique des pesées</h2></span><span class="fold-trailing"><span class="count" id="historyCount">0 pesée</span><svg aria-hidden="true" class="fold-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary><div class="fold-body"><p class="muted">Les pesées sont enregistrées automatiquement après la saisie.</p><button aria-controls="historyList" aria-expanded="false" class="history-toggle" hidden="" id="historyToggleTop" type="button"><span class="history-toggle-label">Voir les pesées</span><svg aria-hidden="true" class="history-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button><div class="history-list" id="historyList"></div><button class="history-clear" hidden="" id="clearHistoryBtn" type="button">Effacer l’historique</button></div></details>
 <details aria-labelledby="sessions-history-title" class="card sessions-history-card fold-card"><summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / BILANS</span><h2 class="fold-label" id="sessions-history-title">Mes inventaires</h2></span><span class="fold-trailing"><span class="count" id="sessionsCount">0 session</span><svg aria-hidden="true" class="fold-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary><div class="fold-body"><p class="muted">Statistiques des sessions terminées, enregistrées sur cet appareil.</p><p aria-live="polite" class="bilan-notice" id="bilanNotice" role="status"></p><div class="v22-session-list" id="sessionsHistoryList"></div><button class="history-toggle" hidden="" id="sessionsToggle" type="button">Voir toutes les sessions</button></div></details>
 <details aria-labelledby="basket-title" class="card fold-card"><summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / PANIERS</span><h2 class="fold-label" id="basket-title">Mes paniers</h2></span><span class="fold-trailing"><span class="count" id="basketCount">0 panier</span><svg aria-hidden="true" class="fold-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary><div class="fold-body"><p class="muted">Maintiens un panier appuyé, puis fais-le glisser pour changer son ordre. Tu peux aussi utiliser les flèches.</p><div class="basket-list" id="basketList"></div><form class="basket-form" id="basketForm" novalidate><h3 id="formTitle">Ajouter un panier</h3><div class="form-grid"><div><label for="basketName">Nom du panier</label><input id="basketName" maxlength="40" placeholder="Ex. Panier normal" required=""/></div><div><label for="basketTare">Tare (kg)</label><input id="basketTare" inputmode="decimal" placeholder="Ex. 0.554" required="" type="text"/></div></div><div class="form-buttons"><button class="primary-btn" id="saveBasketBtn" type="submit">+ Ajouter le panier</button><button class="ghost-btn hidden" id="cancelEditBtn" type="button">Annuler</button></div><p class="error" id="basketFormError" role="status" aria-live="polite"></p></form></div></details>
-<details id="accountCard" class="card fold-card account-card" aria-labelledby="accountSectionTitle">
-  <summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / PROFIL</span><span class="fold-label" id="accountSectionTitle">Connexion</span></span><span class="fold-trailing"><span class="account-summary-status" id="accountSummaryStatus">Non connecté</span><svg aria-hidden="true" class="fold-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary>
-  <div class="fold-body account-body">
-    <div class="account-profile"><span class="account-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 3-6 7-6s6.6 2 7 6"/></svg></span><div class="account-profile-text"><strong id="accountProfileName">Non connecté</strong><span id="accountProfileHint">Mode local · Données sur cet appareil</span></div><span class="account-status-dot" id="accountStatusDot" aria-hidden="true"></span></div>
-    <p class="account-explanation" id="accountDescription">Connectez-vous pour retrouver vos inventaires sur vos appareils. Sans compte, Inventaires U continue de fonctionner localement.</p>
-    <div id="accountSignedOut">
-      <button type="button" id="accountGoogle" class="account-provider account-google"><span class="account-google-mark" aria-hidden="true">G</span><span>Continuer avec Google</span></button>
-      <div class="account-divider"><span>ou par e-mail</span></div>
-      <form id="accountEmailForm" class="account-email-form"><label for="accountEmail">Adresse e-mail</label><input id="accountEmail" type="email" inputmode="email" autocomplete="email" placeholder="adresse@exemple.fr" required maxlength="254"/><button id="accountEmailSubmit" type="submit" class="account-provider account-email">Recevoir mon lien de connexion</button></form>
-      <p class="account-local-note">Aucun compte requis pour utiliser l'application.</p>
-    </div>
-    <div id="accountSignedIn" hidden>
-      <div class="account-info-line"><span>Compte</span><strong id="accountIdentity"></strong></div>
-      <div class="account-info-line"><span>État du cloud</span><strong id="cloudStatus" role="status">Connexion au cloud…</strong></div>
-      <div id="cloudConflict" class="account-conflict" hidden><p><strong>Deux sauvegardes différentes détectées.</strong> Choisis celle à conserver. L’autre sera remplacée.</p><button type="button" id="cloudKeepLocal" class="account-provider account-google">Conserver les données de cet appareil</button><button type="button" id="cloudUseRemote" class="account-provider account-google">Récupérer les données du cloud</button></div>
-      <button type="button" id="cloudSyncNow" class="account-provider account-sync">Synchroniser maintenant</button>
-      <button type="button" id="accountLogout" class="account-provider account-logout">Se déconnecter</button>
-      <p class="account-local-note">La déconnexion conserve les données locales de cet appareil.</p>
-    </div>
-    <p id="accountFeedback" class="account-feedback" role="status" aria-live="polite"></p>
-  </div>
-</details>
+
 <details class="card backup-card fold-card" id="backupCard">
   <summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / DONNÉES</span><span class="fold-label">Sauvegarde</span></span><span class="fold-trailing"><svg aria-hidden="true" class="fold-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary>
   <div class="fold-body backup-body">
@@ -85,4 +86,4 @@
   </div>
 </details><footer><strong class="footer-noncommercial">Utilisation non commerciale uniquement</strong><span class="footer-identity">Baptiste • Super U Saint-Germain</span><span class="footer-original">Inventaires U · Outil indépendant · Données stockées localement</span></footer></main>
 
-<script defer src="auth-config.js?v=31.22"></script><script defer src="auth.js?v=31.22"></script><script defer="" src="app.js?v=31.22"></script></body></html>
+<script defer src="auth-config.js?v=31.23"></script><script defer src="auth.js?v=31.23"></script><script defer="" src="app.js?v=31.23"></script></body></html>

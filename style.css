@@ -1232,3 +1232,19 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .account-body .account-feedback:empty{display:none}
 @media(max-width:380px){.account-summary-status{font-size:10px;padding:6px 8px}.account-profile{padding:12px}}
 @media(prefers-reduced-motion:reduce){.account-body .account-provider{transition:none}}
+
+/* V31.23 — Accès au compte placé avant la session, sans bandeau dans l'en-tête. */
+.account-card{margin-top:0;overflow:visible}
+.account-card>.account-fold-summary{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:19px;min-height:0}
+.account-card .account-fold-summary .fold-heading{flex:1 1 145px;min-width:0}
+.account-card .account-fold-summary .fold-trailing{margin-left:auto}
+.account-card .account-open-button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;padding:12px 18px;border-radius:16px;background:#007f8b;color:#fff;font-size:14px;font-weight:800;line-height:1.2;transition:background-color .2s ease}
+.account-card .account-open-button>svg:first-child{width:20px;height:20px;flex:none}
+.account-card .account-open-button .account-action-chevron{width:17px;height:17px;margin-left:auto;transition:transform .2s ease}
+.account-card[open] .account-action-chevron{transform:rotate(180deg)}
+.account-card[open] .account-open-button{background:#006d78}
+.account-card>.account-fold-summary:active .account-open-button{background:#006c76}
+.account-card>.account-fold-summary:focus-visible{outline:2px solid #007f8b;outline-offset:3px}
+.account-card .account-body{padding-top:4px}
+@media(max-width:380px){.account-card>.account-fold-summary{padding:16px 13px}.account-card .account-open-button{min-height:50px}}
+@media(prefers-reduced-motion:reduce){.account-card .account-open-button,.account-card .account-action-chevron{transition:none}}
