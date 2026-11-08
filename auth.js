@@ -152,15 +152,46 @@ async function activateUser(u){
   if(changed&&shouldClaimGuest)window.InventoryStore.setItem(IMPORT_KEY,provider+':'+u.id);
   return changed;
 }
-async function init(){render();const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{session},error}=await s.auth.getSession();if(error&&!isMissingSession(error))throw error;const u=session?.user||null;if(await activateUser(u))return;if(user)void reconcile();s.auth.onAuthStateChange((event,session)=>{
- if(event!=='SIGNED_IN'&&event!=='SIGNED_OUT')return;
- const incoming=session?.user||null;
- if((incoming?.id||null)===(user?.id||null))return;
- queueMicrotask(async()=>{try{
-  if(await activateUser(incoming))return;
+async function init(){
+ render();
+ const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');
+ if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}
+ if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}
+ try{
+  const s=await sb();
+  let activation=Promise.resolve(false);
+  const queueActivation=session=>{
+   activation=activation.then(async()=>{
+    const incoming=session?.user||null;
+    if((incoming?.id||null)===(user?.id||null))return false;
+    const changed=await activateUser(incoming);
+    if(user)void reconcile();
+    return changed;
+   });
+   return activation;
+  };
+  // Subscribe before getSession so an OAuth callback cannot be missed during startup.
+  s.auth.onAuthStateChange((event,session)=>{
+   if(event!=='SIGNED_IN'&&event!=='SIGNED_OUT')return;
+   queueMicrotask(async()=>{
+    try{await queueActivation(session);}
+    catch(e){feedback(e.message||'Changement de compte impossible.');}
+   });
+  });
+  const {data:{session},error}=await s.auth.getSession();
+  if(error&&!isMissingSession(error))throw error;
+  if(await queueActivation(session))return;
   if(user)void reconcile();
- }catch(e){feedback(e.message||'Changement de compte impossible.');}});
-});interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);window.addEventListener('online',()=>reconcile());document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
+  interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);
+  setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);
+  window.addEventListener('online',()=>reconcile());
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});
+  window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});
+ }catch(e){
+  if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}
+  feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');
+ }
+}
 $('accountGoogle').addEventListener('click',()=>connect('google'));$('accountAvatarImage').addEventListener('error',()=>{const avatar=$('accountAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountLogout').addEventListener('click',logout);
 $('cloudKeepLocal').addEventListener('click',async()=>{if(!user||busy)return;busy=true;try{const remote=JSON.parse($('cloudConflict').dataset.payload);if(!preserveRecovery('cloud-avant-remplacement-local',snapshot())||!preserveRecovery('cloud-avant-remplacement-distant',remote))throw Error('Impossible de créer la copie de sécurité.');const current=await readRemote();if(serialize(current?.data)!==serialize(remote)){askConflict(current?.data);throw Error('Le cloud a encore changé. Vérifie les nouvelles données.');}remoteBaseline=remote;await upload(snapshot());$('cloudConflict').hidden=true;}catch(e){feedback(e.message);}finally{busy=false;}});
