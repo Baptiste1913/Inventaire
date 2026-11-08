@@ -1,5 +1,5 @@
 /* Inventaires U V31.5 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v31-5';
+const CACHE = 'inventaires-u-offline-v31-6';
 const CORE = [
   './', './index.html', './style.css?v=31.5', './app.js?v=31.5',
   './manifest.webmanifest?v=13', './icon.png?v=11',
