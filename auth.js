@@ -73,9 +73,9 @@ const scopeId=()=>window.InventoryStore.getItem(SCOPE_KEY)||'guest';
 const workspaceKey=id=>id==='guest'?GUEST_KEY:ACCOUNT_PREFIX+id;
 function readWorkspace(id){try{const raw=window.InventoryStore.getItem(workspaceKey(id));return raw?JSON.parse(raw):null;}catch{return null;}}
 function writeWorkspace(id,data){window.InventoryStore.setItem(workspaceKey(id),JSON.stringify(data));}
-function saveActive(){const data=snapshot();writeWorkspace(scopeId(),data);window.InventairesIDB?.put(scopeId(),data).catch(e=>console.warn('Copie IndexedDB indisponible',e));}
+function saveActive(){const data=snapshot();writeWorkspace(scopeId(),data);}
 function applyWorkspace(data){const previous=snapshot();try{for(const key of KEYS){const val=data?.[key]??null;if(val===null)window.InventoryStore.removeItem(key);else window.InventoryStore.setItem(key,val);}}catch(e){for(const key of KEYS){try{if(previous[key]===null)window.InventoryStore.removeItem(key);else window.InventoryStore.setItem(key,previous[key]);}catch{}}throw e;}}
-function switchWorkspace(id,initial=null){if(scopeId()===id)return false;saveActive();const next=readWorkspace(id)||initial||Object.fromEntries(KEYS.map(k=>[k,null]));applyWorkspace(next);writeWorkspace(id,snapshot());window.InventoryStore.setItem(SCOPE_KEY,id);window.InventoryStore.flush().then(()=>location.reload()).catch(e=>{feedback('Sauvegarde locale impossible avant rechargement : '+e.message);console.error(e);});return true;}
+function switchWorkspace(id,initial=null){if(scopeId()===id)return false;saveActive();const next=readWorkspace(id)||initial||Object.fromEntries(KEYS.map(k=>[k,null]));applyWorkspace(next);writeWorkspace(id,snapshot());window.InventoryStore.setItem(SCOPE_KEY,id);window.InventoryStore.flush().then(()=>location.replace(location.href)).catch(e=>{feedback('Enregistrement impossible : '+e.message);console.error(e);});return true;}
 // Save a copy of the pre-existing local data as the guest workspace on upgrade.
 try{if(!window.InventoryStore.getItem(SCOPE_KEY)){writeWorkspace('guest',snapshot());window.InventoryStore.setItem(SCOPE_KEY,'guest');}}catch(e){console.warn('Workspace initialization',e);}
 
@@ -138,24 +138,13 @@ async function activateUser(u){
   if(!u){activeProvider=null;if(scopeId()!=='guest'){switchWorkspace('guest');return true;}user=null;render();return false;}
   const provider=providerFor(u);if(provider!=='google')throw Error('Cette version accepte uniquement la connexion Google.');const id=accountId(u,provider);
   if(scopeId()===id){user=u;activeProvider=provider;render();return false;}
-  // Never copy a different provider's data, even if Supabase links both identities to one user_id.
-  // Verify that the provider-specific database exists BEFORE switching workspaces.
-  const {data,error}=await client.from('provider_backups').select('data').eq('user_id',u.id).eq('provider',provider).maybeSingle();
-  if(error)throw Error('Configuration cloud incomplète : exécute schema-provider-backups.sql dans Supabase. '+error.message);
+  // Switch immediately to an already cached account workspace. Remote sync is handled
+  // after startup, never on the critical OAuth return path.
   let seed=readWorkspace(id);let shouldClaimGuest=false;
-  if(!seed && data?.data)seed=data.data;
   if(!seed){
     const guest=readWorkspace('guest')||(scopeId()==='guest'?snapshot():null);
-    let alreadyUsed=!!window.InventoryStore.getItem(IMPORT_KEY);
-    if(!alreadyUsed){
-      // Existing V31.26 Google cloud backups mean guest data was already imported.
-      const {data:old,error:oldError}=await client.from('user_backups').select('data').eq('user_id',u.id).maybeSingle();
-      if(oldError)throw oldError;
-      if(old?.data){alreadyUsed=true;window.InventoryStore.setItem(IMPORT_KEY,'legacy-google');}
-    }
-    if(!alreadyUsed && guest && !empty(guest)){
-      seed=guest;shouldClaimGuest=true;
-    }
+    const alreadyUsed=!!window.InventoryStore.getItem(IMPORT_KEY);
+    if(!alreadyUsed && guest && !empty(guest)){seed=guest;shouldClaimGuest=true;}
   }
   if(!seed)seed=Object.fromEntries(KEYS.map(k=>[k,null]));
   activeProvider=provider;
