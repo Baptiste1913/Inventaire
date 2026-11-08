@@ -1,7 +1,7 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v33-14';
+const CACHE = 'inventaires-u-offline-v33-16';
 const CORE = [
-  './', './index.html', './calendar.js?v=33.13', './style.css?v=33.14', './app.js?v=33.13',
+  './', './index.html', './push.js?v=33.16', './calendar.js?v=33.16', './style.css?v=33.16', './app.js?v=33.16',
   './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=33.6', './manifest.webmanifest?v=13', './icon.png?v=11',
   './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon.ico?v=13',
   './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png', './start-inventory-icon.png?v=32.0'
@@ -65,4 +65,16 @@ self.addEventListener('fetch', event => {
       return Response.error();
     }
   })());
+});
+
+/* V33.16 — notifications visibles même lorsque la PWA est fermée. */
+self.addEventListener('push',event=>{
+ let payload={};try{payload=event.data?.json()||{};}catch(_){payload={body:event.data?.text()||''};}
+ const title=typeof payload.title==='string'?payload.title:'Inventaires U';
+ const body=typeof payload.body==='string'?payload.body:'Votre prochain inventaire approche.';
+ event.waitUntil(self.registration.showNotification(title,{body,icon:'./icon.png',badge:'./favicon-32.png',tag:payload.tag||'inventaires-u-reminder',data:{url:'./'},renotify:false}));
+});
+self.addEventListener('notificationclick',event=>{
+ event.notification.close();
+ event.waitUntil((async()=>{const url=new URL('./',self.registration.scope).href;const tabs=await self.clients.matchAll({type:'window',includeUncontrolled:true});const existing=tabs.find(t=>t.url.startsWith(self.registration.scope));if(existing){await existing.focus();return;}await self.clients.openWindow(url);})());
 });

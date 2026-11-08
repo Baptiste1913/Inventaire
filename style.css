@@ -1590,3 +1590,22 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot{background:#d3f3d4}
 .intro-jump{color:#215c45;background:rgba(255,255,255,.94);border-color:rgba(245,255,246,.85);box-shadow:0 4px 14px rgba(9,77,48,.13)}
 .intro-jump:hover{background:#fff}
+
+/* V33.15 — lumière naturelle, reflets légers sans visuels ajoutés */
+.intro::after{content:"";position:absolute;z-index:-1;inset:-12% -8%;pointer-events:none;background:radial-gradient(ellipse 34% 52% at 28% 5%,rgba(242,255,211,.12),transparent 78%),radial-gradient(ellipse 45% 38% at 88% 72%,rgba(213,255,199,.10),transparent 80%),linear-gradient(118deg,transparent 34%,rgba(255,255,255,.055) 46%,transparent 58%);mix-blend-mode:screen}
+.intro{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -15px 30px rgba(7,76,44,.07),0 5px 17px rgba(20,104,69,.07)}
+.intro-jump{transition:transform .35s cubic-bezier(.22,.75,.24,1),box-shadow .35s ease,background .35s ease}
+.intro-jump:active{transform:scale(.98)}
+/* La disparition du contenu accompagne la fermeture, à durée identique. */
+.fold-card.is-fold-closing>.fold-body,.calc-alerts.is-detail-closing>.calc-alerts-body,.backup-advanced.is-detail-closing>.backup-advanced-body,.v22-session-item.is-detail-closing>.v22-bilan{opacity:0!important;transform:translateY(-5px);pointer-events:none}
+.fold-card>.fold-body,.calc-alerts>.calc-alerts-body,.backup-advanced>.backup-advanced-body,.v22-session-item>.v22-bilan{transition:opacity 560ms cubic-bezier(.22,.75,.24,1),transform 560ms cubic-bezier(.22,.75,.24,1)!important}
+.inventory-calendar-expanded{transform:translateY(-5px);transition:max-height 560ms cubic-bezier(.22,.75,.24,1),opacity 560ms cubic-bezier(.22,.75,.24,1),padding 560ms cubic-bezier(.22,.75,.24,1),transform 560ms cubic-bezier(.22,.75,.24,1)!important}
+.inventory-calendar.calendar-expanded .inventory-calendar-expanded{transform:translateY(0)}
+.calendar-reminders{margin:15px 0 4px;padding:15px;border:1px solid #dce9e7;border-radius:14px;background:linear-gradient(155deg,#fcfefd,#f2f8f4);display:grid;gap:8px}
+.calendar-reminders-heading{display:grid;gap:3px;margin-bottom:4px}.calendar-reminders-heading strong{font-size:15px;color:#255a48}.calendar-reminders-heading span,.calendar-reminder-help{font-size:12px;color:#657a73;line-height:1.5}
+.calendar-reminders label{font-size:12px;font-weight:650;color:#48675b;margin-top:4px}.calendar-reminders select{width:100%;min-height:42px;border:1px solid #cbded5;border-radius:10px;background:#fff;color:#244b3b;padding:8px 10px;font:inherit}
+.calendar-reminder-button{border:0;border-radius:11px;background:#217e58;color:#fff;font-weight:700;min-height:44px;padding:10px 12px;margin-top:7px}.calendar-reminder-help{margin:0}
+@media(prefers-reduced-motion:reduce){.intro-jump,.fold-card>.fold-body,.calc-alerts>.calc-alerts-body,.backup-advanced>.backup-advanced-body,.v22-session-item>.v22-bilan,.inventory-calendar-expanded{transition:none!important}}
+
+/* V33.16 — activation Web Push individuelle */
+.push-panel{display:grid;gap:9px;padding:13px;margin:9px 0;border:1px solid #d1e5da;border-radius:13px;background:#fff}.push-panel>strong{color:#235943;font-size:14px}.push-panel .calendar-reminder-help{margin:0}.push-panel button:disabled{opacity:.48;cursor:not-allowed}.push-secondary{background:#f0f7f2!important;color:#256048!important;border:1px solid #cbded0!important;box-shadow:none!important}
