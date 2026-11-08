@@ -1,0 +1,1 @@
+V31.25 : carte Mon espace sans double padding, largeur alignée sur Ma session à toutes les tailles; pastille de statut animée en ligne et hors ligne (sauf réduction des animations); point du profil masqué quand connecté. Configuration Supabase conservée.
