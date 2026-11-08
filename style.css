@@ -1465,3 +1465,9 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .session-quality-review p,.session-quality-review li{font-size:12px;line-height:1.5}
 .session-quality-review p{margin:5px 0 0}
 .session-quality-review ul{margin:8px 0 0;padding-left:19px}
+
+/* V33.6 calendrier annuel prévisionnel */
+.inventory-calendar{margin-top:23px}.inventory-calendar-controls{display:flex;align-items:center;justify-content:space-between;background:#eaf5f5;border-radius:13px;padding:6px 8px;margin:12px 0}.inventory-calendar-controls strong{color:#28626b;font-size:16px}.inventory-calendar-controls button{width:38px;height:38px;border:0;border-radius:10px;background:#fff;color:#167d8a;font-size:25px;cursor:pointer}.inventory-calendar-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.inventory-calendar-month{display:flex;flex-direction:column;align-items:center;gap:7px;padding:13px 4px;border:1px solid #dce9eb;border-radius:13px;background:#fff;text-align:center;min-width:0}.inventory-calendar-month.is-current{border-color:#1b99a4;background:#effafa}.inventory-calendar-name{font-size:11px;font-weight:700;color:#577b80}.inventory-calendar-month strong{font-size:15px;color:#127c8a;white-space:nowrap}.inventory-calendar-month small{font-size:10px;color:#82969a}@media(max-width:340px){.inventory-calendar-grid{gap:5px}.inventory-calendar-month strong{font-size:13px}}
+
+/* V33.7 : calendrier indépendant du compte Google, accessible hors connexion */
+.inventory-calendar.card{margin:18px 0;padding:20px 17px;background:linear-gradient(145deg,#f5fbfb,#fff 70%)}
