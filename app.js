@@ -62,13 +62,21 @@ function loadBaskets(){for(const key of [STORAGE_KEY,LEGACY_KEY]){try{const raw=
 let baskets=loadBaskets(),editingId=null,netGrams=null,dragId=null;
 function loadHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.net)&&Number.isFinite(x.gross)&&Number.isFinite(x.tare)&&typeof x.at==='number').slice(0,15):[];}catch{return [];}}
 let history=loadHistory(),historyExpanded=false,autoSaveTimer=null,currentWeighId=null;
-function persistHistory(){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(history));renderHistory();return true;}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';return false;}}
+function persistHistory(){try{safeSetItem(HISTORY_KEY,JSON.stringify(history));renderHistory();return true;}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';return false;}}
 function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
 const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('aria-expanded',String(historyExpanded));const label=btn.querySelector('.history-toggle-label');if(label)label.textContent=historyExpanded?'Réduire l’historique':`Voir les ${history.length} pesées`;
 if(!history.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
 for(const entry of (historyExpanded?history:history.slice(0,5))){const row=document.createElement('div');row.className='history-item';const info=document.createElement('div');info.className='history-info';const name=document.createElement('strong');name.textContent=entry.name;const date=document.createElement('span');date.textContent=new Date(entry.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const detail=document.createElement('span');detail.textContent=`${fmt(entry.gross)} − ${fmt(entry.tare)} kg`;info.append(name,date,detail);const result=document.createElement('strong');result.className='history-net';result.textContent=`${fmt(entry.net)} kg`;row.append(info,result);list.append(row);}}
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
-function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(baskets));}catch(e){$('backupStatus').textContent='Impossible de sauvegarder localement : espace de stockage indisponible.';}render();}
+function persist(){
+ try{safeSetItem(STORAGE_KEY,JSON.stringify(baskets));render();return true;}
+ catch(e){baskets=loadBaskets();render();$('basketFormError').textContent='Enregistrement impossible : stockage local indisponible. Modification annulée.';return false;}
+}
+function commitBaskets(next){
+ try{safeSetItem(STORAGE_KEY,JSON.stringify(next));}
+ catch{$('basketFormError').textContent='Enregistrement impossible : stockage local indisponible.';return false;}
+ baskets=next;render();renderBackupSummary();return true;
+}
 // Long appui sur toute la ligne : défilement normal avant activation, glissement fluide ensuite.
 function setupTouchReorder(item,list){
  let timer=null,active=false,ghost=null,startX=0,startY=0,offsetY=0,offsetX=0,draggedId=item.dataset.id;
@@ -83,7 +91,7 @@ function setupTouchReorder(item,list){
  function endDrag(){clearTimer();if(!active)return;active=false;ghost?.remove();ghost=null;item.classList.remove('is-placeholder');list.classList.remove('is-reordering');document.body.style.removeProperty('user-select');
    const ids=[...list.querySelectorAll('.basket-item')].map(x=>x.dataset.id);
    const newOrder=ids.map(id=>baskets.find(b=>b.id===id)).filter(Boolean);
-   if(newOrder.length===baskets.length&&newOrder.some((b,i)=>b.id!==baskets[i].id)){baskets=newOrder;persist();}else render();
+   if(newOrder.length===baskets.length&&newOrder.some((b,i)=>b.id!==baskets[i].id)){commitBaskets(newOrder);}else render();
  }
  item.addEventListener('touchstart',e=>{if(e.touches.length!==1||blocked(e.target))return;const t=e.touches[0];startX=t.clientX;startY=t.clientY;clearTimer();timer=setTimeout(startDrag,260);},{passive:true});
  item.addEventListener('touchmove',e=>{if(!active){const t=e.touches[0];if(t&&(Math.abs(t.clientY-startY)>9||Math.abs(t.clientX-startX)>9))clearTimer();return;}
@@ -106,15 +114,15 @@ item.addEventListener('dragleave',()=>item.classList.remove('drag-over'));
 item.addEventListener('drop',e=>{e.preventDefault();reorder(dragId||e.dataTransfer.getData('text/plain'),b.id);});
 setupTouchReorder(item,list);
 });calculate();}
-function reorder(from,to){const i=baskets.findIndex(b=>b.id===from),j=baskets.findIndex(b=>b.id===to);if(i<0||j<0||i===j){render();return;}const [item]=baskets.splice(i,1);baskets.splice(j,0,item);persist();}
-function moveBy(id,delta){const i=baskets.findIndex(b=>b.id===id),j=i+delta;if(i<0||j<0||j>=baskets.length)return;[baskets[i],baskets[j]]=[baskets[j],baskets[i]];persist();}
+function reorder(from,to){const i=baskets.findIndex(b=>b.id===from),j=baskets.findIndex(b=>b.id===to);if(i<0||j<0||i===j){render();return;}const next=baskets.slice();const [item]=next.splice(i,1);next.splice(j,0,item);commitBaskets(next);}
+function moveBy(id,delta){const i=baskets.findIndex(b=>b.id===id),j=i+delta;if(i<0||j<0||j>=baskets.length)return;const next=baskets.slice();[next[i],next[j]]=[next[j],next[i]];commitBaskets(next);}
 function startEdit(id){const b=baskets.find(x=>x.id===id);if(!b)return;editingId=id;$('basketName').value=b.name;$('basketTare').value=fmt(b.tare);$('formTitle').textContent='Modifier le panier';$('saveBasketBtn').textContent='Enregistrer les modifications';$('cancelEditBtn').classList.remove('hidden');$('basketForm').scrollIntoView({behavior:'smooth',block:'center'});}
 function cancelEdit(){editingId=null;$('basketForm').reset();$('formTitle').textContent='Ajouter un panier';$('saveBasketBtn').textContent='+ Ajouter le panier';$('cancelEditBtn').classList.add('hidden');}
 function removeBasket(id){
  const index=baskets.findIndex(b=>b.id===id);if(index<0)return;
  const removed={...baskets[index]};
  const next=baskets.filter(b=>b.id!==id);
- try{localStorage.setItem(STORAGE_KEY,JSON.stringify(next));}
+ try{safeSetItem(STORAGE_KEY,JSON.stringify(next));}
  catch{$('backupStatus').textContent='Suppression impossible : stockage local indisponible.';return;}
  const selected=$('basketSelect').value;
  baskets=next;
@@ -123,7 +131,7 @@ function removeBasket(id){
  offerUndo('Panier supprimé.',()=>{
    if(baskets.some(b=>b.id===removed.id))return false;
    const restored=baskets.slice();restored.splice(Math.min(index,restored.length),0,removed);
-   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(restored));}catch{return false;}
+   try{safeSetItem(STORAGE_KEY,JSON.stringify(restored));}catch{return false;}
    baskets=restored;render();
    if(selected===removed.id){$('basketSelect').value=removed.id;calculate();}
    renderBackupSummary();
@@ -145,7 +153,6 @@ function cleanSession(x){
   if(!x||typeof x!=='object'||!Number.isFinite(x.startedAt))return null;
   return {id:String(x.id||uid()).slice(0,90),startedAt:x.startedAt,endedAt:Number.isFinite(x.endedAt)?x.endedAt:null,pausedAt:Number.isFinite(x.pausedAt)?x.pausedAt:null,pausedMs:Math.max(0,Number(x.pausedMs)||0),entries:Array.isArray(x.entries)?x.entries.map(cleanWeigh).filter(Boolean):[]};
 }
-function cleanGroup(x){if(!x||typeof x!=='object'||!Array.isArray(x.entries))return null;return {id:String(x.id||uid()).slice(0,90),entries:x.entries.map(cleanWeigh).filter(Boolean),at:Number(x.at)||Date.now()};}
 const loadedSessions=readJSON(SESSION_KEY,{sessions:[],activeId:null});
 let sessions=(Array.isArray(loadedSessions?.sessions)?loadedSessions.sessions:[]).map(cleanSession).filter(Boolean);
 let activeSessionId=typeof loadedSessions?.activeId==='string'&&sessions.some(s=>s.id===loadedSessions.activeId&&!s.endedAt)?loadedSessions.activeId:null;
@@ -163,8 +170,7 @@ function activeStats(s){
 }
 function durationLabel(ms){const sec=Math.floor(Math.max(0,ms)/1000),h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h} h ${String(m).padStart(2,'0')} min`:`${m} min ${String(s).padStart(2,'0')} s`;}
 const dateLabel=t=>new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-function persistSessions(){try{localStorage.setItem(SESSION_KEY,JSON.stringify({sessions,activeId:activeSessionId}));return true;}catch{const el=$('sessionMessage');if(el)el.textContent='⚠️ Espace local insuffisant : exporte tes données pour éviter toute perte.';return false;}}
-function persistGroup(){return true;}
+function persistSessions(){try{safeSetItem(SESSION_KEY,JSON.stringify({sessions,activeId:activeSessionId}));return true;}catch{const el=$('sessionMessage');if(el)el.textContent='⚠️ Espace local insuffisant : exporte tes données pour éviter toute perte.';return false;}}
 function parseWeight(value){if(entryMode==='kg')return parseKg(value);const s=String(value).trim();return /^\d{1,9}$/.test(s)?Number(s):null;}
 function weightFromGrams(g){return entryMode==='g'?String(g):fmt(g);}
 function issueFor(gross,b){if(gross>maxGrossGrams)return `Poids brut inhabituel (${fmt(gross)} kg). Vérifie la balance.`;
@@ -210,14 +216,14 @@ function saveCurrentWeigh(){
   const oldHistory=localStorage.getItem(HISTORY_KEY);
   const oldSessions=trackSession?localStorage.getItem(SESSION_KEY):null;
   try{
-   if(trackSession)localStorage.setItem(SESSION_KEY,JSON.stringify({sessions:sessions.map(s=>s===session?{...s,entries:newEntries}:s),activeId:activeSessionId}));
-   localStorage.setItem(HISTORY_KEY,JSON.stringify(newHistory));
+   if(trackSession)safeSetItem(SESSION_KEY,JSON.stringify({sessions:sessions.map(s=>s===session?{...s,entries:newEntries}:s),activeId:activeSessionId}));
+   safeSetItem(HISTORY_KEY,JSON.stringify(newHistory));
   }catch(error){
    // Restaurer la clé session si l'écriture de l'historique a échoué.
-   if(trackSession){try{if(oldSessions===null)localStorage.removeItem(SESSION_KEY);else localStorage.setItem(SESSION_KEY,oldSessions);}catch{}}
+   if(trackSession){try{if(oldSessions===null)localStorage.removeItem(SESSION_KEY);else safeSetItem(SESSION_KEY,oldSessions);}catch{}}
    // L'historique n'est normalement pas touché si setItem a échoué.
    // Revenir à l'ancienne valeur par précaution si besoin.
-   try{if(oldHistory===null)localStorage.removeItem(HISTORY_KEY);else localStorage.setItem(HISTORY_KEY,oldHistory);}catch{}
+   try{if(oldHistory===null)localStorage.removeItem(HISTORY_KEY);else safeSetItem(HISTORY_KEY,oldHistory);}catch{}
    throw error;
   }
  }catch{
@@ -249,10 +255,8 @@ function beginGroup(){return false;}
 function finishGroup(){return true;}
 function removeGroupEntry(id){return false;}
 function groupSum(g){return 0;}
-function renderGroup(){}
 // Mise à jour légère du HUD, sans retraitement des historiques.
 function islandDurationLabel(ms){const minutes=Math.floor(Math.max(0,ms)/60000),h=Math.floor(minutes/60),m=minutes%60;return h?`${h} h ${String(m).padStart(2,'0')}`:`${m} min`;}
-function renderInventoryIsland(){}
 function renderHeroSummary(){
  const status=$('heroStatus'),text=$('heroStatusText');
  if(!status||!text)return;
@@ -309,6 +313,12 @@ function finishSession(){
   return;
  }
  clearWeigh();renderV22();$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';
+ offerUndo('Inventaire terminé.',()=>{
+  if(activeSessionId||!session.endedAt||session.endedAt!==now)return false;
+  session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
+  if(!persistSessions()){session.endedAt=now;session.pausedAt=null;activeSessionId=null;return false;}
+  renderV22();$('sessionMessage').textContent='Inventaire repris.';return true;
+ });
 }
 function sessionBreakdown(s){const map=new Map();for(const e of s.entries)map.set(e.name,(map.get(e.name)||0)+1);return [...map.entries()].sort((a,b)=>b[1]-a[1]);}
 function makeStat(label,value){const box=document.createElement('div');box.className='v22-stat';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;box.append(small,strong);return box;}
@@ -368,7 +378,7 @@ function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedA
   if(sessionSummaryObserver)sessionSummaryObserver.observe(sum);
   setupSecondaryDetailsAnimation(item,'.v22-bilan');}
 }
-function renderV22(){renderGroup();renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('modeSlideThumb').parentElement.classList.toggle('is-rapid',entryMode==='g');$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);$('confirmDuplicates').checked=confirmDuplicates;renderBackupSummary();}
+function renderV22(){renderSessionControls();renderSessionsHistory();$('inputUnit').textContent=entryMode==='g'?'g':'kg';$('modeKg').setAttribute('aria-pressed',String(entryMode==='kg'));$('modeG').setAttribute('aria-pressed',String(entryMode==='g'));$('modeSlideThumb').parentElement.classList.toggle('is-rapid',entryMode==='g');$('inputHint').textContent=entryMode==='g'?'Sans virgule : tape 1250 pour obtenir 1,250 kg.':'Avec décimales : tape 1,250 pour 1,250 kg.';$('grossWeight').setAttribute('inputmode',entryMode==='g'?'numeric':'decimal');$('grossWeight').placeholder=entryMode==='g'?'Ex. 1250':'Ex. 1.230';$('maxGrossLimit').value=fmt(maxGrossGrams);$('confirmDuplicates').checked=confirmDuplicates;renderBackupSummary();}
 let modeMotionCleanup=null;
 function animateModeSwitch(){
  const control=document.querySelector('.weigh-preferences-mode');
@@ -378,8 +388,8 @@ function animateModeSwitch(){
  clearTimeout(modeMotionCleanup);
  modeMotionCleanup=setTimeout(()=>control.classList.remove('is-switching'),390);
 }
-function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{localStorage.setItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();animateModeSwitch();}
-function setLimit(){const n=parseKg($('maxGrossLimit').value);if(n===null||n<1000||n>1000000){$('maxGrossLimit').value=fmt(maxGrossGrams);$('weighStatus').textContent='Choisis un seuil entre 1 et 1000 kg.';return;}maxGrossGrams=n;try{localStorage.setItem(LIMIT_KEY,fmt(n));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();}
+function switchMode(mode){if(mode===entryMode)return;const parsed=parseWeight($('grossWeight').value);entryMode=mode;try{safeSetItem(MODE_KEY,mode);}catch{}if(parsed!==null)$('grossWeight').value=weightFromGrams(parsed);acceptedAnomalyKey='';calculate();scheduleAutoSave();renderV22();animateModeSwitch();}
+function setLimit(){const n=parseKg($('maxGrossLimit').value);if(n===null||n<1000||n>1000000){$('maxGrossLimit').value=fmt(maxGrossGrams);$('weighStatus').textContent='Choisis un seuil entre 1 et 1000 kg.';return;}maxGrossGrams=n;try{safeSetItem(LIMIT_KEY,fmt(n));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();}
 function readTextFile(file){
   if(typeof file.text==='function')return file.text();
   return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(reader.error||Error('Lecture impossible'));reader.readAsText(file);});
@@ -407,7 +417,7 @@ function fullExport(){
   try{
     const data=createBackupData();
     download(JSON.stringify(data,null,2),`inventaires-u-complet-${new Date(data.exportedAt).toISOString().slice(0,10)}.json`,'application/json');
-    try{localStorage.setItem(BACKUP_LAST_KEY,String(data.exportedAt));}catch{}
+    try{safeSetItem(BACKUP_LAST_KEY,String(data.exportedAt));}catch{}
     renderBackupSummary();
     $('backupStatus').textContent='Fichier de sauvegarde généré. Conserve-le dans l’app Fichiers pour pouvoir restaurer tes données.';
   }catch{
@@ -444,6 +454,18 @@ function validateFullBackup(data){
  }
  return {bb,ss,hh:hh.slice(0,15),active,settings};
 }
+function importSingleBilan(data){
+ if(!data||data.app!=='Inventaires U'||!Array.isArray(data.sessions)||data.sessions.length!==1||data.baskets!==undefined)throw Error('Bilan individuel non reconnu');
+ const raw=data.sessions[0];
+ const sample={app:'Inventaires U',version:29,baskets:[],history:[],sessions:[raw],activeSessionId:null};
+ const checked=validateFullBackup(sample),bilan=checked.ss[0];
+ if(!bilan.endedAt)throw Error('Ce bilan n’est pas terminé');
+ if(sessions.some(x=>x.id===bilan.id))throw Error('Ce bilan existe déjà');
+ const next=sessions.concat([bilan]);
+ const old=sessions;sessions=next;
+ if(!persistSessions()){sessions=old;throw Error('Stockage indisponible');}
+ renderV22();renderBackupSummary();return bilan;
+}
 function isConsistentWeigh(raw,clean){
  return Boolean(clean&&raw&&Number.isSafeInteger(raw.gross)&&Number.isSafeInteger(raw.tare)&&Number.isSafeInteger(raw.net)&&raw.gross-raw.tare===raw.net&&Number.isFinite(raw.at));
 }
@@ -451,9 +473,9 @@ function isConsistentWeigh(raw,clean){
 function commitRestoredData(values){
  const oldValues=new Map();
  for(const [k] of values)oldValues.set(k,localStorage.getItem(k));
- try{for(const [k,v] of values)localStorage.setItem(k,v);}
+ try{for(const [k,v] of values){if(v===null)localStorage.removeItem(k);else safeSetItem(k,v);}}
  catch(e){
-  for(const [k,old] of oldValues){try{if(old===null)localStorage.removeItem(k);else localStorage.setItem(k,old);}catch{}}
+  for(const [k,old] of oldValues){try{if(old===null)localStorage.removeItem(k);else safeSetItem(k,old);}catch{}}
   throw Error('Stockage local insuffisant');
  }
 }
@@ -462,6 +484,11 @@ async function fullImport(event){
  try{
   if(file.size>10*1024*1024)throw Error('Fichier trop volumineux (10 Mo maximum).');
   const data=JSON.parse(await readTextFile(file));
+  if(Array.isArray(data.sessions)&&data.sessions.length===1&&!Array.isArray(data.baskets)){
+    const bilan=importSingleBilan(data);
+    $('backupStatus').textContent=`Bilan du ${dateLabel(bilan.startedAt)} importé sans remplacer les autres données.`;
+    return;
+  }
   const checked=validateFullBackup(data);
   const values=[
    [STORAGE_KEY,JSON.stringify(checked.bb)],
@@ -473,7 +500,8 @@ async function fullImport(event){
    [LIMIT_KEY,fmt(checked.settings.maxGrossGrams)],
    [DUPLICATE_CONFIRM_KEY,String(checked.settings.confirmDuplicates)]
   );
-  // Si l'écriture échoue, aucune variable en mémoire n'est remplacée.
+  // Capture complète des clés écrites pour une restauration annulable.
+  const previous=values.map(([k])=>[k,localStorage.getItem(k)]);
   commitRestoredData(values);
   clearTimeout(autoSaveTimer);autoSaveTimer=null;
   dismissUndo();
@@ -483,6 +511,15 @@ async function fullImport(event){
   editingId=null;acceptedAnomalyKey='';$('grossWeight').value='';
   render();renderHistory();renderV22();
   $('backupStatus').textContent=`Restauration terminée : ${checked.ss.length} inventaire(s) et ${checked.bb.length} panier(s).`;
+  offerUndo('Sauvegarde restaurée.',()=>{
+    try{commitRestoredData(previous.map(([k,v])=>[k,v]));}catch{return false;}
+    baskets=loadBaskets();history=loadHistory();
+    const loaded=readJSON(SESSION_KEY,{sessions:[],activeId:null});
+    sessions=(loaded.sessions||[]).map(cleanSession).filter(Boolean);activeSessionId=loaded.activeId||null;
+    entryMode=safeGet(MODE_KEY)==='g'?'g':'kg';maxGrossGrams=parseKg(safeGet(LIMIT_KEY)||'20.000')||20000;
+    confirmDuplicates=safeGet(DUPLICATE_CONFIRM_KEY)!=='false';
+    render();renderHistory();renderV22();$('backupStatus').textContent='Restauration annulée : données précédentes rétablies.';return true;
+  });
  }catch(e){
   $('backupStatus').textContent=`Restauration impossible : ${e instanceof SyntaxError?'fichier JSON illisible':e.message||'fichier non valide'}. Aucune donnée remplacée.`;
  }finally{event.target.value='';}
@@ -533,7 +570,7 @@ $('modeG').addEventListener('click',()=>switchMode('g'));
 })();
 
 $('maxGrossLimit').addEventListener('change',setLimit);
-$('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{localStorage.setItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
+$('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{safeSetItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
 $('startSession').addEventListener('click',startSession);
 $('pauseSession').addEventListener('click',pauseSession);
@@ -545,7 +582,7 @@ $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
 setInterval(()=>{if(!document.hidden)renderLiveSessionStats();},1000);
 
-$('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){$('basketFormError').textContent='Indique un nom et une tare valide en kg (ex. 0.554).';return;}$('basketFormError').textContent='';if(editingId){const b=baskets.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else baskets.push({id:uid(),name,tare});cancelEdit();persist();});
+$('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){$('basketFormError').textContent='Indique un nom et une tare valide en kg (ex. 0.554).';return;}$('basketFormError').textContent='';const next=baskets.map(b=>({...b}));if(editingId){const b=next.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else next.push({id:uid(),name,tare});if(commitBaskets(next)){cancelEdit();$('basketFormError').textContent='';}});
 $('basketName').addEventListener('input',()=>{$('basketFormError').textContent='';});
 $('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='';});
 
@@ -573,7 +610,7 @@ $('clearHistoryBtn').addEventListener('click',()=>{
    const existing=new Set(history.map(e=>e.id));
    const restored=[...history,...previous.filter(e=>!existing.has(e.id))]
      .sort((a,b)=>b.at-a.at).slice(0,15);
-   try{localStorage.setItem(HISTORY_KEY,JSON.stringify(restored));}catch{return false;}
+   try{safeSetItem(HISTORY_KEY,JSON.stringify(restored));}catch{return false;}
    history=restored;historyExpanded=previousExpanded;
    renderHistory();renderBackupSummary();
    $('weighStatus').textContent='Historique restauré.';
@@ -600,7 +637,7 @@ $('copyBtn').addEventListener('click',async()=>{
 });
 
 $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({app:'Inventaires U',version:2,unit:'g',baskets},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='inventaires-u-paniers.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);$('backupStatus').textContent='Export des paniers généré.';});
-$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');dismissUndo();baskets=sanitize(items);cancelEdit();persist();renderBackupSummary();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
+$('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');const next=sanitize(items);if(!commitBaskets(next))throw Error('Stockage indisponible');dismissUndo();cancelEdit();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 
 
 $('undoToastButton').addEventListener('click',undoLastDeletion);
@@ -792,3 +829,15 @@ setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
  window.addEventListener('touchstart',cancel,{passive:true});
  window.addEventListener('wheel',cancel,{passive:true});
 })();
+
+
+// Détection des changements provenant d'un autre onglet.
+let externalDataChanged=false;
+window.addEventListener('storage',event=>{
+ if(![STORAGE_KEY,HISTORY_KEY,SESSION_KEY,MODE_KEY,LIMIT_KEY,DUPLICATE_CONFIRM_KEY].includes(event.key))return;
+ externalDataChanged=true;
+ $('backupStatus').textContent='Données modifiées dans un autre onglet. Recharge cette page avant de continuer.';
+ $('basketFormError').textContent='Un autre onglet a modifié les données : recharge la page.';
+ $('sessionMessage').textContent='Données modifiées dans un autre onglet : recharge la page.';
+});
+function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet détecté');localStorage.setItem(key,value);}

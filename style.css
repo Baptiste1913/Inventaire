@@ -374,7 +374,7 @@ footer a{color:#6c747a;text-decoration:underline;text-underline-offset:2px}foote
 .weigh-preferences-alerts[open]>.calc-alerts-summary{border-bottom:1px solid #f1dadd;}
 .weigh-preferences-alerts .calc-alerts-body{padding-bottom:13px;}
 .calc-card>.weigh-preferences+label[for="basketSelect"]{margin-top:14px;}
-.session-actions #startSession .start-btn-icon{width:12px;height:12px;flex:0 0 12px;object-fit:contain;}
+
 @media(max-width:380px){
   .calc-card>.weigh-preferences{padding:12px 11px 6px;}
   .calc-card .weigh-preferences-alerts{margin:0 -11px;}
@@ -907,4 +907,68 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
  .undo-toast-symbol{border:1px solid CanvasText;color:CanvasText;background:Canvas}
  .undo-toast-button{border:1px solid ButtonText;background:ButtonFace;color:ButtonText}
  .undo-toast::before,.undo-toast.undo-ticking::after{background:CanvasText}
+}
+
+/* V31.0 — titres légèrement plus compacts, sans modifier la mise en page. */
+.card-heading h2,.session-top h2{font-size:21px;}
+.fold-label{font-size:19px;}
+@media(max-width:380px){.card-heading h2,.session-top h2{font-size:20px;}.fold-label{font-size:17px;}}
+
+
+/* V31.1 — halos à diffusion radiale, centrés et limités pour ne jamais toucher les libellés. */
+.intro-session-dot,
+.session-pill::before { isolation:isolate; }
+.intro-session-dot::after {
+  inset:-7px;
+  background:radial-gradient(circle, rgba(214,229,243,.46) 0%, rgba(214,229,243,.27) 35%, rgba(214,229,243,.09) 66%, transparent 100%);
+  animation:halo-breathe 2.35s ease-in-out infinite;
+  pointer-events:none;
+}
+.intro-session-state.is-running .intro-session-dot::after {
+  background:radial-gradient(circle, rgba(88,227,170,.58) 0%, rgba(88,227,170,.33) 36%, rgba(88,227,170,.10) 70%, transparent 100%);
+}
+.intro-session-state.is-paused .intro-session-dot::after {
+  background:radial-gradient(circle, rgba(255,209,138,.58) 0%, rgba(255,209,138,.32) 36%, rgba(255,209,138,.10) 70%, transparent 100%);
+}
+.session-pill::after,
+.session-pill.active::after,
+.session-pill.is-paused::after {
+  left:5px;
+  width:25px;
+  height:25px;
+  background:radial-gradient(circle, rgba(169,181,189,.48) 0%, rgba(169,181,189,.26) 38%, rgba(169,181,189,.07) 70%, transparent 100%);
+  animation:session-pill-gradient-pulse 2.35s ease-in-out infinite;
+  pointer-events:none;
+}
+.session-pill.active::after {
+  background:radial-gradient(circle, rgba(32,191,99,.54) 0%, rgba(32,191,99,.29) 38%, rgba(32,191,99,.07) 70%, transparent 100%);
+}
+.session-pill.is-paused::after {
+  background:radial-gradient(circle, rgba(236,169,65,.56) 0%, rgba(236,169,65,.30) 38%, rgba(236,169,65,.07) 70%, transparent 100%);
+}
+@keyframes halo-breathe {
+  0%,100% { transform:scale(.78);opacity:.64; }
+  50% { transform:scale(1.08);opacity:1; }
+}
+@keyframes session-pill-gradient-pulse {
+  0%,100% { transform:translateY(-50%) scale(.78);opacity:.64; }
+  50% { transform:translateY(-50%) scale(1.06);opacity:1; }
+}
+/* Saisie active : bordure turquoise lumineuse et respiration douce, sans déplacer le contenu. */
+.calc-card .weight-field {
+  transition:border-color .2s ease, box-shadow .25s ease, background-color .2s ease;
+}
+.calc-card .weight-field:focus-within {
+  border-color:#00818b;
+  background-color:#fbffff;
+  animation:weight-field-active-glow 2.4s ease-in-out infinite;
+}
+@keyframes weight-field-active-glow {
+  0%,100% { box-shadow:0 0 0 3px rgba(0,129,139,.10),0 0 0 0 rgba(0,129,139,0); }
+  50% { box-shadow:0 0 0 4px rgba(0,129,139,.19),0 0 18px 1px rgba(0,129,139,.12); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .intro-session-dot::after,.session-pill::after,.session-pill.active::after,.session-pill.is-paused::after,
+  .calc-card .weight-field:focus-within { animation:none!important; }
+  .calc-card .weight-field:focus-within { box-shadow:0 0 0 3px rgba(0,129,139,.17); }
 }
