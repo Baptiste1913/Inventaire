@@ -1352,3 +1352,26 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .fold-card,.calc-alerts,.backup-advanced{overflow:hidden;}
 .fold-card>.fold-summary .fold-chevron{transition:transform 380ms cubic-bezier(.22,.75,.24,1);}
 @media(prefers-reduced-motion:reduce){.fold-card>.fold-summary .fold-chevron{transition:none;}}
+
+/* V31.32 — le contenu s'efface rapidement pendant que le bloc continue
+   sa fermeture fluide de 380 ms. Aucun fondu sur l'ouverture. */
+.fold-card.is-fold-closing > .fold-body,
+.calc-alerts.is-detail-closing > .calc-alerts-body,
+.backup-advanced.is-detail-closing > .backup-advanced-body,
+.v22-session-item.is-detail-closing > .v22-bilan {
+  opacity:0;
+  pointer-events:none;
+}
+.fold-card > .fold-body,
+.calc-alerts > .calc-alerts-body,
+.backup-advanced > .backup-advanced-body,
+.v22-session-item > .v22-bilan {
+  opacity:1;
+  transition:opacity 135ms ease-out;
+}
+@media(prefers-reduced-motion:reduce){
+ .fold-card.is-fold-closing > .fold-body,
+ .calc-alerts.is-detail-closing > .calc-alerts-body,
+ .backup-advanced.is-detail-closing > .backup-advanced-body,
+ .v22-session-item.is-detail-closing > .v22-bilan{transition:none!important}
+}
