@@ -1,0 +1,1 @@
+V31.28 : animation du volet compte harmonisée (260 ms), point de statut de taille fixe avec halo animé, synchronisation automatique sans bouton manuel, message de déconnexion réussi et gestion de session absente. Les espaces Google, e-mail et sans compte restent séparés.

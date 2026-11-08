@@ -1315,3 +1315,25 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 @media(prefers-reduced-motion:reduce){
   .account-card .account-summary-status::before{animation:none}
 }
+
+/* V31.28 — ouverture du compte identique aux autres cartes pliables. */
+.account-card{overflow:hidden!important}
+.account-card.is-fold-closing{overflow:hidden!important}
+/* Point fixe : seule l'auréole pulse. */
+.account-card .account-summary-status::before{
+  width:9px;height:9px;flex:0 0 9px;opacity:1;transform:none;
+  animation:account-halo-breathe 2.35s ease-in-out infinite;
+}
+@keyframes account-halo-breathe{
+  0%,100%{box-shadow:0 0 0 2px rgba(169,183,192,.12),0 0 0 0 rgba(169,183,192,0)}
+  50%{box-shadow:0 0 0 5px rgba(169,183,192,.25),0 0 10px 3px rgba(169,183,192,.12)}
+}
+.account-card .account-summary-status.is-connected::before{animation-name:account-halo-connected}
+@keyframes account-halo-connected{
+  0%,100%{box-shadow:0 0 0 2px rgba(88,227,170,.12),0 0 0 0 rgba(88,227,170,0)}
+  50%{box-shadow:0 0 0 5px rgba(88,227,170,.26),0 0 10px 3px rgba(88,227,170,.13)}
+}
+@media(prefers-reduced-motion:reduce){.account-card .account-summary-status::before{animation:none}}
+
+/* V31.29 — logo Google officiel fourni */
+.account-google-mark,.account-body .account-google-mark{display:block;width:22px;height:22px;flex:none;object-fit:contain}

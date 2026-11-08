@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=31.27" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=31.29" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
 <body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
@@ -21,7 +21,7 @@
     <div class="account-profile"><span class="account-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 3-6 7-6s6.6 2 7 6"/></svg></span><div class="account-profile-text"><strong id="accountProfileName">Non connecté</strong><span id="accountProfileHint">Mode local · Données sur cet appareil</span></div><span class="account-status-dot" id="accountStatusDot" aria-hidden="true"></span></div>
     <p class="account-explanation" id="accountDescription">Connectez-vous pour retrouver vos inventaires sur vos appareils. Sans compte, Inventaires U continue de fonctionner localement.</p>
     <div id="accountSignedOut">
-      <button type="button" id="accountGoogle" class="account-provider account-google"><span class="account-google-mark" aria-hidden="true">G</span><span>Continuer avec Google</span></button>
+      <button type="button" id="accountGoogle" class="account-provider account-google"><img class="account-google-mark" src="google-logo.png?v=31.29" alt="" aria-hidden="true" width="22" height="22"/><span>Continuer avec Google</span></button>
       <div class="account-divider"><span>ou par e-mail</span></div>
       <form id="accountEmailForm" class="account-email-form"><label for="accountEmail">Adresse e-mail</label><input id="accountEmail" type="email" inputmode="email" autocomplete="email" placeholder="adresse@exemple.fr" required maxlength="254"/><button id="accountEmailSubmit" type="submit" class="account-provider account-email">Recevoir mon lien de connexion</button></form>
       <p class="account-local-note">Sans compte : espace local indépendant. Lors de la première connexion à un compte vide, une copie de vos données locales y est importée.</p>
@@ -30,7 +30,6 @@
       <div class="account-info-line"><span>Compte</span><strong id="accountIdentity"></strong></div>
       <div class="account-info-line"><span>État du cloud</span><strong id="cloudStatus" role="status">Connexion au cloud…</strong></div>
       <div id="cloudConflict" class="account-conflict" hidden><p><strong>Deux sauvegardes différentes détectées.</strong> Choisis celle à conserver. L’autre sera remplacée.</p><button type="button" id="cloudKeepLocal" class="account-provider account-google">Conserver les données de cet appareil</button><button type="button" id="cloudUseRemote" class="account-provider account-google">Récupérer les données du cloud</button></div>
-      <button type="button" id="cloudSyncNow" class="account-provider account-sync">Synchroniser maintenant</button>
       <button type="button" id="accountLogout" class="account-provider account-logout">Se déconnecter</button>
       <p class="account-local-note">La déconnexion ouvre votre espace sans compte, indépendant de vos données cloud.</p>
     </div>
@@ -86,4 +85,4 @@
   </div>
 </details><footer><strong class="footer-noncommercial">Utilisation non commerciale uniquement</strong><span class="footer-identity">Baptiste • Super U Saint-Germain</span><span class="footer-original">Inventaires U · Outil indépendant · Données stockées localement</span></footer></main>
 
-<script defer src="auth-config.js?v=31.27"></script><script defer src="auth.js?v=31.27"></script><script defer="" src="app.js?v=31.27"></script></body></html>
+<script defer src="auth-config.js?v=31.29"></script><script defer src="auth.js?v=31.29"></script><script defer="" src="app.js?v=31.29"></script></body></html>
