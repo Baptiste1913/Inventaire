@@ -73,15 +73,15 @@ function showActionToast(message,{reload=false,persistent=false}={}){
    onAction:reload?()=>window.location.reload():null,persistent,warning:true});
 }
 // Some privacy modes forbid reading localStorage: keep the app usable without crashing.
-const safeGet=key=>{try{return localStorage.getItem(key);}catch{return null;}};
+const safeGet=key=>{try{return window.InventoryStore.getItem(key);}catch{return null;}};
 const uid=()=>globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const DEFAULT_BASKETS=[{id:uid(),name:'Panier normal',tare:554},{id:uid(),name:'Demi-panier',tare:324},{id:uid(),name:'Panier ovale',tare:538},{id:uid(),name:'Grand panier',tare:1064}];
 const fmt=grams=>(grams/1000).toFixed(3);
 function parseKg(value){const s=String(value).trim().replace(',','.');if(!/^\d+(?:\.\d{1,3})?$/.test(s))return null;const n=Number(s)*1000;return Number.isSafeInteger(Math.round(n))?Math.round(n):null;}
 function sanitize(arr){return arr.filter(b=>b&&typeof b.name==='string'&&b.name.trim()&&Number.isFinite(Number(b.tare))&&Number(b.tare)>=0).map(b=>({id:String(b.id||uid()),name:b.name.trim().slice(0,40),tare:Math.round(Number(b.tare))}));}
-function loadBaskets(){for(const key of [STORAGE_KEY,LEGACY_KEY]){try{const raw=localStorage.getItem(key);if(raw!==null){const parsed=JSON.parse(raw);if(Array.isArray(parsed))return sanitize(parsed);}}catch(e){console.warn('Lecture des paniers impossible',e);}}return DEFAULT_BASKETS;}
+function loadBaskets(){for(const key of [STORAGE_KEY,LEGACY_KEY]){try{const raw=window.InventoryStore.getItem(key);if(raw!==null){const parsed=JSON.parse(raw);if(Array.isArray(parsed))return sanitize(parsed);}}catch(e){console.warn('Lecture des paniers impossible',e);}}return DEFAULT_BASKETS;}
 let baskets=loadBaskets(),editingId=null,netGrams=null,dragId=null;
-function loadHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.net)&&Number.isFinite(x.gross)&&Number.isFinite(x.tare)&&typeof x.at==='number').slice(0,15):[];}catch{return [];}}
+function loadHistory(){try{const a=JSON.parse(window.InventoryStore.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.net)&&Number.isFinite(x.gross)&&Number.isFinite(x.tare)&&typeof x.at==='number').slice(0,15):[];}catch{return [];}}
 let history=loadHistory(),historyExpanded=false,autoSaveTimer=null,currentWeighId=null;
 function persistHistory(){try{safeSetItem(HISTORY_KEY,JSON.stringify(history));renderHistory();return true;}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';return false;}}
 function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
@@ -165,7 +165,7 @@ const MODE_KEY='inventaires-u-weight-mode-v1';
 const LIMIT_KEY='inventaires-u-warning-limit-v1';
 const DUPLICATE_CONFIRM_KEY='inventaires-u-duplicate-confirm-v1';
 const safeClone=x=>JSON.parse(JSON.stringify(x));
-const readJSON=(key,fallback)=>{try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw);}catch{return fallback;}};
+const readJSON=(key,fallback)=>{try{const raw=window.InventoryStore.getItem(key);return raw===null?fallback:JSON.parse(raw);}catch{return fallback;}};
 function cleanWeigh(x){
   if(!x||typeof x!=='object'||!Number.isSafeInteger(x.net)||!Number.isSafeInteger(x.gross)||!Number.isSafeInteger(x.tare)||x.net<0||x.gross<x.tare||x.tare<0||!Number.isFinite(x.at))return null;
   return {id:typeof x.id==='string'?x.id.slice(0,90):uid(),at:x.at,name:String(x.name||'Panier').slice(0,40),tare:x.tare,gross:x.gross,net:x.net,groupId:String(x.groupId||x.id||uid()).slice(0,90)};
@@ -234,17 +234,17 @@ function saveCurrentWeigh(){
  // Ne confirmer la pesée que lorsque les écritures locales ont réussi.
  // En cas de refus du stockage, garder les données en mémoire telles qu'avant.
  try{
-  const oldHistory=localStorage.getItem(HISTORY_KEY);
-  const oldSessions=trackSession?localStorage.getItem(SESSION_KEY):null;
+  const oldHistory=window.InventoryStore.getItem(HISTORY_KEY);
+  const oldSessions=trackSession?window.InventoryStore.getItem(SESSION_KEY):null;
   try{
    if(trackSession)safeSetItem(SESSION_KEY,JSON.stringify({sessions:sessions.map(s=>s===session?{...s,entries:newEntries}:s),activeId:activeSessionId}));
    safeSetItem(HISTORY_KEY,JSON.stringify(newHistory));
   }catch(error){
    // Restaurer la clé session si l'écriture de l'historique a échoué.
-   if(trackSession){try{if(oldSessions===null)localStorage.removeItem(SESSION_KEY);else safeSetItem(SESSION_KEY,oldSessions);}catch{}}
+   if(trackSession){try{if(oldSessions===null)window.InventoryStore.removeItem(SESSION_KEY);else safeSetItem(SESSION_KEY,oldSessions);}catch{}}
    // L'historique n'est normalement pas touché si setItem a échoué.
    // Revenir à l'ancienne valeur par précaution si besoin.
-   try{if(oldHistory===null)localStorage.removeItem(HISTORY_KEY);else safeSetItem(HISTORY_KEY,oldHistory);}catch{}
+   try{if(oldHistory===null)window.InventoryStore.removeItem(HISTORY_KEY);else safeSetItem(HISTORY_KEY,oldHistory);}catch{}
    throw error;
   }
  }catch{
@@ -493,10 +493,10 @@ function isConsistentWeigh(raw,clean){
 // Écriture avec retour arrière si le stockage local refuse une des clés.
 function commitRestoredData(values){
  const oldValues=new Map();
- for(const [k] of values)oldValues.set(k,localStorage.getItem(k));
- try{for(const [k,v] of values){if(v===null)localStorage.removeItem(k);else safeSetItem(k,v);}}
+ for(const [k] of values)oldValues.set(k,window.InventoryStore.getItem(k));
+ try{for(const [k,v] of values){if(v===null)window.InventoryStore.removeItem(k);else safeSetItem(k,v);}}
  catch(e){
-  for(const [k,old] of oldValues){try{if(old===null)localStorage.removeItem(k);else safeSetItem(k,old);}catch{}}
+  for(const [k,old] of oldValues){try{if(old===null)window.InventoryStore.removeItem(k);else safeSetItem(k,old);}catch{}}
   throw Error('Stockage local insuffisant');
  }
 }
@@ -571,7 +571,7 @@ async function fullImport(event){
    [DUPLICATE_CONFIRM_KEY,String(selected.settings.confirmDuplicates)]
   );
   // Capture complète des clés écrites pour une restauration annulable.
-  const previous=values.map(([k])=>[k,localStorage.getItem(k)]);
+  const previous=values.map(([k])=>[k,window.InventoryStore.getItem(k)]);
   commitRestoredData(values);
   clearTimeout(autoSaveTimer);autoSaveTimer=null;
   dismissUndo();
@@ -845,4 +845,4 @@ window.addEventListener('storage',event=>{
  externalDataChanged=true;
  showActionToast('Données modifiées dans un autre onglet. Actualise cette page avant de continuer.',{reload:true,persistent:true});
 });
-function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet détecté');localStorage.setItem(key,value);}
+function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet détecté');window.InventoryStore.setItem(key,value);}
