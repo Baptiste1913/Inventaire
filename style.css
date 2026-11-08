@@ -994,55 +994,67 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 @media(prefers-reduced-motion:reduce){.calc-card .weight-field:focus-within::after{animation:none;opacity:0}}
 
 
-/* V31.4 — focus premium : verre satiné, reflet périphérique mesuré.
-   L'effet est limité au contour et ne modifie pas les dimensions du champ. */
-@property --weight-light-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
+
+/* V31.5 — Instrument de précision : activation tactile, sans halo ni rotation.
+   Un trait de lumière se déploie une seule fois sous la valeur. */
 .calc-card .weight-field {
   position:relative;
   isolation:isolate;
   overflow:hidden;
+  border:1.5px solid #00818b;
   background:#fff;
-  transition:border-color .3s ease,background-color .3s ease,box-shadow .4s ease;
+  box-shadow:0 1px 2px rgba(17,56,62,.025);
+  transition:border-color .3s cubic-bezier(.2,.8,.2,1),
+             box-shadow .35s cubic-bezier(.2,.8,.2,1),
+             background .35s ease;
 }
 .calc-card .weight-field::before {
   content:"";
   position:absolute;
   inset:0;
-  border-radius:inherit;
-  padding:1.5px;
-  z-index:2;
+  z-index:0;
   pointer-events:none;
   opacity:0;
-  background:conic-gradient(from var(--weight-light-angle),
-    transparent 0deg,
-    transparent 244deg,
-    rgba(40,150,162,.12) 268deg,
-    rgba(76,177,187,.34) 285deg,
-    rgba(224,253,252,.88) 299deg,
-    rgba(73,169,180,.38) 312deg,
-    transparent 339deg,
-    transparent 360deg);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  mask-composite:exclude;
-  transition:opacity .4s ease;
+  background:radial-gradient(ellipse 85% 130% at 8% 100%,
+     rgba(0,143,151,.095),rgba(0,143,151,.027) 52%,transparent 80%);
+  transition:opacity .42s ease;
+}
+.calc-card .weight-field::after {
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:19px;
+  right:19px;
+  height:2px;
+  border-radius:99px;
+  pointer-events:none;
+  z-index:2;
+  background:linear-gradient(90deg,#007e88 0%,#35b7b9 48%,rgba(53,183,185,.10) 100%);
+  transform:scaleX(0);
+  transform-origin:left center;
+  opacity:0;
 }
 .calc-card .weight-field:focus-within {
-  border-color:rgba(27,130,143,.58);
-  background:linear-gradient(155deg,#fff 0%,#fbfefe 100%);
-  box-shadow:0 0 0 3px rgba(22,135,147,.065),0 5px 17px rgba(23,91,106,.065),inset 0 1px 0 rgba(255,255,255,.94);
+  border-color:#007984;
+  background:#fcffff;
+  box-shadow:0 0 0 3px rgba(0,126,136,.075),
+             0 7px 22px -11px rgba(0,90,105,.22),
+             inset 0 1px 0 rgba(255,255,255,.9);
+  animation:none;
 }
-.calc-card .weight-field:focus-within::before {
+.calc-card .weight-field:focus-within::before {opacity:1}
+.calc-card .weight-field:focus-within::after {
   opacity:1;
-  animation:weight-light-orbit 7.2s linear infinite;
+  transform:scaleX(1);
+  animation:weight-precision-reveal .75s cubic-bezier(.18,.85,.24,1) both;
 }
-.calc-card .weight-field input,.calc-card .weight-field span{position:relative;z-index:1}
-@keyframes weight-light-orbit {to{--weight-light-angle:360deg}}
+.calc-card .weight-field input,
+.calc-card .weight-field span {position:relative;z-index:1}
+@keyframes weight-precision-reveal {
+  0% {transform:scaleX(0);opacity:0}
+  35% {opacity:1}
+  100% {transform:scaleX(1);opacity:1}
+}
 @media(prefers-reduced-motion:reduce){
-  .calc-card .weight-field:focus-within::before{animation:none;opacity:.55}
+  .calc-card .weight-field:focus-within::after {animation:none;transform:scaleX(1)}
 }
