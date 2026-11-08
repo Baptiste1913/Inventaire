@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 
-<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.1" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
+<html lang="fr"><head><meta charset="utf-8"/><script>/* V33.2: always start at the top after navigation or reload. */
+try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (_) {}
+(function () {
+  function top() { try { window.scrollTo({top:0,left:0,behavior:'instant'}); } catch (_) { window.scrollTo(0,0); } }
+  window.addEventListener('pageshow', top);
+  window.addEventListener('load', top, {once:true});
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
+  else top();
+})();
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.2" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
 <body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
@@ -96,4 +105,4 @@
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.0"></script><script defer="" src="app.js?v=33.0"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog></body></html>
+<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.2"></script><script defer="" src="app.js?v=33.0"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog></body></html>
