@@ -510,9 +510,12 @@ function mergeBackup(checked){
   if(basketIds.has(b.id)||basketNames.has(nameKey)){skippedBaskets++;continue;}
   bb.push(b);basketIds.add(b.id);basketNames.add(nameKey);addedBaskets++;
  }
+ const existingSessions=new Map(sessions.map(x=>[x.id,x]));
  const sessionIds=new Set(sessions.map(x=>x.id));
  const ss=[...sessions];let addedSessions=0,skippedSessions=0;
- for(const item of checked.ss){if(sessionIds.has(item.id)){skippedSessions++;continue;}
+ for(const item of checked.ss){if(sessionIds.has(item.id)){
+   if(JSON.stringify(existingSessions.get(item.id))!==JSON.stringify(item))throw Error('Un inventaire importé possède le même identifiant mais des pesées différentes. Exporte tes données puis conserve les deux versions séparément avant de choisir.');
+   skippedSessions++;continue;}
   ss.push(item);sessionIds.add(item.id);addedSessions++;
  }
  const historyKeys=new Set(history.map(e=>e.id?`id:${e.id}`:`content:${JSON.stringify([e.at,e.name,e.gross,e.tare,e.net])}`));
@@ -711,7 +714,7 @@ $('importInput').addEventListener('change',async e=>{const file=e.target.files?.
 render();renderHistory();renderV22();
 renderBackupSummary();
 $('backupCard').addEventListener('toggle',()=>{if($('backupCard').open)renderBackupSummary();});
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.warn));
+if('serviceWorker'in navigator)window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./sw.js');reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(!worker)return;worker.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller){const active=getActiveSession();$('weighStatus').textContent=active?'Mise à jour disponible : termine ton inventaire avant de recharger.':'Mise à jour disponible : recharge la page quand tu le souhaites.';}});});}catch(e){console.warn(e);}});
 
 // V20 : notification persistante jusqu'au retour en ligne ou fermeture manuelle.
 (function(){

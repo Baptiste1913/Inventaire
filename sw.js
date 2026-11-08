@@ -1,8 +1,8 @@
-/* Inventaires U V32.1 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v32-1';
+/* Inventaires U V32.3 — application shell hors ligne */
+const CACHE = 'inventaires-u-offline-v33';
 const CORE = [
-  './', './index.html', './style.css?v=32.1', './app.js?v=32.1',
-  './auth-config.js?v=32.0', './auth.js?v=32.1', './manifest.webmanifest?v=13', './icon.png?v=11',
+  './', './index.html', './style.css?v=33.0', './app.js?v=33.0',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=33.0', './manifest.webmanifest?v=13', './icon.png?v=11',
   './google-logo.png?v=32.0', './icon-512.png', './logo-u.png', './favicon.ico?v=13',
   './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png', './start-inventory-icon.png?v=32.0'
 ];
@@ -11,7 +11,7 @@ self.addEventListener('install', event => {
     const cache = await caches.open(CACHE);
     // Do not activate if a required file is missing.
     await cache.addAll(CORE);
-    await self.skipWaiting();
+    // Wait until old clients close: do not replace a running inventory.
   })());
 });
 self.addEventListener('activate', event => {
@@ -25,7 +25,18 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin) {
+    // The ESM module is cached after the first online load. OAuth and cloud still need network.
+    if(url.hostname === 'cdn.jsdelivr.net' && url.pathname.includes('/@supabase/supabase-js@2/')){
+      event.respondWith((async()=>{
+        const cache=await caches.open(CACHE);
+        const hit=await cache.match(request);if(hit)return hit;
+        const response=await fetch(request);if(response.ok)await cache.put(request,response.clone());
+        return response;
+      })());
+    }
+    return;
+  }
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE);
