@@ -1565,3 +1565,28 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .fold-card>.fold-body,.calc-alerts>.calc-alerts-body,.backup-advanced>.backup-advanced-body,.v22-session-item>.v22-bilan{transition:opacity 560ms cubic-bezier(.22,.75,.24,1)!important}
 button{transition:background-color .26s ease,opacity .26s ease,transform .26s ease}
 @media(prefers-reduced-motion:reduce){.fold-card>.fold-summary .fold-chevron,.inventory-calendar-chevron,.calc-alerts-chevron,.backup-advanced>summary svg,.history-chevron,.inventory-calendar-expanded,.fold-card>.fold-body,.calc-alerts>.calc-alerts-body,.backup-advanced>.backup-advanced-body,.v22-session-item>.v22-bilan,button{transition:none!important}}
+
+/* V33.14 — Bandeau Fruits et Légumes : vert végétal frais, sans icônes.
+   Formes organiques discrètes, uniquement en CSS : aucun chargement supplémentaire. */
+.intro{
+ background:
+  radial-gradient(ellipse 75% 115% at 103% 0%,rgba(185,237,143,.30) 0%,transparent 68%),
+  radial-gradient(ellipse 80% 105% at -15% 115%,rgba(8,82,52,.30) 0%,transparent 74%),
+  linear-gradient(112deg,#146d4e 0%,#168663 47%,#2a9a65 100%);
+ border-top:1px solid rgba(228,255,233,.24);
+ border-bottom:1px solid rgba(7,75,48,.16);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.06);
+}
+.intro::before{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:
+  radial-gradient(ellipse 38% 130% at 85% -35%,rgba(212,255,178,.18) 0%,transparent 72%),
+  radial-gradient(ellipse 30% 115% at 72% 135%,rgba(4,77,46,.17) 0%,transparent 74%),
+  linear-gradient(155deg,rgba(255,255,255,.09),transparent 53%);
+}
+.intro h2{color:#fff;text-shadow:0 1px 3px rgba(4,61,38,.10)}
+.intro p{color:rgba(248,255,249,.93)}
+.intro-session-state{color:#f1fff3}
+.intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot{background:#d3f3d4}
+.intro-jump{color:#215c45;background:rgba(255,255,255,.94);border-color:rgba(245,255,246,.85);box-shadow:0 4px 14px rgba(9,77,48,.13)}
+.intro-jump:hover{background:#fff}
