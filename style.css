@@ -1193,3 +1193,42 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .account-email-form input:focus{outline:2px solid #71bfc3;outline-offset:1px}
 .account-email-form .account-email{margin-top:2px;background:#edf7f7;color:#126f78;border-color:#b8d9db}
 .account-email-form button:disabled{opacity:.55;cursor:wait}
+
+/* V31.22 — Profil intégré aux cartes dépliables, dans la charte Inventaires U */
+.account-card{scroll-margin-top:18px}
+.account-card .fold-summary{cursor:pointer}
+.account-card .fold-trailing{min-width:0}
+.account-summary-status{display:inline-flex;align-items:center;border-radius:99px;padding:7px 10px;background:#edf4f4;color:#527078;font-size:11px;font-weight:750;white-space:nowrap}
+.account-body{padding-top:3px}
+.account-profile{display:flex;align-items:center;gap:12px;padding:15px;border:1px solid #e2ebec;border-radius:16px;background:#f8fbfb;margin-bottom:15px}
+.account-avatar{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;background:#e2f2f2;color:#007f89}
+.account-avatar svg{width:23px;height:23px}
+.account-profile-text{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0}
+.account-profile-text strong{font-size:14px;color:#24454b;overflow-wrap:anywhere}
+.account-profile-text span{font-size:11px;color:#70858a;overflow-wrap:anywhere}
+.account-status-dot{width:9px;height:9px;flex:none;border-radius:50%;background:#b5c3c6}
+.account-status-dot.is-connected{background:#21a87a;box-shadow:0 0 0 3px #dff5ec}
+.account-explanation{font-size:13px;line-height:1.65;color:#64777c;margin:0 0 16px}
+.account-body .account-provider{min-height:47px;border-radius:13px;margin-top:10px;font-size:13px;font-weight:750;transition:background-color .18s ease,border-color .18s ease,opacity .18s ease}
+.account-body .account-provider:focus-visible{outline:2px solid #00818b;outline-offset:3px}
+.account-body .account-google{border-color:#d8e5e6;background:#fff;color:#26484f}
+.account-body .account-google-mark{font-size:20px;font-weight:850;color:#4285f4}
+.account-divider{display:flex;align-items:center;gap:12px;margin-top:19px;color:#8a9b9e;font-size:11px;font-weight:700}
+.account-divider:before,.account-divider:after{content:"";height:1px;flex:1;background:#e5eded}
+.account-body .account-email-form{margin-top:7px;padding-top:0;border-top:0;gap:8px}
+.account-body .account-email-form label{margin:0;font-size:12px;color:#4b676d}
+.account-body .account-email-form input{border-radius:13px;border-color:#d6e2e4;min-height:47px}
+.account-body .account-email{background:#007f8b;color:#fff;border-color:#007f8b}
+.account-body .account-local-note{font-size:11px;line-height:1.55;color:#829396;text-align:center;margin:15px 0 0}
+.account-info-line{display:flex;align-items:start;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #e8eeee;font-size:12px}
+.account-info-line span{color:#72858a;flex:none}
+.account-info-line strong{color:#24474d;text-align:right;overflow-wrap:anywhere;min-width:0}
+.account-body .account-sync{background:#007f8b;border-color:#007f8b;color:#fff;margin-top:18px}
+.account-body .account-logout{background:#fff;border-color:#e2d4d4;color:#a34c4c}
+.account-body .account-provider:disabled{opacity:.55;cursor:wait}
+.account-conflict{margin-top:14px;padding:12px;border:1px solid #e6d6b7;border-radius:13px;background:#fffaf1}
+.account-conflict p{font-size:12px;line-height:1.6;color:#6c5733}
+.account-body .account-feedback{font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+.account-body .account-feedback:empty{display:none}
+@media(max-width:380px){.account-summary-status{font-size:10px;padding:6px 8px}.account-profile{padding:12px}}
+@media(prefers-reduced-motion:reduce){.account-body .account-provider{transition:none}}
