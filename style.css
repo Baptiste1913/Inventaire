@@ -999,3 +999,50 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 .calc-card .weight-field #inputUnit {color:#64838d!important}
 .calc-card .weight-field input::placeholder {color:#8c9da6!important;opacity:1}
 @media(prefers-reduced-motion:reduce){.calc-card .weight-field{transition:none}}
+
+/* V31.13 — champ affiné et notification hors ligne harmonisée. */
+.calc-card .weight-field{border-width:1px}
+.calc-card .weight-field input::placeholder{color:#b6c1c7!important;opacity:1}
+.calc-card .weight-field input::-webkit-input-placeholder{color:#b6c1c7!important;opacity:1}
+/* Notification indépendante : ne masque pas les actions Annuler/Actualiser. */
+.offline-indicator[hidden]{display:none!important}
+.offline-indicator{position:fixed;z-index:1999;left:50%;bottom:calc(17px + env(safe-area-inset-bottom,0px));transform:translate3d(-50%,0,0);width:max-content;max-width:calc(100vw - 28px);display:flex;align-items:center;gap:11px;padding:10px 11px 13px 12px;box-sizing:border-box;border:1px solid #cde4e7;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#f4fbfb 100%);color:#273c43;box-shadow:0 12px 32px rgba(21,76,86,.17),0 2px 7px rgba(26,55,67,.07),inset 0 1px 0 rgba(255,255,255,.9);font-family:inherit;font-size:13px;font-weight:750;overflow:hidden;isolation:isolate;min-width:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+.offline-symbol{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:#e2f4f2;color:#007f8b;border:1px solid #c6e7e5;padding:0}
+.offline-symbol img{width:18px;height:18px;object-fit:contain}
+.offline-copy{display:block;min-width:0;flex:1;line-height:1.4}
+.offline-copy strong{display:block;font-size:13px;color:inherit;font-weight:750}
+.offline-copy>span{display:block;font-size:11px;color:#58747c;font-weight:550}
+.offline-dismiss{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;min-height:42px;padding:0;border:1px solid #b9e1e4;border-radius:13px;background:#e2f2f3;color:#007985;cursor:pointer}
+.offline-dismiss svg{width:16px;height:16px}
+.offline-indicator.is-entering{animation:undo-toast-enter .4s cubic-bezier(.22,1,.36,1) both}
+.offline-indicator.is-leaving{animation:undo-toast-leave .28s cubic-bezier(.4,0,.75,.25) both;pointer-events:none}
+.offline-indicator::before{content:"";position:absolute;bottom:3px;left:12px;width:calc(100% - 24px);height:3px;border-radius:99px;background:#e3eff0;pointer-events:none}
+/* Deux notifications simultanées ne doivent pas se recouvrir. */
+body:has(.undo-toast:not([hidden])) .offline-indicator:not([hidden]){bottom:calc(89px + env(safe-area-inset-bottom,0px))}
+@media(prefers-reduced-motion:reduce){.offline-indicator.is-entering,.offline-indicator.is-leaving{animation:none!important}}
+@media(max-width:360px){.offline-indicator{gap:8px;padding-left:9px;padding-right:8px;font-size:12px}.offline-symbol{flex-basis:27px;width:27px;height:27px}.offline-copy strong{font-size:12px}.offline-copy>span{font-size:10px}}
+
+/* V31.14 — pile commune de notifications et fermeture individuelle. */
+.toast-stack{
+ position:fixed;z-index:2005;bottom:calc(17px + env(safe-area-inset-bottom,0px));
+ left:0;right:0;display:flex;flex-direction:column-reverse;
+ align-items:center;gap:9px;pointer-events:none;padding:0 10px;
+}
+.toast-stack>.undo-toast,.toast-stack>.offline-indicator{
+ position:relative!important;left:auto!important;right:auto!important;
+ bottom:auto!important;transform:none;max-width:min(100%,520px);
+ margin:0;pointer-events:auto;flex-shrink:0;
+}
+.toast-stack>.undo-toast{width:max-content;min-width:0;}
+.toast-stack>.offline-indicator{width:max-content;}
+.toast-stack .toast-close{
+ display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;
+ border:0;border-radius:8px;background:transparent;color:#55737a;
+ font:400 23px/1 system-ui;cursor:pointer;padding:0;
+}
+.toast-stack .toast-close:active{background:#dceff0}
+.toast-stack .toast-close:focus-visible{outline:2px solid #007f8b;outline-offset:1px}
+body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]){
+ bottom:auto!important;
+}
+@media(max-width:360px){.toast-stack{gap:7px;padding:0 7px}.toast-stack .toast-close{flex-basis:24px;width:24px}}

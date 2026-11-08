@@ -3,71 +3,74 @@ const STORAGE_KEY='inventaires-u-v2';
 const LEGACY_KEY='tare-paniettes-v1';
 const HISTORY_KEY='inventaires-u-history-v1';
 const $=id=>document.getElementById(id);
-// V30.21 : animation douce de la notification ; logique d'annulation V30.20 conservée.
+// Notifications empilables : chaque action garde son propre délai et sa fermeture.
 const UNDO_DELAY_MS=8000;
 const UNDO_EXIT_MS=280;
 let pendingUndo=null,undoTimeout=null,undoExitTimeout=null;
-function dismissUndo(immediate=false){
-  if(undoTimeout!==null)clearTimeout(undoTimeout);
-  if(undoExitTimeout!==null)clearTimeout(undoExitTimeout);
-  undoTimeout=null;undoExitTimeout=null;pendingUndo=null;
-  const toast=$('undoToast');
-  if(!toast)return;
-  toast.classList.remove('undo-entering');
-  if(toast.hidden)return;
-  const reducedMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(immediate||reducedMotion){
-    toast.hidden=true;
-    toast.classList.remove('undo-leaving','undo-ticking');
-    return;
-  }
-  toast.classList.add('undo-leaving');
-  undoExitTimeout=setTimeout(()=>{
-    toast.hidden=true;
-    toast.classList.remove('undo-leaving','undo-ticking');
-    undoExitTimeout=null;
-  },UNDO_EXIT_MS);
+const toastTimers=new Map();
+let undoToastNode=null;
+function toastStack(){
+ let stack=$('toastStack');
+ if(!stack){
+   stack=document.createElement('div');
+   stack.id='toastStack';stack.className='toast-stack';
+   document.body.append(stack);
+ }
+ return stack;
+}
+function closeToast(node,immediate=false){
+ if(!node)return;
+ const timer=toastTimers.get(node);
+ if(timer)clearTimeout(timer);
+ toastTimers.delete(node);
+ if(node===undoToastNode){
+   pendingUndo=null;undoTimeout=null;undoToastNode=null;
+ }
+ if(immediate||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){node.remove();return;}
+ node.classList.remove('undo-entering','undo-ticking');
+ node.classList.add('undo-leaving');
+ setTimeout(()=>node.remove(),UNDO_EXIT_MS);
+}
+function dismissUndo(immediate=false){closeToast(undoToastNode,immediate);}
+function createToast(message,{action=null,onAction=null,persistent=false,warning=false,undo=false}={}){
+ const toast=document.createElement('div');
+ toast.className='undo-toast undo-entering'+(warning?' toast-warning':'')+(undo?' undo-ticking':'');
+ toast.setAttribute('role','status');
+ const symbol=document.createElement('span');symbol.className='undo-toast-symbol';symbol.setAttribute('aria-hidden','true');
+ symbol.textContent=warning?'!':'↶';
+ const label=document.createElement('span');label.className='undo-toast-message';label.textContent=message;
+ toast.append(symbol,label);
+ if(action){
+   const button=document.createElement('button');button.type='button';button.className='undo-toast-button';
+   button.textContent=action;button.addEventListener('click',()=>onAction?.());
+   toast.append(button);
+ }
+ const close=document.createElement('button');close.type='button';close.className='toast-close';
+ close.setAttribute('aria-label','Fermer la notification');close.textContent='×';
+ close.addEventListener('click',()=>closeToast(toast));
+ toast.append(close);
+ toastStack().prepend(toast);
+ if(!persistent){
+   const timer=setTimeout(()=>closeToast(toast),UNDO_DELAY_MS);
+   toastTimers.set(toast,timer);
+ }
+ return toast;
 }
 function offerUndo(message,restore){
-  // Une nouvelle suppression remplace immédiatement l'ancienne notification.
-  dismissUndo(true);
-  const toast=$('undoToast');
-  if(!toast)return;
-  pendingUndo={restore,expires:Date.now()+UNDO_DELAY_MS};
-  $('undoToastMessage').textContent=message;
-  const undoButton=$('undoToastButton');undoButton.textContent='Annuler';undoButton.setAttribute('aria-label','Annuler la dernière action');undoButton.onclick=null;toast.classList.remove('toast-warning');
-  toast.hidden=false;
-  toast.classList.remove('undo-entering','undo-leaving','undo-ticking');
-  void toast.offsetWidth;
-  toast.classList.add('undo-entering','undo-ticking');
-  undoTimeout=setTimeout(()=>dismissUndo(),UNDO_DELAY_MS);
+ // Les anciennes annulations restent disponibles tant que leur notification est visible.
+ const pending={restore,expires:Date.now()+UNDO_DELAY_MS};
+ const toast=createToast(message,{action:'Annuler',undo:true,onAction:()=>{
+   if(Date.now()>=pending.expires){closeToast(toast);return;}
+   let restored=false;
+   try{restored=pending.restore()===true;}catch(error){console.warn('Annulation impossible',error);}
+   if(restored)closeToast(toast);
+   else toast.querySelector('.undo-toast-message').textContent='Impossible de restaurer : stockage local indisponible.';
+ }});
+ pendingUndo=pending;undoToastNode=toast;
 }
-// Notifications d'information / erreur : même composant que l'annulation, sans action destructive.
 function showActionToast(message,{reload=false,persistent=false}={}){
-  dismissUndo(true);
-  const toast=$('undoToast');
-  if(!toast)return;
-  $('undoToastMessage').textContent=message;
-  const button=$('undoToastButton');
-  button.textContent=reload?'Actualiser':'Fermer';
-  button.setAttribute('aria-label',reload?'Actualiser la page':'Fermer la notification');
-  button.onclick=reload?()=>window.location.reload():()=>dismissUndo();
-  toast.classList.toggle('toast-warning',true);
-  toast.hidden=false;
-  toast.classList.remove('undo-entering','undo-leaving','undo-ticking');
-  void toast.offsetWidth;
-  toast.classList.add('undo-entering');
-  if(!persistent)undoTimeout=setTimeout(()=>dismissUndo(),8000);
-}
-function undoLastDeletion(){
-  const pending=pendingUndo;
-  if(!pending)return;
-  if(Date.now()>=pending.expires){dismissUndo();return;}
-  let restored=false;
-  try{restored=pending.restore()===true;}catch(error){console.warn('Annulation impossible',error);}
-  if(restored){dismissUndo();return;}
-  // Si le stockage est refusé, ne pas annoncer une annulation réussie.
-  $('undoToastMessage').textContent='Impossible de restaurer : stockage local indisponible.';
+ return createToast(message,{action:reload?'Actualiser':null,
+   onAction:reload?()=>window.location.reload():null,persistent,warning:true});
 }
 // Some privacy modes forbid reading localStorage: keep the app usable without crashing.
 const safeGet=key=>{try{return localStorage.getItem(key);}catch{return null;}};
@@ -658,7 +661,7 @@ $('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify
 $('importInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await readTextFile(file));const items=Array.isArray(data)?data:data.baskets;if(!Array.isArray(items)||items.some(b=>!b||typeof b.name!=='string'||!Number.isFinite(Number(b.tare))||Number(b.tare)<0))throw Error('Format incorrect');const next=sanitize(items);if(!commitBaskets(next))throw Error('Stockage indisponible');dismissUndo();cancelEdit();$('backupStatus').textContent='Importation terminée.';}catch(err){$('backupStatus').textContent='Importation impossible : fichier non valide.';}finally{e.target.value='';}});
 
 
-$('undoToastButton').addEventListener('click',()=>{if(pendingUndo)undoLastDeletion();});
+
 render();renderHistory();renderV22();
 renderBackupSummary();
 $('backupCard').addEventListener('toggle',()=>{if($('backupCard').open)renderBackupSummary();});
@@ -669,6 +672,8 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
   const indicator=document.getElementById('offlineIndicator');
   const dismiss=document.getElementById('offlineDismiss');
   if(!indicator||!dismiss)return;
+  indicator.classList.add('toast-stacked-offline');
+  toastStack().append(indicator);
   let dismissed=false;
   let finishTimer=null;
   let visible=false;
@@ -693,7 +698,7 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
     finishTimer=setTimeout(()=>{
       if(!visible){indicator.hidden=true;indicator.classList.remove('is-leaving');}
       finishTimer=null;
-    },390);
+    },280);
   }
   function sync(){
     if(navigator.onLine){dismissed=false;hide();}
