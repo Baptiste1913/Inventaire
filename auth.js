@@ -1,0 +1,34 @@
+(()=>{'use strict';
+const $=id=>document.getElementById(id),cfg=window.INVENTAIRES_AUTH_CONFIG||{};
+const KEYS=["inventaires-u-v2", "inventaires-u-history-v1", "inventaires-u-sessions-v1", "inventaires-u-weight-mode-v1", "inventaires-u-warning-limit-v1", "inventaires-u-duplicate-confirm-v1"];
+const configured=()=>/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(cfg.supabaseUrl||'')&&typeof cfg.supabaseAnonKey==='string'&&cfg.supabaseAnonKey.length>20;
+let client=null,user=null,busy=false,lastSynced=null,localBaseline=null,interval=null;
+const feedback=msg=>{$('accountFeedback').textContent=msg||'';};
+const status=msg=>{$('cloudStatus').textContent=msg;};
+function snapshot(){const out={};for(const key of KEYS){try{out[key]=localStorage.getItem(key);}catch{out[key]=null;}}return out;}
+const serialize=o=>JSON.stringify(o);
+const empty=o=>Object.values(o).every(v=>v===null);
+function restore(data){if(!data||typeof data!=='object'||KEYS.some(k=>!(k in data)||!(typeof data[k]==='string'||data[k]===null)))throw Error('Sauvegarde cloud invalide.');
+  // Store a complete rollback copy before touching any user data.
+  const previous=snapshot();try{for(const key of KEYS){if(data[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,data[key]);}}catch(err){for(const key of KEYS){try{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);}catch{}}throw err;}
+  localBaseline=serialize(data);status('Données récupérées. Actualisation nécessaire.');location.reload();}
+function render(){const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Connecté'):'Non connecté';$('accountLabel').textContent=name;$('accountTrigger').title=name;$('accountSignedOut').hidden=!!user;$('accountSignedIn').hidden=!user;$('accountIdentity').textContent=user?name:'';if(!user)status('Stockage local uniquement');}
+async function sb(){if(client)return client;if(!configured())throw Error('Supabase doit être configuré dans auth-config.js.');if(!navigator.onLine)throw Error('Connexion Internet nécessaire.');const mod=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');client=mod.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{flowType:'pkce',detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});return client;}
+async function readRemote(){const {data,error}=await client.from('inventory_backups').select('payload,updated_at').eq('user_id',user.id).maybeSingle();if(error)throw error;return data;}
+async function upload(local){const {error}=await client.from('inventory_backups').upsert({user_id:user.id,payload:local},{onConflict:'user_id'});if(error)throw error;lastSynced=serialize(local);localBaseline=lastSynced;status('Synchronisé');feedback('Sauvegarde cloud à jour.');}
+function askConflict(remote){$('cloudConflict').hidden=false;$('cloudConflict').dataset.payload=JSON.stringify(remote);status('Choix nécessaire : données locales et cloud différentes');feedback('Choisis les données à conserver. Aucune donnée ne sera écrasée sans ton accord.');}
+async function reconcile(){if(!user||busy||!navigator.onLine)return;busy=true;try{const local=snapshot(),ls=serialize(local),remote=await readRemote();if(!remote){status('Première sauvegarde…');await upload(local);$('cloudConflict').hidden=true;return;}
+const rs=serialize(remote.payload);if(ls===rs){lastSynced=rs;localBaseline=ls;status('Synchronisé');$('cloudConflict').hidden=true;return;}
+if(lastSynced===rs){await upload(local);$('cloudConflict').hidden=true;return;}
+if(lastSynced===ls){restore(remote.payload);return;}
+if(empty(local)){restore(remote.payload);return;}
+askConflict(remote.payload);
+}catch(e){status('Synchronisation en attente');feedback(e.message||'Erreur de synchronisation.');console.warn('Cloud sync',e);}finally{busy=false;}}
+async function connect(provider){feedback('Ouverture de la connexion…');try{const s=await sb();const {error}=await s.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+location.pathname}});if(error)throw error;}catch(e){feedback(e.message||'Connexion impossible.');}}
+async function logout(){try{const s=await sb();const {error}=await s.auth.signOut();if(error)throw error;user=null;lastSynced=null;localBaseline=null;clearInterval(interval);render();feedback('Déconnecté. Les données de cet appareil sont conservées.');}catch(e){feedback(e.message||'Déconnexion impossible.');}}
+async function init(){render();if(!configured()){feedback('Pour activer Apple, Google et le cloud, configure Supabase (voir README-CLOUD.md).');return;}try{const s=await sb();const {data:{user:u},error}=await s.auth.getUser();if(error)throw error;user=u;render();if(user)await reconcile();s.auth.onAuthStateChange((event,session)=>{const previous=user?.id;user=session?.user||null;render();if(user&&user.id!==previous){lastSynced=null;queueMicrotask(()=>reconcile());}if(!user){clearInterval(interval);lastSynced=null;}});interval=setInterval(()=>{if(user&&$('cloudConflict').hidden)reconcile();},12000);window.addEventListener('online',()=>reconcile());}catch(e){feedback(e.message||'Authentification indisponible.');}}
+$('accountTrigger').addEventListener('click',()=>{$('accountModal').hidden=false;$('accountTrigger').setAttribute('aria-expanded','true');});const close=()=>{$('accountModal').hidden=true;$('accountTrigger').setAttribute('aria-expanded','false');};$('accountClose').addEventListener('click',close);document.querySelector('[data-account-close]').addEventListener('click',close);document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});$('accountApple').addEventListener('click',()=>connect('apple'));$('accountGoogle').addEventListener('click',()=>connect('google'));$('accountLogout').addEventListener('click',logout);
+$('cloudKeepLocal').addEventListener('click',async()=>{if(!user||busy)return;busy=true;try{await upload(snapshot());$('cloudConflict').hidden=true;}catch(e){feedback(e.message);}finally{busy=false;}});
+$('cloudUseRemote').addEventListener('click',()=>{try{restore(JSON.parse($('cloudConflict').dataset.payload));}catch(e){feedback(e.message);}});
+$('cloudSyncNow').addEventListener('click',()=>reconcile());init();
+})();

@@ -1171,3 +1171,17 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
   color:#d4dce0!important;
   opacity:1!important;
 }
+
+/* V31.18 — Compte facultatif */
+.account-area{display:flex;justify-content:flex-end;margin:8px 0 12px}
+.account-trigger{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(0,125,137,.18);border-radius:999px;background:#fff;color:#38616a;padding:7px 12px;font:600 12px/1.2 inherit;cursor:pointer;max-width:100%}
+.account-trigger svg{width:17px;height:17px;flex:none}.account-trigger span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:185px}
+.account-modal[hidden],.account-signed-in[hidden],#accountSignedIn[hidden],#accountSignedOut[hidden]{display:none!important}
+.account-modal{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:20px}
+.account-backdrop{position:absolute;inset:0;background:rgba(15,36,40,.44)}
+.account-dialog{position:relative;width:min(100%,410px);border-radius:20px;background:#fff;color:#18383d;padding:23px;box-shadow:0 22px 70px rgba(0,0,0,.19)}
+.account-dialog-head{display:flex;align-items:start;justify-content:space-between;gap:12px}.account-dialog h2{margin:5px 0 12px;font-size:22px}
+.account-dialog p{font-size:13px;line-height:1.6;color:#62787d}.account-x{border:0;background:transparent;font-size:25px;line-height:1;cursor:pointer;color:#64777b;padding:2px 5px}
+.account-provider{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid #d5e1e2;border-radius:11px;background:#fff;color:#263b3f;padding:13px 12px;font-size:14px;font-weight:650;cursor:pointer;margin-top:10px}
+.account-apple{background:#111;color:#fff;border-color:#111}.account-provider-icon{font-size:15px}.account-google-mark{font-size:18px;font-weight:800;color:#4285f4}.account-local-note{text-align:center;margin-bottom:0}.account-identity{font-weight:700;overflow-wrap:anywhere}.account-feedback:not(:empty){margin-top:12px;color:#087b88;font-weight:600}
+@media(max-width:390px){.account-dialog{padding:18px}.account-area{margin-top:6px}}
