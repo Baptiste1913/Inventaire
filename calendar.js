@@ -22,6 +22,30 @@ function render(){yearLabel.textContent=String(year);grid.replaceChildren();cons
  const hint=document.createElement('small');hint.textContent=day<today?'Date passée':'À venir';if(day.getTime()===planned(today.getFullYear(),today.getMonth()).getTime())card.classList.add('is-current');
  card.append(name,date,hint);grid.append(card);
  }}
+const calendar=document.getElementById('inventoryCalendar');
+const summary=calendar?.querySelector('summary');
+const expanded=calendar?.querySelector('.inventory-calendar-expanded');
+let closeTimer=null;
+if(calendar&&summary&&expanded){
+ summary.addEventListener('click',event=>{
+  event.preventDefault();
+  if(closeTimer){clearTimeout(closeTimer);closeTimer=null;}
+  if(calendar.open){
+   expanded.style.maxHeight=expanded.scrollHeight+'px';
+   expanded.getBoundingClientRect();
+   calendar.classList.remove('calendar-expanded');
+   expanded.style.maxHeight='0px';expanded.style.opacity='0';
+   calendar.setAttribute('aria-busy','false');
+   closeTimer=setTimeout(()=>{calendar.open=false;expanded.style.maxHeight='';expanded.style.opacity='';closeTimer=null;},360);
+  }else{
+   calendar.open=true;calendar.classList.add('calendar-expanded');
+   expanded.style.maxHeight='0px';expanded.style.opacity='0';
+   expanded.getBoundingClientRect();
+   expanded.style.maxHeight=expanded.scrollHeight+'px';expanded.style.opacity='1';
+   setTimeout(()=>{if(calendar.open&&!closeTimer)expanded.style.maxHeight='';},380);
+  }
+ });
+}
 document.getElementById('calendarPrev')?.addEventListener('click',()=>{year--;render();});
 document.getElementById('calendarNext')?.addEventListener('click',()=>{year++;render();});updateNext();render();
 })();
