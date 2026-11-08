@@ -1383,3 +1383,11 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .import-choice-dialog p{line-height:1.5;margin:0 0 14px}
 .import-choice-dialog button{display:block;width:100%;margin:10px 0;min-height:44px}
 .import-choice-dialog .import-choice-hint{font-size:.84rem;color:#526a6e;margin:0 0 14px}
+
+/* V32 — recovery and accessibility */
+.recovery-card{margin-top:16px;border:1px solid #d4e7e8;border-radius:12px;padding:12px;background:#f8fcfc}
+.recovery-card>summary{cursor:pointer;font-weight:750;color:#176a72}
+.recovery-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid #e0eeee;font-size:12px}
+.recovery-row span{overflow-wrap:anywhere}.recovery-row button{min-height:44px;border:1px solid #8dc7ca;background:white;color:#126a71;border-radius:9px;padding:8px 12px;font-weight:750}
+:where(button,input,select,summary,a):focus-visible{outline:3px solid #007f8b;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
