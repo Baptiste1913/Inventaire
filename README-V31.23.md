@@ -1,1 +1,0 @@
-V31.23 : Suppression de la pastille de compte sous le header ; carte Connexion déplacée avant Ma session, fermée par défaut, avec grande commande turquoise de dépliage. Le fonctionnement Supabase et local est inchangé.
