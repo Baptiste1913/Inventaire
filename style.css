@@ -1099,3 +1099,54 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
  .toast-stack>.undo-toast.undo-leaving,
  .toast-stack>.offline-indicator.is-leaving{animation:none!important}
 }
+
+
+/* V31.16 — système visuel unifié : taille, fermeture et ombres intactes. */
+.toast-stack{
+  overflow:visible!important;
+  max-height:none!important;
+  padding:0 18px 12px!important;
+  gap:12px!important;
+  box-sizing:border-box;
+}
+.toast-stack>.undo-toast,
+.toast-stack>.offline-indicator{
+  width:min(100%,420px)!important;
+  max-width:420px!important;
+  min-height:66px;
+  flex:0 0 auto;
+  gap:11px;
+  padding:11px 13px 14px!important;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 14px 34px rgba(21,76,86,.17),0 3px 9px rgba(26,55,67,.07),inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+/* La barre est réservée aux notifications dont le délai expire. */
+.toast-stack>.undo-toast:not(.undo-ticking)::before,
+.toast-stack>.undo-toast:not(.undo-ticking)::after,
+.toast-stack>.offline-indicator::before,
+.toast-stack>.offline-indicator::after{content:none!important;display:none!important}
+.toast-stack>.undo-toast.undo-ticking::before,
+.toast-stack>.undo-toast.undo-ticking::after{bottom:3px}
+/* Croix identique, sans contour ni fond pour chaque catégorie. */
+.toast-stack .toast-close,
+.toast-stack .offline-dismiss{
+  display:grid!important;place-items:center!important;
+  flex:0 0 30px!important;width:30px!important;height:34px!important;
+  min-height:0!important;padding:0!important;
+  border:0!important;border-radius:9px!important;
+  background:transparent!important;color:#56727a!important;
+  box-shadow:none!important;
+  font:400 25px/1 system-ui!important;
+  -webkit-appearance:none;appearance:none;
+}
+.toast-stack .offline-dismiss svg{width:17px;height:17px;stroke-width:2.3}
+.toast-stack .toast-close:hover,.toast-stack .offline-dismiss:hover{background:rgba(0,120,135,.06)!important}
+.toast-stack .toast-close:focus-visible,.toast-stack .offline-dismiss:focus-visible{outline:2px solid #007f8b;outline-offset:1px}
+.toast-stack .offline-copy{flex:1;min-width:0}
+.toast-stack .offline-copy strong{font-size:13px}
+.toast-stack .offline-copy>span{font-size:11px}
+@media(max-width:360px){
+  .toast-stack{padding:0 10px 12px!important}
+  .toast-stack>.undo-toast,.toast-stack>.offline-indicator{gap:8px;padding:10px 9px 14px!important}
+}

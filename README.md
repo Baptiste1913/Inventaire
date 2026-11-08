@@ -139,3 +139,5 @@ V31.10 : immersion bleue limitée au contour, texte inchangé.
 
 
 V31.12 : contour gris bleuté au repos, fondu turquoise au focus ; suppression des calques animés du champ de poids.
+
+V31.16 : notifications de largeur uniforme, fermeture sans contour, barre uniquement pour délai, ombres non rognées.
