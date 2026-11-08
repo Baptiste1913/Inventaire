@@ -1375,3 +1375,11 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
  .backup-advanced.is-detail-closing > .backup-advanced-body,
  .v22-session-item.is-detail-closing > .v22-bilan{transition:none!important}
 }
+
+/* V31.34 : choix explicite et accessible lors de l'import JSON */
+.import-choice-dialog{border:1px solid #d4e5e6;border-radius:18px;padding:24px;max-width:min(440px,calc(100vw - 32px));width:100%;box-shadow:0 16px 60px #0c364133;background:white;color:#203a3d}
+.import-choice-dialog::backdrop{background:rgba(12,30,40,.48)}
+.import-choice-dialog h2{font-size:1.2rem;margin:0 0 10px}
+.import-choice-dialog p{line-height:1.5;margin:0 0 14px}
+.import-choice-dialog button{display:block;width:100%;margin:10px 0;min-height:44px}
+.import-choice-dialog .import-choice-hint{font-size:.84rem;color:#526a6e;margin:0 0 14px}

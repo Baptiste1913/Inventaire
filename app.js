@@ -500,6 +500,43 @@ function commitRestoredData(values){
   throw Error('Stockage local insuffisant');
  }
 }
+// Fusion non destructive : les identifiants existants gagnent en cas de divergence.
+// Les doublons exacts et les éléments déjà présents ne sont jamais ajoutés deux fois.
+function mergeBackup(checked){
+ const basketIds=new Set(baskets.map(b=>b.id));
+ const basketNames=new Set(baskets.map(b=>`${b.name.trim().toLocaleLowerCase('fr')}|${b.tare}`));
+ const bb=[...baskets];let addedBaskets=0,skippedBaskets=0;
+ for(const b of checked.bb){const nameKey=`${b.name.trim().toLocaleLowerCase('fr')}|${b.tare}`;
+  if(basketIds.has(b.id)||basketNames.has(nameKey)){skippedBaskets++;continue;}
+  bb.push(b);basketIds.add(b.id);basketNames.add(nameKey);addedBaskets++;
+ }
+ const sessionIds=new Set(sessions.map(x=>x.id));
+ const ss=[...sessions];let addedSessions=0,skippedSessions=0;
+ for(const item of checked.ss){if(sessionIds.has(item.id)){skippedSessions++;continue;}
+  ss.push(item);sessionIds.add(item.id);addedSessions++;
+ }
+ const historyKeys=new Set(history.map(e=>e.id?`id:${e.id}`:`content:${JSON.stringify([e.at,e.name,e.gross,e.tare,e.net])}`));
+ const hh=[...history];let addedHistory=0;
+ for(const e of checked.hh){const key=e.id?`id:${e.id}`:`content:${JSON.stringify([e.at,e.name,e.gross,e.tare,e.net])}`;
+  if(historyKeys.has(key))continue;historyKeys.add(key);hh.push(e);addedHistory++;
+ }
+ hh.sort((a,b)=>b.at-a.at);
+ return {bb,ss,hh:hh.slice(0,15),active:activeSessionId,settings:null,addedBaskets,addedSessions,addedHistory,skippedBaskets,skippedSessions};
+}
+function chooseBackupImport(){
+ return new Promise(resolve=>{
+  const dialog=$('importChoiceDialog');if(!dialog||typeof dialog.showModal!=='function'){
+   resolve(window.confirm('Fusionner la sauvegarde avec les données actuelles ? (Annuler = abandonner)')?'merge':'cancel');return;
+  }
+  const finish=mode=>{dialog.close();resolve(mode);};
+  const merge=$('importMergeBtn'),replace=$('importReplaceBtn'),cancel=$('importCancelBtn');
+  const onMerge=()=>finish('merge');const onReplace=()=>finish('replace');const onCancel=()=>finish('cancel');
+  const cleanup=()=>{merge.removeEventListener('click',onMerge);replace.removeEventListener('click',onReplace);cancel.removeEventListener('click',onCancel);dialog.removeEventListener('cancel',onEscape);};
+  const onEscape=e=>{e.preventDefault();cleanup();finish('cancel');};
+  merge.addEventListener('click',onMerge,{once:true});replace.addEventListener('click',onReplace,{once:true});cancel.addEventListener('click',onCancel,{once:true});dialog.addEventListener('cancel',onEscape);
+  dialog.addEventListener('close',cleanup,{once:true});dialog.showModal();
+ });
+}
 async function fullImport(event){
  const file=event.target.files?.[0];if(!file)return;
  try{
@@ -511,28 +548,37 @@ async function fullImport(event){
     return;
   }
   const checked=validateFullBackup(data);
+  const choice=await chooseBackupImport();
+  if(choice==='cancel'){$('backupStatus').textContent='Import annulé : aucune donnée modifiée.';return;}
+  if(choice==='replace'&&!window.confirm('Remplacer toutes les données de cet espace ? Les données cloud pourront également être remplacées après synchronisation.')){
+   $('backupStatus').textContent='Remplacement annulé.';return;
+  }
+  const selected=choice==='merge'?mergeBackup(checked):checked;
+  // Conserver une copie téléchargeable de l’état précédent avant toute écriture.
+  const before=createBackupData();
+  download(JSON.stringify(before,null,2),`inventaires-u-avant-import-${new Date().toISOString().slice(0,10)}.json`,'application/json');
   const values=[
-   [STORAGE_KEY,JSON.stringify(checked.bb)],
-   [HISTORY_KEY,JSON.stringify(checked.hh)],
-   [SESSION_KEY,JSON.stringify({sessions:checked.ss,activeId:checked.active})]
+   [STORAGE_KEY,JSON.stringify(selected.bb)],
+   [HISTORY_KEY,JSON.stringify(selected.hh)],
+   [SESSION_KEY,JSON.stringify({sessions:selected.ss,activeId:selected.active})]
   ];
-  if(checked.settings)values.push(
-   [MODE_KEY,checked.settings.entryMode],
-   [LIMIT_KEY,fmt(checked.settings.maxGrossGrams)],
-   [DUPLICATE_CONFIRM_KEY,String(checked.settings.confirmDuplicates)]
+  if(selected.settings)values.push(
+   [MODE_KEY,selected.settings.entryMode],
+   [LIMIT_KEY,fmt(selected.settings.maxGrossGrams)],
+   [DUPLICATE_CONFIRM_KEY,String(selected.settings.confirmDuplicates)]
   );
   // Capture complète des clés écrites pour une restauration annulable.
   const previous=values.map(([k])=>[k,localStorage.getItem(k)]);
   commitRestoredData(values);
   clearTimeout(autoSaveTimer);autoSaveTimer=null;
   dismissUndo();
-  baskets=checked.bb;sessions=checked.ss;history=checked.hh;
-  activeSessionId=checked.active;activeGroup=null;lastGroup=null;currentWeighId=null;
-  if(checked.settings){entryMode=checked.settings.entryMode;maxGrossGrams=checked.settings.maxGrossGrams;confirmDuplicates=checked.settings.confirmDuplicates;}
+  baskets=selected.bb;sessions=selected.ss;history=selected.hh;
+  activeSessionId=selected.active;activeGroup=null;lastGroup=null;currentWeighId=null;
+  if(selected.settings){entryMode=selected.settings.entryMode;maxGrossGrams=selected.settings.maxGrossGrams;confirmDuplicates=selected.settings.confirmDuplicates;}
   editingId=null;acceptedAnomalyKey='';$('grossWeight').value='';
   render();renderHistory();renderV22();
-  $('backupStatus').textContent=`Restauration terminée : ${checked.ss.length} inventaire(s) et ${checked.bb.length} panier(s).`;
-  offerUndo('Sauvegarde restaurée.',()=>{
+  $('backupStatus').textContent=choice==='merge'?`Fusion terminée : +${selected.addedSessions} inventaire(s), +${selected.addedBaskets} panier(s), +${selected.addedHistory} pesée(s) dans l’historique. ${selected.skippedSessions+selected.skippedBaskets} élément(s) déjà présent(s) ignoré(s).`:`Remplacement terminé : ${selected.ss.length} inventaire(s) et ${selected.bb.length} panier(s).`;
+  offerUndo(choice==='merge'?'Fusion effectuée.':'Sauvegarde restaurée.',()=>{
     try{commitRestoredData(previous.map(([k,v])=>[k,v]));}catch{return false;}
     baskets=loadBaskets();history=loadHistory();
     const loaded=readJSON(SESSION_KEY,{sessions:[],activeId:null});
