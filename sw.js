@@ -1,10 +1,10 @@
-/* Inventaires U V31.29 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v31-29';
+/* Inventaires U V31.30 — application shell hors ligne */
+const CACHE = 'inventaires-u-offline-v31-30';
 const CORE = [
-  './', './index.html', './style.css?v=31.29', './app.js?v=31.29',
-  './auth-config.js?v=31.29', './auth.js?v=31.29', './manifest.webmanifest?v=13', './icon.png?v=11',
-  './google-logo.png?v=31.29', './icon-512.png', './logo-u.png', './favicon.ico?v=13',
-  './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png', './start-inventory-icon.png?v=31.29'
+  './', './index.html', './style.css?v=31.30', './app.js?v=31.30',
+  './auth-config.js?v=31.30', './auth.js?v=31.30', './manifest.webmanifest?v=13', './icon.png?v=11',
+  './google-logo.png?v=31.30', './icon-512.png', './logo-u.png', './favicon.ico?v=13',
+  './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png', './start-inventory-icon.png?v=31.30'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
