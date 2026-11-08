@@ -782,7 +782,7 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{try{cons
 
 // V31.31 — moteur d’accordéon partagé : une seule courbe, aucune animation
 // concurrente sur le contenu et mesure de hauteur cohérente pour Safari.
-const FOLD_MOTION_MS=380;
+const FOLD_MOTION_MS=560;
 const FOLD_MOTION_EASE='cubic-bezier(.22,.75,.24,1)';
 function setupUnifiedFold(card,summary,content,closingClass){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;

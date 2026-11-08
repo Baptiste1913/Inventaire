@@ -1552,3 +1552,16 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .account-card>.account-fold-summary{column-gap:10px!important}
 .account-card .account-fold-summary .fold-heading{flex:1 1 110px;min-width:0}
 @media(max-width:380px){.account-card>.account-fold-summary>.account-heading-icon{width:38px;height:38px;flex-basis:38px}.account-card>.account-fold-summary>.account-heading-icon svg{width:21px;height:21px}.account-card>.account-fold-summary{column-gap:7px!important}}
+
+/* V33.13 : carte de planification pastel, identique au réglage de la pesée */
+.inventory-calendar-next-card{background:linear-gradient(160deg,#fcfefe 0%,#f4fafa 56%,#eaf4f8 100%)!important;border:1px solid #d6e8ed!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 12px rgba(24,90,110,.055)!important;color:#2d6f79!important}
+.inventory-calendar-next-card .calendar-next-label{color:#67878d!important}
+.inventory-calendar-next-card .calendar-next-date{color:#187b87!important}
+.inventory-calendar-next-card .calendar-next-month{color:#6a8089!important}
+/* Durées d'ouverture et de fermeture identiques sur les accordéons. */
+.fold-card>.fold-summary .fold-chevron,.inventory-calendar-chevron,.calc-alerts-chevron,.backup-advanced>summary svg,.history-chevron{transition:transform 560ms cubic-bezier(.22,.75,.24,1)!important}
+.inventory-calendar-expanded{transition:max-height 560ms cubic-bezier(.22,.75,.24,1),opacity 560ms cubic-bezier(.22,.75,.24,1),padding 560ms cubic-bezier(.22,.75,.24,1)!important}
+.fold-card.is-fold-closing>.fold-body,.calc-alerts.is-detail-closing>.calc-alerts-body,.backup-advanced.is-detail-closing>.backup-advanced-body,.v22-session-item.is-detail-closing>.v22-bilan{opacity:1!important}
+.fold-card>.fold-body,.calc-alerts>.calc-alerts-body,.backup-advanced>.backup-advanced-body,.v22-session-item>.v22-bilan{transition:opacity 560ms cubic-bezier(.22,.75,.24,1)!important}
+button{transition:background-color .26s ease,opacity .26s ease,transform .26s ease}
+@media(prefers-reduced-motion:reduce){.fold-card>.fold-summary .fold-chevron,.inventory-calendar-chevron,.calc-alerts-chevron,.backup-advanced>summary svg,.history-chevron,.inventory-calendar-expanded,.fold-card>.fold-body,.calc-alerts>.calc-alerts-body,.backup-advanced>.backup-advanced-body,.v22-session-item>.v22-bilan,button{transition:none!important}}

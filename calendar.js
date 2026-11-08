@@ -25,6 +25,7 @@ function render(){yearLabel.textContent=String(year);grid.replaceChildren();cons
 const calendar=document.getElementById('inventoryCalendar');
 const summary=calendar?.querySelector('summary');
 const expanded=calendar?.querySelector('.inventory-calendar-expanded');
+const CALENDAR_MOTION_MS=560;
 let closeTimer=null;
 if(calendar&&summary&&expanded){
  summary.addEventListener('click',event=>{
@@ -36,13 +37,13 @@ if(calendar&&summary&&expanded){
    calendar.classList.remove('calendar-expanded');
    expanded.style.maxHeight='0px';expanded.style.opacity='0';
    calendar.setAttribute('aria-busy','false');
-   closeTimer=setTimeout(()=>{calendar.open=false;expanded.style.maxHeight='';expanded.style.opacity='';closeTimer=null;},360);
+   closeTimer=setTimeout(()=>{calendar.open=false;expanded.style.maxHeight='';expanded.style.opacity='';closeTimer=null;},CALENDAR_MOTION_MS);
   }else{
    calendar.open=true;calendar.classList.add('calendar-expanded');
    expanded.style.maxHeight='0px';expanded.style.opacity='0';
    expanded.getBoundingClientRect();
    expanded.style.maxHeight=expanded.scrollHeight+'px';expanded.style.opacity='1';
-   setTimeout(()=>{if(calendar.open&&!closeTimer)expanded.style.maxHeight='';},380);
+   setTimeout(()=>{if(calendar.open&&!closeTimer)expanded.style.maxHeight='';},CALENDAR_MOTION_MS);
   }
  });
 }
