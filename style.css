@@ -1447,3 +1447,21 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .dashboard-empty{padding:16px;font-size:12px;color:#82969a;margin:0}
 .dashboard-footnote{font-size:11px;color:#819498;line-height:1.55;margin:14px 2px 0}
 @media(max-width:370px){.dashboard-heading{flex-wrap:wrap}.dashboard-cloud-pill{white-space:normal}}
+
+/* V33.5 — Performance et contrôle des inventaires */
+.dashboard-performance{margin-top:22px}
+.dashboard-performance-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#eaf6f6;border:1px solid #d6e9ea;border-radius:14px;padding:13px 15px;margin-bottom:17px}
+.dashboard-performance-summary span{font-size:12px;font-weight:650;color:#55797d}
+.dashboard-performance-summary strong{font-size:22px;color:#087d8b;font-variant-numeric:tabular-nums}
+.dashboard-trend{display:flex;align-items:stretch;gap:8px;min-height:132px;padding:12px 9px 6px;background:white;border:1px solid #e0eaec;border-radius:14px}
+.dashboard-trend-column{display:flex;flex:1;min-width:0;flex-direction:column;align-items:center;gap:5px}
+.dashboard-trend-column strong{font-size:11px;color:#315e64;font-variant-numeric:tabular-nums}
+.dashboard-trend-track{height:80px;width:100%;max-width:34px;background:#e9f3f3;border-radius:7px;display:flex;align-items:flex-end;overflow:hidden}
+.dashboard-trend-fill{width:100%;background:linear-gradient(180deg,#27a7ae,#0b7787);border-radius:7px 7px 0 0}
+.dashboard-trend-column span{font-size:10px;color:#81969a}
+.session-quality-review{padding:13px 15px;margin:12px 0 15px;border-radius:13px;background:#f1f8f8;border:1px solid #c8e4e6;color:#28565d}
+.session-quality-review[hidden]{display:none!important}
+.session-quality-review strong{font-size:13px}
+.session-quality-review p,.session-quality-review li{font-size:12px;line-height:1.5}
+.session-quality-review p{margin:5px 0 0}
+.session-quality-review ul{margin:8px 0 0;padding-left:19px}

@@ -301,7 +301,7 @@ function renderLiveSessionStats(){
  $('sessionNet').textContent=`${fmt(stats.net)} kg`;
  renderHeroSummary();
 }
-function startSession(){
+function startSession(){const review=$('sessionQualityReview');if(review)review.hidden=true;
  if(getActiveSession()||!flushPending())return;
  const before=sessions,prevId=activeSessionId;
  const created={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};
@@ -322,6 +322,25 @@ function resumeSession(){
  if(!persistSessions()){session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;return;}
  clearWeigh();renderV22();$('sessionMessage').textContent='';
 }
+function reviewSessionQuality(session){
+ const target=$('sessionQualityReview');if(!target||!session)return;
+ const entries=session.entries||[];
+ const problems=[];
+ const invalid=entries.filter(e=>!Number.isSafeInteger(e.gross)||!Number.isSafeInteger(e.tare)||!Number.isSafeInteger(e.net)||e.net!==e.gross-e.tare||e.gross<e.tare);
+ if(invalid.length)problems.push(`${invalid.length} pesée(s) incohérente(s) : vérifier les valeurs.`);
+ const limit=maxGrossGrams;
+ const heavy=entries.filter(e=>Number.isSafeInteger(e.gross)&&e.gross>limit);
+ if(heavy.length)problems.push(`${heavy.length} poids brut(s) au-dessus du seuil d'alerte.`);
+ const nearDuplicates=entries.filter((e,i)=>i>0&&e.gross===entries[i-1].gross&&e.tare===entries[i-1].tare&&Math.abs(e.at-entries[i-1].at)<120000);
+ if(nearDuplicates.length)problems.push(`${nearDuplicates.length} pesée(s) consécutive(s) identique(s) à moins de 2 minutes (à confirmer).`);
+ target.replaceChildren();
+ const heading=document.createElement('strong');heading.textContent=problems.length?'Contrôle de cohérence : points à vérifier':'Contrôle de cohérence : aucune anomalie détectée';
+ target.append(heading);
+ const info=document.createElement('p');info.textContent=`${entries.length} pesées contrôlées. Ce contrôle ne vérifie pas les tares réelles ni les produits.`;
+ target.append(info);
+ if(problems.length){const ul=document.createElement('ul');for(const message of problems){const li=document.createElement('li');li.textContent=message;ul.append(li);}target.append(ul);}
+ target.hidden=false;
+}
 function finishSession(){
  const session=getActiveSession();if(!session)return;
  if(!session.pausedAt&&!flushPending())return;
@@ -333,7 +352,7 @@ function finishSession(){
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
   return;
  }
- clearWeigh();renderV22();$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';
+ clearWeigh();renderV22();reviewSessionQuality(session);$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';
  offerUndo('Inventaire terminé.',()=>{
   if(activeSessionId||!session.endedAt||session.endedAt!==now)return false;
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;

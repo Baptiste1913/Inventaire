@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.4" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.5" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
 <body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
@@ -45,6 +45,12 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
           <div class="dashboard-stat"><span>Durée moyenne</span><strong id="dashDuration">—</strong></div>
           <div class="dashboard-stat"><span>Poids net cumulé</span><strong id="dashNet">0,000 kg</strong></div>
         </div>
+        <div class="dashboard-performance">
+          <div class="dashboard-subheading"><strong>Mes performances</strong><span>Inventaires terminés</span></div>
+          <div class="dashboard-performance-summary"><span>Temps moyen par pesée</span><strong id="dashSecondsPerWeigh">—</strong></div>
+          <div class="dashboard-subheading"><strong>Évolution du rythme</strong><span>6 derniers inventaires</span></div>
+          <div id="dashTrend" class="dashboard-trend" role="img" aria-label="Évolution du temps moyen par pesée"><p class="dashboard-empty">Termine un inventaire pour afficher ton évolution.</p></div>
+        </div>
         <div class="dashboard-recent"><div class="dashboard-subheading"><strong>Derniers inventaires</strong><span id="dashRecentCount"></span></div><div id="dashRecentList" class="dashboard-recent-list"><p class="dashboard-empty">Aucun inventaire terminé pour le moment.</p></div></div>
         <p class="dashboard-footnote">Chiffres calculés à partir des inventaires enregistrés sur cet appareil dans l’espace du compte connecté. La synchronisation Google est indiquée séparément.</p>
       </section>
@@ -60,7 +66,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
 </details>
 <section aria-labelledby="session-title" class="card session-card">
 <div class="session-top"><div><span class="section-kicker">SERVICES U / INVENTAIRE</span><h2 id="session-title">Ma session</h2></div><span class="session-pill" id="sessionBadge">Aucune session</span></div>
-<p class="muted" id="sessionHelp">Démarre une session pour obtenir tes statistiques d'inventaire, sans nommer les produits.</p>
+<div id="sessionQualityReview" class="session-quality-review" hidden aria-live="polite"></div><p class="muted" id="sessionHelp">Démarre une session pour obtenir tes statistiques d'inventaire, sans nommer les produits.</p>
 <div class="session-live" hidden="" id="sessionLive"><div><small>Durée active</small><strong id="sessionDuration">—</strong></div><div><small>Pesées</small><strong id="sessionWeighCount">0</strong></div><div><small>Poids net total</small><strong id="sessionNet">0,000 kg</strong></div></div>
 <div class="session-actions"><button class="primary-btn session-btn" id="startSession" type="button"><img alt="" aria-hidden="true" class="btn-icon btn-icon-img start-btn-icon" src="start-inventory-icon.png?v=30.21"/><span>Démarrer un inventaire</span></button><button class="outline-btn session-btn" hidden="" id="pauseSession" type="button"><svg aria-hidden="true" class="btn-icon" viewbox="0 0 24 24"><rect fill="currentColor" height="10" rx="1.2" width="3" x="8" y="7"></rect><rect fill="currentColor" height="10" rx="1.2" width="3" x="13" y="7"></rect></svg><span>Pause</span></button><button class="primary-btn session-btn" hidden="" id="resumeSession" type="button"><img alt="" aria-hidden="true" class="btn-icon btn-icon-img start-btn-icon" src="start-inventory-icon.png?v=30.21"/><span>Reprendre</span></button><button class="outline-btn session-btn" hidden="" id="finishSession" type="button"><span>Terminer</span></button></div>
 <p class="v22-message" id="sessionMessage" role="status"></p>
@@ -116,4 +122,4 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.4"></script><script defer="" src="app.js?v=33.0"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog></body></html>
+<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.5"></script><script defer="" src="app.js?v=33.5"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog></body></html>

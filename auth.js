@@ -105,6 +105,25 @@ function renderDashboard(){
  $('dashWeighs').textContent=number(entries.length);
  $('dashDuration').textContent=avg===null?'—':avg>=60?`${Math.floor(avg/60)} h ${String(avg%60).padStart(2,'0')}`:`${avg} min`;
  $('dashNet').textContent=(total/1000).toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3})+' kg';
+ const totalDuration=durations.reduce((sum,x)=>sum+x,0);
+ const pace=entries.length?Math.round(totalDuration/entries.length/1000):null;
+ $('dashSecondsPerWeigh').textContent=pace===null?'—':`${pace} s`;
+ const trend=$('dashTrend');trend.replaceChildren();
+ const plotted=[...completed].filter(x=>Array.isArray(x.entries)&&x.entries.length>0)
+  .sort((a,b)=>b.endedAt-a.endedAt).slice(0,6).reverse();
+ if(!plotted.length){const empty=document.createElement('p');empty.className='dashboard-empty';empty.textContent='Termine un inventaire pour afficher ton évolution.';trend.append(empty);}
+ else{
+  const values=plotted.map(x=>Math.round(Math.max(0,x.endedAt-x.startedAt-Math.max(0,Number(x.pausedMs)||0))/x.entries.length/1000));
+  const max=Math.max(1,...values);
+  plotted.forEach((item,i)=>{
+   const column=document.createElement('div');column.className='dashboard-trend-column';
+   const value=document.createElement('strong');value.textContent=`${values[i]} s`;
+   const track=document.createElement('div');track.className='dashboard-trend-track';
+   const fill=document.createElement('div');fill.className='dashboard-trend-fill';fill.style.height=`${Math.max(5,values[i]/max*100)}%`;track.append(fill);
+   const label=document.createElement('span');label.textContent=`N° ${i+1}`;
+   column.append(value,track,label);trend.append(column);
+  });
+ }
  const recent=[...completed].sort((x,y)=>y.endedAt-x.endedAt).slice(0,4);
  $('dashRecentCount').textContent=completed.length?`${Math.min(completed.length,4)} affiché${completed.length>1?'s':''}`:'';
  const list=$('dashRecentList');list.replaceChildren();
