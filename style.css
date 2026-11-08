@@ -1343,3 +1343,12 @@ body:has(.undo-toast:not([hidden])) .toast-stack>.offline-indicator:not([hidden]
 .account-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
 .account-avatar img[hidden]{display:none}
 .account-avatar.has-photo svg{display:none}
+
+/* V31.31 — compte pleine largeur et accordéons unifiés. */
+@media (min-width:900px){
+ .app > .account-card.card{grid-column:1 / -1;margin-left:0;margin-right:0;width:100%;}
+}
+.account-card .account-google-mark,.account-google-mark{width:15.4px;height:15.4px;}
+.fold-card,.calc-alerts,.backup-advanced{overflow:hidden;}
+.fold-card>.fold-summary .fold-chevron{transition:transform 380ms cubic-bezier(.22,.75,.24,1);}
+@media(prefers-reduced-motion:reduce){.fold-card>.fold-summary .fold-chevron{transition:none;}}

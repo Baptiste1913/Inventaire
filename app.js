@@ -712,115 +712,50 @@ if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serv
 })();
 
 
-// V27.3 — animer la hauteur réelle, bordures ET paddings compris.
-// L'ancien système laissait la carte à sa pleine hauteur jusqu'à la fin,
-// ce qui donnait une attente avant le repli visuel.
-(function setupFoldAnimations(){
-  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-  for(const card of document.querySelectorAll('.fold-card')){
-    const summary=card.querySelector(':scope > .fold-summary');
-    const content=card.querySelector(':scope > .fold-body');
-    if(!summary||!content)continue;
-    let motion=null, fade=null;
-    let targetOpen=card.open;
-    summary.addEventListener('click',event=>{
-      if(reduceMotion.matches||typeof card.animate!=='function')return;
-      event.preventDefault();
-      const next=!targetOpen;
-      targetOpen=next;
-      // Lire la hauteur visible AVANT d'annuler une éventuelle animation.
-      const from=card.getBoundingClientRect().height;
-      if(motion){motion.cancel();motion=null;}
-      if(fade){fade.cancel();fade=null;}
-      // Le corps doit être mesurable pendant la fermeture, mais le masque
-      // descend dès la première image : aucun délai ni espace vide.
-      if(next)card.open=true;
-      card.classList.toggle('is-fold-closing',!next);
-      // La tuile conserve 20px de padding en haut et en bas.
-      // La hauteur calculée précédemment les ignorait : la fermeture allait
-      // trop loin puis revenait d'un coup à sa vraie hauteur.
-      const style=getComputedStyle(card);
-      const px=value=>parseFloat(value)||0;
-      const outer=px(style.borderTopWidth)+px(style.borderBottomWidth)
-        +px(style.paddingTop)+px(style.paddingBottom);
-      const collapsed=summary.offsetHeight+outer;
-      const expanded=collapsed+content.offsetHeight;
-      const to=next?expanded:collapsed;
-      if(Math.abs(from-to)<.5){
-        card.open=next;
-        card.classList.remove('is-fold-closing');
-        return;
-      }
-      const duration=260;
-      const ease='cubic-bezier(.32,.65,.25,1)';
-      const anim=card.animate(
-        [{height:`${from}px`},{height:`${to}px`}],
-        {duration,easing:ease,fill:'both'}
-      );
-      motion=anim;
-      // Le fondu participe au repli, sans piloter sa hauteur.
-      fade=content.animate(
-        [{opacity:next?0:1,transform:next?'translateY(-6px)':'translateY(0)'},
-         {opacity:next?1:0,transform:next?'translateY(0)':'translateY(-6px)'}],
-        {duration,easing:ease,fill:'both'}
-      );
-      anim.onfinish=()=>{
-        if(motion!==anim)return;
-        motion=null;
-        // Synchroniser l'état natif AVANT de rendre la hauteur à auto.
-        // Safari ne voit donc jamais une hauteur intermédiaire incohérente.
-        if(!next)card.open=false;
-        anim.cancel();
-        if(fade){fade.cancel();fade=null;}
-        card.classList.remove('is-fold-closing');
-      };
-    });
-  }
-})();
-
-
-// V30.2 — accordéons secondaires (bilans et réglages d’alertes).
-// Même durée et même courbe que les grandes catégories, sans modifier leurs données.
-function setupSecondaryDetailsAnimation(card,bodySelector){
- if(!card||card.dataset.detailsMotionReady==='yes')return;
- const summary=card.querySelector(':scope > summary');
- const content=card.querySelector(`:scope > ${bodySelector}`);
- if(!summary||!content)return;
- card.dataset.detailsMotionReady='yes';
- const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
- let motion=null,fade=null,targetOpen=card.open;
+// V31.31 — moteur d’accordéon partagé : une seule courbe, aucune animation
+// concurrente sur le contenu et mesure de hauteur cohérente pour Safari.
+const FOLD_MOTION_MS=380;
+const FOLD_MOTION_EASE='cubic-bezier(.22,.75,.24,1)';
+function setupUnifiedFold(card,summary,content,closingClass){
+ if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
+ card.dataset.unifiedFold='yes';
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let animation=null,requested=card.open;
  summary.addEventListener('click',event=>{
-  if(reduceMotion.matches||typeof card.animate!=='function')return;
+  if(reduced.matches||typeof card.animate!=='function')return;
   event.preventDefault();
-  const next=!targetOpen;targetOpen=next;
-  const from=card.getBoundingClientRect().height;
-  if(motion){motion.cancel();motion=null;}
-  if(fade){fade.cancel();fade=null;}
-  if(next)card.open=true;
-  card.classList.toggle('is-detail-closing',!next);
-  const style=getComputedStyle(card);
-  const px=value=>parseFloat(value)||0;
-  const outer=px(style.borderTopWidth)+px(style.borderBottomWidth)+px(style.paddingTop)+px(style.paddingBottom);
-  const collapsed=summary.offsetHeight+outer;
-  const expanded=collapsed+content.offsetHeight;
-  const to=next?expanded:collapsed;
-  if(Math.abs(from-to)<.5){card.open=next;card.classList.remove('is-detail-closing');return;}
-  const duration=260,easing='cubic-bezier(.32,.65,.25,1)';
-  const anim=card.animate([{height:`${from}px`},{height:`${to}px`}],{duration,easing,fill:'both'});
-  motion=anim;
-  fade=content.animate([
-   {opacity:next?0:1,transform:next?'translateY(-6px)':'translateY(0)'},
-   {opacity:next?1:0,transform:next?'translateY(0)':'translateY(-6px)'}
-  ],{duration,easing,fill:'both'});
+  const next=!requested;requested=next;
+  const currentHeight=card.getBoundingClientRect().height;
+  if(animation){animation.cancel();animation=null;}
+  // Maintenir le contenu dans le flux pendant toute la fermeture.
+  card.open=true;
+  card.classList.toggle(closingClass,!next);
+  const cs=getComputedStyle(card);
+  const px=x=>parseFloat(x)||0;
+  const extra=px(cs.borderTopWidth)+px(cs.borderBottomWidth)+px(cs.paddingTop)+px(cs.paddingBottom);
+  const collapsed=summary.getBoundingClientRect().height+extra;
+  const expanded=collapsed+content.getBoundingClientRect().height;
+  const target=next?expanded:collapsed;
+  if(Math.abs(currentHeight-target)<.5){card.open=next;card.classList.remove(closingClass);return;}
+  const anim=card.animate([{height:`${currentHeight}px`},{height:`${target}px`}],
+    {duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'});
+  animation=anim;
   anim.onfinish=()=>{
-   if(motion!==anim)return;
-   motion=null;
+   if(animation!==anim)return;
+   animation=null;
    if(!next)card.open=false;
    anim.cancel();
-   if(fade){fade.cancel();fade=null;}
-   card.classList.remove('is-detail-closing');
+   card.classList.remove(closingClass);
   };
  });
+}
+(function setupFoldAnimations(){
+ document.querySelectorAll('.fold-card').forEach(card=>
+  setupUnifiedFold(card,card.querySelector(':scope > .fold-summary'),card.querySelector(':scope > .fold-body'),'is-fold-closing'));
+})();
+function setupSecondaryDetailsAnimation(card,bodySelector){
+ if(!card)return;
+ setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
 
