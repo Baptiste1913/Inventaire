@@ -988,22 +988,15 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 .intro-session-state.is-running .intro-session-dot::after{background:radial-gradient(circle,rgba(88,227,170,.59),rgba(88,227,170,.27) 45%,transparent 100%)}
 .intro-session-state.is-paused .intro-session-dot::after{background:radial-gradient(circle,rgba(255,209,138,.60),rgba(255,209,138,.28) 45%,transparent 100%)}
 .session-pill::after,.session-pill.active::after,.session-pill.is-paused::after{left:8px;width:19px;height:19px}
-/* Bordure animée en reflet glissant, plutôt qu'une lumière qui pulse. */
-.calc-card .weight-field{position:relative;isolation:isolate;overflow:hidden;transition:border-color .22s ease,background-color .22s ease,box-shadow .22s ease}
-.calc-card .weight-field:focus-within{animation:none;border-color:#00818b;background:#fcffff;box-shadow:0 0 0 2px rgba(0,129,139,.09),0 4px 16px rgba(0,129,139,.08)}
-.calc-card .weight-field::after{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;opacity:0;background:linear-gradient(110deg,transparent 12%,rgba(29,180,184,.025) 34%,rgba(47,188,190,.18) 49%,rgba(29,180,184,.025) 64%,transparent 86%);transform:translateX(-110%)}
-.calc-card .weight-field:focus-within::after{opacity:1;animation:weight-sheen 3.8s cubic-bezier(.45,0,.55,1) infinite}
-.calc-card .weight-field input,.calc-card .weight-field span{position:relative;z-index:1}
-@keyframes weight-sheen{0%,13%{transform:translateX(-110%)}58%,100%{transform:translateX(110%)}}
 .undo-toast.toast-warning{border-color:#b5d9dd;background:linear-gradient(135deg,#fff,#f2fafa)}
 .undo-toast.toast-warning .undo-toast-symbol{background:#e2f4f2}
 .undo-toast.toast-warning::after{display:none}
 @media(prefers-reduced-motion:reduce){.calc-card .weight-field:focus-within::after{animation:none;opacity:0}}
 
 
-/* V31.3 — liseré Liquid Glass, lumière orbitale uniquement sur le contour.
-   Le texte et l'intérieur du champ restent fixes et parfaitement lisibles. */
-@property --glass-angle {
+/* V31.4 — focus premium : verre satiné, reflet périphérique mesuré.
+   L'effet est limité au contour et ne modifie pas les dimensions du champ. */
+@property --weight-light-angle {
   syntax: "<angle>";
   initial-value: 0deg;
   inherits: false;
@@ -1011,44 +1004,45 @@ button, .intro-jump { -webkit-tap-highlight-color:transparent; }
 .calc-card .weight-field {
   position:relative;
   isolation:isolate;
-  border:2px solid #00818b;
+  overflow:hidden;
   background:#fff;
-  transition:box-shadow .3s ease, background-color .3s ease, border-color .3s ease;
+  transition:border-color .3s ease,background-color .3s ease,box-shadow .4s ease;
 }
-.calc-card .weight-field::after { content:none!important; animation:none!important; }
 .calc-card .weight-field::before {
   content:"";
   position:absolute;
   inset:0;
   border-radius:inherit;
-  padding:2px;
-  pointer-events:none;
+  padding:1.5px;
   z-index:2;
+  pointer-events:none;
   opacity:0;
-  background:conic-gradient(from var(--glass-angle),
-    rgba(255,255,255,.12) 0deg,
-    rgba(255,255,255,.12) 175deg,
-    rgba(45,195,202,.42) 215deg,
-    rgba(231,255,255,.98) 250deg,
-    rgba(47,193,203,.72) 280deg,
-    rgba(255,255,255,.12) 330deg,
-    rgba(255,255,255,.12) 360deg);
+  background:conic-gradient(from var(--weight-light-angle),
+    transparent 0deg,
+    transparent 244deg,
+    rgba(40,150,162,.12) 268deg,
+    rgba(76,177,187,.34) 285deg,
+    rgba(224,253,252,.88) 299deg,
+    rgba(73,169,180,.38) 312deg,
+    transparent 339deg,
+    transparent 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   mask-composite:exclude;
-  transition:opacity .28s ease;
+  transition:opacity .4s ease;
 }
 .calc-card .weight-field:focus-within {
-  border-color:rgba(0,129,139,.35);
-  background:linear-gradient(145deg,#fff 0%,#faffff 100%);
-  box-shadow:0 0 0 1px rgba(0,129,139,.10),0 4px 16px rgba(0,129,139,.10),inset 0 1px 0 rgba(255,255,255,.9);
+  border-color:rgba(27,130,143,.58);
+  background:linear-gradient(155deg,#fff 0%,#fbfefe 100%);
+  box-shadow:0 0 0 3px rgba(22,135,147,.065),0 5px 17px rgba(23,91,106,.065),inset 0 1px 0 rgba(255,255,255,.94);
 }
 .calc-card .weight-field:focus-within::before {
   opacity:1;
-  animation:glass-orbit 4.5s linear infinite;
+  animation:weight-light-orbit 7.2s linear infinite;
 }
-@keyframes glass-orbit { to { --glass-angle:360deg; } }
+.calc-card .weight-field input,.calc-card .weight-field span{position:relative;z-index:1}
+@keyframes weight-light-orbit {to{--weight-light-angle:360deg}}
 @media(prefers-reduced-motion:reduce){
-  .calc-card .weight-field:focus-within::before {animation:none;}
+  .calc-card .weight-field:focus-within::before{animation:none;opacity:.55}
 }
