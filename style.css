@@ -1701,3 +1701,27 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .events-install-done{border-radius:11px;padding:12px;background:linear-gradient(125deg,#078c9d,#24799b);box-shadow:0 4px 11px rgba(18,112,142,.13)}
 @media(max-width:370px){.events-card .events-bell{min-width:90px;padding:0 9px;font-size:11px}.events-card .events-static-header strong{font-size:16px}}
 @media(prefers-reduced-motion:reduce){.events-install-dialog[open]{animation:none!important}}
+
+/* V33.20 — pastille et tutoriel push façon notification hors ligne */
+.events-card .events-bell:not(.is-active){color:#315d74}
+.events-card .events-bell:not(.is-active) svg,.events-card .events-bell:not(.is-active) .events-bell-label{color:#315d74}
+.events-card .events-push-status{margin:0 0 13px}
+.events-install-dialog{position:fixed;inset:0;margin:auto;width:min(calc(100vw - 30px),420px);max-height:min(calc(100dvh - 42px),650px);border:1px solid rgba(189,220,226,.88);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(238,248,250,.98));box-shadow:0 18px 50px rgba(13,54,67,.22),inset 0 1px 0 #fff;color:#263f4c;overflow:hidden;isolation:isolate;-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
+.events-install-dialog::before{content:"";position:absolute;inset:1px;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.52),transparent 43%,rgba(162,217,227,.12));pointer-events:none;z-index:-1}
+.events-install-dialog::backdrop{background:rgba(23,49,61,.29);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+.events-install-dialog[open]{animation:events-toast-enter .56s cubic-bezier(.22,1.15,.33,1) both}
+.events-install-dialog[open].is-leaving{animation:events-toast-leave .36s cubic-bezier(.4,0,.7,.3) both;pointer-events:none}
+@keyframes events-toast-enter{0%{opacity:0;transform:translate3d(0,-55px,0) scale(.94)}70%{opacity:1;transform:translate3d(0,5px,0) scale(1.012)}100%{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@keyframes events-toast-leave{0%{opacity:1;transform:translate3d(0,0,0) scale(1)}100%{opacity:0;transform:translate3d(0,-43px,0) scale(.96)}}
+.events-install-dialog-inner{position:relative;padding:18px 19px 19px;max-height:min(calc(100dvh - 42px),650px);overflow-y:auto;overscroll-behavior:contain}
+.events-install-dialog-head{display:flex;align-items:flex-start;gap:10px}
+.events-install-dialog-head strong{font-size:16px;line-height:1.35;color:#254d62;letter-spacing:-.2px}
+.events-install-dialog-symbol{width:34px;height:34px;flex:0 0 34px;border-radius:12px;background:linear-gradient(140deg,#e0f4f7,#d4ecf1)}
+.events-install-dialog-head button{margin:-3px -4px 0 0;width:34px;height:34px;border:1px solid #d1e7ea;border-radius:11px;background:rgba(229,244,247,.8)}
+.events-install-dialog ol{margin:16px 0 12px;padding-left:22px;gap:12px;font-size:13px;line-height:1.55}
+.events-inline-icon{display:inline-flex;width:19px;height:19px;vertical-align:-4px;align-items:center;justify-content:center;flex:0 0 19px;border-radius:4px;background:rgba(255,255,255,.68)}
+.events-inline-icon img{display:block;width:17px;height:17px;object-fit:contain}
+.events-install-dialog .events-install-success{margin:10px 0 0;padding:10px 11px;border:1px solid #d5e9e1;border-radius:11px;background:rgba(235,248,243,.75);font-size:12.5px;line-height:1.5;color:#285d4b}
+.events-install-dialog .events-install-note{margin:11px 0 0;font-size:11px;line-height:1.5;color:#718592}
+@media(max-width:370px){.events-install-dialog-inner{padding:15px}.events-install-dialog-head strong{font-size:15px}.events-install-dialog ol{font-size:12.5px;gap:9px}}
+@media(prefers-reduced-motion:reduce){.events-install-dialog[open],.events-install-dialog[open].is-leaving{animation:none!important}}
