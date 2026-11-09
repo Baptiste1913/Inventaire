@@ -1609,3 +1609,23 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 
 /* V33.16 — activation Web Push individuelle */
 .push-panel{display:grid;gap:9px;padding:13px;margin:9px 0;border:1px solid #d1e5da;border-radius:13px;background:#fff}.push-panel>strong{color:#235943;font-size:14px}.push-panel .calendar-reminder-help{margin:0}.push-panel button:disabled{opacity:.48;cursor:not-allowed}.push-secondary{background:#f0f7f2!important;color:#256048!important;border:1px solid #cbded0!important;box-shadow:none!important}
+
+/* V33.17 — Événements, deux niveaux de dépliage, interface sans calendrier externe */
+.events-card .events-summary{padding-bottom:20px!important}
+.events-card .events-expanded{padding-top:0!important}
+.events-notify{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#244d44;font-size:14px;font-weight:700}
+.events-bell{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:1px solid #cfe4d9;border-radius:50%;background:#f1f8f4;color:#2c8064;cursor:pointer;transition:background .3s,color .3s,transform .3s}
+.events-bell svg{width:22px;height:22px}.events-bell.is-active{background:#1e805c;color:white}.events-bell:active{transform:scale(.95)}
+.events-bell:focus-visible,.events-more:focus-visible{outline:3px solid #79c9aa;outline-offset:3px}
+.events-push-status{margin:5px 0 0;font-size:12px;color:#688078;line-height:1.5}
+.events-divider{height:1px;background:#e0e9e5;margin:17px 0}
+.events-group{display:grid;gap:8px}.events-kicker{font-size:11px;letter-spacing:.095em;font-weight:800;color:#538477}
+.events-group>#calendarNextDate{font-size:16px;color:#285b4d;line-height:1.4}
+.events-entry{display:grid;gap:4px;padding:4px 0}.events-entry strong{font-size:14px;line-height:1.4;color:#2c5146}.events-entry span{font-size:12px;color:#72837c;line-height:1.5}
+.events-more{width:100%;margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f2f8f5;border:1px solid #d5e6dc;border-radius:12px;color:#2b745a;padding:13px 14px;font-size:13px;font-weight:750;cursor:pointer}
+.events-more[hidden]{display:none}.events-more svg{width:18px;height:18px;transition:transform 560ms cubic-bezier(.22,.75,.24,1)}.events-more[aria-expanded="true"] svg{transform:rotate(180deg)}
+.events-more-list{max-height:0;opacity:0;overflow:hidden;transform:translateY(-5px);transition:max-height 560ms cubic-bezier(.22,.75,.24,1),opacity 560ms ease,transform 560ms ease}
+.events-more-list.is-open{max-height:3500px;opacity:1;transform:translateY(0)}.events-more-list .events-entry{border-bottom:1px solid #e4ece8;padding:11px 2px}.events-more-list .events-entry:last-child{border:0}
+.events-empty{font-size:13px;color:#75847d;margin:0}
+.events-card[open]:not(.calendar-expanded) .inventory-calendar-expanded{max-height:0!important;opacity:0!important;padding-bottom:0!important}
+@media(prefers-reduced-motion:reduce){.events-more-list,.events-more svg,.events-bell{transition:none!important}}

@@ -1,7 +1,7 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v33-16';
+const CACHE = 'inventaires-u-offline-v33-17';
 const CORE = [
-  './', './index.html', './push.js?v=33.16', './calendar.js?v=33.16', './style.css?v=33.16', './app.js?v=33.16',
+  './', './index.html', './push.js?v=33.17', './events-data.js?v=33.17', './events.js?v=33.17', './style.css?v=33.17', './app.js?v=33.16',
   './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=33.6', './manifest.webmanifest?v=13', './icon.png?v=11',
   './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon.ico?v=13',
   './favicon-16.png?v=13', './favicon-32.png?v=13', './offline-no-wifi.png', './start-inventory-icon.png?v=32.0'
