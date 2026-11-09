@@ -3070,3 +3070,32 @@ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
 @media(prefers-reduced-motion:reduce){
   body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important;filter:none!important;will-change:auto!important}
 }
+
+
+/* V33.53 — Entrée uniquement floutée, sortie par zoom arrière rapide et séquentiel.
+   Pas de rebond, pas de translation ni perspective : les cartes partent plus grandes
+   et reviennent à leur dimension réelle, dans l'ordre d'affichage. */
+body.focus-entering .focus-toolbar,
+body.focus-entering .calc-card{animation:none!important;transform:none!important;filter:none!important}
+body.focus-entering::after{animation:focus-only-blur-v3353 720ms ease-in-out both!important}
+body.focus-leaving::after{animation:focus-only-blur-v3353 570ms ease-out both!important}
+@keyframes focus-only-blur-v3353{
+  0%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
+  35%{opacity:.70;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  100%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
+}
+body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
+  animation:focus-zoom-normal-v3353 480ms cubic-bezier(.18,.8,.3,1) var(--focus-spring-delay,0ms) both!important;
+  transform-origin:center center!important;
+  backface-visibility:hidden;
+  will-change:transform,opacity;
+}
+@keyframes focus-zoom-normal-v3353{
+  0%{opacity:.55;transform:scale(1.115)}
+  52%{opacity:1;transform:scale(1.025)}
+  100%{opacity:1;transform:scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+  body.focus-entering::after,body.focus-leaving::after{display:none!important;animation:none!important}
+  body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important;will-change:auto!important}
+}

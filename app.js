@@ -317,10 +317,10 @@ function syncFocusMode(){
       !node.classList.contains('focus-toolbar') &&
       !node.classList.contains('offline-indicator') &&
       !node.hidden && getComputedStyle(node).display!=='none');
-    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*65}ms`));
+    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*55}ms`));
    }
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},1500);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?760:1100);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
