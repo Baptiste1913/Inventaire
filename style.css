@@ -2525,3 +2525,49 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .planning-import-help-body .planning-help-note{font-size:12px;color:#728890;margin-bottom:0}
 @keyframes planning-help-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.planning-import-help-body{animation:none}.planning-import-help>summary svg{transition:none}}
+
+/* V33.41 — recherche animée, cohérente avec le champ de pesée */
+.planning-admin-card .planning-search-wrap{
+  isolation:isolate;position:relative;width:100%;min-width:0;
+  border:1.5px solid #cbdde0;border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(245,250,251,.93));
+  box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(23,87,95,.045);
+  transition:border-color .34s ease,box-shadow .4s ease,background .4s ease,transform .35s ease;
+}
+.planning-admin-card .planning-search-wrap:focus-within{
+  border-color:#138f96;
+  background:linear-gradient(115deg,#fff 15%,#f0faf8 100%);
+  box-shadow:0 0 0 3px rgba(28,164,162,.11),0 9px 22px rgba(20,117,120,.12),inset 0 1px 0 #fff;
+}
+.planning-admin-card .planning-search-wrap::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(110deg,transparent 15%,rgba(255,255,255,.66) 48%,transparent 80%);
+  opacity:0;transform:translateX(-75%);transition:opacity .3s ease;z-index:0;
+}
+.planning-admin-card .planning-search-wrap:focus-within::after{opacity:.5;animation:planning-search-sheen .8s ease-out both}
+@keyframes planning-search-sheen{from{transform:translateX(-75%)}to{transform:translateX(75%)}}
+.planning-admin-card .planning-search-wrap svg{
+  z-index:2;left:16px;width:20px;height:20px;stroke:#688a92;
+  transition:stroke .3s ease,transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.planning-admin-card .planning-search-wrap:focus-within svg{stroke:#087f88;transform:scale(1.12) rotate(-8deg)}
+.planning-admin-card .planning-search-wrap input[type=search]{
+  position:relative;z-index:1;display:block;min-height:52px;
+  padding:14px 38px 14px 47px!important;
+  border:0!important;border-radius:inherit!important;outline:0!important;
+  background:transparent!important;box-shadow:none!important;
+  font-size:16px!important;font-weight:600;color:#214d55!important;
+  transition:color .3s ease;
+}
+.planning-admin-card .planning-search-wrap input[type=search]:focus,
+.planning-admin-card .planning-search-wrap input[type=search]:focus-visible{
+  border:0!important;outline:0!important;box-shadow:none!important;
+}
+.planning-admin-card .planning-search-wrap input[type=search]::placeholder{color:#829ba0;opacity:1;font-weight:500}
+.planning-admin-card .planning-search-wrap input[type=search]::-webkit-search-cancel-button{
+  cursor:pointer;opacity:.75;filter:sepia(1) saturate(2) hue-rotate(130deg);
+}
+.planning-admin-card .planning-search-label{margin:7px 0 8px!important;color:#42636c;font-weight:750}
+.planning-admin-card .planning-search-feedback:not(:empty){margin:7px 2px 1px;color:#527982;font-weight:600}
+@media(max-width:390px){.planning-admin-card .planning-search-wrap input[type=search]{min-height:50px;padding-left:44px!important}}
+@media(prefers-reduced-motion:reduce){.planning-admin-card .planning-search-wrap,.planning-admin-card .planning-search-wrap svg{transition:none!important}.planning-admin-card .planning-search-wrap:focus-within::after{animation:none;opacity:0}}
