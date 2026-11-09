@@ -69,9 +69,12 @@ function revealEditor(formId){
 function renderRows(){
  const list=$('planningManageList');list.replaceChildren();
  const today=new Date();const cutoff=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
- const selected=rows.filter(r=>r.ends_on>=cutoff).sort((a,b)=>a.starts_on.localeCompare(b.starts_on)||a.title.localeCompare(b.title,'fr'));
+ const future=rows.filter(r=>(r.ends_on||r.starts_on)>=cutoff).sort((a,b)=>a.starts_on.localeCompare(b.starts_on)||a.title.localeCompare(b.title,'fr'));
+ const query=String($('planningSearch')?.value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ const selected=future.filter(r=>{if(!query)return true;const hay=[r.title,r.kind==='inventory'?'inventaire':'evenement',r.id,r.starts_on,r.ends_on,dateLabel(r.starts_on),dateLabel(r.ends_on)].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();return hay.includes(query);});
+ const feedback=$('planningSearchFeedback');if(feedback)feedback.textContent=query?`${selected.length} résultat${selected.length>1?'s':''} sur ${future.length} élément${future.length>1?'s':''} à venir`:'';
  $('planningCount').textContent=selected.length+' élément'+(selected.length>1?'s':'');
- if(!selected.length){const empty=document.createElement('p');empty.className='planning-muted';empty.textContent='Aucune date à afficher.';list.append(empty);return;}
+ if(!selected.length){const empty=document.createElement('p');empty.className='planning-muted';empty.textContent=query?'Aucun résultat pour cette recherche.':'Aucune date à afficher.';list.append(empty);return;}
  for(const r of selected){
   const item=document.createElement('div');item.className='planning-list-row';
   const details=document.createElement('div');details.className='planning-list-text';
@@ -79,7 +82,9 @@ function renderRows(){
   if(!r.enabled){badge.textContent+=' · Annulé';badge.classList.add('is-cancelled');}
   const title=document.createElement('strong');title.textContent=r.kind==='inventory'?'Inventaire':r.title;
   const period=document.createElement('span');period.textContent=r.starts_on===r.ends_on?dateLabel(r.starts_on):dateLabel(r.starts_on)+' – '+dateLabel(r.ends_on);
-  details.append(badge,title,period);
+  const state=document.createElement('span');state.className='planning-event-state '+(r.starts_on<=cutoff?'is-current':'is-upcoming');state.textContent=r.starts_on<=cutoff?'En cours':'À venir';
+  if(!r.enabled){state.textContent='Annulé';state.className='planning-event-state is-cancelled';}
+  details.append(badge,state,title,period);
   const actions=document.createElement('div');actions.className='planning-list-actions';
   const edit=document.createElement('button');edit.type='button';edit.className='planning-mini-button';edit.textContent='Modifier';edit.disabled=!r.enabled;
   edit.addEventListener('click',()=>{
@@ -110,6 +115,12 @@ function renderRows(){
   actions.append(edit,toggle);item.append(details,actions);list.append(item);
  }
 }
+$('planningSearch')?.addEventListener('input',renderRows);
+$('planningCopyExample')?.addEventListener('click',async()=>{
+ const sample='type;code;titre;debut;fin\nevenement;27P15;Opération fruits et légumes;08/02/2027;14/02/2027\ninventaire;;;15/02/2027;';
+ try{await navigator.clipboard.writeText(sample);status('Exemple copié. Colle-le dans ton tableau ou dans la zone d’importation.');}
+ catch{const target=$('planningImportText');target.value=sample;status('Exemple ajouté dans la zone d’importation.');}
+});
 $('planningInventoryForm').addEventListener('submit',e=>{
  e.preventDefault();const iso=$('planningInventoryDate').value;
  mutate(async()=>{
