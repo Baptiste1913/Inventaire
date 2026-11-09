@@ -2867,3 +2867,37 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 @media(prefers-reduced-motion:reduce) {
   .planning-admin-card .planning-accordion {transition:none!important;}
 }
+
+/* V33.48 — Mode Concentration : interface épurée pendant une session active */
+.focus-toolbar[hidden],.focus-confirm[hidden]{display:none!important}
+.focus-toolbar{display:none}
+body.is-focus-mode{background:#f3f6f7}
+body.is-focus-mode .app{max-width:760px;margin-inline:auto;padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
+body.is-focus-mode .app > :not(.focus-toolbar):not(.calc-card):not(.offline-indicator){display:none!important}
+body.is-focus-mode .focus-toolbar{display:block;order:0}
+body.is-focus-mode .app > .calc-card{display:block!important;order:1;margin:0!important;width:100%;min-width:0;box-sizing:border-box}
+body.is-focus-mode .app > .offline-indicator{order:2}
+.focus-toolbar{background:linear-gradient(135deg,#fdfefe,#e9f4f2);border:1px solid #b7d9d4;border-radius:25px;padding:20px;box-shadow:0 8px 28px #144e4412}
+.focus-heading{display:flex;align-items:center;gap:12px}
+.focus-live-dot{width:11px;height:11px;flex:none;border-radius:50%;background:#1b9e79;box-shadow:0 0 0 5px #1b9e7919;animation:focus-pulse 2s ease-in-out infinite}
+@keyframes focus-pulse{50%{box-shadow:0 0 0 9px #1b9e7909}}
+.focus-eyebrow{display:block;color:#367b70;font-size:.72rem;letter-spacing:.13em;font-weight:800}
+.focus-heading h2{margin:3px 0 0;font-size:clamp(1.15rem,4.8vw,1.55rem);color:#223b39}
+.focus-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.focus-metrics>div{background:#ffffffb8;border:1px solid #d7e5e3;border-radius:16px;padding:11px 15px;display:flex;flex-direction:column;gap:4px}
+.focus-metrics small{color:#5a7772;font-size:.77rem;font-weight:600}
+.focus-metrics strong{font-size:1.35rem;font-variant-numeric:tabular-nums;color:#243c39}
+.focus-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.focus-actions button,.focus-confirm button{min-width:0;min-height:49px;border-radius:15px;font:inherit;font-weight:750;cursor:pointer;transition:transform .2s,background .2s,box-shadow .2s}
+.focus-actions button:active,.focus-confirm button:active{transform:scale(.98)}
+.focus-actions svg{width:19px;height:19px;fill:currentColor;vertical-align:-4px;margin-right:6px}
+.focus-pause{background:linear-gradient(130deg,#188f93,#087783);color:white;border:1px solid #137e85;box-shadow:0 3px 9px #116a7120}
+.focus-stop{background:#fff;color:#8d4343;border:1px solid #d9b5b5}
+.focus-confirm{margin-top:14px;padding:14px;background:white;border:1px solid #d7c9c9;border-radius:16px}
+.focus-confirm p{margin:0 0 12px;font-weight:650;color:#3b4044}
+.focus-confirm>div{display:flex;flex-wrap:wrap;gap:8px}
+.focus-confirm button{padding:10px 13px;min-height:43px;flex:1;border:1px solid #ccd7d7;background:#eef4f4;color:#234b4b}
+.focus-confirm #focusConfirmStop{background:#8e4141;color:white;border-color:#8e4141}
+body.is-focus-mode .calc-card .card-heading{margin-bottom:12px}
+@media(max-width:430px){.focus-toolbar{padding:16px;border-radius:22px}.focus-metrics{margin:14px 0}.focus-metrics strong{font-size:1.2rem}.focus-actions button{font-size:.96rem}}
+@media(prefers-reduced-motion:reduce){.focus-live-dot{animation:none}.focus-actions button,.focus-confirm button{transition:none}}

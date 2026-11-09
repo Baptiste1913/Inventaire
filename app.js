@@ -287,11 +287,33 @@ function renderHeroSummary(){
  const count=session?session.entries.length:0;
  text.textContent=!session?'Aucune session en cours':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
 }
+// V33.48 : le mode Concentration reprend la session existante, sans dupliquer les pesées.
+let focusWasActive=false;
+function syncFocusMode(){
+ const session=getActiveSession();
+ const active=Boolean(session&&!session.pausedAt);
+ const toolbar=$('focusToolbar');
+ if(!toolbar)return;
+ toolbar.hidden=!active;
+ document.body.classList.toggle('is-focus-mode',active);
+ if(!active)$('focusConfirm').hidden=true;
+ if(active){
+  const stats=activeStats(session);
+  $('focusDuration').textContent=durationLabel(stats.duration);
+  $('focusCount').textContent=String(stats.count);
+ }
+ if(active!==focusWasActive){
+  focusWasActive=active;
+  // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
+  requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+ }
+}
 function renderSessionControls(){const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionBadge').classList.toggle('is-paused',Boolean(s&&s.pausedAt));$('sessionLive').hidden=!s;
  $('startSession').hidden=Boolean(s);$('pauseSession').hidden=!s||Boolean(s.pausedAt);$('resumeSession').hidden=!s||!s.pausedAt;$('finishSession').hidden=!s;
  $('sessionHelp').textContent=s?(s.pausedAt?'En pause : reprends pour enregistrer tes pesées.':`Début : ${dateLabel(s.startedAt)} · Suivi automatique actif.`):'Démarre une session pour conserver les statistiques de ton inventaire.';
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
  renderHeroSummary();
+ syncFocusMode();
 }
 function renderLiveSessionStats(){
  const session=getActiveSession();if(!session)return;
@@ -300,6 +322,7 @@ function renderLiveSessionStats(){
  $('sessionWeighCount').textContent=String(stats.count);
  $('sessionNet').textContent=`${fmt(stats.net)} kg`;
  renderHeroSummary();
+ syncFocusMode();
 }
 function startSession(){const review=$('sessionQualityReview');if(review)review.hidden=true;
  if(getActiveSession()||!flushPending())return;
@@ -661,6 +684,12 @@ $('modeG').addEventListener('click',()=>switchMode('g'));
 $('maxGrossLimit').addEventListener('change',setLimit);
 $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{safeSetItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
+$('focusPause').addEventListener('click',()=>$('pauseSession').click());
+$('focusStop').addEventListener('click',()=>{$('focusConfirm').hidden=false;$('focusConfirmStop').focus();});
+$('focusCancelStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;$('focusStop').focus();});
+$('focusConfirmStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;$('finishSession').click();});
+// Actualise le chronomètre même sans nouvelle pesée.
+setInterval(()=>{if(document.visibilityState==='visible'&&document.body.classList.contains('is-focus-mode'))syncFocusMode();},1000);
 $('startSession').addEventListener('click',startSession);
 $('pauseSession').addEventListener('click',pauseSession);
 $('resumeSession').addEventListener('click',resumeSession);
