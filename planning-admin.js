@@ -5,7 +5,7 @@
 const $=id=>document.getElementById(id);
 const card=$('planningAdminCard');if(!card)return;
 let client=null,authorized=false,rows=[],editingEvent=null,editingInventory=null,pendingImport=null,confirmId=null;
-let busy=false,authGeneration=0,showAll=false;
+let busy=false,authGeneration=0;
 const dateLabel=iso=>{const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;};
 const status=(message,error=false)=>{const node=$('planningAdminStatus');node.textContent=message;node.classList.toggle('is-error',error);};
 const requireOnline=()=>{if(!authorized)throw Error('Accès réservé au responsable du planning.');if(!navigator.onLine)throw Error('Connexion Internet nécessaire pour enregistrer les changements.');};
@@ -68,8 +68,8 @@ function revealEditor(formId){
 }
 function renderRows(){
  const list=$('planningManageList');list.replaceChildren();
- const limit=new Date();limit.setDate(limit.getDate()-30);const cutoff=[limit.getFullYear(),String(limit.getMonth()+1).padStart(2,'0'),String(limit.getDate()).padStart(2,'0')].join('-');
- const selected=rows.filter(r=>showAll||r.ends_on>=cutoff).sort((a,b)=>a.starts_on.localeCompare(b.starts_on)||a.title.localeCompare(b.title,'fr'));
+ const today=new Date();const cutoff=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+ const selected=rows.filter(r=>r.ends_on>=cutoff).sort((a,b)=>a.starts_on.localeCompare(b.starts_on)||a.title.localeCompare(b.title,'fr'));
  $('planningCount').textContent=selected.length+' élément'+(selected.length>1?'s':'');
  if(!selected.length){const empty=document.createElement('p');empty.className='planning-muted';empty.textContent='Aucune date à afficher.';list.append(empty);return;}
  for(const r of selected){
@@ -137,7 +137,7 @@ $('planningEventForm').addEventListener('submit',e=>{
  },'Événement enregistré. Le planning et les rappels sont mis à jour.');
 });
 $('planningEventCancel').addEventListener('click',resetEventForm);
-$('planningShowAll').addEventListener('change',e=>{showAll=e.target.checked;renderRows();});
+
 $('planningConfirmDismiss').addEventListener('click',()=>{$('planningConfirmDialog').close();confirmId=null;});
 $('planningConfirmDialog').addEventListener('cancel',()=>{confirmId=null;});
 $('planningConfirmAccept').addEventListener('click',()=>{
