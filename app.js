@@ -792,6 +792,8 @@ function setupUnifiedFold(card,summary,content,closingClass){
  summary.addEventListener('click',event=>{
   if(reduced.matches||typeof card.animate!=='function')return;
   event.preventDefault();
+  // Respecter aussi les ouvertures programmatiques (édition depuis la liste).
+  if(!animation)requested=card.open;
   const next=!requested;requested=next;
   const currentHeight=card.getBoundingClientRect().height;
   if(animation){animation.cancel();animation=null;}
@@ -821,6 +823,9 @@ function setupUnifiedFold(card,summary,content,closingClass){
  document.querySelectorAll('.fold-card').forEach(card=>
   setupUnifiedFold(card,card.querySelector(':scope > .fold-summary'),card.querySelector(':scope > .fold-body'),'is-fold-closing'));
 })();
+// V33.37 : même moteur d'animation (560 ms) pour les quatre outils d'administration.
+document.querySelectorAll('.planning-accordion').forEach(card=>
+ setupUnifiedFold(card,card.querySelector(':scope > .planning-panel-summary'),card.querySelector(':scope > .planning-panel-content'),'is-planning-closing'));
 function setupSecondaryDetailsAnimation(card,bodySelector){
  if(!card)return;
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');

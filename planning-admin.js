@@ -60,6 +60,12 @@ async function loadRows(){
  if(error)throw Error('Impossible de charger le planning : '+error.message);
  rows=data||[];renderRows();
 }
+// Ouvrir automatiquement le bon sous-menu quand on modifie un élément de la liste.
+function revealEditor(formId){
+ const form=$(formId),panel=form?.closest('.planning-accordion');
+ if(panel&&!panel.open)panel.open=true;
+ requestAnimationFrame(()=>form?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'}));
+}
 function renderRows(){
  const list=$('planningManageList');list.replaceChildren();
  const limit=new Date();limit.setDate(limit.getDate()-30);const cutoff=[limit.getFullYear(),String(limit.getMonth()+1).padStart(2,'0'),String(limit.getDate()).padStart(2,'0')].join('-');
@@ -80,7 +86,7 @@ function renderRows(){
    if(r.kind==='inventory'){
     resetInventoryForm();editingInventory=r.id;$('planningInventoryDate').value=r.starts_on;
     $('planningInventorySubmit').textContent='Modifier la date';$('planningInventoryCancel').hidden=false;
-    $('planningInventoryForm').scrollIntoView({behavior:'smooth',block:'center'});
+    revealEditor('planningInventoryForm');
    }else{
     resetEventForm();editingEvent=r.id;$('planningEventTitle').value=r.title;
     $('planningEventStart').value=r.starts_on;$('planningEventEnd').value=r.ends_on;
@@ -88,7 +94,7 @@ function renderRows(){
     $('planningEventCode').value=/^(manual|import):/.test(code)?'':code;
     $('planningEventCode').disabled=true;$('planningEventSubmit').textContent='Enregistrer les modifications';
     $('planningEventCancel').hidden=false;
-    $('planningEventForm').scrollIntoView({behavior:'smooth',block:'center'});
+    revealEditor('planningEventForm');
    }
   });
   const toggle=document.createElement('button');toggle.type='button';toggle.className='planning-mini-button planning-mini-danger';toggle.textContent=r.enabled?'Annuler':'Réactiver';
