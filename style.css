@@ -1867,3 +1867,6 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro-produce .produce-green-cucumber-small{width:38px}
 .intro-produce .produce-green-broccoli-small{width:31px}
 }
+
+/* V33.28 : SVG decoratifs integres au HTML pour eviter les images non chargees sur Safari/PWA. */
+.intro-produce svg{position:absolute;display:block;height:auto;overflow:visible;filter:drop-shadow(0 3px 5px rgba(13,58,45,.12));user-select:none}
