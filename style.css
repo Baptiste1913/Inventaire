@@ -3046,3 +3046,27 @@ body.focus-leaving .app > :nth-child(4n){animation-delay:.22s!important}
  body.focus-entering::after,body.focus-leaving::after{animation:none!important;display:none!important}
  body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important}
 }
+
+
+/* V33.52 — Restitution d'après la transition iOS fournie en vidéo.
+   Une seule détente de ressort, légère perspective, cascade cohérente. */
+body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
+  animation-name:focus-home-spring-v3352!important;
+  animation-duration:960ms!important;
+  animation-timing-function:cubic-bezier(.21,.79,.23,1)!important;
+  animation-delay:var(--focus-spring-delay,0ms)!important;
+  animation-fill-mode:both!important;
+  transform-origin:center 72%!important;
+  backface-visibility:hidden;
+  will-change:transform,opacity,filter;
+}
+@keyframes focus-home-spring-v3352{
+  0%{opacity:0;filter:blur(4px);transform:perspective(1000px) translate3d(0,27px,-38px) scale(.94)}
+  32%{opacity:1;filter:blur(0);transform:perspective(1000px) translate3d(0,5px,-7px) scale(.992)}
+  65%{opacity:1;filter:blur(0);transform:perspective(1000px) translate3d(0,-3px,0) scale(1.008)}
+  83%{transform:perspective(1000px) translate3d(0,1px,0) scale(.998)}
+  100%{opacity:1;filter:blur(0);transform:perspective(1000px) translate3d(0,0,0) scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+  body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important;filter:none!important;will-change:auto!important}
+}

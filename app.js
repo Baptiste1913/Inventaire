@@ -310,8 +310,17 @@ function syncFocusMode(){
   // Ne pas animer le chargement initial d'une session restaurée.
   if(focusInitialized && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    const transitionClass=active?'focus-entering':'focus-leaving';
+   // Retour dans le style iOS : chaque carte revient dans l'ordre du document,
+   // avec un petit décalage progressif plutôt qu'un délai arbitraire nth-child.
+   if(!active){
+    const cards=[...document.querySelectorAll('.app > *')].filter(node=>
+      !node.classList.contains('focus-toolbar') &&
+      !node.classList.contains('offline-indicator') &&
+      !node.hidden && getComputedStyle(node).display!=='none');
+    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*65}ms`));
+   }
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},1700);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},1500);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
