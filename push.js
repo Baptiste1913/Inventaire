@@ -5,13 +5,13 @@ const guide=$('eventsInstallDialog');
 const closeGuide=$('eventsInstallGuideClose');
 let closingGuide=false,closeTimer;
 function showGuide(){if(!guide||guide.open)return;clearTimeout(closeTimer);closingGuide=false;guide.classList.remove('is-leaving');guide.showModal();}
-function hideGuide(){if(!guide?.open||closingGuide)return;closingGuide=true;guide.classList.add('is-leaving');closeTimer=setTimeout(()=>{guide.close();guide.classList.remove('is-leaving');closingGuide=false;},380);}
+function hideGuide(){if(!guide?.open||closingGuide)return;closingGuide=true;guide.classList.add('is-leaving');closeTimer=setTimeout(()=>{guide.close();guide.classList.remove('is-leaving');closingGuide=false;},440);}
 closeGuide?.addEventListener('click',hideGuide);
 guide?.addEventListener('cancel',e=>{e.preventDefault();hideGuide();});
 guide?.addEventListener('click',e=>{if(e.target===guide)hideGuide();});
 const cfg=window.INVENTAIRES_AUTH_CONFIG||{},base=(cfg.supabaseUrl||'').replace(/\/$/,'')+'/functions/v1/inventory-push',store='inventaires-u-push-device-v1';
 let busy=false;
-const msg=text=>{status.textContent=text;};
+const msg=text=>{if(!status)return;const error=/^(Échec|Erreur|Notifications bloquées|Pour recevoir les notifications)/i.test(text);status.textContent=error?text:'';status.hidden=!error;};
 function supported(){return window.isSecureContext&&'serviceWorker'in navigator&&'PushManager'in window&&'Notification'in window;}
 function iosNotInstalled(){return /iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.navigator.standalone&&!matchMedia('(display-mode: standalone)').matches;}
 function device(){let value;try{value=JSON.parse(localStorage.getItem(store)||'null');}catch(_){}if(!value?.id||!value?.secret){value={id:crypto.randomUUID(),secret:Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('')};localStorage.setItem(store,JSON.stringify(value));}return value;}
