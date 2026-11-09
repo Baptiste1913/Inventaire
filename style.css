@@ -2831,3 +2831,39 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
   .planning-admin-card .planning-panel-content input,
   .planning-admin-card .planning-panel-content textarea {transition:none!important;}
 }
+
+
+/* V33.47 — Finitions de l'espace administrateur */
+/* Statut connecté : monochrome, erreurs conservées en rouge. */
+.planning-admin-card .planning-admin-body > #planningAdminStatus:not(.is-error) {
+  color:#30363c!important; font-weight:600;
+}
+/* Correctif Safari iPhone : les anciens sélecteurs input:not(...) plus
+   spécifiques réinitialisaient le padding-left du champ de recherche. */
+.planning-admin-card .planning-panel-content .planning-search-wrap > input#planningSearch[type=search],
+.planning-admin-card .planning-panel-content .planning-search-wrap > input#planningSearch[type=search]:focus,
+.planning-admin-card .planning-panel-content .planning-search-wrap > input#planningSearch[type=search]:not(:focus) {
+  box-sizing:border-box!important; width:100%!important; min-width:0!important;
+  padding-top:10px!important; padding-bottom:10px!important;
+  padding-left:55px!important; padding-right:36px!important;
+  text-indent:0!important; letter-spacing:normal!important;
+}
+.planning-admin-card .planning-panel-content .planning-search-wrap > svg {
+  position:absolute!important;left:17px!important;top:50%!important;
+  width:20px!important;height:20px!important;
+  transform:translateY(-50%)!important;flex:none!important;
+  z-index:3!important;pointer-events:none!important;
+}
+.planning-admin-card .planning-panel-content .planning-search-wrap > input#planningSearch[type=search]::placeholder {
+  color:#7f8992!important;opacity:1!important;
+}
+/* Accents de finition sur les cartes et leurs animations. */
+.planning-admin-card .planning-accordion {
+  transition:border-color .3s ease,box-shadow .3s ease,background .3s ease!important;
+}
+.planning-admin-card .planning-accordion:focus-within {
+  box-shadow:0 3px 14px rgba(27,32,38,.055)!important;
+}
+@media(prefers-reduced-motion:reduce) {
+  .planning-admin-card .planning-accordion {transition:none!important;}
+}
