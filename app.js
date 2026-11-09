@@ -289,6 +289,8 @@ function renderHeroSummary(){
 }
 // V33.48 : le mode Concentration reprend la session existante, sans dupliquer les pesées.
 let focusWasActive=false;
+let focusTransitionTimer=null;
+let focusInitialized=false;
 function syncFocusMode(){
  const session=getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
@@ -303,10 +305,19 @@ function syncFocusMode(){
   $('focusCount').textContent=String(stats.count);
  }
  if(active!==focusWasActive){
+  if(focusTransitionTimer)clearTimeout(focusTransitionTimer);
+  document.body.classList.remove('focus-entering','focus-leaving');
+  // Ne pas animer le chargement initial d'une session restaurée.
+  if(focusInitialized && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+   const transitionClass=active?'focus-entering':'focus-leaving';
+   document.body.classList.add(transitionClass);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},730);
+  }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
   requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
  }
+ focusInitialized=true;
 }
 function renderSessionControls(){const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionBadge').classList.toggle('is-paused',Boolean(s&&s.pausedAt));$('sessionLive').hidden=!s;
  $('startSession').hidden=Boolean(s);$('pauseSession').hidden=!s||Boolean(s.pausedAt);$('resumeSession').hidden=!s||!s.pausedAt;$('finishSession').hidden=!s;
