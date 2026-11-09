@@ -1831,3 +1831,15 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro-session-state{padding:9px 12px;min-height:42px;display:inline-flex;align-items:center}
 .intro-jump{min-height:42px}
 @media(max-width:380px){.intro{padding-top:24px;padding-bottom:22px}.intro-bottom{margin-top:18px}.intro-produce .produce-tomato{width:76px;right:-32px}.intro-produce .produce-pepper{width:86px;right:-40px}.intro-produce .produce-cherries{width:66px;left:-37px}}
+
+/* V33.26 — rouge de référence saturé, illustrations à pleine opacité et périphériques */
+.intro-produce img{opacity:1!important;filter:drop-shadow(0 3px 5px rgba(13,58,45,.12))}
+.intro-produce .produce-tomato{width:54px;right:-17px;top:-12px;transform:rotate(-20deg)}
+.intro-produce .produce-pepper{width:70px;right:-29px;bottom:29px;transform:rotate(-24deg)}
+.intro-produce .produce-cherries{width:58px;left:-25px;bottom:-19px;transform:rotate(21deg)}
+.intro-produce .produce-tomato-mini{width:37px;left:-16px;top:11px;transform:rotate(28deg)}
+.intro-produce .produce-pepper-mini{width:45px;right:12px;top:38%;transform:translateX(40%) rotate(20deg)}
+.intro-produce .produce-cherries-top{width:38px;right:13%;top:-22px;transform:rotate(-16deg)}
+.intro-produce .produce-tomato-bottom{width:35px;left:26%;bottom:-22px;transform:rotate(15deg)}
+@media(min-width:700px){.intro-produce .produce-tomato{width:74px;right:10px;top:-27px}.intro-produce .produce-pepper{width:85px;right:-28px;bottom:10px}.intro-produce .produce-cherries{width:73px;left:-28px;bottom:-25px}.intro-produce .produce-tomato-mini{width:50px;left:4%;top:-20px}.intro-produce .produce-pepper-mini{width:57px;right:3%;top:43%}.intro-produce .produce-cherries-top{width:50px;right:25%;top:-26px}.intro-produce .produce-tomato-bottom{width:47px;left:38%;bottom:-28px}}
+@media(max-width:380px){.intro-produce .produce-tomato{width:48px;right:-20px}.intro-produce .produce-pepper{width:61px;right:-31px}.intro-produce .produce-cherries{width:49px;left:-27px}.intro-produce .produce-tomato-mini{width:30px;left:-16px}.intro-produce .produce-pepper-mini{width:38px;right:0}.intro-produce .produce-cherries-top{width:33px;right:10%}.intro-produce .produce-tomato-bottom{width:31px;left:29%}}
