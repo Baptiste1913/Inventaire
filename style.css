@@ -1669,3 +1669,35 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .events-install-done{width:100%;border:0;border-radius:12px;background:#257b9b;color:white;font-size:14px;font-weight:750;padding:14px;cursor:pointer}
 @media(max-width:380px){.app > .events-card{padding:17px 13px!important}.events-card .events-info-box{padding:14px 12px}}
 @media(prefers-reduced-motion:reduce){.events-card .events-more-list,.events-card .events-more svg{transition:none!important}}
+
+/* V33.19 — commande notifications dans l’en-tête, tutoriel style notification U */
+.events-card .events-static-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:20px;min-height:48px}
+.events-header-title{display:grid;gap:5px;min-width:0}
+.events-card .events-bell{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;width:auto;min-width:105px;height:39px;padding:0 12px;border-radius:999px;border:1px solid #c5dfea;background:linear-gradient(140deg,#eaf6fb,#dceef6);color:#216e8d;font-size:12px;font-weight:800;box-shadow:inset 0 1px 0 #fff,0 2px 7px rgba(34,102,137,.08);transition:transform .3s ease,background .3s ease,box-shadow .3s ease}
+.events-card .events-bell svg{width:17px;height:17px;flex-shrink:0}
+.events-card .events-bell.is-active{background:linear-gradient(140deg,#def4eb,#d0eee2);border-color:#b5e0cb;color:#176e50}
+.events-card .events-bell:disabled{opacity:.65;cursor:not-allowed}
+.events-card .events-bell:active:not(:disabled){transform:scale(.96)}
+.events-card .events-push-status{margin:0 0 13px}
+.events-install-dialog{width:min(calc(100vw - 32px),420px);max-height:min(84dvh,660px);border:1px solid #d8e7ec;border-radius:19px;box-shadow:0 18px 45px rgba(20,61,75,.22),inset 0 1px 0 #fff;overflow:hidden}
+.events-install-dialog::backdrop{background:rgba(25,48,59,.35);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.events-install-dialog[open]{animation:events-guide-in .4s cubic-bezier(.22,1,.36,1) both}
+@keyframes events-guide-in{from{opacity:0;transform:translateY(25px) scale(.975)}to{opacity:1;transform:translateY(0) scale(1)}}
+.events-install-dialog-inner{padding:18px 19px 19px;max-height:84dvh;overflow-y:auto}
+.events-install-dialog-head{gap:10px}
+.events-install-dialog-head strong{flex:1;min-width:0;font-size:17px;line-height:1.3;color:#254d62}
+.events-install-dialog-symbol{width:36px;height:36px;display:grid;place-items:center;flex-shrink:0;border:1px solid #d3e8f0;border-radius:11px;background:#edf7fa;color:#267e9b}
+.events-install-dialog-symbol svg{width:20px;height:20px}
+.events-install-dialog-head button{width:30px;height:30px;display:grid;place-items:center;flex-shrink:0;border:0;border-radius:9px;background:transparent;color:#6a8390;font-size:inherit}
+.events-install-dialog-head button svg{width:17px;height:17px}
+.events-install-dialog-head button:active{background:#eef6f9}
+.events-install-dialog p{margin:15px 0 10px;font-size:13px;line-height:1.55}
+.events-install-dialog ol{margin:14px 0;padding-left:22px;gap:12px;font-size:13px;line-height:1.55}
+.events-install-dialog li{padding-left:2px}
+.events-inline-icon{display:inline-flex;vertical-align:-3px;align-items:center;justify-content:center;color:#247da0}
+.events-inline-icon svg{width:18px;height:18px}
+.events-install-dialog .events-install-success{padding:10px 12px;border-radius:11px;background:#eff8f4;color:#25634e;font-weight:650}
+.events-install-dialog .events-install-note{margin:12px 0 15px;font-size:11.5px;line-height:1.5}
+.events-install-done{border-radius:11px;padding:12px;background:linear-gradient(125deg,#078c9d,#24799b);box-shadow:0 4px 11px rgba(18,112,142,.13)}
+@media(max-width:370px){.events-card .events-bell{min-width:90px;padding:0 9px;font-size:11px}.events-card .events-static-header strong{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.events-install-dialog[open]{animation:none!important}}
