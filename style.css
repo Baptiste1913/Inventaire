@@ -1843,3 +1843,24 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro-produce .produce-tomato-bottom{width:35px;left:26%;bottom:-22px;transform:rotate(15deg)}
 @media(min-width:700px){.intro-produce .produce-tomato{width:74px;right:10px;top:-27px}.intro-produce .produce-pepper{width:85px;right:-28px;bottom:10px}.intro-produce .produce-cherries{width:73px;left:-28px;bottom:-25px}.intro-produce .produce-tomato-mini{width:50px;left:4%;top:-20px}.intro-produce .produce-pepper-mini{width:57px;right:3%;top:43%}.intro-produce .produce-cherries-top{width:50px;right:25%;top:-26px}.intro-produce .produce-tomato-bottom{width:47px;left:38%;bottom:-28px}}
 @media(max-width:380px){.intro-produce .produce-tomato{width:48px;right:-20px}.intro-produce .produce-pepper{width:61px;right:-31px}.intro-produce .produce-cherries{width:49px;left:-27px}.intro-produce .produce-tomato-mini{width:30px;left:-16px}.intro-produce .produce-pepper-mini{width:38px;right:0}.intro-produce .produce-cherries-top{width:33px;right:10%}.intro-produce .produce-tomato-bottom{width:31px;left:29%}}
+
+/* V33.31 — fruits rouges vifs et grandes feuilles en bordure, base V33.26 */
+.intro-produce img{opacity:1!important}
+.intro-produce .produce-extra-a{width:52px;left:22%;top:-31px;transform:rotate(25deg)}
+.intro-produce .produce-extra-b{width:51px;right:18%;top:-30px;transform:rotate(-12deg)}
+.intro-produce .produce-extra-c{width:55px;right:5%;top:-26px;transform:rotate(19deg)}
+.intro-produce .produce-extra-d{width:48px;left:-26px;top:34%;transform:rotate(-25deg)}
+.intro-produce .produce-extra-e{width:36px;left:42%;top:63%;transform:rotate(17deg)}
+.intro-produce .produce-extra-f{width:58px;left:-24px;bottom:-23px;transform:rotate(-20deg)}
+.intro-produce .produce-extra-g{width:62px;left:48%;bottom:-42px;transform:rotate(8deg)}
+.intro-produce .produce-extra-h{width:55px;right:-27px;bottom:-12px;transform:rotate(25deg)}
+.intro-produce .produce-leaf-left{width:132px;left:-93px;top:18%;transform:rotate(-17deg);filter:none!important}
+.intro-produce .produce-leaf-right{width:137px;right:-106px;top:17%;transform:rotate(18deg);filter:none!important}
+@media(max-width:420px){
+.intro-produce .produce-extra-a{left:25%;top:-33px}
+.intro-produce .produce-extra-b{right:19%;top:-35px}
+.intro-produce .produce-extra-c{right:4%;top:-32px}
+.intro-produce .produce-extra-e{left:42%;top:64%;width:30px}
+.intro-produce .produce-leaf-left{width:119px;left:-90px}
+.intro-produce .produce-leaf-right{width:119px;right:-93px}
+}
