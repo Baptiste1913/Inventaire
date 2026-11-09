@@ -1818,3 +1818,16 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro-jump:active{transform:translateY(1px) scale(.975)}
 @media(max-width:380px){.intro{padding:27px 19px 25px}.intro h2{font-size:clamp(25px,7.5vw,29px)}.intro-bottom{margin-top:19px;gap:8px}.intro-session-state{padding:8px 10px}.intro-jump{padding:10px 13px;min-height:40px}}
 @media(prefers-reduced-motion:reduce){.intro-jump{transition:none!important}}
+
+/* V33.25 — illustrations individuelles originales inspirées des légumes rouges de la référence */
+.intro{padding-top:26px;padding-bottom:23px;background:radial-gradient(ellipse 70% 75% at 99% 0%,rgba(220,255,223,.24),transparent 76%),radial-gradient(ellipse 72% 95% at -12% 108%,rgba(10,63,59,.30),transparent 78%),linear-gradient(117deg,#205f57 0%,#2d8271 53%,#50a985 100%)}
+.intro-bottom{margin-top:20px}
+.intro-produce{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
+.intro-produce img{position:absolute;display:block;width:auto;height:auto;filter:drop-shadow(0 7px 11px rgba(9,54,42,.14));opacity:.27;user-select:none}
+.intro-produce .produce-tomato{width:96px;right:-36px;top:-29px;transform:rotate(-21deg)}
+.intro-produce .produce-pepper{width:109px;right:-42px;bottom:24px;transform:rotate(-18deg);opacity:.20}
+.intro-produce .produce-cherries{width:80px;left:-45px;bottom:-29px;transform:rotate(23deg);opacity:.21}
+.intro h2,.intro p,.intro-bottom{position:relative;z-index:1}
+.intro-session-state{padding:9px 12px;min-height:42px;display:inline-flex;align-items:center}
+.intro-jump{min-height:42px}
+@media(max-width:380px){.intro{padding-top:24px;padding-bottom:22px}.intro-bottom{margin-top:18px}.intro-produce .produce-tomato{width:76px;right:-32px}.intro-produce .produce-pepper{width:86px;right:-40px}.intro-produce .produce-cherries{width:66px;left:-37px}}
