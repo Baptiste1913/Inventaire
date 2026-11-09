@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.35" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script src="hero-layout.js?v=33.33" defer></script></head>
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.36" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script src="hero-layout.js?v=33.33" defer></script></head>
 <body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
@@ -137,6 +137,44 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
     <a class="intro-jump" href="#calc-title" aria-label="Accéder au calculateur de pesées"><span>Aller à la pesée</span><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
   </div>
 </section>
+<details id="planningAdminCard" class="card fold-card planning-admin-card" hidden>
+ <summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">ESPACE ADMINISTRATEUR</span><span class="fold-label">Gestion du planning</span></span><span class="fold-trailing"><svg aria-hidden="true" class="fold-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
+ <div class="fold-body planning-admin-body">
+  <p class="planning-muted">Gère les inventaires et les événements. Les modifications sont synchronisées pour tous les utilisateurs.</p>
+  <p class="planning-feedback" id="planningAdminStatus" role="status" aria-live="polite"></p>
+<details class="planning-panel planning-accordion" open><summary class="planning-panel-summary"><span>Ajouter une date d’inventaire</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>  <div class="planning-panel-content">
+   
+   <form id="planningInventoryForm" class="planning-form">
+    <label for="planningInventoryDate">Date de l’inventaire</label>
+    <input type="date" id="planningInventoryDate" required/>
+    <div class="planning-actions"><button class="planning-primary" id="planningInventorySubmit" type="submit">Ajouter l’inventaire</button><button class="planning-secondary" id="planningInventoryCancel" type="button" hidden>Annuler la modification</button></div>
+   </form>
+  </div></details>
+<details class="planning-panel planning-accordion"><summary class="planning-panel-summary"><span>Ajouter un événement commercial</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>  <div class="planning-panel-content">
+   
+   <form id="planningEventForm" class="planning-form">
+    <label for="planningEventTitle">Nom de l’événement</label><input id="planningEventTitle" type="text" maxlength="240" placeholder="Ex. : Opération fruits et légumes" required/>
+    <div class="planning-two-cols"><div><label for="planningEventStart">Date de début</label><input id="planningEventStart" type="date" required/></div><div><label for="planningEventEnd">Date de fin (facultative)</label><input id="planningEventEnd" type="date"/></div></div>
+    <label for="planningEventCode">Code opération (facultatif)</label><input id="planningEventCode" type="text" maxlength="70" placeholder="Ex. : 27P15" pattern="[A-Za-z0-9_-]+"/>
+    <div class="planning-actions"><button class="planning-primary" id="planningEventSubmit" type="submit">Ajouter l’événement</button><button class="planning-secondary" id="planningEventCancel" type="button" hidden>Annuler la modification</button></div>
+   </form>
+  </div></details>
+<details class="planning-panel planning-accordion"><summary class="planning-panel-summary"><span>Importer plusieurs événements</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>  <div class="planning-panel-content">
+   
+   <p class="planning-muted">Utilise un fichier CSV exporté d’Excel ou de Numbers, ou colle directement un tableau avec les colonnes <strong>type ; code ; titre ; debut ; fin</strong>. Les dates au format JJ/MM/AAAA sont acceptées.</p>
+   <div class="planning-actions"><label class="planning-secondary planning-file-label" for="planningImportFile">Choisir un fichier CSV<input type="file" id="planningImportFile" accept=".csv,.txt,text/csv,text/plain" hidden/></label><button type="button" id="planningTemplate" class="planning-secondary">Télécharger un modèle</button></div>
+   <label for="planningImportText">Tableau à importer</label><textarea id="planningImportText" rows="5" placeholder="type;code;titre;debut;fin&#10;evenement;27P15;Opération fruits et légumes;2027-02-08;2027-02-14&#10;inventaire;;;2027-02-15;"></textarea>
+   <div class="planning-actions"><button type="button" id="planningImportPreviewButton" class="planning-secondary">Vérifier le tableau</button><button type="button" id="planningImportConfirm" class="planning-primary" disabled>Confirmer l’importation</button></div>
+   <div id="planningImportPreview" class="planning-preview" hidden></div>
+  </div></details>
+<details class="planning-panel planning-accordion"><summary class="planning-panel-summary"><span>Événements enregistrés</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>  <div class="planning-panel-content">
+   <div class="planning-list-heading"><span id="planningCount" class="planning-count">0 élément</span></div>
+   <label class="planning-show-all"><input id="planningShowAll" type="checkbox"/> Afficher également les événements anciens</label>
+   <div id="planningManageList" class="planning-manage-list"></div>
+  </div></details>
+  <p class="planning-muted">Un événement ajouté moins de 7 jours avant son début ne peut pas recevoir de rappel J-7 rétroactif. L’importation ajoute ou met à jour les lignes présentes : elle ne supprime pas les autres événements.</p>
+ </div>
+</details>
 <details id="accountCard" class="card fold-card account-card" aria-labelledby="accountSectionTitle">
   <summary class="fold-summary account-fold-summary"><span class="account-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 3-6 7-6s6.6 2 7 6"/></svg></span><span class="fold-heading"><span class="section-kicker">SERVICES U / COMPTE</span><span class="fold-label" id="accountSectionTitle">Mon espace</span></span><span class="fold-trailing"><span class="account-summary-status" id="accountSummaryStatus">Non connecté</span><svg aria-hidden="true" class="fold-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span><span class="account-open-button"><span id="accountActionLabel">Connexion</span></span></summary>
   <div class="fold-body account-body">
@@ -187,44 +225,6 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
     <div class="events-info-box events-month-box"><span class="events-kicker" id="eventsMonthHeading">ÉVÉNEMENTS DU MOIS</span><div id="eventsFirst"></div><button type="button" id="eventsMoreButton" class="events-more" hidden aria-expanded="false" aria-controls="eventsMoreList"><span id="eventsMoreLabel"></span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><div id="eventsMoreList" class="events-more-list" hidden></div></div>
   </div>
 </section>
-<details id="planningAdminCard" class="card fold-card planning-admin-card" hidden>
- <summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / ADMINISTRATION</span><span class="fold-label">Gestion du planning</span></span><span class="fold-trailing"><svg aria-hidden="true" class="fold-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></summary>
- <div class="fold-body planning-admin-body">
-  <p class="planning-muted">Espace réservé aux responsables autorisés. Les changements sont enregistrés dans Supabase et actualisent le planning de tous les utilisateurs ainsi que les rappels push à J-7.</p>
-  <p class="planning-feedback" id="planningAdminStatus" role="status" aria-live="polite"></p>
-  <div class="planning-panel">
-   <h3>Ajouter une date d’inventaire</h3>
-   <form id="planningInventoryForm" class="planning-form">
-    <label for="planningInventoryDate">Date de l’inventaire</label>
-    <input type="date" id="planningInventoryDate" required/>
-    <div class="planning-actions"><button class="planning-primary" id="planningInventorySubmit" type="submit">Ajouter l’inventaire</button><button class="planning-secondary" id="planningInventoryCancel" type="button" hidden>Annuler la modification</button></div>
-   </form>
-  </div>
-  <div class="planning-panel">
-   <h3>Ajouter un événement commercial</h3>
-   <form id="planningEventForm" class="planning-form">
-    <label for="planningEventTitle">Nom de l’événement</label><input id="planningEventTitle" type="text" maxlength="240" placeholder="Ex. : Opération fruits et légumes" required/>
-    <div class="planning-two-cols"><div><label for="planningEventStart">Date de début</label><input id="planningEventStart" type="date" required/></div><div><label for="planningEventEnd">Date de fin (facultative)</label><input id="planningEventEnd" type="date"/></div></div>
-    <label for="planningEventCode">Code opération (facultatif)</label><input id="planningEventCode" type="text" maxlength="70" placeholder="Ex. : 27P15" pattern="[A-Za-z0-9_-]+"/>
-    <div class="planning-actions"><button class="planning-primary" id="planningEventSubmit" type="submit">Ajouter l’événement</button><button class="planning-secondary" id="planningEventCancel" type="button" hidden>Annuler la modification</button></div>
-   </form>
-  </div>
-  <div class="planning-panel">
-   <h3>Importer plusieurs événements</h3>
-   <p class="planning-muted">Utilise un fichier CSV exporté d’Excel ou de Numbers, ou colle directement un tableau avec les colonnes <strong>type ; code ; titre ; debut ; fin</strong>. Les dates au format JJ/MM/AAAA sont acceptées.</p>
-   <div class="planning-actions"><label class="planning-secondary planning-file-label" for="planningImportFile">Choisir un fichier CSV<input type="file" id="planningImportFile" accept=".csv,.txt,text/csv,text/plain" hidden/></label><button type="button" id="planningTemplate" class="planning-secondary">Télécharger un modèle</button></div>
-   <label for="planningImportText">Tableau à importer</label><textarea id="planningImportText" rows="5" placeholder="type;code;titre;debut;fin&#10;evenement;27P15;Opération fruits et légumes;2027-02-08;2027-02-14&#10;inventaire;;;2027-02-15;"></textarea>
-   <div class="planning-actions"><button type="button" id="planningImportPreviewButton" class="planning-secondary">Vérifier le tableau</button><button type="button" id="planningImportConfirm" class="planning-primary" disabled>Confirmer l’importation</button></div>
-   <div id="planningImportPreview" class="planning-preview" hidden></div>
-  </div>
-  <div class="planning-panel">
-   <div class="planning-list-heading"><h3>Événements enregistrés</h3><span id="planningCount" class="planning-count">0 élément</span></div>
-   <label class="planning-show-all"><input id="planningShowAll" type="checkbox"/> Afficher également les événements anciens</label>
-   <div id="planningManageList" class="planning-manage-list"></div>
-  </div>
-  <p class="planning-muted">Un événement ajouté moins de 7 jours avant son début ne peut pas recevoir de rappel J-7 rétroactif. L’importation ajoute ou met à jour les lignes présentes : elle ne supprime pas les autres événements.</p>
- </div>
-</details>
 <dialog id="planningConfirmDialog" class="planning-confirm-dialog" aria-labelledby="planningConfirmTitle"><div class="planning-confirm-inner"><h3 id="planningConfirmTitle">Confirmer</h3><p id="planningConfirmText"></p><div class="planning-actions"><button type="button" class="planning-secondary" id="planningConfirmDismiss">Retour</button><button type="button" class="planning-primary" id="planningConfirmAccept">Confirmer</button></div></div></dialog>
 <dialog id="eventsInstallDialog" class="events-install-dialog" aria-labelledby="eventsInstallTitle"><div class="events-install-dialog-inner"><div class="events-install-dialog-head"><strong id="eventsInstallTitle">Comment installer Inventaires U pour recevoir les notifications ?</strong><button type="button" id="eventsInstallGuideClose" aria-label="Fermer le tutoriel"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg></button></div><ol><li>Clique sur <span class="events-inline-icon"><img src="tutorial-share.png" alt=""/></span> <strong>Partager</strong> puis sur <strong>En voir plus</strong> et enfin <span class="events-inline-icon"><img src="tutorial-home.png" alt=""/></span> <strong>Sur l’écran d’accueil</strong>.</li><li>Clique sur <strong>Ajouter</strong>, puis ouvre ta nouvelle application <strong>Inventaires U</strong>.</li><li>Dans <strong>Événements</strong>, clique sur la cloche pour autoriser les notifications.</li></ol><p class="events-install-success">Tu seras désormais informé des inventaires et autres événements à venir.</p></div></dialog>
 <section aria-labelledby="session-title" class="card session-card">
