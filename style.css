@@ -1896,3 +1896,23 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro > :not(.intro-produce){position:relative;z-index:1}
 /* Les détails restent en bordure sur mobile, les proportions du tracé ne sont jamais étirées. */
 @media(max-width:410px){.intro-produce .produce-motif{filter:none!important}}
+
+
+/* V33.33 — Schéma vectoriel intact, échelle et placement unifiés.
+   Les 14 groupes <g id="motif-..."> sont des formes SVG éditables individuellement.
+   L'ancien placement en % de largeur / % de hauteur déformait la composition
+   dans Safari sur iPhone. Un viewBox partagé fixe la géométrie et les distances. */
+.intro-produce .produce-composition {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
