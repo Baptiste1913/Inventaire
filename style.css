@@ -1864,3 +1864,25 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro-produce .produce-leaf-left{width:119px;left:-90px}
 .intro-produce .produce-leaf-right{width:119px;right:-93px}
 }
+
+/* V33.32 — composition plus lisible, feuilles visibles et masses équilibrées */
+.intro-produce .produce-leaf-left{width:93px!important;left:-19px!important;top:23%!important;transform:rotate(-25deg)!important;opacity:1!important;filter:none!important}
+.intro-produce .produce-leaf-right{width:96px!important;right:-29px!important;top:8%!important;transform:rotate(24deg)!important;opacity:1!important;filter:none!important}
+.intro-produce .produce-tomato{width:56px;right:-25px;top:-24px}
+.intro-produce .produce-pepper{width:61px;right:-33px;bottom:22px}
+.intro-produce .produce-cherries{width:52px;left:-21px;bottom:-24px}
+.intro-produce .produce-tomato-mini{width:34px;left:-18px;top:10px}
+.intro-produce .produce-pepper-mini{width:40px;right:-23px;top:47%}
+.intro-produce .produce-cherries-top{width:37px;right:26%;top:-26px}
+.intro-produce .produce-tomato-bottom{width:34px;left:31%;bottom:-25px}
+.intro-produce .produce-extra-a{width:40px;left:24%;top:-30px;transform:rotate(18deg)}
+.intro-produce .produce-extra-c{width:44px;right:6%;top:-28px;transform:rotate(-12deg)}
+.intro-produce .produce-extra-d{width:38px;left:-24px;top:48%;transform:rotate(-12deg)}
+.intro-produce .produce-extra-h{width:43px;right:16%;bottom:-29px;transform:rotate(15deg)}
+@media(max-width:420px){
+.intro-produce .produce-leaf-left{width:82px!important;left:-23px!important;top:24%!important}
+.intro-produce .produce-leaf-right{width:83px!important;right:-29px!important;top:11%!important}
+.intro-produce .produce-extra-a{left:27%;top:-29px}
+.intro-produce .produce-extra-c{right:8%;top:-31px}
+.intro-produce .produce-extra-h{right:14%;bottom:-30px}
+}
