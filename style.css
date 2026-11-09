@@ -1843,3 +1843,56 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .intro-produce .produce-tomato-bottom{width:35px;left:26%;bottom:-22px;transform:rotate(15deg)}
 @media(min-width:700px){.intro-produce .produce-tomato{width:74px;right:10px;top:-27px}.intro-produce .produce-pepper{width:85px;right:-28px;bottom:10px}.intro-produce .produce-cherries{width:73px;left:-28px;bottom:-25px}.intro-produce .produce-tomato-mini{width:50px;left:4%;top:-20px}.intro-produce .produce-pepper-mini{width:57px;right:3%;top:43%}.intro-produce .produce-cherries-top{width:50px;right:25%;top:-26px}.intro-produce .produce-tomato-bottom{width:47px;left:38%;bottom:-28px}}
 @media(max-width:380px){.intro-produce .produce-tomato{width:48px;right:-20px}.intro-produce .produce-pepper{width:61px;right:-31px}.intro-produce .produce-cherries{width:49px;left:-27px}.intro-produce .produce-tomato-mini{width:30px;left:-16px}.intro-produce .produce-pepper-mini{width:38px;right:0}.intro-produce .produce-cherries-top{width:33px;right:10%}.intro-produce .produce-tomato-bottom{width:31px;left:29%}}
+
+/* V33.27 — potager mixte : verts ton sur ton, périphérie dégagée autour du contenu */
+.intro-produce .produce-green-cucumber{width:73px;right:-24px;top:22%;transform:rotate(-27deg);opacity:.55!important}
+.intro-produce .produce-green-leaf{width:65px;left:-29px;top:33%;transform:rotate(25deg);opacity:.53!important}
+.intro-produce .produce-green-broccoli{width:57px;right:-18px;bottom:-18px;transform:rotate(16deg);opacity:.64!important}
+.intro-produce .produce-green-leaf-small{width:42px;right:28%;top:-24px;transform:rotate(-34deg);opacity:.48!important}
+.intro-produce .produce-green-cucumber-small{width:48px;left:8%;bottom:-25px;transform:rotate(-22deg);opacity:.55!important}
+.intro-produce .produce-green-broccoli-small{width:38px;left:-20px;top:-15px;transform:rotate(-17deg);opacity:.53!important}
+@media(min-width:700px){
+.intro-produce .produce-green-cucumber{width:95px;right:3%;top:18%}
+.intro-produce .produce-green-leaf{width:86px;left:-22px;top:31%}
+.intro-produce .produce-green-broccoli{width:77px;right:12%;bottom:-36px}
+.intro-produce .produce-green-leaf-small{width:55px;right:37%;top:-29px}
+.intro-produce .produce-green-cucumber-small{width:63px;left:17%;bottom:-32px}
+.intro-produce .produce-green-broccoli-small{width:54px;left:2%;top:-28px}
+}
+@media(max-width:380px){
+.intro-produce .produce-green-cucumber{width:58px;right:-23px}
+.intro-produce .produce-green-leaf{width:49px;left:-26px}
+.intro-produce .produce-green-broccoli{width:47px;right:-18px}
+.intro-produce .produce-green-leaf-small{width:33px}
+.intro-produce .produce-green-cucumber-small{width:38px}
+.intro-produce .produce-green-broccoli-small{width:31px}
+}
+
+/* V33.28 : SVG decoratifs integres au HTML pour eviter les images non chargees sur Safari/PWA. */
+.intro-produce svg{position:absolute;display:block;height:auto;overflow:visible;filter:drop-shadow(0 3px 5px rgba(13,58,45,.12));user-select:none}
+
+/* V33.29 — brocolis plus lisibles et poireaux ton sur ton, sans masquer le texte */
+.intro-produce .produce-green-broccoli{width:72px;right:5px;bottom:8px;opacity:.77!important;transform:rotate(13deg)}
+.intro-produce .produce-green-broccoli-small{width:45px;left:3px;top:3px;opacity:.68!important;transform:rotate(-15deg)}
+.intro-produce .produce-green-leek{width:75px;left:-24px;bottom:53px;transform:rotate(-26deg);opacity:.64!important}
+.intro-produce .produce-green-leek-small{width:52px;right:21%;top:-29px;transform:rotate(34deg);opacity:.56!important}
+@media(min-width:700px){.intro-produce .produce-green-broccoli{width:90px;right:5%;bottom:0}.intro-produce .produce-green-broccoli-small{width:60px;left:2%;top:-8px}.intro-produce .produce-green-leek{width:96px;left:0;bottom:38px}.intro-produce .produce-green-leek-small{width:70px;right:31%;top:-33px}}
+@media(max-width:380px){.intro-produce .produce-green-broccoli{width:61px;right:1px;bottom:8px}.intro-produce .produce-green-broccoli-small{width:39px;left:0;top:2px}.intro-produce .produce-green-leek{width:63px;left:-23px;bottom:47px}.intro-produce .produce-green-leek-small{width:43px;right:19%;top:-24px}}
+
+/* V33.30 — composition exacte du schéma fourni, vectorisée en deux couleurs. */
+.intro-produce{position:absolute!important;inset:0!important;overflow:hidden!important;pointer-events:none!important;z-index:0!important}
+.intro-produce .produce-schematic{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;transform:none!important;filter:none!important;opacity:1!important;display:block!important}
+
+/* V33.31 — Chaque motif du schéma est un SVG autonome, positionné individuellement. */
+.intro-produce .produce-schematic{display:none!important}
+.intro-produce .produce-element{position:absolute!important;display:block!important;max-width:none!important;opacity:1!important;filter:none!important;transform:none!important;pointer-events:none!important;overflow:visible!important}
+
+
+/* V33.32 — Véritables tracés SVG par motif d'après le schéma 1920×1080 fourni.
+   Chaque illustration possède son propre viewBox et conserve ses proportions sur tout écran.
+   Les anciens motifs de la V33.31 sont retirés du HTML. */
+.intro-produce{position:absolute!important;inset:0!important;z-index:0!important;pointer-events:none!important;overflow:hidden!important;isolation:isolate}
+.intro-produce .produce-motif{position:absolute!important;display:block!important;width:auto!important;max-width:none!important;opacity:1!important;overflow:visible!important;filter:none!important;transform:none!important;user-select:none!important;pointer-events:none!important}
+.intro > :not(.intro-produce){position:relative;z-index:1}
+/* Les détails restent en bordure sur mobile, les proportions du tracé ne sont jamais étirées. */
+@media(max-width:410px){.intro-produce .produce-motif{filter:none!important}}
