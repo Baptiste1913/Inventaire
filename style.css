@@ -1761,3 +1761,60 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .events-inline-icon img{width:17px!important;height:17px!important;object-fit:contain}
 .events-inline-icon img[src="tutorial-home.png"]{width:14px!important;height:14px!important}
 @media(max-width:370px){.events-install-dialog-inner{padding:18px 17px 20px!important}.events-install-dialog ol{font-size:12.8px!important;gap:13px!important}.events-install-dialog-head strong{font-size:14.5px!important}}
+
+/* V33.23 — fermeture sans cadre, alignement des pictogrammes et état push verrouillé */
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose,
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose:hover,
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose:active,
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose:focus,
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose:focus-visible{
+  -webkit-appearance:none!important;appearance:none!important;
+  border:0!important;outline:0!important;outline-offset:0!important;
+  border-radius:0!important;background:transparent!important;background-image:none!important;
+  box-shadow:none!important;-webkit-box-shadow:none!important;filter:none!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose::before,
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose::after{content:none!important;border:0!important;box-shadow:none!important}
+.events-install-dialog .events-install-dialog-head #eventsInstallGuideClose svg{border:0!important;outline:0!important;box-shadow:none!important;background:none!important}
+.events-install-dialog .events-inline-icon{transform:translateY(-1px)!important;vertical-align:-3px!important}
+.events-card .events-bell.is-active:disabled{opacity:1!important;cursor:default!important;pointer-events:none;filter:none!important}
+
+
+/* V33.24 — banderole végétale satinée, hiérarchie et équilibre mobile */
+.intro{
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:32px clamp(21px,5vw,30px) 29px;
+  background:
+    radial-gradient(ellipse 85% 95% at 105% -15%,rgba(138,218,175,.23),transparent 72%),
+    radial-gradient(ellipse 72% 95% at -12% 108%,rgba(10,63,59,.30),transparent 78%),
+    linear-gradient(117deg,#24675e 0%,#2f8776 53%,#54ad88 100%);
+  border-top:1px solid rgba(240,255,248,.28);
+  border-bottom:1px solid rgba(12,84,68,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),inset 0 -18px 36px rgba(8,72,60,.09),0 6px 17px rgba(20,91,75,.07);
+}
+.intro::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 46% 58% at 91% 1%,rgba(240,255,239,.15),transparent 78%),
+    radial-gradient(ellipse 38% 90% at 17% 110%,rgba(11,79,73,.13),transparent 82%),
+    linear-gradient(148deg,rgba(255,255,255,.075),transparent 49%);
+}
+.intro::after{
+  content:"";position:absolute;inset:-15% -10%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 34% 42% at 74% 14%,rgba(255,255,255,.095),transparent 78%),
+    radial-gradient(ellipse 43% 38% at 20% 85%,rgba(202,255,230,.055),transparent 80%),
+    linear-gradient(124deg,transparent 35%,rgba(255,255,255,.035) 49%,transparent 62%);
+  mix-blend-mode:screen;
+}
+.intro h2{margin:0 0 12px;font-size:clamp(27px,6.1vw,39px);line-height:1.16;letter-spacing:.16px;-webkit-text-stroke:.45px currentColor;text-shadow:0 1px 2px rgba(9,60,54,.12)}
+.intro p{max-width:510px;font-size:clamp(13px,3.5vw,14px);line-height:1.58;color:rgba(251,255,253,.94)}
+.intro-bottom{margin-top:23px;gap:12px}
+.intro-session-state{max-width:100%;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.105);border:1px solid rgba(255,255,255,.19);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);color:#f5fff9;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot{background:#ddf3e7}
+.intro-jump{min-height:43px;padding:11px 16px;color:#285e51;background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.82);border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 5px 14px rgba(7,68,58,.16);transition:transform .34s cubic-bezier(.2,.75,.25,1),box-shadow .34s ease,background-color .34s ease}
+.intro-jump:hover{background:#fff;box-shadow:0 7px 19px rgba(7,68,58,.20)}
+.intro-jump:active{transform:translateY(1px) scale(.975)}
+@media(max-width:380px){.intro{padding:27px 19px 25px}.intro h2{font-size:clamp(25px,7.5vw,29px)}.intro-bottom{margin-top:19px;gap:8px}.intro-session-state{padding:8px 10px}.intro-jump{padding:10px 13px;min-height:40px}}
+@media(prefers-reduced-motion:reduce){.intro-jump{transition:none!important}}
