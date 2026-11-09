@@ -1870,3 +1870,11 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 
 /* V33.28 : SVG decoratifs integres au HTML pour eviter les images non chargees sur Safari/PWA. */
 .intro-produce svg{position:absolute;display:block;height:auto;overflow:visible;filter:drop-shadow(0 3px 5px rgba(13,58,45,.12));user-select:none}
+
+/* V33.29 — brocolis plus lisibles et poireaux ton sur ton, sans masquer le texte */
+.intro-produce .produce-green-broccoli{width:72px;right:5px;bottom:8px;opacity:.77!important;transform:rotate(13deg)}
+.intro-produce .produce-green-broccoli-small{width:45px;left:3px;top:3px;opacity:.68!important;transform:rotate(-15deg)}
+.intro-produce .produce-green-leek{width:75px;left:-24px;bottom:53px;transform:rotate(-26deg);opacity:.64!important}
+.intro-produce .produce-green-leek-small{width:52px;right:21%;top:-29px;transform:rotate(34deg);opacity:.56!important}
+@media(min-width:700px){.intro-produce .produce-green-broccoli{width:90px;right:5%;bottom:0}.intro-produce .produce-green-broccoli-small{width:60px;left:2%;top:-8px}.intro-produce .produce-green-leek{width:96px;left:0;bottom:38px}.intro-produce .produce-green-leek-small{width:70px;right:31%;top:-33px}}
+@media(max-width:380px){.intro-produce .produce-green-broccoli{width:61px;right:1px;bottom:8px}.intro-produce .produce-green-broccoli-small{width:39px;left:0;top:2px}.intro-produce .produce-green-leek{width:63px;left:-23px;bottom:47px}.intro-produce .produce-green-leek-small{width:43px;right:19%;top:-24px}}
