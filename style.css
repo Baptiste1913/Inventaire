@@ -1882,3 +1882,7 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 /* V33.30 — composition exacte du schéma fourni, vectorisée en deux couleurs. */
 .intro-produce{position:absolute!important;inset:0!important;overflow:hidden!important;pointer-events:none!important;z-index:0!important}
 .intro-produce .produce-schematic{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;transform:none!important;filter:none!important;opacity:1!important;display:block!important}
+
+/* V33.31 — Chaque motif du schéma est un SVG autonome, positionné individuellement. */
+.intro-produce .produce-schematic{display:none!important}
+.intro-produce .produce-element{position:absolute!important;display:block!important;max-width:none!important;opacity:1!important;filter:none!important;transform:none!important;pointer-events:none!important;overflow:visible!important}
