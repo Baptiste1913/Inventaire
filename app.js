@@ -291,6 +291,34 @@ function renderHeroSummary(){
 let focusWasActive=false;
 let focusTransitionTimer=null;
 let focusInitialized=false;
+// V33.54 : le flou commence sur la vue que l'utilisateur quitte,
+// avant le changement de disposition. La session ne change qu'une fois.
+let focusMotionBusy=false;
+function animateFocusEntry(action){
+ if(focusMotionBusy)return;
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
+ focusMotionBusy=true;
+ document.body.classList.remove('focus-preleave');
+ document.body.classList.add('focus-preenter');
+ window.setTimeout(()=>{
+  document.body.classList.remove('focus-preenter');
+  try{action();}finally{focusMotionBusy=false;}
+ },660);
+}
+function animateFocusExit(action){
+ if(focusMotionBusy)return;
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
+ focusMotionBusy=true;
+ document.body.classList.remove('focus-preenter');
+ document.body.classList.add('focus-preleave');
+ // Le blur porte sur la pesée et son bandeau; le reste du site reste net.
+ window.setTimeout(()=>{
+  try{action();}finally{
+   document.body.classList.remove('focus-preleave');
+   focusMotionBusy=false;
+  }
+ },490);
+}
 function syncFocusMode(){
  const session=getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
@@ -320,7 +348,7 @@ function syncFocusMode(){
     cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*55}ms`));
    }
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?760:1100);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?550:930);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
@@ -704,15 +732,15 @@ $('modeG').addEventListener('click',()=>switchMode('g'));
 $('maxGrossLimit').addEventListener('change',setLimit);
 $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{safeSetItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
-$('focusPause').addEventListener('click',()=>$('pauseSession').click());
+$('focusPause').addEventListener('click',()=>animateFocusExit(()=>$('pauseSession').click()));
 $('focusStop').addEventListener('click',()=>{$('focusConfirm').hidden=false;$('focusConfirmStop').focus();});
 $('focusCancelStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;$('focusStop').focus();});
-$('focusConfirmStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;$('finishSession').click();});
+$('focusConfirmStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;animateFocusExit(()=>$('finishSession').click());});
 // Actualise le chronomètre même sans nouvelle pesée.
 setInterval(()=>{if(document.visibilityState==='visible'&&document.body.classList.contains('is-focus-mode'))syncFocusMode();},1000);
-$('startSession').addEventListener('click',startSession);
+$('startSession').addEventListener('click',()=>animateFocusEntry(startSession));
 $('pauseSession').addEventListener('click',pauseSession);
-$('resumeSession').addEventListener('click',resumeSession);
+$('resumeSession').addEventListener('click',()=>animateFocusEntry(resumeSession));
 $('finishSession').addEventListener('click',finishSession);
 $('sessionsToggle').addEventListener('click',()=>{sessionsExpanded=!sessionsExpanded;renderSessionsHistory();});
 $('fullExportBtn').addEventListener('click',fullExport);

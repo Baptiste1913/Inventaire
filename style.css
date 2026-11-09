@@ -3099,3 +3099,54 @@ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
   body.focus-entering::after,body.focus-leaving::after{display:none!important;animation:none!important}
   body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important;will-change:auto!important}
 }
+
+
+/* V33.54 — Flou contextuel, déclenché dès le clic.
+   Entrée : flou sur le site COMPLET avant l'affichage Concentration.
+   Sortie : flou sur la pesée et le bandeau AVANT le retour du site.
+   Le zoom échelonné ne commence qu'au changement de disposition. */
+body.focus-preenter::before{
+ content:"";position:fixed;inset:0;z-index:9997;pointer-events:none;
+ background:rgba(242,249,250,.10);
+ -webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);
+ animation:focus-site-blur-v3354 780ms cubic-bezier(.33,0,.25,1) both;
+}
+@keyframes focus-site-blur-v3354{
+ 0%{opacity:0;-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}
+ 49%{opacity:.92;-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+ 100%{opacity:1;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}
+}
+/* La sortie commence sur les deux seuls blocs visibles en Concentration. */
+body.focus-preleave .focus-toolbar,
+body.focus-preleave .app > .calc-card{
+ animation:focus-blocks-blur-v3354 680ms cubic-bezier(.26,.06,.34,1) both!important;
+ transform-origin:center center;
+}
+@keyframes focus-blocks-blur-v3354{
+ 0%{opacity:1;filter:blur(0);transform:scale(1)}
+ 68%{opacity:.79;filter:blur(5px);transform:scale(.992)}
+ 100%{opacity:.62;filter:blur(8px);transform:scale(.987)}
+}
+/* Évite que le voile cache la vue cible : pas de flou global après permutation. */
+body.focus-entering::after,body.focus-leaving::after{
+ display:none!important;animation:none!important;
+}
+body.focus-entering .focus-toolbar,
+body.focus-entering .calc-card{
+ animation:none!important;filter:none!important;transform:none!important;
+}
+/* Apparition des blocs du site : rapide, un à un, du grand vers la taille réelle. */
+body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
+ animation:focus-return-v3354 540ms cubic-bezier(.18,.83,.32,1) var(--focus-spring-delay,0ms) both!important;
+ transform-origin:center center!important;
+}
+@keyframes focus-return-v3354{
+ 0%{opacity:.45;transform:scale(1.10)}
+ 42%{opacity:.96;transform:scale(1.035)}
+ 100%{opacity:1;transform:scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+ body.focus-preenter::before{display:none!important;animation:none!important}
+ body.focus-preleave .focus-toolbar,body.focus-preleave .app > .calc-card{animation:none!important}
+ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important}
+}
