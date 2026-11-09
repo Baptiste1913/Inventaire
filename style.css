@@ -1743,3 +1743,21 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .events-install-dialog .events-install-success{margin:13px 0 0!important;padding:12px 0 0!important;border:0!important;border-top:1px solid #d5e5e8!important;border-radius:0!important;background:transparent!important;color:#285d4b;font-size:12.5px;line-height:1.55;font-weight:650}
 .events-inline-icon img[src="tutorial-home.png"]{width:14px!important;height:14px!important}
 @media(prefers-reduced-motion:reduce){.events-install-dialog[open],.events-install-dialog[open].is-leaving{animation:none!important}}
+
+/* V33.22 — Tutoriel plus aéré, typographie harmonisée et croix nue */
+.events-install-dialog-inner{padding:21px 22px 23px!important}
+.events-install-dialog-head{gap:16px!important;align-items:flex-start!important}
+.events-install-dialog-head strong{font-size:15.5px!important;line-height:1.43!important;letter-spacing:-.12px}
+.events-install-dialog-head button{appearance:none!important;-webkit-appearance:none!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 28px!important;width:28px!important;height:28px!important;padding:0!important;margin:-2px -3px 0 0!important;border:0!important;outline:0!important;border-radius:0!important;background:none!important;background-color:transparent!important;box-shadow:none!important;filter:none!important;color:#557580!important}
+.events-install-dialog-head button::before,.events-install-dialog-head button::after{content:none!important;display:none!important}
+.events-install-dialog-head button svg{width:20px!important;height:20px!important;flex-shrink:0}
+.events-install-dialog-head button:focus-visible{outline:2px solid #317e96!important;outline-offset:3px!important;border-radius:3px!important}
+.events-install-dialog-head button:active,.events-install-dialog-head button:hover{background:transparent!important;box-shadow:none!important}
+.events-install-dialog ol{margin:21px 0 16px!important;padding-left:23px!important;gap:16px!important;font-size:13.5px!important;line-height:1.72!important;color:#263f4c!important}
+.events-install-dialog li{padding-left:5px!important}
+.events-install-dialog li::marker{color:#287c9d!important}
+.events-install-dialog .events-install-success{margin:19px 0 0!important;padding:16px 0 0!important;border-top:1px solid #d5e5e8!important;background:none!important;color:#263f4c!important;font-size:13px!important;line-height:1.65!important;font-weight:600!important}
+.events-inline-icon{vertical-align:-2px!important;width:19px!important;height:19px!important;background:transparent!important;transform:translateY(-2px)}
+.events-inline-icon img{width:17px!important;height:17px!important;object-fit:contain}
+.events-inline-icon img[src="tutorial-home.png"]{width:14px!important;height:14px!important}
+@media(max-width:370px){.events-install-dialog-inner{padding:18px 17px 20px!important}.events-install-dialog ol{font-size:12.8px!important;gap:13px!important}.events-install-dialog-head strong{font-size:14.5px!important}}
