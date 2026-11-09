@@ -2571,3 +2571,53 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .planning-admin-card .planning-search-feedback:not(:empty){margin:7px 2px 1px;color:#527982;font-weight:600}
 @media(max-width:390px){.planning-admin-card .planning-search-wrap input[type=search]{min-height:50px;padding-left:44px!important}}
 @media(prefers-reduced-motion:reduce){.planning-admin-card .planning-search-wrap,.planning-admin-card .planning-search-wrap svg{transition:none!important}.planning-admin-card .planning-search-wrap:focus-within::after{animation:none;opacity:0}}
+
+
+/* V33.42 — Champs administrateur : même sobriété que la saisie du poids.
+   Repos neutre/désaturé ; filet bleu fin uniquement au focus. */
+.planning-admin-card .planning-panel-content input:not([type=checkbox]):not([type=file]),
+.planning-admin-card .planning-panel-content textarea {
+  display:block!important;box-sizing:border-box!important;min-width:0!important;max-width:100%!important;width:100%!important;
+  border:1.5px solid #cbd0d5!important;border-radius:17px!important;
+  background:#fff!important;color:#303b45!important;
+  box-shadow:inset 0 1px 2px rgba(28,40,55,.025)!important;
+  outline:0!important;
+  transition:border-color .22s ease,box-shadow .22s ease!important;
+}
+.planning-admin-card .planning-panel-content input:not([type=checkbox]):not([type=file]):focus,
+.planning-admin-card .planning-panel-content textarea:focus {
+  border-color:#167fbd!important;
+  box-shadow:0 0 0 1px rgba(22,127,189,.11),inset 0 1px 2px rgba(28,40,55,.025)!important;
+  outline:0!important;
+}
+.planning-admin-card .planning-panel-content input::placeholder,
+.planning-admin-card .planning-panel-content textarea::placeholder {color:#9da4ad!important;opacity:1!important;}
+.planning-admin-card .planning-panel-content input[type=date] {
+  min-width:0!important;max-width:100%!important;overflow:hidden!important;
+  color-scheme:light;
+}
+/* La recherche suit exactement les mêmes états, sans halo ni reflet animé. */
+.planning-admin-card .planning-search-wrap,
+.planning-admin-card .planning-search-wrap:focus-within {
+  background:#fff!important;border:1.5px solid #cbd0d5!important;
+  border-radius:17px!important;box-shadow:inset 0 1px 2px rgba(28,40,55,.025)!important;
+  transform:none!important;transition:border-color .22s ease,box-shadow .22s ease!important;
+}
+.planning-admin-card .planning-search-wrap:focus-within {
+  border-color:#167fbd!important;
+  box-shadow:0 0 0 1px rgba(22,127,189,.11),inset 0 1px 2px rgba(28,40,55,.025)!important;
+}
+.planning-admin-card .planning-search-wrap::after {content:none!important;display:none!important;animation:none!important;}
+.planning-admin-card .planning-search-wrap svg {stroke:#8a949e!important;transform:none!important;transition:stroke .22s ease!important;}
+.planning-admin-card .planning-search-wrap:focus-within svg {stroke:#167fbd!important;transform:none!important;}
+.planning-admin-card .planning-search-wrap input[type=search],
+.planning-admin-card .planning-search-wrap input[type=search]:focus {
+  border:0!important;outline:0!important;background:transparent!important;
+  box-shadow:none!important;border-radius:inherit!important;
+  color:#303b45!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .planning-admin-card .planning-panel-content input,
+  .planning-admin-card .planning-panel-content textarea,
+  .planning-admin-card .planning-search-wrap{transition:none!important;}
+}
