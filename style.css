@@ -1916,3 +1916,52 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
   pointer-events: none !important;
   user-select: none !important;
 }
+
+/* V33.35 — Gestion privée du planning, responsive et accessible */
+.planning-admin-card[hidden],.planning-preview[hidden],.planning-secondary[hidden],.planning-primary[hidden]{display:none!important}
+.planning-admin-card{border:1px solid #d6e5eb}
+.planning-admin-body{display:grid;gap:15px;padding:0 16px 18px}
+.planning-admin-body .planning-muted{font-size:12px;line-height:1.65;color:#657d8b;margin:0}
+.planning-panel{display:grid;gap:12px;padding:16px 14px;border:1px solid #d9e9f0;border-radius:15px;background:linear-gradient(140deg,#fbfdff,#f2f8fc)}
+.planning-panel h3{font-size:15px;line-height:1.35;color:#244b63;margin:0;font-weight:800}
+.planning-form{display:grid;gap:10px;margin:0}
+.planning-panel label:not(.planning-file-label):not(.planning-show-all){font-size:12px;font-weight:750;color:#46687b;display:block}
+.planning-panel input:not([type="checkbox"]):not([type="file"]),.planning-panel textarea{display:block;width:100%;max-width:100%;min-width:0;min-height:42px;padding:10px 11px;font:inherit;font-size:14px;color:#213c4d;border:1px solid #cbdfe8;border-radius:10px;background:#fff;box-shadow:inset 0 1px 2px rgba(30,70,95,.035)}
+.planning-panel input:focus-visible,.planning-panel textarea:focus-visible{outline:2px solid #79b8d3;outline-offset:1px}
+.planning-panel textarea{min-height:112px;resize:vertical;line-height:1.55;font-size:12px}
+.planning-two-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.planning-two-cols>div{display:grid;gap:7px;min-width:0}
+.planning-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.planning-actions button,.planning-file-label{display:inline-flex;justify-content:center;align-items:center;gap:6px;min-height:41px;padding:9px 13px;border-radius:11px;font-size:12.5px;font-weight:800;line-height:1.25;text-align:center;cursor:pointer;font-family:inherit;box-sizing:border-box}
+.planning-primary{border:1px solid #167b9d;background:linear-gradient(140deg,#258bac,#176d92);color:white;box-shadow:0 2px 7px rgba(34,105,141,.12)}
+.planning-secondary,.planning-file-label{border:1px solid #c7dfea;background:#fff;color:#2a6b87}
+.planning-actions button:disabled{opacity:.5;cursor:not-allowed}
+.planning-feedback{font-size:12px;line-height:1.5;color:#287b63;margin:0;min-height:0}
+.planning-feedback.is-error{color:#a23d43}
+.planning-preview{padding:12px;border:1px solid #cbdfea;background:#fff;border-radius:11px;display:grid;gap:6px;font-size:12px;color:#3c5c6e}
+.planning-preview>strong{color:#245b76}
+.planning-preview p{margin:0;line-height:1.5}
+.planning-preview-row{padding:6px 0;border-bottom:1px solid #e7eff2}
+.planning-preview-row:last-child{border:0}
+.planning-list-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.planning-count{font-size:11px;font-weight:750;color:#648394}
+.planning-show-all{display:flex;align-items:center;gap:8px;font-size:12px;color:#496b7c;line-height:1.4}
+.planning-show-all input{width:16px;height:16px;accent-color:#2780a0}
+.planning-manage-list{display:grid;gap:8px;max-height:470px;overflow:auto;overscroll-behavior:contain;padding:2px 1px}
+.planning-list-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 10px;background:#fff;border:1px solid #e0edf1;border-radius:12px;min-width:0}
+.planning-list-text{display:grid;gap:3px;min-width:0;overflow-wrap:anywhere}
+.planning-list-text strong{font-size:12.5px;line-height:1.35;color:#294c5e}
+.planning-list-text>span:last-child{font-size:11px;color:#6d8591}
+.planning-kind{font-size:10px;font-weight:800;color:#29799a;letter-spacing:.02em}
+.planning-kind.is-cancelled{color:#a36b61}
+.planning-list-actions{display:flex;gap:5px;flex-shrink:0;align-items:center}
+.planning-mini-button{font:inherit;font-size:11px;font-weight:750;color:#286d8b;border:1px solid #d1e3eb;background:#f5fafc;padding:8px;border-radius:9px;cursor:pointer}
+.planning-mini-button:disabled{opacity:.45;cursor:not-allowed}
+.planning-mini-danger{color:#8a5758;background:#fff8f7;border-color:#eadbd8}
+.planning-confirm-dialog{width:min(92vw,420px);max-width:420px;padding:0;border:1px solid #d6e7ef;border-radius:18px;box-shadow:0 15px 48px rgba(17,44,58,.23)}
+.planning-confirm-dialog::backdrop{background:rgba(16,35,46,.36)}
+.planning-confirm-inner{display:grid;gap:14px;padding:22px;background:#fff;color:#274759}
+.planning-confirm-inner h3{margin:0;font-size:17px}
+.planning-confirm-inner p{margin:0;font-size:13px;line-height:1.55;color:#617786}
+@media(max-width:420px){.planning-admin-body{padding:0 12px 15px}.planning-panel{padding:14px 11px}.planning-two-cols{grid-template-columns:1fr}.planning-list-row{align-items:flex-start;flex-direction:column}.planning-list-actions{width:100%}.planning-mini-button{flex:1}}
+@media(prefers-reduced-motion:reduce){.planning-admin-card *{scroll-behavior:auto!important}}
