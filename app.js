@@ -311,7 +311,7 @@ function syncFocusMode(){
   if(focusInitialized && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    const transitionClass=active?'focus-entering':'focus-leaving';
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},730);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},1550);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.

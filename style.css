@@ -2932,3 +2932,65 @@ body.focus-entering .calc-card{animation:focus-card-in .68s .055s cubic-bezier(.
 @keyframes focus-card-in{from{opacity:.45;transform:translateY(23px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:430px){.focus-toolbar{padding:18px 15px}.focus-actions button{min-height:52px}}
 @media(prefers-reduced-motion:reduce){body.focus-entering::after,body.focus-leaving::after{animation:none;display:none}body.focus-entering .focus-toolbar,body.focus-entering .calc-card{animation:none}.focus-actions button{transition:none}}
+
+
+/* V33.50 — Commandes compactes dans le langage graphique du sélecteur de pesée. */
+.focus-actions{gap:9px;margin-top:2px}
+.focus-actions button{
+  min-height:44px!important;padding:9px 12px!important;border-radius:15px!important;
+  font-size:.88rem!important;line-height:1.25!important;font-weight:750!important;
+  background:linear-gradient(155deg,#f5fafb 0%,#e7f1f3 100%)!important;
+  border:1px solid #d2e2e6!important;color:#346878!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 2px 7px rgba(33,79,95,.045)!important;
+  transition:background .34s ease,border-color .34s ease,box-shadow .34s ease,transform .34s cubic-bezier(.2,.8,.2,1)!important;
+}
+.focus-actions .focus-pause{
+  background:linear-gradient(155deg,#fff 0%,#f4fafb 100%)!important;
+  border-color:#c4dbe0!important;color:#186a80!important;
+  box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(30,95,110,.08)!important;
+}
+.focus-actions .focus-stop{color:#4b6871!important}
+.focus-actions svg{width:15px!important;height:15px!important;flex:0 0 15px;vertical-align:middle}
+.focus-actions button:active{transform:scale(.975)!important}
+.focus-confirm{padding:13px 14px!important;margin-top:12px!important;background:linear-gradient(155deg,#fff,#f2f8f9)!important;border-color:#d6e6e9!important}
+.focus-confirm p{font-size:.98rem!important;line-height:1.35!important;margin-bottom:12px!important;font-weight:750!important;color:#2c4148!important}
+.focus-confirm>div{display:grid!important;grid-template-columns:1fr 1fr;gap:9px!important}
+.focus-confirm button{min-height:43px!important;padding:9px 10px!important;border-radius:13px!important;font-size:.9rem!important;font-weight:750!important;
+ background:linear-gradient(155deg,#f5fafb,#eaf3f5)!important;color:#2e6474!important;border:1px solid #d1e1e5!important;box-shadow:inset 0 1px 0 #fff!important}
+.focus-confirm #focusConfirmStop{background:linear-gradient(155deg,#fff,#f1f8fa)!important;color:#176d84!important;border-color:#b8d5dc!important;box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(30,95,110,.075)!important}
+/* Voile plus lent, respirant, puis réapparition échelonnée des éléments. */
+body.focus-entering::after,body.focus-leaving::after{
+ background:radial-gradient(ellipse at 48% 36%,rgba(242,252,252,.87),rgba(93,168,181,.18) 72%,rgba(255,255,255,.12))!important;
+ animation:focus-soft-veil 1.48s cubic-bezier(.25,.65,.2,1) both!important;
+}
+@keyframes focus-soft-veil{
+ 0%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
+ 32%{opacity:.85;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+ 65%{opacity:.55;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+ 100%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
+}
+body.focus-entering .focus-toolbar{animation:focus-gentle-enter 1.25s cubic-bezier(.16,.8,.25,1) both!important}
+body.focus-entering .calc-card{animation:focus-gentle-enter 1.35s .10s cubic-bezier(.16,.8,.25,1) both!important}
+@keyframes focus-gentle-enter{
+ 0%{opacity:.15;transform:translateY(28px) scale(.976)}
+ 70%{opacity:1;transform:translateY(-3px) scale(1.004)}
+ 100%{opacity:1;transform:translateY(0) scale(1)}
+}
+body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
+ animation:focus-return-spring 1.35s cubic-bezier(.22,.74,.22,1) both!important;
+}
+body.focus-leaving .app > :nth-child(2n){animation-delay:.06s!important}
+body.focus-leaving .app > :nth-child(3n){animation-delay:.12s!important}
+@keyframes focus-return-spring{
+ 0%{opacity:0;transform:translateY(26px) scale(.974)}
+ 58%{opacity:1;transform:translateY(-8px) scale(1.009)}
+ 78%{transform:translateY(3px) scale(.998)}
+ 91%{transform:translateY(-1px) scale(1.001)}
+ 100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(max-width:360px){.focus-actions button{padding:8px 7px!important;font-size:.82rem!important}.focus-actions{gap:7px}}
+@media(prefers-reduced-motion:reduce){
+ body.focus-entering::after,body.focus-leaving::after{display:none!important;animation:none!important}
+ body.focus-entering .focus-toolbar,body.focus-entering .calc-card,
+ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important}
+}
