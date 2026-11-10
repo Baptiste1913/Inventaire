@@ -3638,3 +3638,116 @@ body.iu-focus-fallback-in .app {animation:iu-focus-fallback-in 140ms ease-out bo
   animation-duration:0.01ms!important;animation-delay:0ms!important;
  }
 }
+
+
+/* === V33.60 — cascade verticale du mode Concentration ===
+   La transition opere uniquement sur les cartes du contenu. Les deux
+   premiers blocs (en-tete et banderole) restent exactement a leur place.
+   L'ancien et le nouvel etat sont des instantanes natifs : zero ecran blanc. */
+html.iu-focus-slide::view-transition {
+  background:#f3f6f7;
+}
+html.iu-focus-slide::view-transition-old(root),
+html.iu-focus-slide::view-transition-new(root) {
+  animation:none!important;
+  opacity:0!important;
+}
+/* Ordre de profondeur : les cartes qui quittent l'ecran restent au-dessus
+   du mode Concentration entrant. La banderole et l'en-tete sont devant
+   les deux autres couches, sans jamais etre deplaces. */
+html.iu-focus-slide::view-transition-group(iu-focus-0),
+html.iu-focus-slide::view-transition-group(iu-focus-1) {z-index:1;}
+html.iu-focus-slide::view-transition-group(iu-anchor-0),
+html.iu-focus-slide::view-transition-group(iu-anchor-1) {z-index:4;}
+html.iu-focus-slide::view-transition-group(iu-normal-0) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-1) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-2) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-3) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-4) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-5) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-6) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-7) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-8) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-9) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-10) {z-index:2;}
+html.iu-focus-slide::view-transition-group(iu-normal-11) {z-index:2;}
+/* La photographie des elements fixes n'est jamais translatee. */
+html.iu-focus-entering::view-transition-old(iu-anchor-0),
+html.iu-focus-entering::view-transition-old(iu-anchor-1) {
+  animation:iu-slide-anchor-away 650ms ease-in-out both!important;
+}
+html.iu-focus-exiting::view-transition-new(iu-anchor-0),
+html.iu-focus-exiting::view-transition-new(iu-anchor-1) {
+  animation:iu-slide-anchor-back 640ms ease-out both!important;
+}
+@keyframes iu-slide-anchor-away {
+  0%,54% {opacity:1}
+  88%,100% {opacity:0}
+}
+@keyframes iu-slide-anchor-back {
+  0%,16% {opacity:0}
+  68%,100% {opacity:1}
+}
+/* Interface Concentration depuis le bas ; a la fermeture elle redescend. */
+@keyframes iu-slide-focus-rise {
+  0% {opacity:0;transform:translate3d(0,105vh,0)}
+  20% {opacity:1}
+  100% {opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes iu-slide-focus-drop {
+  0% {opacity:1;transform:translate3d(0,0,0)}
+  75% {opacity:1}
+  100% {opacity:0;transform:translate3d(0,105vh,0)}
+}
+html.iu-focus-entering::view-transition-new(iu-focus-0),
+html.iu-focus-entering::view-transition-new(iu-focus-1) {
+  animation:iu-slide-focus-rise 640ms cubic-bezier(.18,.78,.22,1) both!important;
+}
+html.iu-focus-entering::view-transition-new(iu-focus-1) {animation-delay:48ms!important}
+html.iu-focus-exiting::view-transition-old(iu-focus-0),
+html.iu-focus-exiting::view-transition-old(iu-focus-1) {
+  animation:iu-slide-focus-drop 510ms cubic-bezier(.42,0,.82,.4) both!important;
+}
+html.iu-focus-exiting::view-transition-old(iu-focus-1) {animation-delay:30ms!important}
+/* Cartes habituelles : le bas quitte l'ecran en premier. */
+@keyframes iu-slide-card-down {
+  0% {opacity:1;transform:translate3d(0,0,0)}
+  78% {opacity:1}
+  100% {opacity:0;transform:translate3d(0,110vh,0)}
+}
+@keyframes iu-slide-card-return {
+  0% {opacity:0;transform:translate3d(0,110vh,0)}
+  24% {opacity:1}
+  100% {opacity:1;transform:translate3d(0,0,0)}
+}
+html.iu-focus-entering::view-transition-old(iu-normal-0) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 0ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-0) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 0ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-1) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 42ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-1) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 42ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-2) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 84ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-2) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 84ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-3) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 126ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-3) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 126ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-4) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 168ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-4) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 168ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-5) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 210ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-5) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 210ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-6) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 252ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-6) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 252ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-7) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 294ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-7) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 294ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-8) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 336ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-8) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 336ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-9) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 378ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-9) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 378ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-10) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 420ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-10) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 420ms both!important;}
+html.iu-focus-entering::view-transition-old(iu-normal-11) {animation:iu-slide-card-down 490ms cubic-bezier(.42,0,.77,.55) 462ms both!important;}
+html.iu-focus-exiting::view-transition-new(iu-normal-11) {animation:iu-slide-card-return 580ms cubic-bezier(.19,.77,.25,1) 462ms both!important;}
+
+@media (prefers-reduced-motion:reduce){
+ html.iu-focus-slide::view-transition-old(root),html.iu-focus-slide::view-transition-new(root),
+ html.iu-focus-slide::view-transition-old(*),html.iu-focus-slide::view-transition-new(*){
+   animation-duration:.01ms!important;animation-delay:0ms!important;
+ }
+}

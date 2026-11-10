@@ -293,47 +293,99 @@ function renderHeroSummary(){
   heroAction.setAttribute('aria-label','Aller à la section Inventaire');
  }
 }
-// V33.59 — une seule transition entre la session et la vue Concentration.
-// View Transitions conserve les deux instantanés pendant le fondu (aucun écran vide).
-// Le mode sans animation et les navigateurs plus anciens restent fonctionnels.
+// V33.60 — transition verticale par carte : l'accueil descend du bas vers
+// le haut pendant que Concentration remonte. La banderole et l'en-tête ne
+// se déplacent pas. Le mouvement inverse accompagne Pause et Terminer.
+// Le navigateur conserve les instantanes pendant le changement d'interface :
+// aucun formulaire ni aucune pesée n'est duplique dans le DOM.
 let focusWasActive=false;
 let focusInitialized=false;
 let focusMotionBusy=false;
 const focusReducedMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const focusStaticSelectors='.app > .header, .app > .intro';
+const focusNormalSelectors='.app > .card, .app > .inventory-calendar, .app > footer';
+const focusViewSelectors='.app > .focus-toolbar, .app > .calc-card';
+const focusVisible=node=>{
+ if(!node||node.hidden)return false;
+ const style=getComputedStyle(node),r=node.getBoundingClientRect();
+ return style.display!=='none'&&style.visibility!=='hidden'&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;
+};
+function focusTagViews(entering,phase,tagged){
+ const normal=(entering&&phase==='old')||(!entering&&phase==='new');
+ if(normal){
+  // L'ordre commence au bloc le plus bas : il sort en premier.
+  // Seuls les blocs a l'ecran sont captures (les autres restent intacts).
+  const cards=[...document.querySelectorAll(focusNormalSelectors)]
+   .filter(focusVisible).sort((a,b)=>b.getBoundingClientRect().top-a.getBoundingClientRect().top).slice(0,12);
+  for(const [i,el] of cards.entries()){
+   el.style.viewTransitionName=`iu-normal-${i}`;
+   tagged.add(el);
+  }
+  // En-tete et banderole : aucune translation, seulement une disparition
+  // ou une apparition douce, depuis leur position fixe a l'ecran.
+  const anchors=[...document.querySelectorAll(focusStaticSelectors)].filter(focusVisible);
+  for(const [i,el] of anchors.entries()){
+   el.style.viewTransitionName=`iu-anchor-${i}`;
+   tagged.add(el);
+  }
+ }else{
+  // Dans le mode concentre, le bandeau et la pesée arrivent ensemble
+  // depuis le bas ; la pesée suit le bandeau de quelques millisecondes.
+  const focus=[...document.querySelectorAll(focusViewSelectors)].filter(focusVisible);
+  for(const [i,el] of focus.entries()){
+   el.style.viewTransitionName=`iu-focus-${i}`;
+   tagged.add(el);
+  }
+ }
+}
 function changeFocusWithMotion(action,entering){
  if(focusMotionBusy)return;
- if(focusReducedMotion()) { action(); return; }
- focusMotionBusy=true;
+ if(focusReducedMotion()){action();return;}
  const html=document.documentElement;
- const app=document.querySelector('.app');
- const sessionCard=document.querySelector('.app > .session-card');
- const source=entering?sessionCard:$('focusToolbar');
- const bounds=source?.getBoundingClientRect();
- // Éviter une carte partagée projetée depuis une position hors écran.
- const shared=!!(bounds&&bounds.bottom>0&&bounds.top<innerHeight&&bounds.width>0&&bounds.height>0);
- const finish=()=>{
-  html.classList.remove('iu-focus-transition','iu-focus-opening','iu-focus-closing');
-  document.body.classList.remove('iu-focus-shared','iu-focus-fallback-out','iu-focus-fallback-in');
+ const before=document.body.classList.contains('is-focus-mode');
+ // La transition n'est utile que si l'action peut changer de mode.
+ if((entering&&before)||(!entering&&!before)){action();return;}
+ focusMotionBusy=true;
+ const tagged=new Set();
+ const cleanup=()=>{
+  for(const el of tagged)el.style.viewTransitionName='';
+  html.classList.remove('iu-focus-slide','iu-focus-entering','iu-focus-exiting');
+  document.body.classList.remove('iu-slide-fallback-out','iu-slide-fallback-in');
   focusMotionBusy=false;
  };
+ const update=()=>{
+  // Les anciens noms doivent etre retires avant la capture de la cible.
+  for(const el of tagged)el.style.viewTransitionName='';
+  action();
+  focusTagViews(entering,'new',tagged);
+ };
+ html.classList.add('iu-focus-slide',entering?'iu-focus-entering':'iu-focus-exiting');
+ focusTagViews(entering,'old',tagged);
  if(typeof document.startViewTransition==='function'){
-  html.classList.add('iu-focus-transition',entering?'iu-focus-opening':'iu-focus-closing');
-  if(shared)document.body.classList.add('iu-focus-shared');
   try{
-   const transition=document.startViewTransition(()=>{action();});
-   transition.finished.then(finish,finish);
-  }catch(error){finish();action();}
+   const transition=document.startViewTransition(update);
+   transition.finished.then(cleanup,cleanup);
+  }catch(error){cleanup();action();}
   return;
  }
- // Repli Safari ancien : fondu rapide sans masque opaque ni page blanche.
- document.body.classList.add('iu-focus-fallback-out');
+ // Ancien Safari : deplacement vertical leger, en respectant les donnees
+ // et les commandes de session. Le changement se fait au milieu du mouvement.
+ const source=[...document.querySelectorAll(entering?focusNormalSelectors:focusViewSelectors)]
+   .filter(focusVisible).sort((a,b)=>b.getBoundingClientRect().top-a.getBoundingClientRect().top);
+ const animations=source.slice(0,8).map((el,i)=>el.animate(
+  [{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(110px)'}],
+  {duration:270,delay:i*30,easing:'cubic-bezier(.42,0,.76,.5)',fill:'both'}));
  window.setTimeout(()=>{
-  try{action();}finally{
-   document.body.classList.remove('iu-focus-fallback-out');
-   document.body.classList.add('iu-focus-fallback-in');
-   window.setTimeout(finish,entering?130:145);
-  }
- },entering?90:95);
+  for(const a of animations)a.cancel();
+  update();
+  const incoming=[...document.querySelectorAll(entering?focusViewSelectors:focusNormalSelectors)]
+   .filter(focusVisible).sort((a,b)=>b.getBoundingClientRect().top-a.getBoundingClientRect().top).slice(0,8);
+  const anims=incoming.map((el,i)=>el.animate(
+   [{opacity:0,transform:'translateY(100px)'},{opacity:1,transform:'translateY(0)'}],
+   {duration:360,delay:i*35,easing:'cubic-bezier(.19,.77,.25,1)',fill:'both'}));
+  Promise.all(anims.map(a=>a.finished.catch(()=>{}))).then(cleanup,cleanup);
+  if(!anims.length)cleanup();
+ },entering?245:235);
 }
 function animateFocusEntry(action){changeFocusWithMotion(action,true);}
 function animateFocusExit(action){changeFocusWithMotion(action,false);}
@@ -354,7 +406,7 @@ function syncFocusMode(){
   focusWasActive=active;
   // Durant la capture native, positionner directement la vue cible.
   // En dehors d'une transition, garder le retour en haut historique.
-  if(document.documentElement.classList.contains('iu-focus-transition')){
+  if(document.documentElement.classList.contains('iu-focus-slide')){
    window.scrollTo({top:0,left:0,behavior:'instant'});
   } else if(focusInitialized){
    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));

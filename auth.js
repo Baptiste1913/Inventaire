@@ -288,7 +288,9 @@ window.addEventListener('storage',e=>{
 });
 $('otherTabReload')?.addEventListener('click',()=>location.reload());
 $('otherTabLater')?.addEventListener('click',()=>{$('otherTabDialog')?.close();localStatus('Attention : cet onglet peut contenir des données anciennes');});
+// Le suivi du tableau de bord doit rester dans cette closure : user et
+// renderDashboard sont privés au module d'authentification.
 init();
-})();
 window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
 setInterval(()=>{if(user&&$('accountCard')?.open)renderDashboard();},5000);
+})();
