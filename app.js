@@ -352,14 +352,20 @@ function changeFocusWithMotion(action,entering){
  const before=document.body.classList.contains('is-focus-mode');
  // La transition n'est utile que si l'action peut changer de mode.
  if((entering&&before)||(!entering&&!before)){action();return;}
- // Stabiliser le repere des captures AVANT startViewTransition :
- // un scroll dans update() deplace les captures du retour sur Safari iOS.
- window.scrollTo({top:0,left:0,behavior:'instant'});
+ // iOS Safari peut recalculer la largeur du document lors de la capture
+ // du nouvel etat. Figée sur la largeur visible, elle ne peut plus pousser
+ // les tuiles ni la banderole hors du bord droit pendant la sortie.
+ const visibleWidth=Math.max(1,Math.round(Math.min(
+  document.documentElement.clientWidth||innerWidth,
+  window.visualViewport?.width||innerWidth
+ )));
+ html.style.setProperty('--iu-capture-viewport',`${visibleWidth}px`);
  focusMotionBusy=true;
  const tagged=new Set();
  const cleanup=()=>{
   for(const el of tagged)el.style.viewTransitionName='';
   html.classList.remove('iu-focus-slide','iu-focus-entering','iu-focus-exiting');
+  html.style.removeProperty('--iu-capture-viewport');
   document.body.classList.remove('iu-slide-fallback-out','iu-slide-fallback-in');
   focusMotionBusy=false;
   // Un clic sur « Annuler » peut survenir avant la fin de la fermeture.
@@ -413,7 +419,7 @@ function syncFocusMode(){
   // Durant la capture native, positionner directement la vue cible.
   // En dehors d'une transition, garder le retour en haut historique.
   if(document.documentElement.classList.contains('iu-focus-slide')){
-   // Le scroll a ete stabilise avant la capture : ne jamais le modifier ici.
+   window.scrollTo({top:0,left:0,behavior:'instant'});
   } else if(focusInitialized){
    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
   }
