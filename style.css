@@ -4533,3 +4533,58 @@ html.iu-focus-exiting::view-transition {
 @media(prefers-reduced-motion:reduce){
   .app > .intro .intro-session-dot::after{animation:none!important;}
 }
+
+
+/* === V33.80 — rééquilibrage ciblé de la banderole verte ===
+   Identité et interactions conservées ; les modifications ne concernent
+   que les proportions, la lumière, le titre, la pastille et l'ombre. */
+.app > .intro {
+  /* Émeraude profond à gauche ; éclairage concentré tout en haut à droite. */
+  background:
+    radial-gradient(ellipse 47% 68% at 102% -9%,
+      rgba(238,255,244,.23) 0%,rgba(229,254,241,.07) 48%,transparent 84%),
+    radial-gradient(ellipse 64% 100% at -12% 105%,
+      rgba(10,55,53,.20) 0%,transparent 76%),
+    linear-gradient(112deg,#1c5e57 0%,#276f65 33%,#388d7c 69%,#4ea994 100%)!important;
+  /* Plus bas et plus compact, pour limiter le vide sous les commandes. */
+  padding-top:29px!important;
+  padding-bottom:19px!important;
+  border-radius:0 0 20px 20px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(14,77,65,.08),
+    0 15px 38px rgba(17,77,70,.09),
+    0 5px 14px rgba(17,77,70,.035)!important;
+}
+.app > .intro::before {
+  background:radial-gradient(ellipse 42% 57% at 100% 0%,rgba(246,255,249,.095),transparent 78%)!important;
+}
+.app > .intro::after {opacity:.10!important;}
+.app > .intro h2 {
+  /* Environ 6 % plus petit que dans V33.79, avec même graisse. */
+  font-size:clamp(21.5px,4.98vw,32px)!important;
+  font-weight:900!important;
+  -webkit-text-stroke:.78px currentColor!important;
+  letter-spacing:-.34px!important;
+  margin-bottom:14px!important;
+}
+.app > .intro .intro-bottom {
+  margin-top:14px!important;
+}
+.app > .intro .intro-bottom > :is(.intro-session-state,.intro-jump) {
+  /* V33.79 conservait déjà 40 / 38px de hauteur, harmonisation totale. */
+  border-radius:999px!important;
+}
+.app > .intro .intro-session-state {
+  background:rgba(255,255,255,.15)!important;
+  border-color:rgba(255,255,255,.23)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.075)!important;
+}
+@media(max-width:600px){
+  .app > .intro {padding-top:25px!important;padding-bottom:18px!important;}
+  .app > .intro .intro-bottom {margin-top:13px!important;}
+}
+@media(max-width:380px){
+  .app > .intro {padding-top:24px!important;padding-bottom:17px!important;}
+  .app > .intro .intro-bottom {margin-top:11px!important;}
+}
