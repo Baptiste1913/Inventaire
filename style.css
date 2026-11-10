@@ -3652,11 +3652,10 @@ html.iu-focus-slide::view-transition-new(root) {
   animation:none!important;
   opacity:0!important;
 }
-/* Ordre de profondeur : les cartes qui quittent l'ecran restent au-dessus
-   du mode Concentration entrant. La banderole et l'en-tete sont devant
-   les deux autres couches, sans jamais etre deplaces. */
+/* V33.61 : le mode Concentration se deplace AU-DESSUS de toutes les cartes
+   pendant l'entree ET la sortie. Les ancres restent immobiles. */
 html.iu-focus-slide::view-transition-group(iu-focus-0),
-html.iu-focus-slide::view-transition-group(iu-focus-1) {z-index:1;}
+html.iu-focus-slide::view-transition-group(iu-focus-1) {z-index:8;}
 html.iu-focus-slide::view-transition-group(iu-anchor-0),
 html.iu-focus-slide::view-transition-group(iu-anchor-1) {z-index:4;}
 html.iu-focus-slide::view-transition-group(iu-normal-0) {z-index:2;}
@@ -3750,4 +3749,22 @@ html.iu-focus-exiting::view-transition-new(iu-normal-11) {animation:iu-slide-car
  html.iu-focus-slide::view-transition-old(*),html.iu-focus-slide::view-transition-new(*){
    animation-duration:.01ms!important;animation-delay:0ms!important;
  }
+}
+
+/* V33.61 - la reprise apres annulation fait remonter le mode Concentration
+   comme lors du demarrage, sans toucher a la session ni aux pesées. */
+@keyframes iu-focus-cancel-arrival {
+  from {transform:translate3d(0, min(76vh, 760px), 0); opacity:0;}
+  20% {opacity:1;}
+  to {transform:translate3d(0,0,0); opacity:1;}
+}
+body.iu-focus-cancel-replay .app > .focus-toolbar,
+body.iu-focus-cancel-replay .app > .calc-card {
+  animation:iu-focus-cancel-arrival 640ms cubic-bezier(.18,.78,.22,1) both!important;
+  position:relative; z-index:10;
+}
+body.iu-focus-cancel-replay .app > .calc-card {animation-delay:48ms!important;}
+@media (prefers-reduced-motion:reduce){
+ body.iu-focus-cancel-replay .app > .focus-toolbar,
+ body.iu-focus-cancel-replay .app > .calc-card {animation:none!important;}
 }

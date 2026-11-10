@@ -792,7 +792,25 @@ $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
 $('focusPause').addEventListener('click',()=>animateFocusExit(()=>$('pauseSession').click()));
 $('focusStop').addEventListener('click',()=>{$('focusConfirm').hidden=false;$('focusConfirmStop').focus();});
-$('focusCancelStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;$('focusStop').focus();});
+// Annulation de l'arrêt : remettre l'interface Concentration en avant,
+// avec le meme mouvement que son arrivee initiale, sans modifier la session.
+let focusCancelReplayToken=0;
+function replayFocusArrivalAfterCancel(){
+ const token=++focusCancelReplayToken;
+ document.body.classList.remove('iu-focus-cancel-replay');
+ if(focusReducedMotion())return;
+ // Relancer les keyframes meme en cas d'annulations successives.
+ void document.body.offsetWidth;
+ document.body.classList.add('iu-focus-cancel-replay');
+ window.setTimeout(()=>{
+  if(token===focusCancelReplayToken)document.body.classList.remove('iu-focus-cancel-replay');
+ },740);
+}
+$('focusCancelStop').addEventListener('click',()=>{
+ $('focusConfirm').hidden=true;
+ replayFocusArrivalAfterCancel();
+ $('focusStop').focus({preventScroll:true});
+});
 $('focusConfirmStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;animateFocusExit(()=>$('finishSession').click());});
 // Actualise le chronomètre même sans nouvelle pesée.
 setInterval(()=>{if(document.visibilityState==='visible'&&document.body.classList.contains('is-focus-mode'))syncFocusMode();},1000);
