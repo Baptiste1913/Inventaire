@@ -286,10 +286,11 @@ function renderHeroSummary(){
  status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
  const count=session?session.entries.length:0;
  text.textContent=!session?'Aucune session en cours':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
+ // Le bouton de la banderole reste une navigation, jamais un démarrage direct.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
-  const label=!session?'Démarrer un inventaire':session.pausedAt?'Reprendre l’inventaire':'Continuer la pesée';
-  heroLabel.textContent=label;heroAction.setAttribute('aria-label',label);
+  heroLabel.textContent='Inventaire';
+  heroAction.setAttribute('aria-label','Aller à la section Inventaire');
  }
 }
 // V33.48 : le mode Concentration reprend la session existante, sans dupliquer les pesées.
@@ -308,7 +309,7 @@ function animateFocusEntry(action){
  window.setTimeout(()=>{
   document.body.classList.remove('focus-preenter');
   try{action();}finally{focusMotionBusy=false;}
- },660);
+ },400);
 }
 function animateFocusExit(action){
  if(focusMotionBusy)return;
@@ -322,7 +323,7 @@ function animateFocusExit(action){
    document.body.classList.remove('focus-preleave');
    focusMotionBusy=false;
   }
- },490);
+ },330);
 }
 function syncFocusMode(){
  const session=getActiveSession();
@@ -350,10 +351,10 @@ function syncFocusMode(){
       !node.classList.contains('focus-toolbar') &&
       !node.classList.contains('offline-indicator') &&
       !node.hidden && getComputedStyle(node).display!=='none');
-    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*55}ms`));
+    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,8)*24}ms`));
    }
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?550:930);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?430:600);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
@@ -915,17 +916,16 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
 
 
-// La banderole pilote la VRAIE session : aucune seconde session n'est créée.
+// La banderole est un raccourci vers les commandes de session : elle ne démarre rien.
 (function setupHeroSessionAction(){
  const trigger=$('heroStartSession');
- if(!trigger)return;
+ const destination=document.querySelector('.session-card');
+ if(!trigger||!destination)return;
  trigger.addEventListener('click',()=>{
-  const session=getActiveSession();
-  if(!session){$('startSession').click();return;}
-  if(session.pausedAt){$('resumeSession').click();return;}
-  // En cours : si un jour la bannière reste visible, revenir à la pesée.
-  const destination=$('calc-title');
-  if(destination)destination.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  destination.scrollIntoView({
+   behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',
+   block:'start'
+  });
  });
 })();
 

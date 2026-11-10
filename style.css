@@ -3328,3 +3328,103 @@ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
     transition:none!important;
   }
 }
+
+
+/* === V33.56 — navigation claire, entête administrateur et mouvements sobres === */
+/* Le bouton de la banderole donne accès à la session sans la démarrer. */
+.app > .session-card {scroll-margin-top:16px;}
+.intro .intro-jump {gap:9px!important;}
+.intro .intro-jump svg {width:16px!important;height:16px!important;}
+
+/* Alignement de la carte Administration sur la carte Mon espace : icône ronde,
+   libellé sur deux lignes et chevron à droite, avec des tailles identiques. */
+.app > .planning-admin-card > .planning-admin-summary {
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ gap:10px!important;min-height:82px!important;padding:20px 18px!important;
+ flex-wrap:nowrap!important;text-align:left!important;background:#fff!important;
+}
+.planning-admin-card .planning-admin-lock {
+ flex:0 0 43px!important;width:43px!important;height:43px!important;
+ border-radius:50%!important;display:grid;place-items:center;
+ border:1px solid #c6e3e7!important;
+ background:linear-gradient(145deg,#e8f6f7,#d5ebee)!important;
+ color:#087e8b!important;box-shadow:inset 0 1px 0 #fff!important;
+}
+.planning-admin-card .planning-admin-lock svg {width:23px!important;height:23px!important;}
+.planning-admin-card .planning-admin-title {
+ flex:1 1 110px!important;min-width:0!important;display:grid!important;
+ gap:5px!important;margin:0!important;text-align:left!important;
+}
+.planning-admin-card .planning-admin-eyebrow {
+ color:#147b87!important;font-size:11px!important;font-weight:800!important;
+ letter-spacing:.105em!important;line-height:1.3!important;
+}
+.planning-admin-card .planning-admin-heading {
+ font-size:20px!important;line-height:1.2!important;letter-spacing:-.45px!important;
+ font-weight:850!important;color:#202126!important;
+}
+.planning-admin-card .planning-admin-trailing {
+ display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ flex:0 0 18px!important;margin-left:auto!important;
+}
+.planning-admin-card .planning-admin-trailing .planning-admin-chevron {
+ display:block!important;position:static!important;inset:auto!important;
+ width:18px!important;height:18px!important;margin:0!important;
+ fill:none!important;stroke:#607981!important;stroke-width:2.4!important;
+ stroke-linecap:round;stroke-linejoin:round;
+ transition:transform var(--iu-motion) var(--iu-ease)!important;
+}
+.planning-admin-card[open] > .planning-admin-summary .planning-admin-chevron {transform:rotate(180deg)!important;}
+.planning-admin-card.is-fold-closing > .planning-admin-summary .planning-admin-chevron {transform:rotate(0)!important;}
+@media(max-width:380px){
+ .app > .planning-admin-card > .planning-admin-summary {padding:17px 12px!important;gap:7px!important;min-height:74px!important;}
+ .planning-admin-card .planning-admin-lock {width:38px!important;height:38px!important;flex-basis:38px!important;}
+ .planning-admin-card .planning-admin-lock svg {width:21px!important;height:21px!important;}
+ .planning-admin-card .planning-admin-heading {font-size:18px!important;}
+ .planning-admin-card .planning-admin-eyebrow {font-size:10px!important;}
+}
+
+/* Mode Concentration : flou léger sur la vue qui disparaît,
+   retour des cartes par simple fondu / micro-zoom, sans effet de rebond. */
+body.focus-preenter::before {
+ background:rgba(244,250,251,.045)!important;
+ animation:focus-soft-transition-3356 400ms cubic-bezier(.22,.7,.28,1) both!important;
+}
+@keyframes focus-soft-transition-3356 {
+ 0%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
+ 100%{opacity:1;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+}
+body.focus-preleave .focus-toolbar,
+body.focus-preleave .app > .calc-card {
+ animation:focus-soft-leave-3356 330ms cubic-bezier(.25,.55,.3,1) both!important;
+}
+@keyframes focus-soft-leave-3356 {
+ 0%{opacity:1;filter:blur(0);transform:scale(1)}
+ 100%{opacity:.78;filter:blur(4px);transform:scale(.998)}
+}
+body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator) {
+ animation:focus-soft-return-3356 320ms cubic-bezier(.19,.72,.32,1) var(--focus-spring-delay,0ms) both!important;
+ transform-origin:center center!important;
+ will-change:auto!important;
+}
+@keyframes focus-soft-return-3356 {
+ 0%{opacity:.78;transform:scale(1.025)}
+ 100%{opacity:1;transform:scale(1)}
+}
+body.focus-entering .focus-toolbar,
+body.focus-entering .calc-card {animation:none!important;filter:none!important;transform:none!important;}
+body.focus-entering::after,body.focus-leaving::after {display:none!important;animation:none!important;}
+@media(prefers-reduced-motion:reduce){
+ body.focus-preenter::before,
+ body.focus-preleave .focus-toolbar,
+ body.focus-preleave .app > .calc-card,
+ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator) {
+  animation:none!important;filter:none!important;transform:none!important;
+ }
+ body.focus-preenter::before {display:none!important;}
+}
+/* Les cartes partagent le même retrait latéral jusqu'aux petits iPhone. */
+@media(max-width:380px){
+ .app > .planning-admin-card.card {margin-left:13px!important;margin-right:13px!important;width:auto!important;}
+ .planning-admin-card .planning-admin-heading {font-size:clamp(16px,5.6vw,18px)!important;}
+}
