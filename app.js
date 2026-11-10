@@ -287,7 +287,7 @@ function renderHeroSummary(){
  status.classList.toggle('is-running',Boolean(session&&!session.pausedAt));
  status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
  const count=session?session.entries.length:0;
- text.textContent=!session?'Aucune session en cours':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
+ text.textContent=!session?'Aucune session':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
  // Le bouton de la banderole reste une navigation, jamais un démarrage direct.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
