@@ -293,38 +293,50 @@ function renderHeroSummary(){
   heroAction.setAttribute('aria-label','Aller à la section Inventaire');
  }
 }
-// V33.48 : le mode Concentration reprend la session existante, sans dupliquer les pesées.
+// V33.59 — une seule transition entre la session et la vue Concentration.
+// View Transitions conserve les deux instantanés pendant le fondu (aucun écran vide).
+// Le mode sans animation et les navigateurs plus anciens restent fonctionnels.
 let focusWasActive=false;
-let focusTransitionTimer=null;
 let focusInitialized=false;
-// V33.54 : le flou commence sur la vue que l'utilisateur quitte,
-// avant le changement de disposition. La session ne change qu'une fois.
 let focusMotionBusy=false;
-function animateFocusEntry(action){
+const focusReducedMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function changeFocusWithMotion(action,entering){
  if(focusMotionBusy)return;
- if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
+ if(focusReducedMotion()) { action(); return; }
  focusMotionBusy=true;
- document.body.classList.remove('focus-preleave');
- document.body.classList.add('focus-preenter');
- window.setTimeout(()=>{
-  document.body.classList.remove('focus-preenter');
-  try{action();}finally{focusMotionBusy=false;}
- },185);
-}
-function animateFocusExit(action){
- if(focusMotionBusy)return;
- if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
- focusMotionBusy=true;
- document.body.classList.remove('focus-preenter');
- document.body.classList.add('focus-preleave');
- // Le blur porte sur la pesée et son bandeau; le reste du site reste net.
+ const html=document.documentElement;
+ const app=document.querySelector('.app');
+ const sessionCard=document.querySelector('.app > .session-card');
+ const source=entering?sessionCard:$('focusToolbar');
+ const bounds=source?.getBoundingClientRect();
+ // Éviter une carte partagée projetée depuis une position hors écran.
+ const shared=!!(bounds&&bounds.bottom>0&&bounds.top<innerHeight&&bounds.width>0&&bounds.height>0);
+ const finish=()=>{
+  html.classList.remove('iu-focus-transition','iu-focus-opening','iu-focus-closing');
+  document.body.classList.remove('iu-focus-shared','iu-focus-fallback-out','iu-focus-fallback-in');
+  focusMotionBusy=false;
+ };
+ if(typeof document.startViewTransition==='function'){
+  html.classList.add('iu-focus-transition',entering?'iu-focus-opening':'iu-focus-closing');
+  if(shared)document.body.classList.add('iu-focus-shared');
+  try{
+   const transition=document.startViewTransition(()=>{action();});
+   transition.finished.then(finish,finish);
+  }catch(error){finish();action();}
+  return;
+ }
+ // Repli Safari ancien : fondu rapide sans masque opaque ni page blanche.
+ document.body.classList.add('iu-focus-fallback-out');
  window.setTimeout(()=>{
   try{action();}finally{
-   document.body.classList.remove('focus-preleave');
-   focusMotionBusy=false;
+   document.body.classList.remove('iu-focus-fallback-out');
+   document.body.classList.add('iu-focus-fallback-in');
+   window.setTimeout(finish,entering?130:145);
   }
- },175);
+ },entering?90:95);
 }
+function animateFocusEntry(action){changeFocusWithMotion(action,true);}
+function animateFocusExit(action){changeFocusWithMotion(action,false);}
 function syncFocusMode(){
  const session=getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
@@ -339,26 +351,14 @@ function syncFocusMode(){
   $('focusCount').textContent=String(stats.count);
  }
  if(active!==focusWasActive){
-  if(focusTransitionTimer)clearTimeout(focusTransitionTimer);
-  document.body.classList.remove('focus-entering','focus-leaving');
-  // Ne pas animer le chargement initial d'une session restaurée.
-  if(focusInitialized && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-   const transitionClass=active?'focus-entering':'focus-leaving';
-   // Retour dans le style iOS : chaque carte revient dans l'ordre du document,
-   // avec un petit décalage progressif plutôt qu'un délai arbitraire nth-child.
-   if(!active){
-    const cards=[...document.querySelectorAll('.app > *')].filter(node=>
-      !node.classList.contains('focus-toolbar') &&
-      !node.classList.contains('offline-indicator') &&
-      !node.hidden && getComputedStyle(node).display!=='none');
-    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,8)*12}ms`));
-   }
-   document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?210:310);
-  }
   focusWasActive=active;
-  // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
-  requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+  // Durant la capture native, positionner directement la vue cible.
+  // En dehors d'une transition, garder le retour en haut historique.
+  if(document.documentElement.classList.contains('iu-focus-transition')){
+   window.scrollTo({top:0,left:0,behavior:'instant'});
+  } else if(focusInitialized){
+   requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+  }
  }
  focusInitialized=true;
 }

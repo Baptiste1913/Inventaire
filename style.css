@@ -3579,3 +3579,62 @@ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator) {
 @media (max-width:380px) {
   .app > .intro {padding:28px 17px 24px!important;}
 }
+
+
+/* === V33.59 — transition native iOS, symétrique, sans écran intermédiaire ===
+   220 ms entrée, 240 ms sortie. Le flou touche seulement la vue sortante.
+   Les captures natives permettent le fondu croisé des deux interfaces. */
+html.iu-focus-transition.iu-focus-opening {--iu-focus-motion:220ms;}
+html.iu-focus-transition.iu-focus-closing {--iu-focus-motion:240ms;}
+body.iu-focus-shared .app > .session-card,
+body.iu-focus-shared .app > #focusToolbar {view-transition-name:iu-focus-session;}
+html.iu-focus-transition::view-transition-old(root),
+html.iu-focus-transition::view-transition-new(root) {
+ animation-duration:var(--iu-focus-motion,230ms);
+ animation-timing-function:cubic-bezier(.22,.65,.27,1);
+ animation-fill-mode:both;
+ mix-blend-mode:normal;
+}
+html.iu-focus-transition::view-transition-old(root){
+ animation-name:iu-focus-crossfade-out;
+}
+html.iu-focus-transition::view-transition-new(root){
+ animation-name:iu-focus-crossfade-in;
+}
+@keyframes iu-focus-crossfade-out {
+ from{opacity:1;filter:blur(0);transform:scale(1)}
+ to{opacity:0;filter:blur(2px);transform:scale(.985)}
+}
+@keyframes iu-focus-crossfade-in {
+ from{opacity:0;filter:blur(0);transform:scale(.985)}
+ to{opacity:1;filter:blur(0);transform:scale(1)}
+}
+/* Morphing du bloc « Ma session » vers « Mode Concentration » et inversement.
+   Seul l'un des deux est visible dans chaque état. */
+html.iu-focus-transition::view-transition-group(iu-focus-session){
+ animation-duration:var(--iu-focus-motion,230ms);
+ animation-timing-function:cubic-bezier(.22,.65,.27,1);
+}
+html.iu-focus-transition::view-transition-old(iu-focus-session){
+ animation:iu-focus-shared-out var(--iu-focus-motion,230ms) cubic-bezier(.22,.65,.27,1) both;
+}
+html.iu-focus-transition::view-transition-new(iu-focus-session){
+ animation:iu-focus-shared-in var(--iu-focus-motion,230ms) cubic-bezier(.22,.65,.27,1) both;
+}
+@keyframes iu-focus-shared-out {from{opacity:1;filter:blur(0)}to{opacity:0;filter:blur(2px)}}
+@keyframes iu-focus-shared-in {from{opacity:0}to{opacity:1}}
+/* Repli quand View Transitions n'est pas disponible : pas de blanc intermédiaire. */
+body.iu-focus-fallback-out .app {animation:iu-focus-fallback-out 100ms ease-out both!important;}
+body.iu-focus-fallback-in .app {animation:iu-focus-fallback-in 140ms ease-out both!important;}
+@keyframes iu-focus-fallback-out{from{opacity:1;filter:blur(0)}to{opacity:.85;filter:blur(2px)}}
+@keyframes iu-focus-fallback-in{from{opacity:.85;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){
+ html.iu-focus-transition::view-transition-old(root),
+ html.iu-focus-transition::view-transition-new(root),
+ html.iu-focus-transition::view-transition-group(iu-focus-session),
+ html.iu-focus-transition::view-transition-old(iu-focus-session),
+ html.iu-focus-transition::view-transition-new(iu-focus-session),
+ body.iu-focus-fallback-out .app,body.iu-focus-fallback-in .app {
+  animation-duration:0.01ms!important;animation-delay:0ms!important;
+ }
+}
