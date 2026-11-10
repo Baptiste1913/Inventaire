@@ -1,41 +1,43 @@
-/* Inventaires U V33.91 — animations accessibles des rubriques administrateur. */
+/* V33.92 — Les tiroirs administrateur suivent le moteur des tiroirs Planning. */
 (()=>{
  'use strict';
  function init(){
-  document.querySelectorAll('#planningAdminCard details.iu-admin-category').forEach(details=>{
-   const summary=details.querySelector(':scope > summary');
-   const body=details.querySelector(':scope > .iu-admin-category-body');
-   if(!summary||!body)return;
-   let running=null;
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll('#planningAdminCard details.iu-admin-category').forEach(card=>{
+   const summary=card.querySelector(':scope > summary');
+   const content=card.querySelector(':scope > .iu-admin-category-body');
+   if(!summary||!content||card.dataset.iuAdminFold==='yes')return;
+   card.dataset.iuAdminFold='yes';
+   let animation=null, requested=card.open;
    summary.addEventListener('click',event=>{
-    // Conserve le fonctionnement natif du clavier, tout en animant l'ouverture ET la fermeture.
-    if(event.defaultPrevented)return;
+    if(reduced.matches||typeof card.animate!=='function')return;
     event.preventDefault();
-    if(running){running.cancel();running=null;}
-    const shouldOpen=!details.dataset.iuDesiredOpen || details.dataset.iuDesiredOpen==='false';
-    // Etat réel synchronisé après chaque interaction, même pendant l'animation.
-    details.dataset.iuDesiredOpen=String(shouldOpen);
-    const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(reduce||typeof details.animate!=='function'){
-     details.open=shouldOpen;details.classList.remove('iu-admin-animating');return;
-    }
-    const from=details.getBoundingClientRect().height;
-    details.open=true;
-    const header=summary.getBoundingClientRect().height;
-    const to=shouldOpen?header+body.getBoundingClientRect().height:header;
-    details.classList.add('iu-admin-animating');
-    running=details.animate([{height:from+'px',opacity:1},{height:to+'px',opacity:1}],{
-     duration:shouldOpen?340:285,easing:'cubic-bezier(.2,.8,.22,1)'
+    if(!animation)requested=card.open;
+    const next=!requested;requested=next;
+    const from=card.getBoundingClientRect().height;
+    if(animation){animation.cancel();animation=null;}
+    card.open=true;
+    card.classList.toggle('is-admin-closing',!next);
+    card.classList.add('iu-admin-animating');
+    const cs=getComputedStyle(card);
+    const px=value=>parseFloat(value)||0;
+    const extra=px(cs.borderTopWidth)+px(cs.borderBottomWidth)+px(cs.paddingTop)+px(cs.paddingBottom);
+    const folded=summary.getBoundingClientRect().height+extra;
+    const expanded=folded+content.getBoundingClientRect().height;
+    const to=next?expanded:folded;
+    if(Math.abs(from-to)<.5){card.open=next;card.classList.remove('is-admin-closing','iu-admin-animating');return;}
+    const current=card.animate([{height:from+'px'},{height:to+'px'}],{
+     duration:560,easing:'cubic-bezier(.22,.75,.24,1)',fill:'both'
     });
-    const thisAnimation=running;
-    thisAnimation.onfinish=()=>{
-     if(running!==thisAnimation)return;
-     running=null;details.open=shouldOpen;
-     details.classList.remove('iu-admin-animating');
+    animation=current;
+    current.onfinish=()=>{
+     if(animation!==current)return;
+     animation=null;
+     if(!next)card.open=false;
+     current.cancel();
+     card.classList.remove('is-admin-closing','iu-admin-animating');
     };
-    thisAnimation.oncancel=()=>{if(running===thisAnimation)running=null;};
    });
-   details.dataset.iuDesiredOpen=String(details.open);
   });
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

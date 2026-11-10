@@ -4974,3 +4974,76 @@ html.iu-pwa-revealing .app > footer {
 #planningAdminCard .iu-admin-category>summary:focus-visible{outline:2px solid #5a626c!important;outline-offset:-3px}
 @media(max-width:380px){#planningAdminCard .iu-admin-category>summary{padding:12px!important}}
 @media(prefers-reduced-motion:reduce){#planningAdminCard .iu-admin-category-arrow{transition:none!important}}
+
+
+/* V33.92 — même flèche et même cinématique que les sous-tiroirs Planning. */
+#planningAdminCard .iu-admin-category > summary > .iu-admin-category-arrow {
+  display:block!important;
+  width:18px!important;height:18px!important;flex:0 0 18px!important;
+  fill:none!important;stroke:#626b74!important;stroke-width:2.1!important;
+  stroke-linecap:round!important;stroke-linejoin:round!important;
+  transform:rotate(0);
+  transition:transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+}
+#planningAdminCard .iu-admin-category[open] > summary > .iu-admin-category-arrow {transform:rotate(180deg)!important;}
+#planningAdminCard .iu-admin-category.is-admin-closing > summary > .iu-admin-category-arrow {transform:rotate(0)!important;}
+#planningAdminCard .iu-admin-category > summary {transition:background-color 260ms ease!important;}
+#planningAdminCard .iu-admin-category > .iu-admin-category-body {
+  opacity:1;transform:translateY(0);
+  transition:opacity 560ms cubic-bezier(.22,.75,.24,1),transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+}
+#planningAdminCard .iu-admin-category.is-admin-closing > .iu-admin-category-body {
+  opacity:0;transform:translateY(-5px);pointer-events:none;
+}
+/* Voyants réels pilotés par les data-state des diagnostics, sans valeur inventée. */
+#planningAdminCard .site-ops-status strong[data-state] {
+  display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;
+  color:#273038!important;
+}
+#planningAdminCard .site-ops-status strong[data-state]::before {
+  content:'';display:inline-block;flex:0 0 8px;
+  width:8px;height:8px;border-radius:50%;
+  background:#9ca3ab;box-shadow:0 0 0 3px rgba(145,153,163,.12);
+}
+#planningAdminCard .site-ops-status strong[data-state='success']::before {
+  background:#2ac78f;box-shadow:0 0 0 3px rgba(42,199,143,.13),0 0 9px rgba(42,199,143,.55);
+}
+#planningAdminCard .site-ops-status strong[data-state='warning']::before {
+  background:#e5a33c;box-shadow:0 0 0 3px rgba(229,163,60,.14),0 0 8px rgba(229,163,60,.38);
+}
+#planningAdminCard .site-ops-status strong[data-state='muted']::before {
+  background:#a1a7ae;box-shadow:0 0 0 3px rgba(150,157,165,.12);
+}
+#planningAdminCard .site-ops-status strong[data-state='normal']::before {
+  background:#a1a7ae;box-shadow:0 0 0 3px rgba(150,157,165,.12);
+}
+/* La phrase de connexion Supabase est un message, pas une note en petits caractères. */
+#planningAdminCard .iu-admin-planning .planning-feedback {
+  font-size:12px!important;line-height:1.5!important;
+  font-weight:500;color:#555e67!important;
+}
+#planningAdminCard .iu-admin-planning .planning-feedback.is-error{color:#ae3446!important;}
+@media(max-width:355px){
+  #planningAdminCard .site-ops-status strong[data-state]{justify-content:flex-start;}
+}
+@media(prefers-reduced-motion:reduce){
+  #planningAdminCard .iu-admin-category > summary > .iu-admin-category-arrow,
+  #planningAdminCard .iu-admin-category > .iu-admin-category-body,
+  #planningAdminCard .iu-admin-category > summary{transition:none!important;}
+}
+
+/* Rubriques du niveau supérieur : mêmes nuances et bordures que Planning et événements. */
+#planningAdminCard .iu-admin-category {
+  border:1px solid #cbd0d6!important;
+  border-radius:16px!important;
+  background:linear-gradient(160deg,#fff 0%,#f6f7f9 55%,#eef0f2 100%)!important;
+  box-shadow:inset 0 1px 0 #fff,0 2px 8px rgba(35,40,52,.035)!important;
+}
+#planningAdminCard .iu-admin-category > summary,
+#planningAdminCard .iu-admin-category[open] > summary {
+  background:linear-gradient(150deg,#fff,#f2f3f6)!important;
+}
+#planningAdminCard .iu-admin-category > .iu-admin-category-body {
+  background:linear-gradient(150deg,#fff,#f5f6f8)!important;
+  border-top:1px solid #dce0e4;
+}
