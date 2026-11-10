@@ -293,7 +293,7 @@ function renderHeroSummary(){
   heroAction.setAttribute('aria-label','Aller à la section Inventaire');
  }
 }
-// V33.60 — transition verticale par carte : l'accueil descend du bas vers
+// V33.65 — transition verticale par carte : l'accueil descend du bas vers
 // le haut pendant que Concentration remonte. La banderole et l'en-tête ne
 // se déplacent pas. Le mouvement inverse accompagne Pause et Terminer.
 // Le navigateur conserve les instantanes pendant le changement d'interface :
@@ -301,10 +301,12 @@ function renderHeroSummary(){
 let focusWasActive=false;
 let focusInitialized=false;
 let focusMotionBusy=false;
+let focusPendingTask=null;
 const focusReducedMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const focusStaticSelectors='.app > .header, .app > .intro';
 const focusNormalSelectors='.app > .card, .app > .inventory-calendar, .app > footer';
 const focusViewSelectors='.app > .focus-toolbar, .app > .calc-card';
+const focusSurfaceSelectors='.app > .focus-transition-surface';
 const focusVisible=node=>{
  if(!node||node.hidden)return false;
  const style=getComputedStyle(node),r=node.getBoundingClientRect();
@@ -331,6 +333,11 @@ function focusTagViews(entering,phase,tagged){
  }else{
   // Dans le mode concentre, le bandeau et la pesée arrivent ensemble
   // depuis le bas ; la pesée suit le bandeau de quelques millisecondes.
+  const surface=document.querySelector(focusSurfaceSelectors);
+  if(focusVisible(surface)){
+   surface.style.viewTransitionName='iu-focus-surface';
+   tagged.add(surface);
+  }
   const focus=[...document.querySelectorAll(focusViewSelectors)].filter(focusVisible);
   for(const [i,el] of focus.entries()){
    el.style.viewTransitionName=`iu-focus-${i}`;
@@ -352,6 +359,10 @@ function changeFocusWithMotion(action,entering){
   html.classList.remove('iu-focus-slide','iu-focus-entering','iu-focus-exiting');
   document.body.classList.remove('iu-slide-fallback-out','iu-slide-fallback-in');
   focusMotionBusy=false;
+  // Un clic sur « Annuler » peut survenir avant la fin de la fermeture.
+  // Rejouer l'ouverture une fois les instantanes precedents liberes.
+  const pending=focusPendingTask;focusPendingTask=null;
+  if(pending)requestAnimationFrame(pending);
  };
  const update=()=>{
   // Les anciens noms doivent etre retires avant la capture de la cible.
@@ -368,30 +379,16 @@ function changeFocusWithMotion(action,entering){
   }catch(error){cleanup();action();}
   return;
  }
- // Ancien Safari : deplacement vertical leger, en respectant les donnees
- // et les commandes de session. Le changement se fait au milieu du mouvement.
- const source=[...document.querySelectorAll(entering?focusNormalSelectors:focusViewSelectors)]
-   .filter(focusVisible).sort((a,b)=>b.getBoundingClientRect().top-a.getBoundingClientRect().top);
- const animations=source.slice(0,8).map((el,i)=>el.animate(
-  entering
-   ? [{opacity:1,transform:'translateY(0)',filter:'blur(0px)',offset:0},
-      {opacity:1,filter:'blur(0px)',offset:.78},
-      {opacity:0,transform:'translateY(110px)',filter:'blur(2px)',offset:1}]
-   : [{opacity:1,transform:'translateY(0)',filter:'blur(0px)',offset:0},
-      {opacity:1,filter:'blur(0px)',offset:.78},
-      {opacity:0,transform:'translateY(110px)',filter:'blur(2px)',offset:1}],
-  {duration:270,delay:i*30,easing:'cubic-bezier(.42,0,.76,.5)',fill:'both'}));
- window.setTimeout(()=>{
-  for(const a of animations)a.cancel();
-  update();
-  const incoming=[...document.querySelectorAll(entering?focusViewSelectors:focusNormalSelectors)]
-   .filter(focusVisible).sort((a,b)=>b.getBoundingClientRect().top-a.getBoundingClientRect().top).slice(0,8);
-  const anims=incoming.map((el,i)=>el.animate(
-   [{opacity:0,transform:'translateY(100px)',filter:'blur(0px)'},{opacity:1,transform:'translateY(0)',filter:'blur(0px)'}],
-   {duration:360,delay:i*35,easing:'cubic-bezier(.19,.77,.25,1)',fill:'both'}));
-  Promise.all(anims.map(a=>a.finished.catch(()=>{}))).then(cleanup,cleanup);
-  if(!anims.length)cleanup();
- },entering?245:235);
+ // Repli sans View Transitions : une seule phase courte, sans cascade ni
+ // deux animations séparées qui provoquent un saut à mi-parcours.
+ update();
+ const incoming=[...document.querySelectorAll(entering?focusViewSelectors:focusNormalSelectors)]
+  .filter(focusVisible);
+ const anims=incoming.map(el=>el.animate(
+  [{transform:'translate3d(0,30px,0)',opacity:.7},{transform:'translate3d(0,0,0)',opacity:1}],
+  {duration:420,delay:0,easing:'cubic-bezier(.38,0,.62,1)'}));
+ Promise.all(anims.map(a=>a.finished.catch(()=>{}))).then(cleanup,cleanup);
+ if(!anims.length)cleanup();
 }
 function animateFocusEntry(action){changeFocusWithMotion(action,true);}
 function animateFocusExit(action){changeFocusWithMotion(action,false);}
@@ -491,16 +488,17 @@ function finishSession(){
  offerUndo('Inventaire terminé.',()=>{
   if(activeSessionId||!session.endedAt||session.endedAt!==now)return false;
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
-  if(!persistSessions()){session.endedAt=now;session.pausedAt=null;activeSessionId=null;return false;}
-  // Annuler depuis la notification restaure d'abord les donnees, puis
-  // rejoue l'entree Concentration, comme un demarrage/reprise normal.
-  // L'etat DOM reste celui du site complet jusqu'a la capture initiale.
-  const showRestoredSession=()=>{
-   renderV22();
-   $('sessionMessage').textContent='Inventaire repris.';
+  if(!persistSessions()){session.endedAt=now;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=null;return false;}
+  // L'animation se rejoue UNIQUEMENT lors de cette restauration via « Annuler ».
+  // Garder le DOM normal jusqu'a la capture native pour eviter le saut.
+  const restoreView=()=>{
+   renderV22();$('sessionMessage').textContent='Inventaire repris.';
   };
-  if(!oldPausedAt)animateFocusEntry(showRestoredSession);
-  else showRestoredSession();
+  if(!session.pausedAt){
+   const reopen=()=>animateFocusEntry(restoreView);
+   if(focusMotionBusy)focusPendingTask=reopen;
+   else reopen();
+  }else restoreView();
   return true;
  });
 }
@@ -807,23 +805,11 @@ $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
 $('focusPause').addEventListener('click',()=>animateFocusExit(()=>$('pauseSession').click()));
 $('focusStop').addEventListener('click',()=>{$('focusConfirm').hidden=false;$('focusConfirmStop').focus();});
-// Annulation de l'arrêt : remettre l'interface Concentration en avant,
-// avec le meme mouvement que son arrivee initiale, sans modifier la session.
-let focusCancelReplayToken=0;
-function replayFocusArrivalAfterCancel(){
- const token=++focusCancelReplayToken;
- document.body.classList.remove('iu-focus-cancel-replay');
- if(focusReducedMotion())return;
- // Relancer les keyframes meme en cas d'annulations successives.
- void document.body.offsetWidth;
- document.body.classList.add('iu-focus-cancel-replay');
- window.setTimeout(()=>{
-  if(token===focusCancelReplayToken)document.body.classList.remove('iu-focus-cancel-replay');
- },740);
-}
+// « Continuer » ferme seulement la confirmation, sans aucune animation.
+// L'animation d'ouverture est reservee au bouton « Annuler » de la
+// notification « Inventaire terminé » (voir finishSession / offerUndo).
 $('focusCancelStop').addEventListener('click',()=>{
  $('focusConfirm').hidden=true;
- replayFocusArrivalAfterCancel();
  $('focusStop').focus({preventScroll:true});
 });
 $('focusConfirmStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;animateFocusExit(()=>$('finishSession').click());});
