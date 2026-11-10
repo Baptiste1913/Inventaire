@@ -293,9 +293,10 @@ function renderHeroSummary(){
   heroAction.setAttribute('aria-label','Aller à la section Inventaire');
  }
 }
-// V33.62 — transition verticale par carte avec flou en fin de mouvement : l'accueil descend du bas vers
-// le haut pendant que Concentration remonte. La banderole et l'en-tête ne
-// se déplacent pas. Le mouvement inverse accompagne Pause et Terminer.
+// V33.63 — transition verticale par carte : le mode Concentration chevauche
+// l'accueil avec un fond opaque. Le flou apparaît à mi-parcours :
+// les tuiles d'accueil se troublent quand Concentration arrive à mi-hauteur,
+// et Concentration se trouble à mi-hauteur quand il repart.
 // Le navigateur conserve les instantanes pendant le changement d'interface :
 // aucun formulaire ni aucune pesée n'est duplique dans le DOM.
 let focusWasActive=false;
@@ -372,8 +373,11 @@ function changeFocusWithMotion(action,entering){
  // et les commandes de session. Le changement se fait au milieu du mouvement.
  const source=[...document.querySelectorAll(entering?focusNormalSelectors:focusViewSelectors)]
    .filter(focusVisible).sort((a,b)=>b.getBoundingClientRect().top-a.getBoundingClientRect().top);
+ const isFocusSource=!entering;
  const animations=source.slice(0,8).map((el,i)=>el.animate(
-  [{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(110px)'}],
+  isFocusSource
+   ? [{opacity:1,filter:'blur(0)',transform:'translateY(0)'},{offset:.5,opacity:1,filter:'blur(0)',transform:'translateY(54px)'},{opacity:0,filter:'blur(4px)',transform:'translateY(110px)'}]
+   : [{opacity:1,filter:'blur(0)',transform:'translateY(0)'},{offset:.5,opacity:1,filter:'blur(0)',transform:'translateY(54px)'},{opacity:0,filter:'blur(4px)',transform:'translateY(110px)'}],
   {duration:270,delay:i*30,easing:'cubic-bezier(.42,0,.76,.5)',fill:'both'}));
  window.setTimeout(()=>{
   for(const a of animations)a.cancel();
@@ -486,7 +490,9 @@ function finishSession(){
   if(activeSessionId||!session.endedAt||session.endedAt!==now)return false;
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
   if(!persistSessions()){session.endedAt=now;session.pausedAt=null;activeSessionId=null;return false;}
-  renderV22();$('sessionMessage').textContent='Inventaire repris.';return true;
+  renderV22();$('sessionMessage').textContent='Inventaire repris.';
+  requestAnimationFrame(()=>replayFocusArrival());
+  return true;
  });
 }
 function sessionBreakdown(s){const map=new Map();for(const e of s.entries)map.set(e.name,(map.get(e.name)||0)+1);return [...map.entries()].sort((a,b)=>b[1]-a[1]);}
@@ -792,15 +798,15 @@ $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event
 $('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
 $('focusPause').addEventListener('click',()=>animateFocusExit(()=>$('pauseSession').click()));
 $('focusStop').addEventListener('click',()=>{$('focusConfirm').hidden=false;$('focusConfirmStop').focus();});
-// Annulation de l'arrêt : remettre l'interface Concentration en avant,
-// avec le meme mouvement que son arrivee initiale, sans modifier la session.
+// Rejouer l'arrivee du mode Concentration lorsque l'inventaire termine
+// est annule puis restaure. Le bouton « Continuer » ferme seulement la
+// confirmation ; le replay est reserve a l'action « Annuler » de la
+// notification « Inventaire terminé ».
 let focusCancelReplayToken=0;
-function replayFocusArrivalAfterCancel(){
+function replayFocusArrival(){
  const token=++focusCancelReplayToken;
  document.body.classList.remove('iu-focus-cancel-replay');
  if(focusReducedMotion())return;
- // Rejouer les memes keyframes de montee que l'ouverture initiale,
- // y compris le leger decalage du bloc de pesee.
  void document.body.offsetWidth;
  document.body.classList.add('iu-focus-cancel-replay');
  window.setTimeout(()=>{
@@ -809,7 +815,6 @@ function replayFocusArrivalAfterCancel(){
 }
 $('focusCancelStop').addEventListener('click',()=>{
  $('focusConfirm').hidden=true;
- replayFocusArrivalAfterCancel();
  $('focusStop').focus({preventScroll:true});
 });
 $('focusConfirmStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;animateFocusExit(()=>$('finishSession').click());});

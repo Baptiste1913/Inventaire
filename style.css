@@ -3773,3 +3773,60 @@ body.iu-focus-cancel-replay .app > .calc-card {animation-delay:48ms!important;}
   body.iu-focus-cancel-replay .app > .focus-toolbar,
   body.iu-focus-cancel-replay .app > .calc-card {filter:none!important;}
 }
+
+
+/* V33.63 — flou à mi-parcours, replay sur Annuler après terminaison,
+   et bloc Concentration pleinement opaque pour renforcer le chevauchement. */
+.focus-toolbar{
+  background:linear-gradient(155deg,#ffffff 0%,#f7fbfb 68%,#f1f7f8 100%)!important;
+  border:1px solid #d5e9e9!important;
+  box-shadow:0 10px 28px rgba(22,61,70,.10),inset 0 1px 0 rgba(255,255,255,.96)!important;
+  opacity:1!important;
+}
+body.is-focus-mode .app > .calc-card{
+  background:#ffffff!important;
+  border:1px solid #d5e9e9!important;
+  box-shadow:0 10px 28px rgba(22,61,70,.10),inset 0 1px 0 rgba(255,255,255,.96)!important;
+  opacity:1!important;
+}
+html.iu-focus-slide::view-transition-group(iu-focus-0),
+html.iu-focus-slide::view-transition-group(iu-focus-1),
+html.iu-focus-slide::view-transition-old(iu-focus-0),
+html.iu-focus-slide::view-transition-old(iu-focus-1),
+html.iu-focus-slide::view-transition-new(iu-focus-0),
+html.iu-focus-slide::view-transition-new(iu-focus-1) {
+  mix-blend-mode:normal!important;
+}
+@keyframes iu-slide-focus-rise {
+  0% {opacity:1;filter:blur(0);transform:translate3d(0,105vh,0)}
+  50% {opacity:1;filter:blur(0);transform:translate3d(0,52vh,0)}
+  100% {opacity:1;filter:blur(0);transform:translate3d(0,0,0)}
+}
+@keyframes iu-slide-focus-drop {
+  0% {opacity:1;filter:blur(0);transform:translate3d(0,0,0)}
+  50% {opacity:1;filter:blur(0);transform:translate3d(0,52vh,0)}
+  78% {opacity:.96;filter:blur(2px)}
+  100% {opacity:0;filter:blur(5px);transform:translate3d(0,105vh,0)}
+}
+@keyframes iu-slide-card-down {
+  0% {opacity:1;filter:blur(0);transform:translate3d(0,0,0)}
+  50% {opacity:1;filter:blur(0);transform:translate3d(0,52vh,0)}
+  78% {opacity:.92;filter:blur(2px)}
+  100% {opacity:0;filter:blur(5px);transform:translate3d(0,110vh,0)}
+}
+@keyframes iu-slide-card-return {
+  0% {opacity:0;filter:blur(0);transform:translate3d(0,110vh,0)}
+  35% {opacity:1;filter:blur(0)}
+  100% {opacity:1;filter:blur(0);transform:translate3d(0,0,0)}
+}
+body.iu-focus-cancel-replay .app > .focus-toolbar,
+body.iu-focus-cancel-replay .app > .calc-card {
+  animation:iu-slide-focus-rise 640ms cubic-bezier(.18,.78,.22,1) both!important;
+  position:relative;
+  z-index:10;
+}
+body.iu-focus-cancel-replay .app > .calc-card {animation-delay:48ms!important;}
+@media (prefers-reduced-motion:reduce){
+  body.iu-focus-cancel-replay .app > .focus-toolbar,
+  body.iu-focus-cancel-replay .app > .calc-card {animation:none!important;filter:none!important;}
+}
