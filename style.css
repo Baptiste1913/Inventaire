@@ -3680,8 +3680,9 @@ html.iu-focus-exiting::view-transition-new(iu-anchor-1) {
   animation:iu-slide-anchor-back 640ms ease-out both!important;
 }
 @keyframes iu-slide-anchor-away {
-  0%,54% {opacity:1}
-  88%,100% {opacity:0}
+  0%,66% {opacity:1;filter:blur(0)}
+  86% {opacity:.6;filter:blur(2.5px)}
+  100% {opacity:0;filter:blur(4px)}
 }
 @keyframes iu-slide-anchor-back {
   0%,16% {opacity:0}
@@ -3694,9 +3695,10 @@ html.iu-focus-exiting::view-transition-new(iu-anchor-1) {
   100% {opacity:1;transform:translate3d(0,0,0)}
 }
 @keyframes iu-slide-focus-drop {
-  0% {opacity:1;transform:translate3d(0,0,0)}
-  75% {opacity:1}
-  100% {opacity:0;transform:translate3d(0,105vh,0)}
+  0% {opacity:1;filter:blur(0);transform:translate3d(0,0,0)}
+  74% {opacity:1;filter:blur(0)}
+  90% {opacity:.9;filter:blur(2px)}
+  100% {opacity:0;filter:blur(4px);transform:translate3d(0,105vh,0)}
 }
 html.iu-focus-entering::view-transition-new(iu-focus-0),
 html.iu-focus-entering::view-transition-new(iu-focus-1) {
@@ -3710,9 +3712,10 @@ html.iu-focus-exiting::view-transition-old(iu-focus-1) {
 html.iu-focus-exiting::view-transition-old(iu-focus-1) {animation-delay:30ms!important}
 /* Cartes habituelles : le bas quitte l'ecran en premier. */
 @keyframes iu-slide-card-down {
-  0% {opacity:1;transform:translate3d(0,0,0)}
-  78% {opacity:1}
-  100% {opacity:0;transform:translate3d(0,110vh,0)}
+  0% {opacity:1;filter:blur(0);transform:translate3d(0,0,0)}
+  74% {opacity:1;filter:blur(0)}
+  90% {opacity:.8;filter:blur(2px)}
+  100% {opacity:0;filter:blur(4px);transform:translate3d(0,110vh,0)}
 }
 @keyframes iu-slide-card-return {
   0% {opacity:0;transform:translate3d(0,110vh,0)}
@@ -3753,18 +3756,20 @@ html.iu-focus-exiting::view-transition-new(iu-normal-11) {animation:iu-slide-car
 
 /* V33.61 - la reprise apres annulation fait remonter le mode Concentration
    comme lors du demarrage, sans toucher a la session ni aux pesées. */
-@keyframes iu-focus-cancel-arrival {
-  from {transform:translate3d(0, min(76vh, 760px), 0); opacity:0;}
-  20% {opacity:1;}
-  to {transform:translate3d(0,0,0); opacity:1;}
-}
+/* La confirmation annulee rejoue exactement la montee du demarrage. */
 body.iu-focus-cancel-replay .app > .focus-toolbar,
 body.iu-focus-cancel-replay .app > .calc-card {
-  animation:iu-focus-cancel-arrival 640ms cubic-bezier(.18,.78,.22,1) both!important;
+  animation:iu-slide-focus-rise 640ms cubic-bezier(.18,.78,.22,1) both!important;
   position:relative; z-index:10;
 }
 body.iu-focus-cancel-replay .app > .calc-card {animation-delay:48ms!important;}
 @media (prefers-reduced-motion:reduce){
  body.iu-focus-cancel-replay .app > .focus-toolbar,
  body.iu-focus-cancel-replay .app > .calc-card {animation:none!important;}
+}
+
+/* V33.62 — finitions de flou progressif ; snapshot net a l'etat final. */
+@media (prefers-reduced-motion:reduce){
+  body.iu-focus-cancel-replay .app > .focus-toolbar,
+  body.iu-focus-cancel-replay .app > .calc-card {filter:none!important;}
 }

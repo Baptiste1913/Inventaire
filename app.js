@@ -293,7 +293,7 @@ function renderHeroSummary(){
   heroAction.setAttribute('aria-label','Aller à la section Inventaire');
  }
 }
-// V33.60 — transition verticale par carte : l'accueil descend du bas vers
+// V33.62 — transition verticale par carte avec flou en fin de mouvement : l'accueil descend du bas vers
 // le haut pendant que Concentration remonte. La banderole et l'en-tête ne
 // se déplacent pas. Le mouvement inverse accompagne Pause et Terminer.
 // Le navigateur conserve les instantanes pendant le changement d'interface :
@@ -799,7 +799,8 @@ function replayFocusArrivalAfterCancel(){
  const token=++focusCancelReplayToken;
  document.body.classList.remove('iu-focus-cancel-replay');
  if(focusReducedMotion())return;
- // Relancer les keyframes meme en cas d'annulations successives.
+ // Rejouer les memes keyframes de montee que l'ouverture initiale,
+ // y compris le leger decalage du bloc de pesee.
  void document.body.offsetWidth;
  document.body.classList.add('iu-focus-cancel-replay');
  window.setTimeout(()=>{
