@@ -430,9 +430,12 @@ function exitFocusWithoutSnapshot(action){
   ]);
  }
  for(const anchor of anchors){
+  // V33.74 : l'en-tête et la banderole restent visibles dès le début,
+  // avec un simple renforcement progressif de l'opacité au lieu d'un
+  // passage brutal de 0% à 100%.
   animate(anchor,[
-   {offset:0,opacity:0},
-   {offset:.75,opacity:1},
+   {offset:0,opacity:.72},
+   {offset:.45,opacity:.9},
    {offset:1,opacity:1}
   ],{easing:'linear'});
  }
