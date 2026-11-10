@@ -394,7 +394,11 @@ function exitFocusWithoutSnapshot(action){
  // Le nouvel accueil est mis en page par le navigateur, sans aucune
  // transition de vue qui pourrait le redimensionner horizontalement.
  action();
- const tiles=[...document.querySelectorAll(focusNormalSelectors)].filter(focusVisible);
+ // Retour en cascade comme à l'ouverture PWA : de haut en bas.
+ // La descente du mode Concentration et son flou restent inchangés.
+ const tiles=[...document.querySelectorAll(focusNormalSelectors)]
+  .filter(focusVisible)
+  .sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
  const anchors=[...document.querySelectorAll(focusStaticSelectors)].filter(focusVisible);
  const animations=[];
  const animate=(el,frames,opts={})=>{
@@ -425,11 +429,13 @@ function exitFocusWithoutSnapshot(action){
   {offset:1,filter:'blur(0px)'}
  ],{duration:450,easing:'ease-out',fill:'forwards'});
  animations.push(homeBlur);
- for(const tile of tiles){
+ for(const [index,tile] of tiles.entries()){
+  // Même décalage entre les blocs que l'ouverture PWA (85 ms).
+  // Déplacement vertical préservé ; seule la succession est nouvelle.
   animate(tile,[
    {transform:'translate3d(0,105dvh,0)',opacity:1},
    {transform:'translate3d(0,0,0)',opacity:1}
-  ]);
+  ],{delay:index*85});
  }
  for(const anchor of anchors){
   // V33.74 : l'en-tête et la banderole restent visibles dès le début,
