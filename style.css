@@ -1649,7 +1649,7 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .events-card .events-entry-live .events-state{color:#19755b;background:#e2f4eb}
 .events-card .events-entry-upcoming .events-state{color:#286d96;background:#e2eff9}
 .events-card .events-more{background:#e7f2f8;border-color:#cbdfea;color:#2b6787;margin-top:6px}
-.events-card .events-more-list{transition:max-height 600ms cubic-bezier(.22,.75,.24,1),opacity 600ms cubic-bezier(.22,.75,.24,1),transform 600ms cubic-bezier(.22,.75,.24,1)}
+.events-card .events-more-list{transition:max-height 450ms cubic-bezier(.2,.76,.25,1),opacity 450ms ease,transform 450ms ease}
 .events-card .events-more-list .events-entry{border-color:#dbe8ef;padding:13px 2px}
 .events-card .events-more svg{transition:transform 600ms cubic-bezier(.22,.75,.24,1)}
 .events-card .events-install-help{margin:-5px 0 17px;padding:13px;border:1px solid #d1e4ed;border-radius:13px;background:#f3f9fc;display:grid;gap:9px;font-size:13px;color:#315e74;line-height:1.45}
@@ -2868,285 +2868,194 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
   .planning-admin-card .planning-accordion {transition:none!important;}
 }
 
-/* V33.48 — Mode Concentration : interface épurée pendant une session active */
+
+/* ======================================================================
+   INVENTAIRES U V34.0 — COMPONENTS / MODE CONCENTRATION
+   Les styles historiques de v33.48 à v33.54 ont été remplacés par une
+   seule définition. Deux phases brèves et alignées sur les délais JS :
+   entrée = flou du SITE, sortie = flou de la PESEE puis cartes décalées.
+   ====================================================================== */
+:root{
+ --iu-fold-duration:450ms;
+ --iu-fold-ease:cubic-bezier(.2,.76,.25,1);
+ --iu-focus-ease:cubic-bezier(.22,.78,.26,1);
+}
+/* Un accordéon = un moteur, une courbe, un fond uniforme.
+   Le contenu ne disparaît plus avant la fin de la réduction du tiroir. */
+.fold-card>.fold-summary .fold-chevron,
+.planning-accordion>.planning-panel-summary>svg,
+.calc-alerts-chevron,.backup-advanced>summary svg,
+.v22-session-item>summary svg,.recovery-card>summary svg,.history-chevron{
+ transition:transform var(--iu-fold-duration) var(--iu-fold-ease)!important;
+}
+.fold-card>.fold-body,
+.planning-accordion>.planning-panel-content,
+.calc-alerts>.calc-alerts-body,
+.backup-advanced>.backup-advanced-body,
+.v22-session-item>.v22-bilan,
+.recovery-card>.recovery-body{
+ transition:opacity 240ms ease-out!important;
+}
+.fold-card.is-fold-closing>.fold-body,
+.planning-accordion.is-planning-closing>.planning-panel-content,
+.calc-alerts.is-detail-closing>.calc-alerts-body,
+.backup-advanced.is-detail-closing>.backup-advanced-body,
+.v22-session-item.is-detail-closing>.v22-bilan,
+.recovery-card.is-detail-closing>.recovery-body{
+ opacity:.28!important;pointer-events:none;
+}
+
+/* Les deux blocs de travail reprennent les dimensions/arrondis des cartes.
+   Aucune modification de leurs contenus ou de la logique des pesées. */
 .focus-toolbar[hidden],.focus-confirm[hidden]{display:none!important}
 .focus-toolbar{display:none}
 body.is-focus-mode{background:#f3f6f7}
-body.is-focus-mode .app{max-width:760px;margin-inline:auto;padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
-body.is-focus-mode .app > :not(.focus-toolbar):not(.calc-card):not(.offline-indicator){display:none!important}
-body.is-focus-mode .focus-toolbar{display:block;order:0}
-body.is-focus-mode .app > .calc-card{display:block!important;order:1;margin:0!important;width:100%;min-width:0;box-sizing:border-box}
-body.is-focus-mode .app > .offline-indicator{order:2}
-.focus-toolbar{background:linear-gradient(135deg,#fdfefe,#e9f4f2);border:1px solid #b7d9d4;border-radius:25px;padding:20px;box-shadow:0 8px 28px #144e4412}
-.focus-heading{display:flex;align-items:center;gap:12px}
-.focus-live-dot{width:11px;height:11px;flex:none;border-radius:50%;background:#1b9e79;box-shadow:0 0 0 5px #1b9e7919;animation:focus-pulse 2s ease-in-out infinite}
-@keyframes focus-pulse{50%{box-shadow:0 0 0 9px #1b9e7909}}
-.focus-eyebrow{display:block;color:#367b70;font-size:.72rem;letter-spacing:.13em;font-weight:800}
-.focus-heading h2{margin:3px 0 0;font-size:clamp(1.15rem,4.8vw,1.55rem);color:#223b39}
-.focus-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
-.focus-metrics>div{background:#ffffffb8;border:1px solid #d7e5e3;border-radius:16px;padding:11px 15px;display:flex;flex-direction:column;gap:4px}
-.focus-metrics small{color:#5a7772;font-size:.77rem;font-weight:600}
-.focus-metrics strong{font-size:1.35rem;font-variant-numeric:tabular-nums;color:#243c39}
-.focus-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.focus-actions button,.focus-confirm button{min-width:0;min-height:49px;border-radius:15px;font:inherit;font-weight:750;cursor:pointer;transition:transform .2s,background .2s,box-shadow .2s}
-.focus-actions button:active,.focus-confirm button:active{transform:scale(.98)}
-.focus-actions svg{width:19px;height:19px;fill:currentColor;vertical-align:-4px;margin-right:6px}
-.focus-pause{background:linear-gradient(130deg,#188f93,#087783);color:white;border:1px solid #137e85;box-shadow:0 3px 9px #116a7120}
-.focus-stop{background:#fff;color:#8d4343;border:1px solid #d9b5b5}
-.focus-confirm{margin-top:14px;padding:14px;background:white;border:1px solid #d7c9c9;border-radius:16px}
-.focus-confirm p{margin:0 0 12px;font-weight:650;color:#3b4044}
-.focus-confirm>div{display:flex;flex-wrap:wrap;gap:8px}
-.focus-confirm button{padding:10px 13px;min-height:43px;flex:1;border:1px solid #ccd7d7;background:#eef4f4;color:#234b4b}
-.focus-confirm #focusConfirmStop{background:#8e4141;color:white;border-color:#8e4141}
+body.is-focus-mode .app{
+ max-width:760px;margin-inline:auto;display:flex;flex-direction:column;
+ gap:16px;padding-top:max(14px,env(safe-area-inset-top));
+ padding-bottom:max(28px,env(safe-area-inset-bottom));
+}
+body.is-focus-mode .app>:not(.focus-toolbar):not(.calc-card):not(.offline-indicator){display:none!important}
+body.is-focus-mode .app>.focus-toolbar,
+body.is-focus-mode .app>.calc-card{
+ box-sizing:border-box!important;min-width:0;width:calc(100% - 26px)!important;
+ max-width:calc(100% - 26px)!important;
+ margin:0 13px!important;
+}
+body.is-focus-mode .app>.focus-toolbar{order:0;display:block}
+body.is-focus-mode .app>.calc-card{
+ order:1;display:block!important;border:1px solid #d5e9e9!important;
+ border-radius:24px!important;background:linear-gradient(175deg,#fff 75%,#f6fbfb)!important;
+ box-shadow:0 7px 25px rgba(32,56,63,.055)!important;
+}
+body.is-focus-mode .app>.offline-indicator{order:2}
 body.is-focus-mode .calc-card .card-heading{margin-bottom:12px}
-@media(max-width:430px){.focus-toolbar{padding:16px;border-radius:22px}.focus-metrics{margin:14px 0}.focus-metrics strong{font-size:1.2rem}.focus-actions button{font-size:.96rem}}
-@media(prefers-reduced-motion:reduce){.focus-live-dot{animation:none}.focus-actions button,.focus-confirm button{transition:none}}
-
-
-/* V33.49 — Concentration : composants visuels communs et transitions */
-.focus-toolbar{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(155deg,#fff 0%,#f5fbfb 68%,#eef6f7 100%);border:1px solid #d5e9e9;border-radius:24px;box-shadow:0 7px 25px rgba(32,56,63,.055);padding:20px 18px}
-.focus-toolbar::before{content:"";position:absolute;inset:0 0 auto;height:75px;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.85),rgba(218,241,243,.23),transparent);z-index:-1}
-.focus-eyebrow{color:#287b88;font-size:.72rem;letter-spacing:.12em;font-weight:850}
-.focus-heading h2{color:#252e35;font-weight:850;letter-spacing:-.025em}
-.focus-live-dot{background:#25aa7b;box-shadow:0 0 0 5px rgba(37,170,123,.11)}
-.focus-metrics{gap:10px;margin:17px 0}
-.focus-metrics>div{background:linear-gradient(150deg,#f9fcfd,#eef6f7);border:1px solid #d6e6ea;border-radius:16px;padding:13px 14px;box-shadow:inset 0 1px 0 #fff}
-.focus-metrics small{color:#54747d;font-size:.75rem;font-weight:750}
-.focus-metrics strong{color:#263c46;font-weight:850}
-.focus-actions{gap:10px}
-.focus-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;border-radius:16px;font-size:14px;font-weight:850;box-shadow:0 5px 13px rgba(13,81,104,.10);transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,filter .22s ease}
-.focus-actions svg{margin:0;width:18px;height:18px;fill:currentColor}
-.focus-pause{color:white;background:linear-gradient(125deg,#0698a4,#14778f 55%,#14658a);border:1px solid #50b1bc;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 15px rgba(13,100,135,.15)!important}
-.focus-stop{background:linear-gradient(150deg,#fff,#f2f7f8);color:#365c68;border:1px solid #bdd6dd;box-shadow:inset 0 1px 0 #fff,0 4px 12px rgba(34,65,75,.08)!important}
-.focus-actions button:focus-visible,.focus-confirm button:focus-visible{outline:3px solid #7ebfcd;outline-offset:3px}
-.focus-confirm{background:linear-gradient(155deg,#fff,#f5f9fa);border:1px solid #d4e3e6;border-radius:16px;box-shadow:0 5px 16px rgba(35,67,76,.07)}
-.focus-confirm #focusConfirmStop{background:linear-gradient(135deg,#515e66,#293a44);border-color:#3c4d57}
-body.is-focus-mode .app > .calc-card{border:1px solid #d5e9e9!important;border-radius:24px!important;box-shadow:0 7px 25px rgba(32,56,63,.055)!important;background:linear-gradient(175deg,#fff 75%,#f6fbfb)!important}
-/* Le voile anime le changement de contexte sans toucher aux données ni aux formulaires. */
-body.focus-entering::after,body.focus-leaving::after{content:"";position:fixed;inset:0;z-index:9998;pointer-events:none;background:radial-gradient(ellipse at 50% 30%,rgba(231,250,250,.83),rgba(21,112,129,.20) 70%,rgba(255,255,255,.08));backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);animation:focus-curtain .62s cubic-bezier(.2,.8,.2,1) both}
-body.focus-leaving::after{animation:focus-curtain-out .58s cubic-bezier(.2,.8,.2,1) both}
-@keyframes focus-curtain{0%{opacity:0;transform:scale(1.035)}35%{opacity:1}100%{opacity:0;transform:scale(1)}}
-@keyframes focus-curtain-out{0%{opacity:0;transform:scale(1)}35%{opacity:.9}100%{opacity:0;transform:scale(1.025)}}
-body.focus-entering .focus-toolbar{animation:focus-card-in .58s cubic-bezier(.18,.85,.24,1) both}
-body.focus-entering .calc-card{animation:focus-card-in .68s .055s cubic-bezier(.18,.85,.24,1) both}
-@keyframes focus-card-in{from{opacity:.45;transform:translateY(23px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:430px){.focus-toolbar{padding:18px 15px}.focus-actions button{min-height:52px}}
-@media(prefers-reduced-motion:reduce){body.focus-entering::after,body.focus-leaving::after{animation:none;display:none}body.focus-entering .focus-toolbar,body.focus-entering .calc-card{animation:none}.focus-actions button{transition:none}}
-
-
-/* V33.50 — Commandes compactes dans le langage graphique du sélecteur de pesée. */
-.focus-actions{gap:9px;margin-top:2px}
+.focus-toolbar{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:linear-gradient(155deg,#fff 0%,#f5fbfb 68%,#edf6f7 100%);
+ border:1px solid #d5e9e9;border-radius:24px;
+ box-shadow:0 7px 25px rgba(32,56,63,.055);padding:20px 18px;
+}
+.focus-toolbar::before{
+ content:"";position:absolute;inset:0 0 auto;height:75px;z-index:-1;
+ pointer-events:none;
+ background:linear-gradient(115deg,rgba(255,255,255,.85),rgba(218,241,243,.23),transparent);
+}
+.focus-heading{display:flex;align-items:center;gap:12px}
+.focus-live-dot{
+ width:11px;height:11px;flex:none;border-radius:50%;background:#25aa7b;
+ box-shadow:0 0 0 5px rgba(37,170,123,.11);
+ animation:focus-pulse-v34 2s ease-in-out infinite;
+}
+@keyframes focus-pulse-v34{50%{box-shadow:0 0 0 9px rgba(37,170,123,.035)}}
+.focus-eyebrow{display:block;color:#287b88;font-size:.72rem;letter-spacing:.12em;font-weight:850}
+.focus-heading h2{margin:3px 0 0;font-size:clamp(1.15rem,4.8vw,1.55rem);color:#252e35;font-weight:850;letter-spacing:-.025em}
+.focus-metrics{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:17px 0}
+.focus-metrics>div{
+ min-width:0;display:flex;flex-direction:column;gap:4px;padding:13px 14px;
+ border:1px solid #d6e6ea;border-radius:16px;
+ background:linear-gradient(150deg,#f9fcfd,#eef6f7);box-shadow:inset 0 1px 0 #fff;
+}
+.focus-metrics small{font-size:.75rem;font-weight:750;color:#54747d}
+.focus-metrics strong{font-size:1.25rem;font-weight:850;color:#263c46;font-variant-numeric:tabular-nums}
+.focus-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;margin-top:2px}
+.focus-actions button,.focus-confirm button{
+ min-width:0;min-height:45px;display:flex;align-items:center;justify-content:center;gap:8px;
+ padding:9px 12px;border-radius:15px;font:inherit;font-size:.9rem;font-weight:800;
+ cursor:pointer;transition:transform .18s ease,box-shadow .22s ease,background .22s ease;
+}
 .focus-actions button{
-  min-height:44px!important;padding:9px 12px!important;border-radius:15px!important;
-  font-size:.88rem!important;line-height:1.25!important;font-weight:750!important;
-  background:linear-gradient(155deg,#f5fafb 0%,#e7f1f3 100%)!important;
-  border:1px solid #d2e2e6!important;color:#346878!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 2px 7px rgba(33,79,95,.045)!important;
-  transition:background .34s ease,border-color .34s ease,box-shadow .34s ease,transform .34s cubic-bezier(.2,.8,.2,1)!important;
+ color:#216f80;border:1px solid #c3dce0;
+ background:linear-gradient(155deg,#fff,#f2f8f9);
+ box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(26,83,100,.075);
 }
-.focus-actions .focus-pause{
-  background:linear-gradient(155deg,#fff 0%,#f4fafb 100%)!important;
-  border-color:#c4dbe0!important;color:#186a80!important;
-  box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(30,95,110,.08)!important;
-}
-.focus-actions .focus-stop{color:#4b6871!important}
-.focus-actions svg{width:15px!important;height:15px!important;flex:0 0 15px;vertical-align:middle}
-.focus-actions button:active{transform:scale(.975)!important}
-.focus-confirm{padding:13px 14px!important;margin-top:12px!important;background:linear-gradient(155deg,#fff,#f2f8f9)!important;border-color:#d6e6e9!important}
-.focus-confirm p{font-size:.98rem!important;line-height:1.35!important;margin-bottom:12px!important;font-weight:750!important;color:#2c4148!important}
-.focus-confirm>div{display:grid!important;grid-template-columns:1fr 1fr;gap:9px!important}
-.focus-confirm button{min-height:43px!important;padding:9px 10px!important;border-radius:13px!important;font-size:.9rem!important;font-weight:750!important;
- background:linear-gradient(155deg,#f5fafb,#eaf3f5)!important;color:#2e6474!important;border:1px solid #d1e1e5!important;box-shadow:inset 0 1px 0 #fff!important}
-.focus-confirm #focusConfirmStop{background:linear-gradient(155deg,#fff,#f1f8fa)!important;color:#176d84!important;border-color:#b8d5dc!important;box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(30,95,110,.075)!important}
-/* Voile plus lent, respirant, puis réapparition échelonnée des éléments. */
-body.focus-entering::after,body.focus-leaving::after{
- background:radial-gradient(ellipse at 48% 36%,rgba(242,252,252,.87),rgba(93,168,181,.18) 72%,rgba(255,255,255,.12))!important;
- animation:focus-soft-veil 1.48s cubic-bezier(.25,.65,.2,1) both!important;
-}
-@keyframes focus-soft-veil{
- 0%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
- 32%{opacity:.85;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
- 65%{opacity:.55;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
- 100%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
-}
-body.focus-entering .focus-toolbar{animation:focus-gentle-enter 1.25s cubic-bezier(.16,.8,.25,1) both!important}
-body.focus-entering .calc-card{animation:focus-gentle-enter 1.35s .10s cubic-bezier(.16,.8,.25,1) both!important}
-@keyframes focus-gentle-enter{
- 0%{opacity:.15;transform:translateY(28px) scale(.976)}
- 70%{opacity:1;transform:translateY(-3px) scale(1.004)}
- 100%{opacity:1;transform:translateY(0) scale(1)}
-}
-body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
- animation:focus-return-spring 1.35s cubic-bezier(.22,.74,.22,1) both!important;
-}
-body.focus-leaving .app > :nth-child(2n){animation-delay:.06s!important}
-body.focus-leaving .app > :nth-child(3n){animation-delay:.12s!important}
-@keyframes focus-return-spring{
- 0%{opacity:0;transform:translateY(26px) scale(.974)}
- 58%{opacity:1;transform:translateY(-8px) scale(1.009)}
- 78%{transform:translateY(3px) scale(.998)}
- 91%{transform:translateY(-1px) scale(1.001)}
- 100%{opacity:1;transform:translateY(0) scale(1)}
-}
-@media(max-width:360px){.focus-actions button{padding:8px 7px!important;font-size:.82rem!important}.focus-actions{gap:7px}}
-@media(prefers-reduced-motion:reduce){
- body.focus-entering::after,body.focus-leaving::after{display:none!important;animation:none!important}
- body.focus-entering .focus-toolbar,body.focus-entering .calc-card,
- body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important}
-}
-
-
-/* V33.51 — Alignement, fin d'inventaire et retour en vague */
-body.is-focus-mode .app{gap:16px!important}
-body.is-focus-mode .app > .focus-toolbar,
-body.is-focus-mode .app > .calc-card{
-  width:calc(100% - 26px)!important;max-width:calc(100% - 26px)!important;
-  margin-left:13px!important;margin-right:13px!important;box-sizing:border-box!important;
-}
-body.is-focus-mode .app > .focus-toolbar{margin-top:0!important;margin-bottom:0!important}
-body.is-focus-mode .app > .calc-card{margin-top:0!important;margin-bottom:0!important}
 .focus-actions .focus-stop{
-  color:#a34750!important;border-color:#e7c4c8!important;
-  background:linear-gradient(150deg,#fffafa,#f9e9eb)!important;
+ color:#a34750;border-color:#e7c4c8;
+ background:linear-gradient(150deg,#fffafa,#f9e9eb);
 }
-.focus-actions .focus-stop svg{color:#ae4b53!important}
+.focus-actions .focus-stop svg{color:#ae4b53}
+.focus-actions svg{width:15px;height:15px;flex:0 0 15px;fill:currentColor;vertical-align:middle}
+.focus-actions button:active,.focus-confirm button:active{transform:scale(.976)}
+.focus-actions button:focus-visible,.focus-confirm button:focus-visible{outline:3px solid #7ebfcd;outline-offset:3px}
+.focus-confirm{
+ margin-top:12px;padding:13px 14px;
+ background:linear-gradient(155deg,#fff,#f2f8f9);
+ border:1px solid #d6e6e9;border-radius:16px;
+ box-shadow:0 5px 16px rgba(35,67,76,.07);
+}
+.focus-confirm p{margin:0 0 12px;font-size:.98rem;line-height:1.35;font-weight:750;color:#2c4148}
+.focus-confirm>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}
+.focus-confirm button{
+ min-height:43px;padding:9px 10px;border:1px solid #c3dce0;
+ background:linear-gradient(155deg,#fff,#f1f8fa);color:#176d84;
+ box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(30,95,110,.075);
+}
 .focus-confirm #focusConfirmStop{
-  background:linear-gradient(145deg,#fff4f4,#f7dfe3)!important;
-  color:#9c3545!important;border-color:#e7b8bf!important;
-  box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(148,57,72,.09)!important;
+ color:#9c3545;border-color:#e7b8bf;
+ background:linear-gradient(145deg,#fff4f4,#f7dfe3);
+ box-shadow:inset 0 1px 0 #fff,0 3px 9px rgba(148,57,72,.09);
 }
-/* Flou intermédiaire : perceptible sans masquer trop longtemps le site. */
-body.focus-entering::after,body.focus-leaving::after{
-  animation:focus-veil-v3351 .96s cubic-bezier(.22,.7,.22,1) both!important;
+@media(max-width:430px){
+ .focus-toolbar{padding:16px;border-radius:22px}
+ .focus-metrics{margin:14px 0}
+ .focus-metrics strong{font-size:1.2rem}
 }
-@keyframes focus-veil-v3351{
-  0%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
-  27%{opacity:.73;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
-  62%{opacity:.38;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-  100%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
-}
-/* Vague de retour : léger décalage d'arrivée et rebond amorti, façon écran d'accueil. */
-body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
-  animation:focus-ios-wave 1.28s cubic-bezier(.18,.78,.2,1) both!important;
-  transform-origin:center 65%;
-}
-body.focus-leaving .app > :nth-child(2n){animation-delay:.075s!important}
-body.focus-leaving .app > :nth-child(3n){animation-delay:.15s!important}
-body.focus-leaving .app > :nth-child(4n){animation-delay:.22s!important}
-@keyframes focus-ios-wave{
-  0%{opacity:0;transform:translate3d(0,40px,0) scale(.91)}
-  42%{opacity:1;transform:translate3d(0,-10px,0) scale(1.025)}
-  63%{transform:translate3d(0,5px,0) scale(.993)}
-  79%{transform:translate3d(0,-2px,0) scale(1.004)}
-  100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
-}
-/* La banderole conserve son dégradé mais masque provisoirement tous les motifs. */
-.intro .intro-produce{display:none!important}
-@media(prefers-reduced-motion:reduce){
- body.focus-entering::after,body.focus-leaving::after{animation:none!important;display:none!important}
- body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important}
-}
+@media(max-width:360px){.focus-actions button{padding:8px 7px;font-size:.82rem}.focus-actions{gap:7px}}
 
-
-/* V33.52 — Restitution d'après la transition iOS fournie en vidéo.
-   Une seule détente de ressort, légère perspective, cascade cohérente. */
-body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
-  animation-name:focus-home-spring-v3352!important;
-  animation-duration:960ms!important;
-  animation-timing-function:cubic-bezier(.21,.79,.23,1)!important;
-  animation-delay:var(--focus-spring-delay,0ms)!important;
-  animation-fill-mode:both!important;
-  transform-origin:center 72%!important;
-  backface-visibility:hidden;
-  will-change:transform,opacity,filter;
-}
-@keyframes focus-home-spring-v3352{
-  0%{opacity:0;filter:blur(4px);transform:perspective(1000px) translate3d(0,27px,-38px) scale(.94)}
-  32%{opacity:1;filter:blur(0);transform:perspective(1000px) translate3d(0,5px,-7px) scale(.992)}
-  65%{opacity:1;filter:blur(0);transform:perspective(1000px) translate3d(0,-3px,0) scale(1.008)}
-  83%{transform:perspective(1000px) translate3d(0,1px,0) scale(.998)}
-  100%{opacity:1;filter:blur(0);transform:perspective(1000px) translate3d(0,0,0) scale(1)}
-}
-@media(prefers-reduced-motion:reduce){
-  body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important;filter:none!important;will-change:auto!important}
-}
-
-
-/* V33.53 — Entrée uniquement floutée, sortie par zoom arrière rapide et séquentiel.
-   Pas de rebond, pas de translation ni perspective : les cartes partent plus grandes
-   et reviennent à leur dimension réelle, dans l'ordre d'affichage. */
-body.focus-entering .focus-toolbar,
-body.focus-entering .calc-card{animation:none!important;transform:none!important;filter:none!important}
-body.focus-entering::after{animation:focus-only-blur-v3353 720ms ease-in-out both!important}
-body.focus-leaving::after{animation:focus-only-blur-v3353 570ms ease-out both!important}
-@keyframes focus-only-blur-v3353{
-  0%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
-  35%{opacity:.70;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  100%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
-}
-body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
-  animation:focus-zoom-normal-v3353 480ms cubic-bezier(.18,.8,.3,1) var(--focus-spring-delay,0ms) both!important;
-  transform-origin:center center!important;
-  backface-visibility:hidden;
-  will-change:transform,opacity;
-}
-@keyframes focus-zoom-normal-v3353{
-  0%{opacity:.55;transform:scale(1.115)}
-  52%{opacity:1;transform:scale(1.025)}
-  100%{opacity:1;transform:scale(1)}
-}
-@media(prefers-reduced-motion:reduce){
-  body.focus-entering::after,body.focus-leaving::after{display:none!important;animation:none!important}
-  body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important;will-change:auto!important}
-}
-
-
-/* V33.54 — Flou contextuel, déclenché dès le clic.
-   Entrée : flou sur le site COMPLET avant l'affichage Concentration.
-   Sortie : flou sur la pesée et le bandeau AVANT le retour du site.
-   Le zoom échelonné ne commence qu'au changement de disposition. */
+/* Transitions sobres, courtes et synchronisées au JS :
+   - clic Démarrer/Reprendre : flou de l'interface globale (310 ms), puis
+     dissipation du voile sur la vue Concentration (200 ms).
+   - clic Pause/Terminer : le bandeau et la pesée se floutent (240 ms),
+     puis chaque carte revient en cascade (300 ms + décalage de 28 ms).
+   Les animations ciblent opacity/transform; pas de layout animé. */
 body.focus-preenter::before{
  content:"";position:fixed;inset:0;z-index:9997;pointer-events:none;
- background:rgba(242,249,250,.10);
- -webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);
- animation:focus-site-blur-v3354 780ms cubic-bezier(.33,0,.25,1) both;
+ background:rgba(243,249,250,.12);
+ backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0);
+ animation:focus-site-veil-v34 310ms var(--iu-focus-ease) both;
 }
-@keyframes focus-site-blur-v3354{
- 0%{opacity:0;-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}
- 49%{opacity:.92;-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
- 100%{opacity:1;-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px)}
+@keyframes focus-site-veil-v34{
+ from{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
+ to{opacity:1;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
 }
-/* La sortie commence sur les deux seuls blocs visibles en Concentration. */
+body.focus-entering::after{
+ content:"";position:fixed;inset:0;z-index:9997;pointer-events:none;
+ background:rgba(243,249,250,.10);
+ backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+ animation:focus-clear-veil-v34 200ms ease-out both;
+}
+@keyframes focus-clear-veil-v34{from{opacity:.9}to{opacity:0}}
 body.focus-preleave .focus-toolbar,
-body.focus-preleave .app > .calc-card{
- animation:focus-blocks-blur-v3354 680ms cubic-bezier(.26,.06,.34,1) both!important;
+body.focus-preleave .app>.calc-card{
+ animation:focus-leave-blur-v34 240ms var(--iu-focus-ease) both;
  transform-origin:center center;
 }
-@keyframes focus-blocks-blur-v3354{
- 0%{opacity:1;filter:blur(0);transform:scale(1)}
- 68%{opacity:.79;filter:blur(5px);transform:scale(.992)}
- 100%{opacity:.62;filter:blur(8px);transform:scale(.987)}
+@keyframes focus-leave-blur-v34{
+ from{opacity:1;filter:blur(0);transform:scale(1)}
+ to{opacity:.68;filter:blur(6px);transform:scale(.995)}
 }
-/* Évite que le voile cache la vue cible : pas de flou global après permutation. */
-body.focus-entering::after,body.focus-leaving::after{
- display:none!important;animation:none!important;
+body.focus-leaving .app>:not(.focus-toolbar):not(.offline-indicator):not(dialog){
+ animation:focus-restore-card-v34 300ms cubic-bezier(.18,.8,.29,1) var(--focus-spring-delay,0ms) both;
+ transform-origin:center center;
 }
-body.focus-entering .focus-toolbar,
-body.focus-entering .calc-card{
- animation:none!important;filter:none!important;transform:none!important;
-}
-/* Apparition des blocs du site : rapide, un à un, du grand vers la taille réelle. */
-body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){
- animation:focus-return-v3354 540ms cubic-bezier(.18,.83,.32,1) var(--focus-spring-delay,0ms) both!important;
- transform-origin:center center!important;
-}
-@keyframes focus-return-v3354{
- 0%{opacity:.45;transform:scale(1.10)}
- 42%{opacity:.96;transform:scale(1.035)}
+@keyframes focus-restore-card-v34{
+ 0%{opacity:.35;transform:scale(1.065)}
+ 65%{opacity:1;transform:scale(1.014)}
  100%{opacity:1;transform:scale(1)}
 }
+/* Aucun motif fruit/légume sur la banderole pour le moment. */
+.intro .intro-produce{display:none!important}
 @media(prefers-reduced-motion:reduce){
- body.focus-preenter::before{display:none!important;animation:none!important}
- body.focus-preleave .focus-toolbar,body.focus-preleave .app > .calc-card{animation:none!important}
- body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator){animation:none!important}
+ .focus-live-dot{animation:none}
+ .focus-actions button,.focus-confirm button,
+ .fold-card>.fold-summary .fold-chevron,
+ .planning-accordion>.planning-panel-summary>svg,
+ .calc-alerts-chevron,.backup-advanced>summary svg,
+ .v22-session-item>summary svg,.recovery-card>summary svg,.history-chevron,
+ .fold-card>.fold-body,.planning-accordion>.planning-panel-content,
+ .calc-alerts>.calc-alerts-body,.backup-advanced>.backup-advanced-body,
+ .v22-session-item>.v22-bilan,.recovery-card>.recovery-body{transition:none!important}
+ body.focus-preenter::before,body.focus-entering::after{display:none!important;animation:none!important}
+ body.focus-preleave .focus-toolbar,body.focus-preleave .app>.calc-card{animation:none!important}
+ body.focus-leaving .app>:not(.focus-toolbar):not(.offline-indicator):not(dialog){animation:none!important}
 }

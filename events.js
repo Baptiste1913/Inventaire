@@ -41,9 +41,9 @@ function render(data){
    const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));
    label.textContent=open?'Masquer les autres événements':'Voir les '+(current.length-1)+' autres événements';
    if(open){more.hidden=false;more.style.maxHeight='0px';more.getBoundingClientRect();more.classList.add('is-open');more.style.maxHeight=more.scrollHeight+'px';
-    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='true')more.style.maxHeight='none';},610);
+    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='true')more.style.maxHeight='none';},475);
    }else{more.style.maxHeight=more.scrollHeight+'px';more.getBoundingClientRect();more.classList.remove('is-open');more.style.maxHeight='0px';
-    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='false')more.hidden=true;},610);}
+    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='false')more.hidden=true;},475);}
   };
  }
 }

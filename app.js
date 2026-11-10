@@ -272,12 +272,6 @@ function clearWeigh(){clearTimeout(autoSaveTimer);autoSaveTimer=null;currentWeig
 function newWeigh(){if(!flushPending())return;if(!netGrams&&$('grossWeight').value.trim()){$('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;}
  if(!$('grossWeight').value.trim()){$('grossWeight').focus();return;}
  clearWeigh();$('grossWeight').focus();}
-function beginGroup(){return false;}
-function finishGroup(){return true;}
-function removeGroupEntry(id){return false;}
-function groupSum(g){return 0;}
-// Mise à jour légère du HUD, sans retraitement des historiques.
-function islandDurationLabel(ms){const minutes=Math.floor(Math.max(0,ms)/60000),h=Math.floor(minutes/60),m=minutes%60;return h?`${h} h ${String(m).padStart(2,'0')}`:`${m} min`;}
 function renderHeroSummary(){
  const status=$('heroStatus'),text=$('heroStatusText');
  if(!status||!text)return;
@@ -291,33 +285,37 @@ function renderHeroSummary(){
 let focusWasActive=false;
 let focusTransitionTimer=null;
 let focusInitialized=false;
-// V33.54 : le flou commence sur la vue que l'utilisateur quitte,
-// avant le changement de disposition. La session ne change qu'une fois.
+// V34.0 : flou contextualisé et minutage cohérent avec les animations CSS.
+// La session n'est modifiée qu'à la fin de la courte transition visuelle.
 let focusMotionBusy=false;
+function clearFocusTransition(){
+ if(focusTransitionTimer){clearTimeout(focusTransitionTimer);focusTransitionTimer=null;}
+ document.body.classList.remove('focus-preenter','focus-preleave','focus-entering','focus-leaving');
+}
 function animateFocusEntry(action){
  if(focusMotionBusy)return;
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
  focusMotionBusy=true;
- document.body.classList.remove('focus-preleave');
+ clearFocusTransition();
  document.body.classList.add('focus-preenter');
  window.setTimeout(()=>{
   document.body.classList.remove('focus-preenter');
   try{action();}finally{focusMotionBusy=false;}
- },660);
+ },310);
 }
 function animateFocusExit(action){
  if(focusMotionBusy)return;
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
  focusMotionBusy=true;
- document.body.classList.remove('focus-preenter');
+ clearFocusTransition();
  document.body.classList.add('focus-preleave');
- // Le blur porte sur la pesée et son bandeau; le reste du site reste net.
+ // Le blur concerne la pesée et son bandeau, jamais le site entier.
  window.setTimeout(()=>{
   try{action();}finally{
    document.body.classList.remove('focus-preleave');
    focusMotionBusy=false;
   }
- },490);
+ },240);
 }
 function syncFocusMode(){
  const session=getActiveSession();
@@ -338,17 +336,17 @@ function syncFocusMode(){
   // Ne pas animer le chargement initial d'une session restaurée.
   if(focusInitialized && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    const transitionClass=active?'focus-entering':'focus-leaving';
-   // Retour dans le style iOS : chaque carte revient dans l'ordre du document,
-   // avec un petit décalage progressif plutôt qu'un délai arbitraire nth-child.
+   // Chaque carte retrouve sa taille avec un court décalage régulier.
+   // Le flou de sortie est terminé avant de changer la disposition.
    if(!active){
     const cards=[...document.querySelectorAll('.app > *')].filter(node=>
       !node.classList.contains('focus-toolbar') &&
       !node.classList.contains('offline-indicator') &&
       !node.hidden && getComputedStyle(node).display!=='none');
-    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*55}ms`));
+    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*28}ms`));
    }
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?550:930);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?230:670);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
@@ -859,7 +857,7 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{try{cons
 
 // V31.31 — moteur d’accordéon partagé : une seule courbe, aucune animation
 // concurrente sur le contenu et mesure de hauteur cohérente pour Safari.
-const FOLD_MOTION_MS=560;
+const FOLD_MOTION_MS=450;
 const FOLD_MOTION_EASE='cubic-bezier(.22,.75,.24,1)';
 function setupUnifiedFold(card,summary,content,closingClass){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
@@ -900,7 +898,7 @@ function setupUnifiedFold(card,summary,content,closingClass){
  document.querySelectorAll('.fold-card').forEach(card=>
   setupUnifiedFold(card,card.querySelector(':scope > .fold-summary'),card.querySelector(':scope > .fold-body'),'is-fold-closing'));
 })();
-// V33.37 : même moteur d'animation (560 ms) pour les quatre outils d'administration.
+// V34.0 : un moteur de 450 ms pour les tiroirs et les outils d'administration.
 document.querySelectorAll('.planning-accordion').forEach(card=>
  setupUnifiedFold(card,card.querySelector(':scope > .planning-panel-summary'),card.querySelector(':scope > .planning-panel-content'),'is-planning-closing'));
 function setupSecondaryDetailsAnimation(card,bodySelector){
@@ -908,6 +906,8 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
+setupSecondaryDetailsAnimation($('recoveryCard'),'.recovery-body');
+setupSecondaryDetailsAnimation($('backupAdvanced'),'.backup-advanced-body');
 
 
 // Défilement volontairement un peu plus lent (durée contrôlée, contrairement au smooth natif).

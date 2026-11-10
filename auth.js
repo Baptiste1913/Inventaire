@@ -259,25 +259,7 @@ $('cloudMerge').addEventListener('click',async()=>{
   remoteBaseline=chosen;await upload(merged.data);restore(merged.data);
  }catch(e){feedback(e.message||'Fusion impossible.');}finally{busy=false;}
 });
-// Même animation d'accordéon que les réglages d'alertes : le contenu se replie en douceur.
-(function animateRecovery(){
- const card=$('recoveryCard');const summary=card?.querySelector(':scope > summary');const body=card?.querySelector(':scope > .recovery-body');
- if(!card||!summary||!body)return;
- let running=null;
- summary.addEventListener('click',event=>{
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  event.preventDefault();
-  if(running){running.cancel();running=null;}
-  const isOpen=card.open;
-  const start=card.getBoundingClientRect().height;
-  if(!isOpen)card.open=true;
-  const end=isOpen?summary.getBoundingClientRect().height:summary.getBoundingClientRect().height+body.scrollHeight;
-  card.style.overflow='hidden';
-  running=card.animate([{height:start+'px'},{height:end+'px'}],{duration:380,easing:'cubic-bezier(.22,1,.36,1)'});
-  running.onfinish=()=>{card.open=!isOpen;card.style.overflow='';running=null;};
-  running.oncancel=()=>{card.style.overflow='';};
- });
-})();
+// Le tiroir Récupération utilise le moteur partagé d'app.js (450 ms).
 let tabChangePending=false;
 window.addEventListener('storage',e=>{
  if(!e.key||!KEYS.includes(e.key)||tabChangePending)return;
@@ -288,7 +270,12 @@ window.addEventListener('storage',e=>{
 });
 $('otherTabReload')?.addEventListener('click',()=>location.reload());
 $('otherTabLater')?.addEventListener('click',()=>{$('otherTabDialog')?.close();localStatus('Attention : cet onglet peut contenir des données anciennes');});
+// Rafraîchir les indicateurs du compte uniquement depuis la portée du module.
+// Auparavant ces deux écouteurs étaient après la fermeture de l'IIFE :
+// `user` et `renderDashboard` y étaient inconnus (ReferenceError périodique).
+window.addEventListener('storage',e=>{
+ if(e.key==='inventaires-u-sessions-v1'&&user)renderDashboard();
+});
+setInterval(()=>{if(user&&$('accountCard')?.open)renderDashboard();},5000);
 init();
 })();
-window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
-setInterval(()=>{if(user&&$('accountCard')?.open)renderDashboard();},5000);
