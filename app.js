@@ -395,7 +395,6 @@ function exitFocusWithoutSnapshot(action){
  const tiles=[...document.querySelectorAll(focusNormalSelectors)].filter(focusVisible);
  const anchors=[...document.querySelectorAll(focusStaticSelectors)].filter(focusVisible);
  const animations=[];
- const blurReset=[];
  const animate=(el,frames,opts={})=>{
   if(!el)return;
   animations.push(el.animate(frames,{duration,easing,fill:'both',...opts}));
@@ -409,31 +408,26 @@ function exitFocusWithoutSnapshot(action){
    {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
   ]);
  }
- // V33.72 : le flou du retour est présent DES LA PREMIERE FRAME visible.
- // On l'applique en style inline avant de lancer les animations, puis il se
- // retire rapidement pour être terminé bien avant la fin du mouvement.
- const clearBlurDuration=Math.max(0,duration-500);
- for(const tile of tiles){
-  blurReset.push([tile,tile.style.filter,tile.style.willChange]);
-  tile.style.filter='blur(3.2px)';
-  tile.style.willChange='transform,filter,opacity';
- }
- for(const anchor of anchors){
-  blurReset.push([anchor,anchor.style.filter,anchor.style.willChange]);
-  anchor.style.filter='blur(1.8px)';
-  anchor.style.willChange='filter,opacity';
- }
- // Forcer l'application du flou initial avant la premiere image peinte.
- void document.body.offsetWidth;
+ // V33.73 : flouter TOUT l'accueil, sous la surface opaque qui descend.
+ // Dans V33.71/72, les tuiles devenaient nettes avant d'être découvertes
+ // par le panneau. Le filtre doit donc durer plus longtemps que sa révélation.
+ // Un seul compositing layer pour le bandeau ET les cartes évite les écarts.
+ const previousAppFilter=app.style.filter;
+ const previousAppWillChange=app.style.willChange;
+ app.style.filter='blur(3.2px)';
+ app.style.willChange='filter';
+ void app.offsetWidth;
+ const homeBlur=app.animate([
+  {offset:0,filter:'blur(3.2px)'},
+  {offset:.28,filter:'blur(3.0px)'},
+  {offset:1,filter:'blur(0px)'}
+ ],{duration:450,easing:'ease-out',fill:'forwards'});
+ animations.push(homeBlur);
  for(const tile of tiles){
   animate(tile,[
    {transform:'translate3d(0,105dvh,0)',opacity:1},
    {transform:'translate3d(0,0,0)',opacity:1}
   ]);
-  animate(tile,[
-   {filter:'blur(3.2px)'},
-   {filter:'blur(0px)'}
-  ],{duration:clearBlurDuration,easing:'ease-out'});
  }
  for(const anchor of anchors){
   animate(anchor,[
@@ -441,17 +435,11 @@ function exitFocusWithoutSnapshot(action){
    {offset:.75,opacity:1},
    {offset:1,opacity:1}
   ],{easing:'linear'});
-  animate(anchor,[
-   {filter:'blur(1.8px)'},
-   {filter:'blur(0px)'}
-  ],{duration:clearBlurDuration,easing:'ease-out'});
  }
  const cleanup=()=>{
   animations.forEach(anim=>anim.cancel());
-  for(const [el,filter,willChange] of blurReset){
-   el.style.filter=filter;
-   el.style.willChange=willChange;
-  }
+  app.style.filter=previousAppFilter;
+  app.style.willChange=previousAppWillChange;
   layer.remove();
   focusMotionBusy=false;
   const pending=focusPendingTask;
