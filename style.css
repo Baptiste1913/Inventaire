@@ -5049,135 +5049,132 @@ html.iu-pwa-revealing .app > footer {
 }
 
 
-/* V33.94 — « Mon compte » : structure, finitions et mouvements de l'administration,
-   couleurs turquoise et vert du compte conservées. */
+/* V33.95 — Refonte autonome de « Mon compte », repartie de V33.93.
+   Conserve l'architecture, les interactions et l'animation de dépliage d'origine. */
 .app > .account-card.card {
-  overflow:hidden!important;
-  background:#fff!important;
-  border:1px solid #e0e7e9!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 5px 22px rgba(28,90,101,.055)!important;
+  background:linear-gradient(160deg,#fff 0%,#fff 73%,#f8fcfc 100%);
+  border:1px solid #e0eaec;
+  border-radius:23px!important;
+  box-shadow:0 8px 26px rgba(30,65,76,.065),0 1px 3px rgba(35,72,81,.035);
 }
-.app > .account-card > .account-fold-summary {
-  box-sizing:border-box!important;
-  display:flex!important;
-  flex-wrap:nowrap!important;
-  justify-content:flex-start!important;
-  align-items:center!important;
-  gap:10px!important;
-  min-height:82px!important;
-  padding:20px 18px!important;
-  border-radius:18px!important;
-  background:#fff!important;
-  text-align:left!important;
-  transition:background-color 260ms ease!important;
-}
-.app > .account-card[open] > .account-fold-summary {
-  border-radius:18px 18px 0 0!important;
-  border-bottom:1px solid #e2ecee!important;
+.account-card > .account-fold-summary {
+  padding:21px 20px 18px!important;
+  gap:13px!important;
+  background:transparent;
 }
 .account-card > .account-fold-summary > .account-heading-icon {
-  width:43px!important;height:43px!important;flex:0 0 43px!important;
-  border:1px solid #c6e3e7!important;
-  border-radius:50%!important;
-  background:linear-gradient(145deg,#e8f6f7,#d5ebee)!important;
-  color:#087e8b!important;
-  display:grid!important;place-items:center!important;
-  box-shadow:inset 0 1px 0 #fff!important;
+  width:48px;height:48px;flex-basis:48px;
+  background:linear-gradient(155deg,#e9f8f7 0%,#ccebee 100%);
+  border:1px solid #bfe1e5;
+  border-radius:50%;color:#087f89;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.88),0 2px 7px rgba(17,115,125,.07);
 }
-.account-card > .account-fold-summary > .account-heading-icon svg {width:23px!important;height:23px!important;}
-.app > .account-card .account-fold-summary .fold-heading {
-  display:grid!important;gap:5px!important;min-width:0!important;
-  flex:1 1 110px!important;margin:0!important;
+.account-card > .account-fold-summary > .account-heading-icon svg{width:25px;height:25px}
+.account-card .account-fold-summary .fold-heading .section-kicker {
+  color:#28828b;letter-spacing:.11em;font-weight:850;
 }
-.app > .account-card .account-fold-summary .section-kicker {
-  color:#147b87!important;font-size:11px!important;font-weight:800!important;
-  letter-spacing:.105em!important;line-height:1.3!important;
+.account-card .account-fold-summary .fold-heading .fold-label {
+  color:#202a31;letter-spacing:-.035em;
 }
-.app > .account-card .account-fold-summary .fold-label {
-  color:#202126!important;font-size:20px!important;line-height:1.2!important;
-  letter-spacing:-.45px!important;font-weight:850!important;
+.account-card .account-summary-status {
+  background:linear-gradient(155deg,#f1f6f6,#eaf2f2);
+  border:1px solid #e0ebed;color:#667c81;
+  padding:7px 10px;border-radius:999px;
 }
-.app > .account-card .account-fold-summary .fold-trailing {
-  display:flex!important;flex:0 0 auto!important;align-items:center!important;
-  justify-content:flex-end!important;gap:9px!important;margin-left:auto!important;
+.account-card .account-summary-status.is-connected{
+  background:linear-gradient(145deg,#e8f8ed,#dbf5e8);
+  color:#21734f;border-color:#d3eddf;
 }
-.account-card .account-fold-summary .fold-chevron {
-  width:18px!important;height:18px!important;flex:0 0 18px!important;
-  display:block!important;fill:none!important;stroke:#607981!important;
-  stroke-width:2.4!important;stroke-linecap:round!important;
-  stroke-linejoin:round!important;
-  transform:rotate(0);transition:transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+/* Conserver le bouton de l'ancienne version, mais rendre sa surface plus raffinée.
+   Le clic reste celui du <summary>, sans deuxième bouton imbriqué. */
+.account-card .account-open-button,
+.account-card[open] .account-open-button {
+  justify-content:space-between!important;
+  min-height:48px!important;
+  padding:10px 15px!important;
+  margin-top:1px!important;
+  border-radius:13px!important;
+  background:linear-gradient(115deg,#008f9c 0%,#087e91 55%,#126f89 100%)!important;
+  border:1px solid rgba(8,113,128,.16)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 4px 10px rgba(3,117,136,.11)!important;
+  font-size:13px!important;
 }
-.account-card[open] > .account-fold-summary .fold-chevron {transform:rotate(180deg)!important;}
-.account-card.is-fold-closing > .account-fold-summary .fold-chevron {transform:rotate(0)!important;}
-/* Le lien de navigation est maintenant l'en-tête entier, comme dans l'administration.
-   Conserver son identifiant pour la gestion de connexion existante. */
-.account-card .account-open-button {display:none!important;}
-.app > .account-card > .account-body {
-  box-sizing:border-box!important;
-  min-width:0!important;
-  padding:17px 18px 21px!important;
-  background:linear-gradient(150deg,#fff 0%,#f7fbfc 100%)!important;
-  opacity:1;transform:translateY(0);
-  transition:opacity 560ms cubic-bezier(.22,.75,.24,1),transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+.account-card .account-action-main{display:flex;align-items:center;justify-content:center;gap:11px;flex:1}
+.account-card .account-action-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.account-card .account-action-arrow{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .4s cubic-bezier(.22,.7,.25,1);opacity:.9}
+.account-card[open] .account-action-arrow{transform:rotate(90deg)}
+.account-card .account-body{padding:10px 18px 22px!important}
+.account-card .account-profile{
+  margin:4px 0 12px;padding:15px 14px;gap:13px;
+  background:linear-gradient(135deg,#f4fafa 0%,#fbfefe 70%);
+  border:1px solid #d6e8ea;border-radius:17px;
+  box-shadow:inset 0 1px 0 #fff;
 }
-.account-card.is-fold-closing > .account-body {
-  opacity:0!important;transform:translateY(-5px)!important;pointer-events:none;
+.account-card .account-avatar{
+  width:46px;height:46px;border:1px solid #c8e4e6;
+  background:linear-gradient(145deg,#e5f6f6,#d3ebed);
+  box-shadow:inset 0 1px 0 white;
 }
-/* Le sous-tiroir « Copies de récupération » emprunte les mêmes finitions que
-   les rubriques d'administration, mais avec la palette turquoise du compte. */
-.account-card .recovery-card {
-  border:1px solid #cee2e6!important;border-radius:16px!important;
-  background:linear-gradient(160deg,#fff 0%,#f4fafa 55%,#eaf3f5 100%)!important;
-  box-shadow:inset 0 1px 0 #fff,0 2px 8px rgba(18,108,125,.04)!important;
+.account-card .account-profile-text{gap:3px}
+.account-card .account-profile-text .account-profile-eyebrow{
+  font-size:10px;color:#36818a;font-weight:850;letter-spacing:.12em;line-height:1.2;
 }
-.account-card .recovery-card > .calc-alerts-summary {
-  min-height:72px!important;padding:15px 16px!important;
-  background:linear-gradient(150deg,#fff,#f0f8fa)!important;
-  transition:background-color 260ms ease!important;
+.account-card .account-profile-text strong{font-size:15px;line-height:1.3;color:#20343a;font-weight:800}
+.account-card .account-profile-text span:not(.account-profile-eyebrow){font-size:11px;color:#74888c;line-height:1.4}
+.account-card .account-explanation{font-size:12px;line-height:1.6;color:#677e83;margin:0 2px 14px}
+.account-card .account-body .account-provider {
+  min-height:46px!important;border-radius:12px!important;font-size:13px!important;
+  transition:transform .16s ease,box-shadow .2s ease,background .2s ease;
 }
-.account-card .recovery-card .calc-alerts-title strong {
-  font-size:14px!important;font-weight:850!important;line-height:1.2!important;
-  color:#202126!important;
+.account-card .account-body .account-google{
+  background:linear-gradient(140deg,#fff 0%,#f5fbfb 100%);
+  border-color:#cfe4e6;box-shadow:0 3px 11px rgba(21,98,111,.06);
 }
-.account-card .recovery-card .calc-alerts-title small {
-  font-size:11px!important;line-height:1.3!important;color:#6b8992!important;
+.account-card .account-body .account-provider:not(:disabled):active{transform:scale(.985)}
+.account-card .account-info-line{
+  padding:11px 12px;background:#fbfdfd;border-left:1px solid #dce9ea;
+  border-right:1px solid #dce9ea;border-bottom:1px solid #e7eff0;
 }
-.account-card .recovery-card .calc-alerts-chevron {
-  width:18px!important;height:18px!important;flex:0 0 18px!important;
-  stroke:#607981!important;stroke-width:2.1!important;
-  transition:transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+.account-card .account-info-line:first-child{border-top:1px solid #dce9ea;border-radius:13px 13px 0 0}
+.account-card .account-info-line:last-of-type{border-radius:0 0 13px 13px}
+.account-card .account-dashboard{
+  margin:19px 0 21px;padding:18px 14px;
+  border:1px solid #d5e7e9;border-radius:19px;
+  background:linear-gradient(155deg,#f7fcfc,#fff 62%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
 }
-.account-card .recovery-card[open] .calc-alerts-chevron {transform:rotate(180deg)!important;}
-.account-card .recovery-card.is-detail-closing .calc-alerts-chevron {transform:rotate(0)!important;}
-.account-card .recovery-card > .recovery-body {
-  background:linear-gradient(150deg,#fff,#f5fbfc)!important;
-  border-top:1px solid #dcebef!important;
-  opacity:1;transform:translateY(0);
-  transition:opacity 560ms cubic-bezier(.22,.75,.24,1),transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+.account-card .dashboard-heading h3{font-size:20px;color:#24353b}
+.account-card .dashboard-kicker{color:#23848d}
+.account-card .dashboard-stat{
+  border-radius:13px;border-color:#e0ebed;
+  background:linear-gradient(145deg,#fff,#f9fcfc);
+  padding:15px 12px;box-shadow:0 3px 10px rgba(28,100,107,.035);
 }
-.account-card .recovery-card.is-detail-closing > .recovery-body {opacity:0!important;transform:translateY(-5px);pointer-events:none;}
-@media(max-width:380px) {
- .app > .account-card > .account-fold-summary {min-height:74px!important;padding:17px 12px!important;gap:7px!important;}
- .account-card > .account-fold-summary > .account-heading-icon {width:38px!important;height:38px!important;flex-basis:38px!important;}
- .account-card > .account-fold-summary > .account-heading-icon svg {width:21px!important;height:21px!important;}
- .app > .account-card .account-fold-summary .section-kicker {font-size:10px!important;letter-spacing:.08em!important;}
- .app > .account-card .account-fold-summary .fold-label {font-size:18px!important;}
- .account-card .account-summary-status {padding:6px 7px!important;font-size:10px!important;}
- .app > .account-card .account-fold-summary .fold-trailing {gap:6px!important;}
- .app > .account-card > .account-body {padding:15px 12px 18px!important;}
+.account-card .dashboard-stat strong{color:#107d88}
+.account-card .dashboard-performance-summary{
+  border-radius:12px;background:linear-gradient(110deg,#edf8f8,#f5fbfb);
 }
-@media(prefers-reduced-motion:reduce){
- .account-card > .account-fold-summary,.account-card .account-fold-summary .fold-chevron,
- .account-card > .account-body,.account-card .recovery-card > .calc-alerts-summary,
- .account-card .recovery-card .calc-alerts-chevron,.account-card .recovery-card > .recovery-body {
-   transition:none!important;
- }
+.account-card .dashboard-trend,.account-card .dashboard-recent-list{border-radius:12px}
+.account-card .recovery-card{
+  margin-top:18px;border-radius:15px;
+  border:1px solid #d5e6e8;
+  background:linear-gradient(145deg,#f5fafb,#fbfdfd);
+  box-shadow:inset 0 1px 0 #fff;
 }
-/* Garder le libellé de section sur une ligne à la largeur d'un iPhone standard. */
-@media(min-width:360px) and (max-width:500px){
- .app > .account-card .account-fold-summary .section-kicker {
-   font-size:9.5px!important;
-   letter-spacing:.03em!important;
- }
+.account-card .recovery-card>.calc-alerts-summary{padding:14px 15px;min-height:67px}
+.account-card .recovery-card .calc-alerts-title strong{font-size:13px;color:#263e44}
+.account-card .recovery-card .calc-alerts-title small{font-size:11px;color:#798e93}
+.account-card .recovery-card .calc-alerts-chevron{transition:transform .56s cubic-bezier(.22,.75,.24,1)}
+.account-card .account-body .account-logout{
+  background:linear-gradient(135deg,#fff,#fff8f8);border-color:#ebd3d5;
+  color:#aa4c56;
 }
+@media(max-width:380px){
+ .account-card > .account-fold-summary{padding:17px 13px 15px!important;gap:9px!important}
+ .account-card > .account-fold-summary > .account-heading-icon{width:42px;height:42px;flex-basis:42px}
+ .account-card .account-body{padding:8px 13px 18px!important}
+ .account-card .account-summary-status{padding:6px 8px;font-size:10px}
+ .account-card .dashboard-stats{gap:8px}
+ .account-card .dashboard-stat{padding:13px 10px}
+}
+@media(prefers-reduced-motion:reduce){.account-card .account-action-arrow,.account-card .account-body .account-provider,.account-card .recovery-card .calc-alerts-chevron{transition:none!important}}

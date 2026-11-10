@@ -1132,7 +1132,6 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
-setupSecondaryDetailsAnimation($('recoveryCard'),'.recovery-body');
 
 
 // Raccourci de la banderole : défilement amorti vers Ma session, sans lancement.

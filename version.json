@@ -1,1 +1,7 @@
-{"version":"33.94","published":"2026-11-10","assets":42,"bytes":763622,"notes":"Harmonisation des visuels et animations de Mon compte avec l’administration, palette turquoise conservée."}
+{
+  "version": "33.95",
+  "published": "2026-11-10",
+  "assets": 42,
+  "bytes": 763622,
+  "notes": "Refonte du bloc Mon compte depuis V33.93 : interface turquoise harmonisée, profil et statistiques modernisés."
+}
