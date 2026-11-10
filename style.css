@@ -4029,3 +4029,65 @@ html.iu-focus-exiting::view-transition {
   /* La taille et l'origine sont celles du viewport, sans largeur forcée. */
   overflow:clip;
 }
+
+
+/* V33.68 — sortie sans decalage de l'accueil (Safari iOS).
+   Retirer les restrictions imposant a la page de retour la geometrie du mode
+   Concentration. L'accueil reprend exactement son layout responsive normal.
+   Il n'y a plus d'overflow:clip sur le conteneur View Transitions : ce clip
+   modifiait le repere des groupes captures sur WebKit. */
+:root{--iu65-duration:760ms;--iu65-ease:cubic-bezier(.09,.82,.17,1);--iu68-exit-ease:cubic-bezier(.78,0,.94,.42)}
+html.iu-focus-exiting .app{
+  width:100%!important;
+  max-width:680px!important;
+  min-width:0!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  transform:none!important;
+}
+@media(min-width:700px) and (max-width:899px){
+  html.iu-focus-exiting .app{max-width:760px!important}
+}
+@media(min-width:900px){
+  html.iu-focus-exiting .app{max-width:980px!important}
+}
+html.iu-focus-exiting::view-transition{overflow:visible!important}
+html.iu-focus-exiting,html.iu-focus-exiting body{
+  overflow-x:visible!important;
+}
+/* Courbe dessinee : depart rapide, deceleration douce et longue ;
+   l'inverse a la sortie (depart retenu puis acceleration). */
+html.iu-focus-exiting::view-transition-old(iu-focus-surface),
+html.iu-focus-exiting::view-transition-old(iu-focus-0),
+html.iu-focus-exiting::view-transition-old(iu-focus-1),
+html.iu-focus-exiting::view-transition-new(iu-normal-0),
+html.iu-focus-exiting::view-transition-new(iu-normal-1),
+html.iu-focus-exiting::view-transition-new(iu-normal-2),
+html.iu-focus-exiting::view-transition-new(iu-normal-3),
+html.iu-focus-exiting::view-transition-new(iu-normal-4),
+html.iu-focus-exiting::view-transition-new(iu-normal-5),
+html.iu-focus-exiting::view-transition-new(iu-normal-6),
+html.iu-focus-exiting::view-transition-new(iu-normal-7),
+html.iu-focus-exiting::view-transition-new(iu-normal-8),
+html.iu-focus-exiting::view-transition-new(iu-normal-9),
+html.iu-focus-exiting::view-transition-new(iu-normal-10),
+html.iu-focus-exiting::view-transition-new(iu-normal-11){animation-timing-function:var(--iu68-exit-ease)!important}
+/* Les instantanes de l'accueil gardent leur largeur et leur origine propres.
+   Pas de changement de scale/zoom ni de transform horizontal. */
+html.iu-focus-exiting::view-transition-group(iu-anchor-0),
+html.iu-focus-exiting::view-transition-group(iu-anchor-1),
+html.iu-focus-exiting::view-transition-group(iu-normal-0),
+html.iu-focus-exiting::view-transition-group(iu-normal-1),
+html.iu-focus-exiting::view-transition-group(iu-normal-2),
+html.iu-focus-exiting::view-transition-group(iu-normal-3),
+html.iu-focus-exiting::view-transition-group(iu-normal-4),
+html.iu-focus-exiting::view-transition-group(iu-normal-5),
+html.iu-focus-exiting::view-transition-group(iu-normal-6),
+html.iu-focus-exiting::view-transition-group(iu-normal-7),
+html.iu-focus-exiting::view-transition-group(iu-normal-8),
+html.iu-focus-exiting::view-transition-group(iu-normal-9),
+html.iu-focus-exiting::view-transition-group(iu-normal-10),
+html.iu-focus-exiting::view-transition-group(iu-normal-11){
+  animation:none!important;
+  transform-origin:top left!important;
+}

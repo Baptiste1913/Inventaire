@@ -352,6 +352,9 @@ function changeFocusWithMotion(action,entering){
  const before=document.body.classList.contains('is-focus-mode');
  // La transition n'est utile que si l'action peut changer de mode.
  if((entering&&before)||(!entering&&!before)){action();return;}
+ // Stabiliser le repere des captures AVANT startViewTransition :
+ // un scroll dans update() deplace les captures du retour sur Safari iOS.
+ window.scrollTo({top:0,left:0,behavior:'instant'});
  focusMotionBusy=true;
  const tagged=new Set();
  const cleanup=()=>{
@@ -410,7 +413,7 @@ function syncFocusMode(){
   // Durant la capture native, positionner directement la vue cible.
   // En dehors d'une transition, garder le retour en haut historique.
   if(document.documentElement.classList.contains('iu-focus-slide')){
-   window.scrollTo({top:0,left:0,behavior:'instant'});
+   // Le scroll a ete stabilise avant la capture : ne jamais le modifier ici.
   } else if(focusInitialized){
    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
   }
