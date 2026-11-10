@@ -309,7 +309,7 @@ function animateFocusEntry(action){
  window.setTimeout(()=>{
   document.body.classList.remove('focus-preenter');
   try{action();}finally{focusMotionBusy=false;}
- },400);
+ },185);
 }
 function animateFocusExit(action){
  if(focusMotionBusy)return;
@@ -323,7 +323,7 @@ function animateFocusExit(action){
    document.body.classList.remove('focus-preleave');
    focusMotionBusy=false;
   }
- },330);
+ },175);
 }
 function syncFocusMode(){
  const session=getActiveSession();
@@ -351,10 +351,10 @@ function syncFocusMode(){
       !node.classList.contains('focus-toolbar') &&
       !node.classList.contains('offline-indicator') &&
       !node.hidden && getComputedStyle(node).display!=='none');
-    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,8)*24}ms`));
+    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,8)*12}ms`));
    }
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?430:600);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?210:310);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
@@ -916,16 +916,38 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
 
 
-// La banderole est un raccourci vers les commandes de session : elle ne démarre rien.
+// Raccourci de la banderole : défilement amorti vers Ma session, sans lancement.
 (function setupHeroSessionAction(){
  const trigger=$('heroStartSession');
  const destination=document.querySelector('.session-card');
  if(!trigger||!destination)return;
+ let scrollFrame=null;
  trigger.addEventListener('click',()=>{
-  destination.scrollIntoView({
-   behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',
-   block:'start'
-  });
+  if(scrollFrame!==null){cancelAnimationFrame(scrollFrame);scrollFrame=null;}
+  const start=window.scrollY || window.pageYOffset || 0;
+  const end=Math.max(0,start+destination.getBoundingClientRect().top-16);
+  const delta=end-start;
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced||Math.abs(delta)<4){window.scrollTo(0,end);return;}
+  // Courbe d'accélération/décélération sans rebond ni effet de saut.
+  const duration=Math.min(940,Math.max(620,Math.abs(delta)*.46));
+  let begun=null;
+  const abort=()=>{if(scrollFrame!==null){cancelAnimationFrame(scrollFrame);scrollFrame=null;}cleanup();};
+  const cleanup=()=>{
+   window.removeEventListener('wheel',abort);
+   window.removeEventListener('touchstart',abort);
+  };
+  window.addEventListener('wheel',abort,{passive:true,once:true});
+  window.addEventListener('touchstart',abort,{passive:true,once:true});
+  const animate=now=>{
+   if(begun===null)begun=now;
+   const progress=Math.min(1,(now-begun)/duration);
+   const eased=progress<.5?4*progress*progress*progress:1-Math.pow(-2*progress+2,3)/2;
+   window.scrollTo(0,start+delta*eased);
+   if(progress<1)scrollFrame=requestAnimationFrame(animate);
+   else{scrollFrame=null;cleanup();}
+  };
+  scrollFrame=requestAnimationFrame(animate);
  });
 })();
 
