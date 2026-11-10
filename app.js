@@ -345,6 +345,89 @@ function focusTagViews(entering,phase,tagged){
   }
  }
 }
+/* V33.70 — Safari iPhone: à la SORTIE seulement, animer les vrais éléments
+   à leurs coordonnées réelles plutôt que les snapshots View Transitions.
+   Ces snapshots pouvaient prendre la largeur de l'état Concentration et
+   déplacer tout l'accueil vers la droite. Durée/courbe/flou INCHANGÉS. */
+function exitFocusWithoutSnapshot(action){
+ const duration=610;
+ const easing='cubic-bezier(.16,.84,.24,1)';
+ const app=document.querySelector('.app');
+ const source=[...document.querySelectorAll(focusViewSelectors)].filter(focusVisible);
+ const surface=document.querySelector(focusSurfaceSelectors);
+ const layer=document.createElement('div');
+ layer.className='iu70-exit-overlay';
+ layer.setAttribute('aria-hidden','true');
+ // Le clone est limité à la largeur physique du viewport : aucune
+ // capture d'une autre largeur ne peut décaler l'accueil.
+ for(const node of source){
+  const rect=node.getBoundingClientRect();
+  const computed=getComputedStyle(node);
+  const clone=node.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
+  clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
+  clone.style.setProperty('position','absolute','important');
+  clone.style.setProperty('display','block','important');
+  clone.style.setProperty('left',rect.left+'px','important');
+  clone.style.setProperty('top',rect.top+'px','important');
+  clone.style.setProperty('width',rect.width+'px','important');
+  clone.style.setProperty('height',rect.height+'px','important');
+  clone.style.setProperty('max-width','none','important');
+  clone.style.setProperty('margin','0','important');
+  clone.style.setProperty('box-sizing','border-box','important');
+  clone.style.setProperty('background',computed.background,'important');
+  clone.style.setProperty('box-shadow',computed.boxShadow,'important');
+  clone.style.setProperty('border',computed.border,'important');
+  clone.style.setProperty('border-radius',computed.borderRadius,'important');
+  clone.style.setProperty('opacity','1','important');
+  layer.append(clone);
+ }
+ // La surface pleine-écran reprend le fond opaque déjà existant.
+ const cover=document.createElement('div');
+ cover.className='iu70-exit-cover';
+ layer.prepend(cover);
+ document.body.append(layer);
+ focusMotionBusy=true;
+ // Le nouvel accueil est mis en page par le navigateur, sans aucune
+ // transition de vue qui pourrait le redimensionner horizontalement.
+ action();
+ const tiles=[...document.querySelectorAll(focusNormalSelectors)].filter(focusVisible);
+ const anchors=[...document.querySelectorAll(focusStaticSelectors)].filter(focusVisible);
+ const animations=[];
+ const animate=(el,frames,opts={})=>{
+  if(!el)return;
+  animations.push(el.animate(frames,{duration,easing,fill:'both',...opts}));
+ };
+ animate(cover,[{transform:'translate3d(0,0,0)'},{transform:'translate3d(0,105dvh,0)'}]);
+ for(const clone of [...layer.children].filter(el=>el!==cover)){
+  animate(clone,[
+   {offset:0,transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1},
+   {offset:.12,filter:'blur(0px)',opacity:1},
+   {offset:.60,filter:'blur(1.7px)',opacity:1},
+   {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
+  ]);
+ }
+ for(const tile of tiles)animate(tile,[
+  {transform:'translate3d(0,105dvh,0)',opacity:1,filter:'blur(0px)'},
+  {transform:'translate3d(0,0,0)',opacity:1,filter:'blur(0px)'}
+ ]);
+ for(const anchor of anchors)animate(anchor,[
+  {offset:0,opacity:0,filter:'blur(1.8px)'},
+  {offset:.75,opacity:1,filter:'blur(0px)'},
+  {offset:1,opacity:1,filter:'blur(0px)'}
+ ],{easing:'linear'});
+ const cleanup=()=>{
+  animations.forEach(anim=>anim.cancel());
+  layer.remove();
+  focusMotionBusy=false;
+  const pending=focusPendingTask;
+  focusPendingTask=null;
+  if(pending)requestAnimationFrame(pending);
+ };
+ Promise.all(animations.map(anim=>anim.finished.catch(()=>{}))).then(cleanup,cleanup);
+ if(!animations.length)cleanup();
+}
 function changeFocusWithMotion(action,entering){
  if(focusMotionBusy)return;
  if(focusReducedMotion()){action();return;}
@@ -352,20 +435,16 @@ function changeFocusWithMotion(action,entering){
  const before=document.body.classList.contains('is-focus-mode');
  // La transition n'est utile que si l'action peut changer de mode.
  if((entering&&before)||(!entering&&!before)){action();return;}
- // iOS Safari peut recalculer la largeur du document lors de la capture
- // du nouvel etat. Figée sur la largeur visible, elle ne peut plus pousser
- // les tuiles ni la banderole hors du bord droit pendant la sortie.
- const visibleWidth=Math.max(1,Math.round(Math.min(
-  document.documentElement.clientWidth||innerWidth,
-  window.visualViewport?.width||innerWidth
- )));
- html.style.setProperty('--iu-capture-viewport',`${visibleWidth}px`);
+ // Sortie : les éléments réels préservent le cadrage iPhone.
+ if(!entering && typeof Element.prototype.animate==='function'){
+  exitFocusWithoutSnapshot(action);
+  return;
+ }
  focusMotionBusy=true;
  const tagged=new Set();
  const cleanup=()=>{
   for(const el of tagged)el.style.viewTransitionName='';
   html.classList.remove('iu-focus-slide','iu-focus-entering','iu-focus-exiting');
-  html.style.removeProperty('--iu-capture-viewport');
   document.body.classList.remove('iu-slide-fallback-out','iu-slide-fallback-in');
   focusMotionBusy=false;
   // Un clic sur « Annuler » peut survenir avant la fin de la fermeture.

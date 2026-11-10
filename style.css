@@ -4031,21 +4031,23 @@ html.iu-focus-exiting::view-transition {
 }
 
 
-/* V33.69 — correctif de cadrage uniquement (animations V33.67 inchangées).
-   Fixe la taille de mise en page sur celle de la fenêtre visible pendant
-   les deux captures View Transition afin d'éviter les instantanés trop larges
-   au retour sur l'accueil dans Safari iPhone. */
-html.iu-focus-slide,
-html.iu-focus-slide body {
-  width:var(--iu-capture-viewport,100%)!important;
-  max-width:var(--iu-capture-viewport,100%)!important;
-  min-width:0!important;
-  overflow-x:clip!important;
+/* V33.70 — surface de départ fixée au viewport, sans influence sur
+   la largeur du document ; aucun réglage d'animation modifié. */
+.iu70-exit-overlay{
+ position:fixed!important;
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ overflow:hidden!important;
+ pointer-events:none!important;
+ z-index:2147480000!important;
+ contain:layout paint!important;
 }
-html.iu-focus-slide .app {
-  box-sizing:border-box!important;
-  width:100%!important;
-  max-width:min(680px,var(--iu-capture-viewport,100%))!important;
-  min-width:0!important;
-  margin-inline:auto!important;
+.iu70-exit-cover{
+ position:absolute!important;
+ inset:0!important;
+ background:#f3f6f7!important;
+ width:100%!important;
+ height:100%!important;
+ pointer-events:none!important;
 }
