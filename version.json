@@ -1,7 +1,7 @@
 {
-  "version": "33.96",
-  "published": "2026-11-10",
+  "version": "33.97",
+  "published": "2026-11-11",
   "assets": 42,
-  "bytes": 779858,
-  "notes": "Mon compte redessiné en carte de profil : en-tête dynamique, mode local, informations de synchronisation allégées."
+  "bytes": 786381,
+  "notes": "Mon compte : adresse e-mail discrète, deux cartes de statut compactes, synchronisation lisible sans répétition du fournisseur Google."
 }

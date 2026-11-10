@@ -82,8 +82,45 @@ try{if(!localStorage.getItem(SCOPE_KEY)){writeWorkspace('guest',snapshot());loca
 const stamp=()=>lastSuccessAt?' · Dernière sauvegarde : '+new Date(lastSuccessAt).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'';
 const feedback=msg=>{$('accountFeedback').textContent=msg||'';};
 const isMissingSession=e=>/auth session missing|session missing/i.test(String(e?.message||''));
-const status=msg=>{$('cloudStatus').textContent=msg;renderDashboard();};
-const localStatus=msg=>{const el=$('localSaveStatus');if(el)el.textContent=msg;};
+// Keep the full status for the diagnostics, while presenting a short, readable
+// state and a secondary detail in the compact profile cards.
+const status=msg=>{
+ const raw=$('cloudStatus');if(raw)raw.textContent=msg;
+ const main=$('cloudStatusMain'),detail=$('cloudStatusDetail');
+ const synced=msg.startsWith('Synchronisé');
+ const tile=main?.closest('.account-storage-cloud');
+ if(tile){tile.classList.toggle('is-synced',synced);tile.classList.toggle('is-warning',/attente|nécessaire|différentes|indisponible/i.test(msg));}
+ if(main&&detail){
+  const sep=' · Dernière sauvegarde : ';
+  if(synced&&msg.includes(sep)){
+   main.textContent='Synchronisé';
+   detail.textContent='Dernière sauvegarde · '+msg.split(sep).slice(1).join(sep);
+  }else if(msg.startsWith('Choix nécessaire :')){
+   main.textContent='Choix nécessaire';detail.textContent='Vérifier les sauvegardes';
+  }else if(msg==='Modifications en attente de synchronisation'){
+   main.textContent='Synchronisation en attente';detail.textContent='Modifications à enregistrer';
+  }else if(msg==='Synchronisation en attente'){
+   main.textContent='En attente';detail.textContent='Synchronisation non terminée';
+  }else if(msg.startsWith('Actualisation nécessaire')){
+   main.textContent='Actualisation nécessaire';detail.textContent='Avant la synchronisation';
+  }else if(msg==='Espace vierge · aucune donnée à sauvegarder'){
+   main.textContent='Espace vierge';detail.textContent='Aucune sauvegarde à effectuer';
+  }else if(msg==='Données récupérées. Actualisation nécessaire.'){
+   main.textContent='Données récupérées';detail.textContent='Actualisation nécessaire';
+  }else{
+   main.textContent=msg;detail.textContent='';
+  }
+ }
+ renderDashboard();
+};
+const localStatus=msg=>{
+ const raw=$('localSaveStatus');if(raw)raw.textContent=msg;
+ const main=$('localSaveMain'),detail=$('localSaveDetail');
+ const ok=/Enregistré|Enregistré localement/i.test(msg);
+ if(main)main.textContent=ok?'Enregistré':msg;
+ if(detail)detail.textContent=ok?'Données disponibles ici':'';
+ main?.closest('.account-storage-local')?.classList.toggle('is-warning',!ok);
+};
 function snapshot(){const out={};for(const key of KEYS){try{out[key]=localStorage.getItem(key);}catch{out[key]=null;}}return out;}
 const serialize=o=>JSON.stringify(o);
 const empty=o=>Object.values(o).every(v=>v===null);
