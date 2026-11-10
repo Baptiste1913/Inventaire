@@ -395,6 +395,7 @@ function exitFocusWithoutSnapshot(action){
  const tiles=[...document.querySelectorAll(focusNormalSelectors)].filter(focusVisible);
  const anchors=[...document.querySelectorAll(focusStaticSelectors)].filter(focusVisible);
  const animations=[];
+ const blurReset=[];
  const animate=(el,frames,opts={})=>{
   if(!el)return;
   animations.push(el.animate(frames,{duration,easing,fill:'both',...opts}));
@@ -408,11 +409,22 @@ function exitFocusWithoutSnapshot(action){
    {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
   ]);
  }
- // V33.71 : la sortie garde exactement les mêmes déplacements, durées
- // et courbes de V33.70. Seul le flou des éléments de l'accueil est ajouté.
- // Il s'efface pendant les 110 premières ms : 610 - 500 = 110 ms.
- // L'animation séparée évite de changer la courbe de translation des cartes.
+ // V33.72 : le flou du retour est présent DES LA PREMIERE FRAME visible.
+ // On l'applique en style inline avant de lancer les animations, puis il se
+ // retire rapidement pour être terminé bien avant la fin du mouvement.
  const clearBlurDuration=Math.max(0,duration-500);
+ for(const tile of tiles){
+  blurReset.push([tile,tile.style.filter,tile.style.willChange]);
+  tile.style.filter='blur(3.2px)';
+  tile.style.willChange='transform,filter,opacity';
+ }
+ for(const anchor of anchors){
+  blurReset.push([anchor,anchor.style.filter,anchor.style.willChange]);
+  anchor.style.filter='blur(1.8px)';
+  anchor.style.willChange='filter,opacity';
+ }
+ // Forcer l'application du flou initial avant la premiere image peinte.
+ void document.body.offsetWidth;
  for(const tile of tiles){
   animate(tile,[
    {transform:'translate3d(0,105dvh,0)',opacity:1},
@@ -436,6 +448,10 @@ function exitFocusWithoutSnapshot(action){
  }
  const cleanup=()=>{
   animations.forEach(anim=>anim.cancel());
+  for(const [el,filter,willChange] of blurReset){
+   el.style.filter=filter;
+   el.style.willChange=willChange;
+  }
   layer.remove();
   focusMotionBusy=false;
   const pending=focusPendingTask;
