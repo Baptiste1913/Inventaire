@@ -665,7 +665,7 @@ function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedA
  if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune session terminée pour le moment.';list.append(p);return;}
  for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');name.textContent=new Date(s.startedAt).toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=`${stats.count} pesées · ${fmt(stats.net)} kg · ${durationLabel(stats.duration)}`;sum.append(name,meta);
   const quickRemove=document.createElement('button');
-  quickRemove.type='button';quickRemove.className='quick-delete-session-btn';quickRemove.textContent='Suppr.';
+  quickRemove.type='button';quickRemove.className='quick-delete-session-btn';quickRemove.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/><path d="M10 10v7m4-7v7"/></svg>';
   quickRemove.setAttribute('aria-label',`Supprimer rapidement le bilan du ${dateLabel(s.startedAt)}`);
   quickRemove.title='Supprimer ce bilan';
   quickRemove.addEventListener('click',event=>{event.stopPropagation();deleteSession(s.id);});

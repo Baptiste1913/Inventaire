@@ -4680,3 +4680,42 @@ html.iu-pwa-revealing .app>.card,html.iu-pwa-revealing .app>.inventory-calendar,
 }
 @keyframes iu85-rise{from{transform:translate3d(0,23px,0);opacity:.65}to{transform:translate3d(0,0,0);opacity:1}}
 @media(prefers-reduced-motion:reduce){#iuPwaSplash{transition:none!important}html.iu-pwa-revealing .app>.card,html.iu-pwa-revealing .app>.inventory-calendar,html.iu-pwa-revealing .app>footer{animation:none!important}}
+
+
+/* V33.86 — le tableau de bord est visible dans l'espace administrateur ouvert. */
+#siteOperationsPanel {display:block!important;overflow:visible!important;}
+#siteOperationsPanel>.site-ops-panel-summary {cursor:default!important;min-height:0!important;padding-bottom:13px!important;}
+#siteOperationsPanel>.site-ops-body {display:block!important;}
+
+/* Les quatre commandes des paniers suivent le style de « Nouvelle pesée ». */
+.basket-list .basket-item>.move-actions button,
+.basket-list .basket-item>.item-actions>.small-action {
+ background:linear-gradient(145deg,#eaf7f8,#d8eff1)!important;
+ color:#087985!important;
+ border:1px solid #b4dfe1!important;
+ border-radius:10px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 2px 7px rgba(0,106,122,.055)!important;
+}
+.basket-list .basket-item>.item-actions>.small-action.delete {
+ background:linear-gradient(145deg,#fff1f2,#f9dfe3)!important;
+ color:#b52e42!important;
+ border-color:#edbbc3!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 7px rgba(145,38,56,.07)!important;
+}
+.basket-list .basket-item>.move-actions button:disabled {opacity:.42!important;cursor:default;}
+.basket-list .basket-item>.move-actions button:not(:disabled):active,
+.basket-list .basket-item>.item-actions>.small-action:active {transform:scale(.96);}
+
+/* Bilans : icône identique et style identique à la suppression d'un panier. */
+.v30-session-shell>.quick-delete-session-btn {
+ display:grid!important;place-items:center!important;
+ width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;padding:0!important;
+ border-radius:10px!important;background:linear-gradient(145deg,#fff1f2,#f9dfe3)!important;
+ color:#b52e42!important;border:1px solid #edbbc3!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 7px rgba(145,38,56,.07)!important;
+}
+.v30-session-shell>.quick-delete-session-btn svg {
+ width:19px!important;height:19px!important;fill:none!important;stroke:currentColor!important;
+ stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none;
+}
+@media(max-width:360px){.v30-session-shell>.quick-delete-session-btn {width:32px!important;min-width:32px!important;}}

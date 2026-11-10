@@ -1,7 +1,7 @@
 /* Inventaires U 33.84 — état technique local, sans télémétrie utilisateurs. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- const VERSION='33.85';
+ const VERSION='33.86';
  const root=document.documentElement;
  const splash=$('iuPwaSplash');
  // L'écran d'ouverture ne concerne que la PWA installée : 2,4 à 3 s,
@@ -81,7 +81,11 @@
   $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.';
   refreshing=false;if(button)button.disabled=false;
  }
- panel.addEventListener('toggle',()=>{if(panel.open)refresh();});
+ const adminCard=$('planningAdminCard');
+ if(adminCard){
+  adminCard.addEventListener('toggle',()=>{if(adminCard.open)refresh();});
+  if(adminCard.open)refresh();
+ }
  $('opsRefresh')?.addEventListener('click',refresh);
  apply?.addEventListener('click',async()=>{
   if(!window.IUCanSafelyUpdate?.()){
@@ -99,6 +103,6 @@
    value('opsUpdate','success','Activation en cours…');
   }catch{apply.disabled=false;value('opsUpdate','warning','Activation impossible');}
  });
- window.addEventListener('iu-update-ready',()=>{if(panel.open)updateCheck();});
+ window.addEventListener('iu-update-ready',()=>{if(adminCard?.open)updateCheck();});
  // Signaler une version publiée même si le worker en attente n'a pas terminé.
 })();
