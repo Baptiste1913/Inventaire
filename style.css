@@ -4266,3 +4266,155 @@ html.iu-focus-exiting::view-transition {
              0 13px 28px rgba(235,255,240,.32),
              0 22px 48px rgba(179,249,211,.23)!important;
 }
+
+
+/* V33.77 — Trois finitions ciblées : halo centré, boutons CSV et paniers. */
+/* Le halo suit exactement le centre géométrique du bouton. Son intensité
+   est divisée par deux, sans ajouter de mouvement ou d'animation. */
+.app > .intro #heroStartSession::after {
+  left:50%!important;
+  right:auto!important;
+  width:112%!important;
+  transform:translateX(-50%)!important;
+  bottom:-16px!important;
+  height:30px!important;
+  opacity:.5!important;
+}
+.app > .intro #heroStartSession {
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.90),
+             0 13px 28px rgba(235,255,240,.16),
+             0 22px 48px rgba(179,249,211,.115)!important;
+}
+/* En version étroite, le label CSV héritait d'un margin vertical de champ
+   et d'une hauteur à 100 %, ce qui faisait chevaucher la commande suivante.
+   Deux commandes exactement de même gabarit, juxtaposées si possible. */
+.planning-admin-card .planning-import-files {
+  grid-auto-rows:auto!important;
+  align-items:start!important;
+  row-gap:10px!important;
+  margin-bottom:14px!important;
+}
+.planning-admin-card .planning-import-files > .planning-file-label,
+.planning-admin-card .planning-import-files > #planningTemplate {
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  align-self:start!important;
+  width:100%!important;
+  height:50px!important;
+  min-height:50px!important;
+  max-height:50px!important;
+  margin:0!important;
+  padding:9px 12px!important;
+  font-size:13px!important;
+  line-height:1.2!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+/* Paniers : les noms respirent davantage, les actions deviennent deux
+   icônes superposées, lisibles avec VoiceOver et utilisables au toucher. */
+.basket-list .basket-item {
+  display:grid!important;
+  grid-template-columns:40px minmax(0,1fr) 34px 36px!important;
+  align-items:center!important;
+  gap:7px!important;
+  padding:11px 10px!important;
+  min-width:0!important;
+}
+.basket-list .basket-item > :is(.drag-handle,.basket-info,.move-actions,.item-actions){
+  grid-column:auto!important;
+  grid-row:auto!important;
+  min-width:0!important;
+}
+.basket-list .basket-item > .drag-handle {
+  width:40px!important;
+  height:48px!important;
+  padding:0!important;
+}
+.basket-list .basket-item > .basket-info {
+  padding-left:6px!important;
+  min-width:0!important;
+}
+.basket-list .basket-item > .basket-info strong {
+  font-size:clamp(15.5px,3.9vw,17.5px)!important;
+  line-height:1.24!important;
+  font-weight:800!important;
+  letter-spacing:-.12px;
+  overflow-wrap:break-word;
+}
+.basket-list .basket-item > .basket-info span {
+  font-size:12px!important;
+  line-height:1.35!important;
+}
+.basket-list .basket-item > .move-actions {
+  width:34px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:5px!important;
+}
+.basket-list .basket-item > .move-actions button {
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  min-height:34px!important;
+  padding:0!important;
+  line-height:1!important;
+  display:grid!important;
+  place-items:center!important;
+}
+.basket-list .basket-item > .item-actions {
+  width:36px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:5px!important;
+  flex-wrap:nowrap!important;
+}
+.basket-list .basket-item > .item-actions > .small-action {
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  max-width:36px!important;
+  max-height:36px!important;
+  padding:0!important;
+  border-radius:10px!important;
+  color:#287ea1;
+  background:#eff5f7!important;
+  touch-action:manipulation;
+}
+.basket-list .basket-item > .item-actions > .small-action.delete {
+  color:#ba3d49!important;
+  background:#fbf0f1!important;
+}
+.basket-list .basket-item > .item-actions > .small-action svg {
+  display:block!important;
+  width:19px!important;
+  height:19px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  pointer-events:none;
+}
+.basket-list .basket-item > .item-actions > .small-action:focus-visible {
+  outline:2px solid #2b9ba9!important;
+  outline-offset:2px!important;
+}
+@media(max-width:360px){
+  .basket-list .basket-item {grid-template-columns:38px minmax(0,1fr) 32px 34px!important;gap:5px!important;padding:9px 7px!important;}
+  .basket-list .basket-item > .drag-handle{width:38px!important;}
+  .basket-list .basket-item > .basket-info{padding-left:4px!important;}
+  .basket-list .basket-item > .basket-info strong{font-size:15.5px!important;}
+  .basket-list .basket-item > .move-actions{width:32px!important;}
+  .basket-list .basket-item > .move-actions button{width:32px!important;height:34px!important;min-width:32px!important;}
+  .basket-list .basket-item > .item-actions{width:34px!important;}
+  .basket-list .basket-item > .item-actions > .small-action{width:34px!important;height:36px!important;min-width:34px!important;max-width:34px!important;}
+}
