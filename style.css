@@ -3550,3 +3550,32 @@ body.focus-leaving .app > :not(.focus-toolbar):not(.offline-indicator) {
 @media(max-width:340px){
   .intro .intro-session-state {font-size:9px!important;padding-left:6px!important;padding-right:6px!important;gap:5px!important;}
 }
+
+
+/* === V33.58 — alignements de l'administration et banderole aérée === */
+/* La grille de titre avait conservé un centrage interne malgré text-align:left :
+   les deux lignes doivent commencer au même x que celles de « Mon espace ». */
+.planning-admin-card .planning-admin-title {
+  justify-content:flex-start!important;
+  justify-items:start!important;
+  align-items:start!important;
+  text-align:left!important;
+}
+.planning-admin-card .planning-admin-eyebrow,
+.planning-admin-card .planning-admin-heading {
+  justify-self:start!important;
+  text-align:left!important;
+  margin-left:0!important;
+}
+/* Quelques pixels de respiration en haut et en bas, sans modifier
+   la disposition côte à côte des deux capsules. */
+.app > .intro {
+  padding-top:33px!important;
+  padding-bottom:26px!important;
+}
+@media (max-width:600px) {
+  .app > .intro {padding:29px 20px 25px!important;}
+}
+@media (max-width:380px) {
+  .app > .intro {padding:28px 17px 24px!important;}
+}
