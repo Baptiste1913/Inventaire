@@ -2873,7 +2873,7 @@ button{transition:background-color .26s ease,opacity .26s ease,transform .26s ea
 .focus-toolbar{display:none}
 body.is-focus-mode{background:#f3f6f7}
 body.is-focus-mode .app{max-width:760px;margin-inline:auto;padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
-body.is-focus-mode .app > :not(.focus-toolbar):not(.calc-card):not(.offline-indicator):not(.focus-transition-surface){display:none!important}
+body.is-focus-mode .app > :not(.focus-toolbar):not(.calc-card):not(.offline-indicator){display:none!important}
 body.is-focus-mode .focus-toolbar{display:block;order:0}
 body.is-focus-mode .app > .calc-card{display:block!important;order:1;margin:0!important;width:100%;min-width:0;box-sizing:border-box}
 body.is-focus-mode .app > .offline-indicator{order:2}
@@ -3751,152 +3751,36 @@ html.iu-focus-exiting::view-transition-new(iu-normal-11) {animation:iu-slide-car
  }
 }
 
-
-/* === V33.64 — refonte circonscrite des transitions de la V33.61 ===
-   1. Calque plein, opaque, en avant des anciennes cartes (aucune transparence).
-   2. Lorsque le calque atteint le milieu: flou progressif des anciennes cartes.
-   3. À la sortie: flou du contenu Concentration à partir de sa mi-descente.
-   4. Le bouton Continuer ne rejoue rien; Annuler restaure avec la transition native. */
-.focus-transition-surface{display:none;pointer-events:none;}
-body.is-focus-mode .app > .focus-transition-surface{
-  display:block!important;
-  position:fixed!important;
-  inset:0!important;
-  width:100vw!important;
-  height:100dvh!important;
-  background:#f3f6f7!important;
-  opacity:1!important;
-  pointer-events:none!important;
-  z-index:0!important;
+/* V33.61 - la reprise apres annulation fait remonter le mode Concentration
+   comme lors du demarrage, sans toucher a la session ni aux pesées. */
+@keyframes iu-focus-cancel-arrival {
+  from {transform:translate3d(0, min(76vh, 760px), 0); opacity:0;}
+  20% {opacity:1;}
+  to {transform:translate3d(0,0,0); opacity:1;}
 }
-body.is-focus-mode .app > .focus-toolbar,
-body.is-focus-mode .app > .calc-card{
-  position:relative;
-  z-index:1;
-  opacity:1!important;
-  background-color:#fff!important;
+body.iu-focus-cancel-replay .app > .focus-toolbar,
+body.iu-focus-cancel-replay .app > .calc-card {
+  animation:iu-focus-cancel-arrival 640ms cubic-bezier(.18,.78,.22,1) both!important;
+  position:relative; z-index:10;
 }
-/* Les dégradés des deux cartes sont composés uniquement de couleurs opaques. */
-body.is-focus-mode .app > .focus-toolbar{
-  background:linear-gradient(155deg,#ffffff 0%,#f7fbfb 67%,#edf5f6 100%)!important;
-  box-shadow:0 11px 32px rgba(23,55,65,.14)!important;
-}
-body.is-focus-mode .app > .calc-card{
-  background:linear-gradient(175deg,#ffffff 0%,#ffffff 80%,#f5fafa 100%)!important;
-  box-shadow:0 11px 32px rgba(23,55,65,.12)!important;
-}
-/* Le plein écran constitue une vraie surface entre l'accueil et les cartes,
-   sans alpha, à toutes les étapes de la translation. */
-html.iu-focus-slide::view-transition-group(iu-focus-surface){z-index:6!important;}
-html.iu-focus-slide::view-transition-group(iu-focus-0),
-html.iu-focus-slide::view-transition-group(iu-focus-1){z-index:8!important;}
-html.iu-focus-slide::view-transition-old(iu-focus-surface),
-html.iu-focus-slide::view-transition-new(iu-focus-surface),
-html.iu-focus-slide::view-transition-old(iu-focus-0),
-html.iu-focus-slide::view-transition-old(iu-focus-1),
-html.iu-focus-slide::view-transition-new(iu-focus-0),
-html.iu-focus-slide::view-transition-new(iu-focus-1){mix-blend-mode:normal!important;}
-/* Courbe symétrique: à 50 % du temps le calque est à 50 % de l'écran.
-   Pas de disparition par transparence pendant le chevauchement. */
-@keyframes iu64-sheet-rise{
-  0%{transform:translate3d(0,105vh,0);opacity:1}
-  100%{transform:translate3d(0,0,0);opacity:1}
-}
-@keyframes iu64-sheet-drop{
-  0%{transform:translate3d(0,0,0);opacity:1}
-  100%{transform:translate3d(0,105vh,0);opacity:1}
-}
-@keyframes iu64-focus-rise{
-  0%{transform:translate3d(0,105vh,0);opacity:1;filter:blur(0)}
-  100%{transform:translate3d(0,0,0);opacity:1;filter:blur(0)}
-}
-/* Translation est explicitement définie à 50% et 75% pour ne pas perdre la
-   continuité avec les propriétés de flou aux étapes intermédiaires. */
-@keyframes iu64-focus-drop{
-  0%{transform:translate3d(0,0,0);filter:blur(0);opacity:1}
-  50%{transform:translate3d(0,52.5vh,0);filter:blur(0);opacity:1}
-  75%{transform:translate3d(0,78.75vh,0);filter:blur(2.8px);opacity:1}
-  100%{transform:translate3d(0,105vh,0);filter:blur(6px);opacity:1}
-}
-html.iu-focus-entering::view-transition-new(iu-focus-surface){
-  animation:iu64-sheet-rise 670ms cubic-bezier(.42,0,.58,1) both!important;
-}
-html.iu-focus-exiting::view-transition-old(iu-focus-surface){
-  animation:iu64-sheet-drop 670ms cubic-bezier(.42,0,.58,1) both!important;
-}
-html.iu-focus-entering::view-transition-new(iu-focus-0),
-html.iu-focus-entering::view-transition-new(iu-focus-1){
-  animation:iu64-focus-rise 670ms cubic-bezier(.42,0,.58,1) both!important;
-}
-html.iu-focus-entering::view-transition-new(iu-focus-1){animation-delay:40ms!important;}
-html.iu-focus-exiting::view-transition-old(iu-focus-0),
-html.iu-focus-exiting::view-transition-old(iu-focus-1){
-  animation:iu64-focus-drop 670ms cubic-bezier(.42,0,.58,1) both!important;
-}
-html.iu-focus-exiting::view-transition-old(iu-focus-1){animation-delay:30ms!important;}
-/* Le flou est indépendant du mouvement décalé de chaque tuile : démarrage
-   synchrone lorsque la surface de Concentration est au milieu (t = 335ms). */
-@keyframes iu64-tiles-blur{
-  0%,49%{filter:blur(0)}
-  75%{filter:blur(3px)}
-  100%{filter:blur(5.5px)}
-}
-html.iu-focus-entering::view-transition-old(iu-normal-0){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 0ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-1){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 38ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-2){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 76ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-3){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 114ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-4){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 152ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-5){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 190ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-6){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 228ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-7){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 266ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-8){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 304ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-9){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 342ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-10){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 380ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
-}
-html.iu-focus-entering::view-transition-old(iu-normal-11){
-  animation:iu-slide-card-down 670ms cubic-bezier(.42,0,.77,.55) 418ms both,
-            iu64-tiles-blur 670ms linear 0ms both!important;
+body.iu-focus-cancel-replay .app > .calc-card {animation-delay:48ms!important;}
+@media (prefers-reduced-motion:reduce){
+ body.iu-focus-cancel-replay .app > .focus-toolbar,
+ body.iu-focus-cancel-replay .app > .calc-card {animation:none!important;}
 }
 
-@media(prefers-reduced-motion:reduce){
- html.iu-focus-slide::view-transition-old(iu-focus-surface),
- html.iu-focus-slide::view-transition-new(iu-focus-surface),
- html.iu-focus-slide::view-transition-old(iu-focus-0),
- html.iu-focus-slide::view-transition-old(iu-focus-1),
- html.iu-focus-slide::view-transition-new(iu-focus-0),
- html.iu-focus-slide::view-transition-new(iu-focus-1){
-   animation-duration:.01ms!important;animation-delay:0ms!important;filter:none!important;
- }
+/* V33.62 : le flou de 2 px arrive uniquement a la fin du depart.
+   La vue entrante reste nette ; les cartes du site et Concentration
+   conservent leurs ordres, vitesses, et priorites de superposition. */
+@keyframes iu-slide-card-down {
+  0% {opacity:1;transform:translate3d(0,0,0);filter:blur(0px)}
+  76% {opacity:1;filter:blur(0px)}
+  88% {opacity:1;filter:blur(.5px)}
+  100% {opacity:0;transform:translate3d(0,110vh,0);filter:blur(2px)}
+}
+@keyframes iu-slide-focus-drop {
+  0% {opacity:1;transform:translate3d(0,0,0);filter:blur(0px)}
+  76% {opacity:1;filter:blur(0px)}
+  88% {opacity:1;filter:blur(.5px)}
+  100% {opacity:0;transform:translate3d(0,105vh,0);filter:blur(2px)}
 }
