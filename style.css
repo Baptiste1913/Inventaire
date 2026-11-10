@@ -3966,3 +3966,51 @@ html.iu-focus-exiting::view-transition-new(iu-anchor-1){
   html.iu-focus-slide::view-transition-old(*),
   html.iu-focus-slide::view-transition-new(*){animation-duration:.01ms!important;animation-delay:0ms!important;filter:none!important;}
 }
+
+
+/* V33.66 — transition synchronisée, courbe de décélération et cadrage mobile. */
+:root{
+  --iu65-duration:610ms;
+  --iu65-ease:cubic-bezier(.16,.84,.24,1);
+}
+/* Les deux états utilisent la même largeur d'application ; aucun agrandissement
+   du document ni changement de centrage ne peut se produire au moment du snapshot. */
+body.is-focus-mode .app{
+  width:100%!important;
+  max-width:680px!important;
+  min-width:0!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+/* Encadrer les snapshots sur la vraie largeur visible de Safari/iPhone.
+   Le site ne doit jamais créer de déplacement latéral pendant l'animation. */
+html.iu-focus-slide,html.iu-focus-slide body{
+  max-width:100%!important;
+  overflow-x:clip!important;
+}
+html.iu-focus-slide::view-transition{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+/* Les éléments restent 100 % opaques quand ils passent sur les cartes. */
+@keyframes iu65-tiles-away{
+  0%,12% {filter:blur(0);opacity:1}
+  60% {filter:blur(1.7px);opacity:1}
+  100% {transform:translate3d(0,105dvh,0);filter:blur(3.2px);opacity:1}
+}
+@keyframes iu65-focus-away{
+  0%,12% {filter:blur(0);opacity:1}
+  60% {filter:blur(1.7px);opacity:1}
+  100% {transform:translate3d(0,105dvh,0);filter:blur(3.2px);opacity:1}
+}
+@keyframes iu65-anchor-away{
+  0%,12%{opacity:1;filter:blur(0)}
+  100%{opacity:0;filter:blur(1.8px)}
+}
+@keyframes iu65-anchor-back{
+  0%{opacity:0;filter:blur(1.8px)}
+  75%,100%{opacity:1;filter:blur(0)}
+}
