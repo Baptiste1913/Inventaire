@@ -4607,3 +4607,14 @@ html.iu-focus-exiting::view-transition {
 @media(max-width:380px){
   .app > .intro {padding-top:30px!important;padding-bottom:25px!important;}
 }
+
+/* V33.83 — ombre aérienne réellement visible sous le bandeau, sans liseré sombre.
+   Suppression des ombres internes qui accentuaient le contour. */
+.app > .intro {
+  border-radius:0 0 3px 3px!important;
+  border-bottom:0!important;
+  box-shadow:
+    0 18px 26px -8px rgba(57,94,94,.14),
+    0 34px 55px -12px rgba(57,94,94,.12),
+    0 48px 75px -18px rgba(57,94,94,.055)!important;
+}
