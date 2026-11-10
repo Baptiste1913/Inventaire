@@ -1,31 +1,42 @@
 /* Inventaires U 33.84 — état technique local, sans télémétrie utilisateurs. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- const VERSION='33.86';
+ const VERSION='33.87';
  const root=document.documentElement;
  const splash=$('iuPwaSplash');
- // L'écran d'ouverture ne concerne que la PWA installée : 2,4 à 3 s,
- // puis les cartes montent légèrement sans flou. Ne jamais forcer un reload.
+ // Ouverture uniquement dans la PWA installee : environ 2 secondes,
+ // puis apparition progressive des cartes, une apres l'autre, sans flou.
  if(root.classList.contains('iu-pwa-starting')){
   const started=performance.now();
   let ready=document.readyState==='complete';
   let done=false;
+  const fadeDuration=300;
+  const splashDuration=2000;
   const reveal=()=>{
-   if(done||!ready||performance.now()-started<2400)return;
+   if(done||!ready||performance.now()-started<splashDuration-fadeDuration)return;
    done=true;
-   root.classList.add('iu-pwa-splash-leaving');
-   root.classList.add('iu-pwa-revealing');
+   // L'ordre est determine a partir des cartes réellement visibles : les
+   // blocs caches ne creent aucun intervalle artificiel dans la cascade.
+   const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
+    .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
+   cards.forEach((el,i)=>el.style.setProperty('--iu-pwa-order',String(i)));
+   root.classList.add('iu-pwa-splash-leaving','iu-pwa-revealing');
    const finish=()=>{
     root.classList.remove('iu-pwa-starting','iu-pwa-splash-leaving');
     splash?.setAttribute('aria-hidden','true');
-    setTimeout(()=>root.classList.remove('iu-pwa-revealing'),760);
+    // Garder la classe tant que la derniere carte monte encore.
+    const finalDuration=620+Math.max(0,cards.length-1)*85;
+    setTimeout(()=>{
+     root.classList.remove('iu-pwa-revealing');
+     cards.forEach(el=>el.style.removeProperty('--iu-pwa-order'));
+    },finalDuration+80);
    };
-   setTimeout(finish,330);
+   setTimeout(finish,fadeDuration);
   };
   if(!ready)window.addEventListener('load',()=>{ready=true;reveal();},{once:true});
-  setTimeout(reveal,2420);
-  // L'interface ne doit pas rester bloquée si une ressource distante tarde.
-  setTimeout(()=>{ready=true;reveal();},2900);
+  setTimeout(reveal,splashDuration-fadeDuration+20);
+  // Eviter de bloquer l'ouverture lorsqu'une ressource distante tarde.
+  setTimeout(()=>{ready=true;reveal();},splashDuration+150);
  }
  const panel=$('siteOperationsPanel');if(!panel)return;
  const apply=$('opsApplyUpdate');

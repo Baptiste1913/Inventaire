@@ -4719,3 +4719,30 @@ html.iu-pwa-revealing .app>.card,html.iu-pwa-revealing .app>.inventory-calendar,
  stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none;
 }
 @media(max-width:360px){.v30-session-shell>.quick-delete-session-btn {width:32px!important;min-width:32px!important;}}
+
+
+/* V33.87 — petites fleches des paniers : exactement le meme style que
+   « Modifier », avec « Supprimer » conserve en rouge. */
+.basket-list .basket-item > .move-actions button {
+  background:linear-gradient(145deg,#eaf7f8,#d8eff1)!important;
+  color:#087985!important;
+  border:1px solid #b4dfe1!important;
+  border-radius:10px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 2px 7px rgba(0,106,122,.055)!important;
+  font-weight:750!important;
+}
+.basket-list .basket-item > .move-actions button:disabled {opacity:.42!important;}
+
+/* Ouverture PWA : chaque carte remonte successivement, sans flou.
+   Le decalage ne change ni la geometrie ni les transitions du mode Concentration. */
+html.iu-pwa-revealing .app > .card,
+html.iu-pwa-revealing .app > .inventory-calendar,
+html.iu-pwa-revealing .app > footer {
+  animation:iu85-rise 620ms cubic-bezier(.16,.84,.24,1) both!important;
+  animation-delay:calc(var(--iu-pwa-order, 0) * 85ms)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html.iu-pwa-revealing .app > .card,
+ html.iu-pwa-revealing .app > .inventory-calendar,
+ html.iu-pwa-revealing .app > footer {animation:none!important;animation-delay:0ms!important;}
+}
