@@ -110,7 +110,10 @@ function renderRows(){
     ?'Il disparaîtra du planning public et aucun nouveau rappel ne sera envoyé pour cet élément.'
     :'Il redeviendra visible et pourra déclencher un rappel à J-7 si la date le permet.';
    $('planningConfirmAccept').textContent=r.enabled?'Confirmer l’annulation':'Confirmer la réactivation';
-   $('planningConfirmDialog').showModal();
+   const dialog=$('planningConfirmDialog');
+   dialog.classList.remove('is-leaving');
+   if(!dialog.open)dialog.showModal();
+   $('planningConfirmDismiss').focus({preventScroll:true});
   });
   actions.append(edit,toggle);item.append(details,actions);list.append(item);
  }
@@ -149,10 +152,32 @@ $('planningEventForm').addEventListener('submit',e=>{
 });
 $('planningEventCancel').addEventListener('click',resetEventForm);
 
-$('planningConfirmDismiss').addEventListener('click',()=>{$('planningConfirmDialog').close();confirmId=null;});
-$('planningConfirmDialog').addEventListener('cancel',()=>{confirmId=null;});
+// V33.75 — même panneau inférieur et même sortie que le tutoriel PWA.
+let closingPlanningConfirm=false;
+function dismissPlanningConfirm(){
+ const dialog=$('planningConfirmDialog');
+ if(!dialog.open||closingPlanningConfirm)return;
+ closingPlanningConfirm=true;
+ confirmId=null;
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(motion){dialog.close();closingPlanningConfirm=false;return;}
+ dialog.classList.add('is-leaving');
+ let completed=false;
+ const finish=()=>{
+  if(completed)return;completed=true;
+  dialog.classList.remove('is-leaving');
+  if(dialog.open)dialog.close();
+  closingPlanningConfirm=false;
+ };
+ dialog.addEventListener('animationend',e=>{if(e.target===dialog)finish();},{once:true});
+ window.setTimeout(finish,490);
+}
+$('planningConfirmDismiss').addEventListener('click',dismissPlanningConfirm);
+$('planningConfirmClose').addEventListener('click',dismissPlanningConfirm);
+$('planningConfirmDialog').addEventListener('cancel',e=>{e.preventDefault();dismissPlanningConfirm();});
 $('planningConfirmAccept').addEventListener('click',()=>{
- const id=confirmId;const row=rows.find(r=>r.id===id);$('planningConfirmDialog').close();confirmId=null;
+ if(closingPlanningConfirm)return;
+ const id=confirmId;const row=rows.find(r=>r.id===id);dismissPlanningConfirm();
  if(!row)return;
  mutate(async()=>{
   const {error}=await client.from('inventory_push_events').update({enabled:!row.enabled,updated_at:new Date().toISOString()}).eq('id',id);
