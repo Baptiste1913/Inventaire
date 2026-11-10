@@ -272,6 +272,12 @@ function clearWeigh(){clearTimeout(autoSaveTimer);autoSaveTimer=null;currentWeig
 function newWeigh(){if(!flushPending())return;if(!netGrams&&$('grossWeight').value.trim()){$('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;}
  if(!$('grossWeight').value.trim()){$('grossWeight').focus();return;}
  clearWeigh();$('grossWeight').focus();}
+function beginGroup(){return false;}
+function finishGroup(){return true;}
+function removeGroupEntry(id){return false;}
+function groupSum(g){return 0;}
+// Mise à jour légère du HUD, sans retraitement des historiques.
+function islandDurationLabel(ms){const minutes=Math.floor(Math.max(0,ms)/60000),h=Math.floor(minutes/60),m=minutes%60;return h?`${h} h ${String(m).padStart(2,'0')}`:`${m} min`;}
 function renderHeroSummary(){
  const status=$('heroStatus'),text=$('heroStatusText');
  if(!status||!text)return;
@@ -280,42 +286,43 @@ function renderHeroSummary(){
  status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
  const count=session?session.entries.length:0;
  text.textContent=!session?'Aucune session en cours':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
+ const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
+ if(heroAction&&heroLabel){
+  const label=!session?'Démarrer un inventaire':session.pausedAt?'Reprendre l’inventaire':'Continuer la pesée';
+  heroLabel.textContent=label;heroAction.setAttribute('aria-label',label);
+ }
 }
 // V33.48 : le mode Concentration reprend la session existante, sans dupliquer les pesées.
 let focusWasActive=false;
 let focusTransitionTimer=null;
 let focusInitialized=false;
-// V34.0 : flou contextualisé et minutage cohérent avec les animations CSS.
-// La session n'est modifiée qu'à la fin de la courte transition visuelle.
+// V33.54 : le flou commence sur la vue que l'utilisateur quitte,
+// avant le changement de disposition. La session ne change qu'une fois.
 let focusMotionBusy=false;
-function clearFocusTransition(){
- if(focusTransitionTimer){clearTimeout(focusTransitionTimer);focusTransitionTimer=null;}
- document.body.classList.remove('focus-preenter','focus-preleave','focus-entering','focus-leaving');
-}
 function animateFocusEntry(action){
  if(focusMotionBusy)return;
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
  focusMotionBusy=true;
- clearFocusTransition();
+ document.body.classList.remove('focus-preleave');
  document.body.classList.add('focus-preenter');
  window.setTimeout(()=>{
   document.body.classList.remove('focus-preenter');
   try{action();}finally{focusMotionBusy=false;}
- },310);
+ },660);
 }
 function animateFocusExit(action){
  if(focusMotionBusy)return;
  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){action();return;}
  focusMotionBusy=true;
- clearFocusTransition();
+ document.body.classList.remove('focus-preenter');
  document.body.classList.add('focus-preleave');
- // Le blur concerne la pesée et son bandeau, jamais le site entier.
+ // Le blur porte sur la pesée et son bandeau; le reste du site reste net.
  window.setTimeout(()=>{
   try{action();}finally{
    document.body.classList.remove('focus-preleave');
    focusMotionBusy=false;
   }
- },240);
+ },490);
 }
 function syncFocusMode(){
  const session=getActiveSession();
@@ -336,17 +343,17 @@ function syncFocusMode(){
   // Ne pas animer le chargement initial d'une session restaurée.
   if(focusInitialized && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
    const transitionClass=active?'focus-entering':'focus-leaving';
-   // Chaque carte retrouve sa taille avec un court décalage régulier.
-   // Le flou de sortie est terminé avant de changer la disposition.
+   // Retour dans le style iOS : chaque carte revient dans l'ordre du document,
+   // avec un petit décalage progressif plutôt qu'un délai arbitraire nth-child.
    if(!active){
     const cards=[...document.querySelectorAll('.app > *')].filter(node=>
       !node.classList.contains('focus-toolbar') &&
       !node.classList.contains('offline-indicator') &&
       !node.hidden && getComputedStyle(node).display!=='none');
-    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*28}ms`));
+    cards.forEach((card,index)=>card.style.setProperty('--focus-spring-delay', `${Math.min(index,9)*55}ms`));
    }
    document.body.classList.add(transitionClass);
-   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?230:670);
+   focusTransitionTimer=setTimeout(()=>{document.body.classList.remove(transitionClass);focusTransitionTimer=null;},active?550:930);
   }
   focusWasActive=active;
   // Évite que l'utilisateur reste au milieu d'une page devenue masquée.
@@ -857,7 +864,7 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{try{cons
 
 // V31.31 — moteur d’accordéon partagé : une seule courbe, aucune animation
 // concurrente sur le contenu et mesure de hauteur cohérente pour Safari.
-const FOLD_MOTION_MS=450;
+const FOLD_MOTION_MS=560;
 const FOLD_MOTION_EASE='cubic-bezier(.22,.75,.24,1)';
 function setupUnifiedFold(card,summary,content,closingClass){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
@@ -898,7 +905,7 @@ function setupUnifiedFold(card,summary,content,closingClass){
  document.querySelectorAll('.fold-card').forEach(card=>
   setupUnifiedFold(card,card.querySelector(':scope > .fold-summary'),card.querySelector(':scope > .fold-body'),'is-fold-closing'));
 })();
-// V34.0 : un moteur de 450 ms pour les tiroirs et les outils d'administration.
+// V33.37 : même moteur d'animation (560 ms) pour les quatre outils d'administration.
 document.querySelectorAll('.planning-accordion').forEach(card=>
  setupUnifiedFold(card,card.querySelector(':scope > .planning-panel-summary'),card.querySelector(':scope > .planning-panel-content'),'is-planning-closing'));
 function setupSecondaryDetailsAnimation(card,bodySelector){
@@ -906,36 +913,20 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
-setupSecondaryDetailsAnimation($('recoveryCard'),'.recovery-body');
-setupSecondaryDetailsAnimation($('backupAdvanced'),'.backup-advanced-body');
 
 
-// Défilement volontairement un peu plus lent (durée contrôlée, contrairement au smooth natif).
-(function setupHeroJump(){
- const link=document.querySelector('.intro-jump');
- const destination=$('calc-title');
- if(!link||!destination)return;
- let animationId=null;
- const cancel=()=>{if(animationId!==null){cancelAnimationFrame(animationId);animationId=null;}};
- link.addEventListener('click',event=>{
-  event.preventDefault();cancel();
-  const maxScroll=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
-  const target=Math.max(0,Math.min(maxScroll,window.scrollY+destination.getBoundingClientRect().top-24));
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){window.scrollTo(0,target);return;}
-  const from=window.scrollY,distance=target-from;
-  if(Math.abs(distance)<2)return;
-  const duration=800,start=performance.now();
-  const step=now=>{
-   const t=Math.min(1,(now-start)/duration);
-   const eased=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-   window.scrollTo(0,from+distance*eased);
-   if(t<1)animationId=requestAnimationFrame(step);else animationId=null;
-  };
-  animationId=requestAnimationFrame(step);
+// La banderole pilote la VRAIE session : aucune seconde session n'est créée.
+(function setupHeroSessionAction(){
+ const trigger=$('heroStartSession');
+ if(!trigger)return;
+ trigger.addEventListener('click',()=>{
+  const session=getActiveSession();
+  if(!session){$('startSession').click();return;}
+  if(session.pausedAt){$('resumeSession').click();return;}
+  // En cours : si un jour la bannière reste visible, revenir à la pesée.
+  const destination=$('calc-title');
+  if(destination)destination.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
  });
- // Un mouvement manuel reprend toujours la priorité sur l'animation.
- window.addEventListener('touchstart',cancel,{passive:true});
- window.addEventListener('wheel',cancel,{passive:true});
 })();
 
 

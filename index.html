@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=34.0" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script src="hero-layout.js?v=33.33" defer></script></head>
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.55" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script src="hero-layout.js?v=33.33" defer></script></head>
 <body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
@@ -131,14 +131,14 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
 
   </div>
   <h2 id="intro-title">FRUITS ET LÉGUMES</h2>
-  <p>Sélectionnez un panier, saisissez son poids brut et obtenez automatiquement le poids net après déduction de la tare.</p>
+  <p>Choisissez un panier, saisissez le poids brut et obtenez instantanément le poids net.</p>
   <div class="intro-bottom">
-    <span class="intro-session-state" id="heroStatus"><span class="intro-session-dot" aria-hidden="true"></span><span id="heroStatusText">Prêt pour ta prochaine pesée</span></span>
-    <a class="intro-jump" href="#calc-title" aria-label="Accéder au calculateur de pesées"><span>Aller à la pesée</span><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
-  </div>
+<button type="button" class="intro-jump" id="heroStartSession" aria-label="Démarrer un inventaire"><span id="heroActionLabel">Démarrer un inventaire</span><svg aria-hidden="true" height="18" viewBox="0 0 24 24" width="18"><path d="M8 5l10 7-10 7V5z" fill="currentColor" stroke="none"></path></svg></button>
+<span class="intro-session-state" id="heroStatus"><span aria-hidden="true" class="intro-session-dot"></span><span id="heroStatusText">Aucune session en cours</span></span>
+</div>
 </section>
 <details id="planningAdminCard" class="card fold-card planning-admin-card" aria-labelledby="planningAdminTitle" hidden>
- <summary class="fold-summary planning-admin-summary"><span id="planningAdminTitle" class="planning-admin-title"><span class="planning-admin-eyebrow">ACCÈS PRIVÉ <span aria-hidden="true">·</span> ADMINISTRATION</span><span class="planning-admin-heading">Espace administrateur</span></span><svg aria-hidden="true" class="fold-chevron planning-admin-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
+ <summary class="fold-summary planning-admin-summary"><span class="planning-admin-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span class="planning-admin-title" id="planningAdminTitle"><span class="planning-admin-eyebrow">SERVICES U / ADMINISTRATION</span><span class="planning-admin-heading">Espace administrateur</span></span><svg aria-hidden="true" class="fold-chevron planning-admin-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></summary>
  <div class="fold-body planning-admin-body">
   <p class="planning-muted">Ajoute ou modifie tes dates. Le planning se met à jour pour tous les utilisateurs.</p>
   <p class="planning-feedback" id="planningAdminStatus" role="status" aria-live="polite"></p>
@@ -227,7 +227,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary" i
   <div class="events-static-content">
     
     <p id="pushStatus" class="events-push-status" role="status" aria-live="polite"></p>
-    <div class="events-info-box"><span class="events-kicker">PROCHAIN INVENTAIRE</span><strong id="calendarNextDate">Chargement…</strong></div>
+    <div class="events-info-box events-next-card"><div class="events-next-heading"><span class="events-kicker">PROCHAIN INVENTAIRE</span><span class="events-countdown" id="calendarNextCountdown" hidden></span></div><strong id="calendarNextDate">Chargement…</strong></div>
     <div class="events-info-box events-month-box"><span class="events-kicker" id="eventsMonthHeading">ÉVÉNEMENTS DU MOIS</span><div id="eventsFirst"></div><button type="button" id="eventsMoreButton" class="events-more" hidden aria-expanded="false" aria-controls="eventsMoreList"><span id="eventsMoreLabel"></span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><div id="eventsMoreList" class="events-more-list" hidden></div></div>
   </div>
 </section>
@@ -297,4 +297,4 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary" i
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=34.0"></script><script defer="" src="app.js?v=34.0"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=34.0"></script><script defer src="push.js?v=33.34"></script><script defer src="planning-admin.js?v=33.40"></script></body></html>
+<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.35"></script><script defer="" src="app.js?v=33.55"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=33.55"></script><script defer src="push.js?v=33.34"></script><script defer src="planning-admin.js?v=33.40"></script></body></html>

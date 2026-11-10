@@ -15,6 +15,16 @@ function render(data){
  const now=new Date();now.setHours(0,0,0,0);
  const next=(data.inventories||[]).map(date).filter(d=>Number.isFinite(d.getTime())).sort((a,b)=>a-b).find(d=>d>=now);
  $('calendarNextDate').textContent=next?cap(long.format(next)):'Date à confirmer';
+ const countdown=$('calendarNextCountdown');
+ if(countdown){
+  if(!next){countdown.hidden=true;countdown.textContent='';}
+  else {
+   // Jours calendaires (UTC) : ne varie pas lors des changements d'heure à Paris.
+   const days=Math.round((Date.UTC(next.getFullYear(),next.getMonth(),next.getDate())-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000);
+   countdown.textContent=days===0?"Aujourd’hui":days===1?"Demain":`Dans ${days} jours`;
+   countdown.hidden=false;
+  }
+ }
  $('eventsMonthHeading').textContent='ÉVÉNEMENTS · '+month.format(now).toLocaleUpperCase('fr-FR');
  const endOfMonth=new Date(now.getFullYear(),now.getMonth()+1,0,23,59);
  const current=(data.events||[]).filter(e=>date(e.start)<=endOfMonth&&date(e.end)>=now).sort((a,b)=>{
@@ -41,9 +51,9 @@ function render(data){
    const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));
    label.textContent=open?'Masquer les autres événements':'Voir les '+(current.length-1)+' autres événements';
    if(open){more.hidden=false;more.style.maxHeight='0px';more.getBoundingClientRect();more.classList.add('is-open');more.style.maxHeight=more.scrollHeight+'px';
-    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='true')more.style.maxHeight='none';},475);
+    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='true')more.style.maxHeight='none';},610);
    }else{more.style.maxHeight=more.scrollHeight+'px';more.getBoundingClientRect();more.classList.remove('is-open');more.style.maxHeight='0px';
-    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='false')more.hidden=true;},475);}
+    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='false')more.hidden=true;},610);}
   };
  }
 }
