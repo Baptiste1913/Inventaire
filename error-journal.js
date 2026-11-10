@@ -11,7 +11,7 @@
  }
  $('iuErrorClear').addEventListener('click',()=>{api()?.clear();render();});
  $('iuErrorExport').addEventListener('click',()=>{const entries=api()?.items()||[];
-  const payload={app:'Inventaires U',kind:'local-technical-errors',version:'33.90',generated:new Date().toISOString(),entries};
+  const payload={app:'Inventaires U',kind:'local-technical-errors',version:window.IUCurrentVersion||'33.93',generated:new Date().toISOString(),entries};
   const url=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='inventaires-u-journal-technique.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  window.addEventListener('iu-technical-log-change',render);render();

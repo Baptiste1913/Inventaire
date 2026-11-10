@@ -1,6 +1,14 @@
-/* Inventaires U V33.89 — update workflow, no reload during an inventory. */
+/* Inventaires U V33.93 — version utilisée dérivée du script effectivement chargé. */
 (()=>{'use strict';
- const VERSION='33.90', $=id=>document.getElementById(id);
+ // Un marqueur dans l'URL du script chargé représente la version réellement exécutée.
+ // Ne pas lire version.json ici : il indique la dernière version PUBLIÉE,
+ // qui peut être différente de celle encore ouverte dans la PWA.
+ const runningScript=document.currentScript?.src ||
+   document.querySelector('script[src*="update-manager.js"]')?.src || '';
+ const versionParam=(()=>{try{return new URL(runningScript,location.href).searchParams.get('v')||'';}catch{return '';}})();
+ const VERSION=/^\d+(?:\.\d+){1,3}$/.test(versionParam)?versionParam:'indéterminée';
+ window.IUCurrentVersion=VERSION;
+ const $=id=>document.getElementById(id);
  const main=$('iuUpdateButton'),secondary=$('iuUpdateReload');if(!main)return;
  const ADMIN=$('planningAdminCard');
  let busy=false, knownPublished='', notes='', ready=false, lastChecked='', publication='',reg=null, state='idle';
