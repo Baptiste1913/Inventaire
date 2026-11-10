@@ -9,8 +9,10 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.83" rel="stylesheet"/><title>Utilitaire d’inventaire U</title></head>
-<body><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=33.84" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script>/* V33.84: splash uniquement pour la PWA installée. */
+(function(){try{var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;if(standalone)document.documentElement.classList.add('iu-pwa-starting');}catch(e){}})();
+</script><style>html.iu-pwa-starting #iuPwaSplash{display:flex}#iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#fff;align-items:center;justify-content:center;pointer-events:none;opacity:1;transition:opacity .24s ease}#iuPwaSplash img{width:78px;height:78px;object-fit:contain}html:not(.iu-pwa-starting) #iuPwaSplash{opacity:0;visibility:hidden}@media(prefers-reduced-motion:reduce){#iuPwaSplash{transition:none}}</style></head>
+<body><div id="iuPwaSplash" role="presentation" aria-hidden="true"><img src="logo-u.png" alt="" width="78" height="78"/></div><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="offline-no-wifi.png"/></span>
 <span class="offline-copy"><strong>Mode hors ligne</strong><span>Vos pesées restent disponibles.</span></span>
@@ -65,6 +67,28 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
 
    <div id="planningManageList" class="planning-manage-list"></div>
   </div></details>
+  <details class="planning-panel planning-accordion" id="siteOperationsPanel"><summary class="planning-panel-summary"><span>Statistiques du site et état des services</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></summary>
+   <div class="planning-panel-content site-ops-body">
+    <p class="planning-muted">Indicateurs techniques du site, sans suivi des utilisateurs ni collecte de données personnelles.</p>
+    <div class="site-ops-grid">
+     <div class="site-ops-metric"><span>Version publiée</span><strong id="opsVersion">—</strong></div>
+     <div class="site-ops-metric"><span>Ressources du site</span><strong id="opsAssets">—</strong></div>
+     <div class="site-ops-metric"><span>Taille du site (hors données)</span><strong id="opsSize">—</strong></div>
+     <div class="site-ops-metric"><span>Chargement sur cet appareil</span><strong id="opsLoad">—</strong></div>
+    </div>
+    <h3 class="site-ops-heading">État des services</h3>
+    <div class="site-ops-status" role="status" aria-live="polite">
+     <div><span>Connexion Internet</span><strong id="opsNetwork">À vérifier</strong></div>
+     <div><span>Hébergement du site</span><strong id="opsHosting">À vérifier</strong></div>
+     <div><span>Supabase Auth</span><strong id="opsSupabase">À vérifier</strong></div>
+     <div><span>Mode hors ligne / cache PWA</span><strong id="opsWorker">À vérifier</strong></div>
+     <div><span>Notifications sur cet appareil</span><strong id="opsPush">À vérifier</strong></div>
+     <div><span>Mise à jour disponible</span><strong id="opsUpdate">À vérifier</strong></div>
+    </div>
+    <div class="site-ops-actions"><button class="planning-secondary site-ops-refresh" id="opsRefresh" type="button">Actualiser les diagnostics</button><button class="planning-primary site-ops-apply" id="opsApplyUpdate" type="button" hidden>Installer la mise à jour</button></div>
+    <p class="site-ops-note" id="opsChecked">Les résultats reflètent cet appareil et l'état des services au moment du contrôle, pas une supervision mondiale.</p>
+   </div>
+  </details>
   <p class="planning-muted">Un événement ajouté moins de 7 jours avant son début ne peut pas recevoir de rappel J-7 rétroactif. L’importation ajoute ou met à jour les lignes présentes : elle ne supprime pas les autres événements.</p>
  </div>
 </details>
@@ -195,4 +219,4 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.60"></script><script defer="" src="app.js?v=33.79"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=33.55"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=33.75"></script></body></html>
+<script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=33.60"></script><script defer="" src="app.js?v=33.84"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=33.55"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=33.75"></script><script defer src="site-operations.js?v=33.84"></script></body></html>

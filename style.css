@@ -4618,3 +4618,23 @@ html.iu-focus-exiting::view-transition {
     0 34px 55px -12px rgba(57,94,94,.12),
     0 48px 75px -18px rgba(57,94,94,.055)!important;
 }
+
+
+/* V33.84 — diagnostics techniques privés dans l'administration. */
+.site-ops-body{min-width:0}
+.site-ops-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 20px}
+.site-ops-metric{background:#f4f9fa;border:1px solid #d8e9ec;border-radius:15px;padding:13px;min-width:0}
+.site-ops-metric span{display:block;color:#627f87;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:6px}
+.site-ops-metric strong{font-size:19px;font-weight:800;color:#274e58;overflow-wrap:anywhere}
+.site-ops-heading{font-size:17px;color:#263f48;margin:12px 0}
+.site-ops-status{border:1px solid #d8e9ec;border-radius:16px;background:#fff;overflow:hidden}
+.site-ops-status>div{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 13px;border-top:1px solid #edf3f4;font-size:13px}
+.site-ops-status>div:first-child{border-top:0}
+.site-ops-status strong{font-size:12px;text-align:right;font-weight:800;color:#4a7077;flex-shrink:0}
+.site-ops-status strong[data-state="success"]{color:#217559}
+.site-ops-status strong[data-state="warning"]{color:#95662b}
+.site-ops-refresh{margin-top:14px;min-height:44px!important;width:100%}
+.site-ops-note{color:#6d8087;font-size:12px;line-height:1.5;margin-top:12px}
+@media(max-width:355px){.site-ops-grid{grid-template-columns:1fr}.site-ops-status>div{align-items:flex-start;flex-direction:column;gap:5px}.site-ops-status strong{text-align:left}}
+
+.site-ops-actions{display:flex;gap:10px;flex-wrap:wrap}.site-ops-actions button{flex:1 1 180px;min-height:44px}.site-ops-actions button[hidden]{display:none!important}

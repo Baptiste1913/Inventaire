@@ -1,7 +1,7 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v33-83';
+const CACHE = 'inventaires-u-offline-v33-84';
 const CORE = [
-  './', './index.html', './push.js?v=33.75', './planning-admin.js?v=33.75', './events-data.js?v=33.19', './events.js?v=33.55', './style.css?v=33.83', './app.js?v=33.79',
+  './', './index.html', './version.json', './site-operations.js?v=33.84', './push.js?v=33.75', './planning-admin.js?v=33.75', './events-data.js?v=33.19', './events.js?v=33.55', './style.css?v=33.84', './app.js?v=33.84',
   './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=33.60', './manifest.webmanifest?v=13', './icon.png?v=11',
   './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon.ico?v=13',
   './favicon-16.png?v=13', './favicon-32.png?v=13', './tutorial-share.png', './tutorial-home.png', './offline-no-wifi.png', './start-inventory-icon.png?v=32.0'
@@ -50,6 +50,12 @@ self.addEventListener('fetch', event => {
     })());
     return;
   }
+  // version.json : vérification réseau à chaque demande, même si l'ancienne PWA contrôle la page.
+  if (url.pathname.endsWith('/version.json')) {
+    event.respondWith(fetch(request,{cache:'no-store'}).catch(async()=>
+      (await caches.match(request)) || Response.error()));
+    return;
+  }
   // Static resources are cache-first; query strings must match the precache list.
   event.respondWith((async () => {
     const cached = await caches.match(request);
@@ -77,4 +83,10 @@ self.addEventListener('push',event=>{
 self.addEventListener('notificationclick',event=>{
  event.notification.close();
  event.waitUntil((async()=>{const url=new URL('./',self.registration.scope).href;const tabs=await self.clients.matchAll({type:'window',includeUncontrolled:true});const existing=tabs.find(t=>t.url.startsWith(self.registration.scope));if(existing){await existing.focus();return;}await self.clients.openWindow(url);})());
+});
+
+// Activer la mise à jour uniquement à la demande de l'utilisateur, jamais
+// pendant un inventaire. Les clients existants pourront ensuite se recharger.
+self.addEventListener('message',event=>{
+ if(event.data?.type==='IU_ACTIVATE_UPDATE')self.skipWaiting();
 });

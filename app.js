@@ -1002,7 +1002,33 @@ $('importInput').addEventListener('change',async e=>{const file=e.target.files?.
 render();renderHistory();renderV22();
 renderBackupSummary();
 $('backupCard').addEventListener('toggle',()=>{if($('backupCard').open)renderBackupSummary();});
-if('serviceWorker'in navigator)window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./sw.js');reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(!worker)return;worker.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller){const active=getActiveSession();$('weighStatus').textContent=active?'Mise à jour disponible : termine ton inventaire avant de recharger.':'Mise à jour disponible : recharge la page quand tu le souhaites.';}});});}catch(e){console.warn(e);}});
+// V33.84 — vérifications régulières non bloquantes, sans rechargement forcé.
+window.IUCanSafelyUpdate=()=>!getActiveSession();
+if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
+ try{
+  const reg=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
+  window.IUWorkerRegistration=reg;
+  const notify=()=>{
+   if(reg.waiting&&navigator.serviceWorker.controller){
+    window.dispatchEvent(new CustomEvent('iu-update-ready'));
+    $('weighStatus').textContent=getActiveSession()
+     ?'Mise à jour disponible : termine ton inventaire avant de l’appliquer.'
+     :'Mise à jour disponible dans les réglages administrateur.';
+   }
+  };
+  reg.addEventListener('updatefound',()=>{const worker=reg.installing;worker?.addEventListener('statechange',()=>{if(worker.state==='installed')notify();});});
+  notify();
+  // GitHub Pages peut mettre quelques instants à publier. Vérifier au retour
+  // dans l'app limite ensuite le délai lié au cache SW.
+  let lastCheck=0;
+  const check=()=>{if(!navigator.onLine||document.visibilityState==='hidden'||Date.now()-lastCheck<15000)return;lastCheck=Date.now();reg.update().catch(()=>{});};
+  document.addEventListener('visibilitychange',check);
+  window.addEventListener('online',check);
+  window.addEventListener('focus',check);
+  setInterval(check,60000);
+  check();
+ }catch(e){console.warn('Service worker non disponible',e);}
+});
 
 // V20 : notification persistante jusqu'au retour en ligne ou fermeture manuelle.
 (function(){
