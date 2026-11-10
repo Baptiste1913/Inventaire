@@ -5178,3 +5178,197 @@ html.iu-pwa-revealing .app > footer {
  .account-card .dashboard-stat{padding:13px 10px}
 }
 @media(prefers-reduced-motion:reduce){.account-card .account-action-arrow,.account-card .account-body .account-provider,.account-card .recovery-card .calc-alerts-chevron{transition:none!important}}
+
+
+/* V33.96 — Mon compte = carte de profil, sans CTA redondant.
+   Même logique de dépliage native que les cartes du site ; garde le langage turquoise. */
+.app > .account-card.card {
+  background:linear-gradient(165deg,#fff 0%,#fff 72%,#f8fbfc 100%)!important;
+  border:1px solid #e0e8eb!important;
+  border-radius:23px!important;
+  box-shadow:0 7px 24px rgba(36,66,78,.06),0 1px 3px rgba(36,66,78,.025)!important;
+}
+.account-card > .account-fold-summary {
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  gap:12px!important;
+  width:100%;
+  min-width:0;
+  padding:20px 18px!important;
+  background:transparent!important;
+  border:0!important;
+  cursor:pointer;
+}
+.account-card > .account-fold-summary:focus-visible {
+  outline:2px solid #138993;outline-offset:-3px;
+  border-radius:21px;
+}
+.account-card > .account-fold-summary > .account-header-avatar {
+  position:relative;
+  display:grid;
+  place-items:center;
+  flex:0 0 50px;
+  width:50px;height:50px;
+  overflow:visible;
+  border-radius:50%;
+  border:1px solid #c2e0e4;
+  background:linear-gradient(145deg,#e7f6f7,#cee9ed);
+  color:#087c89;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 2px 7px rgba(0,109,125,.08);
+}
+.account-card .account-header-avatar > svg {width:25px;height:25px;display:block;flex:none}
+.account-card .account-header-avatar.has-photo > svg{display:none}
+.account-card .account-header-avatar > img {border-radius:50%;max-width:100%;max-height:100%}
+.account-card .account-header-avatar .account-status-dot,
+.account-card .account-header-avatar .account-status-dot.is-connected{
+  display:block!important;
+  position:absolute;
+  bottom:0;right:-1px;
+  width:10px;height:10px;
+  border:2px solid #fff;
+  border-radius:50%;
+  background:#aebcc1;
+  box-shadow:0 1px 4px rgba(38,72,81,.15);
+}
+.account-card .account-header-avatar .account-status-dot.is-connected{
+  background:#34c88e;
+  box-shadow:0 0 0 2px rgba(52,200,142,.13),0 0 9px rgba(52,200,142,.3);
+}
+.account-card .account-header-text{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-width:0;
+  align-items:flex-start;
+  gap:4px;
+}
+.account-card .account-header-text .section-kicker{
+  font-size:10px!important;line-height:1.25;
+  letter-spacing:.12em;font-weight:850;color:#25818b;
+}
+.account-card .account-header-title{
+  display:block;
+  max-width:100%;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:clamp(18px,5vw,22px);
+  font-weight:820;line-height:1.13;letter-spacing:-.035em;
+  color:#232931;
+}
+.account-card .account-header-hint{
+  display:block;
+  max-width:100%;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:11px;line-height:1.45;color:#6e8589;font-weight:550;
+}
+.account-card .account-header-end{
+  display:flex;flex:0 0 auto;align-items:center;gap:9px;margin-left:auto;
+}
+.account-card .account-header-end .account-summary-status{
+  display:inline-flex;align-items:center;justify-content:center;
+  white-space:nowrap;
+  background:#edf4f4;border:1px solid #e0e9eb;
+  color:#657b80;font-size:10px;font-weight:760;
+  border-radius:99px;padding:7px 9px;line-height:1.2;
+  box-shadow:inset 0 1px 0 #fff;
+}
+.account-card .account-header-end .account-summary-status.is-connected{
+  background:#e7f8ee;border-color:#d7eddf;color:#217c55;
+}
+.account-card .account-header-end .account-summary-status::before,
+.account-card .account-header-end .account-summary-status.is-connected::before{
+  display:none!important;
+}
+.account-card > .account-fold-summary .fold-chevron{
+  display:block!important;
+  width:18px;height:18px;flex:none;
+  margin:0;
+  fill:none;stroke:#627e88;stroke-width:2.1;
+  stroke-linecap:round;stroke-linejoin:round;
+  transition:transform 380ms cubic-bezier(.22,.75,.24,1);
+}
+.account-card[open] > .account-fold-summary .fold-chevron{transform:rotate(180deg)}
+.account-card.is-fold-closing > .account-fold-summary .fold-chevron{transform:rotate(0deg)}
+.account-card > .account-body{
+  padding:0 18px 20px!important;
+  border-top:1px solid #e8eff0;
+}
+.account-card #accountSignedOut[hidden],.account-card #accountSignedIn[hidden]{display:none!important}
+.account-card .account-local-intro{
+  display:flex;align-items:flex-start;gap:12px;
+  margin:16px 0 16px;padding:15px 13px;
+  border:1px solid #dcebee;border-radius:15px;
+  background:linear-gradient(130deg,#f4fafb,#fff 88%);
+}
+.account-card .account-local-intro-icon{
+  display:grid;place-items:center;
+  flex:0 0 35px;width:35px;height:35px;
+  border:1px solid #cfe6e9;border-radius:11px;
+  background:#e8f6f7;color:#0e7986;
+}
+.account-card .account-local-intro-icon svg{width:21px;height:21px}
+.account-card .account-local-intro-copy{flex:1;min-width:0}
+.account-card .account-local-intro-copy strong{display:block;font-size:13px;line-height:1.4;color:#283b40;font-weight:800}
+.account-card .account-local-intro-copy p{margin:6px 0 0;font-size:12px;line-height:1.55;color:#607c82}
+.account-card #accountSignedOut .account-google{
+  margin:0;
+  min-height:46px!important;
+  border-radius:12px!important;
+  font-size:13px!important;
+}
+.account-card .account-body .account-local-note{margin:13px 2px 0;color:#7a898d;font-size:11px;line-height:1.55}
+.account-card .account-connection-overview{
+  margin:18px 0 0;
+}
+.account-card .account-connected-ident{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:10px;padding:0 2px 13px;
+}
+.account-card .account-connected-ident > span{
+  flex:none;color:#26818a;font-size:10px;font-weight:830;letter-spacing:.115em;
+}
+.account-card .account-connected-ident > strong{
+  font-size:12px;color:#344d54;font-weight:700;
+  min-width:0;text-align:right;overflow-wrap:anywhere;line-height:1.45;
+}
+.account-card .account-storage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.account-card .account-storage-tile{
+  min-width:0;
+  display:flex;flex-direction:column;align-items:flex-start;
+  padding:14px 12px 15px;gap:9px;
+  border:1px solid #dfebed;border-radius:14px;
+  background:linear-gradient(150deg,#f8fcfc,#fff);
+  box-shadow:inset 0 1px 0 #fff;
+}
+.account-card .account-storage-tile > span{
+  color:#77898c;font-size:11px;line-height:1.35;font-weight:680;
+}
+.account-card .account-storage-tile > strong{
+  color:#274248;font-size:12px;line-height:1.55;font-weight:770;
+  overflow-wrap:anywhere;word-break:normal;
+}
+.account-card .account-storage-tile.account-storage-cloud > strong{color:#147780}
+.account-card .account-dashboard{margin:17px 0 21px!important}
+.account-card .recovery-card{margin-top:18px!important}
+@media(max-width:420px){
+  .account-card > .account-fold-summary{gap:10px!important;padding:17px 13px!important}
+  .account-card > .account-fold-summary > .account-header-avatar {flex-basis:45px;width:45px;height:45px}
+  .account-card .account-header-avatar > svg{width:23px;height:23px}
+  .account-card .account-header-end{gap:7px}
+  .account-card .account-header-end .account-summary-status{padding:6px 8px;font-size:10px}
+  .account-card > .account-body{padding:0 13px 18px!important}
+  .account-card .account-storage-tile{padding:12px 10px 13px}
+}
+@media(max-width:350px){
+  .account-card > .account-fold-summary{gap:8px!important;padding:16px 11px!important}
+  .account-card > .account-fold-summary > .account-header-avatar {flex-basis:42px;width:42px;height:42px}
+  .account-card .account-header-title{font-size:18px}
+  .account-card .account-header-end .account-summary-status{font-size:9px;padding:5px 6px}
+  .account-card .account-header-end{gap:5px}
+  .account-card .account-header-text .section-kicker{font-size:9px!important}
+  .account-card .account-local-intro{padding:13px 10px;gap:9px}
+  .account-card .account-storage-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .account-card > .account-fold-summary .fold-chevron{transition:none!important}
+}

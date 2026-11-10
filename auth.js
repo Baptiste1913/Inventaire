@@ -141,7 +141,29 @@ function renderDashboard(){
  const pill=$('dashboardCloudPill');pill.textContent=cloud.includes('Synchronisé')?'Cloud synchronisé':cloud.includes('Choix nécessaire')?'Conflit à résoudre':cloud.includes('attente')?'En attente':'Cloud à vérifier';
  pill.classList.toggle('is-synced',cloud.includes('Synchronisé'));
 }
-function render(){const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Connecté'):'Non connecté';$('accountActionLabel').textContent=user?'Mon compte':'Connexion';$('accountSummaryStatus').textContent=user?'Connecté':'Non connecté';$('accountSummaryStatus').classList.toggle('is-connected',!!user);$('accountProfileName').textContent=name;$('accountProfileHint').textContent=user?(user.email||'Compte synchronisé'):'Mode local · Données sur cet appareil';$('accountStatusDot').classList.toggle('is-connected',!!user);const avatar=$('accountAvatarImage');const avatarUrl=user&&(user.user_metadata?.avatar_url||user.user_metadata?.picture);let validAvatar=false;try{validAvatar=!!avatarUrl&&new URL(avatarUrl).protocol==='https:';}catch{}avatar.hidden=!validAvatar;avatar.parentElement.classList.toggle('has-photo',validAvatar);if(validAvatar&&avatar.src!==avatarUrl)avatar.src=avatarUrl;else if(!validAvatar)avatar.removeAttribute('src');$('accountCard').title=user?name:'Ouvrir les options de connexion';$('accountSignedOut').hidden=!!user;$('accountSignedIn').hidden=!user;$('accountIdentity').textContent=user?name:'';if(!user)status('Stockage local uniquement');renderDashboard();}
+function render(){
+ const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Mon compte'):'Mon compte';
+ const badge=$('accountSummaryStatus');
+ badge.textContent=user?'Connecté':'Mode local';
+ badge.classList.toggle('is-connected',!!user);
+ $('accountProfileName').textContent=name;
+ $('accountProfileHint').textContent=user?'Compte Google':'Connexion Google';
+ $('accountStatusDot').classList.toggle('is-connected',!!user);
+ const avatar=$('accountAvatarImage');
+ const avatarUrl=user&&(user.user_metadata?.avatar_url||user.user_metadata?.picture);
+ let validAvatar=false;
+ try{validAvatar=!!avatarUrl&&new URL(avatarUrl).protocol==='https:';}catch{}
+ avatar.hidden=!validAvatar;
+ avatar.parentElement.classList.toggle('has-photo',validAvatar);
+ if(validAvatar&&avatar.src!==avatarUrl)avatar.src=avatarUrl;
+ else if(!validAvatar)avatar.removeAttribute('src');
+ $('accountCard').title=user?'Ouvrir le compte de '+name:'Ouvrir les options de connexion';
+ $('accountSignedOut').hidden=!!user;
+ $('accountSignedIn').hidden=!user;
+ $('accountIdentity').textContent=user?(user.email||name):'';
+ if(!user)status('Stockage local uniquement');
+ renderDashboard();
+}
 async function sb(){if(client)return client;if(!configured())throw Error('Connexion Google indisponible : configuration manquante.');const mod=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');client=mod.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{flowType:'pkce',detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});return client;}
 // Réutiliser le même client Supabase pour le planning public et l'administration.
 window.InventairesAuth={getClient:sb,getUser:()=>user};

@@ -1,7 +1,7 @@
 {
-  "version": "33.95",
+  "version": "33.96",
   "published": "2026-11-10",
   "assets": 42,
-  "bytes": 763622,
-  "notes": "Refonte du bloc Mon compte depuis V33.93 : interface turquoise harmonisée, profil et statistiques modernisés."
+  "bytes": 779858,
+  "notes": "Mon compte redessiné en carte de profil : en-tête dynamique, mode local, informations de synchronisation allégées."
 }
