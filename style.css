@@ -4233,3 +4233,36 @@ html.iu-focus-exiting::view-transition {
 @media(prefers-reduced-motion:reduce){
  .basket-form :is(#basketName,#basketTare),.backup-card :is(button,.upload),.planning-admin-card .planning-actions > button{transition:none!important;}
 }
+
+
+/* V33.76 — contrôles tactiles cohérents, halo statique plus diffus et marqué.
+   Aucun changement de durée ou de courbe du mode Concentration. */
+@media(min-width:381px){
+  .basket-item .move-actions > button{
+    min-width:32px;
+    min-height:25px;
+    padding:4px 7px;
+    font-size:12px;
+    line-height:1.1;
+    touch-action:manipulation;
+  }
+}
+/* Halo plus large et plus lumineux, sans animation ni recalcul permanent. */
+.app > .intro #heroStartSession::after{
+  left:-6%!important;
+  right:-6%!important;
+  bottom:-16px!important;
+  height:30px!important;
+  background:radial-gradient(ellipse at 50% 35%,rgba(238,255,240,.98) 0%,rgba(198,250,220,.67) 43%,rgba(198,250,220,0) 85%)!important;
+  filter:blur(18px)!important;
+  opacity:1!important;
+  border-radius:999px!important;
+}
+
+/* Deux couches de diffusion sous le bouton, sans animation permanente :
+   une lueur blanche proche et une aura vert menthe large. */
+.app > .intro #heroStartSession{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.90),
+             0 13px 28px rgba(235,255,240,.32),
+             0 22px 48px rgba(179,249,211,.23)!important;
+}

@@ -211,7 +211,9 @@ function calculate(){
  const blocked=renderWarning();$('copyBtn').disabled=blocked;refreshActionButtons();
 }
 function refreshActionButtons(){
- const resetLabel=$('resetBtn').querySelector('span');if(resetLabel)resetLabel.innerHTML='Nouvelle<br>pesée';
+ // Ne pas reconstruire le libellé à chaque frappe dans le poids brut.
+ const resetLabel=$('resetBtn').querySelector('span');
+ if(resetLabel&&resetLabel.innerHTML!=='Nouvelle<br>pesée')resetLabel.innerHTML='Nouvelle<br>pesée';
 }
 function saveCurrentWeigh(){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
@@ -504,8 +506,8 @@ function changeFocusWithMotion(action,entering){
 }
 function animateFocusEntry(action){changeFocusWithMotion(action,true);}
 function animateFocusExit(action){changeFocusWithMotion(action,false);}
-function syncFocusMode(){
- const session=getActiveSession();
+function syncFocusMode(sessionInput,statsInput){
+ const session=arguments.length?sessionInput:getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
  const toolbar=$('focusToolbar');
  if(!toolbar)return;
@@ -513,9 +515,10 @@ function syncFocusMode(){
  document.body.classList.toggle('is-focus-mode',active);
  if(!active)$('focusConfirm').hidden=true;
  if(active){
-  const stats=activeStats(session);
-  $('focusDuration').textContent=durationLabel(stats.duration);
-  $('focusCount').textContent=String(stats.count);
+  const stats=statsInput||activeStats(session);
+  const durationValue=durationLabel(stats.duration),countValue=String(stats.count);
+  if($('focusDuration').textContent!==durationValue)$('focusDuration').textContent=durationValue;
+  if($('focusCount').textContent!==countValue)$('focusCount').textContent=countValue;
  }
  if(active!==focusWasActive){
   focusWasActive=active;
@@ -536,14 +539,15 @@ function renderSessionControls(){const s=getActiveSession();$('sessionBadge').te
  renderHeroSummary();
  syncFocusMode();
 }
-function renderLiveSessionStats(){
+// L'horloge met à jour seulement les textes qui ont réellement changé :
+// moins de mutations DOM, donc moins de recalculs sur Safari iPhone.
+function renderLiveSessionStats(updateHero=true){
  const session=getActiveSession();if(!session)return;
  const stats=activeStats(session);
- $('sessionDuration').textContent=durationLabel(stats.duration);
- $('sessionWeighCount').textContent=String(stats.count);
- $('sessionNet').textContent=`${fmt(stats.net)} kg`;
- renderHeroSummary();
- syncFocusMode();
+ const values=[['sessionDuration',durationLabel(stats.duration)],['sessionWeighCount',String(stats.count)],['sessionNet',`${fmt(stats.net)} kg`]];
+ for(const [id,value] of values){const el=$(id);if(el&&el.textContent!==value)el.textContent=value;}
+ if(updateHero)renderHeroSummary();
+ syncFocusMode(session,stats);
 }
 function startSession(){const review=$('sessionQualityReview');if(review)review.hidden=true;
  if(getActiveSession()||!flushPending())return;
@@ -925,8 +929,7 @@ $('focusCancelStop').addEventListener('click',()=>{
  $('focusStop').focus({preventScroll:true});
 });
 $('focusConfirmStop').addEventListener('click',()=>{$('focusConfirm').hidden=true;animateFocusExit(()=>$('finishSession').click());});
-// Actualise le chronomètre même sans nouvelle pesée.
-setInterval(()=>{if(document.visibilityState==='visible'&&document.body.classList.contains('is-focus-mode'))syncFocusMode();},1000);
+// Le rafraîchissement de la durée est centralisé dans l'horloge unique ci-dessous.
 $('startSession').addEventListener('click',()=>animateFocusEntry(startSession));
 $('pauseSession').addEventListener('click',pauseSession);
 $('resumeSession').addEventListener('click',()=>animateFocusEntry(resumeSession));
@@ -935,7 +938,7 @@ $('sessionsToggle').addEventListener('click',()=>{sessionsExpanded=!sessionsExpa
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
-setInterval(()=>{if(!document.hidden)renderLiveSessionStats();},1000);
+setInterval(()=>{if(!document.hidden)renderLiveSessionStats(false);},1000);
 
 $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){$('basketFormError').textContent='Indique un nom et une tare valide en kg (ex. 0.554).';return;}$('basketFormError').textContent='';const next=baskets.map(b=>({...b}));if(editingId){const b=next.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else next.push({id:uid(),name,tare});if(commitBaskets(next)){cancelEdit();$('basketFormError').textContent='';}});
 $('basketName').addEventListener('input',()=>{$('basketFormError').textContent='';});

@@ -292,5 +292,5 @@ $('otherTabLater')?.addEventListener('click',()=>{$('otherTabDialog')?.close();l
 // renderDashboard sont privés au module d'authentification.
 init();
 window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
-setInterval(()=>{if(user&&$('accountCard')?.open)renderDashboard();},5000);
+setInterval(()=>{if(user&&!document.hidden&&!document.body.classList.contains('is-focus-mode')&&$('accountCard')?.open)renderDashboard();},5000);
 })();
