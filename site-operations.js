@@ -1,7 +1,7 @@
 /* Inventaires U 33.84 — état technique local, sans télémétrie utilisateurs. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- const VERSION='33.87';
+ const VERSION='33.89';
  const root=document.documentElement;
  const splash=$('iuPwaSplash');
  // Ouverture uniquement dans la PWA installee : environ 2 secondes,
@@ -39,7 +39,7 @@
   setTimeout(()=>{ready=true;reveal();},splashDuration+150);
  }
  const panel=$('siteOperationsPanel');if(!panel)return;
- const apply=$('opsApplyUpdate');
+ const apply=null;
  const value=(id,tone,text)=>{const el=$(id);if(!el)return;el.textContent=text;el.dataset.state=tone;};
  const formatBytes=n=>n>=1048576?(n/1048576).toFixed(2)+' Mo':Math.round(n/1024)+' Ko';
  let refreshing=false;
@@ -54,10 +54,10 @@
   if(apply)apply.hidden=true;
   if(!('serviceWorker' in navigator)){value('opsUpdate','muted','Non applicable');return;}
   const reg=window.IUWorkerRegistration||await navigator.serviceWorker.getRegistration();
-  if(reg?.waiting){value('opsUpdate','warning','Prête à installer');if(apply){apply.hidden=false;apply.disabled=!window.IUCanSafelyUpdate?.();}return;}
+  if(reg?.waiting){value('opsUpdate','warning','Prête à installer');return;}
   if(!navigator.onLine){value('opsUpdate','muted','Vérification hors ligne');return;}
   try{await reg?.update();}catch{}
-  if(reg?.waiting){value('opsUpdate','warning','Prête à installer');if(apply){apply.hidden=false;apply.disabled=!window.IUCanSafelyUpdate?.();}return;}
+  if(reg?.waiting){value('opsUpdate','warning','Prête à installer');return;}
   try{const v=await manifest();value('opsUpdate',v.version!==VERSION?'warning':'success',v.version!==VERSION?'Version '+v.version+' publiée':'À jour');}
   catch{value('opsUpdate','muted','Non vérifiable');}
  }
@@ -80,13 +80,13 @@
   }catch{value('opsWorker','warning','Indisponible');}
   await Promise.all([
    (async()=>{try{const m=await manifest();value('opsHosting','success','Accessible');value('opsVersion','normal',m.version||VERSION);value('opsAssets','normal',String(m.assets||'—'));value('opsSize','normal',Number.isFinite(m.bytes)?formatBytes(m.bytes):'—');}
-     catch{value('opsHosting','warning',navigator.onLine?'Non vérifiable':'Hors ligne');value('opsAssets','muted','—');value('opsSize','muted','—');}})(),
+     catch{window.IUTechnicalLog?.('hosting');value('opsHosting','warning',navigator.onLine?'Non vérifiable':'Hors ligne');value('opsAssets','muted','—');value('opsSize','muted','—');}})(),
    (async()=>{if(!navigator.onLine){value('opsSupabase','muted','Hors ligne');return;}
     const config=window.INVENTAIRES_AUTH_CONFIG;
     if(!config?.supabaseUrl){value('opsSupabase','muted','Non configuré');return;}
     try{const response=await fetchTimed(config.supabaseUrl.replace(/\/$/,'')+'/auth/v1/health',{headers:{apikey:config.supabaseAnonKey||''}});
       value('opsSupabase',response.ok?'success':'warning',response.ok?'Accessible':'HTTP '+response.status);
-    }catch{value('opsSupabase','warning','Non vérifiable');}})(),
+    }catch{window.IUTechnicalLog?.('service');value('opsSupabase','warning','Non vérifiable');}})(),
    updateCheck()
   ]);
   $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.';
@@ -98,22 +98,6 @@
   if(adminCard.open)refresh();
  }
  $('opsRefresh')?.addEventListener('click',refresh);
- apply?.addEventListener('click',async()=>{
-  if(!window.IUCanSafelyUpdate?.()){
-   value('opsUpdate','warning','Termine ton inventaire avant la mise à jour');return;
-  }
-  apply.disabled=true;
-  try{
-   const reg=window.IUWorkerRegistration||await navigator.serviceWorker.getRegistration();
-   if(!reg?.waiting){value('opsUpdate','warning','Mise à jour non encore prête');return;}
-   let reloaded=false;
-   navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(!reloaded){reloaded=true;window.location.reload();}
-   },{once:true});
-   reg.waiting.postMessage({type:'IU_ACTIVATE_UPDATE'});
-   value('opsUpdate','success','Activation en cours…');
-  }catch{apply.disabled=false;value('opsUpdate','warning','Activation impossible');}
- });
  window.addEventListener('iu-update-ready',()=>{if(adminCard?.open)updateCheck();});
  // Signaler une version publiée même si le worker en attente n'a pas terminé.
 })();

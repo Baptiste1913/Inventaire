@@ -4779,3 +4779,40 @@ html.iu-pwa-revealing .app > footer {
   position:relative;
   z-index:1;
 }
+
+/* V33.89 — update manager and privacy-focused technical diagnostics. */
+.iu-admin-update,.iu-error-panel{margin:9px 0 18px;padding:17px 15px;border:1px solid #d0e5e9;border-radius:18px;background:linear-gradient(145deg,#f4fbfc 0%,#fff 78%);box-shadow:0 3px 14px rgba(12,84,94,.045)}
+.iu-update-head h3,.iu-error-heading h3{margin:4px 0 5px;font-size:18px;line-height:1.28;font-weight:850;color:#21474f}
+.iu-update-head p,.iu-error-heading p{margin:0;color:#6c858b;font-size:12px;line-height:1.5}
+.iu-update-versions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0 13px}
+.iu-update-versions>div{min-width:0;background:#fff;border:1px solid #e0edef;border-radius:13px;padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.iu-update-versions span{font-size:11px;color:#6d868d;font-weight:700}
+.iu-update-versions strong{font-size:21px;font-weight:850;color:#117b88;overflow-wrap:anywhere}
+.iu-update-state{display:flex;align-items:flex-start;gap:11px;border-radius:14px;border:1px solid #dcebed;background:#fff;padding:13px 12px}
+.iu-update-state strong{font-size:13px;font-weight:800;color:#26545c;display:block}
+.iu-update-state p{margin:4px 0 0;color:#6d8289;font-size:12px;line-height:1.45}
+.iu-update-indicator{flex:0 0 10px;height:10px;border-radius:50%;background:#a1afb2;box-shadow:0 0 0 3px #eef3f4;margin-top:5px}
+.iu-update-indicator[data-state="current"],.iu-update-indicator[data-state="ready"]{background:#25a37d;box-shadow:0 0 0 3px #e1f5ec}
+.iu-update-indicator[data-state="available"],.iu-update-indicator[data-state="waiting"]{background:#e6a04e;box-shadow:0 0 0 3px #fff3e6}
+.iu-update-indicator[data-state="checking"]{background:#138798;animation:iuCheckingPulse 1s ease-in-out infinite}
+@keyframes iuCheckingPulse{50%{opacity:.45;transform:scale(.75)}}
+.iu-update-checked{font-size:11px;color:#789096;margin:11px 0 10px}
+.iu-update-release{margin-top:10px;border-radius:12px;padding:11px 12px;background:#fff;border:1px solid #d8e9ec;color:#3c6570;font-size:12px}
+.iu-update-release strong{display:block;margin-bottom:5px}.iu-update-release p{margin:0 0 3px;white-space:pre-line}.iu-update-release small{color:#74878c}
+.iu-update-button,.iu-update-secondary{display:block;width:100%;min-height:45px!important;border-radius:13px!important;font-size:13px!important;font-weight:800!important}
+.iu-update-button{background:linear-gradient(126deg,#008b9a,#087c8f 50%,#136d8a)!important;color:#fff!important;border:1px solid rgba(182,234,240,.35)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 3px 12px rgba(0,99,119,.12)}
+.iu-update-button:disabled{opacity:.65!important}.iu-update-secondary{margin-top:8px}
+.iu-error-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}
+.iu-error-count{background:#e6f3f5;border-radius:10px;padding:7px 10px;color:#137b89;font-size:13px;font-weight:850}
+.iu-error-toolbar{display:flex;gap:8px;margin:13px 0 11px}
+.iu-error-toolbar button{flex:1;min-width:0;min-height:39px!important;border-radius:10px!important;font-size:12px!important}
+.iu-error-toolbar .iu-error-clear{color:#b52e42!important;background:linear-gradient(145deg,#fff1f2,#f9dfe3)!important;border:1px solid #edbbc3!important}
+.iu-error-list{max-height:210px;overflow-y:auto;border:1px solid #e2edef;border-radius:12px;background:#fff}
+.iu-error-empty{margin:0;padding:16px 12px;font-size:12px;color:#758d91;text-align:center}
+.iu-error-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 11px;border-top:1px solid #edf3f4}
+.iu-error-row:first-child{border-top:0}
+.iu-error-row strong{font-size:12px;font-weight:750;color:#365965;overflow-wrap:anywhere}
+.iu-error-row span{font-size:11px;color:#789096;white-space:nowrap}
+.iu-error-foot{font-size:11px;line-height:1.5;color:#718a90;margin:11px 0 0}
+@media(max-width:360px){.iu-admin-update,.iu-error-panel{padding:14px 11px}.iu-error-row{align-items:flex-start;flex-direction:column;gap:3px}}
+@media(prefers-reduced-motion:reduce){.iu-update-indicator[data-state="checking"]{animation:none}}
