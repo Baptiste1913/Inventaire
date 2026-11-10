@@ -408,15 +408,32 @@ function exitFocusWithoutSnapshot(action){
    {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
   ]);
  }
- for(const tile of tiles)animate(tile,[
-  {transform:'translate3d(0,105dvh,0)',opacity:1,filter:'blur(0px)'},
-  {transform:'translate3d(0,0,0)',opacity:1,filter:'blur(0px)'}
- ]);
- for(const anchor of anchors)animate(anchor,[
-  {offset:0,opacity:0,filter:'blur(1.8px)'},
-  {offset:.75,opacity:1,filter:'blur(0px)'},
-  {offset:1,opacity:1,filter:'blur(0px)'}
- ],{easing:'linear'});
+ // V33.71 : la sortie garde exactement les mêmes déplacements, durées
+ // et courbes de V33.70. Seul le flou des éléments de l'accueil est ajouté.
+ // Il s'efface pendant les 110 premières ms : 610 - 500 = 110 ms.
+ // L'animation séparée évite de changer la courbe de translation des cartes.
+ const clearBlurDuration=Math.max(0,duration-500);
+ for(const tile of tiles){
+  animate(tile,[
+   {transform:'translate3d(0,105dvh,0)',opacity:1},
+   {transform:'translate3d(0,0,0)',opacity:1}
+  ]);
+  animate(tile,[
+   {filter:'blur(3.2px)'},
+   {filter:'blur(0px)'}
+  ],{duration:clearBlurDuration,easing:'ease-out'});
+ }
+ for(const anchor of anchors){
+  animate(anchor,[
+   {offset:0,opacity:0},
+   {offset:.75,opacity:1},
+   {offset:1,opacity:1}
+  ],{easing:'linear'});
+  animate(anchor,[
+   {filter:'blur(1.8px)'},
+   {filter:'blur(0px)'}
+  ],{duration:clearBlurDuration,easing:'ease-out'});
+ }
  const cleanup=()=>{
   animations.forEach(anim=>anim.cancel());
   layer.remove();
