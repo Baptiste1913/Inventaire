@@ -1,15 +1,31 @@
 /* Inventaires U 33.84 — état technique local, sans télémétrie utilisateurs. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- const VERSION='33.84';
+ const VERSION='33.85';
  const root=document.documentElement;
  const splash=$('iuPwaSplash');
- // Premier rendu complet : le splash n'empêche jamais d'utiliser l'app.
+ // L'écran d'ouverture ne concerne que la PWA installée : 2,4 à 3 s,
+ // puis les cartes montent légèrement sans flou. Ne jamais forcer un reload.
  if(root.classList.contains('iu-pwa-starting')){
-  const hide=()=>{root.classList.remove('iu-pwa-starting');splash?.setAttribute('aria-hidden','true');};
-  if(document.readyState==='complete')requestAnimationFrame(()=>requestAnimationFrame(hide));
-  else window.addEventListener('load',()=>requestAnimationFrame(()=>requestAnimationFrame(hide)),{once:true});
-  setTimeout(hide,1800);
+  const started=performance.now();
+  let ready=document.readyState==='complete';
+  let done=false;
+  const reveal=()=>{
+   if(done||!ready||performance.now()-started<2400)return;
+   done=true;
+   root.classList.add('iu-pwa-splash-leaving');
+   root.classList.add('iu-pwa-revealing');
+   const finish=()=>{
+    root.classList.remove('iu-pwa-starting','iu-pwa-splash-leaving');
+    splash?.setAttribute('aria-hidden','true');
+    setTimeout(()=>root.classList.remove('iu-pwa-revealing'),760);
+   };
+   setTimeout(finish,330);
+  };
+  if(!ready)window.addEventListener('load',()=>{ready=true;reveal();},{once:true});
+  setTimeout(reveal,2420);
+  // L'interface ne doit pas rester bloquée si une ressource distante tarde.
+  setTimeout(()=>{ready=true;reveal();},2900);
  }
  const panel=$('siteOperationsPanel');if(!panel)return;
  const apply=$('opsApplyUpdate');
