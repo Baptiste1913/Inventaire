@@ -1,6 +1,6 @@
 /* Inventaires U V33.89 — update workflow, no reload during an inventory. */
 (()=>{'use strict';
- const VERSION='33.89', $=id=>document.getElementById(id);
+ const VERSION='33.90', $=id=>document.getElementById(id);
  const main=$('iuUpdateButton'),secondary=$('iuUpdateReload');if(!main)return;
  const ADMIN=$('planningAdminCard');
  let busy=false, knownPublished='', notes='', ready=false, lastChecked='', publication='',reg=null, state='idle';

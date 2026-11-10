@@ -4816,3 +4816,68 @@ html.iu-pwa-revealing .app > footer {
 .iu-error-foot{font-size:11px;line-height:1.5;color:#718a90;margin:11px 0 0}
 @media(max-width:360px){.iu-admin-update,.iu-error-panel{padding:14px 11px}.iu-error-row{align-items:flex-start;flex-direction:column;gap:3px}}
 @media(prefers-reduced-motion:reduce){.iu-update-indicator[data-state="checking"]{animation:none}}
+
+
+/* V33.90 — administration organisée, compacte, grise et homogène. */
+#planningAdminCard .planning-admin-body{padding-top:12px!important}
+.iu-admin-categories{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0}
+#planningAdminCard .iu-admin-category{min-width:0;border:1px solid #9aa0a6;border-radius:13px;background:linear-gradient(155deg,#f4f5f6 0%,#fcfcfd 58%,#f0f1f3 100%);overflow:hidden;box-shadow:0 2px 8px rgba(35,40,46,.045)}
+#planningAdminCard .iu-admin-category>summary{display:flex;gap:11px;align-items:center;list-style:none;cursor:pointer;min-height:61px;padding:11px 13px;color:#252b31;user-select:none}
+#planningAdminCard .iu-admin-category>summary::-webkit-details-marker{display:none}
+#planningAdminCard .iu-admin-category>summary:focus-visible{outline:2px solid #4f8994;outline-offset:-3px}
+.iu-admin-category-icon{width:33px;height:33px;flex:0 0 33px;display:grid;place-items:center;border:1px solid #a8adb3;border-radius:9px;background:linear-gradient(145deg,#fff,#e9ebed);font-weight:800;font-size:18px;color:#515c65}
+.iu-admin-category-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.iu-admin-category-title strong{font-size:14px;font-weight:850;line-height:1.2}
+.iu-admin-category-title small{font-size:11px;color:#737c84;line-height:1.25}
+.iu-admin-category-arrow{font-size:20px;color:#69737a;transition:transform .24s ease;line-height:1}
+.iu-admin-category[open]>.iu-admin-category-arrow,.iu-admin-category[open]>summary .iu-admin-category-arrow{transform:rotate(180deg)}
+.iu-admin-category-body{padding:0 12px 13px;min-width:0}
+#planningAdminCard .iu-admin-category-body>.iu-admin-update,
+#planningAdminCard .iu-admin-category-body>.site-ops-panel,
+#planningAdminCard .iu-admin-category-body>.iu-error-panel,
+#planningAdminCard .iu-admin-category-body>.planning-panel{margin:0!important;min-width:0;border:1px solid #aeb3b9!important;border-radius:11px!important;background:linear-gradient(145deg,#f7f8f9,#eceef0)!important;box-shadow:none!important}
+#planningAdminCard .iu-admin-category-body>.iu-admin-update,
+#planningAdminCard .iu-admin-category-body>.iu-error-panel{padding:12px!important}
+#planningAdminCard .iu-admin-category-body>.site-ops-panel{padding:0!important}
+#planningAdminCard .iu-admin-category-body>.planning-panel{margin:0 0 8px!important}
+#planningAdminCard .iu-admin-category-body>.planning-muted{font-size:11px;margin:8px 2px 11px}
+#planningAdminCard .iu-admin-category-body>.planning-feedback{margin:6px 2px}
+#planningAdminCard .site-ops-dashboard{padding:12px!important;border-color:#b1b7bb!important;border-radius:10px!important;background:linear-gradient(145deg,#fafafa,#edf0f2)!important}
+#planningAdminCard .site-ops-body{padding:0 10px 11px!important}
+#planningAdminCard .site-ops-grid{gap:7px!important;margin-bottom:12px!important}
+#planningAdminCard .site-ops-metric{padding:10px!important;background:linear-gradient(145deg,#fafbfc,#edf0f2)!important;border-color:#c6cbd0!important;border-radius:10px!important}
+#planningAdminCard .site-ops-services{margin-top:12px!important}
+#planningAdminCard .site-ops-status{border-color:#bfc6cb!important;border-radius:10px!important;background:linear-gradient(145deg,#fafbfc,#f0f1f2)!important}
+#planningAdminCard .site-ops-status>div{padding:9px 10px!important}
+#planningAdminCard .iu-update-versions{gap:7px!important;margin:11px 0!important}
+#planningAdminCard .iu-update-versions>div,
+#planningAdminCard .iu-update-state,
+#planningAdminCard .iu-update-release,
+#planningAdminCard .iu-error-list{border-color:#c0c6cc!important;border-radius:10px!important;background:linear-gradient(145deg,#fff,#f0f2f3)!important}
+#planningAdminCard .iu-update-versions>div{padding:10px!important}
+#planningAdminCard .iu-update-state{padding:10px!important}
+#planningAdminCard .iu-update-head h3,#planningAdminCard .iu-error-heading h3{font-size:15px!important;color:#2c3238!important}
+#planningAdminCard .iu-error-toolbar{margin:10px 0!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+/* One design for all admin buttons — matching Exporter le journal. */
+#planningAdminCard .iu-admin-category-body :is(button.planning-primary,button.planning-secondary,button.planning-mini-button,button.site-ops-refresh,button.iu-update-button,button.iu-update-secondary,.planning-file-label,button.planning-copy-example){
+ box-sizing:border-box!important;display:inline-flex;align-items:center;justify-content:center;
+ min-height:42px!important;height:auto!important;max-width:100%;padding:10px 12px!important;
+ font-family:inherit!important;font-size:12px!important;font-weight:800!important;line-height:1.25!important;
+ border-radius:10px!important;color:#335c69!important;border:1px solid #cbdee4!important;
+ background:linear-gradient(145deg,#fff,#f3f9fa)!important;
+ box-shadow:inset 0 1px 0 #fff,0 3px 11px rgba(24,86,109,.06)!important;
+ text-align:center;white-space:normal;overflow-wrap:anywhere;
+}
+#planningAdminCard .iu-admin-category-body .planning-actions{gap:7px!important}
+#planningAdminCard .iu-admin-category-body .planning-actions>button,
+#planningAdminCard .iu-admin-category-body .planning-actions>.planning-file-label{flex:1 1 132px!important}
+#planningAdminCard .iu-admin-category-body :is(button.planning-mini-danger,button.iu-error-clear,button[data-action="delete"],button[data-action="remove"]){
+ color:#b52e42!important;background:linear-gradient(145deg,#fff1f2,#f9dfe3)!important;border-color:#edbbc3!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 7px rgba(145,38,56,.07)!important;
+}
+#planningAdminCard .iu-admin-category-body :is(button.planning-primary[data-confirm="true"],button.planning-success){color:#217b5a!important;background:linear-gradient(145deg,#f1fff6,#dff4e7)!important;border-color:#b1dcca!important}
+#planningAdminCard .iu-admin-category-body button[disabled]{opacity:.5!important;cursor:not-allowed}
+#planningAdminCard .iu-admin-category-body .planning-list-actions{gap:7px!important}
+#planningAdminCard .iu-admin-category-body .planning-import-files>:is(button,.planning-file-label){min-height:42px!important}
+@media(max-width:380px){.iu-admin-category-body{padding:0 8px 10px}.iu-admin-category-title strong{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.iu-admin-category-arrow{transition:none}}
