@@ -3988,13 +3988,9 @@ html.iu-focus-slide,html.iu-focus-slide body{
   max-width:100%!important;
   overflow-x:clip!important;
 }
-html.iu-focus-slide::view-transition{
-  position:fixed!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  overflow:hidden!important;
-}
+/* V33.67 : conserver les dimensions natives du plan de capture.
+   Sur Safari mobile, forcer 100 % sur ::view-transition pouvait décaler
+   les tuiles de retour vers la droite durant le snapshot. */
 /* Les éléments restent 100 % opaques quand ils passent sur les cartes. */
 @keyframes iu65-tiles-away{
   0%,12% {filter:blur(0);opacity:1}
@@ -4013,4 +4009,23 @@ html.iu-focus-slide::view-transition{
 @keyframes iu65-anchor-back{
   0%{opacity:0;filter:blur(1.8px)}
   75%,100%{opacity:1;filter:blur(0)}
+}
+
+/* V33.67 — correction ciblée du cadrage horizontal à la sortie.
+   Ne modifie ni la durée, ni la courbe, ni le flou. */
+html.iu-focus-exiting,
+html.iu-focus-exiting body {
+  overflow-x:clip!important;
+  overscroll-behavior-x:none!important;
+}
+html.iu-focus-exiting .app {
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:680px!important;
+  min-width:0!important;
+  margin-inline:auto!important;
+}
+html.iu-focus-exiting::view-transition {
+  /* La taille et l'origine sont celles du viewport, sans largeur forcée. */
+  overflow:clip;
 }
