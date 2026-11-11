@@ -1,7 +1,7 @@
 {
-  "version": "34.50",
+  "version": "34.51",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Notifications réseau : nouvelles icônes Wi-Fi, alerte hors ligne persistante et confirmation de reconnexion après stabilisation, fermeture automatique après 2,5 s. Fonctionnement et sauvegardes inchangés."
+  "notes": "Mascotte Fruits et Légumes ajoutée dans le coin inférieur droit de la banderole ; ombre coupée au bord bas, pastille Liquid Glass au-dessus de la mascotte, bouton Inventaire à gauche et bandeau légèrement allongé."
 }
