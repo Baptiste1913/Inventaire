@@ -153,11 +153,63 @@ function restore(data){if(!data||typeof data!=='object'||KEYS.some(k=>!(k in dat
   // Store a complete rollback copy before touching any user data.
   const previous=snapshot();if(!preserveRecovery('avant-restauration',previous))throw Error('Espace de stockage saturé : exporte tes données avant de restaurer.');try{for(const key of KEYS){if(data[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,data[key]);}}catch(err){for(const key of KEYS){try{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);}catch{}}throw err;}
   localBaseline=serialize(data);rememberConfirmedBaseline(data);saveActive();status('Données récupérées. Actualisation nécessaire.');window.scrollTo(0,0);location.reload();}
+
+// V34.49 — Réinitialisations indépendantes du tableau de bord et des bilans.
+const DASH_RESET_PREFIX='inventaires-u-dashboard-reset-v1:';
+const dashboardResetKey=()=>DASH_RESET_PREFIX+scopeId();
+const dashboardResetAt=()=>{try{const n=Number(localStorage.getItem(dashboardResetKey()));return Number.isFinite(n)&&n>0?n:0;}catch{return 0;}};
+let pendingDashboardReset=null;
+function openDashboardReset(kind){
+ if(!user||busy||!$('cloudConflict').hidden){feedback('Synchronisation en cours ou conflit de sauvegarde.');return;}
+ if(kind==='inventories'&&window.IUCanSafelyUpdate?.()!==true){feedback('Termine la session en cours avant cette action.');return;}
+ const dialog=$('accountResetDialog');if(!dialog?.showModal)return;
+ pendingDashboardReset=kind;
+ const inventory=kind==='inventories';
+ $('accountResetDialogTitle').textContent=inventory?'Supprimer les inventaires terminés ?':'Réinitialiser les statistiques ?';
+ $('accountResetDialogText').textContent=inventory
+  ?'Les inventaires terminés seront supprimés de cet espace et une copie de récupération locale sera créée. Les paniers, le dernier historique de pesées et les sessions en cours seront préservés. Le changement pourra être synchronisé avec le cloud.'
+  :'Les indicateurs du compte recommenceront à zéro sur cet appareil sans supprimer les inventaires ni les pesées.';
+ $('accountResetConfirm').textContent=inventory?'Supprimer les inventaires':'Réinitialiser les statistiques';
+ $('accountResetConfirm').classList.toggle('is-danger',inventory);
+ dialog.showModal();
+}
+function confirmDashboardReset(){
+ const kind=pendingDashboardReset;
+ $('accountResetDialog')?.close();
+ pendingDashboardReset=null;
+ if(!user||busy||!$('cloudConflict').hidden)return;
+ if(kind==='stats'){
+  try{localStorage.setItem(dashboardResetKey(),String(Date.now()));renderDashboard();feedback('Statistiques réinitialisées sur cet appareil.');}
+  catch{feedback('Stockage indisponible. Aucune modification.');}
+  return;
+ }
+ if(kind!=='inventories')return;
+ if(window.IUCanSafelyUpdate?.()!==true){feedback('Session en cours. Action annulée.');return;}
+ try{
+  const before=snapshot();
+  const payload=JSON.parse(before[KEYS[2]]||'{"sessions":[],"activeId":null}');
+  if(!Array.isArray(payload.sessions))throw Error('Inventaires illisibles.');
+  const kept=payload.sessions.filter(x=>!x||!Number.isFinite(x.endedAt));
+  if(kept.length===payload.sessions.length){feedback('Aucun inventaire terminé.');return;}
+  if(!preserveRecovery('avant-reinitialisation-inventaires',before))throw Error('Copie de récupération impossible. Action annulée.');
+  localStorage.setItem(KEYS[2],JSON.stringify({...payload,sessions:kept}));
+  try{saveActive();}
+  catch(e){localStorage.setItem(KEYS[2],before[KEYS[2]]);throw e;}
+  sessionStorage.setItem('inventaires-u-reset-message','Inventaires terminés réinitialisés. Copie disponible dans Mon compte.');
+  location.reload();
+ }catch(e){feedback(e?.message||'Réinitialisation impossible.');}
+}
+$('accountResetStats')?.addEventListener('click',()=>openDashboardReset('stats'));
+$('accountResetInventories')?.addEventListener('click',()=>openDashboardReset('inventories'));
+$('accountResetCancel')?.addEventListener('click',()=>$('accountResetDialog')?.close());
+$('accountResetConfirm')?.addEventListener('click',confirmDashboardReset);
+$('accountResetDialog')?.addEventListener('close',()=>{pendingDashboardReset=null;});
+
 function renderDashboard(){
  const panel=$('accountDashboard');if(!panel)return;
  panel.hidden=!user;if(!user)return;
  let all=[];try{const parsed=JSON.parse(localStorage.getItem('inventaires-u-sessions-v1')||'{}');all=Array.isArray(parsed.sessions)?parsed.sessions:[];}catch{}
- const completed=all.filter(x=>x&&Number.isFinite(x.startedAt)&&Number.isFinite(x.endedAt)&&x.endedAt>=x.startedAt);
+ const cutoff=dashboardResetAt();const completed=all.filter(x=>x&&Number.isFinite(x.startedAt)&&Number.isFinite(x.endedAt)&&x.endedAt>=x.startedAt&&x.endedAt>cutoff);
  const entries=completed.flatMap(x=>Array.isArray(x.entries)?x.entries:[]).filter(x=>x&&Number.isSafeInteger(x.net)&&x.net>=0);
  const total=entries.reduce((sum,x)=>sum+x.net,0);
  const durations=completed.map(x=>Math.max(0,x.endedAt-x.startedAt-Math.max(0,Number(x.pausedMs)||0)));
@@ -325,7 +377,7 @@ async function activateUser(u){
   if(changed&&shouldClaimGuest)localStorage.setItem(IMPORT_KEY,provider+':'+u.id);
   return changed;
 }
-async function init(){render();const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{user:u},error}=await s.auth.getUser();if(error&&!isMissingSession(error))throw error;if(await activateUser(u))return;if(user)await reconcile();s.auth.onAuthStateChange((event,session)=>{queueMicrotask(async()=>{try{const previous=user?accountId(user,activeProvider):null;if(await activateUser(session?.user||null))return;if(user&&accountId(user,activeProvider)!==previous){lastSynced=null;remoteBaseline=null;await reconcile();}}catch(e){feedback(e.message||'Changement de compte impossible.');}});});interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);window.addEventListener('online',()=>reconcile());document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
+async function init(){render();const resetMessage=sessionStorage.getItem('inventaires-u-reset-message');if(resetMessage){feedback(resetMessage);sessionStorage.removeItem('inventaires-u-reset-message');}const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{user:u},error}=await s.auth.getUser();if(error&&!isMissingSession(error))throw error;if(await activateUser(u))return;if(user)await reconcile();s.auth.onAuthStateChange((event,session)=>{queueMicrotask(async()=>{try{const previous=user?accountId(user,activeProvider):null;if(await activateUser(session?.user||null))return;if(user&&accountId(user,activeProvider)!==previous){lastSynced=null;remoteBaseline=null;await reconcile();}}catch(e){feedback(e.message||'Changement de compte impossible.');}});});interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);window.addEventListener('online',()=>reconcile());document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
 $('accountGoogle').addEventListener('click',()=>connect('google'));$('accountAvatarImage').addEventListener('error',()=>{const avatar=$('accountAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountLogout').addEventListener('click',logout);
 $('cloudKeepLocal').addEventListener('click',async()=>{if(!user||busy)return;busy=true;try{const remote=JSON.parse($('cloudConflict').dataset.payload);if(!preserveRecovery('cloud-avant-remplacement-local',snapshot())||!preserveRecovery('cloud-avant-remplacement-distant',remote))throw Error('Impossible de créer la copie de sécurité.');const current=await readRemote();if(serialize(current?.data)!==serialize(remote)){askConflict(current?.data);throw Error('Le cloud a encore changé. Vérifie les nouvelles données.');}remoteBaseline=remote;await upload(snapshot());$('cloudConflict').hidden=true;}catch(e){feedback(e.message);}finally{busy=false;}});
