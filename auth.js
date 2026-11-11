@@ -237,7 +237,21 @@ async function upload(local){
  // Server-side compare-and-swap: no blind upsert that can erase another device's edits.
  const {data,error}=await client.rpc('save_provider_backup_safe',{p_provider:targetProvider,p_expected:remoteBaseline,p_data:local});
  if(error)throw Error('Synchronisation sécurisée indisponible. Installe le script SQL V32 dans Supabase. '+error.message);
- if(data!==true){const fresh=await readRemote();if(fresh)askConflict(fresh.data);throw Error('Le cloud a changé sur un autre appareil. Choisis les données à conserver.');}
+ if(data!==true){
+  const fresh=await readRemote();
+  // Un second appareil a pu écrire exactement le même état entre-temps.
+  // Dans ce cas, le refus CAS ne représente pas un conflit de données.
+  if(fresh&&serialize(fresh.data)===serialize(local)){
+   if(user?.id!==targetUser||activeProvider!==targetProvider)throw Error('Le compte a changé pendant la synchronisation.');
+   remoteBaseline=fresh.data;lastSynced=serialize(fresh.data);localBaseline=lastSynced;
+   lastSuccessAt=Date.now();rememberConfirmedBaseline(fresh.data);saveActive();
+   status(serialize(snapshot())===lastSynced?'Synchronisé'+stamp():'Modifications en attente de synchronisation');
+   $('cloudConflict').hidden=true;
+   return;
+  }
+  if(fresh)askConflict(fresh.data);
+  throw Error('Le cloud a changé sur un autre appareil. Choisis les données à conserver.');
+ }
  if(user?.id!==targetUser||activeProvider!==targetProvider)throw Error('Le compte a changé pendant la synchronisation.');
  remoteBaseline=local;lastSynced=serialize(local);localBaseline=lastSynced;lastSuccessAt=Date.now();rememberConfirmedBaseline(local);saveActive();localStatus('Enregistré sur cet appareil');
  if(serialize(snapshot())!==lastSynced){status('Modifications en attente de synchronisation');return;}
@@ -246,6 +260,9 @@ async function upload(local){
 
 function askConflict(remote){$('cloudConflict').hidden=false;const m=mergeWorkspaces(snapshot(),remote);$('cloudMerge').hidden=!m;$('cloudConflict').dataset.payload=JSON.stringify(remote);status('Choix nécessaire : données locales et cloud différentes');feedback('Choisis les données à conserver. Aucune donnée ne sera écrasée sans ton accord.');}
 async function reconcile(){if(!user||busy||!navigator.onLine||!$('cloudConflict').hidden)return false;busy=true;status('Synchronisation en cours…');try{const local=snapshot(),ls=serialize(local),remote=await readRemote();if(!remote){remoteBaseline=null;if(empty(local)){status('Espace vierge · aucune donnée à sauvegarder');lastSynced=ls;return true;}status('Première sauvegarde…');await upload(local);$('cloudConflict').hidden=true;return true;}
+// Si une pesée a été enregistrée pendant la requête réseau, ne jamais
+// restaurer ou remplacer les données sur la base d'un ancien instantané.
+if(serialize(snapshot())!==ls){status('Modifications en attente de synchronisation');return false;}
 const rs=serialize(remote.data);if(remoteBaseline===null||lastSynced===null)remoteBaseline=remote.data;if(ls===rs){lastSynced=rs;localBaseline=ls;remoteBaseline=remote.data;lastSuccessAt=Date.now();rememberConfirmedBaseline(remote.data);status('Synchronisé'+stamp());$('cloudConflict').hidden=true;return true;}
 if(lastSynced===rs){await upload(local);$('cloudConflict').hidden=true;return true;}
 if(lastSynced===ls){remoteBaseline=remote.data;restore(remote.data);return true;}
