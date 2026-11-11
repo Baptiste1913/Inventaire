@@ -1,7 +1,7 @@
 {
-  "version": "34.40",
+  "version": "34.41",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mode Concentration : positionnement de la pesée adapté au clavier iPhone, sans défilement à chaque frappe ; davantage de marge, touche Terminé, saisie et enregistrements préservés."
+  "notes": "Mode Concentration : suppression des défilements automatiques déclenchés par le clavier, retour au défilement iOS naturel et à une vue stable de la pesée."
 }
