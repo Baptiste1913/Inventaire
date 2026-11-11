@@ -3,5 +3,5 @@
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Audit visuel : sous-tiroirs de récupération, export et aide d'import animés ; bordures, styles, boutons, pastilles, dialogues et affichage mobile harmonisés, sans modifier la pesée ni le défilement Concentration V34.41."
+  "notes": "Harmonisation visuelle générale : tiroirs Récupération, Export et Aide d'import animés, listes Historique et Inventaires dépliées en douceur, boutons, cartes, pastilles, dialogues et affichage mobile unifiés. Pesée, stockage et défilement Concentration inchangés."
 }
