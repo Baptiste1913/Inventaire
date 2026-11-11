@@ -29,15 +29,15 @@
  const progress=$('iuUpdateProgress');
  const progressStep=$('iuUpdateStep');
  const progressCount=$('iuUpdateStepCount');
- const steps=['Activation de la mise à jour','Chargement de l’application','Préparation des services','Installation terminée'];
+ const steps=['Activation de la mise à jour','Chargement de l’application','Préparation des services','Finalisation de l’installation'];
  const updateProgress=(step)=>{
    const n=Math.max(0,Math.min(4,Number(step)||0));
    if(progress){
      progress.style.setProperty('--iu-update-complete',(n*25)+'%');
      progress.setAttribute('aria-valuenow',String(n));
-     progress.setAttribute('aria-valuetext',n===4?'Installation terminée':steps[Math.min(n,2)]);
+     progress.setAttribute('aria-valuetext',n===4?'Installation terminée':steps[Math.min(n,3)]);
    }
-   if(progressStep)progressStep.textContent=n===4?steps[3]:steps[Math.min(n,2)];
+   if(progressStep)progressStep.textContent=n===4?'Installation terminée':steps[Math.min(n,3)];
    if(progressCount)progressCount.textContent=n===4?'Terminé':'Étape '+Math.min(n+1,4)+' sur 4';
  };
 
