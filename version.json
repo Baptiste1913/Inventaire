@@ -1,7 +1,7 @@
 {
-  "version": "34.14",
+  "version": "34.15",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Historique : accès direct aux pesées sans texte d'introduction et compteur harmonisé avec les pastilles de statut."
+  "notes": "Mes inventaires harmonisé avec l'historique : liste unique avec séparateurs, compteur animé, mêmes proportions que Nouvelle pesée et bilans conservés."
 }
