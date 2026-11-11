@@ -1,7 +1,7 @@
 {
-  "version": "34.27",
+  "version": "34.28",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Correction des doubles marges internes dans les cartes repliables ; titres et surtitres réellement alignés sur Ma session et Événements."
+  "notes": "Titre Nouvelle pesée uniformisé avec Ma session et Événements ; quatre volets sous Calcul plus hauts de 10 px, marges et animations conservées."
 }
