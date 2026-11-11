@@ -8600,3 +8600,21 @@ body.is-focus-mode #focusToolbar #focusConfirm button:focus-visible{
  #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
  #iuPwaSplash #iuSplashLoader .iu-splash-loader-cap{transition:none!important;}
 }
+
+
+/* V34.40 — Ergonomie du mode Concentration avec clavier iPhone.
+   Garder une marge de défilement et un champ lisible sans changer
+   les blocs de pesée ni les animations du mode. */
+body.is-focus-mode .app{
+  padding-bottom:max(72px,calc(env(safe-area-inset-bottom) + 44px))!important;
+}
+body.is-focus-mode #grossWeight{
+  font-size:max(20px,1em)!important;
+  scroll-margin-block:90px 135px;
+}
+body.is-focus-mode #basketSelect{
+  scroll-margin-block:90px 115px;
+}
+@media (max-width:380px){
+ body.is-focus-mode .app{padding-bottom:max(56px,calc(env(safe-area-inset-bottom) + 34px))!important;}
+}
