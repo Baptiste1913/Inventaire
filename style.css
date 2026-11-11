@@ -10090,3 +10090,22 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
     bottom:-11px!important;
   }
 }
+
+
+/* V34.56 — Mascotte -25 %, pieds alignés au bord inférieur. */
+.app > .intro > .intro-mascot{
+  width:clamp(139px,18.75vw,191px)!important;
+  bottom:-5px!important;
+}
+@media(max-width:600px){
+  .app > .intro > .intro-mascot{
+    width:151.5px!important;
+    bottom:-5px!important;
+  }
+}
+@media(max-width:380px){
+  .app > .intro > .intro-mascot{
+    width:140.25px!important;
+    bottom:-4px!important;
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "version": "34.55",
+  "version": "34.56",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole raccourcie comme auparavant, boutons et mascotte remontés sans changer leur style."
+  "notes": "Mascotte réduite de 25 % et remontée de quelques pixels pour aligner ses pieds au bas de la banderole."
 }
