@@ -6501,24 +6501,22 @@ body:not(.is-focus-mode) .calc-card .calc-equation strong{color:#35444d!importan
 
 
 /* V34.11 — Historique compact, même langage visuel que le tableau de bord Google. */
-body:not(.is-focus-mode) .history-card {
-  border:1px solid #e0e4e8!important;border-radius:18px!important;
-  background:linear-gradient(155deg,#fff 0%,#fbfcfd 70%,#f5f8fa 100%)!important;
-  box-shadow:0 5px 22px rgba(29,39,48,.045)!important;
+/* V34.12 : en-tête et présentation générale rétablis comme avant V34.11. */
+body:not(.is-focus-mode) .history-card .history-list {
+  display:block!important;gap:0!important;margin-top:13px!important;
+  border:1px solid #e0e5e9!important;border-radius:13px!important;
+  background:linear-gradient(155deg,#fff 0%,#fafbfc 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+  overflow:hidden!important;
 }
-body:not(.is-focus-mode) .history-card>.fold-body {padding-top:0!important;}
-body:not(.is-focus-mode) .history-card .fold-body>.muted {
-  margin:0 0 9px!important;padding:0!important;border:0!important;
-  background:none!important;box-shadow:none!important;
-  color:#7a848b!important;font-size:11.5px!important;line-height:1.45!important;
-}
-body:not(.is-focus-mode) .history-card .history-list {display:grid!important;gap:6px!important;margin-top:8px!important;}
 body:not(.is-focus-mode) .history-card .history-item {
   display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
   align-items:center!important;gap:8px!important;flex-wrap:nowrap!important;
-  padding:10px 11px!important;border:1px solid #e0e5e9!important;
-  border-radius:12px!important;background:linear-gradient(155deg,#fff,#f6f8fa)!important;
-  box-shadow:inset 0 1px 0 #fff!important;min-width:0!important;
+  padding:11px 12px!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;min-width:0!important;
+}
+body:not(.is-focus-mode) .history-card .history-item + .history-item {
+  border-top:1px solid #e4e8ec!important;
 }
 body:not(.is-focus-mode) .history-card .history-item::before {content:none!important;display:none!important;}
 body:not(.is-focus-mode) .history-card .history-info {display:grid!important;gap:4px!important;padding:0!important;min-width:0!important;}
@@ -6573,7 +6571,7 @@ body:not(.is-focus-mode) .history-card .history-empty {
 body:not(.is-focus-mode) .history-card .history-toggle[hidden],
 body:not(.is-focus-mode) .history-card .history-clear[hidden] {display:none!important;}
 @media(max-width:380px){
-  body:not(.is-focus-mode) .history-card .history-item {padding:9px 9px!important;gap:5px!important;}
+  body:not(.is-focus-mode) .history-card .history-item {padding:10px 10px!important;gap:5px!important;}
   body:not(.is-focus-mode) .history-card .history-net{font-size:14px!important;}
   body:not(.is-focus-mode) .history-card .history-name{font-size:12px!important;}
   body:not(.is-focus-mode) .history-card .history-chip{font-size:9.5px!important;}
