@@ -7033,3 +7033,17 @@ html.iu-update-revealing .app > footer {
   html.iu-update-revealing .app > .inventory-calendar,
   html.iu-update-revealing .app > footer {animation:none!important;animation-delay:0ms!important;}
 }
+
+
+/* V34.16 — Finition du panneau central, proche des dialogues Concentration. */
+#iuUpdateOverlay {
+  background:linear-gradient(160deg,#f6f8fa 0%,#edf3f5 100%)!important;
+}
+#iuUpdateOverlay .iu-update-screen {
+  width:min(100%,320px);
+  padding:27px 22px 28px;
+  border:1px solid #dae3e7;
+  border-radius:23px;
+  background:linear-gradient(160deg,#fff 0%,#fbfcfd 70%,#f3f8fa 100%);
+  box-shadow:0 22px 65px rgba(34,60,74,.12),inset 0 1px 0 #fff;
+}
