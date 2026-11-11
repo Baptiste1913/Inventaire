@@ -305,7 +305,7 @@ function renderHeroSummary(){
  // si une session est en pause il propose de la reprendre, jamais d'en créer une deuxième.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
-  heroLabel.textContent=session?.pausedAt?'Reprendre':'Inventaire';
+  heroLabel.textContent=session?.pausedAt?'Reprendre':'Démarrer l’inventaire';
   heroAction.disabled=Boolean(session&&!session.pausedAt);
   heroAction.setAttribute('aria-label',session?.pausedAt?'Reprendre l’inventaire':'Démarrer un inventaire');
  }
