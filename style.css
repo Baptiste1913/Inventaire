@@ -10675,3 +10675,7 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
     font-size:13.5px!important;
   }
 }
+
+/* V34.78 — Texte du bouton DÉMARRER L’INVENTAIRE à 11,5 px. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.5px!important;}
+@media(max-width:600px){.app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.5px!important;}}
