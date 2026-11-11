@@ -1,7 +1,7 @@
 {
-  "version": "34.74",
+  "version": "34.75",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Correctif du cache JavaScript pour afficher Démarrer l’inventaire sur le bouton de la banderole."
+  "notes": "Icône du bouton Démarrer l’inventaire agrandie à 17 px, rapprochée du texte et largeur du bouton réduite."
 }
