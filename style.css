@@ -8136,3 +8136,84 @@ body.is-focus-mode #focusToolbar .focus-confirm{
   stroke-linecap:round!important;
   stroke-linejoin:round!important;
 }
+
+
+/* V34.32 — Confirmation de fin : mêmes finitions compactes que les
+   cartes et commandes du nouveau tableau de bord Concentration. */
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm{
+  box-sizing:border-box!important;
+  margin-top:12px!important;
+  padding:13px!important;
+  border:1px solid #dce4e9!important;
+  border-radius:13px!important;
+  background:linear-gradient(145deg,#fff 0%,#f5f8fa 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm[hidden]{
+  display:none!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm p{
+  margin:0 0 11px!important;
+  color:#27343d!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+  letter-spacing:-.15px!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm > div{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm button{
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:0!important;
+  min-height:45px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+  border-radius:13px!important;
+  border:1px solid #d7e3e8!important;
+  background:linear-gradient(145deg,#fff,#f3f8fa)!important;
+  color:#2c6473!important;
+  font-size:12.5px!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  letter-spacing:0!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+  transition:transform .18s ease,background .18s ease!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm #focusConfirmStop{
+  border-color:#efd4d8!important;
+  color:#a94250!important;
+  background:linear-gradient(145deg,#fffafa,#f9edf0)!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm button:active{
+  transform:scale(.975)!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm button:focus-visible{
+  outline:2px solid #4d9bae!important;
+  outline-offset:2px!important;
+}
+@media(max-width:380px){
+  body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm{
+    padding:11px!important;
+  }
+  body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm p{
+    font-size:13px!important;
+  }
+  body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm > div{
+    gap:8px!important;
+  }
+  body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm button{
+    font-size:12px!important;
+    padding:9px 8px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm button{
+    transition:none!important;
+  }
+}
