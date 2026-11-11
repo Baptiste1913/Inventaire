@@ -8392,3 +8392,61 @@ body.is-focus-mode #focusToolbar #focusConfirm button:focus-visible{
 @media(prefers-reduced-motion:reduce){
  #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
 }
+
+
+/* V34.35 — Emblème d'installation : un seul cercle blanc, sans
+   carré intérieur ni bord de l'image visible. Les couleurs du logo U restent intactes. */
+#iuUpdateOverlay .iu-update-logo{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  isolation:isolate!important;
+  box-sizing:border-box!important;
+  width:86px!important;
+  height:86px!important;
+  margin:0 0 21px!important;
+  padding:0!important;
+  overflow:visible!important;
+  border:1px solid rgba(54,158,153,.52)!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  box-shadow:0 6px 20px rgba(29,106,108,.075),inset 0 1px 0 #fff!important;
+}
+#iuUpdateOverlay .iu-update-logo::before{
+  content:""!important;
+  position:absolute!important;
+  display:block!important;
+  inset:-18px!important;
+  z-index:-1!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(58,166,153,.13) 0%,rgba(58,166,153,.055) 43%,transparent 73%)!important;
+  filter:blur(5px)!important;
+  animation:iu-update-emblem-glow 2.5s ease-in-out infinite!important;
+  pointer-events:none!important;
+}
+#iuUpdateOverlay .iu-update-logo img{
+  display:block!important;
+  width:64px!important;
+  height:64px!important;
+  max-width:none!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+  mix-blend-mode:multiply!important;
+}
+@keyframes iu-update-emblem-glow{
+  0%,100%{opacity:.65;transform:scale(.96);}
+  50%{opacity:1;transform:scale(1.06);}
+}
+@media(prefers-reduced-motion:reduce){
+  #iuUpdateOverlay .iu-update-logo::before{
+    animation:none!important;
+    opacity:.75!important;
+    transform:none!important;
+  }
+}
