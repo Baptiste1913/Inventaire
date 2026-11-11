@@ -1,7 +1,7 @@
 {
-  "version": "34.80",
+  "version": "34.81",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Nouvelle icône Play fournie et hauteur du bouton Démarrer l’inventaire augmentée de 1 px."
+  "notes": "Icône Play du bouton Démarrer l’inventaire réduite de 35 % (20 à 13 px)."
 }
