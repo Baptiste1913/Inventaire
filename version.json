@@ -1,7 +1,7 @@
 {
-  "version": "34.43",
+  "version": "34.44",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Retour au comportement V34.41 pour le mode Concentration : défilement naturel iPhone, sans ajustement automatique lors du focus. Les autres fonctions restent inchangées."
+  "notes": "Audit visuel : sous-tiroirs de récupération, export et aide d'import animés ; bordures, styles, boutons, pastilles, dialogues et affichage mobile harmonisés, sans modifier la pesée ni le défilement Concentration V34.41."
 }
