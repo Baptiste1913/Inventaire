@@ -1,7 +1,7 @@
 {
-  "version": "34.70",
+  "version": "34.71",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton INVENTAIRE plus discret : texte et icône réduits. Prévention du zoom au double-tap sans bloquer le défilement ni le zoom pincé."
+  "notes": "Texte du bouton INVENTAIRE réduit à 12,5 px, icône maintenue à 14 px."
 }
