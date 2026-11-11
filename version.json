@@ -1,7 +1,7 @@
 {
-  "version": "34.85",
+  "version": "34.86",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Contraste du texte du bouton Démarrer l’inventaire très légèrement augmenté, icône inchangée."
+  "notes": "Fiabilisation du téléchargement des mises à jour : les ressources secondaires ne bloquent plus l’installation, vérification du service worker actif."
 }
