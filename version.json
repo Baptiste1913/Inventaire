@@ -1,7 +1,7 @@
 {
-  "version": "34.03",
+  "version": "34.04",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 816052,
-  "notes": "Barre grise du planning supprimée, déconnexion rouge, carte Événements harmonisée au compte monochrome."
+  "notes": "Liste des événements intégrée dans la carte principale et refonte de la carte Démarrer un inventaire."
 }
