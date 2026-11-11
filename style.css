@@ -8602,18 +8602,10 @@ body.is-focus-mode #focusToolbar #focusConfirm button:focus-visible{
 }
 
 
-/* V34.40 — Ergonomie du mode Concentration avec clavier iPhone.
-   Garder une marge de défilement et un champ lisible sans changer
-   les blocs de pesée ni les animations du mode. */
-body.is-focus-mode .app{
-  padding-bottom:max(72px,calc(env(safe-area-inset-bottom) + 44px))!important;
-}
-body.is-focus-mode #grossWeight{
-  scroll-margin-block:90px 135px;
-}
+/* V34.41 — Concentration : retrouver le défilement naturel d'iOS.
+   Aucun espacement artificiel sous la carte de pesée ; les marges
+   de scroll ne doivent plus déplacer la page quand le clavier apparaît. */
+body.is-focus-mode #grossWeight,
 body.is-focus-mode #basketSelect{
-  scroll-margin-block:90px 115px;
-}
-@media (max-width:380px){
- body.is-focus-mode .app{padding-bottom:max(56px,calc(env(safe-area-inset-bottom) + 34px))!important;}
+  scroll-margin:0!important;
 }
