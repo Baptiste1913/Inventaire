@@ -9136,3 +9136,229 @@ body.is-focus-mode #focusToolbar #focusConfirm #focusConfirmStop{
     transition:none!important;
   }
 }
+
+
+/* V34.46 — Mes paniers : tableau aéré, actions discrètes et contenu prioritaire.
+   CSS uniquement : tri tactile, flèches, édition et suppression inchangés. */
+body:not(.is-focus-mode) .basket-card #basketList.basket-list{
+  box-sizing:border-box!important;
+  display:block!important;
+  margin:12px 0 0!important;
+  padding:0!important;
+  border:1px solid #e1e6e9!important;
+  border-radius:17px!important;
+  background:#fbfcfd!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item{
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr) 31px 33px!important;
+  align-items:center!important;
+  column-gap:8px!important;
+  min-height:91px!important;
+  padding:13px 12px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transition:background-color .18s ease,opacity .18s ease!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item + .basket-item{
+  border-top:1px solid #e4e9ed!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item:not(.dragging):not(.drag-over):hover{
+  background:#f6f9fa!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > :is(.drag-handle,.basket-info,.move-actions,.item-actions){
+  grid-column:auto!important;
+  grid-row:auto!important;
+  min-width:0!important;
+  margin:0!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .drag-handle{
+  display:grid!important;
+  place-items:center!important;
+  box-sizing:border-box!important;
+  width:36px!important;
+  min-width:36px!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:0!important;
+  border:1px solid #dde8ec!important;
+  border-radius:11px!important;
+  background:#eef5f7!important;
+  color:#688b95!important;
+  box-shadow:none!important;
+  touch-action:pan-y;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .drag-handle svg{
+  width:18px!important;
+  height:18px!important;
+  opacity:.85!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .basket-info{
+  display:grid!important;
+  align-content:center!important;
+  gap:5px!important;
+  padding:0 0 0 2px!important;
+  min-width:0!important;
+  flex:1 1 auto!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList .basket-info strong{
+  font-size:clamp(15px,4vw,17px)!important;
+  line-height:1.27!important;
+  letter-spacing:-.25px!important;
+  font-weight:850!important;
+  color:#28343d!important;
+  overflow-wrap:anywhere!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList .basket-info span{
+  margin:0!important;
+  font-size:11.5px!important;
+  line-height:1.4!important;
+  font-weight:600!important;
+  color:#83909a!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .move-actions,
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions{
+  display:flex!important;
+  flex-direction:column!important;
+  flex-wrap:nowrap!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:0!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .move-actions{
+  width:31px!important;
+  min-width:31px!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions{
+  width:33px!important;
+  min-width:33px!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .move-actions > button,
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions > .small-action{
+  box-sizing:border-box!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 31px!important;
+  width:31px!important;
+  min-width:31px!important;
+  max-width:31px!important;
+  height:31px!important;
+  min-height:31px!important;
+  max-height:31px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #dfe7eb!important;
+  border-radius:10px!important;
+  background:#f2f6f8!important;
+  color:#537683!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+  line-height:1!important;
+  font-weight:800!important;
+  touch-action:manipulation;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions > .small-action{
+  width:33px!important;
+  min-width:33px!important;
+  max-width:33px!important;
+  height:33px!important;
+  min-height:33px!important;
+  max-height:33px!important;
+  flex-basis:33px!important;
+  background:#ecf5f6!important;
+  border-color:#d9e7e9!important;
+  color:#397a83!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions > .small-action svg{
+  width:17px!important;
+  height:17px!important;
+  stroke-width:1.85!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions > .small-action.delete{
+  background:#fcf2f3!important;
+  border-color:#f3dfe2!important;
+  color:#b94b5a!important;
+  box-shadow:none!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .move-actions > button:disabled{
+  opacity:.33!important;
+  cursor:default!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item :is(.drag-handle,.move-actions button,.small-action):active:not(:disabled){
+  transform:scale(.96)!important;
+}
+body:not(.is-focus-mode) .basket-card .basket-order-hint{
+  margin:13px 2px 19px!important;
+  padding:0 2px!important;
+  font-size:11px!important;
+  line-height:1.55!important;
+  font-weight:550!important;
+  color:#83909a!important;
+}
+body:not(.is-focus-mode) .basket-card #basketForm{
+  border-top-color:#e4e9ed!important;
+  padding-top:20px!important;
+}
+@media(max-width:380px){
+  body:not(.is-focus-mode) .basket-card #basketList > .basket-item{
+    grid-template-columns:32px minmax(0,1fr) 29px 31px!important;
+    column-gap:6px!important;
+    padding:12px 9px!important;
+    min-height:87px!important;
+  }
+  body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .drag-handle{
+    width:32px!important;min-width:32px!important;height:40px!important;min-height:40px!important;
+  }
+  body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .move-actions{
+    width:29px!important;min-width:29px!important;
+  }
+  body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions{
+    width:31px!important;min-width:31px!important;
+  }
+  body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .move-actions > button{
+    width:29px!important;min-width:29px!important;max-width:29px!important;
+    height:29px!important;min-height:29px!important;max-height:29px!important;flex-basis:29px!important;
+  }
+  body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions > .small-action{
+    width:31px!important;min-width:31px!important;max-width:31px!important;
+    height:31px!important;min-height:31px!important;max-height:31px!important;flex-basis:31px!important;
+  }
+  body:not(.is-focus-mode) .basket-card #basketList .basket-info strong{font-size:15px!important;}
+  body:not(.is-focus-mode) .basket-card #basketList .basket-info span{font-size:10.5px!important;}
+}
+/* Bandeau : retour à un arrondi discret. Réduction de moitié du halo
+   effectivement affiché sous le bouton (#heroStartSession::after). */
+.app > .intro{
+  border-radius:0 0 6px 6px!important;
+}
+.app > .intro #heroStartSession::after{
+  left:50%!important;
+  right:auto!important;
+  width:76%!important;
+  height:21px!important;
+  bottom:-11px!important;
+  transform:translateX(-50%)!important;
+  background:radial-gradient(ellipse at 50% 35%,rgba(238,255,240,.98) 0%,rgba(198,250,220,.67) 43%,rgba(198,250,220,0) 85%)!important;
+  filter:blur(12px)!important;
+  opacity:.25!important;
+  pointer-events:none!important;
+}
+.app > .intro #heroStartSession{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),
+             0 4px 9px -5px rgba(17,50,46,.065)!important;
+}
+.app > .intro #heroStartSession:hover:not(:disabled){
+  box-shadow:inset 0 1px 0 #fff,
+             0 5px 11px -6px rgba(17,50,46,.075)!important;
+}
+@media(prefers-reduced-motion:reduce){
+  body:not(.is-focus-mode) .basket-card #basketList > .basket-item,
+  body:not(.is-focus-mode) .basket-card #basketList button{transition:none!important;}
+}
