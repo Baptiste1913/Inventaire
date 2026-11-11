@@ -1,7 +1,7 @@
 {
-  "version": "34.26",
+  "version": "34.27",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "En-têtes des blocs repliables uniformisés avec Ma session et Événements : typographie, surtitres, marges et espacements, sans changer les fonctionnalités."
+  "notes": "Correction des doubles marges internes dans les cartes repliables ; titres et surtitres réellement alignés sur Ma session et Événements."
 }
