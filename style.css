@@ -10109,3 +10109,11 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
     bottom:-4px!important;
   }
 }
+
+
+/* V34.57 — Pastille « Aucune session » : blanc plus discret. */
+.app > .intro .intro-bottom > .intro-session-state{
+  background:rgba(255,255,255,.075)!important;
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 4px 13px rgba(16,69,64,.08)!important;
+}
