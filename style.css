@@ -6565,3 +6565,10 @@ body:not(.is-focus-mode) .history-card .history-empty{
   body:not(.is-focus-mode) .history-card .history-item{grid-template-columns:1fr!important}
   body:not(.is-focus-mode) .history-card .history-result{justify-items:start!important;min-width:0!important;width:100%!important}
 }
+
+
+/* Respecter l'état masqué des commandes lorsque l'historique est vide ou court. */
+body:not(.is-focus-mode) .history-card .history-toggle[hidden],
+body:not(.is-focus-mode) .history-card .history-clear[hidden]{
+  display:none!important;
+}
