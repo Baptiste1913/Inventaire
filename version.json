@@ -1,7 +1,7 @@
 {
-  "version": "34.20",
+  "version": "34.21",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Synchronisation cloud fiabilisée : référence confirmée conservée entre ouvertures, faux conflits évités, pesées protégées pendant les échanges réseau."
+  "notes": "Bloc Événements raccourci : prochaine date d'inventaire prioritaire et événements du mois accessibles par un volet repliable."
 }
