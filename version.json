@@ -1,7 +1,7 @@
 {
-  "version": "34.67",
+  "version": "34.68",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton Inventaire harmonisé avec la pastille de Ma session, bordures Liquid Glass affinées et mascotte redescendue de 2 px."
+  "notes": "Bouton Inventaire plus compact avec texte agrandi et icône noire. Démarrer un inventaire reprend le dégradé vert du résultat de pesée."
 }
