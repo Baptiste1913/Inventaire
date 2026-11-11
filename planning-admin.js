@@ -1,4 +1,4 @@
-/* Inventaires U V33.35 — administration sécurisée du planning.
+/* Inventaires U V34.19 — administration sécurisée, chargement réactif.
    L'interface est réservée aux comptes autorisés PAR LES POLITIQUES RLS SUPABASE.
    La visibilité du panneau n'est pas une mesure de sécurité. */
 (()=>{'use strict';
@@ -279,30 +279,76 @@ $('planningTemplate').addEventListener('click',()=>{
  const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
  const a=document.createElement('a');a.href=url;a.download='modele-planning-inventaires-u.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
 });
-async function checkAdmin(u){
- const generation=++authGeneration;authorized=false;card.hidden=true;
- if(!u||!client)return;
- try{
-  const {data,error}=await client.from('inventory_planning_admins').select('user_id').eq('user_id',u.id).maybeSingle();
-  if(error)throw error;
-  if(generation!==authGeneration||!data)return;
-  authorized=true;card.hidden=false;await loadRows();
-  status('Planning connecté à Supabase. Tes modifications sont partagées avec tous les utilisateurs.');
- }catch(e){if(generation===authGeneration){card.hidden=true;console.info('Gestion du planning indisponible',e?.message||e);}}
+/* V34.19 — Chargement immédiat de l'en-tête pour un compte connecté.
+   Aucune donnée ni commande d'administration n'est affichée avant la réponse RLS. */
+let authorizedUserId=null,checkingUserId=null,pendingCheck=null;
+const protectedBody=$('iuAdminProtectedBody');
+function setPending(pending){
+ card.dataset.adminLoading=pending?'true':'false';
+ if(protectedBody)protectedBody.inert=pending;
+ if(pending)card.open=false;
+}
+async function checkAdmin(u,force=false){
+ const uid=u?.id||null;
+ if(!uid||!client){
+  ++authGeneration;authorized=false;authorizedUserId=null;
+  checkingUserId=null;pendingCheck=null;
+  card.hidden=true;setPending(false);
+  return;
+ }
+ if(!force&&authorized&&authorizedUserId===uid)return;
+ if(!force&&checkingUserId===uid&&pendingCheck)return pendingCheck;
+ const generation=++authGeneration;
+ const wasAuthorized=authorized&&authorizedUserId===uid;
+ authorized=wasAuthorized;
+ // Le panneau est visible tout de suite, mais ses fonctions restent masquées.
+ card.hidden=false;
+ setPending(true);
+ checkingUserId=uid;
+ const work=(async()=>{
+  try{
+   const {data,error}=await client.from('inventory_planning_admins').select('user_id').eq('user_id',uid).maybeSingle();
+   if(error)throw error;
+   if(generation!==authGeneration)return;
+   if(!data){
+    authorized=false;authorizedUserId=null;card.hidden=true;
+    return;
+   }
+   authorized=true;authorizedUserId=uid;
+   if(!wasAuthorized||!rows.length)await loadRows();
+   if(generation!==authGeneration)return;
+   status('Planning connecté à Supabase. Tes modifications sont partagées avec tous les utilisateurs.');
+  }catch(e){
+   if(generation!==authGeneration)return;
+   authorized=false;authorizedUserId=null;card.hidden=true;
+   console.info('Gestion du planning indisponible',e?.message||e);
+  }finally{
+   if(generation===authGeneration){
+    checkingUserId=null;pendingCheck=null;setPending(false);
+    window.dispatchEvent(new Event('iu-admin-check-finished'));
+   }
+  }
+ })();
+ pendingCheck=work;
+ return work;
 }
 async function init(){
  try{
   if(!window.InventairesAuth?.getClient)return;
   client=await window.InventairesAuth.getClient();
-  const {data}=await client.auth.getUser();await checkAdmin(data?.user||null);
-  client.auth.onAuthStateChange((_event,session)=>{
+  // getSession lit d'abord l'état de connexion local, sans appel réseau
+  // supplémentaire à chaque retour depuis l'écran d'accueil iPhone.
+  const {data}=await client.auth.getSession();
+  await checkAdmin(data?.session?.user||null);
+  client.auth.onAuthStateChange((event,session)=>{
+   if(event==='TOKEN_REFRESHED'&&authorized&&authorizedUserId===session?.user?.id)return;
    queueMicrotask(()=>{checkAdmin(session?.user||null);});
   });
-  window.addEventListener('online',()=>{if(authorized)loadRows().catch(e=>status(e.message,true));});
+  window.addEventListener('online',()=>{
+   if(authorized)loadRows().catch(e=>status(e.message,true));
+  });
  }catch(e){console.info('Administration du planning non disponible',e?.message||e);}
  finally{
-  // V34.18 : l'écran de mise à jour attend la première résolution des droits
-  // et du tableau administrateur (y compris en mode hors ligne/non autorisé).
   window.IUAdminInitialReady=true;
   window.dispatchEvent(new Event('iu-admin-initial-ready'));
  }
