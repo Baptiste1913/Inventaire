@@ -1,7 +1,7 @@
 {
-  "version": "34.13",
+  "version": "34.14",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Historique des pesées plus aéré, lignes réunies dans un tableau et harmonie graphique avec Nouvelle pesée."
+  "notes": "Historique : accès direct aux pesées sans texte d'introduction et compteur harmonisé avec les pastilles de statut."
 }
