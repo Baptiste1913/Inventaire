@@ -1,7 +1,7 @@
 {
-  "version": "34.71",
+  "version": "34.72",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Texte du bouton INVENTAIRE réduit à 12,5 px, icône maintenue à 14 px."
+  "notes": "Texte du bouton INVENTAIRE réduit à 11,5 px sans modifier l’icône."
 }
