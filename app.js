@@ -305,7 +305,7 @@ function renderHeroSummary(){
  // si une session est en pause il propose de la reprendre, jamais d'en créer une deuxième.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
-  heroLabel.textContent=session?.pausedAt?'Reprendre':'Démarrer l’inventaire';
+  heroLabel.textContent=session?.pausedAt?'Reprendre':'Démarrer\nL’inventaire';
   heroAction.disabled=Boolean(session&&!session.pausedAt);
   heroAction.setAttribute('aria-label',session?.pausedAt?'Reprendre l’inventaire':'Démarrer un inventaire');
  }
@@ -1282,3 +1282,33 @@ window.addEventListener('storage',event=>{
  showActionToast('Données modifiées dans un autre onglet. Actualise cette page avant de continuer.',{reload:true,persistent:true});
 });
 function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet détecté');localStorage.setItem(key,value);}
+
+
+/* V34.76 — Safari iOS/PWA : neutraliser le zoom au double-tap sans gêner
+   le scroll, les champs éditables ni les gestes multi-doigts. */
+(function preventDoubleTapZoom(){
+  let lastTapTime=0,lastX=0,lastY=0,tracking=null;
+  const editable=el=>Boolean(el&&el.closest&&el.closest('input,textarea,select,[contenteditable="true"]'));
+  document.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1){tracking=null;lastTapTime=0;return;}
+    const t=e.touches[0];
+    tracking={x:t.clientX,y:t.clientY,moved:false};
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!tracking||e.touches.length!==1)return;
+    const t=e.touches[0];
+    if(Math.hypot(t.clientX-tracking.x,t.clientY-tracking.y)>12)tracking.moved=true;
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(!tracking||tracking.moved||e.changedTouches.length!==1||e.touches.length){tracking=null;lastTapTime=0;return;}
+    const t=e.changedTouches[0],now=Date.now();
+    if(!editable(e.target)&&now-lastTapTime<340&&Math.hypot(t.clientX-lastX,t.clientY-lastY)<32){
+      if(e.cancelable)e.preventDefault();
+      lastTapTime=0;
+    }else{
+      lastTapTime=now;lastX=t.clientX;lastY=t.clientY;
+    }
+    tracking=null;
+  },{passive:false});
+  document.addEventListener('touchcancel',()=>{tracking=null;lastTapTime=0;},{passive:true});
+})();
