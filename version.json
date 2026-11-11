@@ -1,7 +1,7 @@
 {
-  "version": "34.11",
+  "version": "34.12",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Historique des pesées plus compact et harmonisé avec le tableau de bord Google, sans modifier les données ni les interactions."
+  "notes": "Historique des pesées : en-tête classique restauré, pesées compactes réunies dans un cadre unique avec séparateurs gris."
 }
