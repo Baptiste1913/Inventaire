@@ -1,7 +1,7 @@
 {
-  "version": "34.59",
+  "version": "34.60",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Pastille de session placée en haut à droite de la banderole, alignée sur le titre, hauteur 32 px comme la pastille Connecté du compte Google."
+  "notes": "Correction effective de la position de la pastille session : déplacée dans le HTML pour s'ancrer en haut à droite de la banderole et non au bloc des boutons."
 }

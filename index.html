@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="34.59"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=34.59" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="34.60"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-32.png?v=13" rel="icon" sizes="32x32" type="image/png"/><link href="favicon-16.png?v=13" rel="icon" sizes="16x16" type="image/png"/><link href="favicon.ico?v=13" rel="shortcut icon"/><link href="style.css?v=34.60" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
 html.iu-pwa-starting body{overflow:hidden!important}
 html.iu-pwa-starting #iuPwaSplash{display:flex!important}
 #iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#f7f9fa;align-items:center;justify-content:center;opacity:1;transition:opacity .32s ease;pointer-events:all;padding:24px;box-sizing:border-box}
@@ -50,11 +50,12 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
 </div>
 <section class="intro" aria-labelledby="intro-title">
   <h2 id="intro-title">FRUITS ET LÉGUMES</h2>
+  <span class="intro-session-state" id="heroStatus"><span aria-hidden="true" class="intro-session-dot"></span><span id="heroStatusText">Aucune session</span></span>
   <p>Sélectionnez votre panier et obtenez instantanément le poids net de votre pesée.</p>
   <img class="intro-mascot" src="mascotte-pasteque.png" alt="" aria-hidden="true" width="230" height="205" decoding="async"/>
   <div class="intro-bottom">
 <button type="button" class="intro-jump" id="heroStartSession" aria-label="Démarrer un inventaire" aria-controls="startSession"><svg aria-hidden="true" height="18" viewBox="0 0 24 24" width="18" fill="none"><path d="m8 5 11 7-11 7V5Z" fill="currentColor"/></svg><span id="heroActionLabel">Inventaire</span></button>
-<span class="intro-session-state" id="heroStatus"><span aria-hidden="true" class="intro-session-dot"></span><span id="heroStatusText">Aucune session</span></span>
+
 </div>
 </section>
 <details id="planningAdminCard" class="card fold-card planning-admin-card" aria-labelledby="planningAdminTitle" hidden>
