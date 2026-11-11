@@ -7448,3 +7448,52 @@ body:not(.is-focus-mode) .backup-card .backup-advanced-body {
 @media(prefers-reduced-motion:reduce) {
  #inventoryCalendar .events-disclosure-chevron {transition:none!important;}
 }
+
+
+/* V34.22 — Pastille du compte Google : mêmes dimensions, couleurs et finition
+   que la pastille Notifications, en gris local / vert connecté. */
+body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status,
+body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status:not(.is-connected) {
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:32px!important;
+  max-height:none!important;
+  padding:9px 11px!important;
+  gap:7px!important;
+  border-radius:100px!important;
+  border:1px solid #d9e1e5!important;
+  background:#edf0f1!important;
+  color:#5e6370!important;
+  font-size:10.5px!important;
+  font-weight:850!important;
+  line-height:1.25!important;
+  letter-spacing:normal!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  opacity:1!important;
+  white-space:nowrap!important;
+}
+body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status.is-connected {
+  background:#dff5e8!important;
+  color:#0b6b4f!important;
+  border-color:#c8e8d6!important;
+}
+body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus::before,
+body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus::after {
+  content:none!important;
+  display:none!important;
+  animation:none!important;
+}
+@media(max-width:380px) {
+  body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status {
+    font-size:10px!important;
+    padding:9px 11px!important;
+  }
+}
