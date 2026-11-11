@@ -10742,3 +10742,8 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
   opacity:.72!important;
 }
+
+/* V34.83 — Texte légèrement renforcé pour s'accorder avec l'icône Play. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#515a60!important;
+}
