@@ -10571,3 +10571,25 @@ body:not(.is-focus-mode) .app > .session-card .session-actions #startSession:act
     color:#273039!important;
   }
 }
+
+
+/* V34.70 — Bouton plus discret et prévention du zoom au double-tap Safari. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  font-size:13.5px!important;
+  letter-spacing:.035em!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump svg{
+  width:14px!important;
+  height:14px!important;
+}
+@media(max-width:600px){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    font-size:13.5px!important;
+  }
+}
+/* manipulation conserve le défilement et le pinch-to-zoom d'accessibilité,
+   mais supprime le double-tap-to-zoom sur les navigateurs compatibles. */
+html,body{touch-action:manipulation;}
+button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession{
+  touch-action:manipulation!important;
+}
