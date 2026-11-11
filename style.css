@@ -10733,3 +10733,12 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   height:13px!important;
   flex:0 0 13px!important;
 }
+
+
+/* V34.82 — Contraste légèrement adouci du texte et de l’icône Play. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#626b70!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  opacity:.72!important;
+}
