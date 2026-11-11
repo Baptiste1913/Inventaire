@@ -951,7 +951,7 @@ $('startSession').addEventListener('click',()=>animateFocusEntry(startSession));
 $('pauseSession').addEventListener('click',pauseSession);
 $('resumeSession').addEventListener('click',()=>animateFocusEntry(resumeSession));
 $('finishSession').addEventListener('click',finishSession);
-$('sessionsToggle').addEventListener('click',()=>{sessionsExpanded=!sessionsExpanded;renderSessionsHistory();});
+$('sessionsToggle').addEventListener('click',()=>animateExpandedList('sessionsHistoryList',()=>{sessionsExpanded=!sessionsExpanded;renderSessionsHistory();}));
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
@@ -988,7 +988,34 @@ function saveBeforeSuspend(){if(autoSaveTimer!==null)saveCurrentWeigh();}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)saveBeforeSuspend();else renderLiveSessionStats();});
 window.addEventListener('pagehide',saveBeforeSuspend);
 $('resetBtn').addEventListener('click',newWeigh);
-$('historyToggleTop').addEventListener('click',()=>{historyExpanded=!historyExpanded;renderHistory();});
+
+// V34.44 — ouverture de « Voir les pesées » / « Voir les sessions ».
+// Animer la hauteur d'une seule liste, uniquement au clic : ne jamais
+// animer les re-rendus automatiques lors des enregistrements de pesées.
+const iuListMotion=new WeakMap();
+function animateExpandedList(id,renderChange){
+ const list=$(id),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ if(!list){renderChange();return;}
+ const previous=iuListMotion.get(list);
+ if(previous){previous.cancel();iuListMotion.delete(list);}
+ const from=list.getBoundingClientRect().height;
+ renderChange();
+ if(reduced||typeof list.animate!=='function')return;
+ const to=list.scrollHeight;
+ if(Math.abs(to-from)<3)return;
+ const motion=list.animate([{height:from+'px',overflow:'hidden'},{height:to+'px',overflow:'hidden'}],{
+  duration:420,easing:'cubic-bezier(.22,.75,.24,1)',fill:'both'
+ });
+ iuListMotion.set(list,motion);
+ const finish=()=>{
+  if(iuListMotion.get(list)!==motion)return;
+  iuListMotion.delete(list);
+  motion.cancel();
+ };
+ motion.onfinish=finish;
+}
+
+$('historyToggleTop').addEventListener('click',()=>animateExpandedList('historyList',()=>{historyExpanded=!historyExpanded;renderHistory();}));
 $('clearHistoryBtn').addEventListener('click',()=>{
  if(!history.length)return;
  const previous=history.map(e=>({...e})),previousExpanded=historyExpanded;
