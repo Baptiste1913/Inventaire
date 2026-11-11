@@ -1,7 +1,7 @@
 {
-  "version": "34.75",
+  "version": "34.76",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Icône du bouton Démarrer l’inventaire agrandie à 17 px, rapprochée du texte et largeur du bouton réduite."
+  "notes": "Bouton Démarrer / L’inventaire sur deux lignes et correctif JavaScript du zoom au double-tap sur iPhone."
 }
