@@ -8877,3 +8877,262 @@ body:not(.is-focus-mode) :is(
   animation:none!important;
  }
 }
+
+
+/* ====================================================================
+   V34.45 — CONTEXTES MONOCHROMES ET BANDEAU
+   Le mode Concentration, le calcul, le SW et les animations ne changent pas.
+   ==================================================================== */
+
+/* Les trois compteurs sont des nombres, pas des états : sans point/pulse. */
+body:not(.is-focus-mode) .app > details.card.fold-card .fold-trailing :is(#historyCount,#sessionsCount,#basketCount).count.session-pill {
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:32px!important;
+  padding:8px 12px!important;
+  border:1px solid #d9e1e5!important;
+  border-radius:999px!important;
+  background:#edf0f1!important;
+  color:#5e6370!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+  white-space:nowrap!important;
+}
+body:not(.is-focus-mode) .app > details.card.fold-card .fold-trailing :is(#historyCount,#sessionsCount,#basketCount).count.session-pill::before,
+body:not(.is-focus-mode) .app > details.card.fold-card .fold-trailing :is(#historyCount,#sessionsCount,#basketCount).count.session-pill::after {
+  content:none!important;
+  display:none!important;
+  animation:none!important;
+}
+
+/* Banderole : un soupçon plus haute, coins bas moins carrés.
+   Raccourcir l'ombre sous le bouton sans changer la taille de ce bouton. */
+.app > .intro {
+  border-radius:0 0 11px 11px!important;
+  padding-top:39px!important;
+  padding-bottom:31px!important;
+  box-shadow:0 13px 22px -10px rgba(48,88,82,.12),
+             0 24px 39px -17px rgba(49,87,83,.09)!important;
+}
+.app > .intro .intro-jump {
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),
+             0 5px 11px -6px rgba(17,50,46,.13)!important;
+}
+.app > .intro .intro-jump:hover:not(:disabled){
+  box-shadow:inset 0 1px 0 #fff,
+             0 6px 13px -7px rgba(17,50,46,.15)!important;
+}
+.app > .intro .intro-jump:disabled{
+  opacity:.66!important;
+  cursor:default!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+@media(max-width:600px){
+  .app > .intro{padding-top:35px!important;padding-bottom:29px!important;}
+}
+@media(max-width:380px){
+  .app > .intro{padding-top:34px!important;padding-bottom:28px!important;}
+}
+
+/* Sauvegarde : finition gris/blanc anthracite identique au registre Admin. */
+body:not(.is-focus-mode) .app > #backupCard.backup-card {
+  border-color:#dce1e5!important;
+  background:linear-gradient(155deg,#fff 0%,#fafbfc 60%,#f4f5f7 100%)!important;
+}
+body:not(.is-focus-mode) #backupCard .backup-panel,
+body:not(.is-focus-mode) #backupCard .backup-summary,
+body:not(.is-focus-mode) #backupCard .backup-advanced {
+  border-color:#dce1e5!important;
+  background:linear-gradient(155deg,#fff 0%,#f7f8f9 100%)!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+body:not(.is-focus-mode) #backupCard .backup-panel-heading{
+  border-bottom-color:#e1e5e8!important;
+}
+body:not(.is-focus-mode) #backupCard .backup-panel-icon{
+  border:1px solid #dce1e5!important;
+  color:#56616b!important;
+  background:linear-gradient(145deg,#fff,#eef0f2)!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+body:not(.is-focus-mode) #backupCard :is(.backup-panel-heading strong,.backup-advanced > summary){
+  color:#2b333a!important;
+}
+body:not(.is-focus-mode) #backupCard :is(.backup-panel-heading span,.backup-summary,.backup-last,.backup-guidance,.backup-advanced-body > p,.backup-status){
+  color:#707a83!important;
+}
+body:not(.is-focus-mode) #backupCard .backup-main-btn{
+  border:1px solid #343b43!important;
+  background:linear-gradient(155deg,#424a52,#2d343b)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 10px rgba(26,36,44,.09)!important;
+}
+body:not(.is-focus-mode) #backupCard .backup-main-btn:hover:not(:disabled){
+  background:linear-gradient(155deg,#495159,#343b43)!important;
+}
+body:not(.is-focus-mode) #backupCard :is(.backup-restore-btn,.backup-advanced-body > button,.backup-advanced-body > label.outline-btn){
+  border:1px solid #d5dbe0!important;
+  background:linear-gradient(155deg,#fff,#eff1f3)!important;
+  color:#39434c!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+body:not(.is-focus-mode) #backupCard :is(.backup-restore-btn,.backup-advanced-body > button,.backup-advanced-body > label.outline-btn):hover{
+  background:linear-gradient(155deg,#fff,#e9ecef)!important;
+}
+body:not(.is-focus-mode) #backupCard .backup-advanced-body{
+  border-top-color:#e0e4e8!important;
+}
+
+/* Pop-ups et notifications : fonds blanc/gris, relief discret, symboles
+   anthracite. Les textes et actions conservent leur signification. */
+.toast-stack > .undo-toast,
+.toast-stack > .offline-indicator,
+.undo-toast,
+.offline-indicator {
+  border:1px solid #dce2e6!important;
+  border-radius:18px!important;
+  background:linear-gradient(155deg,#fff 0%,#f4f6f8 100%)!important;
+  color:#29343c!important;
+  box-shadow:0 13px 32px rgba(38,50,61,.13),inset 0 1px 0 #fff!important;
+  text-shadow:none!important;
+}
+.toast-stack > .undo-toast.toast-warning,
+.undo-toast.toast-warning{
+  border-color:#cfd6dc!important;
+  background:linear-gradient(155deg,#fff,#f3f5f6)!important;
+}
+.toast-stack > .undo-toast .undo-toast-symbol,
+.toast-stack > .offline-indicator .offline-symbol,
+.undo-toast .undo-toast-symbol,
+.offline-indicator .offline-symbol{
+  border:1px solid #d4dce1!important;
+  background:#eceff1!important;
+  color:#46525b!important;
+  box-shadow:none!important;
+}
+.offline-indicator .offline-symbol img{
+  filter:grayscale(1)!important;
+  opacity:.8!important;
+}
+.toast-stack :is(.undo-toast-message,.offline-copy strong),
+.undo-toast .undo-toast-message,
+.offline-indicator .offline-copy strong{
+  color:#29343c!important;
+  text-shadow:none!important;
+}
+.toast-stack .offline-copy > span,
+.offline-indicator .offline-copy > span{
+  color:#737e87!important;
+  text-shadow:none!important;
+}
+.toast-stack .undo-toast-button,
+.undo-toast .undo-toast-button{
+  border:1px solid #cbd3d9!important;
+  background:linear-gradient(155deg,#f7f8f9,#e9edf0)!important;
+  color:#343f48!important;
+  box-shadow:none!important;
+}
+.toast-stack .toast-close,
+.toast-stack .offline-dismiss,
+.undo-toast .toast-close,
+.offline-indicator .offline-dismiss{
+  color:#616d76!important;
+  border-color:transparent!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.toast-stack :is(.toast-close,.offline-dismiss):hover,
+.toast-stack .undo-toast-button:hover:not(:disabled){
+  background:#edf0f2!important;
+}
+.undo-toast.undo-ticking::before,
+.undo-toast.undo-ticking::after{
+  background:#7f8b95!important;
+}
+
+/* Dialogue de fin et d'annulation de planning / restauration / tutoriel. */
+#importChoiceDialog,
+#otherTabDialog,
+#planningConfirmDialog,
+#eventsInstallDialog,
+.account-modal .account-dialog {
+  border:1px solid #dce2e6!important;
+  background:linear-gradient(155deg,#fff,#f6f7f8)!important;
+  color:#29343c!important;
+  box-shadow:0 20px 55px rgba(32,43,52,.17)!important;
+}
+:is(#importChoiceDialog,#otherTabDialog,#planningConfirmDialog,#eventsInstallDialog) :is(h2,h3,p,li,strong){
+  color:#303a43!important;
+}
+#planningConfirmDialog .planning-confirm-symbol,
+#eventsInstallDialog .events-install-dialog-symbol{
+  border:1px solid #dce2e6!important;
+  background:#eceff1!important;
+  color:#505b65!important;
+}
+#planningConfirmDialog :is(.planning-primary,.planning-secondary),
+:is(#importChoiceDialog,#otherTabDialog) :is(.primary-btn,.outline-btn,.ghost-btn,button){
+  border:1px solid #cfd6dc!important;
+  background:linear-gradient(155deg,#fff,#e9edf0)!important;
+  color:#35414b!important;
+  box-shadow:none!important;
+}
+#planningConfirmDialog .planning-primary,
+:is(#importChoiceDialog,#otherTabDialog) .primary-btn{
+  border-color:#3d464d!important;
+  background:linear-gradient(155deg,#484f57,#30363c)!important;
+  color:#fff!important;
+}
+#eventsInstallDialog .events-install-success{
+  border-top-color:#dce2e6!important;
+  color:#49555d!important;
+  background:transparent!important;
+}
+#eventsInstallDialog .events-inline-icon:not(img){
+  background-color:transparent!important;
+  border-color:transparent!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm{
+  background:linear-gradient(155deg,#fff,#f3f5f6)!important;
+  border-color:#dce2e6!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm :is(#focusConfirmStop,#focusCancelStop){
+  border:1px solid #d6dce1!important;
+  background:linear-gradient(155deg,#fff,#edeff1)!important;
+  color:#3e4750!important;
+}
+body.is-focus-mode #focusToolbar #focusConfirm #focusConfirmStop{
+  border-color:#3c444c!important;
+  background:linear-gradient(155deg,#494f57,#333a41)!important;
+  color:#fff!important;
+}
+
+/* Fenêtre d'installation : cadre et barre monochromes, logo U inchangé. */
+#iuUpdateOverlay .iu-update-screen{
+  border-color:#dce2e6!important;
+  background:#fff!important;
+  box-shadow:0 20px 55px rgba(32,43,52,.14)!important;
+}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress{
+  border-color:#dce2e6!important;
+  background:#eceff1!important;
+}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{
+  background:linear-gradient(90deg,#747e87,#404951)!important;
+  box-shadow:none!important;
+}
+#iuUpdateOverlay :is(#iuUpdateStep,#iuUpdateStepCount){
+  color:#68737c!important;
+}
+#iuUpdateOverlay #iuUpdateOverlayDismiss{
+  border:1px solid #d3d9df!important;
+  background:linear-gradient(155deg,#fff,#ebeff1)!important;
+  color:#333d45!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .toast-stack .undo-toast-button,
+  .toast-stack .toast-close,
+  .toast-stack .offline-dismiss{
+    transition:none!important;
+  }
+}
