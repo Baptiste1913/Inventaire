@@ -1,7 +1,7 @@
 {
-  "version": "34.07",
+  "version": "34.08",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Pastille notifications identique à Aucune session, avec une cloche à la place du voyant."
+  "notes": "Pastille Activer identique à Aucune session (Ma session) : hauteur, couleur, typographie et bordures."
 }
