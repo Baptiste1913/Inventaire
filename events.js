@@ -14,6 +14,7 @@ const $=id=>document.getElementById(id);
  summary.addEventListener('click',event=>{
   event.preventDefault();
   const opening=!panel.open||panel.dataset.motion==='closing';
+  const initialHeight=panel.getBoundingClientRect().height;
   if(animation){
    const running=animation;
    animation=null;
@@ -27,7 +28,6 @@ const $=id=>document.getElementById(id);
   // Animer la hauteur du cadre complet (bordure et marges comprises).
   // L'ancienne animation du contenu laissait sa marge et son bord visible
   // pendant la fermeture, avant un deuxième saut à la fermeture native.
-  const initialHeight=panel.getBoundingClientRect().height;
   panel.open=true;
   const cs=getComputedStyle(panel);
   const border=(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0);
