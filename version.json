@@ -1,7 +1,7 @@
 {
-  "version": "34.31",
+  "version": "34.32",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mode Concentration compact et harmonisé aux autres cartes ; nouvelle flèche retour dans la notification de fin d'inventaire. Pesée inchangée."
+  "notes": "Confirmation de fin d’inventaire harmonisée avec le mode Concentration compact : titre, marges et boutons. Fonctionnement préservé."
 }
