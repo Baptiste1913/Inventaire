@@ -1,7 +1,7 @@
 {
-  "version": "34.88",
+  "version": "34.89",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Retour au libellé court Inventaire dans le bouton de la banderole, sans changer son fonctionnement."
+  "notes": "Bouton Inventaire modernisé : arrondis subtils, fond translucide, typographie en casse normale et description de la banderole limitée à deux lignes."
 }
