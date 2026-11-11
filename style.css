@@ -7891,3 +7891,49 @@ body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary :i
     font-size:16px!important;
   }
 }
+
+
+/* V34.28 — Nouvelle pesée : même signature typographique que Ma session
+   et Événements, sans toucher au calcul ni à la présentation du résultat. */
+body:not(.is-focus-mode) .app > .calc-card > .card-heading > div {
+  display:grid!important;
+  align-content:center!important;
+  gap:4px!important;
+  min-width:0!important;
+}
+body:not(.is-focus-mode) .app > .calc-card > .card-heading .section-kicker {
+  display:block!important;
+  margin:0!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+  letter-spacing:.105em!important;
+  font-weight:800!important;
+  color:#53646c!important;
+}
+body:not(.is-focus-mode) .app > .calc-card > .card-heading h2#calc-title {
+  margin:0!important;
+  font-size:17px!important;
+  line-height:1.25!important;
+  letter-spacing:-.45px!important;
+  font-weight:850!important;
+  color:#20252b!important;
+}
+/* Les quatre volets situés après Calcul gagnent ~10px de hauteur
+   grâce à 5px de respiration supplémentaire en haut et en bas.
+   Pas de double marge ni de changement du corps déplié. */
+body:not(.is-focus-mode) .app > details.card.fold-card:is(.history-card,.sessions-history-card,.basket-card,.backup-card) > summary.fold-summary {
+  min-height:88px!important;
+  padding:24px 17px!important;
+}
+@media(max-width:380px) {
+  body:not(.is-focus-mode) .app > .calc-card > .card-heading .section-kicker {
+    font-size:10px!important;
+  }
+  body:not(.is-focus-mode) .app > .calc-card > .card-heading h2#calc-title {
+    font-size:16px!important;
+  }
+  body:not(.is-focus-mode) .app > details.card.fold-card:is(.history-card,.sessions-history-card,.basket-card,.backup-card) > summary.fold-summary {
+    min-height:84px!important;
+    padding:21px 12px!important;
+  }
+}
