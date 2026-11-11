@@ -301,11 +301,13 @@ function renderHeroSummary(){
  status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
  const count=session?session.entries.length:0;
  text.textContent=!session?'Aucune session':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
- // Le bouton de la banderole reste une navigation, jamais un démarrage direct.
+ // Le raccourci de la banderole lance directement l'inventaire ;
+ // si une session est en pause il propose de la reprendre, jamais d'en créer une deuxième.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
-  heroLabel.textContent='Inventaire';
-  heroAction.setAttribute('aria-label','Aller à la section Inventaire');
+  heroLabel.textContent=session?.pausedAt?'Reprendre':'Inventaire';
+  heroAction.disabled=Boolean(session&&!session.pausedAt);
+  heroAction.setAttribute('aria-label',session?.pausedAt?'Reprendre l’inventaire':'Démarrer un inventaire');
  }
 }
 // V33.65 — transition verticale par carte : l'accueil descend du bas vers
@@ -1207,38 +1209,19 @@ document.querySelectorAll('.planning-import-help').forEach(card=>
  setupSecondaryDetailsAnimation(card,'.planning-import-help-body'));
 
 
-// Raccourci de la banderole : défilement amorti vers Ma session, sans lancement.
+// V34.45 — Le bouton « Inventaire » déclenche le même parcours que les
+// boutons Ma session : animation d'entrée, contrôle des données et
+// persistance inchangés. Aucun défilement ni changement de focus imposé.
 (function setupHeroSessionAction(){
  const trigger=$('heroStartSession');
- const destination=document.querySelector('.session-card');
- if(!trigger||!destination)return;
- let scrollFrame=null;
+ if(!trigger)return;
  trigger.addEventListener('click',()=>{
-  if(scrollFrame!==null){cancelAnimationFrame(scrollFrame);scrollFrame=null;}
-  const start=window.scrollY || window.pageYOffset || 0;
-  const end=Math.max(0,start+destination.getBoundingClientRect().top-16);
-  const delta=end-start;
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced||Math.abs(delta)<4){window.scrollTo(0,end);return;}
-  // Courbe d'accélération/décélération sans rebond ni effet de saut.
-  const duration=Math.min(940,Math.max(620,Math.abs(delta)*.46));
-  let begun=null;
-  const abort=()=>{if(scrollFrame!==null){cancelAnimationFrame(scrollFrame);scrollFrame=null;}cleanup();};
-  const cleanup=()=>{
-   window.removeEventListener('wheel',abort);
-   window.removeEventListener('touchstart',abort);
-  };
-  window.addEventListener('wheel',abort,{passive:true,once:true});
-  window.addEventListener('touchstart',abort,{passive:true,once:true});
-  const animate=now=>{
-   if(begun===null)begun=now;
-   const progress=Math.min(1,(now-begun)/duration);
-   const eased=progress<.5?4*progress*progress*progress:1-Math.pow(-2*progress+2,3)/2;
-   window.scrollTo(0,start+delta*eased);
-   if(progress<1)scrollFrame=requestAnimationFrame(animate);
-   else{scrollFrame=null;cleanup();}
-  };
-  scrollFrame=requestAnimationFrame(animate);
+  const session=getActiveSession();
+  if(session){
+   if(session.pausedAt)$('resumeSession')?.click();
+   return;
+  }
+  $('startSession')?.click();
  });
 })();
 
