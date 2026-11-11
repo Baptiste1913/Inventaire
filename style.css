@@ -7550,3 +7550,69 @@ body:not(.is-focus-mode) #accountCard .dashboard-heading > #dashboardCloudPill::
     padding:9px 11px!important;
   }
 }
+
+
+/* V34.24 — Bouton Démarrer un inventaire : priorité au libellé,
+   surface sobre et premium, sans pictogramme ni effet criard. */
+body:not(.is-focus-mode) .app > .session-card .session-actions #startSession {
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:56px!important;
+  padding:15px 20px!important;
+  gap:0!important;
+  border:1px solid #176879!important;
+  border-radius:16px!important;
+  background:linear-gradient(135deg,#147b89 0%,#116b7d 56%,#125f74 100%)!important;
+  color:#ffffff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.23),0 4px 12px rgba(18,99,116,.14)!important;
+  font-size:14px!important;
+  font-weight:850!important;
+  letter-spacing:.01em!important;
+  line-height:1.35!important;
+  text-align:center!important;
+  text-shadow:none!important;
+  transition:background .18s ease,box-shadow .18s ease,transform .18s ease!important;
+  -webkit-tap-highlight-color:transparent;
+}
+body:not(.is-focus-mode) .app > .session-card .session-actions #startSession > span {
+  display:block!important;
+  color:inherit!important;
+  font:inherit!important;
+  line-height:inherit!important;
+}
+body:not(.is-focus-mode) .app > .session-card .session-actions #startSession:hover:not(:disabled) {
+  background:linear-gradient(135deg,#117383 0%,#0f6074 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 6px 17px rgba(18,99,116,.17)!important;
+}
+body:not(.is-focus-mode) .app > .session-card .session-actions #startSession:active:not(:disabled) {
+  background:linear-gradient(135deg,#0d6474,#0c5266)!important;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.08)!important;
+  transform:scale(.992)!important;
+}
+body:not(.is-focus-mode) .app > .session-card .session-actions #startSession:focus-visible {
+  outline:3px solid rgba(25,136,157,.36)!important;
+  outline-offset:3px!important;
+}
+body:not(.is-focus-mode) .app > .session-card .session-actions #startSession:disabled {
+  opacity:.52!important;
+  cursor:not-allowed!important;
+  transform:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card .session-actions #startSession[hidden] {
+  display:none!important;
+}
+@media(max-width:380px) {
+  body:not(.is-focus-mode) .app > .session-card .session-actions #startSession {
+    min-height:54px!important;
+    font-size:13.5px!important;
+    padding:14px 12px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  body:not(.is-focus-mode) .app > .session-card .session-actions #startSession {
+    transition:none!important;
+  }
+}
