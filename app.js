@@ -1171,6 +1171,13 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
 setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
+// V34.44 — compléter les sous-tiroirs qui utilisaient encore l'ouverture
+// native immédiate ; les grands tiroirs et les rubriques administrateur
+// possèdent déjà leur moteur indépendant et ne sont pas modifiés ici.
+setupSecondaryDetailsAnimation($('recoveryCard'),'.recovery-body');
+setupSecondaryDetailsAnimation($('backupAdvanced'),'.backup-advanced-body');
+document.querySelectorAll('.planning-import-help').forEach(card=>
+ setupSecondaryDetailsAnimation(card,'.planning-import-help-body'));
 
 
 // Raccourci de la banderole : défilement amorti vers Ma session, sans lancement.
