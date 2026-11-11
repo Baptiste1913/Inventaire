@@ -10438,3 +10438,42 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
 @media(prefers-reduced-motion:reduce){
   .app > .intro .intro-bottom > #heroStartSession.intro-jump{transition:none!important;}
 }
+
+
+/* V34.66 — Contours Liquid Glass affinés, mascotte légèrement relevée,
+   bouton Inventaire sombre et contemporain. */
+.app > .intro > #heroStatus.intro-session-state{
+  border:1px solid rgba(255,255,255,.12)!important;
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,.19),0 3px 10px rgba(8,62,54,.07)!important;
+}
+.app > .intro > #heroStatus.intro-session-state::after{
+  border-top-color:rgba(255,255,255,.13);
+  border-bottom-color:rgba(255,255,255,.025);
+}
+.app > .intro > .intro-mascot{bottom:-1px!important;}
+@media(max-width:380px){.app > .intro > .intro-mascot{bottom:0!important;}}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  border:1px solid rgba(255,255,255,.28)!important;
+  border-radius:12px!important;
+  background:linear-gradient(145deg,rgba(10,94,78,.84),rgba(6,74,67,.90))!important;
+  color:#f5fffc!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 5px 14px rgba(3,57,48,.17)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(120%);
+  backdrop-filter:blur(12px) saturate(120%);
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::before{
+  background:linear-gradient(120deg,rgba(255,255,255,.12),transparent 58%);
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump svg{
+  color:#e9fff5!important;
+  filter:none!important;
+}
+@media(hover:hover){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+    background:linear-gradient(145deg,rgba(14,113,91,.94),rgba(7,82,71,.96))!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 8px 18px rgba(3,57,48,.20)!important;
+  }
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 7px rgba(3,57,48,.12)!important;
+}
