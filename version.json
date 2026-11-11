@@ -1,7 +1,7 @@
 {
-  "version": "34.42",
+  "version": "34.43",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Test de cadrage Concentration : un seul ajustement après ouverture du clavier pour privilégier la visibilité du panier, de la saisie et du poids net ; aucun recentrage pendant la frappe."
+  "notes": "Retour au comportement V34.41 pour le mode Concentration : défilement naturel iPhone, sans ajustement automatique lors du focus. Les autres fonctions restent inchangées."
 }
