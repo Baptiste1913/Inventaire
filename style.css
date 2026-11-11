@@ -10760,3 +10760,8 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
   color:#424c52!important;
 }
+
+/* V34.87 — Contraste du texte du bouton légèrement accentué. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#394349!important;
+}
