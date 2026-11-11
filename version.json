@@ -1,7 +1,7 @@
 {
-  "version": "34.86",
+  "version": "34.87",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Fiabilisation du téléchargement des mises à jour : les ressources secondaires ne bloquent plus l’installation, vérification du service worker actif."
+  "notes": "Contraste du texte du bouton Démarrer l’inventaire légèrement augmenté, icône et dimensions inchangées."
 }
