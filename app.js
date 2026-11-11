@@ -963,14 +963,71 @@ $('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='
 
 
 
-// V34.41 — Saisie iPhone stable : laisser Safari gérer le clavier et le
-// cadrage. Le correctif V34.40 provoquait des retours en haut lors de
-// certains changements de hauteur du visualViewport pendant un scroll.
-// Ne plus écrire dans window.scrollTo lors de la saisie ou du défilement.
+// V34.42 — Cadrage de la pesée au PREMIER focus, inspiré du screenshot.
+// Une seule correction après l'ouverture du clavier : jamais pendant la
+// frappe, le scroll manuel ou un changement de hauteur de visualViewport.
+// Revenir à V34.41 consiste à restaurer son bloc focusWeighingKeyboard.
 (function focusWeighingKeyboard(){
- const field=$('grossWeight');
- if(!field)return;
+ const field=$('grossWeight'),basket=$('basketSelect'),net=$('netDisplay');
+ if(!field||!basket||!net)return;
  field.setAttribute('enterkeyhint','done');
+ let timer=0,token=0,lastAlignment=0;
+ const getViewport=()=>{
+  const vv=window.visualViewport;
+  return {top:vv?.offsetTop||0,height:vv?.height||window.innerHeight};
+ };
+ const applyAlignment=(requested)=>{
+  if(requested!==token||document.activeElement!==field||
+     !document.body.classList.contains('is-focus-mode')||
+     document.documentElement.classList.contains('iu-focus-slide'))return;
+  const view=getViewport();
+  // Ne jamais essayer d'aligner sur une hauteur non stabilisée.
+  if(view.height<235)return;
+  const selectRect=basket.getBoundingClientRect();
+  const netRect=net.closest('.result')?.getBoundingClientRect()||net.getBoundingClientRect();
+  const fieldRect=field.getBoundingClientRect();
+  const visibleTop=view.top+14,visibleBottom=view.top+view.height-22;
+  // Si la vue d'ensemble est déjà satisfaisante, ne pas la changer.
+  if(selectRect.top>=visibleTop-6&&netRect.bottom<=visibleBottom+6)return;
+  // Le sélecteur doit se placer près du haut du clavier ouvert,
+  // en laissant la place au poids brut puis au poids net.
+  const wantedBasketTop=view.top+Math.min(104,Math.max(54,view.height*.14));
+  let shift=selectRect.top-wantedBasketTop;
+  const expectedNetBottom=netRect.bottom-shift;
+  if(expectedNetBottom>visibleBottom){
+   shift+=expectedNetBottom-visibleBottom;
+  }
+  // Le champ doit rester visible même sur les plus petits iPhone.
+  const expectedFieldTop=fieldRect.top-shift;
+  if(expectedFieldTop<visibleTop){
+   shift-=visibleTop-expectedFieldTop;
+  }
+  const current=window.scrollY||window.pageYOffset||0;
+  const max=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+  const target=Math.min(max,Math.max(0,current+shift));
+  if(Math.abs(target-current)>=12){
+   window.scrollTo({top:target,left:0,behavior:'instant'});
+  }
+  lastAlignment=performance.now();
+ };
+ const onFocus=()=>{
+  if(!document.body.classList.contains('is-focus-mode'))return;
+  // Reprise de plusieurs pesées avec clavier encore ouvert : conserver la vue.
+  const view=getViewport();
+  if(lastAlignment&&performance.now()-lastAlignment<2500&&
+     view.height<window.innerHeight*.85)return;
+  const requested=++token;
+  clearTimeout(timer);
+  // Safari bouge d'abord la vue lors de l'ouverture du clavier ;
+  // attendre sa stabilisation au lieu de lutter contre ses mouvements.
+  timer=setTimeout(()=>requestAnimationFrame(()=>applyAlignment(requested)),390);
+ };
+ field.addEventListener('focus',onFocus);
+ field.addEventListener('blur',()=>{token++;clearTimeout(timer);});
+ // Les gestes manuels annulent toute correction en attente.
+ const cancelOnGesture=()=>{if(document.activeElement===field){token++;clearTimeout(timer);}};
+ window.addEventListener('touchstart',cancelOnGesture,{passive:true});
+ window.addEventListener('wheel',cancelOnGesture,{passive:true});
  field.addEventListener('keydown',event=>{
   if(event.key==='Enter'&&document.body.classList.contains('is-focus-mode')){
    event.preventDefault();
