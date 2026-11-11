@@ -9821,3 +9821,63 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
 @media(prefers-reduced-motion:reduce){
  #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{transition:none!important;}
 }
+
+
+/* V34.50 — Notifications réseau jumelles : les icônes fournies sont
+   reproduites en SVG monochrome, sans autre changement de palette. */
+.toast-stack > #offlineIndicator.offline-indicator,
+.toast-stack > #onlineIndicator.offline-indicator {
+  border:1px solid #dce2e6!important;
+  border-radius:18px!important;
+  background:linear-gradient(155deg,#fff,#f4f6f8)!important;
+  color:#29343c!important;
+  box-shadow:0 13px 32px rgba(38,50,61,.13),inset 0 1px 0 #fff!important;
+}
+.toast-stack > :is(#offlineIndicator,#onlineIndicator) .offline-symbol{
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 34px!important;
+  width:34px!important;
+  height:34px!important;
+  border:1px solid #d4dce1!important;
+  border-radius:50%!important;
+  background:#eceff1!important;
+  box-shadow:none!important;
+}
+.toast-stack > :is(#offlineIndicator,#onlineIndicator) .offline-symbol img{
+  display:block!important;
+  width:25px!important;
+  height:25px!important;
+  object-fit:contain!important;
+  filter:none!important;
+  opacity:1!important;
+}
+.toast-stack > #onlineIndicator .offline-copy strong{
+  color:#29343c!important;
+}
+.toast-stack > #onlineIndicator .offline-copy > span{
+  color:#737e87!important;
+}
+.toast-stack > #onlineIndicator::after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:3px;
+  border-radius:0 0 18px 18px;
+  background:#89949c;
+  transform-origin:left center;
+  animation:iu-connectivity-countdown 2.5s linear forwards;
+  pointer-events:none;
+}
+.toast-stack > #onlineIndicator[hidden]::after{
+  animation:none!important;
+}
+@keyframes iu-connectivity-countdown{
+  from{transform:scaleX(1);}
+  to{transform:scaleX(0);}
+}
+@media(prefers-reduced-motion:reduce){
+  .toast-stack > #onlineIndicator::after{animation:none!important;display:none!important;}
+}
