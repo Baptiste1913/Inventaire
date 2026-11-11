@@ -1,7 +1,7 @@
 {
-  "version": "34.21",
+  "version": "34.22",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bloc Événements raccourci : prochaine date d'inventaire prioritaire et événements du mois accessibles par un volet repliable."
+  "notes": "Pastille du compte Google harmonisée avec Notifications : forme, taille, fond et couleurs connectées/locales."
 }
