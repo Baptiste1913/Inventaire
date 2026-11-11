@@ -1104,51 +1104,99 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  }catch(e){console.warn('Service worker non disponible',e);}
 });
 
-// V20 : notification persistante jusqu'au retour en ligne ou fermeture manuelle.
-(function(){
-  const indicator=document.getElementById('offlineIndicator');
-  const dismiss=document.getElementById('offlineDismiss');
-  if(!indicator||!dismiss)return;
-  indicator.classList.add('toast-stacked-offline');
-  toastStack().append(indicator);
-  let dismissed=false;
-  let finishTimer=null;
-  let visible=false;
-  const stopExit=()=>{if(finishTimer!==null){clearTimeout(finishTimer);finishTimer=null;}};
-  function show(){
-    if(dismissed||visible)return;
-    stopExit();
-    indicator.hidden=false;
-    document.body.classList.add('offline-notice-visible');
-    indicator.classList.remove('is-leaving','is-entering');
-    void indicator.offsetWidth;
-    indicator.classList.add('is-entering');
-    visible=true;
-  }
-  function hide(){
-    stopExit();
-    if(!visible){indicator.hidden=true;indicator.classList.remove('is-entering','is-leaving');return;}
-    visible=false;
-    document.body.classList.remove('offline-notice-visible');
-    indicator.classList.remove('is-entering');
-    indicator.classList.add('is-leaving');
-    finishTimer=setTimeout(()=>{
-      if(!visible){indicator.hidden=true;indicator.classList.remove('is-leaving');}
-      finishTimer=null;
-    },280);
-  }
-  function sync(){
-    if(navigator.onLine){dismissed=false;hide();}
-    else show();
-  }
-  dismiss.addEventListener('click',()=>{dismissed=true;hide();});
-  window.addEventListener('online',sync);
-  window.addEventListener('offline',()=>{dismissed=false;sync();});
-  window.addEventListener('pageshow',sync);
-  sync();
+// V34.50 — Notifications de connectivité à deux états (iPhone/PWA).
+// Hors ligne persistant sauf fermeture manuelle ; reconnexion uniquement
+// après un vrai passage hors ligne, puis auto-fermeture après 2,5 secondes.
+// Le statut navigator.onLine indique le réseau, pas la disponibilité du cloud.
+(function setupConnectivityNotices(){
+ const offline=document.getElementById('offlineIndicator');
+ const online=document.getElementById('onlineIndicator');
+ const offlineDismiss=document.getElementById('offlineDismiss');
+ const onlineDismiss=document.getElementById('onlineDismiss');
+ if(!offline||!online||!offlineDismiss||!onlineDismiss)return;
+ const stack=toastStack();
+ offline.classList.add('toast-stacked-offline');
+ online.classList.add('toast-stacked-offline');
+ stack.append(offline,online);
+ const exitTimers=new Map();
+ let onlineTimer=null,debounceTimer=null;
+ let offlineDismissed=false;
+ let state=navigator.onLine?'online':'offline';
+ function stopExit(notice){
+  const timer=exitTimers.get(notice);
+  if(timer!==undefined){clearTimeout(timer);exitTimers.delete(notice);}
+ }
+ function reveal(notice){
+  stopExit(notice);
+  if(!notice.hidden&&!notice.classList.contains('is-leaving'))return;
+  notice.hidden=false;
+  notice.classList.remove('is-entering','is-leaving');
+  void notice.offsetWidth;
+  notice.classList.add('is-entering');
+ }
+ function dismiss(notice){
+  stopExit(notice);
+  if(notice.hidden)return;
+  notice.classList.remove('is-entering');
+  notice.classList.add('is-leaving');
+  const timer=setTimeout(()=>{
+   if(exitTimers.get(notice)!==timer)return;
+   notice.hidden=true;
+   notice.classList.remove('is-leaving');
+   exitTimers.delete(notice);
+  },280);
+  exitTimers.set(notice,timer);
+ }
+ function clearOnlineTimer(){if(onlineTimer!==null){clearTimeout(onlineTimer);onlineTimer=null;}}
+ function showOffline(){
+  clearOnlineTimer();
+  dismiss(online);
+  if(!offlineDismissed)reveal(offline);
+  document.body.classList.toggle('offline-notice-visible',!offlineDismissed);
+ }
+ function showOnline(){
+  dismiss(offline);
+  document.body.classList.remove('offline-notice-visible');
+  reveal(online);
+  clearOnlineTimer();
+  onlineTimer=setTimeout(()=>{onlineTimer=null;dismiss(online);},2500);
+ }
+ function wentOffline(){
+  if(debounceTimer!==null){clearTimeout(debounceTimer);debounceTimer=null;}
+  if(state==='offline')return;
+  state='offline';
+  offlineDismissed=false;
+  showOffline();
+ }
+ function wentOnline(){
+  if(state!=='offline'||debounceTimer!==null)return;
+  // Attendre que le signal se stabilise : pas de fausse « reconnexion »
+  // lors d'une alternance très brève Wi-Fi/cellulaire.
+  debounceTimer=setTimeout(()=>{
+   debounceTimer=null;
+   if(!navigator.onLine||state!=='offline')return;
+   state='online';
+   showOnline();
+  },700);
+ }
+ function sync(){
+  if(navigator.onLine)wentOnline();
+  else wentOffline();
+ }
+ offlineDismiss.addEventListener('click',()=>{
+  offlineDismissed=true;
+  document.body.classList.remove('offline-notice-visible');
+  dismiss(offline);
+ });
+ onlineDismiss.addEventListener('click',()=>{clearOnlineTimer();dismiss(online);});
+ window.addEventListener('online',sync);
+ window.addEventListener('offline',sync);
+ window.addEventListener('pageshow',sync);
+ if(state==='offline')showOffline();
+ else {offline.hidden=true;online.hidden=true;}
 })();
-
-
+ 
+ 
 // V31.31 — moteur d’accordéon partagé : une seule courbe, aucune animation
 // concurrente sur le contenu et mesure de hauteur cohérente pour Safari.
 const FOLD_MOTION_MS=560;
