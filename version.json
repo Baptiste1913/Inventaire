@@ -1,7 +1,7 @@
 {
-  "version": "34.12",
+  "version": "34.13",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Historique des pesées : en-tête classique restauré, pesées compactes réunies dans un cadre unique avec séparateurs gris."
+  "notes": "Historique des pesées plus aéré, lignes réunies dans un tableau et harmonie graphique avec Nouvelle pesée."
 }
