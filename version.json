@@ -1,7 +1,7 @@
 {
-  "version": "34.47",
+  "version": "34.48",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mes paniers désormais entièrement monochrome (poignée, flèches, modifier, formulaire), seul Supprimer reste rouge. Banderole plus haute et mieux aérée, commandes légèrement rapprochées du bord bas."
+  "notes": "Pesée entièrement monochrome sauf carte du poids net (accueil et Concentration) ; inventaires nommés avec date et heure, bilan simplifié ; textes de banderole relevés ; titre Session en cours ; chargement administrateur moderne et décalé à gauche."
 }
