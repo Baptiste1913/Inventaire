@@ -1,7 +1,7 @@
 {
-  "version": "33.98",
+  "version": "33.99",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 792911,
-  "notes": "Mon compte aligné sur les proportions et informations du bloc administrateur ; version utilisée corrigée à partir de la page réellement chargée."
+  "notes": "Mon compte : stockage local retiré de la vue, synchronisation avec voyant lumineux, tableau de bord harmonisé et temps moyen compact."
 }
