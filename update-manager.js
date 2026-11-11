@@ -1,4 +1,4 @@
-/* Inventaires U V34.16 — gestionnaire de mises à jour avec transition persistante. */
+/* Inventaires U V34.18 — chargement de mise à jour jusqu'à l'initialisation de l'administration. */
 (()=>{'use strict';
  // Un marqueur dans l'URL du script chargé représente la version réellement exécutée.
  // Ne pas lire version.json ici : il indique la dernière version PUBLIÉE,
@@ -59,22 +59,54 @@
    try{payload=JSON.parse(sessionStorage.getItem(UPDATE_VISUAL_KEY)||'null');}catch(_){}
    if(!payload||typeof payload.at!=='number'){hideVisual();return;}
    showVisual(true);
-   // L'affichage ne se termine que lorsque la page rechargée est prête.
-   let done=false;
-   const finish=()=>{
-     if(done)return;done=true;
-     if(payload.target&&payload.target!==VERSION){
-       failVisual('La nouvelle version n’a pas été chargée. Vérifie les mises à jour depuis l’administration.');
-       return;
-     }
-     const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
-       .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
-     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-     const cascadeMs=reduced?0:620+Math.max(0,cards.length-1)*85;
-     // Environ 5 s en tout (activation, chargement, retour des blocs).
-     const delay=Math.max(0,5000-(Date.now()-payload.at)-cascadeMs);
-     overlayText.textContent='Finalisation de la mise à jour…';
-     setTimeout(()=>{
+   overlayText.textContent='Chargement de l’application et de l’administration…';
+   let cancelled=false;
+   const waitForAdmin=()=>new Promise((resolve,reject)=>{
+     if(window.IUAdminInitialReady===true){resolve();return;}
+     let timeout=null;
+     const ready=()=>{clearTimeout(timeout);resolve();};
+     window.addEventListener('iu-admin-initial-ready',ready,{once:true});
+     timeout=setTimeout(()=>{
+       window.removeEventListener('iu-admin-initial-ready',ready);
+       reject(new Error('admin-timeout'));
+     },18000);
+   });
+   const waitForLoad=()=>new Promise(resolve=>{
+     if(document.readyState==='complete'){resolve();return;}
+     window.addEventListener('load',resolve,{once:true});
+   });
+   const waitForQuietAdmin=()=>new Promise(resolve=>{
+     const admin=$('planningAdminCard');
+     if(!admin){resolve();return;}
+     let idle=null;
+     const observer=new MutationObserver(()=>{
+       clearTimeout(idle);idle=setTimeout(complete,400);
+     });
+     const complete=()=>{observer.disconnect();resolve();};
+     observer.observe(admin,{subtree:true,childList:true,attributes:true,characterData:true});
+     idle=setTimeout(complete,450);
+   });
+   (async()=>{
+     try{
+       await Promise.all([waitForLoad(),waitForAdmin()]);
+       if(document.fonts?.ready)await document.fonts.ready;
+       // Deux frames confirment que la disposition a été peinte.
+       await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+       await waitForQuietAdmin();
+       if(payload.target&&payload.target!==VERSION){
+         throw new Error('version-mismatch');
+       }
+       if(cancelled)return;
+       const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
+         .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
+       const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+       const cascadeMs=reduced?0:620+Math.max(0,cards.length-1)*85;
+       // Cinq secondes minimum. Si l'administration prend plus de temps,
+       // garder le voile jusqu'à ce qu'elle ait réellement fini.
+       const delay=Math.max(0,5000-(Date.now()-payload.at)-cascadeMs);
+       overlayText.textContent='Finalisation de la mise à jour…';
+       await new Promise(resolve=>setTimeout(resolve,delay));
+       if(cancelled)return;
        overlayTitle.textContent='Mise à jour installée';
        overlayText.textContent='Inventaires U est prêt.';
        cards.forEach((el,i)=>el.style.setProperty('--iu-update-order',String(i)));
@@ -86,13 +118,14 @@
          root.classList.remove('iu-update-revealing');
          cards.forEach(el=>el.style.removeProperty('--iu-update-order'));
        },cascadeMs+100);
-     },delay);
-   };
-   if(document.readyState==='complete')finish();
-   else{
-     window.addEventListener('load',finish,{once:true});
-     setTimeout(finish,1800);
-   }
+     }catch(error){
+       if(cancelled)return;
+       const message=error?.message==='version-mismatch'
+         ?'La nouvelle version n’a pas été chargée. Vérifie les mises à jour depuis l’administration.'
+         :'Le chargement de l’administration n’a pas pu être confirmé. Tu peux revenir à l’application et réessayer.';
+       failVisual(message);
+     }
+   })();
  }
  if(root.classList.contains('iu-update-recovering'))completeVisual();
  const set=(type,title,detail,button,disabled=false)=>{
