@@ -1,7 +1,7 @@
 {
-  "version": "34.25",
+  "version": "34.26",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Poids net modernisé : titre raccourci, dégradé émeraude, résultat mieux mis en valeur, copie avec coche et animation discrète."
+  "notes": "En-têtes des blocs repliables uniformisés avec Ma session et Événements : typographie, surtitres, marges et espacements, sans changer les fonctionnalités."
 }
