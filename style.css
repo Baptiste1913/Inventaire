@@ -10765,3 +10765,5 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
   color:#394349!important;
 }
+/* V34.88 — Libellé court du bouton Inventaire. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{white-space:nowrap!important;}
