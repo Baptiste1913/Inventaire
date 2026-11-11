@@ -10477,3 +10477,41 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
 .app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
   box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 7px rgba(3,57,48,.12)!important;
 }
+
+
+/* V34.67 — Bouton Inventaire assorti à la pastille de Ma session. */
+.app > .intro > #heroStatus.intro-session-state{
+  border-color:rgba(255,255,255,.075)!important;
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,.11),0 2px 8px rgba(8,62,54,.05)!important;
+}
+.app > .intro > #heroStatus.intro-session-state::after{
+  border-top-color:rgba(255,255,255,.075);
+  border-bottom-color:rgba(255,255,255,.012);
+}
+.app > .intro > .intro-mascot{bottom:-3px!important;}
+@media(max-width:380px){.app > .intro > .intro-mascot{bottom:-2px!important;}}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  border:1px solid #d9e1e5!important;
+  border-radius:999px!important;
+  background:#edf0f1!important;
+  color:#5e6370!important;
+  font-weight:850!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::before{background:none!important;}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump svg{
+  color:#5e6370!important;
+  filter:none!important;
+}
+@media(hover:hover){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+    background:#e4e9eb!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 3px 9px rgba(6,53,48,.10)!important;
+  }
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+  background:#dce3e6!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65)!important;
+}
