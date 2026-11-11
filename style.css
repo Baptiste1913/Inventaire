@@ -10934,3 +10934,65 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
     min-width:146px!important;min-height:44px!important;height:44px!important;padding:0 16px!important;
   }
 }
+
+/* V34.92 — Bouton blanc effet verre satiné ; mascotte légèrement réduite
+   et bord inférieur de l'image strictement calé sur celui de la banderole. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  min-width:150px!important;
+  height:45px!important;
+  min-height:45px!important;
+  padding:0 18px!important;
+  border-radius:15px!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  background:linear-gradient(150deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.84) 55%,rgba(232,249,246,.81) 100%)!important;
+  border:1px solid rgba(255,255,255,.94)!important;
+  -webkit-backdrop-filter:blur(19px) saturate(145%)!important;
+  backdrop-filter:blur(19px) saturate(145%)!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,1),inset 0 -1px 1px rgba(36,126,111,.10),0 5px 17px rgba(5,64,54,.12)!important;
+  color:#334b4b!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  pointer-events:none!important;
+  border-radius:inherit!important;
+  background:linear-gradient(120deg,rgba(255,255,255,.38) 0%,rgba(255,255,255,.08) 42%,transparent 62%,rgba(255,255,255,.22) 100%)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::after{opacity:0!important;}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content{
+  position:relative!important;z-index:1!important;gap:9px!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#334b4b!important;font-size:13px!important;font-weight:650!important;
+  text-transform:none!important;white-space:nowrap!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  width:12px!important;height:12px!important;flex:0 0 12px!important;
+  filter:none!important;opacity:.86!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+  background:linear-gradient(150deg,rgba(255,255,255,.99),rgba(245,255,252,.9))!important;
+  box-shadow:inset 0 1px 1px #fff,0 6px 18px rgba(5,64,54,.14)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+  transform:scale(.975)!important;
+  box-shadow:inset 0 1px 1px #fff,0 2px 8px rgba(5,64,54,.10)!important;
+}
+.app > .intro > .intro-mascot{
+  display:block!important;
+  width:clamp(125px,16.9vw,172px)!important;
+  height:auto!important;
+  bottom:0!important;
+}
+@media(max-width:600px){
+  .app > .intro > .intro-mascot{width:136px!important;bottom:0!important;}
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    min-width:150px!important;height:45px!important;min-height:45px!important;padding:0 17px!important;
+  }
+}
+@media(max-width:380px){
+  .app > .intro > .intro-mascot{width:126px!important;bottom:0!important;}
+}
