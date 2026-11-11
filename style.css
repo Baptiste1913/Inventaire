@@ -10117,3 +10117,28 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
   border-color:rgba(255,255,255,.16)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 4px 13px rgba(16,69,64,.08)!important;
 }
+
+
+/* V34.58 — Verre plus transparent, contours lumineux et mascotte décalée. */
+.app > .intro .intro-bottom > .intro-session-state{
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid rgba(255,255,255,.20)!important;
+  -webkit-backdrop-filter:blur(29px) saturate(125%)!important;
+  backdrop-filter:blur(29px) saturate(125%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),
+             inset 0 -1px 0 rgba(255,255,255,.045),
+             0 4px 13px rgba(16,69,64,.07)!important;
+}
+.app > .intro > .intro-mascot{
+  right:2px!important;
+}
+@media(max-width:600px){
+  .app > .intro > .intro-mascot{
+    right:-10px!important;
+  }
+}
+@media(max-width:380px){
+  .app > .intro > .intro-mascot{
+    right:-11px!important;
+  }
+}
