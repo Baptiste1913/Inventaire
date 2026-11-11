@@ -10747,3 +10747,11 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
   color:#515a60!important;
 }
+
+/* V34.84 — Contraste très légèrement renforcé, sans modifier le bouton. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#485258!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  opacity:.79!important;
+}
