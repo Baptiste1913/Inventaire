@@ -545,8 +545,6 @@ function syncFocusMode(sessionInput,statsInput){
   // En dehors d'une transition, garder le retour en haut historique.
   if(document.documentElement.classList.contains('iu-focus-slide')){
    window.scrollTo({top:0,left:0,behavior:'instant'});
-  } else if(focusInitialized){
-   requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
   }
  }
  focusInitialized=true;
@@ -965,62 +963,16 @@ $('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='
 
 
 
-// V34.40 — cadrage discret des pesées sur Safari iPhone/PWA.
-// Ajuste uniquement les éléments masqués par le clavier. Aucun scroll
-// récurrent pendant la frappe, aucune modification d'enregistrement.
-(function improveFocusWeighingViewport(){
- const field=$('grossWeight'),basket=$('basketSelect');
- if(!field||!basket)return;
+// V34.41 — Saisie iPhone stable : laisser Safari gérer le clavier et le
+// cadrage. Le correctif V34.40 provoquait des retours en haut lors de
+// certains changements de hauteur du visualViewport pendant un scroll.
+// Ne plus écrire dans window.scrollTo lors de la saisie ou du défilement.
+(function focusWeighingKeyboard(){
+ const field=$('grossWeight');
+ if(!field)return;
  field.setAttribute('enterkeyhint','done');
- let frame=0,sequence=0;
- const isFocus=()=>document.body.classList.contains('is-focus-mode');
- const keyboardActive=()=>isFocus()&&(
-  document.activeElement===field||document.activeElement===basket);
- const adjust=()=>{
-  frame=0;
-  if(!keyboardActive()||document.documentElement.classList.contains('iu-focus-slide'))return;
-  const active=document.activeElement;
-  if(!active||!active.getBoundingClientRect)return;
-  const vv=window.visualViewport;
-  const top=vv?vv.offsetTop:0;
-  const height=vv?vv.height:window.innerHeight;
-  if(height<170)return;
-  const upper=top+Math.min(100,Math.max(18,height*.18));
-  const lower=top+height-Math.min(115,Math.max(36,height*.22));
-  const rect=active.getBoundingClientRect();
-  // Hystérésis : ignorer les petits écarts (le clavier peut bouger de 1-2 px).
-  if(rect.top>=upper-8&&rect.bottom<=lower+8)return;
-  const delta=rect.top<upper?rect.top-upper:rect.bottom-lower;
-  if(Math.abs(delta)<9)return;
-  const current=window.scrollY||window.pageYOffset||0;
-  const max=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
-  const target=Math.min(max,Math.max(0,current+delta));
-  if(Math.abs(target-current)>5)window.scrollTo({top:target,left:0,behavior:'instant'});
- };
- const queue=()=>{
-  if(frame)cancelAnimationFrame(frame);
-  frame=requestAnimationFrame(adjust);
- };
- const onFocus=()=>{
-  if(!isFocus())return;
-  const seq=++sequence;
-  queue();
-  // Le clavier iOS modifie la hauteur visible après l'événement focus.
-  setTimeout(()=>{if(seq===sequence)queue();},110);
-  setTimeout(()=>{if(seq===sequence)queue();},320);
- };
- const onBlur=()=>{sequence++;if(frame)cancelAnimationFrame(frame);frame=0;};
- field.addEventListener('focus',onFocus);
- basket.addEventListener('focus',onFocus);
- field.addEventListener('blur',onBlur);
- basket.addEventListener('blur',onBlur);
- if(window.visualViewport){
-  window.visualViewport.addEventListener('resize',()=>{if(keyboardActive())queue();},{passive:true});
- }
- // Entrée du clavier validée comme sur un champ numérique iOS standard :
- // le blur existant sauvegarde la pesée uniquement si elle est valide.
  field.addEventListener('keydown',event=>{
-  if(event.key==='Enter'&&isFocus()){
+  if(event.key==='Enter'&&document.body.classList.contains('is-focus-mode')){
    event.preventDefault();
    field.blur();
   }
