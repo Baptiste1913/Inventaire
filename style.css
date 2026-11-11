@@ -8316,3 +8316,79 @@ body.is-focus-mode #focusToolbar #focusConfirm button:focus-visible{
    animation:none!important;
  }
 }
+
+
+/* V34.34 — Installation : carte entièrement blanche autour du logo,
+   sans différence de teinte aux coins arrondis ni démarcation intérieure. */
+#iuUpdateOverlay .iu-update-screen{
+  background:#fff!important;
+  border:1px solid #dfe6e9!important;
+  box-shadow:0 20px 58px rgba(34,59,68,.105),inset 0 1px 0 #fff!important;
+}
+#iuUpdateOverlay .iu-update-logo {
+  background:#fff!important;
+  border-color:#e7edef!important;
+  box-shadow:0 5px 18px rgba(40,101,110,.065),inset 0 1px 0 #fff!important;
+}
+#iuUpdateOverlay .iu-update-logo img{
+  background:#fff!important;
+  border-radius:12px!important;
+}
+/* Progression à quatre jalons confirmés. Le remplissage n'avance
+   pas avec une minuterie artificielle et reste stable pendant l'attente. */
+#iuUpdateOverlay .iu-update-progress-block {
+  width:min(100%,238px);
+  display:grid;
+  gap:9px;
+  margin-top:22px;
+}
+#iuUpdateOverlay .iu-update-progress-meta{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:9px;
+  color:#71818b;
+  font-size:10.5px;
+  line-height:1.35;
+  font-weight:700;
+  text-align:left;
+}
+#iuUpdateOverlay #iuUpdateStep{
+  min-width:0;
+  flex:1 1 auto;
+  color:#3f626d;
+}
+#iuUpdateOverlay #iuUpdateStepCount{
+  flex:0 0 auto;
+  white-space:nowrap;
+  color:#7e8c94;
+  font-size:10px;
+}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress{
+  position:relative;
+  display:block!important;
+  width:100%!important;
+  height:7px!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  border:1px solid #dce8e9!important;
+  border-radius:999px!important;
+  background:#eaf0f2!important;
+}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{
+  display:block!important;
+  position:absolute;
+  inset:0 auto 0 0;
+  width:var(--iu-update-complete,0%)!important;
+  height:100%!important;
+  border-radius:999px!important;
+  background:linear-gradient(90deg,#337f82,#168e91,#6eb9ac)!important;
+  transform:none!important;
+  animation:none!important;
+  transition:width .48s cubic-bezier(.18,.8,.23,1)!important;
+  box-shadow:0 0 8px rgba(46,139,136,.2)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
+}
