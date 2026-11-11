@@ -1,7 +1,7 @@
 {
-  "version": "34.06",
+  "version": "34.07",
   "published": "2026-11-11",
   "assets": 42,
-  "bytes": 816052,
-  "notes": "Pastille de notifications harmonisée en hauteur avec l’état de session, sans point supplémentaire."
+  "bytes": 819245,
+  "notes": "Pastille notifications identique à Aucune session, avec une cloche à la place du voyant."
 }
