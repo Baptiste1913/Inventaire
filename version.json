@@ -1,7 +1,7 @@
 {
-  "version": "34.19",
+  "version": "34.20",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Administration plus réactive : session locale, indicateur de chargement immédiat, vérification des droits sécurisée et moins de requêtes répétées."
+  "notes": "Synchronisation cloud fiabilisée : référence confirmée conservée entre ouvertures, faux conflits évités, pesées protégées pendant les échanges réseau."
 }
