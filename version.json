@@ -1,7 +1,7 @@
 {
-  "version": "34.17",
+  "version": "34.18",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mes paniers harmonisé avec Historique et Mes inventaires : compteur, liste commune et formulaire modernisé, commandes de tri conservées."
+  "notes": "Sauvegarde modernisée ; chargement des mises à jour maintenu jusqu'à la préparation de l'administration et de la page."
 }
