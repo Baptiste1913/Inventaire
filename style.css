@@ -10679,3 +10679,37 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 /* V34.78 — Texte du bouton DÉMARRER L’INVENTAIRE à 11,5 px. */
 .app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.5px!important;}
 @media(max-width:600px){.app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.5px!important;}}
+
+
+/* V34.79 — Icône et libellé centrés comme un seul groupe. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:11.2px!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin-inline:auto!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content svg{
+  width:17px!important;
+  height:17px!important;
+  flex:none!important;
+  color:#273039!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  font-size:11.2px!important;
+  line-height:1.18!important;
+  text-align:center!important;
+  text-transform:uppercase!important;
+  white-space:pre-line!important;
+}
+@media(max-width:600px){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.2px!important;}
+}
