@@ -6413,4 +6413,5 @@ html.iu-pwa-revealing .app > footer {
     font-size:10px!important;
     padding:9px 11px!important;
   }
+  #inventoryCalendar .events-bell > svg {height:12px!important;}
 }
