@@ -1,4 +1,4 @@
-/* Inventaires U V33.93 — version utilisée dérivée du script effectivement chargé. */
+/* Inventaires U V33.98 — version utilisée issue de la page actuellement chargée. */
 (()=>{'use strict';
  // Un marqueur dans l'URL du script chargé représente la version réellement exécutée.
  // Ne pas lire version.json ici : il indique la dernière version PUBLIÉE,
@@ -6,7 +6,12 @@
  const runningScript=document.currentScript?.src ||
    document.querySelector('script[src*="update-manager.js"]')?.src || '';
  const versionParam=(()=>{try{return new URL(runningScript,location.href).searchParams.get('v')||'';}catch{return '';}})();
- const VERSION=/^\d+(?:\.\d+){1,3}$/.test(versionParam)?versionParam:'indéterminée';
+ // The loaded HTML document identifies this app build. The update manager script
+ // may legitimately be cached at an older query version if it has not changed.
+ // Never use its own URL to label the active page.
+ const documentVersion=document.querySelector('meta[name="iu-build-version"]')?.content?.trim()||'';
+ const VERSION=/^\d+(?:\.\d+){1,3}$/.test(documentVersion)?documentVersion:
+   (/^\d+(?:\.\d+){1,3}$/.test(versionParam)?versionParam:'indéterminée');
  window.IUCurrentVersion=VERSION;
  const $=id=>document.getElementById(id);
  const main=$('iuUpdateButton'),secondary=$('iuUpdateReload');if(!main)return;

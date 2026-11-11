@@ -5491,3 +5491,120 @@ html.iu-pwa-revealing .app > footer {
  .account-card .account-connected-ident > span{font-size:10px!important}
  .account-card .account-connected-ident > strong{font-size:10.5px!important}
 }
+
+
+/* V33.98 — Mon compte aligné sur le langage de l'espace administrateur.
+   Les styles de V33.96–97 sont volontairement remplacés ici. */
+.app > .account-card.card {
+  border:1px solid #e0e4e7!important;
+  border-radius:23px!important;
+  background:#fff!important;
+  box-shadow:0 5px 22px rgba(25,38,47,.045)!important;
+}
+.account-card > .account-fold-summary {
+  padding:20px 17px!important;
+  min-height:80px!important;
+  gap:13px!important;
+  background:linear-gradient(155deg,#fff 0%,#fafcfc 100%)!important;
+}
+.account-card > .account-fold-summary > .account-header-avatar {
+  width:47px!important;height:47px!important;flex:0 0 47px!important;
+  border-radius:50%;
+  background:linear-gradient(145deg,#e8f6f7,#d6edf0)!important;
+}
+.account-card .account-header-text {gap:3px!important;}
+.account-card .account-header-text .section-kicker {
+  font-size:11px!important;line-height:1.35!important;
+  letter-spacing:.115em!important;color:#27808a!important;
+}
+.account-card .account-header-title {
+  font-size:17px!important;line-height:1.25!important;
+  font-weight:850!important;letter-spacing:-.035em!important;
+}
+.account-card .account-header-hint {display:none!important;}
+.account-card .account-header-end {gap:12px!important;}
+.account-card .account-header-end .account-summary-status {
+  font-size:11px!important;font-weight:760!important;
+  padding:7px 11px!important;
+}
+.account-card > .account-fold-summary .fold-chevron {
+  height:19px!important;width:19px!important;
+  transition:transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+}
+.account-card > .account-body {
+  padding:15px 17px 19px!important;
+  border-top:1px solid #e9edef!important;
+}
+/* Single information panel; three rows, not disconnected oversized tiles. */
+.account-card .account-connection-overview {
+  display:block!important;padding:0!important;margin:0!important;
+  background:linear-gradient(150deg,#fff,#fbfcfd)!important;
+  border:1px solid #e0e4e7!important;border-radius:19px!important;
+  overflow:hidden!important;
+}
+.account-card .account-profile-row {
+  box-sizing:border-box!important;
+  min-height:61px!important;
+  padding:13px 15px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)!important;
+  align-items:center!important;
+  gap:12px!important;
+  min-width:0!important;
+  background:transparent!important;
+  border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+  margin:0!important;
+}
+.account-card .account-profile-row + .account-profile-row,
+.account-card .account-storage-grid > .account-profile-row:first-child {
+  border-top:1px solid #edf0f2!important;
+}
+.account-card .account-storage-grid {
+  display:block!important;margin:0!important;gap:0!important;
+  grid-template-columns:none!important;
+}
+.account-card .account-profile-row > span:first-child,
+.account-card .account-storage-tile .account-storage-caption {
+  font-size:12px!important;line-height:1.4!important;
+  color:#6a737c!important;font-weight:650!important;
+  letter-spacing:0!important;text-transform:none!important;
+}
+.account-card .account-connected-ident > strong,
+.account-card .account-storage-tile .account-storage-value {
+  display:block!important;max-width:100%!important;
+  font-size:12px!important;line-height:1.45!important;
+  font-weight:770!important;color:#242c34!important;
+  margin:0!important;
+  overflow-wrap:anywhere!important;
+  text-align:right!important;
+}
+.account-card .account-profile-row-value {display:flex!important;min-width:0;flex-direction:column!important;gap:2px!important;align-items:flex-end!important;}
+.account-card .account-storage-tile .account-storage-detail {
+  font-size:11px!important;line-height:1.4!important;
+  color:#78828a!important;margin:0!important;
+  text-align:right!important;font-weight:500!important;
+}
+.account-card .account-storage-tile.account-storage-cloud.is-synced .account-storage-value {color:#217c65!important;}
+.account-card .account-storage-tile.is-warning .account-storage-value {color:#a56f28!important;}
+.account-card .account-storage-sr {position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;}
+.account-card .account-dashboard {margin:14px 0 17px!important;}
+.account-card .recovery-card {margin-top:14px!important;}
+@media(max-width:420px) {
+ .account-card > .account-fold-summary {padding:17px 13px!important;gap:10px!important;}
+ .account-card > .account-fold-summary > .account-header-avatar {width:45px!important;height:45px!important;flex-basis:45px!important;}
+ .account-card > .account-body {padding:13px 13px 17px!important;}
+ .account-card .account-profile-row {padding:12px 11px!important;gap:8px!important;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important;}
+ .account-card .account-header-end .account-summary-status {font-size:10px!important;padding:6px 8px!important;}
+}
+@media(max-width:350px) {
+ .account-card > .account-fold-summary {gap:7px!important;padding:15px 10px!important;}
+ .account-card > .account-fold-summary > .account-header-avatar {width:40px!important;height:40px!important;flex-basis:40px!important;}
+ .account-card .account-header-text .section-kicker {font-size:9px!important;}
+ .account-card .account-header-title {font-size:16px!important;}
+ .account-card .account-header-end {gap:6px!important;}
+ .account-card .account-header-end .account-summary-status {font-size:9px!important;padding:6px!important;}
+ .account-card .account-profile-row > span:first-child,.account-card .account-storage-tile .account-storage-caption {font-size:11px!important;}
+ .account-card .account-connected-ident > strong,.account-card .account-storage-tile .account-storage-value {font-size:11px!important;}
+}
+@media(prefers-reduced-motion:reduce){.account-card > .account-fold-summary .fold-chevron{transition:none!important}}

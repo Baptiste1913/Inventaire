@@ -1,7 +1,7 @@
 /* Inventaires U 33.84 — état technique local, sans télémétrie utilisateurs. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- const VERSION='33.93';
+ const VERSION=document.querySelector('meta[name="iu-build-version"]')?.content||'indéterminée';
  const root=document.documentElement;
  const splash=$('iuPwaSplash');
  // Ouverture uniquement dans la PWA installee : environ 2 secondes,

@@ -184,7 +184,7 @@ function render(){
  badge.textContent=user?'Connecté':'Mode local';
  badge.classList.toggle('is-connected',!!user);
  $('accountProfileName').textContent=name;
- $('accountProfileHint').textContent=user?'Compte Google':'Connexion Google';
+ $('accountProfileHint').textContent='';
  $('accountStatusDot').classList.toggle('is-connected',!!user);
  const avatar=$('accountAvatarImage');
  const avatarUrl=user&&(user.user_metadata?.avatar_url||user.user_metadata?.picture);
