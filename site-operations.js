@@ -1,42 +1,90 @@
-/* Inventaires U 33.84 — état technique local, sans télémétrie utilisateurs. */
+/* Inventaires U V34.39 — état technique et ouverture PWA avec progression contrôlée. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
  const VERSION=document.querySelector('meta[name="iu-build-version"]')?.content||'indéterminée';
  const root=document.documentElement;
  const splash=$('iuPwaSplash');
- // Ouverture uniquement dans la PWA installee : environ 2 secondes,
- // puis apparition progressive des cartes, une apres l'autre, sans flou.
+ // V34.39 — Progression basée sur la disponibilité vérifiable de l'application.
+ // Aucun pourcentage ne dépend d'une minuterie : le chargement réseau
+ // ou cloud non essentiel ne bloque pas les pesées locales.
  if(root.classList.contains('iu-pwa-starting')){
   const started=performance.now();
-  let ready=document.readyState==='complete';
-  let done=false;
-  const fadeDuration=300;
-  const splashDuration=2000;
+  const loader=$('iuSplashLoader'),step=$('iuSplashStep'),percent=$('iuSplashPercent');
+  const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
+  let value=0,finished=false;
+  const set=(next,label)=>{
+   if(finished)return;
+   value=Math.max(value,Math.min(100,Math.round(next)));
+   loader?.style.setProperty('--iu-splash-progress',value+'%');
+   loader?.setAttribute('aria-valuenow',String(value));
+   if(percent)percent.textContent=value+' %';
+   if(label&&step)step.textContent=label;
+  };
+  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const readyOrTimeout=(check,timeout=2500)=>new Promise(resolve=>{
+   if(check()){resolve(true);return;}
+   const begun=performance.now();
+   const poll=()=>{
+    if(check()){resolve(true);return;}
+    if(performance.now()-begun>=timeout){resolve(false);return;}
+    setTimeout(poll,60);
+   };
+   setTimeout(poll,60);
+  });
+  const whenReady=()=>new Promise(resolve=>{
+   if(document.readyState!=='loading'){resolve();return;}
+   document.addEventListener('DOMContentLoaded',resolve,{once:true});
+  });
   const reveal=()=>{
-   if(done||!ready||performance.now()-started<splashDuration-fadeDuration)return;
-   done=true;
-   // L'ordre est determine a partir des cartes réellement visibles : les
-   // blocs caches ne creent aucun intervalle artificiel dans la cascade.
+   if(finished)return;
+   finished=true;
    const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
-    .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
+    .filter(el=>{const cs=getComputedStyle(el);return !el.hidden&&cs.display!=='none'&&cs.visibility!=='hidden';});
    cards.forEach((el,i)=>el.style.setProperty('--iu-pwa-order',String(i)));
    root.classList.add('iu-pwa-splash-leaving','iu-pwa-revealing');
-   const finish=()=>{
+   setTimeout(()=>{
     root.classList.remove('iu-pwa-starting','iu-pwa-splash-leaving');
     splash?.setAttribute('aria-hidden','true');
-    // Garder la classe tant que la derniere carte monte encore.
-    const finalDuration=620+Math.max(0,cards.length-1)*85;
+    const finalDuration=reduced?0:620+Math.max(0,cards.length-1)*85;
     setTimeout(()=>{
      root.classList.remove('iu-pwa-revealing');
      cards.forEach(el=>el.style.removeProperty('--iu-pwa-order'));
     },finalDuration+80);
-   };
-   setTimeout(finish,fadeDuration);
+   },reduced?0:320);
   };
-  if(!ready)window.addEventListener('load',()=>{ready=true;reveal();},{once:true});
-  setTimeout(reveal,splashDuration-fadeDuration+20);
-  // Eviter de bloquer l'ouverture lorsqu'une ressource distante tarde.
-  setTimeout(()=>{ready=true;reveal();},splashDuration+150);
+  (async()=>{
+   try{
+    set(6,'Préparation de l’application');
+    await whenReady();
+    set(23,'Interface chargée');
+    // Ce drapeau est posé à la fin de l'initialisation du moteur de pesée.
+    const coreReady=await readyOrTimeout(()=>typeof window.IUCanSafelyUpdate==='function',2500);
+    if(!coreReady){
+     console.info('Ouverture : moteur de pesée non confirmé à temps');
+    }
+    set(50,coreReady?'Pesée initialisée':'Vérification de la pesée');
+    const loaded=await readyOrTimeout(()=>document.readyState==='complete',1800);
+    set(72,loaded?'Ressources chargées':'Ressources locales disponibles');
+    // La police ne doit pas ralentir indéfiniment le mode hors ligne.
+    if(document.fonts?.ready){
+     await Promise.race([document.fonts.ready.catch(()=>{}),sleep(750)]);
+    }
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const usable=Boolean(document.querySelector('.app > .calc-card')&&document.querySelector('#grossWeight'));
+    set(92,usable?'Espace prêt':'Préparation de l’espace');
+    // Une très courte durée assure la lisibilité du passage à 100 %,
+    // sans réintroduire l'attente artificielle de deux secondes.
+    const remaining=650-(performance.now()-started);
+    if(remaining>0)await sleep(remaining);
+    set(100,'Ouverture terminée');
+    await sleep(reduced?0:180);
+    reveal();
+   }catch(error){
+    console.warn('Ouverture : indicateur de chargement interrompu',error);
+    set(100,'Ouverture de l’application');
+    reveal();
+   }
+  })();
  }
  const panel=$('siteOperationsPanel');if(!panel)return;
  const apply=null;
