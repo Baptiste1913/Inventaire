@@ -1,7 +1,7 @@
 {
-  "version": "34.72",
+  "version": "34.73",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Texte du bouton INVENTAIRE réduit à 11,5 px sans modifier l’icône."
+  "notes": "Bouton renommé Démarrer l’inventaire, texte réduit à 11 px, icône conservée."
 }
