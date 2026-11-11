@@ -8520,3 +8520,83 @@ body.is-focus-mode #focusToolbar #focusConfirm button:focus-visible{
    will-change:auto;
  }
 }
+
+
+/* V34.39 — Lancement PWA : progression sur événements réels et identité sobre.
+   Le pourcentage est mis à jour par site-operations.js, pas par animation CSS. */
+#iuPwaSplash .iu-splash-title{display:none!important;}
+#iuPwaSplash .iu-splash-content{width:min(100%,300px);}
+#iuPwaSplash .iu-splash-subtitle{
+  margin:0!important;
+  color:#60737e!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  line-height:1.45!important;
+}
+#iuPwaSplash .iu-splash-progress-meta{
+  width:190px!important;
+  margin:20px 0 9px!important;
+}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader{
+  --iu-splash-progress:0%;
+  position:relative!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:190px!important;
+  height:12px!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  border:1px solid #dce7e9!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#eef4f5,#e7eef0)!important;
+  box-shadow:inset 0 1px 2px rgba(48,83,94,.045)!important;
+}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader::before{
+  content:""!important;
+  position:absolute!important;
+  inset:2px!important;
+  z-index:2!important;
+  border-radius:999px!important;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent calc(25% - 1px),rgba(255,255,255,.48) calc(25% - 1px),rgba(255,255,255,.48) 25%)!important;
+  pointer-events:none!important;
+}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{
+  position:absolute!important;
+  top:1px!important;
+  bottom:1px!important;
+  left:1px!important;
+  width:calc(var(--iu-splash-progress) - 2px)!important;
+  max-width:calc(100% - 2px)!important;
+  min-width:0!important;
+  height:auto!important;
+  border-radius:999px!important;
+  background:linear-gradient(90deg,#77c5b3 0%,#2a8f91 55%,#137e91 100%)!important;
+  box-shadow:0 0 8px rgba(42,143,145,.12)!important;
+  transform:none!important;
+  animation:none!important;
+  transition:width .32s cubic-bezier(.2,.8,.25,1)!important;
+  will-change:auto!important;
+}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-cap{
+  position:absolute!important;
+  top:50%!important;
+  left:var(--iu-splash-progress)!important;
+  width:12px!important;
+  height:12px!important;
+  border:2px solid #fff!important;
+  border-radius:50%!important;
+  background:#278e91!important;
+  box-shadow:0 1px 5px rgba(19,114,122,.22)!important;
+  transform:translate(-50%,-50%)!important;
+  animation:none!important;
+  transition:left .32s cubic-bezier(.2,.8,.25,1),opacity .18s ease!important;
+}
+@media(max-width:380px){
+ #iuPwaSplash .iu-splash-progress-meta{width:184px!important;}
+ #iuPwaSplash #iuSplashLoader.iu-splash-loader{width:184px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
+ #iuPwaSplash #iuSplashLoader .iu-splash-loader-cap{transition:none!important;}
+}
