@@ -10293,3 +10293,60 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
 @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   .app > .intro > .intro-session-state{background:rgba(13,90,75,.68)!important;}
 }
+
+
+/* V34.64 — Liquid Glass FreeFrontend, variante capsule pour le statut.
+   Refraction de bord optique, sans shader SVG pour préserver Safari/PWA. */
+.app > .intro > #heroStatus.intro-session-state{
+  isolation:isolate!important;
+  overflow:hidden!important;
+  background:rgba(255,255,255,.012)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  -webkit-backdrop-filter:blur(32px) saturate(148%) brightness(1.06)!important;
+  backdrop-filter:blur(32px) saturate(148%) brightness(1.06)!important;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.48),
+    inset 0 -1px 1px rgba(255,255,255,.18),
+    inset 1px 0 2px rgba(255,255,255,.23),
+    inset -1px 0 2px rgba(255,255,255,.14),
+    inset 0 0 9px rgba(255,255,255,.08),
+    0 3px 11px rgba(5,49,44,.09)!important;
+}
+.app > .intro > #heroStatus.intro-session-state::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 72% 90% at 9% 5%,rgba(255,255,255,.17),transparent 68%),
+    radial-gradient(ellipse 65% 85% at 98% 96%,rgba(255,255,255,.10),transparent 72%),
+    linear-gradient(164deg,rgba(255,255,255,.09),transparent 42%,rgba(255,255,255,.025) 75%);
+}
+.app > .intro > #heroStatus.intro-session-state::after{
+  content:"";
+  position:absolute;
+  inset:1px;
+  height:auto;
+  left:1px;
+  right:1px;
+  top:1px;
+  border-radius:inherit;
+  z-index:0;
+  pointer-events:none;
+  background:none;
+  border-top:1px solid rgba(255,255,255,.30);
+  border-bottom:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 2px 3px -2px rgba(255,255,255,.22);
+  filter:none;
+}
+.app > .intro > #heroStatus.intro-session-state > *{
+  position:relative;
+  z-index:1;
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .app > .intro > #heroStatus.intro-session-state{
+    background:rgba(12,91,78,.72)!important;
+  }
+}
