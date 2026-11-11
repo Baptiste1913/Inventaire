@@ -1,7 +1,7 @@
 {
-  "version": "34.87",
+  "version": "34.88",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Contraste du texte du bouton Démarrer l’inventaire légèrement augmenté, icône et dimensions inchangées."
+  "notes": "Retour au libellé court Inventaire dans le bouton de la banderole, sans changer son fonctionnement."
 }
