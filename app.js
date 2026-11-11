@@ -1016,7 +1016,6 @@ $('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='
  basket.addEventListener('blur',onBlur);
  if(window.visualViewport){
   window.visualViewport.addEventListener('resize',()=>{if(keyboardActive())queue();},{passive:true});
-  window.visualViewport.addEventListener('scroll',()=>{if(keyboardActive())queue();},{passive:true});
  }
  // Entrée du clavier validée comme sur un champ numérique iOS standard :
  // le blur existant sauvegarde la pesée uniquement si elle est valide.
