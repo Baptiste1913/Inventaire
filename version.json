@@ -1,7 +1,7 @@
 {
-  "version": "34.41",
+  "version": "34.42",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mode Concentration : suppression des défilements automatiques déclenchés par le clavier, retour au défilement iOS naturel et à une vue stable de la pesée."
+  "notes": "Test de cadrage Concentration : un seul ajustement après ouverture du clavier pour privilégier la visibilité du panier, de la saisie et du poids net ; aucun recentrage pendant la frappe."
 }
