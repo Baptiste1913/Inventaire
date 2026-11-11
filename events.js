@@ -36,7 +36,7 @@ const $=id=>document.getElementById(id);
   const expandedHeight=panel.scrollHeight+border;
   panel.dataset.motion=opening?'opening':'closing';
   animation=panel.animate(
-   [{height:(opening?Math.min(initialHeight,collapsedHeight):initialHeight)+'px'},
+   [{height:initialHeight+'px'},
     {height:(opening?expandedHeight:collapsedHeight)+'px'}],
    {duration:opening?420:350,easing:'cubic-bezier(.22,.75,.24,1)',fill:'forwards'}
   );
