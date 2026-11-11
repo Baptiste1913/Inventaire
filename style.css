@@ -9610,3 +9610,208 @@ body.is-focus-mode #focusToolbar .focus-heading h2{
     border-top-color:#64747d!important;
   }
 }
+
+
+/* V34.49 — Banderole, bilans, démarrage compact et réinitialisations du compte. */
+.app > .intro > h2,
+.app > .intro > p{top:-15px!important;}
+
+/* La version courte du nom tient sur une seule ligne ; la synthèse reste
+   sous le titre. La largeur n'entre pas en conflit avec Supprimer. */
+body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary{
+  min-height:73px!important;
+  padding-top:12px!important;
+  padding-bottom:12px!important;
+  gap:5px!important;
+}
+body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary strong{
+  display:block!important;
+  font-size:13.5px!important;
+  line-height:1.35!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span{
+  font-size:11px!important;
+  line-height:1.4!important;
+  overflow-wrap:anywhere!important;
+}
+
+/* Splash PWA : mini carte inspirée de l'écran d'installation d'une mise
+   à jour. Même piste monochrome, mais barre et logo réduits.
+   L'avancement reste piloté par les jalons réels de site-operations.js. */
+#iuPwaSplash{
+  background:radial-gradient(ellipse at 50% 38%,#fff 0%,#f8fafb 55%,#edf1f3 100%)!important;
+}
+#iuPwaSplash .iu-splash-content{
+  box-sizing:border-box!important;
+  width:min(100%,258px)!important;
+  padding:25px 21px 23px!important;
+  border:1px solid #e0e5e9!important;
+  border-radius:22px!important;
+  background:#fff!important;
+  box-shadow:0 17px 47px rgba(34,49,59,.11),inset 0 1px 0 #fff!important;
+  transform:translateY(-6px);
+}
+#iuPwaSplash .iu-splash-logo{
+  box-sizing:border-box!important;
+  width:70px!important;
+  height:70px!important;
+  margin:0 0 17px!important;
+  padding:6px!important;
+  border:1px solid #e5e9ed!important;
+  border-radius:17px!important;
+  background:#fff!important;
+  box-shadow:0 4px 13px rgba(37,52,63,.055)!important;
+}
+#iuPwaSplash .iu-splash-logo img{
+  width:56px!important;
+  height:56px!important;
+  object-fit:contain!important;
+}
+#iuPwaSplash .iu-splash-subtitle{
+  color:#69757d!important;
+  font-size:11.5px!important;
+  font-weight:750!important;
+}
+#iuPwaSplash .iu-splash-progress-meta{
+  width:164px!important;
+  max-width:100%!important;
+  margin:17px 0 8px!important;
+  font-size:10px!important;
+  color:#747f87!important;
+}
+#iuPwaSplash #iuSplashStep{
+  color:#56636c!important;
+}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader{
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:164px!important;
+  max-width:100%!important;
+  height:8px!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid #dce2e6!important;
+  border-radius:999px!important;
+  background:#eceff1!important;
+  box-shadow:inset 0 1px 1px rgba(40,55,65,.035)!important;
+}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader::before,
+#iuPwaSplash #iuSplashLoader.iu-splash-loader::after{
+  content:none!important;
+  display:none!important;
+}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{
+  left:0!important;
+  top:0!important;
+  bottom:0!important;
+  width:var(--iu-splash-progress)!important;
+  max-width:100%!important;
+  height:100%!important;
+  border-radius:999px!important;
+  background:linear-gradient(90deg,#747e87,#404951)!important;
+  transform:none!important;
+  animation:none!important;
+  box-shadow:none!important;
+  transition:width .32s cubic-bezier(.2,.8,.25,1)!important;
+}
+#iuPwaSplash .iu-splash-loader-cap{
+  display:none!important;
+}
+/* Gestion destructive : deux boutons neutres, danger indiqué uniquement
+   pour la suppression des bilans. La confirmation utilise un vrai dialog. */
+.account-card .dashboard-reset-panel{
+  margin-top:19px!important;
+  padding:15px!important;
+  border:1px solid #dfe4e7!important;
+  border-radius:15px!important;
+  background:linear-gradient(155deg,#fff,#f5f6f7)!important;
+}
+.account-card .dashboard-reset-panel > strong{
+  display:block!important;
+  color:#2d3841!important;
+  font-size:13px!important;
+  font-weight:850!important;
+}
+.account-card .dashboard-reset-panel > p{
+  margin:6px 0 12px!important;
+  font-size:11.5px!important;
+  color:#7a858d!important;
+  line-height:1.55!important;
+}
+.account-card .dashboard-reset-actions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+.account-card .dashboard-reset-btn{
+  box-sizing:border-box!important;
+  min-height:46px!important;
+  padding:10px 9px!important;
+  border:1px solid #d8dfe3!important;
+  border-radius:11px!important;
+  background:linear-gradient(145deg,#fff,#edf0f2)!important;
+  color:#414d56!important;
+  font:800 11.5px/1.35 inherit!important;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.account-card .dashboard-reset-danger{
+  border-color:#efd8dd!important;
+  background:linear-gradient(145deg,#fff,#fbf0f2)!important;
+  color:#a84253!important;
+}
+.account-card .dashboard-reset-panel > .dashboard-reset-note{
+  margin:10px 0 0!important;
+  font-size:10.5px!important;
+  color:#88929a!important;
+}
+.account-reset-dialog{
+  box-sizing:border-box;
+  width:min(360px,calc(100vw - 36px));
+  max-height:calc(100dvh - 42px);
+  border:1px solid #dce2e6;
+  border-radius:20px;
+  background:#fff;
+  color:#303b44;
+  padding:0;
+  box-shadow:0 22px 65px rgba(26,39,49,.18);
+}
+.account-reset-dialog::backdrop{
+  background:rgba(26,37,47,.38);
+  -webkit-backdrop-filter:blur(5px);
+  backdrop-filter:blur(5px);
+}
+.account-reset-modal{padding:23px 20px 19px;}
+.account-reset-modal > strong{display:block;font-size:16px;font-weight:850;line-height:1.35;}
+.account-reset-modal > p{font-size:12.5px;line-height:1.6;color:#66737d;margin:10px 0 20px;}
+.account-reset-modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.account-reset-modal-actions button{
+  min-height:45px;
+  border:1px solid #d5dce1;
+  border-radius:12px;
+  background:#f2f4f5;
+  color:#38454e;
+  font:800 12px/1.25 inherit;
+  cursor:pointer;
+}
+.account-reset-modal-actions #accountResetConfirm{
+  border-color:#3d464e;
+  background:linear-gradient(155deg,#495159,#30373e);
+  color:#fff;
+}
+.account-reset-modal-actions #accountResetConfirm.is-danger{
+  border-color:#ba5c6b;
+  background:linear-gradient(155deg,#c75c6e,#a6374b);
+  color:#fff;
+}
+@media(max-width:380px){
+ .account-card .dashboard-reset-actions{grid-template-columns:1fr!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{transition:none!important;}
+}
