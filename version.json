@@ -1,7 +1,7 @@
 {
-  "version": "34.36",
+  "version": "34.37",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Logo de mise à jour simplifié : carré blanc aux coins arrondis, sans halo ni animation supplémentaire."
+  "notes": "Écran d’ouverture PWA modernisé : logo U dans un carré blanc arrondi, fond clair, titre compact et chargement discret. Révélation des blocs conservée."
 }
