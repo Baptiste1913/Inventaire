@@ -300,6 +300,12 @@ async function init(){
   });
   window.addEventListener('online',()=>{if(authorized)loadRows().catch(e=>status(e.message,true));});
  }catch(e){console.info('Administration du planning non disponible',e?.message||e);}
+ finally{
+  // V34.18 : l'écran de mise à jour attend la première résolution des droits
+  // et du tableau administrateur (y compris en mode hors ligne/non autorisé).
+  window.IUAdminInitialReady=true;
+  window.dispatchEvent(new Event('iu-admin-initial-ready'));
+ }
 }
 init();
 })();
