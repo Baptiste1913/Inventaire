@@ -7358,3 +7358,93 @@ body:not(.is-focus-mode) .backup-card .backup-advanced-body {
 @media(prefers-reduced-motion:reduce) {
  #planningAdminCard .iu-admin-spinner {animation:none!important;border-color:#8ea8b2;border-top-color:#498ea0;}
 }
+
+
+/* V34.21 — Calendrier compact : seule la prochaine date d'inventaire reste
+   visible ; les événements se déplient à la demande. */
+#inventoryCalendar .events-static-content {
+  display:grid!important;
+  gap:11px!important;
+}
+#inventoryCalendar .events-next-card {
+  margin:0!important;
+}
+#inventoryCalendar .events-disclosure {
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #dce4e9!important;
+  border-radius:14px!important;
+  background:linear-gradient(155deg,#fff,#f7fafb)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96)!important;
+  overflow:hidden!important;
+}
+#inventoryCalendar .events-disclosure-summary {
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  min-height:53px!important;
+  padding:12px 14px!important;
+  cursor:pointer;
+  list-style:none!important;
+  color:#35444c!important;
+}
+#inventoryCalendar .events-disclosure-summary::-webkit-details-marker {display:none!important;}
+#inventoryCalendar .events-disclosure-summary::marker {content:""!important;}
+#inventoryCalendar .events-disclosure-label {
+  display:grid!important;
+  gap:3px!important;
+  min-width:0!important;
+}
+#inventoryCalendar .events-disclosure-title {
+  color:#35444c!important;
+  font-size:12.5px!important;
+  line-height:1.3!important;
+  font-weight:800!important;
+}
+#inventoryCalendar .events-disclosure-subtitle {
+  color:#7c8991!important;
+  font-size:10.5px!important;
+  line-height:1.35!important;
+  font-weight:600!important;
+}
+#inventoryCalendar .events-disclosure-chevron {
+  display:block!important;
+  flex:0 0 18px!important;
+  width:18px!important;
+  height:18px!important;
+  fill:none!important;
+  stroke:#778690!important;
+  stroke-width:2.2!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  transition:transform 340ms cubic-bezier(.22,.75,.24,1)!important;
+}
+#inventoryCalendar .events-disclosure[open] .events-disclosure-chevron {
+  transform:rotate(180deg)!important;
+}
+#inventoryCalendar .events-disclosure-content {
+  padding:0 12px 12px!important;
+  border-top:1px solid #e2e8eb!important;
+}
+#inventoryCalendar .events-disclosure .events-month-box {
+  margin:12px 0 0!important;
+  width:100%!important;
+  min-width:0!important;
+}
+#inventoryCalendar .events-disclosure-summary:focus-visible {
+  outline:2px solid #458fa0!important;
+  outline-offset:-3px!important;
+  border-radius:12px!important;
+}
+@media(max-width:380px) {
+ #inventoryCalendar .events-disclosure-summary {
+   padding:11px 12px!important;
+   min-height:51px!important;
+ }
+ #inventoryCalendar .events-disclosure-content {padding:0 10px 10px!important;}
+}
+@media(prefers-reduced-motion:reduce) {
+ #inventoryCalendar .events-disclosure-chevron {transition:none!important;}
+}
