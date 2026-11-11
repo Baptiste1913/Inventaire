@@ -1,7 +1,7 @@
 {
-  "version": "34.10",
+  "version": "34.11",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Refonte du bloc Historique des pesées : cartes modernisées, bouton harmonisé, état vide et action d’effacement restylés."
+  "notes": "Historique des pesées plus compact et harmonisé avec le tableau de bord Google, sans modifier les données ni les interactions."
 }
