@@ -1,7 +1,7 @@
 {
-  "version": "34.34",
+  "version": "34.35",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Écran de mise à jour blanc uniforme et barre de progression par étapes réellement confirmées : activation, chargement, services, finalisation."
+  "notes": "Logo de mise à jour restylisé en emblème circulaire blanc, contour turquoise fin et halo diffus, sans carré intérieur visible."
 }
