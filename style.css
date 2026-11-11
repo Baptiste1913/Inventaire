@@ -11032,3 +11032,22 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   box-shadow:0 11px 17px -8px rgba(39,78,73,.19),
              0 19px 27px -13px rgba(39,78,73,.13)!important;
 }
+
+/* V34.94 — Étendre le bandeau par le bas : titre, description et pastille
+   inchangés ; bouton abaissé avec le bas du bandeau, mascotte ancrée à 0. */
+.app > .intro .intro-bottom{
+  margin-top:24px!important;
+}
+.app > .intro{
+  box-shadow:0 11px 18px -7px rgba(28,69,65,.29),
+             0 20px 28px -13px rgba(27,71,68,.20)!important;
+}
+.app > .intro > .intro-mascot{bottom:0!important;}
+@media(max-width:600px){
+  .app > .intro .intro-bottom{margin-top:22px!important;}
+  .app > .intro > .intro-mascot{bottom:0!important;}
+}
+@media(max-width:380px){
+  .app > .intro .intro-bottom{margin-top:22px!important;}
+  .app > .intro > .intro-mascot{bottom:0!important;}
+}
