@@ -9984,3 +9984,28 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
 @media(prefers-reduced-motion:reduce){
  .app > .intro > .intro-mascot{animation:none!important;transition:none!important;}
 }
+
+
+/* V34.52 — Pastèque en remplacement de l'ancienne mascotte.
+   Image légèrement plus petite, conserve le débord coupé par la
+   bordure basse de la banderole et la pastille Liquid Glass devant. */
+.app > .intro > .intro-mascot{
+  width:clamp(215px,29vw,300px)!important;
+  right:-26px!important;
+  bottom:-35px!important;
+  z-index:1!important;
+}
+@media(max-width:600px){
+  .app > .intro > .intro-mascot{
+    width:240px!important;
+    right:-46px!important;
+    bottom:-27px!important;
+  }
+}
+@media(max-width:380px){
+  .app > .intro > .intro-mascot{
+    width:220px!important;
+    right:-49px!important;
+    bottom:-26px!important;
+  }
+}
