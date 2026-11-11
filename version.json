@@ -1,7 +1,7 @@
 {
-  "version": "34.16",
+  "version": "34.17",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Écran de mise à jour d’environ 5 secondes, persistant au rechargement et suivi d’une apparition des blocs en cascade, sans flou."
+  "notes": "Mes paniers harmonisé avec Historique et Mes inventaires : compteur, liste commune et formulaire modernisé, commandes de tri conservées."
 }
