@@ -6415,3 +6415,86 @@ html.iu-pwa-revealing .app > footer {
   }
   #inventoryCalendar .events-bell > svg {height:12px!important;}
 }
+
+
+/* V34.09 — Refonte du bloc Nouvelle pesée. Le curseur du mode rapide
+   et les animations du mode Concentration ne sont pas modifiés. */
+body:not(.is-focus-mode) .app > .calc-card{
+ border:1px solid #dce3e7!important;background:linear-gradient(165deg,#fff 0%,#fff 62%,#f8fafb 100%)!important;
+ box-shadow:0 6px 23px rgba(36,52,62,.045)!important;border-radius:20px!important;
+}
+body:not(.is-focus-mode) .calc-card > .card-heading{margin-bottom:20px!important}
+body:not(.is-focus-mode) .calc-card > .card-heading h2{color:#232a31!important;letter-spacing:-.55px!important}
+body:not(.is-focus-mode) .calc-card > .card-heading .section-kicker{color:#76818a!important}
+body:not(.is-focus-mode) .calc-card > .weigh-preferences{
+ padding:14px 14px 5px!important;margin-bottom:18px!important;
+ border:1px solid #dce4e9!important;border-radius:15px!important;
+ background:linear-gradient(155deg,#fdfefe,#f5f8fa 82%,#f1f6f8)!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-head{align-items:center!important;margin-bottom:12px!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-title{color:#29333a!important;font-size:12px!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-subtitle{color:#76828a!important;font-size:11px!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-mode{
+ background:#eaf0f3!important;border:1px solid #dbe4e9!important;border-radius:12px!important;
+}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-mode .mode-btn[aria-pressed=true]{color:#263e4b!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-mode .mode-btn[aria-pressed=false]{color:#73838c!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-alerts{border-top-color:#e0e7eb!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-alerts > .calc-alerts-summary{color:#303a41!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-alerts .calc-alerts-title strong{color:#29333a!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-alerts .calc-alerts-title small{color:#76828a!important}
+body:not(.is-focus-mode) .calc-card .weigh-preferences-alerts .calc-alerts-chevron{stroke:#808d96!important}
+body:not(.is-focus-mode) .calc-card > label[for="basketSelect"],
+body:not(.is-focus-mode) .calc-card > label[for="grossWeight"]{
+ color:#323c43!important;font-size:12px!important;font-weight:800!important;letter-spacing:0!important;
+}
+body:not(.is-focus-mode) .calc-card #basketSelect{
+ min-height:52px!important;border:1px solid #d8e1e6!important;border-radius:13px!important;
+ background-color:#f9fbfc!important;color:#26343d!important;font-weight:750!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+body:not(.is-focus-mode) .calc-card .weight-row{gap:9px!important}
+body:not(.is-focus-mode) .calc-card .weight-field{
+ border-radius:14px!important;background:linear-gradient(155deg,#fff,#f7fafb)!important;
+ border:1px solid #ccdce3!important;box-shadow:inset 0 1px 1px rgba(44,67,78,.025)!important;
+}
+body:not(.is-focus-mode) .calc-card .weight-field:focus-within{
+ border:1px solid #7baeb8!important;box-shadow:0 0 0 3px rgba(80,148,160,.105)!important;
+}
+body:not(.is-focus-mode) .calc-card .weight-field input{color:#23343e!important}
+body:not(.is-focus-mode) .calc-card .new-weigh-btn{
+ border:1px solid #c1dce3!important;background:linear-gradient(145deg,#f5fbfd,#deeff3)!important;
+ color:#346b7a!important;border-radius:14px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 2px 7px rgba(38,84,98,.055)!important;
+}
+body:not(.is-focus-mode) .calc-card .v22-hint{color:#87929a!important;font-size:11px!important}
+body:not(.is-focus-mode) .calc-card .result{
+ margin-top:18px!important;border-radius:17px!important;padding:23px 20px 20px!important;
+ background:linear-gradient(128deg,#087e88 0%,#117e91 48%,#246c89 100%)!important;
+ border:1px solid rgba(204,239,242,.3)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 9px 24px rgba(19,78,91,.12)!important;
+}
+body:not(.is-focus-mode) .calc-card .result::before{
+ background:radial-gradient(ellipse at 95% 0%,rgba(239,255,255,.18),transparent 58%),
+ linear-gradient(130deg,rgba(255,255,255,.065),transparent 65%)!important;
+}
+body:not(.is-focus-mode) .calc-card .result-heading{font-size:10.5px!important;letter-spacing:.7px!important}
+body:not(.is-focus-mode) .calc-card .net-line{margin:16px 0 8px!important}
+body:not(.is-focus-mode) .calc-card .net-line strong{font-size:clamp(48px,11.5vw,72px)!important}
+body:not(.is-focus-mode) .calc-card .result-subtitle{font-size:11.5px!important;line-height:1.5!important}
+body:not(.is-focus-mode) .calc-card .copy-btn{
+ border-radius:11px!important;border:1px solid rgba(255,255,255,.7)!important;
+ background:linear-gradient(155deg,#fff,#eef8f9)!important;color:#215d70!important;
+ min-height:43px!important;font-size:12px!important;font-weight:800!important;
+}
+body:not(.is-focus-mode) .calc-card .calc-equation{
+ margin-top:15px!important;border:1px solid #e2e8eb!important;border-radius:12px!important;
+ background:linear-gradient(155deg,#fff,#f7f9fa)!important;padding:11px 9px!important;color:#75818b!important;
+}
+body:not(.is-focus-mode) .calc-card .calc-equation strong{color:#35444d!important}
+@media(max-width:380px){
+ body:not(.is-focus-mode) .calc-card > .weigh-preferences{padding:12px 11px 4px!important}
+ body:not(.is-focus-mode) .calc-card .result{padding:20px 15px 18px!important}
+ body:not(.is-focus-mode) .calc-card .net-line strong{font-size:clamp(45px,11.5vw,66px)!important}
+}
