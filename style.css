@@ -10726,3 +10726,10 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   object-fit:contain!important;
   flex:0 0 20px!important;
 }
+
+/* V34.81 — Icône Play réduite de 35 % (20 → 13 px). */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  width:13px!important;
+  height:13px!important;
+  flex:0 0 13px!important;
+}
