@@ -9756,7 +9756,10 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
   border-radius:11px!important;
   background:linear-gradient(145deg,#fff,#edf0f2)!important;
   color:#414d56!important;
-  font:800 11.5px/1.35 inherit!important;
+  font-family:inherit!important;
+  font-size:11.5px!important;
+  font-weight:800!important;
+  line-height:1.35!important;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
 }
@@ -9796,7 +9799,10 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
   border-radius:12px;
   background:#f2f4f5;
   color:#38454e;
-  font:800 12px/1.25 inherit;
+  font-family:inherit;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.25;
   cursor:pointer;
 }
 .account-reset-modal-actions #accountResetConfirm{
