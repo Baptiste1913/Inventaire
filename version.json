@@ -1,7 +1,7 @@
 {
-  "version": "34.82",
+  "version": "34.83",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Contraste légèrement réduit pour le texte et l’icône Play du bouton Démarrer l’inventaire."
+  "notes": "Contraste du texte du bouton Démarrer l’inventaire légèrement augmenté pour s’accorder avec l’icône Play."
 }
