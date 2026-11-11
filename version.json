@@ -1,7 +1,7 @@
 {
-  "version": "34.29",
+  "version": "34.30",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Événements à venir : titre plus lisible, animation douce d’ouverture/fermeture et bouton des autres événements plus discret."
+  "notes": "Animation Événements à venir corrigée : le cadre se ferme et s'ouvre en un seul mouvement fluide, sans pause ni bande vide."
 }
