@@ -1,7 +1,7 @@
 {
-  "version": "34.30",
+  "version": "34.31",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Animation Événements à venir corrigée : le cadre se ferme et s'ouvre en un seul mouvement fluide, sans pause ni bande vide."
+  "notes": "Mode Concentration compact et harmonisé aux autres cartes ; nouvelle flèche retour dans la notification de fin d'inventaire. Pesée inchangée."
 }
