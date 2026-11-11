@@ -5994,3 +5994,108 @@ html.iu-pwa-revealing .app > footer {
  #accountCard .account-dashboard{padding:13px 10px!important;}
  #accountCard .account-dashboard-identity-row{padding:10px 9px!important;}
 }
+
+
+/* V34.03 — nettoyage du raccord entre l'en-tête et le contenu des catégories. */
+#planningAdminCard .iu-admin-category > .iu-admin-category-body {
+  border-top:0!important;
+  box-shadow:none!important;
+  background:linear-gradient(150deg,#fff,#f6f7f9)!important;
+}
+#planningAdminCard .iu-admin-category > summary,
+#planningAdminCard .iu-admin-category[open] > summary {
+  border-bottom:0!important;
+  box-shadow:none!important;
+}
+#planningAdminCard .iu-admin-category > .iu-admin-category-body::before,
+#planningAdminCard .iu-admin-category > .iu-admin-category-body::after {
+  content:none!important;display:none!important;
+}
+#planningAdminCard .iu-admin-planning > .iu-admin-category-body > :first-child {
+  border-top:0!important;
+  box-shadow:none!important;
+}
+
+/* Déconnexion : action sensible, nuance rouge douce cohérente avec « Effacer ». */
+#accountCard .account-body .account-logout {
+  background:linear-gradient(145deg,#fff8f8,#fce9eb)!important;
+  border:1px solid #eac4ca!important;
+  color:#ac3044!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 3px 9px rgba(130,40,55,.055)!important;
+}
+#accountCard .account-body .account-logout:focus-visible {
+  outline:2px solid #c75a69!important;outline-offset:2px;
+}
+
+/* Planification (accueil) : même grammaire graphique que le compte Google
+   V34.02, fond monochrome et accents bleu-gris subtils. */
+.app > .inventory-calendar.events-card {
+  background:#fff!important;
+  border:1px solid #e0e4e8!important;
+  box-shadow:0 5px 22px rgba(29,39,48,.045)!important;
+  padding:19px 17px 17px!important;
+}
+#inventoryCalendar .events-static-header {
+  margin-bottom:15px!important;
+  align-items:center!important;
+}
+#inventoryCalendar .events-header-title {gap:4px!important;}
+#inventoryCalendar .events-header-title .section-kicker {
+  font-size:11px!important;line-height:1.35!important;
+  letter-spacing:.105em!important;font-weight:800!important;
+  color:#53646c!important;
+}
+#inventoryCalendar .events-static-header strong {
+  font-size:17px!important;line-height:1.25!important;
+  font-weight:850!important;letter-spacing:-.45px!important;
+  color:#20252b!important;
+}
+#inventoryCalendar .events-static-content {gap:0!important;}
+#inventoryCalendar .events-info-box {
+  padding:15px 14px!important;margin-bottom:12px!important;
+  border:1px solid #dce2e7!important;border-radius:16px!important;
+  background:linear-gradient(155deg,#fff 0%,#fbfcfd 62%,#f5f8fa 100%)!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+#inventoryCalendar .events-next-card {
+  border-color:#dce6ed!important;
+  background:linear-gradient(140deg,#f5f9fc,#eaf1f6)!important;
+}
+#inventoryCalendar .events-kicker {
+  color:#647680!important;font-size:11px!important;
+  font-weight:800!important;letter-spacing:.075em!important;
+}
+#inventoryCalendar #calendarNextDate {
+  font-size:clamp(19px,4.9vw,25px)!important;
+  color:#263a45!important;
+}
+#inventoryCalendar .events-countdown:not([hidden]) {
+  background:linear-gradient(145deg,#fff,#f5f8fa)!important;
+  border-color:#d8e3e9!important;color:#405b6b!important;
+}
+#inventoryCalendar .events-entry strong {color:#28343d!important;}
+#inventoryCalendar .events-entry .events-period {color:#75828c!important;}
+#inventoryCalendar .events-more-list .events-entry {border-color:#e1e7eb!important;}
+#inventoryCalendar .events-bell:not(.is-active) {
+  background:linear-gradient(145deg,#fff,#f1f5f7)!important;
+  border-color:#d5e0e6!important;color:#435e6d!important;
+  box-shadow:inset 0 1px 0 #fff,0 2px 7px rgba(29,39,48,.045)!important;
+}
+#inventoryCalendar .events-bell:not(.is-active) :is(svg,.events-bell-label) {color:#435e6d!important;}
+#inventoryCalendar .events-bell.is-active {
+  background:linear-gradient(145deg,#eef8f2,#dff1e7)!important;
+  border-color:#c3e4d3!important;color:#267052!important;
+}
+#inventoryCalendar .events-more {
+  background:linear-gradient(145deg,#fff,#f0f4f6)!important;
+  border:1px solid #d7e1e7!important;
+  color:#3b5361!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+#inventoryCalendar .events-push-status {color:#75818a!important;}
+@media(max-width:380px){
+  .app > .inventory-calendar.events-card {padding:16px 12px!important;}
+  #inventoryCalendar .events-info-box {padding:13px 11px!important;}
+  #inventoryCalendar .events-header-title .section-kicker {font-size:10px!important;}
+  #inventoryCalendar .events-static-header strong {font-size:16px!important;}
+}

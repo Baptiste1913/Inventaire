@@ -1,7 +1,7 @@
 {
-  "version": "34.02",
+  "version": "34.03",
   "published": "2026-11-11",
   "assets": 42,
-  "bytes": 792911,
-  "notes": "En-têtes Administration/Compte alignés, suppression des barres grises de tiroirs et redesign monochrome bleuté du compte."
+  "bytes": 816052,
+  "notes": "Barre grise du planning supprimée, déconnexion rouge, carte Événements harmonisée au compte monochrome."
 }
