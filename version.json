@@ -1,7 +1,7 @@
 {
-  "version": "34.32",
+  "version": "34.33",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Confirmation de fin d’inventaire harmonisée avec le mode Concentration compact : titre, marges et boutons. Fonctionnement préservé."
+  "notes": "Nouvelle pesée utilise exactement les mêmes styles en mode Concentration et en mode normal. Écran de mise à jour modernisé avec un carré blanc autour du logo."
 }
