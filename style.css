@@ -7312,3 +7312,49 @@ body:not(.is-focus-mode) .backup-card .backup-advanced-body {
 }
 /* V34.18 — Le voile de mise à jour reste présent jusqu'à la stabilisation réelle de la page. */
 #iuUpdateOverlay .iu-update-progress > span {will-change:transform;}
+
+
+/* V34.19 — Vérification administration visible sans décalage de mise en page.
+   Les éléments protégés ne sont jamais visibles tant que la RLS n'a pas répondu. */
+#planningAdminCard .iu-admin-spinner {
+  display:none;
+  width:17px;
+  height:17px;
+  flex:0 0 17px;
+  border:2px solid #d5e2e7;
+  border-top-color:#498ea0;
+  border-radius:50%;
+  animation:iu-admin-spin .85s linear infinite;
+}
+@keyframes iu-admin-spin {to{transform:rotate(360deg);}}
+#planningAdminCard[data-admin-loading="true"] > .planning-admin-summary .iu-admin-spinner {
+  display:block;
+}
+#planningAdminCard > .iu-admin-loading-message {
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:11px;
+  padding:20px 15px;
+  border-top:1px solid #e2e8eb;
+  background:linear-gradient(155deg,#fff,#f6f9fa);
+  color:#75848d;
+  font-size:12px;
+  line-height:1.45;
+  font-weight:700;
+}
+#planningAdminCard[data-admin-loading="true"][open] > .iu-admin-loading-message {
+  display:flex!important;
+}
+#planningAdminCard[data-admin-loading="true"] > .planning-admin-body {
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#planningAdminCard[data-admin-loading="true"] .planning-admin-summary .planning-admin-chevron {
+  opacity:.45;
+}
+#planningAdminCard[hidden] {display:none!important;}
+@media(prefers-reduced-motion:reduce) {
+ #planningAdminCard .iu-admin-spinner {animation:none!important;border-color:#8ea8b2;border-top-color:#498ea0;}
+}
