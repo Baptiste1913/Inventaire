@@ -6257,3 +6257,28 @@ html.iu-pwa-revealing .app > footer {
 }
 /* La commande prolonge la carte jusqu'à ses deux bordures intérieures. */
 #inventoryCalendar .events-more-inline {max-width:none!important;}
+
+/* V34.06 — pastille notifications : même hauteur que la pastille de session,
+   aucun point additionnel (la couleur du fond porte déjà l'état). */
+#inventoryCalendar .events-bell::before,
+#inventoryCalendar .events-bell.is-active::before {
+  display:none!important;
+  content:none!important;
+}
+#inventoryCalendar .events-bell,
+#inventoryCalendar .events-bell:not(.is-active) {
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  gap:7px!important;
+  padding-inline:13px!important;
+}
+@media(max-width:380px){
+  #inventoryCalendar .events-bell,
+  #inventoryCalendar .events-bell:not(.is-active) {
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+    padding-inline:10px!important;
+  }
+}

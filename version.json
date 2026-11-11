@@ -1,7 +1,7 @@
 {
-  "version": "34.05",
+  "version": "34.06",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 816052,
-  "notes": "Tiroir Événements harmonisé avec les catégories administrateur et pastille Notifications alignée sur Aucune session."
+  "notes": "Pastille de notifications harmonisée en hauteur avec l’état de session, sans point supplémentaire."
 }
