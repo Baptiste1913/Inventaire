@@ -2,6 +2,45 @@
    events-data.js est uniquement le secours de première installation / hors ligne. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
+// V34.29 — ouverture / fermeture animée du volet Événements du mois.
+// Le panneau reste techniquement ouvert pendant la fermeture pour éviter
+// que Safari iPhone masque son contenu avant la fin de la transition.
+(function setupEventsDisclosure(){
+ const panel=$('eventsDisclosure');
+ const summary=panel?.querySelector('.events-disclosure-summary');
+ const content=panel?.querySelector('.events-disclosure-content');
+ if(!panel||!summary||!content)return;
+ let animation=null;
+ summary.addEventListener('click',event=>{
+  event.preventDefault();
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||typeof content.animate!=='function'){
+   animation?.cancel();animation=null;
+   panel.open=!panel.open;
+   content.style.removeProperty('overflow');
+   return;
+  }
+  const opening=!panel.open||panel.dataset.motion==='closing';
+  const current=animation?content.getBoundingClientRect().height:(panel.open?content.getBoundingClientRect().height:0);
+  if(animation){animation.cancel();animation=null;}
+  panel.open=true;
+  panel.dataset.motion=opening?'opening':'closing';
+  const target=opening?content.scrollHeight:0;
+  content.style.overflow='hidden';
+  animation=content.animate([
+   {height:current+'px',opacity:opening?0.55:1},
+   {height:target+'px',opacity:opening?1:0.55}
+  ],{duration:opening?420:350,easing:'cubic-bezier(.22,.75,.24,1)',fill:'forwards'});
+  const active=animation;
+  active.onfinish=()=>{
+   if(animation!==active)return;
+   animation=null;
+   if(!opening)panel.open=false;
+   content.style.removeProperty('overflow');
+   panel.removeAttribute('data-motion');
+   active.cancel();
+  };
+ });
+})();
 const fallback=window.INVENTAIRES_U_EVENTS||{inventories:[],events:[]};
 const CACHE='inventaires-u-planning-cache-v33.35';
 const date=s=>new Date(s+'T12:00:00');
