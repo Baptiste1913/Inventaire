@@ -94,7 +94,9 @@ const status=msg=>{
   const sep=' · Dernière sauvegarde : ';
   if(synced&&msg.includes(sep)){
    main.textContent='Synchronisé';
-   detail.textContent='Dernière sauvegarde · '+msg.split(sep).slice(1).join(sep);
+   detail.textContent=msg.split(sep).slice(1).join(sep);
+  }else if(synced){
+   main.textContent='Synchronisé';detail.textContent='Date de sauvegarde indisponible';
   }else if(msg.startsWith('Choix nécessaire :')){
    main.textContent='Choix nécessaire';detail.textContent='Vérifier les sauvegardes';
   }else if(msg==='Modifications en attente de synchronisation'){
@@ -108,7 +110,7 @@ const status=msg=>{
   }else if(msg==='Données récupérées. Actualisation nécessaire.'){
    main.textContent='Données récupérées';detail.textContent='Actualisation nécessaire';
   }else{
-   main.textContent=msg;detail.textContent='';
+   main.textContent=msg;detail.textContent='Statut en cours de vérification';
   }
  }
  renderDashboard();
