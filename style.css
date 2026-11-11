@@ -7997,3 +7997,16 @@ body:not(.is-focus-mode) .app > details.card.fold-card:is(.history-card,.session
 @media(prefers-reduced-motion:reduce){
   #inventoryCalendar .events-disclosure-chevron {transition:none!important;}
 }
+
+
+/* V34.30 — Le cadre Événements se rétracte en une seule animation.
+   Une seule boîte animée, bordure comprise ; pas de saut en fin de fermeture. */
+#inventoryCalendar #eventsDisclosure.events-disclosure {
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  min-height:0!important;
+  contain:layout!important;
+}
+#inventoryCalendar #eventsDisclosure .events-disclosure-content {
+  box-sizing:border-box!important;
+}
