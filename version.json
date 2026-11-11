@@ -1,7 +1,7 @@
 {
-  "version": "34.76",
+  "version": "34.77",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton Démarrer / L’inventaire sur deux lignes et correctif JavaScript du zoom au double-tap sur iPhone."
+  "notes": "Bouton DÉMARRER / L’INVENTAIRE élargi, texte centré, agrandi et en majuscules."
 }
