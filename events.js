@@ -8,39 +8,49 @@ const $=id=>document.getElementById(id);
 (function setupEventsDisclosure(){
  const panel=$('eventsDisclosure');
  const summary=panel?.querySelector('.events-disclosure-summary');
- const content=panel?.querySelector('.events-disclosure-content');
- if(!panel||!summary||!content)return;
+ if(!panel||!summary)return;
  let animation=null;
+ const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
  summary.addEventListener('click',event=>{
   event.preventDefault();
-  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||typeof content.animate!=='function'){
-   animation?.cancel();animation=null;
-   panel.open=!panel.open;
-   content.style.removeProperty('overflow');
+  const opening=!panel.open||panel.dataset.motion==='closing';
+  if(animation){
+   const running=animation;
+   animation=null;
+   running.cancel();
+  }
+  if(reduced()||typeof panel.animate!=='function'){
+   panel.open=opening;
+   panel.removeAttribute('data-motion');
    return;
   }
-  const opening=!panel.open||panel.dataset.motion==='closing';
-  const current=animation?content.getBoundingClientRect().height:(panel.open?content.getBoundingClientRect().height:0);
-  if(animation){animation.cancel();animation=null;}
+  // Animer la hauteur du cadre complet (bordure et marges comprises).
+  // L'ancienne animation du contenu laissait sa marge et son bord visible
+  // pendant la fermeture, avant un deuxième saut à la fermeture native.
+  const initialHeight=panel.getBoundingClientRect().height;
   panel.open=true;
+  const cs=getComputedStyle(panel);
+  const border=(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0);
+  const summaryHeight=summary.getBoundingClientRect().height;
+  const collapsedHeight=summaryHeight+border;
+  const expandedHeight=panel.scrollHeight+border;
   panel.dataset.motion=opening?'opening':'closing';
-  const target=opening?content.scrollHeight:0;
-  content.style.overflow='hidden';
-  animation=content.animate([
-   {height:current+'px',opacity:opening?0.55:1},
-   {height:target+'px',opacity:opening?1:0.55}
-  ],{duration:opening?420:350,easing:'cubic-bezier(.22,.75,.24,1)',fill:'forwards'});
-  const active=animation;
-  active.onfinish=()=>{
-   if(animation!==active)return;
+  animation=panel.animate(
+   [{height:(opening?Math.min(initialHeight,collapsedHeight):initialHeight)+'px'},
+    {height:(opening?expandedHeight:collapsedHeight)+'px'}],
+   {duration:opening?420:350,easing:'cubic-bezier(.22,.75,.24,1)',fill:'forwards'}
+  );
+  const current=animation;
+  current.onfinish=()=>{
+   if(animation!==current)return;
    animation=null;
    if(!opening)panel.open=false;
-   content.style.removeProperty('overflow');
    panel.removeAttribute('data-motion');
-   active.cancel();
+   current.cancel();
   };
  });
 })();
+
 const fallback=window.INVENTAIRES_U_EVENTS||{inventories:[],events:[]};
 const CACHE='inventaires-u-planning-cache-v33.35';
 const date=s=>new Date(s+'T12:00:00');
