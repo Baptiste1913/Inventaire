@@ -10236,3 +10236,12 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
     font-size:10px!important;
   }
 }
+
+
+/* V34.62 — Liquid Glass : intérieur quasi transparent, flou renforcé.
+   Les reflets et la luminosité des contours restent inchangés. */
+.app > .intro > .intro-session-state{
+  background:rgba(255,255,255,.008)!important;
+  -webkit-backdrop-filter:blur(40px) saturate(135%)!important;
+  backdrop-filter:blur(40px) saturate(135%)!important;
+}

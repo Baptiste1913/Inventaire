@@ -1,7 +1,7 @@
 {
-  "version": "34.61",
+  "version": "34.62",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mascotte remplacée par le véritable SVG vectoriel transparent fourni sur GitHub ; dimensions et position inchangées, cache hors ligne actualisé."
+  "notes": "Pastille session Liquid Glass : fond blanc quasi transparent (0,8 %), flou 40 px et saturation 135 %, contours lumineux conservés."
 }
