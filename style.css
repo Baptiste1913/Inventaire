@@ -10713,3 +10713,16 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 @media(max-width:600px){
   .app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.2px!important;}
 }
+
+
+/* V34.80 — Icône fournie (PNG transparent) et bouton +1 px de haut. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  min-height:43px!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  display:block!important;
+  width:20px!important;
+  height:20px!important;
+  object-fit:contain!important;
+  flex:0 0 20px!important;
+}
