@@ -6676,3 +6676,51 @@ body:not(.is-focus-mode) .history-card .history-clear[hidden] {
     padding-left:5px!important;
   }
 }
+
+
+/* V34.14 — Compteur d'historique : même pastille que « Aucune session ».
+   Réutilise les états et le voyant doux de .session-pill (non actif). */
+body:not(.is-focus-mode) .history-card .fold-trailing #historyCount.count.session-pill {
+  position:relative!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-height:32px!important;
+  height:auto!important;
+  padding:9px 11px 9px 31px!important;
+  border:1px solid #d9e1e5!important;
+  border-radius:100px!important;
+  background:#edf0f1!important;
+  color:#5e6370!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+  font-size:10.5px!important;
+  font-weight:850!important;
+  line-height:1.25!important;
+  letter-spacing:normal!important;
+  white-space:nowrap!important;
+}
+body:not(.is-focus-mode) .history-card .fold-trailing #historyCount.session-pill::before {
+  content:""!important;position:absolute!important;left:13px!important;top:50%!important;
+  display:block!important;width:9px!important;height:9px!important;
+  border-radius:50%!important;background:#a9b5bd!important;
+  transform:translateY(-50%)!important;
+}
+body:not(.is-focus-mode) .history-card .fold-trailing #historyCount.session-pill::after {
+  content:""!important;position:absolute!important;left:8px!important;top:50%!important;
+  display:block!important;width:19px!important;height:19px!important;
+  border-radius:50%!important;background:rgba(169,181,189,.20)!important;
+  transform:translateY(-50%)!important;
+  animation:session-pill-pulse 1.9s ease-in-out infinite!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body:not(.is-focus-mode) .history-card .fold-trailing #historyCount.session-pill::after {
+   animation:none!important;
+ }
+}
+@media(max-width:380px){
+ body:not(.is-focus-mode) .history-card .fold-trailing #historyCount.count.session-pill {
+  font-size:10px!important;
+ }
+}
