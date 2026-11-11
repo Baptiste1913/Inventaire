@@ -179,6 +179,10 @@
    }catch{log('worker');}
   }
   // Installation is only offered for a fully installed waiting worker.
+  // Rechercher la registration actuelle, pas seulement la référence mémorisée.
+  if('serviceWorker'in navigator){
+    try{reg=await navigator.serviceWorker.getRegistration()||reg;}catch(_){}
+  }
   ready=Boolean(reg?.waiting&&navigator.serviceWorker.controller);
   lastChecked=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   $('iuUpdateChecked').textContent='Dernière vérification : '+lastChecked;
@@ -191,7 +195,7 @@
    else set('waiting','Installation reportée','Un inventaire est en cours : termine-le avant d’installer la mise à jour.','Vérifier à nouveau');
   }else if(!navigator.onLine){set('offline','Hors ligne','La recherche sera possible lorsque la connexion reviendra.','Réessayer');}
   else if(!publishedOK){set('unavailable','Vérification impossible','Impossible de confirmer la version actuellement publiée.','Réessayer');}
-  else if(knownPublished!==VERSION){set('available','Version '+knownPublished+' publiée',workerOK?'Installation en préparation dans le cache.':'Impossible de préparer le cache pour le moment.','Vérifier à nouveau');}
+  else if(knownPublished!==VERSION){set('available','Version '+knownPublished+' publiée',workerOK?'Mise à jour détectée. Si elle ne devient pas prête, ferme puis rouvre l’application et relance la vérification.':'Préparation du cache impossible. Vérifie ta connexion et réessaie.','Vérifier à nouveau');}
   else{set('current','Application à jour','Tu utilises la version actuellement publiée.','Vérifier les mises à jour');}
  }
  async function install(){
