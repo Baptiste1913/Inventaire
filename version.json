@@ -1,7 +1,7 @@
 {
-  "version": "34.28",
+  "version": "34.29",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Titre Nouvelle pesée uniformisé avec Ma session et Événements ; quatre volets sous Calcul plus hauts de 10 px, marges et animations conservées."
+  "notes": "Événements à venir : titre plus lisible, animation douce d’ouverture/fermeture et bouton des autres événements plus discret."
 }
