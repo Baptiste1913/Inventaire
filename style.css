@@ -7747,3 +7747,100 @@ body .app > .calc-card .net-line strong.net-value-updated {
  body .app > .calc-card .net-line strong.net-value-updated {animation:none!important;}
  body .app > .calc-card .result-heading .copy-btn {transition:none!important;}
 }
+
+
+/* V34.26 — Tous les en-têtes de blocs repliables alignés sur Ma session
+   et Événements : même grille, marges, titres et surtitres.
+   Aucune règle sur les contenus, compteurs, contrôles ou animations. */
+body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary {
+  box-sizing:border-box!important;
+  min-height:78px!important;
+  padding:19px 17px!important;
+  align-items:center!important;
+  gap:12px!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary > .fold-heading {
+  display:grid!important;
+  gap:4px!important;
+  align-content:center!important;
+  min-width:0!important;
+  flex:1 1 auto!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary .fold-heading > .section-kicker {
+  display:block!important;
+  margin:0!important;
+  color:#53646c!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+  font-weight:800!important;
+  letter-spacing:.105em!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary .fold-heading > .fold-label {
+  display:block!important;
+  margin:0!important;
+  color:#20252b!important;
+  font-size:17px!important;
+  line-height:1.25!important;
+  font-weight:850!important;
+  letter-spacing:-.45px!important;
+  text-transform:none!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary > .fold-trailing {
+  margin-left:auto!important;
+  align-self:center!important;
+  gap:9px!important;
+}
+/* Compte et administration : garder les avatars et l'icône de sécurité,
+   mais harmoniser les marges et l'espacement des deux lignes. */
+body:not(.is-focus-mode) .app > :is(#accountCard,#planningAdminCard) > .fold-summary {
+  box-sizing:border-box!important;
+  padding:19px 17px!important;
+  min-height:85px!important;
+  gap:12px!important;
+  align-items:center!important;
+}
+body:not(.is-focus-mode) #accountCard .account-header-text,
+body:not(.is-focus-mode) #planningAdminCard .planning-admin-title {
+  gap:4px!important;
+}
+body:not(.is-focus-mode) #accountCard .account-header-text > .section-kicker,
+body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-eyebrow {
+  margin:0!important;
+  color:#53646c!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+  letter-spacing:.105em!important;
+  font-weight:800!important;
+}
+body:not(.is-focus-mode) #accountCard .account-header-text > .account-header-title,
+body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-heading {
+  margin:0!important;
+  color:#20252b!important;
+  font-size:17px!important;
+  line-height:1.25!important;
+  letter-spacing:-.45px!important;
+  font-weight:850!important;
+}
+/* Référence mobile : Ma session et Événements passent à 16 / 10 px. */
+@media(max-width:380px) {
+  body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary {
+    padding:16px 12px!important;
+    min-height:74px!important;
+    gap:9px!important;
+  }
+  body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary .fold-heading > .section-kicker {
+    font-size:10px!important;
+  }
+  body:not(.is-focus-mode) .app > :is(.history-card,.sessions-history-card,.basket-card,.backup-card) > .fold-summary .fold-heading > .fold-label {
+    font-size:16px!important;
+  }
+  body:not(.is-focus-mode) .app > :is(#accountCard,#planningAdminCard) > .fold-summary {
+    padding:16px 12px!important;
+    min-height:78px!important;
+    gap:9px!important;
+  }
+  body:not(.is-focus-mode) #accountCard .account-header-text > .section-kicker,
+  body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-eyebrow {font-size:10px!important;}
+  body:not(.is-focus-mode) #accountCard .account-header-text > .account-header-title,
+  body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-heading {font-size:16px!important;}
+}
