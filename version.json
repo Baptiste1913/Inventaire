@@ -1,7 +1,7 @@
 {
-  "version": "34.49",
+  "version": "34.50",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole : textes remontés. Ouverture PWA : mini carte avec logo réduit et barre de progression façon installation. Bilans : titres courts et compacts. Compte : réinitialisation des inventaires terminés avec copie de récupération et remise à zéro des statistiques locales."
+  "notes": "Notifications réseau : nouvelles icônes Wi-Fi, alerte hors ligne persistante et confirmation de reconnexion après stabilisation, fermeture automatique après 2,5 s. Fonctionnement et sauvegardes inchangés."
 }
