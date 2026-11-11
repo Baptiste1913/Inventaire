@@ -9451,3 +9451,162 @@ body:not(.is-focus-mode) .basket-card #basketForm :is(#cancelEditBtn,.ghost-btn)
 @media(max-width:380px){
   .app > .intro{padding-top:48px!important;padding-bottom:21px!important;}
 }
+
+
+/* V34.48 — Pesée monochrome, état calculé seul conservé en émeraude.
+   Exactement les mêmes sélecteurs en accueil et Concentration, sans toucher
+   à la saisie, aux calculs, aux animations ni aux résultats. */
+body .app > .calc-card {
+  border-color:#dfe3e7!important;
+  background:linear-gradient(165deg,#fff 0%,#fff 64%,#f7f8f9 100%)!important;
+}
+body .app > .calc-card > .weigh-preferences{
+  border-color:#dde2e6!important;
+  background:linear-gradient(155deg,#fff,#f5f6f7)!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+body .app > .calc-card .weigh-preferences-mode{
+  border-color:#d7dde1!important;
+  background:#edf0f2!important;
+}
+body .app > .calc-card .weigh-preferences-mode .mode-slide-thumb{
+  border-color:#d2d9de!important;
+  background:linear-gradient(155deg,#fff,#f5f6f7)!important;
+  box-shadow:0 2px 6px rgba(38,50,60,.07)!important;
+}
+body .app > .calc-card .weigh-preferences-mode .mode-btn[aria-pressed="true"]{
+  color:#313c45!important;
+}
+body .app > .calc-card .weigh-preferences-mode .mode-btn[aria-pressed="false"]{
+  color:#7b858e!important;
+}
+body .app > .calc-card .weigh-preferences-alerts{
+  border-color:#e0e4e7!important;
+}
+body .app > .calc-card .weigh-preferences-alerts .calc-alerts-chevron{
+  stroke:#717c85!important;
+}
+body .app > .calc-card .calc-alerts-body{
+  border-color:#e0e5e9!important;
+  color:#38434c!important;
+  background:transparent!important;
+}
+body .app > .calc-card .calc-alerts-body input[type="text"]{
+  border-color:#d6dde2!important;
+  background:#f7f8f9!important;
+  color:#303942!important;
+}
+body .app > .calc-card .calc-alerts-body input[type="text"]:focus{
+  border-color:#808d98!important;
+  box-shadow:0 0 0 3px rgba(100,114,124,.10)!important;
+}
+body .app > .calc-card .duplicate-toggle{
+  border-color:#dfe4e8!important;
+  background:#f7f8f9!important;
+}
+body .app > .calc-card .duplicate-toggle input{
+  accent-color:#59666e!important;
+}
+body .app > .calc-card #basketSelect{
+  border-color:#d7dde2!important;
+  background-color:#f8f9fa!important;
+  color:#303943!important;
+}
+body .app > .calc-card .weight-field{
+  border-color:#d4dce1!important;
+  background:linear-gradient(155deg,#fff,#f7f8f9)!important;
+  box-shadow:inset 0 1px 1px rgba(39,52,62,.025)!important;
+}
+body .app > .calc-card .weight-field:focus-within{
+  border-color:#7d8993!important;
+  box-shadow:0 0 0 3px rgba(95,108,118,.11)!important;
+}
+body .app > .calc-card .weight-field input,
+body .app > .calc-card #inputUnit{
+  color:#303d46!important;
+}
+body .app > .calc-card .new-weigh-btn{
+  border-color:#d7dde2!important;
+  background:linear-gradient(145deg,#fff,#e9edf0)!important;
+  color:#4b5963!important;
+  box-shadow:inset 0 1px 0 #fff,0 2px 7px rgba(35,45,55,.045)!important;
+}
+body .app > .calc-card .new-weigh-btn:active:not(:disabled){
+  background:linear-gradient(145deg,#f5f6f7,#e3e7eb)!important;
+}
+body .app > .calc-card .calc-equation{
+  border-color:#e0e5e8!important;
+  background:linear-gradient(155deg,#fff,#f6f7f8)!important;
+  color:#78838c!important;
+}
+body .app > .calc-card .calc-equation strong{color:#36424c!important;}
+/* Ne pas neutraliser .result, .copy-btn ou le texte Poids net :
+   ce sont les seuls accents verts intentionnels de la pesée. */
+
+/* Bilans : titre parlant avec heure, informations secondaires aérées. */
+body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary{
+  gap:7px!important;
+}
+body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary strong{
+  font-size:clamp(13px,3.7vw,15px)!important;
+  line-height:1.38!important;
+  font-weight:850!important;
+  color:#28353d!important;
+  letter-spacing:-.22px!important;
+}
+body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span{
+  font-size:11.5px!important;
+  line-height:1.5!important;
+  font-weight:600!important;
+  color:#7e8a93!important;
+}
+
+/* Banderole : relever uniquement les textes. Les commandes restent
+   à leur emplacement et l'espacement inférieur V34.47 reste stable. */
+.app > .intro > h2{
+  position:relative!important;
+  top:-8px!important;
+}
+.app > .intro > p{
+  position:relative!important;
+  top:-8px!important;
+}
+
+/* Concentration : un seul titre clair, sans micro-surtitre redondant. */
+body.is-focus-mode #focusToolbar .focus-heading h2{
+  margin-top:0!important;
+  line-height:1.25!important;
+}
+
+/* Administration : anneau fin, monochrome, légèrement vers la gauche.
+   Conserver les classes de chargement et les contrôles d'accès existants. */
+#planningAdminCard .planning-admin-trailing{
+  gap:10px!important;
+}
+#planningAdminCard .iu-admin-spinner{
+  box-sizing:border-box!important;
+  width:20px!important;
+  height:20px!important;
+  flex:0 0 20px!important;
+  margin-right:7px!important;
+  border:2.4px solid #e5e9ec!important;
+  border-top-color:#64747d!important;
+  border-right-color:#9ca9b1!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  animation:iu-admin-spin .75s cubic-bezier(.42,.05,.58,.95) infinite!important;
+}
+#planningAdminCard > .iu-admin-loading-message .iu-admin-spinner{
+  margin-right:0!important;
+  width:19px!important;
+  height:19px!important;
+  flex-basis:19px!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #planningAdminCard .iu-admin-spinner{
+    animation:none!important;
+    border-color:#dce2e6!important;
+    border-top-color:#64747d!important;
+  }
+}
