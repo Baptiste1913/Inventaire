@@ -1,7 +1,7 @@
 {
-  "version": "34.77",
+  "version": "34.78",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton DÉMARRER / L’INVENTAIRE élargi, texte centré, agrandi et en majuscules."
+  "notes": "Texte du bouton DÉMARRER L’INVENTAIRE réduit à 11,5 px, icône et largeur inchangées."
 }
