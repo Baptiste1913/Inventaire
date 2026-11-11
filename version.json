@@ -1,7 +1,7 @@
 {
-  "version": "34.60",
+  "version": "34.61",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Correction effective de la position de la pastille session : déplacée dans le HTML pour s'ancrer en haut à droite de la banderole et non au bloc des boutons."
+  "notes": "Mascotte remplacée par le véritable SVG vectoriel transparent fourni sur GitHub ; dimensions et position inchangées, cache hors ligne actualisé."
 }
