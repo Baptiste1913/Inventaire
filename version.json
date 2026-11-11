@@ -1,7 +1,7 @@
 {
-  "version": "34.15",
+  "version": "34.16",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mes inventaires harmonisé avec l'historique : liste unique avec séparateurs, compteur animé, mêmes proportions que Nouvelle pesée et bilans conservés."
+  "notes": "Écran de mise à jour d’environ 5 secondes, persistant au rechargement et suivi d’une apparition des blocs en cascade, sans flou."
 }
