@@ -1,7 +1,7 @@
 {
-  "version": "34.45",
+  "version": "34.46",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Compteurs Pesées/Sessions/Paniers sans points décoratifs ; Sauvegarde et pop-ups monochromes ; halo du CTA réduit, banderole légèrement plus haute et arrondie ; bouton Inventaire lance/reprend directement une session."
+  "notes": "Mes paniers modernisé : liste plus légère, actions et poignée compactes, noms mieux mis en valeur, aide discrète. Banderole moins arrondie et halo du bouton Inventaire réduit de moitié."
 }
