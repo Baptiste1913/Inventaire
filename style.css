@@ -10593,3 +10593,14 @@ html,body{touch-action:manipulation;}
 button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession{
   touch-action:manipulation!important;
 }
+
+
+/* V34.71 — Texte INVENTAIRE plus petit, icône inchangée à 14 px. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  font-size:12.5px!important;
+}
+@media(max-width:600px){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    font-size:12.5px!important;
+  }
+}
