@@ -177,6 +177,7 @@ function renderDashboard(){
  const cloud=$('cloudStatus')?.textContent||'';
  const pill=$('dashboardCloudPill');pill.textContent=cloud.includes('Synchronisé')?'Cloud synchronisé':cloud.includes('Choix nécessaire')?'Conflit à résoudre':cloud.includes('attente')?'En attente':'Cloud à vérifier';
  pill.classList.toggle('is-synced',cloud.includes('Synchronisé'));
+ pill.classList.toggle('is-warning',/Choix nécessaire|attente|indisponible|échec|erreur/i.test(cloud));
 }
 function render(){
  const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Mon compte'):'Mon compte';

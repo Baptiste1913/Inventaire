@@ -1,7 +1,7 @@
 {
-  "version": "33.99",
+  "version": "34.00",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 792911,
-  "notes": "Mon compte : stockage local retiré de la vue, synchronisation avec voyant lumineux, tableau de bord harmonisé et temps moyen compact."
+  "notes": "Mon compte : pastille cloud alignée sur Connecté, temps moyen façon Prochain inventaire, évolution du rythme intégrée."
 }
