@@ -1,7 +1,7 @@
 {
-  "version": "34.78",
+  "version": "34.79",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Texte du bouton DÉMARRER L’INVENTAIRE réduit à 11,5 px, icône et largeur inchangées."
+  "notes": "Icône et texte du bouton regroupés et centrés ensemble ; texte réduit à 11,2 px."
 }
