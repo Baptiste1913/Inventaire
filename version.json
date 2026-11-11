@@ -1,7 +1,7 @@
 {
-  "version": "34.33",
+  "version": "34.34",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Nouvelle pesée utilise exactement les mêmes styles en mode Concentration et en mode normal. Écran de mise à jour modernisé avec un carré blanc autour du logo."
+  "notes": "Écran de mise à jour blanc uniforme et barre de progression par étapes réellement confirmées : activation, chargement, services, finalisation."
 }
