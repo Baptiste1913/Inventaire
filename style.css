@@ -10614,3 +10614,21 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 /* V34.73 — Libellé explicite, typographie à 11 px, icône inchangée. */
 .app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11px!important;}
 @media(max-width:600px){.app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11px!important;}}
+
+
+/* V34.75 — Icône de démarrage plus visible, bouton resserré. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  gap:4px!important;
+  padding-inline:13px!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump svg{
+  width:17px!important;
+  height:17px!important;
+  flex-shrink:0!important;
+}
+@media(max-width:600px){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    gap:4px!important;
+    padding-inline:12px!important;
+  }
+}
