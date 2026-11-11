@@ -1,7 +1,7 @@
 {
-  "version": "34.18",
+  "version": "34.19",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Sauvegarde modernisée ; chargement des mises à jour maintenu jusqu'à la préparation de l'administration et de la page."
+  "notes": "Administration plus réactive : session locale, indicateur de chargement immédiat, vérification des droits sécurisée et moins de requêtes répétées."
 }
