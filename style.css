@@ -10996,3 +10996,19 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 @media(max-width:380px){
   .app > .intro > .intro-mascot{width:126px!important;bottom:0!important;}
 }
+
+/* V34.93 — Réglage fin du contraste, de la typographie et de la mascotte. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#293f40!important;
+  font-size:13.5px!important;
+}
+.app > .intro > .intro-mascot{
+  width:clamp(119px,16vw,163px)!important;
+  bottom:0!important;
+}
+@media(max-width:600px){
+  .app > .intro > .intro-mascot{width:129px!important;bottom:0!important;}
+}
+@media(max-width:380px){
+  .app > .intro > .intro-mascot{width:120px!important;bottom:0!important;}
+}
