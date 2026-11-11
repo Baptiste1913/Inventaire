@@ -5879,3 +5879,118 @@ html.iu-pwa-revealing .app > footer {
  .account-card .account-dashboard-identity-row{padding:11px 10px;gap:8px;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr)}
  .account-card .account-dashboard-identity-row > span,.account-card .account-dashboard-identity-row > strong,.account-card .account-dashboard-identity-row > small{font-size:11px}
 }
+
+
+/* V34.02 — même grille et même typographie pour les en-têtes Administration / Compte. */
+.app > #planningAdminCard > .planning-admin-summary,
+.app > #accountCard > .account-fold-summary {
+  box-sizing:border-box!important;
+  display:flex!important;align-items:center!important;
+  gap:13px!important;padding:19px 17px!important;min-height:88px!important;
+  background:#fff!important;
+}
+#planningAdminCard .planning-admin-lock,
+#accountCard > .account-fold-summary > .account-header-avatar {
+  box-sizing:border-box!important;width:47px!important;height:47px!important;
+  flex:0 0 47px!important;min-width:47px!important;
+  border-radius:50%!important;
+  border:1px solid #d8e5e8!important;
+  background:linear-gradient(145deg,#f3f8f9,#e7f0f3)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+#planningAdminCard .planning-admin-title,#accountCard .account-header-text {
+  flex:1 1 0!important;min-width:0!important;display:flex!important;
+  flex-direction:column!important;justify-content:center!important;
+  gap:4px!important;text-align:left!important;margin:0!important;
+}
+#planningAdminCard .planning-admin-eyebrow,#accountCard .section-kicker {
+  font-size:11px!important;line-height:1.35!important;letter-spacing:.105em!important;
+  font-weight:800!important;color:#53646c!important;
+}
+#planningAdminCard .planning-admin-heading,#accountCard .account-header-title {
+  font-size:17px!important;line-height:1.25!important;letter-spacing:-.45px!important;
+  font-weight:850!important;color:#20252b!important;
+}
+#planningAdminCard .planning-admin-trailing,#accountCard .account-header-end {align-self:center!important;}
+#planningAdminCard .planning-admin-lock svg{width:24px!important;height:24px!important;stroke:#507889!important;}
+#accountCard .account-header-avatar{color:#507889!important;}
+#accountCard .account-header-avatar .account-status-dot{border-color:#fff!important;}
+@media(max-width:380px){
+ .app > #planningAdminCard > .planning-admin-summary,.app > #accountCard > .account-fold-summary{padding:16px 12px!important;gap:9px!important;min-height:78px!important;}
+ #planningAdminCard .planning-admin-lock,#accountCard > .account-fold-summary > .account-header-avatar{width:43px!important;height:43px!important;flex-basis:43px!important;min-width:43px!important;}
+ #planningAdminCard .planning-admin-eyebrow,#accountCard .section-kicker{font-size:10px!important;}
+ #planningAdminCard .planning-admin-heading,#accountCard .account-header-title{font-size:16px!important;}
+}
+
+/* Les trois premiers tiroirs : supprimer la bande grisâtre doublée à l'ouverture. */
+#planningAdminCard .iu-admin-category:not(.iu-admin-planning) > .iu-admin-category-body{
+  border-top:0!important;
+  background:#fff!important;
+}
+#planningAdminCard .iu-admin-category:not(.iu-admin-planning) > summary{
+  border-bottom:0!important;box-shadow:none!important;
+}
+#planningAdminCard .iu-admin-category:not(.iu-admin-planning) > .iu-admin-category-body > :first-child{
+  border-top:0!important;box-shadow:none!important;
+}
+#planningAdminCard .iu-admin-category:not(.iu-admin-planning) > .iu-admin-category-body::before,
+#planningAdminCard .iu-admin-category:not(.iu-admin-planning) > .iu-admin-category-body::after{display:none!important;}
+
+/* Compte : monochrome, légèrement bleuté, avec les proportions des cartes Événements. */
+.app > #accountCard.card {background:#fff!important;border:1px solid #e0e4e8!important;box-shadow:0 5px 22px rgba(29,39,48,.045)!important;}
+#accountCard > .account-body {background:#fff!important;border-top:1px solid #edf0f2!important;padding:15px 17px 19px!important;}
+#accountCard .account-summary-status{background:linear-gradient(150deg,#f6f8f9,#edf3f5)!important;color:#394a52!important;border:1px solid #dbe4e8!important;box-shadow:none!important;}
+#accountCard .account-summary-status.is-connected {background:linear-gradient(145deg,#f1f8f5,#e9f5ef)!important;color:#35574b!important;border-color:#d9ebe1!important;}
+#accountCard .account-dashboard{
+  border:1px solid #dce2e7!important;border-radius:16px!important;
+  margin:0 0 17px!important;padding:16px 14px!important;
+  background:linear-gradient(155deg,#fff 0%,#fbfcfd 62%,#f5f8fa 100%)!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+#accountCard .dashboard-heading {margin-bottom:14px!important;gap:8px!important;}
+#accountCard .dashboard-heading h3 {font-size:17px!important;font-weight:850!important;color:#20252b!important;}
+#accountCard .dashboard-cloud-pill {background:#f0f4f6!important;color:#374750!important;border-color:#dce6eb!important;}
+#accountCard .dashboard-cloud-pill.is-synced {background:#eaf5f0!important;color:#344f45!important;border-color:#d5e9df!important;}
+#accountCard .dashboard-cloud-pill.is-warning {background:#faf3e9!important;color:#685443!important;border-color:#eaddcc!important;}
+#accountCard .account-dashboard-identity{
+  border:1px solid #e0e5e9!important;border-radius:13px!important;
+  background:linear-gradient(145deg,#fff,#f7f9fa)!important;margin-bottom:13px!important;
+}
+#accountCard .account-dashboard-identity-row{min-height:47px!important;padding:10px 12px!important;}
+#accountCard .account-dashboard-identity-row + .account-dashboard-identity-row{border-color:#e8ecf0!important;}
+#accountCard .account-dashboard-identity-row > span{color:#737d85!important;font-size:11.5px!important;}
+#accountCard .account-dashboard-identity-row > strong,#accountCard .account-dashboard-identity-row > small{color:#2c353e!important;font-size:11.5px!important;font-weight:690!important;}
+#accountCard .dashboard-stats {gap:9px!important;margin:0 0 14px!important;}
+#accountCard .dashboard-stat {
+  background:linear-gradient(155deg,#fff,#f5f7f9)!important;
+  border:1px solid #e0e5e9!important;border-radius:13px!important;
+  box-shadow:inset 0 1px 0 #fff!important;padding:13px 12px!important;
+}
+#accountCard .dashboard-stat > span{color:#747e86!important;font-size:11.5px!important;}
+#accountCard .dashboard-stat > strong{color:#242c34!important;font-weight:820!important;}
+#accountCard .dashboard-performance,#accountCard .dashboard-recent {border-color:#e0e5e9!important;background:#fff!important;border-radius:14px!important;box-shadow:none!important;}
+#accountCard .dashboard-subheading strong{color:#252d34!important;}
+#accountCard .dashboard-subheading > span{color:#7a838b!important;}
+#accountCard .dashboard-performance-summary{
+  border:1px solid #dce6ed!important;background:linear-gradient(140deg,#f5f9fc,#eaf1f6)!important;
+  border-radius:13px!important;box-shadow:inset 0 1px 0 #fff!important;
+}
+#accountCard .dashboard-performance-summary > span{color:#677780!important;}
+#accountCard .dashboard-performance-summary > strong{font-size:14px!important;color:#263a45!important;}
+#accountCard .dashboard-trend{border:1px solid #e0e5e9!important;background:linear-gradient(150deg,#fcfdfe,#f3f7f9)!important;border-radius:13px!important;}
+#accountCard .dashboard-trend-track{background:#e8eef2!important;border-color:#dce5ec!important;}
+#accountCard .dashboard-trend-fill{background:linear-gradient(180deg,#9bbbc9,#557f96)!important;opacity:.9!important;}
+#accountCard .dashboard-trend-column > strong{color:#3c4c57!important;}
+#accountCard .dashboard-trend-column > span{color:#76838c!important;}
+#accountCard .dashboard-footnote,#accountCard .account-local-note{color:#7a848b!important;}
+#accountCard .recovery-card{border-color:#dfe5e9!important;background:linear-gradient(150deg,#fff,#f6f8fa)!important;}
+#accountCard .recovery-card > summary{color:#2b3339!important;}
+#accountCard .account-local-intro{background:linear-gradient(155deg,#f9fbfc,#f0f5f8)!important;border-color:#dce5e9!important;}
+#accountCard .account-local-intro-icon{color:#536f7e!important;}
+#accountCard .account-google{background:linear-gradient(155deg,#fff,#eef4f7)!important;color:#25343f!important;border-color:#d4e1e7!important;}
+#accountCard .account-logout{background:linear-gradient(155deg,#fff,#f4f5f6)!important;color:#47535c!important;border-color:#e1e4e7!important;}
+@media(max-width:380px){
+ #accountCard > .account-body{padding:13px 12px 17px!important;}
+ #accountCard .account-dashboard{padding:13px 10px!important;}
+ #accountCard .account-dashboard-identity-row{padding:10px 9px!important;}
+}
