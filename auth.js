@@ -126,10 +126,33 @@ const localStatus=msg=>{
 function snapshot(){const out={};for(const key of KEYS){try{out[key]=localStorage.getItem(key);}catch{out[key]=null;}}return out;}
 const serialize=o=>JSON.stringify(o);
 const empty=o=>Object.values(o).every(v=>v===null);
+// V34.20 — Uniquement une référence confirmée par Supabase, jamais une copie
+// locale supposée synchronisée. Permet de reprendre après PWA/rechargement.
+const SYNC_BASELINE_PREFIX='inventaires-u-confirmed-cloud-v1:';
+const baselineKey=()=>SYNC_BASELINE_PREFIX+accountId(user,activeProvider);
+function rememberConfirmedBaseline(data){
+ if(!user||activeProvider!=='google'||scopeId()!==accountId(user,activeProvider))return;
+ try{
+  if(!data||KEYS.some(k=>!Object.hasOwn(data,k)||(data[k]!==null&&typeof data[k]!=='string')))return;
+  localStorage.setItem(baselineKey(),JSON.stringify({data,at:Date.now()}));
+ }catch(e){console.warn('Référence de synchronisation non conservée',e);}
+}
+function resumeConfirmedBaseline(){
+ if(!user||activeProvider!=='google'||scopeId()!==accountId(user,activeProvider))return;
+ try{
+  const raw=localStorage.getItem(baselineKey());
+  if(!raw)return;
+  const record=JSON.parse(raw);
+  if(!record?.data||KEYS.some(k=>!Object.hasOwn(record.data,k)||(record.data[k]!==null&&typeof record.data[k]!=='string')))return;
+  remoteBaseline=record.data;
+  lastSynced=serialize(record.data);
+  localBaseline=lastSynced;
+ }catch(e){console.warn('Référence de synchronisation illisible',e);}
+}
 function restore(data){if(!data||typeof data!=='object'||KEYS.some(k=>!(k in data)||!(typeof data[k]==='string'||data[k]===null)))throw Error('Sauvegarde cloud invalide.');
   // Store a complete rollback copy before touching any user data.
   const previous=snapshot();if(!preserveRecovery('avant-restauration',previous))throw Error('Espace de stockage saturé : exporte tes données avant de restaurer.');try{for(const key of KEYS){if(data[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,data[key]);}}catch(err){for(const key of KEYS){try{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);}catch{}}throw err;}
-  localBaseline=serialize(data);saveActive();status('Données récupérées. Actualisation nécessaire.');window.scrollTo(0,0);location.reload();}
+  localBaseline=serialize(data);rememberConfirmedBaseline(data);saveActive();status('Données récupérées. Actualisation nécessaire.');window.scrollTo(0,0);location.reload();}
 function renderDashboard(){
  const panel=$('accountDashboard');if(!panel)return;
  panel.hidden=!user;if(!user)return;
@@ -216,14 +239,14 @@ async function upload(local){
  if(error)throw Error('Synchronisation sécurisée indisponible. Installe le script SQL V32 dans Supabase. '+error.message);
  if(data!==true){const fresh=await readRemote();if(fresh)askConflict(fresh.data);throw Error('Le cloud a changé sur un autre appareil. Choisis les données à conserver.');}
  if(user?.id!==targetUser||activeProvider!==targetProvider)throw Error('Le compte a changé pendant la synchronisation.');
- remoteBaseline=local;lastSynced=serialize(local);localBaseline=lastSynced;lastSuccessAt=Date.now();saveActive();localStatus('Enregistré sur cet appareil');
+ remoteBaseline=local;lastSynced=serialize(local);localBaseline=lastSynced;lastSuccessAt=Date.now();rememberConfirmedBaseline(local);saveActive();localStatus('Enregistré sur cet appareil');
  if(serialize(snapshot())!==lastSynced){status('Modifications en attente de synchronisation');return;}
  status('Synchronisé'+stamp());
 }
 
 function askConflict(remote){$('cloudConflict').hidden=false;const m=mergeWorkspaces(snapshot(),remote);$('cloudMerge').hidden=!m;$('cloudConflict').dataset.payload=JSON.stringify(remote);status('Choix nécessaire : données locales et cloud différentes');feedback('Choisis les données à conserver. Aucune donnée ne sera écrasée sans ton accord.');}
 async function reconcile(){if(!user||busy||!navigator.onLine||!$('cloudConflict').hidden)return false;busy=true;status('Synchronisation en cours…');try{const local=snapshot(),ls=serialize(local),remote=await readRemote();if(!remote){remoteBaseline=null;if(empty(local)){status('Espace vierge · aucune donnée à sauvegarder');lastSynced=ls;return true;}status('Première sauvegarde…');await upload(local);$('cloudConflict').hidden=true;return true;}
-const rs=serialize(remote.data);if(remoteBaseline===null||lastSynced===null)remoteBaseline=remote.data;if(ls===rs){lastSynced=rs;localBaseline=ls;remoteBaseline=remote.data;lastSuccessAt=Date.now();status('Synchronisé'+stamp());$('cloudConflict').hidden=true;return true;}
+const rs=serialize(remote.data);if(remoteBaseline===null||lastSynced===null)remoteBaseline=remote.data;if(ls===rs){lastSynced=rs;localBaseline=ls;remoteBaseline=remote.data;lastSuccessAt=Date.now();rememberConfirmedBaseline(remote.data);status('Synchronisé'+stamp());$('cloudConflict').hidden=true;return true;}
 if(lastSynced===rs){await upload(local);$('cloudConflict').hidden=true;return true;}
 if(lastSynced===ls){remoteBaseline=remote.data;restore(remote.data);return true;}
 if(empty(local)){remoteBaseline=remote.data;restore(remote.data);return true;}
@@ -259,7 +282,7 @@ async function logout(){
 async function activateUser(u){
   if(!u){activeProvider=null;if(scopeId()!=='guest'){switchWorkspace('guest');return true;}user=null;render();return false;}
   const provider=providerFor(u);if(provider!=='google')throw Error('Cette version accepte uniquement la connexion Google.');const id=accountId(u,provider);
-  if(scopeId()===id){user=u;activeProvider=provider;render();return false;}
+  if(scopeId()===id){if(!user||user.id!==u.id||activeProvider!==provider){lastSynced=null;remoteBaseline=null;resumeConfirmedBaseline();}user=u;activeProvider=provider;resumeConfirmedBaseline();render();return false;}
   // Never copy a different provider's data, even if Supabase links both identities to one user_id.
   // Verify that the provider-specific database exists BEFORE switching workspaces.
   const {data,error}=await client.from('provider_backups').select('data').eq('user_id',u.id).eq('provider',provider).maybeSingle();
