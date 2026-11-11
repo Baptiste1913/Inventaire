@@ -10651,3 +10651,27 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 @media(max-width:600px){
   .app > .intro .intro-bottom > #heroStartSession.intro-jump{padding:8px 11px!important;}
 }
+
+
+/* V34.77 — Bouton plus large, libellé centré et majuscules lisibles. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  min-width:172px!important;
+  padding:10px 19px!important;
+  gap:7px!important;
+  font-size:13.5px!important;
+  text-transform:uppercase!important;
+  justify-content:center!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump #heroActionLabel{
+  text-align:center!important;
+  text-transform:uppercase!important;
+  font-size:inherit!important;
+  line-height:1.18!important;
+}
+@media(max-width:600px){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    min-width:164px!important;
+    padding:10px 15px!important;
+    font-size:13.5px!important;
+  }
+}
