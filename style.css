@@ -8609,3 +8609,271 @@ body.is-focus-mode #grossWeight,
 body.is-focus-mode #basketSelect{
   scroll-margin:0!important;
 }
+
+
+/* ================================================================
+   V34.44 — AUDIT DE COHÉRENCE VISUELLE
+   Ne touche ni au calcul, ni aux résultats, ni au mode Concentration,
+   ni aux animations spéciales Événements, PWA ou mise à jour.
+   Référentiel : cartes blanches, bord gris bleuté, texte anthracite,
+   turquoise seulement sur les actions et états significatifs.
+   ================================================================ */
+:root{
+  --iu-ui-ink:#29343c;
+  --iu-ui-muted:#75828b;
+  --iu-ui-border:#dfe6e9;
+  --iu-ui-surface:#fff;
+  --iu-ui-surface-soft:#f7fafb;
+  --iu-ui-radius:15px;
+  --iu-ui-ease:cubic-bezier(.22,.75,.24,1);
+  --iu-ui-speed:560ms;
+}
+/* Volets secondaires : même famille que les cartes intérieures.
+   Pas de modification de hauteur sur les volets principaux préférés. */
+body:not(.is-focus-mode) #accountCard .recovery-card,
+body:not(.is-focus-mode) #backupCard .backup-advanced,
+body:not(.is-focus-mode) #planningAdminCard .planning-import-help {
+  box-sizing:border-box!important;
+  border:1px solid var(--iu-ui-border)!important;
+  border-radius:var(--iu-ui-radius)!important;
+  background:linear-gradient(155deg,#fff 0%,#f7fafb 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
+  overflow:hidden!important;
+}
+body:not(.is-focus-mode) #accountCard .recovery-card > summary,
+body:not(.is-focus-mode) #backupCard .backup-advanced > summary,
+body:not(.is-focus-mode) #planningAdminCard .planning-import-help > summary {
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  min-height:55px!important;
+  padding:13px 15px!important;
+  color:var(--iu-ui-ink)!important;
+  font-size:12.5px!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+  cursor:pointer;
+  background:transparent!important;
+  transition:background-color .22s ease!important;
+}
+body:not(.is-focus-mode) #accountCard .recovery-card > summary:hover,
+body:not(.is-focus-mode) #backupCard .backup-advanced > summary:hover,
+body:not(.is-focus-mode) #planningAdminCard .planning-import-help > summary:hover{
+  background:#f1f6f8!important;
+}
+#planningAdminCard .planning-import-help > .planning-import-help-body{
+  animation:none!important; /* l'animation de hauteur est assurée par JS */
+}
+#planningAdminCard .planning-import-help > summary svg,
+#backupCard .backup-advanced > summary svg,
+#accountCard .recovery-card > summary .calc-alerts-chevron{
+  width:18px!important;
+  height:18px!important;
+  flex-shrink:0!important;
+  transition:transform var(--iu-ui-speed) var(--iu-ui-ease)!important;
+}
+#planningAdminCard .planning-import-help.is-detail-closing > summary svg,
+#backupCard .backup-advanced.is-detail-closing > summary svg,
+#accountCard .recovery-card.is-detail-closing > summary .calc-alerts-chevron{
+  transform:rotate(0deg)!important;
+}
+#planningAdminCard .planning-import-help.is-detail-closing > .planning-import-help-body,
+#accountCard .recovery-card.is-detail-closing > .recovery-body{
+  opacity:0!important;
+  pointer-events:none!important;
+}
+#planningAdminCard .planning-import-help > .planning-import-help-body,
+#accountCard .recovery-card > .recovery-body{
+  opacity:1;
+  transition:opacity var(--iu-ui-speed) var(--iu-ui-ease)!important;
+}
+#backupCard .backup-advanced.is-detail-closing > .backup-advanced-body{
+  opacity:0!important;
+}
+/* Rubriques admin et sous-tiroirs Planning : rythme plus uniforme,
+   sans remplacer leur moteur d'ouverture existant. */
+#planningAdminCard .iu-admin-category > summary,
+#planningAdminCard .planning-accordion > .planning-panel-summary{
+  font-weight:800!important;
+  line-height:1.35!important;
+}
+#planningAdminCard .iu-admin-category-title small,
+#planningAdminCard .iu-update-head p,
+#planningAdminCard .site-ops-note,
+#planningAdminCard .planning-panel-content > .planning-muted{
+  color:var(--iu-ui-muted)!important;
+  line-height:1.5!important;
+}
+#planningAdminCard .iu-admin-category-body > .iu-admin-update,
+#planningAdminCard .iu-admin-category-body > .iu-error-panel,
+#planningAdminCard .iu-admin-category-body > .site-ops-panel{
+  box-shadow:none!important;
+}
+#planningAdminCard :is(.site-ops-metric,.dashboard-stat,.iu-update-versions > div){
+  border-color:var(--iu-ui-border)!important;
+  border-radius:13px!important;
+}
+/* Cartes secondaires de compte, panier, suivi et sauvegarde :
+   contours et valeurs dans une même famille, sans recolorer les états. */
+body:not(.is-focus-mode) :is(
+ #accountCard .account-local-intro,
+ #accountCard .account-storage-tile,
+ #accountCard .account-dashboard-identity-row,
+ #accountCard .dashboard-stat,
+ #inventoryCalendar .events-next-card,
+ #inventoryCalendar .events-info-box,
+ .history-card .history-item,
+ .sessions-history-card .v22-session-item,
+ .sessions-history-card .v22-stat,
+ .basket-card .basket-item,
+ .basket-card .basket-form,
+ .backup-card .backup-panel
+){
+  border-color:var(--iu-ui-border)!important;
+}
+body:not(.is-focus-mode) :is(
+ #accountCard .account-storage-tile,
+ #accountCard .dashboard-stat,
+ .sessions-history-card .v22-stat,
+ .basket-card .basket-item
+){
+  border-radius:13px!important;
+}
+body:not(.is-focus-mode) :is(
+ .history-card .history-item,
+ .sessions-history-card .v22-session-item,
+ .basket-card .basket-item
+){
+  min-width:0!important;
+}
+body:not(.is-focus-mode) :is(
+ .history-card .history-item strong,
+ .sessions-history-card .v22-session-item summary strong,
+ .basket-card .basket-name,
+ .backup-card .backup-panel-heading strong
+){
+  color:var(--iu-ui-ink)!important;
+  overflow-wrap:anywhere;
+}
+body:not(.is-focus-mode) :is(
+ .history-card .history-item small,
+ .sessions-history-card .v22-session-item summary span,
+ .basket-card .basket-order-hint,
+ .backup-card .backup-guidance,
+ .account-card .account-local-note
+){
+  color:var(--iu-ui-muted)!important;
+  line-height:1.55!important;
+}
+/* États et pastilles : proportions communes, sans uniformiser les
+   couleurs vert/rouge/gris qui indiquent des états différents. */
+body:not(.is-focus-mode) :is(
+ .session-pill,
+ #accountCard .account-summary-status,
+ #accountCard .dashboard-cloud-pill,
+ #inventoryCalendar .events-countdown,
+ #inventoryCalendar .events-state,
+ #planningAdminCard .planning-kind
+){
+  box-sizing:border-box!important;
+  border-radius:999px!important;
+  line-height:1.2!important;
+  font-variant-numeric:tabular-nums!important;
+}
+/* Boutons secondaires : même prise en main et même retour de focus.
+   Ne pas toucher aux boutons de pesée ou aux commandes Concentration. */
+body:not(.is-focus-mode) :is(
+ .history-card .history-toggle,
+ .sessions-history-card .history-toggle,
+ .basket-card .small-action,
+ .basket-card .move-actions button,
+ .backup-card .backup-advanced-body button,
+ .backup-card .backup-advanced-body .upload,
+ #planningAdminCard .planning-mini-button,
+ #planningAdminCard .planning-primary,
+ #planningAdminCard .planning-secondary,
+ #accountCard .recovery-row button
+){
+  -webkit-tap-highlight-color:transparent;
+  transition:border-color .22s ease,background-color .22s ease,
+             box-shadow .22s ease,opacity .22s ease,transform .18s ease!important;
+}
+body:not(.is-focus-mode) :is(
+ .history-card .history-toggle,
+ .sessions-history-card .history-toggle,
+ .basket-card .small-action,
+ .basket-card .move-actions button,
+ .backup-card .backup-advanced-body button,
+ .backup-card .backup-advanced-body .upload,
+ #planningAdminCard .planning-mini-button,
+ #accountCard .recovery-row button
+):active:not(:disabled){
+  transform:scale(.985)!important;
+}
+/* Un repère d'accessibilité identique partout, uniquement au clavier.
+   Les taps iPhone n'affichent pas de contour parasite. */
+body:not(.is-focus-mode) :is(
+ .app > details.fold-card > summary,
+ #inventoryCalendar .events-disclosure > summary,
+ #accountCard .recovery-card > summary,
+ #backupCard .backup-advanced > summary,
+ #planningAdminCard .iu-admin-category > summary,
+ #planningAdminCard .planning-accordion > summary,
+ #planningAdminCard .planning-import-help > summary,
+ .sessions-history-card .v22-session-item > summary,
+ button,
+ .upload
+):focus-visible{
+  outline:2px solid #4a9ba6!important;
+  outline-offset:3px!important;
+}
+/* Les dialogs partagent un cadre et des titres lisibles ; le positionnement
+   et leurs animations d'entrée/sortie restent spécifiques à chaque usage. */
+#importChoiceDialog,
+#otherTabDialog,
+#planningConfirmDialog,
+#eventsInstallDialog{
+  border-color:var(--iu-ui-border)!important;
+  border-radius:20px!important;
+  box-shadow:0 20px 58px rgba(28,50,64,.16)!important;
+}
+#importChoiceDialog h2,
+#otherTabDialog h2,
+#planningConfirmDialog h3,
+#eventsInstallDialog .events-install-dialog-head strong{
+  color:var(--iu-ui-ink)!important;
+  line-height:1.35!important;
+  letter-spacing:-.2px!important;
+}
+#importChoiceDialog p,
+#otherTabDialog p,
+#planningConfirmDialog p{
+  line-height:1.55!important;
+}
+/* Assurer la lisibilité sur petit iPhone, sans élargir la page. */
+@media(max-width:380px){
+ #planningAdminCard .iu-admin-category-body,
+ #planningAdminCard .planning-panel-content,
+ #accountCard .account-body,
+ .backup-card .backup-body{
+  min-width:0!important;
+ }
+ body:not(.is-focus-mode) #accountCard .recovery-card > summary,
+ body:not(.is-focus-mode) #backupCard .backup-advanced > summary,
+ body:not(.is-focus-mode) #planningAdminCard .planning-import-help > summary{
+  min-height:51px!important;
+  padding:12px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #planningAdminCard .planning-import-help > .planning-import-help-body,
+ #accountCard .recovery-card > .recovery-body,
+ #planningAdminCard .planning-import-help > summary svg,
+ #backupCard .backup-advanced > summary svg,
+ #accountCard .recovery-card > summary .calc-alerts-chevron{
+  transition:none!important;
+  animation:none!important;
+ }
+}
