@@ -10604,3 +10604,8 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
     font-size:12.5px!important;
   }
 }
+
+
+/* V34.72 — Texte INVENTAIRE réduit, icône conservée. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.5px!important;}
+@media(max-width:600px){.app > .intro .intro-bottom > #heroStartSession.intro-jump{font-size:11.5px!important;}}
