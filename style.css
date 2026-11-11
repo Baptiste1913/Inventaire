@@ -8433,3 +8433,38 @@ body.is-focus-mode #focusToolbar #focusConfirm button:focus-visible{
   transform:none!important;
   animation:none!important;
 }
+
+
+/* V34.37 — Ouverture PWA : même logo carré que la mise à jour, mais
+   présentation plus simple et sans durée artificielle supplémentaire.
+   Le splash ne s'affiche pas pendant une installation/récupération. */
+#iuPwaSplash{
+  background:linear-gradient(165deg,#fff 0%,#f9fbfc 53%,#f1f5f7 100%);
+}
+#iuPwaSplash .iu-splash-content{
+  animation:iu-splash-content-in .45s cubic-bezier(.2,.8,.25,1) both;
+}
+#iuPwaSplash .iu-splash-logo{
+  border-color:#e3e9ec;
+  box-shadow:0 6px 20px rgba(37,68,78,.07);
+}
+#iuPwaSplash .iu-splash-title{
+  color:#233139;
+}
+#iuPwaSplash .iu-splash-loader{
+  background:#e6edef;
+}
+#iuPwaSplash .iu-splash-loader>span{
+  background:linear-gradient(90deg,#2d8a8c,#5aaea3);
+}
+@keyframes iu-splash-content-in{
+  from{opacity:.25;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(-9px)}
+}
+@media(max-width:380px){
+ #iuPwaSplash .iu-splash-title{font-size:18px}
+ #iuPwaSplash .iu-splash-subtitle{font-size:11.5px}
+}
+@media(prefers-reduced-motion:reduce){
+ #iuPwaSplash .iu-splash-content{animation:none!important;transform:none!important}
+}
