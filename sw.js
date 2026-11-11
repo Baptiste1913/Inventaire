@@ -1,8 +1,8 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v34-48';
+const CACHE = 'inventaires-u-offline-v34-49';
 const CORE = [
-  './', './index.html', './version.json', './admin-categories.js?v=33.93', './technical-log.js?v=33.93', './update-manager.js?v=34.34', './error-journal.js?v=33.93', './site-operations.js?v=34.39', './push.js?v=33.75', './planning-admin.js?v=34.19', './events-data.js?v=33.19', './events.js?v=34.30', './style.css?v=34.48', './app.js?v=34.48',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=34.20', './manifest.webmanifest?v=13', './icon.png?v=11',
+  './', './index.html', './version.json', './admin-categories.js?v=33.93', './technical-log.js?v=33.93', './update-manager.js?v=34.34', './error-journal.js?v=33.93', './site-operations.js?v=34.39', './push.js?v=33.75', './planning-admin.js?v=34.19', './events-data.js?v=33.19', './events.js?v=34.30', './style.css?v=34.49', './app.js?v=34.49',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=34.49', './manifest.webmanifest?v=13', './icon.png?v=11',
   './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon.ico?v=13',
   './favicon-16.png?v=13', './favicon-32.png?v=13', './tutorial-share.png', './tutorial-home.png', './offline-no-wifi.png', './start-inventory-icon.png?v=32.0'
 ];
