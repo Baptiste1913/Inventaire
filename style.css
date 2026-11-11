@@ -11012,3 +11012,23 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 @media(max-width:380px){
   .app > .intro > .intro-mascot{width:120px!important;bottom:0!important;}
 }
+
+/* V34.93 — Réglages fins : contraste, mascotte et ombre plus nette. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#293f40!important;
+  font-size:13.5px!important;
+}
+.app > .intro > .intro-mascot{
+  width:clamp(119px,16vw,163px)!important;
+  bottom:0!important;
+}
+@media(max-width:600px){
+  .app > .intro > .intro-mascot{width:129px!important;bottom:0!important;}
+}
+@media(max-width:380px){
+  .app > .intro > .intro-mascot{width:120px!important;bottom:0!important;}
+}
+.app > .intro{
+  box-shadow:0 11px 17px -8px rgba(39,78,73,.19),
+             0 19px 27px -13px rgba(39,78,73,.13)!important;
+}
