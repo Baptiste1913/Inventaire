@@ -37,7 +37,11 @@ function createToast(message,{action=null,onAction=null,persistent=false,warning
  toast.className='undo-toast undo-entering'+(warning?' toast-warning':'')+(undo?' undo-ticking':'');
  toast.setAttribute('role','status');
  const symbol=document.createElement('span');symbol.className='undo-toast-symbol';symbol.setAttribute('aria-hidden','true');
- symbol.textContent=warning?'!':'↶';
+ if(undo&&message==='Inventaire terminé.'){
+  symbol.classList.add('is-finish-return');
+  // Flèche de retour arrondie, sans changer le bouton « Annuler ».
+  symbol.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 6 6"/></svg>';
+ }else symbol.textContent=warning?'!':'↶';
  const label=document.createElement('span');label.className='undo-toast-message';label.textContent=message;
  toast.append(symbol,label);
  if(action){
