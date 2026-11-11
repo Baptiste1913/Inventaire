@@ -1,7 +1,7 @@
 {
-  "version": "34.73",
+  "version": "34.74",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton renommé Démarrer l’inventaire, texte réduit à 11 px, icône conservée."
+  "notes": "Correctif du cache JavaScript pour afficher Démarrer l’inventaire sur le bouton de la banderole."
 }
