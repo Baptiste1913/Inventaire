@@ -10819,3 +10819,60 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 @media(prefers-reduced-motion:reduce){
   .app > .intro .intro-bottom > #heroStartSession.intro-jump{transition:none!important;}
 }
+
+/* V34.90 — Bouton intégré à la banderole : langage visuel du tableau de bord,
+   verre vert profond et géométrie sobre plutôt que capsule blanche. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  min-width:146px!important;
+  min-height:44px!important;
+  height:44px!important;
+  padding:0 17px!important;
+  border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.23)!important;
+  background:linear-gradient(145deg,rgba(8,91,78,.68),rgba(6,104,95,.55))!important;
+  color:#f7fffc!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 5px 16px rgba(5,62,53,.13)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(125%)!important;
+  backdrop-filter:blur(14px) saturate(125%)!important;
+  text-transform:none!important;
+  transition:transform .18s ease,background .18s ease,box-shadow .18s ease!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::before{
+  background:none!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::after{
+  opacity:.12!important;
+  bottom:-9px!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content{
+  gap:9px!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#f7fffc!important;
+  font-size:13px!important;
+  font-weight:650!important;
+  letter-spacing:.01em!important;
+  text-transform:none!important;
+  white-space:nowrap!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  width:12px!important;height:12px!important;flex:0 0 12px!important;
+  opacity:.93!important;
+  filter:brightness(0) invert(1)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+  background:linear-gradient(145deg,rgba(8,98,84,.77),rgba(6,110,99,.64))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 6px 17px rgba(5,62,53,.17)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+  transform:scale(.975)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 2px 8px rgba(5,62,53,.12)!important;
+}
+@media(max-width:600px){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    min-width:146px!important;min-height:44px!important;height:44px!important;padding:0 16px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{transition:none!important;}
+}
