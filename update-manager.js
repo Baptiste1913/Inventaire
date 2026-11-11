@@ -1,4 +1,4 @@
-/* Inventaires U V34.18 — chargement de mise à jour jusqu'à l'initialisation de l'administration. */
+/* Inventaires U V34.34 — suivi des étapes réelles de mise à jour, récupération après rechargement. */
 (()=>{'use strict';
  // Un marqueur dans l'URL du script chargé représente la version réellement exécutée.
  // Ne pas lire version.json ici : il indique la dernière version PUBLIÉE,
@@ -26,6 +26,21 @@
  const overlayTitle=$('iuUpdateScreenTitle');
  const overlayText=$('iuUpdateScreenText');
  const overlayDismiss=$('iuUpdateOverlayDismiss');
+ const progress=$('iuUpdateProgress');
+ const progressStep=$('iuUpdateStep');
+ const progressCount=$('iuUpdateStepCount');
+ const steps=['Activation de la mise à jour','Chargement de l’application','Préparation des services','Installation terminée'];
+ const updateProgress=(step)=>{
+   const n=Math.max(0,Math.min(4,Number(step)||0));
+   if(progress){
+     progress.style.setProperty('--iu-update-complete',(n*25)+'%');
+     progress.setAttribute('aria-valuenow',String(n));
+     progress.setAttribute('aria-valuetext',n===4?'Installation terminée':steps[Math.min(n,2)]);
+   }
+   if(progressStep)progressStep.textContent=n===4?steps[3]:steps[Math.min(n,2)];
+   if(progressCount)progressCount.textContent=n===4?'Terminé':'Étape '+Math.min(n+1,4)+' sur 4';
+ };
+
  const clearStoredVisual=()=>{try{sessionStorage.removeItem(UPDATE_VISUAL_KEY);}catch(_){}};
  const storeVisual=(at,target)=>{try{sessionStorage.setItem(UPDATE_VISUAL_KEY,JSON.stringify({at,target}));}catch(_){}};
  const revealState=(kind)=>{root.classList.remove('iu-update-running','iu-update-recovering');root.classList.add(kind);};
@@ -35,6 +50,7 @@
    overlay.setAttribute('aria-hidden','false');
    overlayDismiss.hidden=true;
    overlayTitle.textContent='Installation de la mise à jour…';
+   updateProgress(recovering?1:0);
    overlayText.textContent=recovering?'Chargement de la nouvelle version.':'Préparation de votre nouvelle version.';
    revealState(recovering?'iu-update-recovering':'iu-update-running');
  };
@@ -49,6 +65,8 @@
    if(!overlay)return;
    overlay.style.display='flex';
    overlay.classList.remove('iu-update-overlay-leaving');
+   if(progressStep)progressStep.textContent='Installation interrompue';
+   if(progressCount)progressCount.textContent='À vérifier';
    overlayTitle.textContent='Mise à jour non confirmée';
    overlayText.textContent=message||'La version actuelle reste accessible.';
    overlayDismiss.hidden=false;
@@ -88,7 +106,9 @@
    });
    (async()=>{
      try{
-       await Promise.all([waitForLoad(),waitForAdmin()]);
+       await waitForLoad();
+       updateProgress(2);
+       await waitForAdmin();
        if(document.fonts?.ready)await document.fonts.ready;
        // Deux frames confirment que la disposition a été peinte.
        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -97,6 +117,7 @@
          throw new Error('version-mismatch');
        }
        if(cancelled)return;
+       updateProgress(3);
        const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
          .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
        const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -107,6 +128,7 @@
        overlayText.textContent='Finalisation de la mise à jour…';
        await new Promise(resolve=>setTimeout(resolve,delay));
        if(cancelled)return;
+       updateProgress(4);
        overlayTitle.textContent='Mise à jour installée';
        overlayText.textContent='Inventaires U est prêt.';
        cards.forEach((el,i)=>el.style.setProperty('--iu-update-order',String(i)));
@@ -188,6 +210,7 @@
    finished=true;
    clearTimeout(timeoutId);
    if(sessionSafe()){
+     updateProgress(1);
      storeVisual(begunAt,knownPublished||'');
      // Conserver l'écran à l'image pendant le rechargement de la PWA.
      setTimeout(()=>location.reload(),110);
