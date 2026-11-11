@@ -9362,3 +9362,92 @@ body:not(.is-focus-mode) .basket-card #basketForm{
   body:not(.is-focus-mode) .basket-card #basketList > .basket-item,
   body:not(.is-focus-mode) .basket-card #basketList button{transition:none!important;}
 }
+
+
+/* V34.47 — Mes paniers entièrement monochrome (sauf Supprimer).
+   Même mise en page V34.46, couleurs uniquement : gris, blanc, anthracite. */
+body:not(.is-focus-mode) .app > .basket-card{
+  border-color:#dfe3e7!important;
+  background:linear-gradient(165deg,#fff,#fff 62%,#f7f8f9)!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList.basket-list{
+  border-color:#e0e4e7!important;
+  background:#fafbfc!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item + .basket-item{
+  border-top-color:#e5e8eb!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item:not(.dragging):not(.drag-over):hover{
+  background:#f3f5f6!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .drag-handle,
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .move-actions > button,
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions > .small-action:not(.delete){
+  border-color:#dde2e6!important;
+  background:linear-gradient(145deg,#f8f9fa,#eceff1)!important;
+  color:#505d67!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8)!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .drag-handle svg{
+  color:#67727b!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList .basket-info strong{color:#29333c!important;}
+body:not(.is-focus-mode) .basket-card #basketList .basket-info span,
+body:not(.is-focus-mode) .basket-card .basket-order-hint{color:#7f8992!important;}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .item-actions > .small-action.delete{
+  color:#b94b5a!important;
+  border-color:#f3dfe2!important;
+  background:#fcf2f3!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item.drag-over{
+  outline:2px dashed #919ba3!important;
+  outline-offset:-3px!important;
+  background:#eef0f2!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item.is-placeholder{
+  border-color:#a5adb4!important;
+  background:#eef0f2!important;
+}
+body:not(.is-focus-mode) .basket-card #basketList > .basket-item > .drag-handle:focus-visible,
+body:not(.is-focus-mode) .basket-card #basketList :is(.move-actions button,.item-actions .small-action):focus-visible{
+  outline:2px solid #697781!important;
+  outline-offset:2px!important;
+}
+/* Formulaire et validation inclus dans le monochrome. */
+body:not(.is-focus-mode) .basket-card #basketForm{
+  border-top-color:#e1e5e8!important;
+}
+body:not(.is-focus-mode) .basket-card #basketForm :is(#basketName,#basketTare){
+  border-color:#dce1e5!important;
+  background:#f8f9fa!important;
+  color:#303b44!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+}
+body:not(.is-focus-mode) .basket-card #basketForm :is(#basketName,#basketTare):focus{
+  border-color:#87949d!important;
+  box-shadow:0 0 0 3px rgba(101,115,125,.10)!important;
+}
+body:not(.is-focus-mode) .basket-card #basketForm :is(#saveBasketBtn,.primary-btn){
+  border:1px solid #3d464e!important;
+  background:linear-gradient(155deg,#4a525a,#30373e)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 10px rgba(30,39,47,.09)!important;
+}
+body:not(.is-focus-mode) .basket-card #basketForm :is(#cancelEditBtn,.ghost-btn){
+  border:1px solid #d6dce0!important;
+  background:linear-gradient(145deg,#fff,#eceff1)!important;
+  color:#444f58!important;
+  box-shadow:none!important;
+}
+/* Banderole un peu plus généreuse en hauteur tout en rapprochant
+   les commandes du bord inférieur. Aucun changement à leur position relative. */
+.app > .intro{
+  padding-top:53px!important;
+  padding-bottom:24px!important;
+}
+@media(max-width:600px){
+  .app > .intro{padding-top:49px!important;padding-bottom:22px!important;}
+}
+@media(max-width:380px){
+  .app > .intro{padding-top:48px!important;padding-bottom:21px!important;}
+}
