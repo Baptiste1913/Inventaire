@@ -299,7 +299,7 @@ async function logout(){
 async function activateUser(u){
   if(!u){activeProvider=null;if(scopeId()!=='guest'){switchWorkspace('guest');return true;}user=null;render();return false;}
   const provider=providerFor(u);if(provider!=='google')throw Error('Cette version accepte uniquement la connexion Google.');const id=accountId(u,provider);
-  if(scopeId()===id){if(!user||user.id!==u.id||activeProvider!==provider){lastSynced=null;remoteBaseline=null;resumeConfirmedBaseline();}user=u;activeProvider=provider;resumeConfirmedBaseline();render();return false;}
+  if(scopeId()===id){if(!user||user.id!==u.id||activeProvider!==provider){lastSynced=null;remoteBaseline=null;}user=u;activeProvider=provider;if(lastSynced===null)resumeConfirmedBaseline();render();return false;}
   // Never copy a different provider's data, even if Supabase links both identities to one user_id.
   // Verify that the provider-specific database exists BEFORE switching workspaces.
   const {data,error}=await client.from('provider_backups').select('data').eq('user_id',u.id).eq('provider',provider).maybeSingle();
