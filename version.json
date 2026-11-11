@@ -1,7 +1,7 @@
 {
-  "version": "34.69",
+  "version": "34.70",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton INVENTAIRE légèrement élargi, texte en majuscules et icône assortie au gris anthracite du titre."
+  "notes": "Bouton INVENTAIRE plus discret : texte et icône réduits. Prévention du zoom au double-tap sans bloquer le défilement ni le zoom pincé."
 }
