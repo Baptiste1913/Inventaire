@@ -1,7 +1,7 @@
 {
-  "version": "34.68",
+  "version": "34.69",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton Inventaire plus compact avec texte agrandi et icône noire. Démarrer un inventaire reprend le dégradé vert du résultat de pesée."
+  "notes": "Bouton INVENTAIRE légèrement élargi, texte en majuscules et icône assortie au gris anthracite du titre."
 }
