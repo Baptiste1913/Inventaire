@@ -7844,3 +7844,50 @@ body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-ad
   body:not(.is-focus-mode) #accountCard .account-header-text > .account-header-title,
   body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-heading {font-size:16px!important;}
 }
+
+
+/* V34.27 — Correction de la double marge des cartes repliables.
+   .card ajoutait son padding en plus de celui de .fold-summary.
+   Le summary devient l'unique source des marges, comme pour Ma session
+   et la carte Événements. Le contenu garde ses propres espacements. */
+body:not(.is-focus-mode) .app > details.card.fold-card {
+  box-sizing:border-box!important;
+  padding:0!important;
+}
+/* Respecter les mêmes dimensions que les deux cartes de référence,
+   y compris lorsque les états de détail sont ouverts/fermés. */
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary {
+  box-sizing:border-box!important;
+  padding:19px 17px!important;
+  margin:0!important;
+  min-width:0!important;
+}
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .section-kicker,
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .planning-admin-eyebrow {
+  margin:0!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+  font-weight:800!important;
+  letter-spacing:.105em!important;
+  color:#53646c!important;
+}
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary :is(.fold-label,.account-header-title,.planning-admin-heading) {
+  margin:0!important;
+  font-size:17px!important;
+  line-height:1.25!important;
+  font-weight:850!important;
+  letter-spacing:-.45px!important;
+  color:#20252b!important;
+}
+@media(max-width:380px){
+  body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary{
+    padding:16px 12px!important;
+  }
+  body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .section-kicker,
+  body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .planning-admin-eyebrow{
+    font-size:10px!important;
+  }
+  body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary :is(.fold-label,.account-header-title,.planning-admin-heading){
+    font-size:16px!important;
+  }
+}
