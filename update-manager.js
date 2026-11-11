@@ -1,4 +1,4 @@
-/* Inventaires U V33.98 — version utilisée issue de la page actuellement chargée. */
+/* Inventaires U V34.16 — gestionnaire de mises à jour avec transition persistante. */
 (()=>{'use strict';
  // Un marqueur dans l'URL du script chargé représente la version réellement exécutée.
  // Ne pas lire version.json ici : il indique la dernière version PUBLIÉE,
@@ -19,6 +19,82 @@
  let busy=false, knownPublished='', notes='', ready=false, lastChecked='', publication='',reg=null, state='idle';
  const log=type=>window.IUTechnicalLog?.(type);
  const sessionSafe=()=>window.IUCanSafelyUpdate?.()===true;
+
+ const UPDATE_VISUAL_KEY='iu-update-visual-v1';
+ const root=document.documentElement;
+ const overlay=$('iuUpdateOverlay');
+ const overlayTitle=$('iuUpdateScreenTitle');
+ const overlayText=$('iuUpdateScreenText');
+ const overlayDismiss=$('iuUpdateOverlayDismiss');
+ const clearStoredVisual=()=>{try{sessionStorage.removeItem(UPDATE_VISUAL_KEY);}catch(_){}};
+ const storeVisual=(at,target)=>{try{sessionStorage.setItem(UPDATE_VISUAL_KEY,JSON.stringify({at,target}));}catch(_){}};
+ const revealState=(kind)=>{root.classList.remove('iu-update-running','iu-update-recovering');root.classList.add(kind);};
+ const showVisual=(recovering=false)=>{
+   if(!overlay)return;
+   overlay.classList.remove('iu-update-overlay-leaving');
+   overlay.setAttribute('aria-hidden','false');
+   overlayDismiss.hidden=true;
+   overlayTitle.textContent='Installation de la mise à jour…';
+   overlayText.textContent=recovering?'Chargement de la nouvelle version.':'Préparation de votre nouvelle version.';
+   revealState(recovering?'iu-update-recovering':'iu-update-running');
+ };
+ const hideVisual=()=>{
+   overlay?.classList.remove('iu-update-overlay-leaving');
+   overlay?.setAttribute('aria-hidden','true');
+   root.classList.remove('iu-update-running','iu-update-recovering');
+ };
+ function failVisual(message){
+   clearStoredVisual();
+   root.classList.remove('iu-update-running','iu-update-recovering');
+   if(!overlay)return;
+   overlay.style.display='flex';
+   overlay.classList.remove('iu-update-overlay-leaving');
+   overlayTitle.textContent='Mise à jour non confirmée';
+   overlayText.textContent=message||'La version actuelle reste accessible.';
+   overlayDismiss.hidden=false;
+   overlayDismiss.onclick=()=>{overlay.style.removeProperty('display');overlay.setAttribute('aria-hidden','true');};
+ }
+ function completeVisual(){
+   let payload=null;
+   try{payload=JSON.parse(sessionStorage.getItem(UPDATE_VISUAL_KEY)||'null');}catch(_){}
+   if(!payload||typeof payload.at!=='number'){hideVisual();return;}
+   showVisual(true);
+   // L'affichage ne se termine que lorsque la page rechargée est prête.
+   let done=false;
+   const finish=()=>{
+     if(done)return;done=true;
+     if(payload.target&&payload.target!==VERSION){
+       failVisual('La nouvelle version n’a pas été chargée. Vérifie les mises à jour depuis l’administration.');
+       return;
+     }
+     const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
+       .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
+     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+     const cascadeMs=reduced?0:620+Math.max(0,cards.length-1)*85;
+     // Environ 5 s en tout (activation, chargement, retour des blocs).
+     const delay=Math.max(0,5000-(Date.now()-payload.at)-cascadeMs);
+     overlayText.textContent='Finalisation de la mise à jour…';
+     setTimeout(()=>{
+       overlayTitle.textContent='Mise à jour installée';
+       overlayText.textContent='Inventaires U est prêt.';
+       cards.forEach((el,i)=>el.style.setProperty('--iu-update-order',String(i)));
+       root.classList.add('iu-update-revealing');
+       overlay.classList.add('iu-update-overlay-leaving');
+       clearStoredVisual();
+       setTimeout(()=>{hideVisual();overlay.style.removeProperty('display');},reduced?0:470);
+       setTimeout(()=>{
+         root.classList.remove('iu-update-revealing');
+         cards.forEach(el=>el.style.removeProperty('--iu-update-order'));
+       },cascadeMs+100);
+     },delay);
+   };
+   if(document.readyState==='complete')finish();
+   else{
+     window.addEventListener('load',finish,{once:true});
+     setTimeout(finish,1800);
+   }
+ }
+ if(root.classList.contains('iu-update-recovering'))completeVisual();
  const set=(type,title,detail,button,disabled=false)=>{
   state=type;$('iuUpdateIndicator').dataset.state=type;
   $('iuUpdateTitle').textContent=title;$('iuUpdateDetail').textContent=detail;
@@ -63,21 +139,52 @@
   else if(knownPublished!==VERSION){set('available','Version '+knownPublished+' publiée',workerOK?'Installation en préparation dans le cache.':'Impossible de préparer le cache pour le moment.','Vérifier à nouveau');}
   else{set('current','Application à jour','Tu utilises la version actuellement publiée.','Vérifier les mises à jour');}
  }
- async function install(){if(busy)return;
+ async function install(){
+  if(busy)return;
   if(!sessionSafe()){render();return;}
   reg=window.IUWorkerRegistration||await navigator.serviceWorker.getRegistration();
   if(!reg?.waiting){await check();return;}
-  busy=true;set('checking','Activation en cours…','La nouvelle version sera ouverte une fois le cache activé.','Installation…',true);
-  let finish=false;const controllerChanged=()=>{if(finish)return;finish=true;
-    // Check again at the last possible moment; refuse reload if inventory started meanwhile.
-    if(sessionSafe())location.reload();else {busy=false;ready=false;set('waiting','Rechargement reporté','Termine ton inventaire, puis recharge la version publiée.','Vérifier à nouveau');secondary.hidden=false;}
-   };
-  navigator.serviceWorker.addEventListener('controllerchange',controllerChanged,{once:true});
-  try{reg.waiting.postMessage({type:'IU_ACTIVATE_UPDATE'});
-   // If controllerchange never arrives, provide a safe manual recovery path.
-   setTimeout(()=>{if(!finish){busy=false;log('update');set('unavailable','Activation non confirmée','Tu peux réessayer de vérifier les mises à jour.','Réessayer');}},10000);
-  }catch{busy=false;log('update');set('unavailable','Installation impossible','Réessaie lorsque la connexion est stable.','Réessayer');}
+  busy=true;
+  const begunAt=Date.now();
+  showVisual();
+  set('checking','Activation en cours…','La nouvelle version sera ouverte une fois le cache activé.','Installation…',true);
+  let finished=false;
+  let timeoutId=null;
+  const onControllerChange=()=>{
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeoutId);
+   if(sessionSafe()){
+     storeVisual(begunAt,knownPublished||'');
+     // Conserver l'écran à l'image pendant le rechargement de la PWA.
+     setTimeout(()=>location.reload(),110);
+   }else{
+     hideVisual();
+     busy=false;ready=false;
+     set('waiting','Rechargement reporté','Termine ton inventaire, puis recharge la version publiée.','Vérifier à nouveau');
+     secondary.hidden=false;
+   }
+  };
+  navigator.serviceWorker.addEventListener('controllerchange',onControllerChange,{once:true});
+  try{
+   reg.waiting.postMessage({type:'IU_ACTIVATE_UPDATE'});
+   timeoutId=setTimeout(()=>{
+     if(finished)return;
+     finished=true;
+     navigator.serviceWorker.removeEventListener('controllerchange',onControllerChange);
+     hideVisual();
+     busy=false;
+     log('update');
+     set('unavailable','Activation non confirmée','Tu peux réessayer de vérifier les mises à jour.','Réessayer');
+   },10000);
+  }catch{
+   finished=true;
+   navigator.serviceWorker.removeEventListener('controllerchange',onControllerChange);
+   hideVisual();busy=false;log('update');
+   set('unavailable','Installation impossible','Réessaie lorsque la connexion est stable.','Réessayer');
+  }
  }
+
  main.addEventListener('click',()=>{if(ready&&sessionSafe())install();else check();});
  secondary.addEventListener('click',()=>{if(sessionSafe())location.reload();else set('waiting','Inventaire en cours','Termine ton inventaire avant de recharger.','Vérifier à nouveau');});
  const activated=()=>{if(ADMIN?.open)check();};
