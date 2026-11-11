@@ -10755,3 +10755,8 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
   opacity:.79!important;
 }
+
+/* V34.85 — Contraste du texte seul très légèrement renforcé. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  color:#424c52!important;
+}
