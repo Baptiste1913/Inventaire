@@ -6183,3 +6183,77 @@ html.iu-pwa-revealing .app > footer {
   .app > .session-card .session-pill {font-size:10px!important;}
   .app > .session-card .session-actions .session-btn {font-size:12.5px!important;}
 }
+
+
+/* V34.05 — tiroir des événements : langage visuel des rubriques administrateur,
+   tout en restant un prolongement de la carte Événements du mois. */
+#inventoryCalendar .events-month-box {padding-bottom:0!important;}
+#inventoryCalendar .events-more-inline {
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  min-height:65px!important;width:calc(100% + 28px)!important;
+  margin:10px -14px 0!important;padding:13px 16px!important;
+  background:linear-gradient(155deg,#fff 0%,#f9fafb 100%)!important;
+  border:0!important;border-top:1px solid #e0e4e7!important;
+  border-radius:0!important;box-shadow:none!important;
+  color:#20252b!important;font-size:15px!important;font-weight:850!important;
+  letter-spacing:-.15px!important;line-height:1.25!important;
+  transition:background-color 260ms ease!important;
+}
+#inventoryCalendar .events-more-inline[aria-expanded="true"] {background:#fff!important;}
+#inventoryCalendar .events-more-inline svg {
+  width:18px!important;height:18px!important;
+  color:#5d636b!important;stroke-width:2!important;
+  transition:transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+}
+#inventoryCalendar .events-more-inline[aria-expanded="true"] svg {transform:rotate(180deg)!important;}
+#inventoryCalendar .events-more-list {
+  margin:0 -14px!important;padding:0 16px!important;
+  background:#fff!important;
+  transition:max-height 560ms cubic-bezier(.22,.75,.24,1),opacity 560ms cubic-bezier(.22,.75,.24,1),transform 560ms cubic-bezier(.22,.75,.24,1)!important;
+}
+#inventoryCalendar .events-more-list .events-entry:first-child {border-top:0!important;}
+#inventoryCalendar .events-more-list .events-entry:last-child {padding-bottom:14px!important;}
+@media(max-width:380px){
+  #inventoryCalendar .events-more-inline {width:calc(100% + 22px)!important;margin-left:-11px!important;margin-right:-11px!important;padding:12px!important;font-size:14px!important;}
+  #inventoryCalendar .events-more-list {margin-left:-11px!important;margin-right:-11px!important;padding:0 12px!important;}
+}
+
+/* V34.05 — notifications : mêmes dimensions/pilule/relief discret que
+   la pastille « Aucune session », adapté au fond clair des événements.
+   La cloche garde son sens fonctionnel ; le point lumineux donne l'état. */
+#inventoryCalendar .events-bell,
+#inventoryCalendar .events-bell:not(.is-active) {
+  box-sizing:border-box!important;flex:0 0 auto!important;
+  height:40px!important;min-height:40px!important;min-width:0!important;width:auto!important;
+  padding:0 12px!important;gap:7px!important;
+  border-radius:999px!important;
+  background:linear-gradient(145deg,rgba(246,249,251,.92),rgba(230,238,243,.92))!important;
+  border:1px solid rgba(150,174,187,.32)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.86)!important;
+  color:#394b55!important;font-size:11.5px!important;font-weight:760!important;
+  line-height:1.2!important;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+#inventoryCalendar .events-bell::before {
+  content:'';display:block;flex:none;width:7px;height:7px;border-radius:50%;
+  background:#9aaeb7;box-shadow:0 0 0 3px rgba(142,168,179,.13);
+  transition:background .3s ease,box-shadow .3s ease;
+}
+#inventoryCalendar .events-bell > svg {width:14px!important;height:14px!important;flex:0 0 14px!important;color:inherit!important;}
+#inventoryCalendar .events-bell .events-bell-label {color:inherit!important;}
+#inventoryCalendar .events-bell.is-active {
+  background:linear-gradient(145deg,rgba(240,249,244,.94),rgba(219,242,231,.94))!important;
+  border-color:rgba(129,190,157,.40)!important;color:#2e694f!important;
+}
+#inventoryCalendar .events-bell.is-active::before {
+  background:#30c88c;box-shadow:0 0 0 3px rgba(48,200,140,.15),0 0 9px rgba(48,200,140,.22);
+}
+@media(max-width:380px){
+  #inventoryCalendar .events-bell {height:38px!important;min-height:38px!important;padding:0 9px!important;gap:5px!important;font-size:10px!important;}
+  #inventoryCalendar .events-bell > svg {width:13px!important;height:13px!important;flex-basis:13px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  #inventoryCalendar .events-more-inline svg,#inventoryCalendar .events-more-list{transition:none!important;}
+}
+/* La commande prolonge la carte jusqu'à ses deux bordures intérieures. */
+#inventoryCalendar .events-more-inline {max-width:none!important;}
