@@ -1,7 +1,7 @@
 {
-  "version": "34.39",
+  "version": "34.40",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Ouverture PWA : suppression du titre, jauge turquoise stylisée avec pourcentage, avancement selon les étapes vérifiées de chargement local. Pas de délai fixe de deux secondes."
+  "notes": "Mode Concentration : positionnement de la pesée adapté au clavier iPhone, sans défilement à chaque frappe ; davantage de marge, touche Terminé, saisie et enregistrements préservés."
 }
