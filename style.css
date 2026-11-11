@@ -7937,3 +7937,63 @@ body:not(.is-focus-mode) .app > details.card.fold-card:is(.history-card,.session
     padding:21px 12px!important;
   }
 }
+
+
+/* V34.29 — Hiérarchie du volet Événements et bouton des événements supplémentaires. */
+#inventoryCalendar .events-disclosure-summary .events-disclosure-title {
+  font-size:15px!important;
+  font-weight:820!important;
+  line-height:1.32!important;
+  letter-spacing:-.2px!important;
+}
+#inventoryCalendar .events-disclosure-summary .events-disclosure-subtitle {
+  font-size:11.5px!important;
+  font-weight:600!important;
+  line-height:1.4!important;
+}
+#inventoryCalendar .events-disclosure-summary {
+  min-height:61px!important;
+  padding:13px 14px!important;
+}
+#inventoryCalendar .events-disclosure-chevron {
+  transition:transform 420ms cubic-bezier(.22,.75,.24,1)!important;
+}
+#inventoryCalendar .events-disclosure[data-motion="opening"] .events-disclosure-chevron {
+  transform:rotate(180deg)!important;
+}
+#inventoryCalendar .events-disclosure[data-motion="closing"] .events-disclosure-chevron {
+  transform:rotate(0deg)!important;
+}
+#inventoryCalendar #eventsMoreButton.events-more-inline {
+  min-height:55px!important;
+  padding:12px 16px!important;
+  font-size:12.5px!important;
+  line-height:1.35!important;
+  font-weight:800!important;
+  letter-spacing:0!important;
+}
+#inventoryCalendar #eventsMoreButton.events-more-inline svg {
+  width:15px!important;
+  height:15px!important;
+  flex-basis:15px!important;
+}
+@media(max-width:380px){
+  #inventoryCalendar .events-disclosure-summary .events-disclosure-title {
+    font-size:14px!important;
+  }
+  #inventoryCalendar .events-disclosure-summary .events-disclosure-subtitle {
+    font-size:11px!important;
+  }
+  #inventoryCalendar .events-disclosure-summary {
+    min-height:58px!important;
+    padding:12px!important;
+  }
+  #inventoryCalendar #eventsMoreButton.events-more-inline {
+    min-height:52px!important;
+    padding:11px 12px!important;
+    font-size:12px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #inventoryCalendar .events-disclosure-chevron {transition:none!important;}
+}
