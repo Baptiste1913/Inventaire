@@ -1,7 +1,7 @@
 {
-  "version": "34.09",
+  "version": "34.10",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bloc Nouvelle pesée modernisé : panneaux, saisie et résultat harmonisés ; animation du mode rapide conservée."
+  "notes": "Refonte du bloc Historique des pesées : cartes modernisées, bouton harmonisé, état vide et action d’effacement restylés."
 }
