@@ -11340,26 +11340,6 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
   --iu-neu-border:rgba(220,230,235,.92);
 }
 
-/* Cartes principales de l'accueil : relief doux sur leur fond existant.
-   Ne jamais toucher aux cartes du mode concentration ni aux états métiers. */
-body:not(.is-focus-mode) .app > .card{
-  border-color:var(--iu-neu-border)!important;
-  box-shadow:
-    -7px -7px 16px var(--iu-neu-light),
-     7px  8px 18px var(--iu-neu-dark),
-     inset 0 1px 0 rgba(255,255,255,.83)!important;
-}
-
-/* Les deux sous-cartes les plus visibles reprennent le même relief,
-   légèrement atténué pour conserver leur lisibilité dans une carte parente. */
-body:not(.is-focus-mode) #inventoryCalendar .events-next-card,
-body:not(.is-focus-mode) #accountCard .dashboard-trend{
-  box-shadow:
-    -4px -4px 11px rgba(255,255,255,.88),
-     5px  6px 14px rgba(120,147,158,.14),
-     inset 0 1px 0 rgba(255,255,255,.82)!important;
-}
-
 /* Bouton Inventaire : finition neumorphique satinée plutôt que verre blanc épais.
    Zone tactile iPhone inchangée (48 px), silhouette en pilule. */
 .app > .intro .intro-bottom > #heroStartSession.intro-jump{
@@ -11439,20 +11419,6 @@ body:not(.is-focus-mode) #accountCard .dashboard-trend{
 html{background:#aaa!important;}
 body:not(.is-focus-mode){background:#aaa!important;}
 
-/* Les reliefs conservent leur direction, mais restent proches du contour. */
-body:not(.is-focus-mode) .app > .card{
-  box-shadow:
-    -4px -4px 10px rgba(255,255,255,.76),
-     4px  4px 11px rgba(100,118,133,.21),
-     inset 0 1px 0 rgba(255,255,255,.76)!important;
-}
-body:not(.is-focus-mode) #inventoryCalendar .events-next-card,
-body:not(.is-focus-mode) #accountCard .dashboard-trend{
-  box-shadow:
-    -2px -2px 7px rgba(255,255,255,.78),
-     3px  3px 9px rgba(115,139,149,.11),
-     inset 0 1px 0 rgba(255,255,255,.80)!important;
-}
 /* Bouton Inventaire : ombres plus courtes et un peu moins opaques. */
 .app > .intro .intro-bottom > #heroStartSession.intro-jump{
   box-shadow:
@@ -11487,49 +11453,23 @@ body:not(.is-focus-mode) #accountCard .dashboard-trend{
   order:2!important;
 }
 
-/* V35.16 — Neumorph Accent : ombres EXACTES du CSS fourni, uniquement
-   à l'extérieur des surfaces. Le fond général #FBFBFB est conservé.
-   Pas de fond #E0E5EC, de police importée ni de styles de bouton sur les cartes. */
+/* V35.17 — Ombre Neumorph Accent strictement sur TOUTES les cartes
+   PRINCIPALES de l'application. Le sélecteur enfant direct exclut
+   les sous-cartes, tableaux de bord, réglages et toutes les surfaces internes. */
 html{background:#fff!important;}
-body:not(.is-focus-mode){
-  background:#fbfbfb!important;
-  background-image:none!important;
-}
+body:not(.is-focus-mode){background:#fbfbfb!important;background-image:none!important;}
 body:not(.is-focus-mode) .app > .header{background:#fff!important;}
 
-/* Toutes les surfaces de type carte, y compris celles imbriquées dans les
-   services, reçoivent le même relief EXTERNE que le bouton de référence.
-   Aucun inset, pseudo-élément, recoloration ni changement de rayon. */
-body:not(.is-focus-mode) .app :is(
-  .card,
-  .iu-admin-category,
-  .iu-update-versions,
-  .iu-update-state,
-  .planning-accordion,
-  .account-local-intro,
-  .account-connection-overview,
-  .dashboard-trend,
-  .dashboard-stat,
-  .dashboard-recent,
-  .dashboard-reset-panel,
-  .site-ops-dashboard,
-  .site-ops-status,
-  .events-next-card,
-  .events-disclosure,
-  .events-month-box,
-  .session-live,
-  .weigh-preferences,
-  .calc-card .result,
-  .backup-panel,
-  .v22-session-item,
-  .basket-item,
-  .events-info-box,
-  .dashboard-performance-summary
-){
+/* Effet fourni : exclusivement à l'EXTERIEUR ; aucun inset.
+   Bordure supprimée sur les 9 cartes directes (Admin, Compte, Planification,
+   Session, Calcul, Historique, Bilans, Paniers, Sauvegarde). */
+body:not(.is-focus-mode) .app > .card{
   border:0!important;
   box-shadow:
-    -7px -7px 16px 0 rgba(255,255,255,.9),
+    -7px -7px 16px 0 rgba(255,255,255,.90),
      7px  7px 16px 0 rgba(163,177,198,.85)!important;
 }
-/* La banderole émeraude et le bouton Inventaire conservent leurs effets
-   propres. Aucun changement des états de connexion ou des popups. */
+
+/* Aucune règle neumorphique ne cible les descendants :
+   les composants imbriqués retrouvent leurs contours, fonds et ombres
+   propres à leurs styles originaux. Le bouton et la banderole sont inchangés. */

@@ -1,7 +1,7 @@
 {
-  "version": "35.16",
+  "version": "35.17",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Ombres externes Neumorph Accent exactement reprises du CSS fourni sur toutes les cartes, contours gris retirés, fond et intérieurs conservés."
+  "notes": "Relief Neumorph Accent limité aux 9 cartes principales, sans contour gris ; styles d’origine restaurés pour les éléments intérieurs."
 }
