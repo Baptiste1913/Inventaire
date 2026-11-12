@@ -11434,3 +11434,55 @@ body:not(.is-focus-mode) #accountCard .dashboard-trend{
     animation:none!important;
   }
 }
+
+/* V35.10 — Neumorphisme maîtrisé, toile #AAA et icône Play à droite. */
+html{background:#aaa!important;}
+body:not(.is-focus-mode){background:#aaa!important;}
+
+/* Les reliefs conservent leur direction, mais restent proches du contour. */
+body:not(.is-focus-mode) .app > .card{
+  box-shadow:
+    -4px -4px 10px rgba(255,255,255,.76),
+     4px  4px 11px rgba(100,118,133,.21),
+     inset 0 1px 0 rgba(255,255,255,.76)!important;
+}
+body:not(.is-focus-mode) #inventoryCalendar .events-next-card,
+body:not(.is-focus-mode) #accountCard .dashboard-trend{
+  box-shadow:
+    -2px -2px 7px rgba(255,255,255,.78),
+     3px  3px 9px rgba(115,139,149,.11),
+     inset 0 1px 0 rgba(255,255,255,.80)!important;
+}
+/* Bouton Inventaire : ombres plus courtes et un peu moins opaques. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  box-shadow:
+    -4px -4px 10px rgba(255,255,255,.33),
+     4px  4px 11px rgba(4,52,49,.20),
+     inset 0 1px 0 rgba(255,255,255,.89)!important;
+}
+@media (hover:hover) and (pointer:fine){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+    box-shadow:
+      -4px -3px 11px rgba(255,255,255,.37),
+       4px  5px 12px rgba(4,52,49,.23),
+       inset 0 1px 0 rgba(255,255,255,.92)!important;
+  }
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+  box-shadow:
+    -3px -3px 8px rgba(255,255,255,.30),
+     3px  3px 9px rgba(4,52,49,.17),
+     inset 0 1px 0 rgba(255,255,255,.83)!important;
+}
+/* Ordre visuel uniquement : le texte est suivi du Play, sans toucher
+   au libellé, au comportement du bouton ni à sa zone tactile. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content{
+  display:inline-flex!important;
+  align-items:center!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content #heroActionLabel{
+  order:1!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  order:2!important;
+}

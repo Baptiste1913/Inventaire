@@ -1,7 +1,7 @@
 {
-  "version": "35.09",
+  "version": "35.10",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Essai neumorphique : bouton Inventaire satiné à double ombre et relief doux sur les cartes de l’accueil, sans modification fonctionnelle."
+  "notes": "Fond du site #AAA, reliefs neumorphiques réduits et icône Play du bouton Inventaire placée à droite."
 }
