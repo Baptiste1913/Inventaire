@@ -12326,3 +12326,130 @@ body:not(.is-focus-mode) .app > .basket-card.card #basketForm :is(#saveBasketBtn
   font-size:11px!important;
  }
 }
+
+/* V35.41 — Sauvegarde : carte unique en relief commun, contenu réagencé
+   comme Administrateur. Aucun encart autour de la sauvegarde principale. */
+body:not(.is-focus-mode) .app > #backupCard.backup-card.card{
+ background:#f5f7f8!important;background-color:#f5f7f8!important;
+ background-image:none!important;border:0!important;
+ border-radius:var(--iu-radius-card)!important;
+ box-shadow:var(--iu-main-card-shadow)!important;
+ overflow:hidden!important;isolation:isolate;
+}
+body:not(.is-focus-mode) .app > #backupCard.backup-card.card > .fold-summary,
+body:not(.is-focus-mode) .app > #backupCard.backup-card.card > .backup-body{
+ background:#f5f7f8!important;background-image:none!important;
+ border:0!important;border-top:0!important;border-bottom:0!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > #backupCard.backup-card.card[open] > .fold-summary,
+body:not(.is-focus-mode) .app > #backupCard.backup-card.card.is-fold-closing > .fold-summary{
+ border-bottom:0!important;box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > #backupCard.backup-card.card > .backup-body{
+ border-bottom-left-radius:var(--iu-radius-card)!important;
+ border-bottom-right-radius:var(--iu-radius-card)!important;
+ overflow:hidden!important;
+}
+#backupCard .backup-heading-subtitle{
+ display:block!important;margin-top:4px!important;
+ font-size:11.5px!important;font-weight:500!important;line-height:1.45!important;
+ color:#7c8991!important;letter-spacing:0!important;
+}
+#backupCard > .fold-summary .fold-label{
+ font-weight:850!important;color:#272f36!important;
+}
+/* Continuité du secteur principal : plus de carte dans la carte. */
+body:not(.is-focus-mode) #backupCard .backup-panel{
+ display:flex!important;flex-direction:column!important;
+ margin:0!important;padding:4px 0 0!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;background-image:none!important;
+ box-shadow:none!important;min-width:0!important;
+}
+#backupCard .backup-panel-heading{
+ display:flex!important;align-items:flex-start!important;
+ gap:0!important;margin-bottom:9px!important;
+ border:0!important;border-bottom:0!important;padding:0!important;
+ box-shadow:none!important;
+}
+#backupCard .backup-panel-heading > div{
+ display:flex!important;flex-direction:column!important;gap:4px!important;
+}
+#backupCard .backup-panel-heading strong{
+ margin:0!important;font-family:inherit!important;font-size:16px!important;
+ font-weight:850!important;line-height:1.25!important;
+ letter-spacing:-.25px!important;color:#272f36!important;
+}
+#backupCard .backup-panel-heading > div > span{
+ font-size:11.5px!important;font-weight:500!important;line-height:1.45!important;
+ letter-spacing:0!important;color:#7c8991!important;
+}
+body:not(.is-focus-mode) #backupCard .backup-summary{
+ margin:6px 0 12px!important;padding:11px 12px!important;
+ border:1px solid #e3e8eb!important;border-radius:12px!important;
+ background:linear-gradient(155deg,#fff,#f8f9fa)!important;
+ box-shadow:none!important;color:#414d56!important;
+ font-size:11.5px!important;line-height:1.5!important;
+}
+body:not(.is-focus-mode) #backupCard :is(
+ #fullExportBtn.backup-main-btn,label.backup-restore-btn,
+ #sessionsCsvBtn,#exportBtn,label[for="importInput"]
+){
+ box-sizing:border-box!important;width:100%!important;
+ min-height:46px!important;height:auto!important;
+ padding:10px 9px!important;
+ border:1px solid #d8dfe3!important;border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;box-shadow:none!important;
+ font-family:inherit!important;font-size:11.5px!important;
+ font-weight:800!important;line-height:1.35!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;
+}
+#backupCard .backup-last{
+ margin:11px 0 0!important;
+ color:#7c8991!important;font-size:10.5px!important;line-height:1.5!important;
+}
+#backupCard .backup-guidance{
+ margin:12px 0 14px!important;
+ color:#7c8991!important;font-size:11.5px!important;
+ font-weight:500!important;line-height:1.5!important;
+}
+/* Un seul tiroir secondaire comme dans le Planning Admin. */
+body:not(.is-focus-mode) #backupCard #backupAdvanced.backup-advanced{
+ margin:3px 0 0!important;
+ border:1px solid #e0e5e9!important;border-radius:15px!important;
+ background:linear-gradient(150deg,#fff,#f6f8f9)!important;
+ box-shadow:none!important;overflow:hidden!important;
+}
+#backupCard #backupAdvanced > summary{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ min-height:67px!important;padding:13px 15px!important;gap:10px!important;
+ background:transparent!important;background-image:none!important;
+ border:0!important;box-shadow:none!important;
+}
+#backupCard .backup-advanced-label{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ min-width:0!important;gap:3px!important;
+}
+#backupCard .backup-advanced-label strong{
+ font-size:13px!important;font-weight:800!important;line-height:1.3!important;
+ letter-spacing:-.1px!important;color:#414d56!important;
+}
+#backupCard .backup-advanced-label small{
+ font-size:11px!important;font-weight:500!important;line-height:1.4!important;
+ color:#88939a!important;
+}
+body:not(.is-focus-mode) #backupCard #backupAdvanced > .backup-advanced-body{
+ padding:0 12px 12px!important;
+ background:linear-gradient(150deg,#fff,#f8f9fa)!important;
+ border-top:1px solid #edf0f2!important;box-shadow:none!important;
+}
+#backupCard #backupAdvanced .backup-advanced-body > p{
+ color:#7c8991!important;font-size:11.5px!important;
+ line-height:1.45!important;
+}
+#backupCard #backupStatus:not(:empty){margin-top:10px!important;}
+@media(max-width:380px){
+ #backupCard .backup-heading-subtitle{font-size:11px!important;}
+}

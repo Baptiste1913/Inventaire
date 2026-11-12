@@ -1,7 +1,7 @@
 {
-  "version": "35.40",
+  "version": "35.41",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mes paniers : carte au relief commun, en-tête et contenu sans séparateur ni dégradé, descriptif discret, liste et formulaire harmonisés sans modifier les actions."
+  "notes": "Sauvegarde : relief commun et fond continu, grande sous-carte supprimée, en-têtes harmonisés, actions principales visibles et export partiel en tiroir unique."
 }
