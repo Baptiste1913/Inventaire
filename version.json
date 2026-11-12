@@ -1,7 +1,7 @@
 {
-  "version": "35.77",
+  "version": "35.78",
   "published": "2026-11-12",
-  "assets": 42,
-  "bytes": 819245,
-  "notes": "Police système Apple SF Pro sur iPhone et iPad, typographie plus fine et raffinée, secours natif sur les autres appareils, sans téléchargement et hors ligne. Mise en page 35.76 conservée."
+  "assets": 43,
+  "bytes": 930129,
+  "notes": "Police Outfit variable, titres/résultats 600, boutons 500, corps 400 et textes secondaires affinés, mise en page préservée et fonctionnement PWA hors ligne."
 }

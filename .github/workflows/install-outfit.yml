@@ -1,0 +1,36 @@
+name: Installer Outfit localement
+on:
+  push:
+    paths:
+      - .github/workflows/install-outfit.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Télécharger Outfit variable avec sa licence
+        run: |
+          set -euo pipefail
+          mkdir -p assets/fonts
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/outfit/Outfit%5Bwght%5D.ttf' \
+            --output assets/fonts/OutfitVariable.ttf
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/outfit/OFL.txt' \
+            --output assets/fonts/Outfit-OFL.txt
+          test "$(wc -c < assets/fonts/OutfitVariable.ttf)" -gt 100000
+      - name: Publier pour la PWA hors ligne
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/fonts/OutfitVariable.ttf assets/fonts/Outfit-OFL.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Vendor Outfit variable font for offline PWA"
+            git push origin HEAD:main
+          fi
