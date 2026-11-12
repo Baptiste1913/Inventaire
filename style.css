@@ -14365,48 +14365,58 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
 }
 
-/* V35.67 — écrans de lancement et de mise à jour : compacts et élargis. */
-#iuPwaSplash .iu-splash-content{
- width:min(100%,306px)!important;padding:17px 25px 19px!important;
- border:1px solid #dbe2e6!important;border-radius:20px!important;
- background:linear-gradient(145deg,#fcfdfd,#f0f3f5)!important;
- box-shadow:-3px -3px 9px rgba(255,255,255,.80),4px 6px 15px rgba(150,167,181,.16)!important;
+/* V35.69 — un seul style partagé pour les deux écrans de chargement.
+   Relief perle, piste graphite adoucie et lumière discrète émeraude. */
+#iuPwaSplash,#iuUpdateOverlay{background:#f5f7f8!important;background-image:none!important}
+#iuPwaSplash .iu-splash-content,#iuUpdateOverlay .iu-update-screen{
+ box-sizing:border-box!important;max-width:calc(100vw - 36px)!important;
+ border:1px solid rgba(211,220,225,.72)!important;border-radius:21px!important;
+ background:linear-gradient(145deg,#fafbfc 0%,#f1f4f5 100%)!important;
+ box-shadow:-4px -4px 11px rgba(255,255,255,.83),5px 7px 18px rgba(143,159,172,.17),inset 0 1px 0 rgba(255,255,255,.75)!important;
 }
-#iuPwaSplash .iu-splash-logo{
- width:58px!important;height:58px!important;padding:5px!important;
- margin:0 0 14px!important;border-radius:14px!important;
+#iuPwaSplash .iu-splash-content{width:min(100%,272px)!important;padding:20px 24px 22px!important}
+#iuUpdateOverlay .iu-update-screen{width:min(100%,292px)!important;padding:19px 22px 22px!important}
+#iuPwaSplash .iu-splash-logo,#iuUpdateOverlay .iu-update-logo{
+ box-sizing:border-box!important;width:58px!important;height:58px!important;
+ padding:5px!important;border:1px solid #e0e7e9!important;border-radius:15px!important;
+ background:#fff!important;box-shadow:0 3px 10px rgba(44,61,68,.04)!important
 }
-#iuPwaSplash .iu-splash-logo img{width:46px!important;height:46px!important;}
+#iuPwaSplash .iu-splash-logo{margin:0 0 20px!important}
+#iuUpdateOverlay .iu-update-logo{margin-bottom:12px!important}
+#iuPwaSplash .iu-splash-logo img,#iuUpdateOverlay .iu-update-logo img{width:46px!important;height:46px!important}
 #iuPwaSplash #iuSplashLoader.iu-splash-loader,
 #iuUpdateOverlay #iuUpdateProgress.iu-update-progress{
- height:13px!important;padding:2px!important;border-radius:100px!important;
- border:1px solid #64747d!important;background:#596971!important;
- box-shadow:inset 0 1px 3px rgba(17,37,42,.17)!important;
+ position:relative!important;box-sizing:border-box!important;
+ height:12px!important;padding:2px!important;border-radius:999px!important;
+ border:1px solid #a8b5bc!important;
+ background:linear-gradient(180deg,#647780 0%,#596a73 100%)!important;
+ box-shadow:inset 0 1px 3px rgba(25,43,50,.17),0 1px 0 rgba(255,255,255,.82)!important;
+ overflow:hidden!important
 }
-#iuPwaSplash #iuSplashLoader.iu-splash-loader{width:min(100%,218px)!important;}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader{width:min(100%,176px)!important}
+#iuUpdateOverlay .iu-update-progress-block{width:min(100%,196px)!important;margin:15px auto 0!important}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress{width:100%!important;margin:0!important}
 #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
 #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{
- height:7px!important;background:linear-gradient(90deg,#f2f9f7,#fff)!important;
- box-shadow:0 0 5px rgba(255,255,255,.64)!important;
- transition:width .18s linear!important;
+ position:relative!important;display:block!important;inset:auto!important;
+ height:6px!important;border:0!important;border-radius:999px!important;
+ background:linear-gradient(90deg,#d9eee8 0%,#f7fffc 58%,#fff 100%)!important;
+ box-shadow:0 0 5px rgba(221,255,246,.46),0 0 2px rgba(255,255,255,.64)!important;
+ transition:width .36s cubic-bezier(.22,.75,.25,1)!important;
+ animation:none!important
 }
-#iuUpdateOverlay .iu-update-screen{
- width:min(100%,326px)!important;padding:18px 23px 19px!important;
- border:1px solid #dbe2e6!important;border-radius:20px!important;
- background:linear-gradient(145deg,#fcfdfd,#f0f3f5)!important;
- box-shadow:-3px -3px 9px rgba(255,255,255,.80),4px 6px 15px rgba(150,167,181,.16)!important;
-}
-#iuUpdateOverlay .iu-update-logo{margin-bottom:9px!important;}
-#iuUpdateOverlay .iu-update-logo img{width:46px!important;height:46px!important;}
-#iuUpdateOverlay #iuUpdateScreenTitle{font-size:13.5px!important;line-height:1.25!important;}
-#iuUpdateOverlay #iuUpdateScreenText{margin-top:5px!important;font-size:11px!important;line-height:1.35!important;}
-#iuUpdateOverlay .iu-update-progress-block{margin-top:13px!important;}
-#iuUpdateOverlay .iu-update-progress-meta{margin-bottom:7px!important;font-size:10px!important;}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{width:var(--iu-splash-progress,0%)!important}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{width:var(--iu-update-complete,0%)!important}
+#iuPwaSplash #iuSplashLoader::before,#iuPwaSplash #iuSplashLoader::after,
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-cap{display:none!important;content:none!important}
+#iuUpdateOverlay #iuUpdateScreenTitle{font-size:13.5px!important;line-height:1.3!important;font-weight:800!important}
+#iuUpdateOverlay #iuUpdateScreenText{font-size:11px!important;line-height:1.4!important;margin-top:5px!important}
+#iuUpdateOverlay .iu-update-progress-meta{font-size:9.5px!important;margin-bottom:8px!important}
 @media(max-width:380px){
- #iuPwaSplash .iu-splash-content{width:min(100%,292px)!important;padding:16px 22px 18px!important;}
- #iuUpdateOverlay .iu-update-screen{width:min(100%,310px)!important;padding:17px 20px 18px!important;}
+ #iuPwaSplash .iu-splash-content{width:min(100%,266px)!important;padding:18px 21px 20px!important}
+ #iuUpdateOverlay .iu-update-screen{width:min(100%,282px)!important;padding:18px 19px 20px!important}
 }
 @media(prefers-reduced-motion:reduce){
  #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
- #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
+ #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important}
 }

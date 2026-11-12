@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="35.68"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-u.svg?v=35.68" rel="icon" type="image/svg+xml"/><link href="favicon-u.svg?v=35.68" rel="shortcut icon" type="image/svg+xml"/><link href="style.css?v=35.68" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="35.69"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-u.svg?v=35.69" rel="icon" type="image/svg+xml"/><link href="favicon-u.svg?v=35.69" rel="shortcut icon" type="image/svg+xml"/><link href="style.css?v=35.69" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
 html.iu-pwa-starting body{overflow:hidden!important}
 html.iu-pwa-starting #iuPwaSplash{display:flex!important}
 #iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#f7f9fa;align-items:center;justify-content:center;opacity:1;transition:opacity .32s ease;pointer-events:all;padding:24px;box-sizing:border-box}
@@ -37,61 +37,38 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
 #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{left:0;top:0;bottom:0;width:var(--iu-splash-progress);max-width:100%;border-radius:999px;background:linear-gradient(90deg,#747e87,#404951);transition:width .32s cubic-bezier(.2,.8,.25,1)}
 #iuPwaSplash .iu-splash-loader-cap{display:none}
 
-/* V35.68 — style cohérent dès la première frame de lancement. */
+/* V35.69 — même présentation dès la première frame, avant style.css. */
 #iuPwaSplash{background:#f5f7f8!important}
-#iuPwaSplash .iu-splash-content{width:min(100%,270px)!important;padding:26px 22px 24px!important;border:0!important;border-radius:24px!important;background:#f5f7f8!important;box-shadow:-2px -2px 6px rgba(255,255,255,.92),-5px -5px 12px rgba(255,255,255,.52),3px 4px 10px rgba(163,177,198,.12),1px 2px 5px rgba(163,177,198,.07)!important}
-#iuPwaSplash .iu-splash-logo{width:70px!important;height:70px!important;padding:6px!important;border:1px solid #e3e8eb!important;border-radius:17px!important;box-shadow:none!important;background:#fff!important}
-
-/* V35.68 — Immediately visible on PWA startup, before style.css loads.
-   Track is dark so the original white glowing bar stays legible. */
 #iuPwaSplash .iu-splash-content{
- width:min(100%,252px)!important;padding:27px 25px 29px!important;
- border-radius:23px!important;background:#f5f7f8!important;
- box-shadow:-4px -4px 11px rgba(255,255,255,.68),5px 7px 19px rgba(155,172,186,.15)!important;
+ width:min(100%,272px)!important;max-width:calc(100vw - 36px)!important;
+ padding:20px 24px 22px!important;border:1px solid rgba(211,220,225,.72)!important;
+ border-radius:21px!important;background:linear-gradient(145deg,#fafbfc,#f1f4f5)!important;
+ box-shadow:-4px -4px 11px rgba(255,255,255,.83),5px 7px 18px rgba(143,159,172,.17),inset 0 1px 0 rgba(255,255,255,.75)!important
 }
-#iuPwaSplash .iu-splash-logo{margin:0 0 26px!important;}
+#iuPwaSplash .iu-splash-logo{
+ width:58px!important;height:58px!important;padding:5px!important;margin:0 0 20px!important;
+ border:1px solid #e0e7e9!important;border-radius:15px!important;
+ background:#fff!important;box-shadow:0 3px 10px rgba(44,61,68,.04)!important
+}
+#iuPwaSplash .iu-splash-logo img{width:46px!important;height:46px!important}
 #iuPwaSplash #iuSplashLoader.iu-splash-loader{
- --iu-splash-progress:0%;position:relative!important;box-sizing:border-box!important;
- width:178px!important;max-width:100%!important;height:16px!important;
- padding:3px!important;border:1px solid rgba(16,27,35,.20)!important;
- border-radius:100px!important;background:#35434b!important;
- box-shadow:inset 0 2px 4px rgba(7,17,23,.20),0 1px 0 rgba(255,255,255,.72)!important;
- overflow:hidden!important;
+ width:min(100%,176px)!important;height:12px!important;padding:2px!important;
+ box-sizing:border-box!important;border:1px solid #a8b5bc!important;border-radius:999px!important;
+ background:linear-gradient(180deg,#647780,#596a73)!important;
+ box-shadow:inset 0 1px 3px rgba(25,43,50,.17),0 1px 0 rgba(255,255,255,.82)!important;
+ overflow:hidden!important
 }
 #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{
- position:relative!important;display:block!important;left:auto!important;top:auto!important;bottom:auto!important;
- height:8px!important;width:var(--iu-splash-progress,0%)!important;
- max-width:100%!important;min-width:0!important;border-radius:100px!important;
- background:#fff!important;
- box-shadow:0 0 8px rgba(255,255,255,.72),0 1px 7px rgba(255,255,255,.52)!important;
- transition:width .55s cubic-bezier(.2,.78,.22,1)!important;animation:none!important;
+ position:relative!important;display:block!important;inset:auto!important;
+ width:var(--iu-splash-progress,0%)!important;height:6px!important;
+ border-radius:999px!important;background:linear-gradient(90deg,#d9eee8,#f7fffc 58%,#fff)!important;
+ box-shadow:0 0 5px rgba(221,255,246,.46),0 0 2px rgba(255,255,255,.64)!important;
+ transition:width .36s cubic-bezier(.22,.75,.25,1)!important;animation:none!important
 }
 #iuPwaSplash #iuSplashLoader::before,#iuPwaSplash #iuSplashLoader::after,
-#iuPwaSplash #iuSplashLoader .iu-splash-loader-cap{display:none!important;content:none!important;}
-@media(prefers-reduced-motion:reduce){
- #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{transition:none!important;}
-}
-
-
-/* V35.68 — affichage correct avant chargement de style.css. */
-#iuPwaSplash .iu-splash-content{
- width:min(100%,306px)!important;padding:17px 25px 19px!important;
- border:1px solid #dbe2e6!important;border-radius:20px!important;
- background:linear-gradient(145deg,#fcfdfd,#f0f3f5)!important;
- box-shadow:-3px -3px 9px rgba(255,255,255,.80),4px 6px 15px rgba(150,167,181,.16)!important;
-}
-#iuPwaSplash .iu-splash-logo{width:58px!important;height:58px!important;padding:5px!important;margin:0 0 14px!important;border-radius:14px!important;}
-#iuPwaSplash .iu-splash-logo img{width:46px!important;height:46px!important;}
-#iuPwaSplash #iuSplashLoader.iu-splash-loader{
- width:min(100%,218px)!important;height:13px!important;padding:2px!important;
- border:1px solid #64747d!important;border-radius:100px!important;
- background:#596971!important;box-shadow:inset 0 1px 3px rgba(17,37,42,.17)!important;
-}
-#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{
- height:7px!important;background:linear-gradient(90deg,#f2f9f7,#fff)!important;
- box-shadow:0 0 5px rgba(255,255,255,.64)!important;transition:width .18s linear!important;
-}
-@media(max-width:380px){#iuPwaSplash .iu-splash-content{width:min(100%,292px)!important;padding:16px 22px 18px!important;}}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-cap{display:none!important;content:none!important}
+@media(max-width:380px){#iuPwaSplash .iu-splash-content{width:min(100%,266px)!important;padding:18px 21px 20px!important}}
+@media(prefers-reduced-motion:reduce){#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{transition:none!important}}
 </style></head>
 <body><div id="iuUpdateOverlay" role="status" aria-live="polite" aria-label="Installation de la mise à jour" aria-hidden="true"><div class="iu-update-screen"><span class="iu-update-logo"><img src="logo-u.png" width="70" height="70" alt=""/></span><strong id="iuUpdateScreenTitle">Installation de la mise à jour…</strong><p id="iuUpdateScreenText">Préparation de votre nouvelle version.</p><div class="iu-update-progress-block"><div class="iu-update-progress-meta"><span id="iuUpdateStep">Activation de la mise à jour</span><span id="iuUpdateStepCount">Étape 1 sur 4</span></div><div class="iu-update-progress" id="iuUpdateProgress" role="progressbar" aria-label="Étapes de la mise à jour" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span></span></div></div><button type="button" id="iuUpdateOverlayDismiss" hidden>Revenir au site</button></div></div><dialog id="accountResetDialog" class="account-reset-dialog" aria-labelledby="accountResetDialogTitle" aria-describedby="accountResetDialogText"><div class="account-reset-modal"><strong id="accountResetDialogTitle">Confirmer la réinitialisation</strong><p id="accountResetDialogText"></p><div class="account-reset-modal-actions"><button type="button" id="accountResetCancel">Annuler</button><button type="button" id="accountResetConfirm">Confirmer</button></div></div></dialog><div id="iuPwaSplash" role="status" aria-label="Ouverture d’Inventaires U" aria-live="off"><div class="iu-splash-content"><span class="iu-splash-logo"><img src="logo-u.png" alt="" width="68" height="68"/></span><div class="iu-splash-loader" id="iuSplashLoader" role="progressbar" aria-label="Chargement de l’application" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="iu-splash-loader-fill"></span></div></div></div><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
@@ -354,4 +331,4 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=35.68"></script><script defer="" src="app.js?v=35.68"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=34.30"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=35.68"></script><script defer src="site-operations.js?v=35.68"></script><script defer src="update-manager.js?v=35.68"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=33.93"></script></body></html>
+<script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=35.69"></script><script defer="" src="app.js?v=35.69"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=34.30"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=35.69"></script><script defer src="site-operations.js?v=35.69"></script><script defer src="update-manager.js?v=35.69"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=33.93"></script></body></html>
