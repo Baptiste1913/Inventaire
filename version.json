@@ -1,7 +1,7 @@
 {
-  "version": "35.25",
+  "version": "35.26",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Carte Administrateur : glow blanc et ombres extérieures +15 % d’intensité, diffusion augmentée de 2 px. Correction des coins et autres cartes conservées."
+  "notes": "Tableau Administrateur simplifié : statistiques, mise à jour et mini-journal réunis ; planning séparé avec dépliant Ajouter des dates, formulaires préservés."
 }

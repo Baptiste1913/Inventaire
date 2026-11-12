@@ -63,6 +63,8 @@ async function loadRows(){
 // Ouvrir automatiquement le bon sous-menu quand on modifie un élément de la liste.
 function revealEditor(formId){
  const form=$(formId),panel=form?.closest('.planning-accordion');
+ const addPanel=form?.closest('.iu-admin-date-add');
+ if(addPanel&&!addPanel.open)addPanel.open=true;
  if(panel&&!panel.open)panel.open=true;
  requestAnimationFrame(()=>form?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'}));
 }
