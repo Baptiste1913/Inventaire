@@ -11158,3 +11158,29 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   border-color:#d7e7dd!important;
   color:#537564!important;
 }
+
+/* V35.00 — Nuance turquoise très légère, sans perdre le gris émeraude. */
+#accountCard .dashboard-trend{
+  background:linear-gradient(150deg,#fbfdfc 0%,#f1f7f6 100%)!important;
+  border-color:#dce9e6!important;
+}
+#accountCard .dashboard-trend-track{
+  background:#e6efed!important;
+  border-color:#d3e3df!important;
+}
+#accountCard .dashboard-trend-fill{
+  background:linear-gradient(180deg,#9dc4ba 0%,#5c9d91 52%,#367f75 100%)!important;
+}
+#accountCard .dashboard-trend-column > strong{color:#3c6059!important;}
+#accountCard .dashboard-trend-column > span{color:#758b85!important;}
+#inventoryCalendar .events-next-card{
+  background:linear-gradient(135deg,#f7faf9 0%,#f0f8f6 58%,#e9f4f1 100%)!important;
+  border-color:#d9e9e5!important;
+}
+#inventoryCalendar .events-next-card .events-kicker{color:#5b8078!important;}
+#inventoryCalendar .events-next-card #calendarNextDate{color:#345e56!important;}
+#inventoryCalendar .events-next-card .events-countdown:not([hidden]){
+  background:rgba(255,255,255,.82)!important;
+  border-color:#d4e8e2!important;
+  color:#4f7a71!important;
+}
