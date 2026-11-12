@@ -258,6 +258,8 @@ function renderDashboard(){
 }
 function render(){
  const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Mon compte'):'Mon compte';
+ const accountCard=$('accountCard');
+ accountCard.classList.toggle('is-signed-out',!user);
  const badge=$('accountSummaryStatus');
  badge.textContent=user?'Connecté':'Mode local';
  badge.classList.toggle('is-connected',!!user);

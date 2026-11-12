@@ -1,7 +1,7 @@
 {
-  "version": "35.54",
+  "version": "35.55",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole plus aérée : espace description/bouton augmenté, marge basse rééquilibrée sur iPhone, pastille restaurée à 32 px et descendue de 2 px. Styles inchangés."
+  "notes": "Mon compte déconnecté en monochrome : avatar neutre, pastille Mode local, encart de présentation et connexion Google harmonisés ; mode connecté préservé."
 }

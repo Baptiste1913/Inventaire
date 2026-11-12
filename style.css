@@ -13307,3 +13307,124 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSessio
   padding:5px 7px!important;
  }
 }
+
+/* V35.55 — Mon compte : présentation monochrome lorsque l'utilisateur
+   n'est pas connecté. Le mode Google connecté conserve son design,
+   ses couleurs d'état, ses données et ses actions actuelles. */
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out > .account-fold-summary > .account-header-avatar{
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ border:1px solid #d8dfe3!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
+ color:#414d56!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out > .account-fold-summary > .account-header-avatar > svg{
+ color:#414d56!important;
+ stroke:currentColor!important;
+}
+/* Le mode local n'utilise pas de point d'état redondant :
+   le compte connecté garde sa photo et sa pastille verte. */
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out .account-header-avatar .account-status-dot{
+ display:none!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out > .account-fold-summary .account-header-text .section-kicker{
+ color:#535f69!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out > .account-fold-summary .account-header-title{
+ color:#28313a!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out > .account-fold-summary .account-header-end > #accountSummaryStatus.account-summary-status:not(.is-connected){
+ color:#535e67!important;
+ border-color:#d9e0e4!important;
+ background:linear-gradient(145deg,#f7f9fa,#e8edef)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+/* Encart de bienvenue assorti aux sous-cartes du tableau de bord. */
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut .account-local-intro{
+ display:flex!important;
+ align-items:flex-start!important;
+ gap:12px!important;
+ margin:16px 0 14px!important;
+ padding:15px 14px!important;
+ border:1px solid #e0e6ea!important;
+ border-radius:14px!important;
+ background:linear-gradient(150deg,#fcfcfd,#f0f3f5)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut .account-local-intro-icon{
+ display:grid!important;
+ place-items:center!important;
+ flex:0 0 35px!important;
+ width:35px!important;
+ height:35px!important;
+ border:1px solid #d9e0e5!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#505c66!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut .account-local-intro-icon svg{
+ color:#505c66!important;
+ stroke:currentColor!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut .account-local-intro-copy > strong{
+ color:#303b44!important;
+ font-size:13px!important;
+ font-weight:850!important;
+ line-height:1.35!important;
+ letter-spacing:-.1px!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut .account-local-intro-copy > p{
+ color:#78848d!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
+ line-height:1.5!important;
+ margin:6px 0 0!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut #accountGoogle.account-provider{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:10px!important;
+ min-height:48px!important;
+ border:1px solid #d8dfe3!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,#fff,#eef1f3)!important;
+ color:#35414a!important;
+ box-shadow:
+  -1px -1px 3px rgba(255,255,255,.7),
+   2px 3px 8px rgba(152,168,181,.12)!important;
+ font-family:inherit!important;
+ font-size:12px!important;
+ font-weight:800!important;
+ transition:background .2s ease,box-shadow .2s ease,transform .16s ease!important;
+}
+@media(hover:hover){
+ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut #accountGoogle.account-provider:hover:not(:disabled){
+  background:linear-gradient(145deg,#fff,#e9eef1)!important;
+  box-shadow:-2px -2px 4px rgba(255,255,255,.77),3px 4px 9px rgba(152,168,181,.15)!important;
+ }
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut #accountGoogle.account-provider:active:not(:disabled){
+ transform:translateY(1px) scale(.993)!important;
+ box-shadow:inset 1px 2px 5px rgba(152,168,181,.18),inset -1px -1px 3px rgba(255,255,255,.96)!important;
+}
+/* Le logo Google officiel garde son marquage propre ; aucun accent
+   coloré n'est ajouté aux surfaces et statuts du mode local. */
+body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut .account-local-note{
+ color:#849098!important;
+ font-size:11px!important;
+ line-height:1.5!important;
+ text-align:center!important;
+ margin:13px 3px 0!important;
+}
+@media(max-width:380px){
+ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut .account-local-intro{
+  gap:9px!important;
+  padding:13px 11px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #accountSignedOut #accountGoogle.account-provider{
+  transition:none!important;
+ }
+}
