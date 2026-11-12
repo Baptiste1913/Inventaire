@@ -1,33 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="145" height="49" viewBox="0 0 145 49" preserveAspectRatio="none">
-  <!-- Adaptation en capsule des trois silhouettes du logo U.
-       Les bords sont des formes pleines, et non des dégradés. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="145" height="49" viewBox="0 0 145 49">
+  <!-- Contour U, conserve la capsule exacte 145 x 49.
+       Bleu ciel à gauche, vert d'eau à droite, bleu canard
+       affleurant en haut-droite et en bas-gauche. -->
   <defs>
-    <clipPath id="edge"><rect x=".15" y=".15" width="144.7" height="48.7" rx="24.35"/></clipPath>
+    <clipPath id="capsule">
+      <rect x=".2" y=".2" width="144.6" height="48.6" rx="24.3"/>
+    </clipPath>
   </defs>
-  <g clip-path="url(#edge)">
-    <!-- Bleu ciel : visible en croissant en haut-gauche et en bas-gauche. -->
-    <rect width="145" height="49" fill="#55BDE5"/>
-    <!-- Vert d'eau : bande extérieure côté droit. -->
-    <path d="M75 -1 H146 V50 H78 C111 46 141 37 144 24.5 C141 12 111 3 75 -1 Z" fill="#65B9B0"/>
-    <!-- Bleu canard : commence plus en retrait à gauche, monte presque
-         au bord au centre/droite et descend au bord au centre/gauche. -->
-    <path d="M24.2 2.05
-      C43.5 -.25 79.2 -.15 99.8 .6
-      C117.5 1.35 130.8 6.3 137.8 15.1
-      C142.3 20.7 142.9 29.8 138.7 36.1
-      C132.5 45.2 118.4 48.05 99.3 48.5
-      C75.8 49.2 44.2 48.7 24.5 45.8
-      C10.1 43.55 4.15 34.9 4.2 24.5
-      C4.25 13.9 10.3 4.45 24.2 2.05 Z" fill="#047B88"/>
-    <!-- Intérieur unique : limite l'épaisseur totale à ~3.7px,
-         avec une couronne canard subtilement asymétrique. -->
-    <path d="M24.8 4.65
-      C45.5 3.35 79.3 3.45 99.2 3.9
-      C115.8 4.45 128.4 8.5 134.4 16.45
-      C138.1 21.4 138.6 28.7 135.15 34.45
-      C129.65 42.5 116.5 44.95 98.6 45.35
-      C76.2 45.85 45.8 45.55 25 43.05
-      C13.1 41.45 7.8 33.8 7.8 24.5
-      C7.8 15.2 13.05 6.65 24.8 4.65 Z" fill="#FFFFFF"/>
+  <g clip-path="url(#capsule)">
+    <rect width="73" height="49" fill="#52BCE6"/>
+    <rect x="73" width="72" height="49" fill="#68BDB3"/>
+    <!-- Anneau canard intérieur continu et régulier. -->
+    <rect x="1.85" y="1.8" width="141.3" height="45.4" rx="22.7" fill="#047986"/>
+    <!-- Décalage du canard jusqu'au bord supérieur, côté droit. -->
+    <path d="M62 1.8 C75 1.2 83 0 95.5 -.7 H115 C124 0 133.5 3.4 138.7 10.9 C133.5 5.6 124.5 2.5 115 2.1 C91.5 1.7 77 1.8 62 1.8 Z" fill="#047986"/>
+    <!-- Décalage inverse jusqu'au bord inférieur, côté gauche. -->
+    <path d="M19.5 39.6 C25.4 44.8 36.2 47.5 50.7 47.1 L95 47.1 C85.7 48.1 75 49.4 61 49.4 H49.4 C34.1 49.4 24 45.7 19.5 39.6 Z" fill="#047986"/>
+    <!-- Intérieur régulier : aucune déformation du bouton ni surépaisseur. -->
+    <rect x="3.75" y="3.75" width="137.5" height="41.5" rx="20.75" fill="#FFFFFF"/>
   </g>
 </svg>
