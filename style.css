@@ -11198,3 +11198,135 @@ body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-ad
 :is(body:not(.is-focus-mode),body.is-focus-mode) .app > .calc-card > .card-heading .section-kicker{
   color:#353d43!important;
 }
+
+/* V35.08 — Finitions premium iOS, uniquement visuelles.
+   La navigation, les statuts, la logique de pesée et le mode concentration
+   restent inchangés. */
+:root{
+  --iu-premium-ink:#242a30;
+  --iu-premium-emerald:#176d62;
+  --iu-premium-turquoise:#3bada0;
+  --iu-premium-accent:#dff3ef;
+  --iu-premium-canvas:#f5f7f8;
+}
+body:not(.is-focus-mode){background-color:var(--iu-premium-canvas);}
+
+/* 1. Cartes légères : contour discret et ombres plus diffuses. */
+body:not(.is-focus-mode) .app > :is(
+  #planningAdminCard,#accountCard,#inventoryCalendar,
+  .session-card,.calc-card,.history-card,.sessions-history-card,
+  .basket-card,.backup-card
+){
+  border-color:#e1e8e8!important;
+  box-shadow:0 9px 27px rgba(31,48,54,.035),
+             0 2px 7px rgba(31,48,54,.018)!important;
+}
+
+/* 2. Intitulés complets en anthracite : un peu plus fins et compacts. */
+body .app .section-kicker,
+body .app #planningAdminCard .planning-admin-eyebrow,
+body .app > .session-card .session-top .section-kicker,
+body #inventoryCalendar .events-header-title .section-kicker,
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .section-kicker,
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .planning-admin-eyebrow,
+body:not(.is-focus-mode) #accountCard .account-header-text > .section-kicker,
+body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-eyebrow,
+:is(body:not(.is-focus-mode),body.is-focus-mode) .app > .calc-card > .card-heading .section-kicker{
+  color:#353d43!important;
+  font-size:10.5px!important;
+  letter-spacing:.087em!important;
+  font-weight:800!important;
+}
+/* La hiérarchie repose sur les vrais titres, sans grossir leur police. */
+body:not(.is-focus-mode) .app > .session-card .session-top h2,
+body:not(.is-focus-mode) .app > .calc-card #calc-title,
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary :is(.fold-label,.account-header-title,.planning-admin-heading),
+body:not(.is-focus-mode) #inventoryCalendar .events-static-header #calendarHeading{
+  color:var(--iu-premium-ink)!important;
+}
+
+/* 3-4. L'action Inventaire : verre translucide, reflet optique fin,
+   zone tactile de 48 px même si le bouton paraît plus léger. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  height:48px!important;
+  min-height:48px!important;
+  min-width:154px!important;
+  padding:0 19px!important;
+  border-radius:16px!important;
+  border:1px solid rgba(255,255,255,.69)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.78) 0%,
+             rgba(246,255,252,.59) 100%)!important;
+  -webkit-backdrop-filter:blur(25px) saturate(125%)!important;
+  backdrop-filter:blur(25px) saturate(125%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.77),
+             0 5px 15px rgba(8,62,54,.085)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::before{
+  background:linear-gradient(125deg,rgba(255,255,255,.21),
+             rgba(255,255,255,.04) 52%,transparent 80%)!important;
+}
+@media (hover:hover) and (pointer:fine){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+    background:linear-gradient(145deg,rgba(255,255,255,.88),
+               rgba(246,255,252,.67))!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.87),
+               0 6px 17px rgba(8,62,54,.11)!important;
+  }
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.8),
+             0 2px 8px rgba(8,62,54,.07)!important;
+}
+
+/* 5. Prochain inventaire : blanc verdâtre vers turquoise pâle,
+   date dominante, compte à rebours assorti aux autres statuts. */
+#inventoryCalendar .events-next-card{
+  background:linear-gradient(135deg,#fcfefd 0%,#f5fbf9 52%,#eaf7f3 100%)!important;
+  border-color:#d8e9e3!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.94),
+             0 3px 11px rgba(23,109,98,.035)!important;
+}
+#inventoryCalendar .events-next-card #calendarNextDate{
+  color:var(--iu-premium-emerald)!important;
+}
+#inventoryCalendar .events-next-card .events-kicker{
+  color:#597e77!important;
+}
+#inventoryCalendar .events-next-card .events-countdown:not([hidden]){
+  background:linear-gradient(145deg,rgba(255,255,255,.86),
+             rgba(249,254,252,.62))!important;
+  border-color:#d2e8e1!important;
+  color:var(--iu-premium-emerald)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.88)!important;
+}
+
+/* 6. En-têtes Administration, Compte, Planification :
+   un même retrait horizontal, des commandes bien centrées. */
+body:not(.is-focus-mode) .app > #planningAdminCard > .planning-admin-summary,
+body:not(.is-focus-mode) .app > #accountCard > .account-fold-summary{
+  padding-inline:17px!important;
+}
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card{
+  padding-inline:17px!important;
+}
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary :is(
+  .fold-trailing,.planning-admin-trailing,.account-header-end
+),
+body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
+  align-self:center!important;
+}
+@media (max-width:380px){
+  body:not(.is-focus-mode) .app > #planningAdminCard > .planning-admin-summary,
+  body:not(.is-focus-mode) .app > #accountCard > .account-fold-summary,
+  body:not(.is-focus-mode) .app > #inventoryCalendar.events-card{
+    padding-inline:12px!important;
+  }
+  body .app :is(.section-kicker,.planning-admin-eyebrow){
+    font-size:10px!important;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    transition:none!important;
+  }
+}
