@@ -1,7 +1,7 @@
 {
-  "version": "35.56",
+  "version": "35.57",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole : bouton Inventaire et indicateur de session fusionnés, style gris perle du Prochain inventaire, liseré latéral, titre et état sur deux lignes, icône Play à droite. États et accessibilité conservés."
+  "notes": "Finition du bouton Inventaire à statut intégré : conserve la petite animation de l’indicateur en cours et en pause, sans animation inutile au repos."
 }
