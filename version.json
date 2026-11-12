@@ -1,7 +1,7 @@
 {
-  "version": "35.26",
+  "version": "35.27",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Tableau Administrateur simplifié : statistiques, mise à jour et mini-journal réunis ; planning séparé avec dépliant Ajouter des dates, formulaires préservés."
+  "notes": "Administrateur : un seul tableau de bord continu sans titres redondants, stats et mise à jour intégrées, journal en bas ; planning indépendant."
 }

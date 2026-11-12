@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="35.26"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-u.svg?v=35.26" rel="icon" type="image/svg+xml"/><link href="favicon-u.svg?v=35.26" rel="shortcut icon" type="image/svg+xml"/><link href="style.css?v=35.26" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="35.27"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=13" rel="manifest"/><link href="icon.png?v=11" rel="apple-touch-icon"/><link href="favicon-u.svg?v=35.27" rel="icon" type="image/svg+xml"/><link href="favicon-u.svg?v=35.27" rel="shortcut icon" type="image/svg+xml"/><link href="style.css?v=35.27" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
 html.iu-pwa-starting body{overflow:hidden!important}
 html.iu-pwa-starting #iuPwaSplash{display:flex!important}
 #iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#f7f9fa;align-items:center;justify-content:center;opacity:1;transition:opacity .32s ease;pointer-events:all;padding:24px;box-sizing:border-box}
@@ -62,13 +62,13 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
  <summary class="fold-summary planning-admin-summary"><span class="planning-admin-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span class="planning-admin-title" id="planningAdminTitle"><span class="planning-admin-eyebrow">SERVICES U / ADMINISTRATION</span><span class="planning-admin-heading">Espace administrateur</span></span><span class="planning-admin-trailing"><span class="iu-admin-spinner" aria-hidden="true"></span><svg aria-hidden="true" class="fold-chevron planning-admin-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary>
  <div class="iu-admin-loading-message" role="status" aria-live="polite"><span class="iu-admin-spinner" aria-hidden="true"></span><span>Vérification de l’accès administrateur…</span></div><div class="fold-body planning-admin-body" id="iuAdminProtectedBody">
  <div class="iu-admin-categories iu-admin-layout" aria-label="Rubriques administrateur">
- <section class="iu-admin-overview" aria-label="Pilotage du site">
-  <header class="iu-admin-overview-heading"><span class="dashboard-kicker">GESTION DU SITE</span><h3>Pilotage du site</h3><p>Statistiques, mises à jour et journal technique.</p></header>
-  <div class="iu-admin-overview-section iu-admin-overview-stats"><section class="site-ops-panel" id="siteOperationsPanel" aria-label="Tableau de bord technique">
-  <div class="site-ops-panel-summary"><span><span class="dashboard-kicker">GESTION DU SITE</span><strong>Tableau de bord technique</strong><small>Statistiques générales et état des services</small></span></div>
+ <section class="iu-admin-overview" aria-label="Tableau de bord administrateur">
+  
+  <section class="site-ops-panel" id="siteOperationsPanel" aria-label="Tableau de bord technique">
+  
   <div class="site-ops-body">
    <div class="site-ops-dashboard" aria-label="Statistiques techniques du site">
-    <div class="dashboard-heading"><div><span class="dashboard-kicker">STATISTIQUES DU SITE</span><h3>Vue d’ensemble</h3><p>Informations techniques, sans suivi individuel des utilisateurs.</p></div><span class="dashboard-cloud-pill">Local</span></div>
+    <div class="dashboard-heading"><div><h3>Tableau de bord</h3><p>Statistiques et état des services.</p></div></div>
     <div class="dashboard-stats site-ops-grid">
      <div class="dashboard-stat site-ops-metric"><span>Version publiée</span><strong id="opsVersion">—</strong></div>
      <div class="dashboard-stat site-ops-metric"><span>Ressources du site</span><strong id="opsAssets">—</strong></div>
@@ -89,22 +89,22 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
     <p id="opsChecked" class="dashboard-footnote site-ops-note">Ouvre le tableau de bord pour vérifier les services.</p>
    </div>
   </div>
- </section></div>
-  <div class="iu-admin-overview-section iu-admin-overview-updates"><section class="iu-admin-update" aria-label="Gestionnaire de mises à jour">
-  <div class="iu-update-head"><span class="dashboard-kicker">MAINTENANCE DU SITE</span><h3>Gestionnaire de mises à jour</h3><p>Vérifie et installe les nouveautés sans interrompre un inventaire.</p></div>
+ </section>
+  <section class="iu-admin-update" aria-label="Gestionnaire de mises à jour">
+  <div class="iu-update-head"><h3>Mises à jour</h3></div>
   <div class="iu-update-versions"><div><span>Version utilisée</span><strong id="iuInstalledVersion">—</strong></div><div><span>Version publiée</span><strong id="iuPublishedVersion">—</strong></div></div>
   <div class="iu-update-state" role="status" aria-live="polite"><span class="iu-update-indicator" id="iuUpdateIndicator" aria-hidden="true"></span><div><strong id="iuUpdateTitle">Vérification en attente</strong><p id="iuUpdateDetail">Vérifie les nouveautés disponibles.</p></div></div>
   <div class="iu-update-release" id="iuUpdateRelease" hidden><strong>Nouveautés</strong><p id="iuUpdateNotes"></p><small id="iuUpdatePublished"></small></div>
   <p class="iu-update-checked" id="iuUpdateChecked">Aucune vérification effectuée.</p>
   <button type="button" class="planning-primary iu-update-button" id="iuUpdateButton">Vérifier les mises à jour</button>
   <button type="button" class="planning-secondary iu-update-secondary" id="iuUpdateReload" hidden>Recharger la version publiée</button>
- </section></div>
-  <div class="iu-admin-overview-section iu-admin-overview-errors"><section class="iu-error-panel" aria-label="Journal des erreurs techniques">
-  <div class="iu-error-heading"><div><span class="dashboard-kicker">DIAGNOSTIC LOCAL</span><h3>Journal des erreurs techniques</h3><p>Incidents techniques de cet appareil, sans données de pesée ni identifiants.</p></div><span class="iu-error-count" id="iuErrorCount">0</span></div>
+ </section>
+  <section class="iu-error-panel" aria-label="Journal des erreurs techniques">
+  <div class="iu-error-heading"><div><h3>Journal des erreurs</h3><p>Incidents techniques locaux, sans données de pesée.</p></div><span class="iu-error-count" id="iuErrorCount">0</span></div>
   <div class="iu-error-toolbar"><button type="button" id="iuErrorExport" class="planning-secondary">Exporter le journal</button><button type="button" id="iuErrorClear" class="planning-secondary iu-error-clear">Effacer</button></div>
   <div class="iu-error-list" id="iuErrorList" aria-live="polite"><p class="iu-error-empty">Aucun incident enregistré.</p></div>
   <p class="iu-error-foot">Enregistré uniquement dans ce navigateur · 50 événements maximum · conservation 7 jours. Aucune transmission automatique.</p>
- </section></div>
+ </section>
  </section>
  <section class="iu-admin-planning-section" aria-label="Planning et événements">
   <header class="iu-admin-planning-header"><div><span class="dashboard-kicker">PLANIFICATION</span><h3>Planning et événements</h3></div></header>
@@ -304,4 +304,4 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=34.49"></script><script defer="" src="app.js?v=35.26"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=34.30"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=35.26"></script><script defer src="site-operations.js?v=34.39"></script><script defer src="update-manager.js?v=35.26"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=33.93"></script></body></html>
+<script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=34.49"></script><script defer="" src="app.js?v=35.27"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=34.30"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=35.27"></script><script defer src="site-operations.js?v=34.39"></script><script defer src="update-manager.js?v=35.27"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=33.93"></script></body></html>

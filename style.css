@@ -11457,3 +11457,32 @@ body:not(.is-focus-mode) .app > #planningAdminCard.card[open]{
  #planningAdminCard .iu-admin-overview-heading h3{font-size:17px!important;}
  #planningAdminCard .iu-admin-overview .iu-error-toolbar button{font-size:11px!important;}
 }
+
+/* V35.27 — Fusion réelle : un tableau de bord Administrateur continu.
+   Les 3 anciens blocs sont intégrés sans bordures ni barres de séparation ;
+   le planning reste indépendant. */
+#planningAdminCard .iu-admin-overview{
+ display:flex!important;flex-direction:column!important;gap:0!important;min-width:0!important;
+}
+#planningAdminCard .iu-admin-overview > :is(.site-ops-panel,.iu-admin-update,.iu-error-panel){
+ display:block!important;width:100%!important;min-width:0!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ margin:0!important;padding:0!important;
+}
+#planningAdminCard .iu-admin-overview > .site-ops-panel{padding-bottom:12px!important;}
+#planningAdminCard .iu-admin-overview > .iu-admin-update{padding-top:9px!important;padding-bottom:15px!important;}
+#planningAdminCard .iu-admin-overview > .iu-error-panel{padding-top:7px!important;padding-bottom:4px!important;}
+#planningAdminCard .iu-admin-overview .dashboard-heading{margin-bottom:10px!important;}
+#planningAdminCard .iu-admin-overview .dashboard-heading h3{
+ font-size:18px!important;color:#242a30!important;font-weight:850!important;letter-spacing:-.35px;
+}
+#planningAdminCard .iu-admin-overview .iu-update-head{margin:0 0 7px!important;}
+#planningAdminCard .iu-admin-overview .iu-update-head h3,
+#planningAdminCard .iu-admin-overview .iu-error-heading h3{
+ margin:0!important;font-size:15px!important;color:#303940!important;font-weight:800!important;
+}
+#planningAdminCard .iu-admin-overview .iu-error-heading{margin-bottom:9px!important;}
+#planningAdminCard .iu-admin-overview .iu-error-heading p{margin:3px 0 0!important;}
+#planningAdminCard .iu-admin-overview-section{
+ border:0!important;padding:0!important;margin:0!important;
+}
