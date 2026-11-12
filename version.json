@@ -1,7 +1,7 @@
 {
-  "version": "34.95",
+  "version": "34.96",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Correction du compte à rebours de toutes les notifications temporisées : barre synchronisée sur le délai réel, compatible Safari/PWA."
+  "notes": "Barre de temps restant fluide : interpolation linéaire continue entre les mises à jour du compte à rebours."
 }
