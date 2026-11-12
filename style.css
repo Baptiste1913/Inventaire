@@ -11330,15 +11330,22 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
     transition:none!important;
   }
 }
-/* V35.21 — Réglage progressif sur Administrateur uniquement :
-   relief moins étendu, contour fin supprimé et ombre -35 %.
-   Les deux couches de glow blanc restent puissantes. */
+/* V35.22 — Carte Administrateur : surface identique au fond du site
+   (#F5F7F8), glow préservé, ombres externes encore réduites de 15 %. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card{
+  background:#f5f7f8!important;
+  background-color:#f5f7f8!important;
   border:0!important;
   box-shadow:
     -4px -4px 8px 1px rgba(255,255,255,1),
     -6px -6px 12px 0 rgba(255,255,255,.98),
-     4px  5px  8px 0 rgba(82,105,125,.338),
-     6px  7px 13px 0 rgba(98,122,141,.2275)!important;
+     4px  5px  8px 0 rgba(82,105,125,.2873),
+     6px  7px 13px 0 rgba(98,122,141,.193375)!important;
 }
-/* Fonds, coins et contenu de la carte inchangés ; autres cartes intactes. */
+/* En-tête replié : il imposait auparavant un fond blanc opaque.
+   Sa couleur suit désormais celle de la carte, y compris quand elle
+   est ouverte, sans modifier l'avatar, les infos ou les interactions. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary{
+  background:#f5f7f8!important;
+  background-color:#f5f7f8!important;
+}

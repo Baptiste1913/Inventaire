@@ -1,7 +1,7 @@
 {
-  "version": "35.21",
+  "version": "35.22",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Carte Administrateur uniquement : glow et ombre rapprochés, ombre réduite de 35 %, contour fin supprimé. Base 35.08 conservée ailleurs."
+  "notes": "Carte Administrateur : fond identique à la toile #F5F7F8, ombre encore réduite de 15 %, glow et autres cartes inchangés."
 }
