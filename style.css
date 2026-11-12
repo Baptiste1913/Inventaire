@@ -11330,16 +11330,15 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
     transition:none!important;
   }
 }
-
-/* V35.20 — Test isolé sur la carte principale Administrateur.
-   Base visuelle 35.08 : relief marqué et compact, EXCLUSIVEMENT externe.
-   Ne cible pas summary ni les composants imbriqués. */
+/* V35.21 — Réglage progressif sur Administrateur uniquement :
+   relief moins étendu, contour fin supprimé et ombre -35 %.
+   Les deux couches de glow blanc restent puissantes. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card{
+  border:0!important;
   box-shadow:
-    -5px -5px 10px 2px rgba(255,255,255,1),
-    -8px -8px 16px 0 rgba(255,255,255,.98),
-     5px  6px 10px 0 rgba(82,105,125,.52),
-     8px  9px 17px 0 rgba(98,122,141,.35)!important;
+    -4px -4px 8px 1px rgba(255,255,255,1),
+    -6px -6px 12px 0 rgba(255,255,255,.98),
+     4px  5px  8px 0 rgba(82,105,125,.338),
+     6px  7px 13px 0 rgba(98,122,141,.2275)!important;
 }
-/* Aucun changement de contour, de fond ni de radius de la carte.
-   Tous les autres blocs conservent intégralement la finition 35.08. */
+/* Fonds, coins et contenu de la carte inchangés ; autres cartes intactes. */

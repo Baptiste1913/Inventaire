@@ -1,7 +1,7 @@
 {
-  "version": "35.20",
+  "version": "35.21",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Essai visuel ciblé sur la carte Administrateur : double glow blanc en haut/gauche et double ombre soutenue en bas/droite. Autres cartes inchangées (base 35.08)."
+  "notes": "Carte Administrateur uniquement : glow et ombre rapprochés, ombre réduite de 35 %, contour fin supprimé. Base 35.08 conservée ailleurs."
 }
