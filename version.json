@@ -1,7 +1,7 @@
 {
-  "version": "35.60",
+  "version": "35.61",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole verte stable sur Safari, Pause/Arrêter/Continuer/Terminer comme Nouvelle pesée avec Terminer rouge, notification Activées sans point, cohérence et message de fin harmonisés."
+  "notes": "Finitions : Pause, Arrêter et Continuer entièrement monochromes ; seul Terminer rougeâtre, typographie des commandes uniformisée. Conserve les corrections de la 35.60."
 }
