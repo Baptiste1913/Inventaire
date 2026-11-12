@@ -1,7 +1,7 @@
 {
-  "version": "35.66",
+  "version": "35.67",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Nouvelle barre de progression blanche lumineuse sur fond graphite pour démarrage et mises à jour. Splash épuré sans textes indicatifs ; étapes conservées pendant les mises à jour. Progression réelle inchangée."
+  "notes": "Écrans de lancement et de mise à jour plus larges et compacts, barre adaptée au thème ; suppression des durées minimales artificielles, progression suivant les contrôles de disponibilité."
 }

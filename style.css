@@ -14364,3 +14364,49 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
  #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
 }
+
+/* V35.67 — écrans de lancement et de mise à jour : compacts et élargis. */
+#iuPwaSplash .iu-splash-content{
+ width:min(100%,306px)!important;padding:17px 25px 19px!important;
+ border:1px solid #dbe2e6!important;border-radius:20px!important;
+ background:linear-gradient(145deg,#fcfdfd,#f0f3f5)!important;
+ box-shadow:-3px -3px 9px rgba(255,255,255,.80),4px 6px 15px rgba(150,167,181,.16)!important;
+}
+#iuPwaSplash .iu-splash-logo{
+ width:58px!important;height:58px!important;padding:5px!important;
+ margin:0 0 14px!important;border-radius:14px!important;
+}
+#iuPwaSplash .iu-splash-logo img{width:46px!important;height:46px!important;}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader,
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress{
+ height:13px!important;padding:2px!important;border-radius:100px!important;
+ border:1px solid #64747d!important;background:#596971!important;
+ box-shadow:inset 0 1px 3px rgba(17,37,42,.17)!important;
+}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader{width:min(100%,218px)!important;}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{
+ height:7px!important;background:linear-gradient(90deg,#f2f9f7,#fff)!important;
+ box-shadow:0 0 5px rgba(255,255,255,.64)!important;
+ transition:width .18s linear!important;
+}
+#iuUpdateOverlay .iu-update-screen{
+ width:min(100%,326px)!important;padding:18px 23px 19px!important;
+ border:1px solid #dbe2e6!important;border-radius:20px!important;
+ background:linear-gradient(145deg,#fcfdfd,#f0f3f5)!important;
+ box-shadow:-3px -3px 9px rgba(255,255,255,.80),4px 6px 15px rgba(150,167,181,.16)!important;
+}
+#iuUpdateOverlay .iu-update-logo{margin-bottom:9px!important;}
+#iuUpdateOverlay .iu-update-logo img{width:46px!important;height:46px!important;}
+#iuUpdateOverlay #iuUpdateScreenTitle{font-size:13.5px!important;line-height:1.25!important;}
+#iuUpdateOverlay #iuUpdateScreenText{margin-top:5px!important;font-size:11px!important;line-height:1.35!important;}
+#iuUpdateOverlay .iu-update-progress-block{margin-top:13px!important;}
+#iuUpdateOverlay .iu-update-progress-meta{margin-bottom:7px!important;font-size:10px!important;}
+@media(max-width:380px){
+ #iuPwaSplash .iu-splash-content{width:min(100%,292px)!important;padding:16px 22px 18px!important;}
+ #iuUpdateOverlay .iu-update-screen{width:min(100%,310px)!important;padding:17px 20px 18px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
+ #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
+}

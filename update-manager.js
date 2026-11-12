@@ -122,11 +122,9 @@
          .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
        const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
        const cascadeMs=reduced?0:620+Math.max(0,cards.length-1)*85;
-       // Cinq secondes minimum. Si l'administration prend plus de temps,
-       // garder le voile jusqu'à ce qu'elle ait réellement fini.
-       const delay=Math.max(0,5000-(Date.now()-payload.at)-cascadeMs);
+       // Les contrôles du chargement, de l'administration, des polices et
+       // de la peinture sont terminés : aucun délai minimum artificiel.
        overlayText.textContent='Finalisation de la mise à jour…';
-       await new Promise(resolve=>setTimeout(resolve,delay));
        if(cancelled)return;
        updateProgress(4);
        overlayTitle.textContent='Mise à jour installée';

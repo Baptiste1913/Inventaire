@@ -8,7 +8,6 @@
  // Aucun pourcentage ne dépend d'une minuterie : le chargement réseau
  // ou cloud non essentiel ne bloque pas les pesées locales.
  if(root.classList.contains('iu-pwa-starting')){
-  const started=performance.now();
   const loader=$('iuSplashLoader'),step=$('iuSplashStep'),percent=$('iuSplashPercent');
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
   let value=0,finished=false;
@@ -62,22 +61,20 @@
     if(!coreReady){
      console.info('Ouverture : moteur de pesée non confirmé à temps');
     }
-    set(50,coreReady?'Pesée initialisée':'Vérification de la pesée');
+    if(coreReady)set(50,'Pesée initialisée');
     const loaded=await readyOrTimeout(()=>document.readyState==='complete',1800);
-    set(72,loaded?'Ressources chargées':'Ressources locales disponibles');
+    if(loaded)set(72,'Ressources chargées');
     // La police ne doit pas ralentir indéfiniment le mode hors ligne.
     if(document.fonts?.ready){
      await Promise.race([document.fonts.ready.catch(()=>{}),sleep(750)]);
     }
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     const usable=Boolean(document.querySelector('.app > .calc-card')&&document.querySelector('#grossWeight'));
-    set(92,usable?'Espace prêt':'Préparation de l’espace');
-    // Une très courte durée assure la lisibilité du passage à 100 %,
-    // sans réintroduire l'attente artificielle de deux secondes.
-    const remaining=650-(performance.now()-started);
-    if(remaining>0)await sleep(remaining);
-    set(100,'Ouverture terminée');
-    await sleep(reduced?0:180);
+    if(usable)set(92,'Espace prêt');
+    // Pas de durée minimum : 100 % uniquement si le moteur et le formulaire
+    // sont vérifiés. La transition se lance dès que ces étapes sont prêtes.
+    if(coreReady&&usable)set(100,'Ouverture terminée');
+    else console.warn('Ouverture : préparation non confirmée ; interface rendue sans fausse complétion.');
     reveal();
    }catch(error){
     console.warn('Ouverture : indicateur de chargement interrompu',error);
