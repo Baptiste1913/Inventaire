@@ -1,7 +1,7 @@
 {
-  "version": "35.14",
+  "version": "35.15",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Relief neumorphique fidèle au modèle sur toutes les cartes : fond extérieur gris-bleu #E0E5EC, glow blanc et ombre bleutée, intérieurs préservés."
+  "notes": "Fond #FBFBFB restauré ; glow et ombre plus diffus exclusivement à l’extérieur des cartes principales ; effet retiré des sous-cartes."
 }

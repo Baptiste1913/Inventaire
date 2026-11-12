@@ -11487,193 +11487,37 @@ body:not(.is-focus-mode) #accountCard .dashboard-trend{
   order:2!important;
 }
 
-/* V35.11 — Fond presque blanc (contraste ~1.03:1 avec le blanc)
-   et neumorphisme cohérent sur l'ensemble des blocs. */
-/* L'en-tête blanc se prolonge derrière la zone de statut de l'iPhone.
-   Le reste de la page est #FBFBFB, sans bande grise au-dessus du logo. */
+/* V35.15 — Retour au fond #FBFBFB et relief EXTERNE plus diffus.
+   Aucun effet neumorphique sur les blocs intérieurs : fonds, contours
+   et couleurs de ces blocs restent ceux de l'interface d'origine. */
 html{background:#fff!important;}
 body:not(.is-focus-mode){
   background:#fbfbfb!important;
-  background:linear-gradient(to bottom,
-    #fff 0,
-    #fff env(safe-area-inset-top,0px),
-    #fbfbfb env(safe-area-inset-top,0px),
-    #fbfbfb 100%)!important;
-}
-body:not(.is-focus-mode) .app > .header{
-  background-color:#fff!important;
-}
-
-/* Relief externe : même lumière gauche / ombre droite que le bouton,
-   plus diffus pour préserver une apparence professionnelle. */
-body:not(.is-focus-mode) .app > .card{
-  box-shadow:
-    -4px -4px 10px rgba(255,255,255,.96),
-     4px  5px 12px rgba(116,135,147,.20),
-     inset 0 1px 0 rgba(255,255,255,.90)!important;
-}
-/* La banderole reste émeraude, mais reçoit la même signature de relief. */
-body:not(.is-focus-mode) .app > .intro{
-  box-shadow:
-    -3px -3px 9px rgba(255,255,255,.69),
-     4px  5px 13px rgba(111,131,141,.16)!important;
-}
-
-/* Sous-cartes : ombres plus courtes pour éviter un aspect empilé.
-   Aucune teinte métier, aucun état ni aucune dimension n'est remplacé. */
-body:not(.is-focus-mode) .app :is(
-  .iu-admin-category,
-  .planning-accordion,
-  .account-local-intro,
-  .account-connection-overview,
-  .account-dashboard .dashboard-trend,
-  .dashboard-reset-panel,
-  .site-ops-dashboard,
-  .events-next-card,
-  .events-disclosure,
-  .session-live,
-  .weigh-preferences,
-  .calc-card .result,
-  .backup-panel,
-  .v22-session-item
-){
-  box-shadow:
-    -3px -3px 8px rgba(255,255,255,.88),
-     3px  4px 9px rgba(115,136,148,.14),
-     inset 0 1px 0 rgba(255,255,255,.77)!important;
-}
-
-/* Les petits pavés du tableau de bord ont un relief encore plus discret. */
-body:not(.is-focus-mode) .app :is(
-  .dashboard-stat,
-  .basket-item,
-  .events-info-box:not(.events-next-card),
-  .dashboard-performance-summary
-){
-  box-shadow:
-    -2px -2px 6px rgba(255,255,255,.87),
-     2px  3px 7px rgba(117,135,148,.11)!important;
-}
-
-/* Harmonisation spécifique des sous-cartes utilisées dans les comptes. */
-body:not(.is-focus-mode) #accountCard .dashboard-trend,
-body:not(.is-focus-mode) #inventoryCalendar .events-next-card{
-  box-shadow:
-    -3px -3px 8px rgba(255,255,255,.88),
-     3px  4px 9px rgba(115,136,148,.14),
-     inset 0 1px 0 rgba(255,255,255,.77)!important;
-}
-
-/* Le bouton conserve son relief et l'icône Play à droite (V35.10).
-   Ne rien imposer au mode concentration, aux popups et aux toasts. */
-
-/* V35.13 — Relief exclusivement EXTERIEUR, fond d'origine conservé.
-   Un effet directionnel identique sur chaque carte, sans recolorer les
-   surfaces ni toucher aux contours, typographies ou états. */
-body:not(.is-focus-mode) .app .card{
-  box-shadow:
-    -7px -7px 15px rgba(255,255,255,.98),
-     7px  8px 17px rgba(132,148,164,.36)!important;
-}
-/* Sous-cartes réellement présentes dans les différents services :
-   mêmes directions, échelle adaptée à leur taille. */
-body:not(.is-focus-mode) .app :is(
-  .iu-admin-category,
-  .iu-update-versions,
-  .iu-update-state,
-  .dashboard-stat,
-  .site-ops-dashboard,
-  .site-ops-status,
-  .account-local-intro,
-  .account-connection-overview,
-  .dashboard-trend,
-  .dashboard-recent,
-  .dashboard-reset-panel,
-  .events-next-card,
-  .events-disclosure,
-  .events-month-box,
-  .session-live,
-  .weigh-preferences,
-  .calc-card .result,
-  .backup-panel,
-  .v22-session-item
-){
-  box-shadow:
-    -5px -5px 11px rgba(255,255,255,.97),
-     5px  6px 13px rgba(132,148,164,.27)!important;
-}
-/* Le bouton Inventaire garde son effet dédié et son Play à droite.
-   Les pop-ups et le mode concentration ne sont pas modifiés. */
-
-/* V35.14 — Reproduction du relief Neumorph Accent.
-   Le glow blanc était invisible sur #FBFBFB : une toile gris-bleu
-   très claire lui redonne le contraste du modèle. Les intérieurs
-   et les dégradés existants des cartes restent INCHANGÉS. */
-html{background:#fff!important;}
-body:not(.is-focus-mode){
-  background:#e0e5ec!important;
   background-image:none!important;
 }
-/* L'en-tête reste blanc jusqu'au-dessus du logo. */
-body:not(.is-focus-mode) .app > .header{background:#fff!important;}
-
-/* L'effet est EXTERNE : ombre blanche en haut/gauche, ombre bleutée
-   en bas/droite. Aucun background, border, inset ni filtre sur les cartes. */
-body:not(.is-focus-mode) .app :is(
-  .card,
-  .events-next-card,
-  .events-disclosure,
-  .iu-admin-category,
-  .iu-update-versions,
-  .iu-update-state,
-  .planning-accordion,
-  .account-local-intro,
-  .account-connection-overview,
-  .dashboard-trend,
-  .dashboard-stat,
-  .dashboard-recent,
-  .dashboard-reset-panel,
-  .site-ops-dashboard,
-  .site-ops-status,
-  .session-live,
-  .weigh-preferences,
-  .calc-card .result,
-  .backup-panel,
-  .v22-session-item,
-  .basket-item,
-  .events-info-box,
-  .dashboard-performance-summary
-){
-  box-shadow:
-    -7px -7px 16px 0 rgba(255,255,255,.90),
-     7px  7px 16px 0 rgba(163,177,198,.75)!important;
+body:not(.is-focus-mode) .app > .header{
+  background:#fff!important;
 }
-/* Petits blocs imbriqués : même signature lumineuse, échelle réduite. */
+/* Seules les cartes de premier niveau portent la double ombre.
+   Aucun inset : toute la lumière et l'ombre restent à l'extérieur. */
+body:not(.is-focus-mode) .app > .card{
+  box-shadow:
+    -10px -10px 25px 0 rgba(255,255,255,.98),
+     10px  12px 28px 0 rgba(137,154,174,.39)!important;
+}
+/* Éléments imbriqués : suppression de l'effet neumorphique des versions
+   précédentes, sans changer leurs fonds, bordures ou disposition. */
 body:not(.is-focus-mode) .app :is(
-  .events-next-card,.events-disclosure,.iu-admin-category,
-  .iu-update-versions,.iu-update-state,.planning-accordion,
-  .account-local-intro,.account-connection-overview,
+  .iu-admin-category,.iu-update-versions,.iu-update-state,
+  .planning-accordion,.account-local-intro,.account-connection-overview,
   .dashboard-trend,.dashboard-stat,.dashboard-recent,
   .dashboard-reset-panel,.site-ops-dashboard,.site-ops-status,
+  .events-next-card,.events-disclosure,.events-month-box,
   .session-live,.weigh-preferences,.calc-card .result,
   .backup-panel,.v22-session-item,.basket-item,.events-info-box,
   .dashboard-performance-summary
 ){
-  box-shadow:
-    -5px -5px 12px 0 rgba(255,255,255,.88),
-     5px  5px 12px 0 rgba(163,177,198,.55)!important;
+  box-shadow:none!important;
 }
-/* Les cartes racines gardent l'effet fort du CSS de référence. */
-body:not(.is-focus-mode) .app > .card,
-body:not(.is-focus-mode) .app > details.card,
-body:not(.is-focus-mode) .app > section.card{
-  box-shadow:
-    -7px -7px 16px 0 rgba(255,255,255,.94),
-     7px  7px 16px 0 rgba(163,177,198,.85)!important;
-}
-/* Banderole colorée : ombre extérieure assortie, sans fond modifié. */
-body:not(.is-focus-mode) .app > .intro{
-  box-shadow:
-    -6px -6px 14px rgba(255,255,255,.85),
-     7px  7px 16px rgba(120,143,154,.36)!important;
-}
+/* La banderole et le bouton Inventaire conservent leurs effets propres.
+   Les états de session, fenêtres et mode concentration sont préservés. */
