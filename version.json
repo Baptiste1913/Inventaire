@@ -1,7 +1,7 @@
 {
-  "version": "35.80",
+  "version": "35.81",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Retour intégral à la typographie d’origine Arial/Helvetica de la version 35.70 (graisses, tailles et espacements) sans modification des fonctionnalités."
+  "notes": "Bouton Inventaire inspiré du logo U : fond blanc, contour circulaire dégradé turquoise/bleu, titre rouge et statut bleu-vert. États Safari stabilisés, autres éléments inchangés."
 }

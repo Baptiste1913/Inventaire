@@ -14420,3 +14420,65 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
  #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important}
 }
+
+/* V35.81 — Inventaire : pastille fidèle au logo U.
+   Anneau bleu canard/turquoise, centre blanc, accent rouge U.
+   Apparence rigoureusement stable au toucher sur Safari iPhone. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:enabled,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:active,:focus,:focus-visible),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled:is(:hover,:active,:focus,:focus-visible),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"],
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="false"],
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"]:is(:hover,:active,:focus),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="false"]:is(:hover,:active,:focus){
+ -webkit-appearance:none!important;appearance:none!important;
+ box-sizing:border-box!important;position:relative!important;
+ height:64px!important;min-height:64px!important;
+ padding:8px 15px 8px 17px!important;
+ border:4px solid transparent!important;
+ border-radius:999px!important;
+ background:linear-gradient(#fff,#fff) padding-box,
+  linear-gradient(130deg,#58c5e2 0%,#05869a 30%,#00798b 62%,#4fbbac 100%) border-box!important;
+ background-color:#fff!important;
+ color:#e30613!important;-webkit-text-fill-color:#e30613!important;
+ box-shadow:inset 0 0 0 1px rgba(0,128,145,.10),2px 2px 0 rgba(79,187,172,.55)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ filter:none!important;opacity:1!important;transform:none!important;
+ transition:none!important;-webkit-tap-highlight-color:transparent!important;
+ outline:none!important;overflow:hidden!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::before,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::after{
+ content:none!important;display:none!important;animation:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
+ color:#e30613!important;-webkit-text-fill-color:#e30613!important;
+ text-shadow:none!important;font-size:15px!important;font-weight:900!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus #heroStatusText{
+ color:#287c86!important;-webkit-text-fill-color:#287c86!important;
+ text-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
+ filter:brightness(0) saturate(100%) invert(31%) sepia(57%) saturate(1032%) hue-rotate(145deg) brightness(96%) contrast(91%)!important;
+ opacity:.98!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus .intro-session-dot{
+ border-color:rgba(0,122,138,.24)!important;
+}
+@media(max-width:380px){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
+  padding:7px 10px 7px 13px!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
+  font-size:14px!important;
+ }
+}
+@supports selector(:focus-visible){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
+  outline:2px solid #fff!important;outline-offset:3px!important;
+ }
+}
