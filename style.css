@@ -11073,4 +11073,7 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   pointer-events:none!important;
   z-index:2!important;
   will-change:transform;
+  transition:transform 100ms linear!important;
 }
+
+/* V34.96 — interpolation continue entre les mesures du timer (100 ms). */
