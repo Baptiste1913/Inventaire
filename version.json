@@ -1,7 +1,7 @@
 {
-  "version": "35.46",
+  "version": "35.47",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Icône Play déplacée à droite du libellé Inventaire et ajoutée à droite de Démarrer un inventaire, avec la même image, taille et style."
+  "notes": "Bouton Démarrer un inventaire en neumorphisme monochrome renforcé : relief blanc et gris, typographie graphite, animation de pression et icône Play conservée."
 }

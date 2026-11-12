@@ -12723,3 +12723,82 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSessio
  filter:none!important;
  opacity:.86!important;
 }
+
+/* V35.47 — Démarrer un inventaire : neumorphisme monochrome renforcé.
+   Un seul bouton accentué : la hiérarchie visuelle est créée par le
+   relief, le contraste graphite et le reflet, sans ajouter de couleur. */
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession:not([hidden]){
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ min-height:55px!important;
+ height:auto!important;
+ padding:14px 18px!important;
+ gap:10px!important;
+ border:1px solid #d4dce2!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#28343d!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ font-family:inherit!important;
+ font-size:13.5px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ letter-spacing:.005em!important;
+ transform:translateY(0)!important;
+ transition:box-shadow .22s ease,background .22s ease,
+            border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+ -webkit-tap-highlight-color:transparent;
+}
+/* Évite que les anciennes règles display:flex réaffichent ce bouton
+   après le démarrage d'une session. */
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession[hidden]{
+ display:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession .start-play-icon{
+ display:block!important;
+ width:12px!important;
+ height:12px!important;
+ flex:0 0 12px!important;
+ object-fit:contain!important;
+ filter:grayscale(1) brightness(.64)!important;
+ opacity:.94!important;
+}
+@media(hover:hover){
+ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession:not([hidden]):hover:not(:disabled){
+  border-color:#cad4dc!important;
+  background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
+  box-shadow:
+   -4px -4px 8px rgba(255,255,255,.98),
+   -7px -7px 14px rgba(255,255,255,.64),
+    5px 6px 13px rgba(156,173,189,.38),
+    2px 3px 5px rgba(156,173,189,.19),
+    inset 1px 1px 0 rgba(255,255,255,.97)!important;
+  transform:translateY(-1px)!important;
+ }
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession:not([hidden]):active:not(:disabled){
+ border-color:#d1d9df!important;
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+ box-shadow:
+  inset 2px 3px 6px rgba(150,166,181,.24),
+  inset -2px -2px 5px rgba(255,255,255,.96),
+  1px 1px 3px rgba(156,173,189,.12)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession:focus-visible{
+ outline:2px solid #8d9ca8!important;
+ outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession{
+  transition:none!important;
+  transform:none!important;
+ }
+}
