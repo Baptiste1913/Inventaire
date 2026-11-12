@@ -1,7 +1,7 @@
 {
-  "version": "35.76",
+  "version": "35.77",
   "published": "2026-11-12",
-  "assets": 43,
+  "assets": 42,
   "bytes": 819245,
-  "notes": "Typographie DM Sans plus fine, titres et boutons allégés, alignements préservés et police locale disponible hors ligne. Design 35.70 conservé."
+  "notes": "Police système Apple SF Pro sur iPhone et iPad, typographie plus fine et raffinée, secours natif sur les autres appareils, sans téléchargement et hors ligne. Mise en page 35.76 conservée."
 }
