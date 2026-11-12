@@ -12125,3 +12125,29 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions .session-btn
   font-size:16px!important;
  }
 }
+
+/* V35.36 — Priorité explicite sur les anciens boutons d'inventaire
+   (anciens styles #startSession plus spécifiques, notamment au survol). */
+body:not(.is-focus-mode) .app > .session-card.card .session-actions :is(
+ #startSession,#pauseSession,#resumeSession
+),
+body:not(.is-focus-mode) .app > .session-card.card .session-actions :is(
+ #startSession,#pauseSession,#resumeSession
+):is(:hover,:active):not(:disabled){
+ border:1px solid #d8dfe3!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #finishSession,
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #finishSession:is(:hover,:active):not(:disabled){
+ border:1px solid #efd8dd!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#fbf0f2)!important;
+ color:#a84253!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions .session-btn:active:not(:disabled){
+ transform:scale(.985);
+}
