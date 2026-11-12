@@ -1,7 +1,7 @@
 {
-  "version": "35.34",
+  "version": "35.35",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Planification : fond et neumorphisme identiques à Administrateur/Mon compte, en-tête continu, typographie et boutons unifiés ; états des notifications et des dates préservés."
+  "notes": "Planification : événements à venir en un seul tiroir sans double encadrement ; Ma session/Démarrer un inventaire reprend le neumorphisme et les boutons harmonisés."
 }

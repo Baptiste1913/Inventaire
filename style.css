@@ -11992,3 +11992,136 @@ body:not(.is-focus-mode) #inventoryCalendar :is(
  #inventoryCalendar .events-header-title .events-header-subtitle{font-size:11px!important;}
  #inventoryCalendar .events-static-header #calendarHeading{font-size:16px!important;}
 }
+
+/* V35.35 — Planification : un seul dépliant simple pour les événements.
+   L'ancien sous-cadre "Événements du mois" n'est plus une carte ;
+   les listes, boutons et identifiants restent inchangés. */
+#inventoryCalendar #eventsDisclosure.events-disclosure{
+ border:1px solid #e0e5e9!important;
+ border-radius:15px!important;
+ overflow:hidden!important;
+ background:linear-gradient(150deg,#fff,#f6f8f9)!important;
+ box-shadow:none!important;
+}
+#inventoryCalendar #eventsDisclosure > .events-disclosure-summary{
+ display:flex!important;
+ align-items:center!important;
+ min-height:67px!important;
+ padding:13px 15px!important;
+ border:0!important;
+ background:transparent!important;
+ background-image:none!important;
+ box-shadow:none!important;
+}
+#inventoryCalendar #eventsDisclosure > .events-disclosure-content{
+ box-sizing:border-box!important;
+ padding:0 15px 15px!important;
+ border-top:1px solid #edf0f2!important;
+ background:linear-gradient(150deg,#fff,#f8f9fa)!important;
+ box-shadow:none!important;
+}
+#inventoryCalendar #eventsDisclosure .events-month-content{
+ display:block!important;
+ min-width:0!important;
+ width:100%!important;
+ margin:0!important;
+ padding:12px 0 0!important;
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+}
+#inventoryCalendar #eventsDisclosure #eventsMonthHeading{
+ display:block!important;
+ margin:0 0 10px!important;
+ color:#88939a!important;
+ font-size:10.5px!important;
+ font-weight:700!important;
+}
+@media(max-width:380px){
+ #inventoryCalendar #eventsDisclosure > .events-disclosure-content{
+  padding:0 12px 12px!important;
+ }
+}
+/* Même finition extérieure pour Ma session (bouton Démarrer un inventaire)
+   que pour les cartes Administrateur, Mon compte et Planification. */
+body:not(.is-focus-mode) .app > .session-card.card{
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:var(--iu-radius-card)!important;
+ box-shadow:
+  -2px -2px 6px 0 rgba(255,255,255,.943),
+  -5px -5px 12px 0 rgba(255,255,255,.5635),
+   4px 5px 11px 0 rgba(163,177,198,.276),
+   1px 2px 5px 0 rgba(163,177,198,.161)!important;
+ overflow:hidden!important;
+ isolation:isolate;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-top{
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-heading-subtitle{
+ display:block!important;
+ margin-top:4px!important;
+ font-size:11.5px!important;
+ line-height:1.45!important;
+ font-weight:500!important;
+ color:#7c8991!important;
+ letter-spacing:0!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-top h2{
+ font-size:17px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ letter-spacing:-.3px!important;
+ color:#272f36!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionHelp{
+ color:#7c8991!important;
+ font-size:11.5px!important;
+ line-height:1.45!important;
+ font-weight:500!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-live > div{
+ border:1px solid #e3e8eb!important;
+ border-radius:12px!important;
+ background:linear-gradient(155deg,#fff,#f8f9fa)!important;
+ box-shadow:none!important;
+}
+/* Actions uniformisées sur la famille Admin/Compte :
+   neutres par défaut, suppression et arrêt en rouge. */
+body:not(.is-focus-mode) .app > .session-card.card .session-actions .session-btn{
+ box-sizing:border-box!important;
+ min-height:46px!important;
+ height:auto!important;
+ padding:10px 9px!important;
+ border:1px solid #d8dfe3!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;
+ box-shadow:none!important;
+ font-family:inherit!important;
+ font-size:11.5px!important;
+ font-weight:800!important;
+ line-height:1.35!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions :is(
+ #stopSession,#endSession,#cancelSession
+){
+ border-color:#efd8dd!important;
+ background:linear-gradient(145deg,#fff,#fbf0f2)!important;
+ color:#a84253!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions .session-btn:disabled{
+ opacity:.55!important;
+ cursor:not-allowed!important;
+}
+@media(max-width:380px){
+ body:not(.is-focus-mode) .app > .session-card.card .session-top h2{
+  font-size:16px!important;
+ }
+}
