@@ -1,7 +1,7 @@
 {
-  "version": "35.13",
+  "version": "35.14",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Retour des fonds et couleurs intérieurs d’origine ; ombres neumorphiques externes uniformisées sur les cartes et sous-cartes."
+  "notes": "Relief neumorphique fidèle au modèle sur toutes les cartes : fond extérieur gris-bleu #E0E5EC, glow blanc et ombre bleutée, intérieurs préservés."
 }

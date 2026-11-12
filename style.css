@@ -11604,3 +11604,76 @@ body:not(.is-focus-mode) .app :is(
 }
 /* Le bouton Inventaire garde son effet dédié et son Play à droite.
    Les pop-ups et le mode concentration ne sont pas modifiés. */
+
+/* V35.14 — Reproduction du relief Neumorph Accent.
+   Le glow blanc était invisible sur #FBFBFB : une toile gris-bleu
+   très claire lui redonne le contraste du modèle. Les intérieurs
+   et les dégradés existants des cartes restent INCHANGÉS. */
+html{background:#fff!important;}
+body:not(.is-focus-mode){
+  background:#e0e5ec!important;
+  background-image:none!important;
+}
+/* L'en-tête reste blanc jusqu'au-dessus du logo. */
+body:not(.is-focus-mode) .app > .header{background:#fff!important;}
+
+/* L'effet est EXTERNE : ombre blanche en haut/gauche, ombre bleutée
+   en bas/droite. Aucun background, border, inset ni filtre sur les cartes. */
+body:not(.is-focus-mode) .app :is(
+  .card,
+  .events-next-card,
+  .events-disclosure,
+  .iu-admin-category,
+  .iu-update-versions,
+  .iu-update-state,
+  .planning-accordion,
+  .account-local-intro,
+  .account-connection-overview,
+  .dashboard-trend,
+  .dashboard-stat,
+  .dashboard-recent,
+  .dashboard-reset-panel,
+  .site-ops-dashboard,
+  .site-ops-status,
+  .session-live,
+  .weigh-preferences,
+  .calc-card .result,
+  .backup-panel,
+  .v22-session-item,
+  .basket-item,
+  .events-info-box,
+  .dashboard-performance-summary
+){
+  box-shadow:
+    -7px -7px 16px 0 rgba(255,255,255,.90),
+     7px  7px 16px 0 rgba(163,177,198,.75)!important;
+}
+/* Petits blocs imbriqués : même signature lumineuse, échelle réduite. */
+body:not(.is-focus-mode) .app :is(
+  .events-next-card,.events-disclosure,.iu-admin-category,
+  .iu-update-versions,.iu-update-state,.planning-accordion,
+  .account-local-intro,.account-connection-overview,
+  .dashboard-trend,.dashboard-stat,.dashboard-recent,
+  .dashboard-reset-panel,.site-ops-dashboard,.site-ops-status,
+  .session-live,.weigh-preferences,.calc-card .result,
+  .backup-panel,.v22-session-item,.basket-item,.events-info-box,
+  .dashboard-performance-summary
+){
+  box-shadow:
+    -5px -5px 12px 0 rgba(255,255,255,.88),
+     5px  5px 12px 0 rgba(163,177,198,.55)!important;
+}
+/* Les cartes racines gardent l'effet fort du CSS de référence. */
+body:not(.is-focus-mode) .app > .card,
+body:not(.is-focus-mode) .app > details.card,
+body:not(.is-focus-mode) .app > section.card{
+  box-shadow:
+    -7px -7px 16px 0 rgba(255,255,255,.94),
+     7px  7px 16px 0 rgba(163,177,198,.85)!important;
+}
+/* Banderole colorée : ombre extérieure assortie, sans fond modifié. */
+body:not(.is-focus-mode) .app > .intro{
+  box-shadow:
+    -6px -6px 14px rgba(255,255,255,.85),
+     7px  7px 16px rgba(120,143,154,.36)!important;
+}
