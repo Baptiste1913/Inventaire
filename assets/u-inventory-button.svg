@@ -1,17 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="145" height="49" viewBox="0 0 145 49" preserveAspectRatio="none">
-  <!-- Construction par silhouettes réellement décalées, comme le logo U.
-       Cyan à gauche, menthe à droite, couronne bleu canard traversante. -->
   <defs>
-    <clipPath id="capsule"><rect width="145" height="49" rx="24.5"/></clipPath>
+    <linearGradient id="rim" x1="0" y1="0" x2="145" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#54BDE4"/>
+      <stop offset=".26" stop-color="#40B1D4"/>
+      <stop offset=".52" stop-color="#0B7F8D"/>
+      <stop offset=".78" stop-color="#55AFAF"/>
+      <stop offset="1" stop-color="#72BEB5"/>
+    </linearGradient>
   </defs>
-  <g clip-path="url(#capsule)">
-    <rect width="145" height="49" fill="#52BEE7"/>
-    <!-- Une seconde pastille verte décalée vers la droite, non un dégradé linéaire. -->
-    <path d="M74 0 H145 V49 H74 C105 44 128 35 128 24.5 C128 14 105 5 74 0 Z" fill="#67B8B0"/>
-    <!-- Silhouette canard asymétrique, qui rejoint presque le bord en haut à droite
-         et en bas légèrement à gauche. -->
-    <path d="M25.6 1.5 C48.3 -1.1 99.1 -0.3 120.5 3.7 C134.5 6.4 141.7 14.2 141.9 24.3 C142.1 35.1 133.1 44.1 118.2 47 C95 50.2 49.4 49.3 24.1 45.8 C11.1 43.9 5 34.4 5.2 24.5 C5.4 13.9 12.6 4.2 25.6 1.5 Z" fill="#047987"/>
-    <!-- Blanc intérieur : épaisseur non uniforme, sans trait ni ombre. -->
-    <path d="M26.6 6.6 C47.1 4.6 98.6 4.7 117.7 8.2 C129.4 10.3 135.8 16.1 136 24.4 C136.2 32.7 129.6 38.9 117.2 41.3 C93.8 44.9 50.9 44.5 26 41.1 C15.7 39.6 10.5 33 10.6 24.5 C10.7 16.1 16 9.2 26.6 6.6 Z" fill="#F8F8F8"/>
-  </g>
+  <!-- Seulement deux traits fins, sans silhouettes superposées déformées. -->
+  <rect x=".25" y=".25" width="144.5" height="48.5" rx="24.25" fill="url(#rim)"/>
+  <rect x="1.55" y="1.15" width="141.9" height="46.7" rx="23.35" fill="#077986"/>
+  <rect x="3.75" y="3.55" width="137.5" height="41.9" rx="20.95" fill="#FFFFFF"/>
 </svg>

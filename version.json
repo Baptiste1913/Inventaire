@@ -1,7 +1,7 @@
 {
-  "version": "35.90",
+  "version": "35.91",
   "published": "2026-11-12",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Contour du bouton Inventaire redessiné par silhouettes décalées comme le logo U : cyan gauche, vert d’eau droite, bleu canard asymétrique et intérieur clair. Actualisation forcée du SVG pour Safari/PWA."
+  "notes": "Contour Inventaire simplifié et affiné : fin liseré cyan/vert d’eau et anneau bleu canard, fond blanc et proportions intactes. Cache PWA actualisé."
 }
