@@ -347,6 +347,7 @@ function renderHeroSummary(){
  if(heroAction&&heroLabel){
   heroLabel.textContent=session?.pausedAt?'Reprendre':'Inventaire';
   heroAction.disabled=Boolean(session&&!session.pausedAt);
+   heroAction.style.setProperty('background','linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))','important');
   heroAction.setAttribute('aria-label',(session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire')+' — '+text.textContent);
  }
 }
@@ -614,20 +615,20 @@ function startSession(){const review=$('sessionQualityReview');if(review)review.
  const created={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};
  sessions=[created,...sessions];activeSessionId=created.id;
  if(!persistSessions()){sessions=before;activeSessionId=prevId;return;}
- clearWeigh();renderV22();$('sessionMessage').textContent='';
+ clearWeigh();renderV22();$('sessionMessage').classList.remove('is-complete');$('sessionMessage').textContent='';
 }
 function pauseSession(){
  const session=getActiveSession();if(!session||session.pausedAt||!flushPending())return;
  session.pausedAt=Date.now();
  if(!persistSessions()){session.pausedAt=null;return;}
- clearWeigh();renderV22();$('sessionMessage').textContent='';
+ clearWeigh();renderV22();$('sessionMessage').classList.remove('is-complete');$('sessionMessage').textContent='';
 }
 function resumeSession(){
  const session=getActiveSession();if(!session||!session.pausedAt)return;
  const oldPausedAt=session.pausedAt,oldPausedMs=session.pausedMs;
  session.pausedMs+=Date.now()-session.pausedAt;session.pausedAt=null;
  if(!persistSessions()){session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;return;}
- clearWeigh();renderV22();$('sessionMessage').textContent='';
+ clearWeigh();renderV22();$('sessionMessage').classList.remove('is-complete');$('sessionMessage').textContent='';
 }
 function reviewSessionQuality(session){
  const target=$('sessionQualityReview');if(!target||!session)return;
@@ -641,6 +642,7 @@ function reviewSessionQuality(session){
  const nearDuplicates=entries.filter((e,i)=>i>0&&e.gross===entries[i-1].gross&&e.tare===entries[i-1].tare&&Math.abs(e.at-entries[i-1].at)<120000);
  if(nearDuplicates.length)problems.push(`${nearDuplicates.length} pesée(s) consécutive(s) identique(s) à moins de 2 minutes (à confirmer).`);
  target.replaceChildren();
+ target.classList.toggle('has-issues',problems.length>0);
  const heading=document.createElement('strong');heading.textContent=problems.length?'Contrôle de cohérence : points à vérifier':'Contrôle de cohérence : aucune anomalie détectée';
  target.append(heading);
  const info=document.createElement('p');info.textContent=`${entries.length} pesées contrôlées. Ce contrôle ne vérifie pas les tares réelles ni les produits.`;
@@ -659,7 +661,7 @@ function finishSession(){
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
   return;
  }
- clearWeigh();renderV22();reviewSessionQuality(session);$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';
+ clearWeigh();renderV22();reviewSessionQuality(session);$('sessionMessage').classList.add('is-complete');$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';
  offerUndo('Inventaire terminé.',()=>{
   if(activeSessionId||!session.endedAt||session.endedAt!==now)return false;
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
@@ -667,7 +669,7 @@ function finishSession(){
   // L'animation se rejoue UNIQUEMENT lors de cette restauration via « Annuler ».
   // Garder le DOM normal jusqu'a la capture native pour eviter le saut.
   const restoreView=()=>{
-   renderV22();$('sessionMessage').textContent='Inventaire repris.';
+   renderV22();$('sessionMessage').classList.remove('is-complete');$('sessionMessage').textContent='Inventaire repris.';
   };
   if(!session.pausedAt){
    const reopen=()=>animateFocusEntry(restoreView);

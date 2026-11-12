@@ -13942,3 +13942,111 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #finishSessi
   animation:none!important;
  }
 }
+
+/* V35.60 — Commandes de concentration identiques à « Nouvelle pesée ». */
+body.is-focus-mode #focusToolbar .focus-actions :is(button#focusPause.focus-pause,button#focusStop.focus-stop),
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm :is(button#focusCancelStop,button#focusConfirmStop){
+ -webkit-appearance:none!important;appearance:none!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;min-width:0!important;min-height:45px!important;
+ padding:10px 12px!important;gap:8px!important;
+ border:1px solid #d7dde2!important;border-radius:13px!important;
+ background:linear-gradient(145deg,#fff,#e9edf0)!important;
+ color:#4b5963!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.99),0 2px 7px rgba(35,45,55,.045)!important;
+ font:800 12.5px/1.3 inherit!important;
+ text-shadow:none!important;
+ transition:background .18s ease,box-shadow .18s ease,transform .15s ease!important;
+}
+body.is-focus-mode #focusToolbar .focus-actions :is(button#focusPause.focus-pause,button#focusStop.focus-stop) svg{
+ color:inherit!important;fill:currentColor!important;stroke:currentColor!important;width:14px!important;height:14px!important;
+}
+body.is-focus-mode #focusToolbar .focus-actions button#focusPause.focus-pause,
+body.is-focus-mode #focusToolbar .focus-actions button#focusPause.focus-pause:is(:focus,:hover,:active),
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm button#focusCancelStop,
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm button#focusCancelStop:is(:focus,:hover,:active){
+ border-color:#d7dde2!important;background:linear-gradient(145deg,#fff,#e9edf0)!important;color:#4b5963!important;
+}
+body.is-focus-mode #focusToolbar .focus-actions button#focusStop.focus-stop,
+body.is-focus-mode #focusToolbar .focus-actions button#focusStop.focus-stop:is(:focus,:hover,:active),
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm button#focusConfirmStop,
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm button#focusConfirmStop:is(:focus,:hover,:active){
+ border-color:#efd8dd!important;
+ background:linear-gradient(145deg,#fffafa,#f9edf0)!important;
+ color:#a84253!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 2px 7px rgba(139,57,70,.055)!important;
+}
+body.is-focus-mode #focusToolbar .focus-actions :is(button#focusPause,button#focusStop):active:not(:disabled),
+body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm :is(button#focusCancelStop,button#focusConfirmStop):active:not(:disabled){
+ transform:scale(.985)!important;
+}
+/* Retirer uniquement l'indicateur ajouté dans la pastille Activées. */
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell.is-active .events-bell-label::after{
+ content:none!important;display:none!important;animation:none!important;box-shadow:none!important;
+}
+/* Contrôle de cohérence : même relief perle que Démarrer un inventaire. */
+body:not(.is-focus-mode) .app > .session-card.card #sessionQualityReview.session-quality-review:not([hidden]){
+ display:block!important;margin:14px 0 16px!important;padding:17px 16px!important;
+ border:1px solid #d4dce2!important;border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#3f4b55!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.96),-6px -6px 13px rgba(255,255,255,.48),
+ 4px 5px 11px rgba(156,173,189,.20),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionQualityReview.session-quality-review strong{
+ display:block!important;color:#28343d!important;font-size:13px!important;font-weight:850!important;line-height:1.35!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionQualityReview.session-quality-review p{
+ color:#75818b!important;font-size:11.5px!important;line-height:1.5!important;margin-top:7px!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionQualityReview.session-quality-review ul{
+ color:#57636d!important;margin:10px 0 0!important;padding-left:19px!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionQualityReview.session-quality-review.has-issues{
+ border-color:#ead6ce!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionQualityReview.session-quality-review.has-issues strong{
+ color:#9f604d!important;
+}
+/* Message d'inventaire terminé : confirmation douce avec icône. */
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
+ display:flex!important;align-items:flex-start!important;gap:10px!important;
+ margin:13px 0 4px!important;padding:13px 14px!important;
+ border:1px solid #dce5e1!important;border-radius:12px!important;
+ background:linear-gradient(145deg,#fff,#f2f6f4)!important;color:#486057!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
+ font-size:12px!important;font-weight:700!important;line-height:1.5!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::before{
+ content:"✓"!important;display:grid!important;place-items:center!important;
+ flex:0 0 23px!important;width:23px!important;height:23px!important;
+ border:1px solid #d2ded8!important;border-radius:8px!important;
+ background:#e7f2ec!important;color:#478369!important;
+ font-size:14px!important;font-weight:900!important;line-height:1!important;
+}
+/* Banderole : même verre émeraude sur tous les états du bouton iOS.
+   La déclaration inline importante fixe aussi la couleur après
+   désactivation automatique quand la session démarre. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:hover,:focus,:focus-visible,:active){
+ -webkit-appearance:none!important;appearance:none!important;
+ background:linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))!important;
+ background-color:#185f54!important;color:#f8fffc!important;-webkit-text-fill-color:#f8fffc!important;
+ border-color:rgba(226,255,247,.18)!important;filter:none!important;opacity:1!important;
+ transition:box-shadow .2s ease,transform .16s ease!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
+ color:#f8fffc!important;-webkit-text-fill-color:#f8fffc!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus #heroStatusText{
+ color:rgba(237,251,246,.81)!important;-webkit-text-fill-color:rgba(237,251,246,.81)!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
+ filter:brightness(0) invert(1)!important;opacity:.89!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.is-focus-mode #focusToolbar .focus-actions :is(button#focusPause,button#focusStop),
+ body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm :is(button#focusCancelStop,button#focusConfirmStop){
+  transition:none!important;
+ }
+}
