@@ -1,7 +1,7 @@
 {
-  "version": "35.32",
+  "version": "35.33",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Ouverture et fermeture des tiroirs Planning optimisées pour Safari : hauteur conservée en cas de taps rapides, transitions du contenu concurrentes supprimées."
+  "notes": "Mon compte : même fond, mêmes ombres et lumière neumorphiques qu’Administrateur, tableau de bord intégré, titres, tiroir Récupération et boutons harmonisés."
 }
