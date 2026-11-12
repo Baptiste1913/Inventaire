@@ -11195,3 +11195,10 @@ body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-ad
 :is(body:not(.is-focus-mode),body.is-focus-mode) .app > .calc-card > .card-heading .section-kicker{
   color:#28665e!important;
 }
+
+/* V35.04 — Correction de priorité des couleurs pour Inventaire et Planification.
+   Les règles historiques, plus spécifiques, imposaient encore le gris. */
+body .app > .session-card .session-top .section-kicker,
+body #inventoryCalendar .events-header-title .section-kicker{
+  color:#28665e!important;
+}
