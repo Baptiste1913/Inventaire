@@ -13444,9 +13444,10 @@ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #account
  width:208px!important;
  min-width:0!important;
  max-width:min(70vw,220px)!important;
- height:64px!important;
- min-height:64px!important;
- padding:9px 15px 9px 18px!important;
+ height:54px!important;
+ min-height:54px!important;
+ max-height:54px!important;
+ padding:6px 15px 6px 18px!important;
  border:1px solid #dce2e7!important;
  border-radius:15px!important;
  background:linear-gradient(145deg,#fcfcfd 0%,#f5f7f8 56%,#eaeef1 100%)!important;
@@ -13497,7 +13498,7 @@ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #account
  justify-content:center!important;
  flex:1 1 auto!important;
  min-width:0!important;
- gap:5px!important;
+ gap:3px!important;
  text-align:left!important;
 }
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
@@ -14242,18 +14243,25 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  outline-offset:3px!important;
 }
 
-/* V35.64 — bouton Inventaire: rendu invariant sur iOS, sans transition visuelle. */
+/* V35.71 — Bouton de la banderole : mêmes couleurs, dégradé et relief
+   que « Démarrer un inventaire », sans variation au toucher sur Safari. */
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:enabled,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:active,:focus,:focus-visible),
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled:is(:hover,:active,:focus,:focus-visible){
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled:is(:hover,:active,:focus,:focus-visible),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"],
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="false"]{
  -webkit-appearance:none!important;appearance:none!important;
- background:linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))!important;
- background-color:#185f54!important;
- border:1px solid rgba(8,57,49,.46)!important;
- color:#f8fffc!important;-webkit-text-fill-color:#f8fffc!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 9px rgba(6,54,48,.075)!important;
+ box-sizing:border-box!important;height:54px!important;min-height:54px!important;max-height:54px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-color:#f2f5f7!important;
+ border:1px solid #d4dce2!important;border-radius:14px!important;
+ color:#28343d!important;-webkit-text-fill-color:#28343d!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.98),-6px -6px 13px rgba(255,255,255,.60),
+  4px 5px 11px rgba(156,173,189,.35),1px 2px 4px rgba(156,173,189,.18),
+  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
  opacity:1!important;filter:none!important;transform:none!important;
  transition:none!important;-webkit-tap-highlight-color:transparent!important;
  outline:none!important;
@@ -14262,9 +14270,19 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::after{
  content:none!important;display:none!important;animation:none!important;
 }
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
+ color:#28343d!important;-webkit-text-fill-color:#28343d!important;text-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus #heroStatusText{
+ color:#68747d!important;-webkit-text-fill-color:#68747d!important;text-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
+ filter:grayscale(1) brightness(.64)!important;opacity:.94!important;
+}
 @supports selector(:focus-visible){
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
-  outline:2px solid rgba(7,57,48,.65)!important;outline-offset:3px!important;
+  outline:2px solid #667783!important;outline-offset:3px!important;
  }
 }
 /* Message de fin émeraude compact, sans coche ni espace inutile. */
@@ -14286,24 +14304,6 @@ body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-comp
 }
 body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
  font-size:11px!important;line-height:1.35!important;font-weight:550!important;
-}
-
-/* V35.65 — Safari iPhone : la désactivation est sémantique (aria-disabled),
-   et non native, afin de ne plus déclencher le style blanc du bouton. */
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"],
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"]:is(:active,:hover,:focus),
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="false"]:is(:active,:hover,:focus){
- background:linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))!important;
- background-color:#185f54!important;
- border-color:rgba(8,57,49,.46)!important;
- color:#f8fffc!important;
- -webkit-text-fill-color:#f8fffc!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 9px rgba(6,54,48,.075)!important;
- opacity:1!important;
- filter:none!important;
- transform:none!important;
- transition:none!important;
- -webkit-tap-highlight-color:transparent!important;
 }
 
 /* V35.66 — Splash / installation: glowing-white progress on graphite rail,
@@ -14419,4 +14419,17 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 @media(prefers-reduced-motion:reduce){
  #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
  #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important}
+}
+
+/* V35.71 — Réduction douce de la hauteur de la banderole, en conservant
+   la respiration du titre, la mascotte au sol et le statut du bouton. */
+.app > .intro{padding-top:49px!important;padding-bottom:15px!important}
+.app > .intro .intro-bottom{margin-top:18px!important}
+@media(max-width:600px){
+ .app > .intro{padding-top:45px!important;padding-bottom:14px!important}
+ .app > .intro .intro-bottom{margin-top:17px!important}
+}
+@media(max-width:380px){
+ .app > .intro{padding-top:44px!important;padding-bottom:14px!important}
+ .app > .intro .intro-bottom{margin-top:16px!important}
 }
