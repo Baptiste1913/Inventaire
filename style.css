@@ -14522,7 +14522,7 @@ html body .app > section.intro > .intro-eyebrow{
  display:block!important;position:relative!important;z-index:3!important;
  margin:0 0 9px!important;
  color:rgba(235,255,246,.72)!important;
- font:800 10px/1.15 inherit!important;letter-spacing:.16em!important;
+ font-family:inherit!important;font-size:10px!important;font-weight:800!important;line-height:1.15!important;letter-spacing:.16em!important;
  text-transform:uppercase!important;
 }
 html body .app > section.intro > #intro-title{
