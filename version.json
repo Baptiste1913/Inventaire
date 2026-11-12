@@ -1,7 +1,7 @@
 {
-  "version": "35.04",
+  "version": "35.05",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Correction de la couleur vert turquoise foncé des intitulés SERVICES U / INVENTAIRE et SERVICES U / PLANIFICATION."
+  "notes": "Neuf intitulés SERVICES U stylisés avec trait turquoise et séparation typographique."
 }
