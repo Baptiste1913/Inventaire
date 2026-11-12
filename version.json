@@ -1,7 +1,7 @@
 {
-  "version": "35.85",
+  "version": "35.86",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole aux halos plus organiques et floutés. Bouton Inventaire compact avec titre anthracite, flèche rapprochée et indicateur de session temporairement masqué."
+  "notes": "Flou organique puissant de la banderole (76/90 px), bandeau moins haut, bouton Inventaire légèrement plus large et seul point de session animé replacé en haut à droite."
 }
