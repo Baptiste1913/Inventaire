@@ -1,7 +1,7 @@
 {
-  "version": "34.96",
+  "version": "34.97",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Barre de temps restant fluide : interpolation linéaire continue entre les mises à jour du compte à rebours."
+  "notes": "Barre de notifications animée en continu, statistiques du compte monochromes et prochain inventaire aux tons émeraude/turquoise."
 }
