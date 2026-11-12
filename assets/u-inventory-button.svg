@@ -1,15 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="145" height="49" viewBox="0 0 145 49" preserveAspectRatio="none">
+  <!-- Adaptation en capsule des trois silhouettes du logo U.
+       Les bords sont des formes pleines, et non des dégradés. -->
   <defs>
-    <linearGradient id="rim" x1="0" y1="0" x2="145" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#54BDE4"/>
-      <stop offset=".26" stop-color="#40B1D4"/>
-      <stop offset=".52" stop-color="#0B7F8D"/>
-      <stop offset=".78" stop-color="#55AFAF"/>
-      <stop offset="1" stop-color="#72BEB5"/>
-    </linearGradient>
+    <clipPath id="edge"><rect x=".15" y=".15" width="144.7" height="48.7" rx="24.35"/></clipPath>
   </defs>
-  <!-- Seulement deux traits fins, sans silhouettes superposées déformées. -->
-  <rect x=".25" y=".25" width="144.5" height="48.5" rx="24.25" fill="url(#rim)"/>
-  <rect x="1.55" y="1.15" width="141.9" height="46.7" rx="23.35" fill="#077986"/>
-  <rect x="3.75" y="3.55" width="137.5" height="41.9" rx="20.95" fill="#FFFFFF"/>
+  <g clip-path="url(#edge)">
+    <!-- Bleu ciel : visible en croissant en haut-gauche et en bas-gauche. -->
+    <rect width="145" height="49" fill="#55BDE5"/>
+    <!-- Vert d'eau : bande extérieure côté droit. -->
+    <path d="M75 -1 H146 V50 H78 C111 46 141 37 144 24.5 C141 12 111 3 75 -1 Z" fill="#65B9B0"/>
+    <!-- Bleu canard : commence plus en retrait à gauche, monte presque
+         au bord au centre/droite et descend au bord au centre/gauche. -->
+    <path d="M24.2 2.05
+      C43.5 -.25 79.2 -.15 99.8 .6
+      C117.5 1.35 130.8 6.3 137.8 15.1
+      C142.3 20.7 142.9 29.8 138.7 36.1
+      C132.5 45.2 118.4 48.05 99.3 48.5
+      C75.8 49.2 44.2 48.7 24.5 45.8
+      C10.1 43.55 4.15 34.9 4.2 24.5
+      C4.25 13.9 10.3 4.45 24.2 2.05 Z" fill="#047B88"/>
+    <!-- Intérieur unique : limite l'épaisseur totale à ~3.7px,
+         avec une couronne canard subtilement asymétrique. -->
+    <path d="M24.8 4.65
+      C45.5 3.35 79.3 3.45 99.2 3.9
+      C115.8 4.45 128.4 8.5 134.4 16.45
+      C138.1 21.4 138.6 28.7 135.15 34.45
+      C129.65 42.5 116.5 44.95 98.6 45.35
+      C76.2 45.85 45.8 45.55 25 43.05
+      C13.1 41.45 7.8 33.8 7.8 24.5
+      C7.8 15.2 13.05 6.65 24.8 4.65 Z" fill="#FFFFFF"/>
+  </g>
 </svg>
