@@ -11202,3 +11202,40 @@ body .app > .session-card .session-top .section-kicker,
 body #inventoryCalendar .events-header-title .section-kicker{
   color:#28665e!important;
 }
+
+/* V35.05 — Identité de rubrique : fin trait turquoise et hiérarchie typographique. */
+body .app .section-kicker:has(> .iu-service-prefix),
+body .app .planning-admin-eyebrow:has(> .iu-service-prefix){
+  display:inline-flex!important;
+  align-items:center!important;
+  flex-wrap:wrap;
+  column-gap:7px!important;
+  row-gap:3px!important;
+  max-width:100%;
+  color:#28665e!important;
+  vertical-align:middle;
+}
+body .app :is(.section-kicker,.planning-admin-eyebrow):has(> .iu-service-prefix)::before{
+  content:"";
+  display:inline-block;
+  flex:0 0 3px;
+  align-self:stretch;
+  min-height:13px;
+  border-radius:10px;
+  background:linear-gradient(180deg,#65c9be,#259c91);
+}
+body .app .iu-service-prefix{
+  color:#5d8982!important;
+  font-weight:750!important;
+}
+body .app .iu-service-separator{
+  flex:0 0 1px;
+  width:1px;
+  height:11px;
+  background:#b0d9d2;
+  border-radius:2px;
+}
+body .app .iu-service-category{
+  color:#28665e!important;
+  font-weight:850!important;
+}
