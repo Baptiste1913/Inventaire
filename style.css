@@ -11159,28 +11159,28 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   color:#537564!important;
 }
 
-/* V35.01 — Léger accent turquoise supplémentaire, sans saturation excessive. */
+/* V35.02 — Turquoise légèrement accentué, sans saturation excessive. */
 #accountCard .dashboard-trend{
-  background:linear-gradient(150deg,#fbfdfd 0%,#eff8f7 100%)!important;
-  border-color:#d9e9e7!important;
+  background:linear-gradient(150deg,#f9fdfd 0%,#eaf8f7 100%)!important;
+  border-color:#d3e9e7!important;
 }
 #accountCard .dashboard-trend-track{
-  background:#e4f0ee!important;
-  border-color:#cfe3df!important;
+  background:#dff1ef!important;
+  border-color:#c9e3df!important;
 }
 #accountCard .dashboard-trend-fill{
-  background:linear-gradient(180deg,#96c7c0 0%,#55a29a 52%,#31857e 100%)!important;
+  background:linear-gradient(180deg,#8acac5 0%,#49a9a3 52%,#268c86 100%)!important;
 }
-#accountCard .dashboard-trend-column > strong{color:#38645f!important;}
-#accountCard .dashboard-trend-column > span{color:#708d89!important;}
+#accountCard .dashboard-trend-column > strong{color:#316a65!important;}
+#accountCard .dashboard-trend-column > span{color:#698f8b!important;}
 #inventoryCalendar .events-next-card{
-  background:linear-gradient(135deg,#f7fbfa 0%,#eef9f7 58%,#e7f5f2 100%)!important;
-  border-color:#d6eae6!important;
+  background:linear-gradient(135deg,#f6fcfb 0%,#eaf9f7 58%,#e2f5f2 100%)!important;
+  border-color:#cfe9e6!important;
 }
-#inventoryCalendar .events-next-card .events-kicker{color:#56837e!important;}
-#inventoryCalendar .events-next-card #calendarNextDate{color:#305f5a!important;}
+#inventoryCalendar .events-next-card .events-kicker{color:#4e8984!important;}
+#inventoryCalendar .events-next-card #calendarNextDate{color:#29645f!important;}
 #inventoryCalendar .events-next-card .events-countdown:not([hidden]){
   background:rgba(255,255,255,.82)!important;
-  border-color:#d0e8e3!important;
-  color:#497e77!important;
+  border-color:#c8e8e3!important;
+  color:#40837c!important;
 }
