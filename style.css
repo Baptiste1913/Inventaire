@@ -12640,8 +12640,9 @@ body:not(.is-focus-mode) .app > .header.header{
  #iuUpdateOverlay #iuUpdateProgress > span{transition:none!important;}
 }
 
-/* V35.43 — Prochain inventaire : finition monochrome, dans le langage
-   des cartes de l'app. Aucune modification des dates ou des compteurs. */
+/* V35.44 — Prochain inventaire : retour au placement original des textes.
+   Conserver strictement les marges, espacements, dimensions de police et
+   padding de la version 35.42. Le cadre monochrome et sa barre restent. */
 body:not(.is-focus-mode) #inventoryCalendar .events-next-card{
  position:relative!important;
  isolation:isolate;
@@ -12649,12 +12650,10 @@ body:not(.is-focus-mode) #inventoryCalendar .events-next-card{
  background:linear-gradient(145deg,#fcfcfd 0%,#f5f7f8 56%,#eaeef1 100%)!important;
  border:1px solid #dce2e7!important;
  border-radius:14px!important;
- padding:16px 17px 17px!important;
  box-shadow:
-   inset 0 1px 0 rgba(255,255,255,.97),
-   0 4px 12px rgba(74,92,108,.065)!important;
+  inset 0 1px 0 rgba(255,255,255,.97),
+  0 4px 12px rgba(74,92,108,.065)!important;
 }
-/* Liseré latéral graphite très discret pour structurer la carte. */
 body:not(.is-focus-mode) #inventoryCalendar .events-next-card::before{
  content:"";
  position:absolute;
@@ -12667,41 +12666,16 @@ body:not(.is-focus-mode) #inventoryCalendar .events-next-card::before{
  opacity:.75;
  pointer-events:none;
 }
-body:not(.is-focus-mode) #inventoryCalendar .events-next-card .events-next-heading{
- gap:10px!important;
- margin-bottom:7px!important;
-}
+/* Couleurs uniquement : aucun déplacement du kicker, de la date ou du compteur. */
 body:not(.is-focus-mode) #inventoryCalendar .events-next-card .events-kicker{
  color:#707c86!important;
- font-size:10.5px!important;
- font-weight:800!important;
- letter-spacing:.085em!important;
 }
 body:not(.is-focus-mode) #inventoryCalendar .events-next-card #calendarNextDate{
- display:block!important;
  color:#28333c!important;
- font-weight:850!important;
- letter-spacing:-.5px!important;
- font-variant-numeric:tabular-nums;
- text-shadow:0 1px 0 rgba(255,255,255,.78);
 }
 body:not(.is-focus-mode) #inventoryCalendar .events-next-card #calendarNextCountdown:not([hidden]){
- display:inline-flex!important;
- align-items:center!important;
- justify-content:center!important;
- min-height:26px!important;
- padding:4px 9px!important;
  background:linear-gradient(145deg,#fff,#eef1f3)!important;
  color:#505c66!important;
- border:1px solid #dbe1e5!important;
- border-radius:999px!important;
+ border-color:#dbe1e5!important;
  box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
- font-size:10.5px!important;
- font-weight:750!important;
- letter-spacing:0!important;
-}
-@media(max-width:380px){
- body:not(.is-focus-mode) #inventoryCalendar .events-next-card{
-  padding:14px 14px 15px!important;
- }
 }
