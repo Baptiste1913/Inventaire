@@ -11077,3 +11077,56 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
 }
 
 /* V34.96 — interpolation continue entre les mesures du timer (100 ms). */
+
+/* V34.97 — Animation de compte à rebours native, sans interpolation par paliers. */
+.toast-stack > .undo-toast.toast-has-timer .undo-toast-timer-fill{
+  transition:none!important;
+}
+
+/* V34.97 — Mon compte : chiffres, libellés et graphiques en gris neutres.
+   Les états fonctionnels (connexion, synchronisation, erreurs) gardent leurs couleurs. */
+#accountCard .account-body :is(
+ .dashboard-stat,.dashboard-performance,.dashboard-performance-summary,
+ .dashboard-recent,.account-dashboard,.account-dashboard-identity-row,
+ .account-storage-tile,.account-local-intro
+){
+  color:#303942!important;
+}
+#accountCard .account-body :is(
+ .dashboard-stat,.dashboard-performance,.dashboard-performance-summary,
+ .dashboard-recent,.account-dashboard,.account-dashboard-identity-row,
+ .account-storage-tile,.account-local-intro
+) :is(strong,small,p,span,label,h2,h3,h4){
+  color:inherit;
+}
+#accountCard .account-body .dashboard-stat > strong,
+#accountCard .account-body .dashboard-performance-summary :is(strong,b),
+#accountCard .account-body .dashboard-subheading strong{
+  color:#29323a!important;
+}
+#accountCard .account-body .dashboard-stat > span,
+#accountCard .account-body .dashboard-subheading > span,
+#accountCard .account-body .dashboard-performance :is(small,.muted),
+#accountCard .account-body .dashboard-recent :is(small,.muted){
+  color:#727c84!important;
+}
+#accountCard .account-body :is(.dashboard-performance-summary,.dashboard-stat){
+  background:linear-gradient(145deg,#fff,#f4f6f7)!important;
+  border-color:#dfe4e8!important;
+}
+#accountCard .account-body :is(.dashboard-performance,.dashboard-recent) svg:not(.status-icon){
+  color:#707982!important;
+}
+/* Prochain inventaire : palette émeraude/turquoise du bandeau d'accueil. */
+#inventoryCalendar .events-next-card{
+  background:linear-gradient(125deg,#e7f3ef 0%,#e0f2eb 54%,#d7efe6 100%)!important;
+  border-color:#badbd0!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.82)!important;
+}
+#inventoryCalendar .events-next-card .events-kicker{color:#39766a!important;}
+#inventoryCalendar .events-next-card #calendarNextDate{color:#245b50!important;}
+#inventoryCalendar .events-next-card .events-countdown:not([hidden]){
+  background:rgba(255,255,255,.66)!important;
+  border-color:#bbdcd0!important;
+  color:#326f61!important;
+}
