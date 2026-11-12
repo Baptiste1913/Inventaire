@@ -1,7 +1,7 @@
 {
-  "version": "35.45",
+  "version": "35.46",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Prochain inventaire : libellé et date décalés de 6 px vers la droite, date remontée de 4 px ; liseré monochrome et compte à rebours conservés."
+  "notes": "Icône Play déplacée à droite du libellé Inventaire et ajoutée à droite de Démarrer un inventaire, avec la même image, taille et style."
 }

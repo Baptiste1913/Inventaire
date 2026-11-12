@@ -12690,3 +12690,36 @@ body:not(.is-focus-mode) #inventoryCalendar .events-next-card #calendarNextDate{
  transform:translateX(6px)!important;
  margin-top:-4px!important;
 }
+
+/* V35.46 — Icône Play identique à droite des deux commandes d'inventaire.
+   L'icône est décorative, les libellés et leur logique restent inchangés. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:9px!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+ order:2!important;
+ width:12px!important;
+ height:12px!important;
+ flex:0 0 12px!important;
+ object-fit:contain!important;
+ filter:none!important;
+ opacity:.86!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:9px!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSession .start-play-icon{
+ display:block!important;
+ width:12px!important;
+ height:12px!important;
+ flex:0 0 12px!important;
+ object-fit:contain!important;
+ filter:none!important;
+ opacity:.86!important;
+}
