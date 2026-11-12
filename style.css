@@ -11185,71 +11185,16 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   color:#40837c!important;
 }
 
-/* V35.03 — Tous les libellés « SERVICES U / … » en vert turquoise foncé. */
+/* V35.07 — Intitulés SERVICES U / ... : sobriété professionnelle, anthracite.
+   Supprime les accents graphiques ajoutés dans les versions 35.03 à 35.06. */
 body .app .section-kicker,
 body .app #planningAdminCard .planning-admin-eyebrow,
+body .app > .session-card .session-top .section-kicker,
+body #inventoryCalendar .events-header-title .section-kicker,
 body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .section-kicker,
 body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .planning-admin-eyebrow,
 body:not(.is-focus-mode) #accountCard .account-header-text > .section-kicker,
 body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-eyebrow,
 :is(body:not(.is-focus-mode),body.is-focus-mode) .app > .calc-card > .card-heading .section-kicker{
-  color:#28665e!important;
-}
-
-/* V35.04 — Correction de priorité des couleurs pour Inventaire et Planification.
-   Les règles historiques, plus spécifiques, imposaient encore le gris. */
-body .app > .session-card .session-top .section-kicker,
-body #inventoryCalendar .events-header-title .section-kicker{
-  color:#28665e!important;
-}
-
-/* V35.06 — Nom de rubrique seul et fin repère turquoise. */
-body .app :is(.section-kicker,.planning-admin-eyebrow).iu-section-label{
-  display:inline-flex!important;
-  align-items:center!important;
-  gap:7px!important;
-  width:max-content;
-  max-width:100%;
-  color:#28665e!important;
-  font-weight:850!important;
-  letter-spacing:.09em!important;
-  vertical-align:middle;
-}
-body .app .iu-section-label::before{
-  content:"";
-  display:block;
-  flex:0 0 2px;
-  width:2px;
-  height:13px;
-  border-radius:999px;
-  background:linear-gradient(180deg,#7bcfc4,#2b9a90);
-}
-/* Les compteurs restent neutres, avec un fini un peu plus doux. */
-body:not(.is-focus-mode) .app > details.card.fold-card .fold-trailing :is(#historyCount,#sessionsCount,#basketCount).count.session-pill{
-  background:linear-gradient(155deg,#f5f7f7,#ebf0ef)!important;
-  border-color:#dce5e3!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
-}
-/* Hover seulement à la souris, pas d'état collant sur iOS. */
-@media (hover:hover) and (pointer:fine){
-  body:not(.is-focus-mode) .app > details.card.fold-card:not([open]):is(.history-card,.sessions-history-card,.basket-card,.backup-card) > summary.fold-summary:hover{
-    background:linear-gradient(115deg,#fff,#f6faf9)!important;
-  }
-  body:not(.is-focus-mode) .app > details.card.fold-card:not(#accountCard):not(#planningAdminCard) > summary.fold-summary:hover .fold-chevron{
-    color:#438f84!important;
-  }
-}
-body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary:focus-visible{
-  outline:2px solid #54aa9e!important;
-  outline-offset:-4px!important;
-  border-radius:15px!important;
-}
-/* Carte d'inventaire : relief quasi imperceptible sans changer sa teinte. */
-#inventoryCalendar .events-next-card{
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.93),0 3px 11px rgba(36,108,101,.035)!important;
-}
-@media (prefers-reduced-motion:reduce){
-  body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary{
-    transition:none!important;
-  }
+  color:#353d43!important;
 }
