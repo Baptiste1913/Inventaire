@@ -1,0 +1,37 @@
+name: Installer la police Inter locale
+on:
+  push:
+    paths:
+      - .github/workflows/install-inter.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Récupérer la police et sa licence officielles
+        run: |
+          set -euo pipefail
+          mkdir -p assets/fonts
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/rsms/inter/master/docs/font-files/InterVariable.woff2' \
+            --output assets/fonts/InterVariable.woff2
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/rsms/inter/master/LICENSE.txt' \
+            --output assets/fonts/OFL-LICENSE.txt
+          test "$(wc -c < assets/fonts/InterVariable.woff2)" -gt 100000
+      - name: Publier les ressources locales
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/fonts/InterVariable.woff2 assets/fonts/OFL-LICENSE.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Vendor licensed Inter variable font for offline PWA"
+            git push origin HEAD:main
+          fi

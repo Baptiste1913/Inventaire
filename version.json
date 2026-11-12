@@ -1,7 +1,7 @@
 {
-  "version": "35.70",
+  "version": "35.75",
   "published": "2026-11-12",
-  "assets": 42,
+  "assets": 43,
   "bytes": 819245,
-  "notes": "Écrans de lancement et de mise à jour monochromes : dégradé graphite sur la piste et gris perle vers blanc sur le remplissage, dimensions et chargement réel préservés."
+  "notes": "Police Inter variable appliquée à toute l'application, typographie et alignements harmonisés, fichier local mis en cache pour la PWA hors ligne. Base visuelle 35.70 préservée."
 }
