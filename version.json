@@ -1,7 +1,7 @@
 {
-  "version": "35.23",
+  "version": "35.24",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Administrateur : halo blanc atténué de 30 à 35 % ; correction du débordement visuel aux coins inférieurs en mode déplié. Autres cartes inchangées."
+  "notes": "Carte Administrateur : lumière plus fine et relief doux ; arrondis du panneau interne corrigés pendant l’ouverture des sous-tiroirs, sans modifier leurs animations."
 }

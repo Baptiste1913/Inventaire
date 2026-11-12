@@ -11330,30 +11330,36 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
     transition:none!important;
   }
 }
-/* V35.23 — Administrateur : glow moins brutal et coins propres ouvert/fermé.
-   Ombres limitées à l'extérieur du details ; aucun changement de layout. */
+
+/* V35.24 — Administrateur : relief doux, visible mais moins brutal.
+   Seule la carte extérieure porte l'ombre ; les tiroirs internes conservent
+   leurs propres styles et leurs animations d'origine. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card{
   background:#f5f7f8!important;
-  background-color:#f5f7f8!important;
   border:0!important;
+  border-radius:var(--iu-radius-card)!important;
   overflow:hidden!important;
   box-shadow:
-    -4px -4px 8px 1px rgba(255,255,255,.70),
-    -6px -6px 12px 0 rgba(255,255,255,.65),
-     4px  5px  8px 0 rgba(82,105,125,.2873),
-     6px  7px 13px 0 rgba(98,122,141,.193375)!important;
+    -2px -2px 4px 0 rgba(255,255,255,.82),
+    -5px -5px 10px 0 rgba(255,255,255,.49),
+     4px  5px 9px 0 rgba(163,177,198,.24),
+     1px  2px 3px 0 rgba(163,177,198,.14)!important;
 }
 body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary{
   background:#f5f7f8!important;
-  background-color:#f5f7f8!important;
+  border:0!important;
+  box-shadow:none!important;
 }
-/* Lorsque le details est ouvert, le panneau interne ne doit plus produire
-   sa propre ombre rectangulaire sous les coins arrondis du conteneur. */
+/* L'ouverture des sous-tiroirs modifie la hauteur de la zone animée.
+   Le bas du contenu doit suivre les coins extérieurs, jamais rester carré. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-body{
   box-shadow:none!important;
-  border-bottom-left-radius:0!important;
-  border-bottom-right-radius:0!important;
+  border-bottom-left-radius:var(--iu-radius-card)!important;
+  border-bottom-right-radius:var(--iu-radius-card)!important;
+  overflow:hidden!important;
 }
+/* Renforce le découpage des coins quand le contenu du tiroir se transforme,
+   sans ajouter de transform sur la carte ni modifier le timing d'ouverture. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card[open]{
   overflow:hidden!important;
   isolation:isolate;
