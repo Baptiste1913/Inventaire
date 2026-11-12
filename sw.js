@@ -1,5 +1,5 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v35-70';
+const CACHE = 'inventaires-u-offline-v35-73';
 const CORE = [
   './', './index.html', './version.json', './admin-categories.js?v=33.93', './technical-log.js?v=33.93', './update-manager.js?v=35.73', './error-journal.js?v=33.93', './site-operations.js?v=35.73', './push.js?v=33.75', './planning-admin.js?v=35.73', './events-data.js?v=33.19', './events.js?v=34.30', './style.css?v=35.73', './app.js?v=35.73',
   './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=35.73', './manifest.webmanifest?v=13', './icon.png?v=11',
