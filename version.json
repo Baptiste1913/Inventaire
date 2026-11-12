@@ -1,7 +1,7 @@
 {
-  "version": "35.82",
+  "version": "35.83",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton Inventaire : fond transparent, contour dégradé U réduit à 2 px, textes et flèche blancs, états Safari stables."
+  "notes": "Bouton U blanc et anneau turquoise de la 35.81 restauré ; dégradé de banderole bleu-vert assorti et couleurs de la mascotte légèrement harmonisées. Autres éléments inchangés."
 }
