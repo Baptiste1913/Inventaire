@@ -14483,16 +14483,57 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  }
 }
 
-/* V35.83 — Dégradé de la banderole accordé au contour U.
-   La forme, le bouton 35.81 et les interactions restent inchangés. */
+/* V35.84 — Banderole abstraite U : halos déformés, taches cyan /
+   turquoise et jade très diffuses. Calques derrière le contenu. */
 html body .app > section.intro{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
  background:
-  radial-gradient(ellipse 78% 90% at 94% 6%,rgba(108,223,233,.31) 0%,rgba(66,189,206,.12) 39%,transparent 75%),
-  radial-gradient(ellipse 72% 105% at -8% 116%,rgba(9,68,65,.52),transparent 77%),
-  linear-gradient(119deg,#116052 0%,#168579 43%,#128e9f 75%,#3bb3bf 100%)!important;
+  radial-gradient(ellipse 72% 110% at 105% -7%,rgba(106,227,241,.38) 0%,rgba(71,191,214,.13) 43%,transparent 79%),
+  radial-gradient(ellipse 43% 83% at 74% 12%,rgba(9,130,170,.22) 0%,transparent 76%),
+  radial-gradient(ellipse 70% 130% at -15% 108%,rgba(8,68,64,.46) 0%,transparent 77%),
+  radial-gradient(ellipse 38% 93% at 37% -26%,rgba(69,204,185,.24),transparent 79%),
+  linear-gradient(124deg,#105b53 0%,#13796f 36%,#168a99 69%,#38b1bf 100%)!important;
 }
 html body .app > section.intro::before{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:-16% -13% -22% -13%!important;
+ z-index:-1!important;
+ pointer-events:none!important;
  background:
-  radial-gradient(circle at 94% 12%,rgba(195,251,249,.18),transparent 50%),
-  radial-gradient(circle at 0% 100%,rgba(14,73,66,.20),transparent 52%)!important;
+  radial-gradient(ellipse 36% 49% at 93% 12%,rgba(195,251,255,.47) 0%,rgba(155,237,247,.18) 38%,transparent 76%),
+  radial-gradient(ellipse 33% 43% at 65% 43%,rgba(36,194,211,.33),transparent 78%),
+  radial-gradient(ellipse 53% 59% at 11% 89%,rgba(8,68,64,.45),transparent 77%),
+  radial-gradient(ellipse 28% 51% at 39% 5%,rgba(102,224,193,.25),transparent 74%)!important;
+ filter:blur(24px)!important;
+ -webkit-filter:blur(24px)!important;
+ mix-blend-mode:normal!important;
+ opacity:1!important;
+}
+html body .app > section.intro::after{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:-18% -17% -24% -17%!important;
+ z-index:-1!important;
+ pointer-events:none!important;
+ background:
+  radial-gradient(ellipse 31% 49% at 100% 3%,rgba(203,249,255,.34) 0%,rgba(87,216,235,.17) 42%,transparent 77%),
+  radial-gradient(ellipse 26% 38% at 67% 86%,rgba(3,109,130,.22) 0%,transparent 80%),
+  radial-gradient(ellipse 30% 45% at 16% 15%,rgba(73,199,169,.13),transparent 76%)!important;
+ filter:blur(34px)!important;
+ -webkit-filter:blur(34px)!important;
+ mix-blend-mode:screen!important;
+ opacity:.92!important;
+}
+@media(max-width:380px){
+ html body .app > section.intro::before{
+  filter:blur(19px)!important;-webkit-filter:blur(19px)!important;
+ }
+ html body .app > section.intro::after{
+  filter:blur(25px)!important;-webkit-filter:blur(25px)!important;
+ }
 }
