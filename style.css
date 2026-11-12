@@ -12193,3 +12193,29 @@ body:not(.is-focus-mode) .app > .calc-card.card > .card-heading{
  border:0!important;
  box-shadow:none!important;
 }
+
+/* V35.38 — Calage visuel sur Ma session / Nouvelle pesée.
+   Les trois cartes du haut paraissaient plus "décollées" malgré les
+   mêmes ombres numériques : atténuer leurs ombres directionnelles
+   et étaler leur diffusion, sans changer les blocs de référence.
+   Ne concerne ni les dépliants internes, ni les états interactifs. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card,
+body:not(.is-focus-mode) .app > #accountCard.card,
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card{
+ background:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:var(--iu-radius-card)!important;
+ box-shadow:
+  -2px -2px 8px 0 rgba(255,255,255,.76),
+  -5px -5px 14px 0 rgba(255,255,255,.38),
+   3px 4px 14px 0 rgba(163,177,198,.135),
+   1px 2px 8px 0 rgba(163,177,198,.075)!important;
+}
+/* L'ombre doit être celle de la carte seule, sans relief propre
+   à l'en-tête ni raccord à l'ouverture. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary,
+body:not(.is-focus-mode) .app > #accountCard.card > .account-fold-summary,
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card > .events-static-header{
+ box-shadow:none!important;
+}
