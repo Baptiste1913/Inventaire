@@ -1,7 +1,7 @@
 {
-  "version": "35.81",
+  "version": "35.82",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton Inventaire inspiré du logo U : fond blanc, contour circulaire dégradé turquoise/bleu, titre rouge et statut bleu-vert. États Safari stabilisés, autres éléments inchangés."
+  "notes": "Bouton Inventaire : fond transparent, contour dégradé U réduit à 2 px, textes et flèche blancs, états Safari stables."
 }

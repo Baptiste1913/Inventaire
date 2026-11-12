@@ -14421,8 +14421,8 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important}
 }
 
-/* V35.81 — Inventaire : pastille fidèle au logo U.
-   Anneau bleu canard/turquoise, centre blanc, accent rouge U.
+/* V35.82 — Inventaire : anneau U fin et fond transparent.
+   Anneau bleu canard/turquoise, caractères et flèche blancs.
    Apparence rigoureusement stable au toucher sur Safari iPhone. */
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:enabled,
@@ -14437,13 +14437,13 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  box-sizing:border-box!important;position:relative!important;
  height:64px!important;min-height:64px!important;
  padding:8px 15px 8px 17px!important;
- border:4px solid transparent!important;
+ border:2px solid transparent!important;
  border-radius:999px!important;
- background:linear-gradient(#fff,#fff) padding-box,
+ background:linear-gradient(transparent,transparent) padding-box,
   linear-gradient(130deg,#58c5e2 0%,#05869a 30%,#00798b 62%,#4fbbac 100%) border-box!important;
- background-color:#fff!important;
- color:#e30613!important;-webkit-text-fill-color:#e30613!important;
- box-shadow:inset 0 0 0 1px rgba(0,128,145,.10),2px 2px 0 rgba(79,187,172,.55)!important;
+ background-color:transparent!important;
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+ box-shadow:none!important;
  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
  filter:none!important;opacity:1!important;transform:none!important;
  transition:none!important;-webkit-tap-highlight-color:transparent!important;
@@ -14454,20 +14454,20 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  content:none!important;display:none!important;animation:none!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
- color:#e30613!important;-webkit-text-fill-color:#e30613!important;
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
  text-shadow:none!important;font-size:15px!important;font-weight:900!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus #heroStatusText{
- color:#287c86!important;-webkit-text-fill-color:#287c86!important;
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
  text-shadow:none!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
- filter:brightness(0) saturate(100%) invert(31%) sepia(57%) saturate(1032%) hue-rotate(145deg) brightness(96%) contrast(91%)!important;
+ filter:brightness(0) invert(1)!important;
  opacity:.98!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus .intro-session-dot{
- border-color:rgba(0,122,138,.24)!important;
+ border-color:rgba(255,255,255,.38)!important;
 }
 @media(max-width:380px){
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
