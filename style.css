@@ -12453,3 +12453,189 @@ body:not(.is-focus-mode) #backupCard #backupAdvanced > .backup-advanced-body{
 @media(max-width:380px){
  #backupCard .backup-heading-subtitle{font-size:11px!important;}
 }
+
+/* V35.42 — Historique des pesées + Inventaires : même surface que
+   Administration, Mes paniers et Sauvegarde. En-tête et corps continus. */
+body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card){
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:var(--iu-radius-card)!important;
+ box-shadow:var(--iu-main-card-shadow)!important;
+ overflow:hidden!important;
+ isolation:isolate;
+}
+body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card) > :is(.fold-summary,.fold-body){
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ border-top:0!important;
+ border-bottom:0!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card):is([open],.is-fold-closing) > .fold-summary{
+ border-bottom:0!important;
+ border-bottom-color:transparent!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card) > .fold-body{
+ border-bottom-left-radius:var(--iu-radius-card)!important;
+ border-bottom-right-radius:var(--iu-radius-card)!important;
+ overflow:hidden!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card) .history-heading-subtitle{
+ display:block!important;
+ margin-top:4px!important;
+ color:#7c8991!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
+ line-height:1.45!important;
+ letter-spacing:0!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card) > .fold-summary .fold-label{
+ color:#272f36!important;
+ font-weight:850!important;
+}
+/* Les listes restent des secteurs compacts et lisibles ; pas de double
+   relief supplémentaire dans la carte principale. */
+body:not(.is-focus-mode) .app > .history-card.card #historyList.history-list,
+body:not(.is-focus-mode) .app > .sessions-history-card.card #sessionsHistoryList.v22-session-list{
+ border:1px solid #e3e8eb!important;
+ border-radius:12px!important;
+ background:linear-gradient(155deg,#fff,#f8f9fa)!important;
+ box-shadow:none!important;
+ overflow:hidden!important;
+}
+body:not(.is-focus-mode) .app > .history-card.card .history-item,
+body:not(.is-focus-mode) .app > .sessions-history-card.card .v22-session-item{
+ background:transparent!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card) :is(
+ #historyToggleTop.history-toggle,#sessionsToggle.history-toggle
+){
+ box-sizing:border-box!important;
+ min-height:46px!important;
+ padding:10px 12px!important;
+ border:1px solid #d8dfe3!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ box-shadow:none!important;
+ color:#414d56!important;
+ font-family:inherit!important;
+ font-size:11.5px!important;
+ font-weight:800!important;
+ line-height:1.35!important;
+}
+body:not(.is-focus-mode) .app > .history-card.card #clearHistoryBtn.history-clear{
+ min-height:46px!important;
+ padding:10px 12px!important;
+ border:1px solid #efd8dd!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#fbf0f2)!important;
+ box-shadow:none!important;
+ color:#a84253!important;
+ font-size:11.5px!important;
+ font-weight:800!important;
+}
+/* Splash et écran d'installation : la même petite carte neutre, sans
+   halo coloré ni bordure double. Garder les barres réellement pilotées
+   par leurs états JS, sans changer les timers ni les jalons. */
+#iuPwaSplash,
+#iuUpdateOverlay{
+ background:#f5f7f8!important;
+ background-image:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+#iuPwaSplash .iu-splash-content,
+#iuUpdateOverlay .iu-update-screen{
+ box-sizing:border-box!important;
+ width:min(100%,270px)!important;
+ max-width:100%!important;
+ padding:26px 22px 24px!important;
+ border:0!important;
+ border-radius:var(--iu-radius-card)!important;
+ background:#f5f7f8!important;
+ background-image:none!important;
+ box-shadow:var(--iu-main-card-shadow)!important;
+}
+#iuPwaSplash .iu-splash-logo,
+#iuUpdateOverlay .iu-update-logo{
+ box-sizing:border-box!important;
+ width:70px!important;
+ height:70px!important;
+ margin:0 0 17px!important;
+ padding:6px!important;
+ border:1px solid #e3e8eb!important;
+ border-radius:17px!important;
+ background:#fff!important;
+ box-shadow:none!important;
+}
+#iuPwaSplash .iu-splash-logo img,
+#iuUpdateOverlay .iu-update-logo img{
+ width:56px!important;
+ height:56px!important;
+ object-fit:contain!important;
+}
+#iuUpdateOverlay .iu-update-screen :is(#iuUpdateScreenTitle,#iuUpdateScreenText){
+ color:#303b44!important;
+}
+#iuUpdateOverlay #iuUpdateScreenText,
+#iuPwaSplash .iu-splash-subtitle{
+ color:#7c8991!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
+ line-height:1.45!important;
+}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress,
+#iuPwaSplash #iuSplashLoader.iu-splash-loader{
+ border:1px solid #d8dfe3!important;
+ border-radius:999px!important;
+ background:#e9eef0!important;
+ box-shadow:none!important;
+ overflow:hidden!important;
+}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span,
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{
+ background:linear-gradient(90deg,#747e87,#404951)!important;
+ box-shadow:none!important;
+}
+#iuUpdateOverlay #iuUpdateOverlayDismiss{
+ border:1px solid #d8dfe3!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;
+ box-shadow:none!important;
+}
+/* En-tête U : respirer au-dessus du logo sans l'agrandir ni déplacer
+   artificiellement la zone de sécurité iOS (déjà gérée par body). */
+body:not(.is-focus-mode) .app > .header.header{
+ box-sizing:border-box!important;
+ min-height:105px!important;
+ padding-top:26px!important;
+ padding-bottom:16px!important;
+}
+@media(max-width:600px){
+ body:not(.is-focus-mode) .app > .header.header{
+  min-height:107px!important;
+  padding-top:28px!important;
+  padding-bottom:17px!important;
+ }
+}
+@media(max-width:380px){
+ body:not(.is-focus-mode) .app > .header.header{
+  min-height:101px!important;
+  padding-top:25px!important;
+  padding-bottom:16px!important;
+ }
+ body:not(.is-focus-mode) .app > :is(.history-card.card,.sessions-history-card.card) .history-heading-subtitle{
+  font-size:11px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #iuPwaSplash .iu-splash-loader-fill,
+ #iuUpdateOverlay #iuUpdateProgress > span{transition:none!important;}
+}

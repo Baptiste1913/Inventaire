@@ -1,7 +1,7 @@
 {
-  "version": "35.41",
+  "version": "35.42",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Sauvegarde : relief commun et fond continu, grande sous-carte supprimée, en-têtes harmonisés, actions principales visibles et export partiel en tiroir unique."
+  "notes": "Historiques de pesées et d’inventaires harmonisés ; chargement PWA et mise à jour épurés ; espace supérieur du bandeau logo U augmenté sur iPhone."
 }
