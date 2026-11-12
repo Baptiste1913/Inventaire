@@ -347,7 +347,7 @@ function renderHeroSummary(){
  if(heroAction&&heroLabel){
   heroLabel.textContent=session?.pausedAt?'Reprendre':'Inventaire';
   heroAction.disabled=Boolean(session&&!session.pausedAt);
-  heroAction.setAttribute('aria-label',session?.pausedAt?'Reprendre l’inventaire':'Démarrer un inventaire');
+  heroAction.setAttribute('aria-label',(session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire')+' — '+text.textContent);
  }
 }
 // V33.65 — transition verticale par carte : l'accueil descend du bas vers

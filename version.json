@@ -1,7 +1,7 @@
 {
-  "version": "35.55",
+  "version": "35.56",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mon compte déconnecté en monochrome : avatar neutre, pastille Mode local, encart de présentation et connexion Google harmonisés ; mode connecté préservé."
+  "notes": "Banderole : bouton Inventaire et indicateur de session fusionnés, style gris perle du Prochain inventaire, liseré latéral, titre et état sur deux lignes, icône Play à droite. États et accessibilité conservés."
 }
