@@ -11330,3 +11330,107 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
     transition:none!important;
   }
 }
+
+/* V35.09 — Essai neumorphique, adapté au vert/turquoise d'Inventaires U.
+   Relief directionnel clair en haut à gauche et ombre douce en bas à droite.
+   Les rayons, tailles et animations des cartes sont préservés. */
+:root{
+  --iu-neu-light:rgba(255,255,255,.94);
+  --iu-neu-dark:rgba(130,150,166,.24);
+  --iu-neu-border:rgba(220,230,235,.92);
+}
+
+/* Cartes principales de l'accueil : relief doux sur leur fond existant.
+   Ne jamais toucher aux cartes du mode concentration ni aux états métiers. */
+body:not(.is-focus-mode) .app > .card{
+  border-color:var(--iu-neu-border)!important;
+  box-shadow:
+    -7px -7px 16px var(--iu-neu-light),
+     7px  8px 18px var(--iu-neu-dark),
+     inset 0 1px 0 rgba(255,255,255,.83)!important;
+}
+
+/* Les deux sous-cartes les plus visibles reprennent le même relief,
+   légèrement atténué pour conserver leur lisibilité dans une carte parente. */
+body:not(.is-focus-mode) #inventoryCalendar .events-next-card,
+body:not(.is-focus-mode) #accountCard .dashboard-trend{
+  box-shadow:
+    -4px -4px 11px rgba(255,255,255,.88),
+     5px  6px 14px rgba(120,147,158,.14),
+     inset 0 1px 0 rgba(255,255,255,.82)!important;
+}
+
+/* Bouton Inventaire : finition neumorphique satinée plutôt que verre blanc épais.
+   Zone tactile iPhone inchangée (48 px), silhouette en pilule. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:48px!important;
+  height:48px!important;
+  min-width:154px!important;
+  padding:0 19px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(255,255,255,.73)!important;
+  background:linear-gradient(145deg,#edf3f5 0%,#e0e9ed 100%)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(112%)!important;
+  backdrop-filter:blur(14px) saturate(112%)!important;
+  box-shadow:
+    -7px -7px 16px rgba(255,255,255,.39),
+     7px  7px 16px rgba(4,52,49,.29),
+     inset 0 1px 0 rgba(255,255,255,.91)!important;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform 200ms cubic-bezier(.2,.8,.2,1),
+             box-shadow 200ms cubic-bezier(.2,.8,.2,1),
+             filter 200ms cubic-bezier(.2,.8,.2,1)!important;
+}
+/* Reflet moins intense que le Liquid Glass initial. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::before{
+  background:linear-gradient(125deg,
+    rgba(255,255,255,.30) 0%,
+    rgba(255,255,255,.07) 48%,
+    transparent 75%)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+  transition:transform 200ms cubic-bezier(.2,.8,.2,1)!important;
+}
+@media (hover:hover) and (pointer:fine){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+    transform:translateY(-1px)!important;
+    filter:brightness(1.02)!important;
+    background:linear-gradient(145deg,#f0f6f7,#e2ecef)!important;
+    box-shadow:
+      -7px -6px 18px rgba(255,255,255,.45),
+       7px  8px 18px rgba(4,52,49,.32),
+       inset 0 1px 0 rgba(255,255,255,.94)!important;
+  }
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled)
+  .hero-action-content .hero-play-icon{
+    transform:translateX(3px)!important;
+  }
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+  transform:translateY(1px) scale(.97)!important;
+  box-shadow:
+    -5px -5px 13px rgba(255,255,255,.35),
+     5px  6px 13px rgba(4,52,49,.26),
+     inset 0 1px 0 rgba(255,255,255,.87)!important;
+  transition-duration:100ms!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:focus-visible{
+  outline:3px solid rgba(222,249,242,.95)!important;
+  outline-offset:3px!important;
+}
+@media(max-width:380px){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+    min-width:146px!important;
+    padding-inline:16px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump,
+  .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
+    transition:none!important;
+    animation:none!important;
+  }
+}

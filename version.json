@@ -1,7 +1,7 @@
 {
-  "version": "35.08",
+  "version": "35.09",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Finitions premium : contours et ombres affinés, typographies harmonisées, bouton Inventaire vitré, carte Prochain inventaire adoucie et alignements réguliers."
+  "notes": "Essai neumorphique : bouton Inventaire satiné à double ombre et relief doux sur les cartes de l’accueil, sans modification fonctionnelle."
 }
