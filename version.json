@@ -1,7 +1,7 @@
 {
-  "version": "35.62",
+  "version": "35.63",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bordure du bouton Inventaire stabilisée, Arrêter rouge comme Terminer, confirmation de fin structurée, indicateur Session en cours animé."
+  "notes": "Message Inventaire terminé en dégradé émeraude comme la pesée ; correction des contours blancs du bouton Inventaire au clic et au focus."
 }

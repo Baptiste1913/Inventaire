@@ -10432,7 +10432,7 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 7px rgba(4,55,45,.12)!important;
 }
 .app > .intro .intro-bottom > #heroStartSession.intro-jump:focus-visible{
-  outline:2px solid #fff!important;
+  outline:2px solid rgba(7,57,48,.65)!important;
   outline-offset:3px!important;
 }
 @media(prefers-reduced-motion:reduce){
@@ -14084,7 +14084,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  -webkit-tap-highlight-color:transparent!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
- outline:2px solid rgba(255,255,255,.75)!important;
+ outline:2px solid rgba(7,57,48,.65)!important;
  outline-offset:3px!important;
 }
 /* Arrêter : même rouge perle que Terminer, également au toucher. */
@@ -14195,4 +14195,49 @@ body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-comp
 @media(prefers-reduced-motion:reduce){
  body.is-focus-mode #focusToolbar .focus-heading .focus-live-dot,
  body.is-focus-mode #focusToolbar .focus-heading .focus-live-dot::after{animation:none!important;}
+}
+
+/* V35.63 — Confirmation d'inventaire reprenant le résultat émeraude. */
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
+ background:radial-gradient(circle at 88% 18%,rgba(164,238,212,.20),rgba(164,238,212,0) 42%),linear-gradient(132deg,#176f66 0%,#237e72 52%,#339d8d 100%)!important;
+ color:#fff!important;
+ border:1px solid rgba(178,235,222,.48)!important;
+ border-radius:17px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 7px 18px rgba(21,101,89,.13)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::after{
+ background:linear-gradient(180deg,rgba(255,255,255,.58),rgba(202,255,233,.15))!important;
+ opacity:.66!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::before{
+ background:rgba(255,255,255,.13)!important;
+ border:1px solid rgba(255,255,255,.27)!important;
+ color:#fff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-title{
+ color:#fff!important;
+ font-size:14px!important;
+ font-weight:850!important;
+ letter-spacing:-.01em!important;
+ text-shadow:0 1px 1px rgba(7,61,53,.10)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
+ color:rgba(245,255,250,.89)!important;
+ font-size:11.5px!important;
+ font-weight:600!important;
+}
+/* Bordure constante sombre sur clic, focus et désactivation.
+   L'ancien contour blanc au focus a également été corrigé à sa source. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:active,:focus,:focus-visible,:disabled),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled:is(:hover,:active,:focus){
+ border:1px solid rgba(8,57,49,.46)!important;
+ -webkit-tap-highlight-color:transparent!important;
+ outline:0 solid transparent!important;
+ outline-offset:0!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
+ outline:2px solid rgba(7,57,48,.65)!important;
+ outline-offset:3px!important;
 }
