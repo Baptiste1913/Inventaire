@@ -1,7 +1,7 @@
 {
-  "version": "35.30",
+  "version": "35.31",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Titres harmonisés et descriptifs courts dans Administration et tiroirs Planning ; dégradé de séparation sous le titre Administrateur supprimé."
+  "notes": "Statut Supabase discret comme les sous-titres ; ouverture/fermeture des tiroirs de gestion des dates plus fluides."
 }

@@ -1264,8 +1264,11 @@ function setupUnifiedFold(card,summary,content,closingClass){
   const expanded=collapsed+content.getBoundingClientRect().height;
   const target=next?expanded:collapsed;
   if(Math.abs(currentHeight-target)<.5){card.open=next;card.classList.remove(closingClass);return;}
+  // Fluidité spécifique aux tiroirs Planning (autres cartes inchangées).
+  const planningDrawer=card.matches('#planningAdminCard .iu-admin-planning-section > .planning-accordion');
   const anim=card.animate([{height:`${currentHeight}px`},{height:`${target}px`}],
-    {duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'});
+    {duration:planningDrawer?540:FOLD_MOTION_MS,
+     easing:planningDrawer?'cubic-bezier(.26,.72,.24,1)':FOLD_MOTION_EASE,fill:'both'});
   animation=anim;
   anim.onfinish=()=>{
    if(animation!==anim)return;
