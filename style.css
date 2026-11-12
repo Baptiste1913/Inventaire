@@ -14365,7 +14365,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
 }
 
-/* V35.69 — un seul style partagé pour les deux écrans de chargement.
+/* V35.70 — un seul style partagé pour les deux écrans de chargement.
    Relief perle, piste graphite adoucie et lumière discrète émeraude. */
 #iuPwaSplash,#iuUpdateOverlay{background:#f5f7f8!important;background-image:none!important}
 #iuPwaSplash .iu-splash-content,#iuUpdateOverlay .iu-update-screen{
@@ -14388,9 +14388,9 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 #iuUpdateOverlay #iuUpdateProgress.iu-update-progress{
  position:relative!important;box-sizing:border-box!important;
  height:12px!important;padding:2px!important;border-radius:999px!important;
- border:1px solid #a8b5bc!important;
- background:linear-gradient(180deg,#647780 0%,#596a73 100%)!important;
- box-shadow:inset 0 1px 3px rgba(25,43,50,.17),0 1px 0 rgba(255,255,255,.82)!important;
+ border:1px solid #aab0b6!important;
+ background:linear-gradient(180deg,#626a72 0%,#4b535b 100%)!important;
+ box-shadow:inset 0 1px 3px rgba(28,34,40,.17),0 1px 0 rgba(255,255,255,.82)!important;
  overflow:hidden!important
 }
 #iuPwaSplash #iuSplashLoader.iu-splash-loader{width:min(100%,176px)!important}
@@ -14400,8 +14400,8 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{
  position:relative!important;display:block!important;inset:auto!important;
  height:6px!important;border:0!important;border-radius:999px!important;
- background:linear-gradient(90deg,#d9eee8 0%,#f7fffc 58%,#fff 100%)!important;
- box-shadow:0 0 5px rgba(221,255,246,.46),0 0 2px rgba(255,255,255,.64)!important;
+ background:linear-gradient(90deg,#dce0e4 0%,#f3f5f6 58%,#fff 100%)!important;
+ box-shadow:0 0 5px rgba(248,250,252,.45),0 0 2px rgba(255,255,255,.64)!important;
  transition:width .36s cubic-bezier(.22,.75,.25,1)!important;
  animation:none!important
 }
