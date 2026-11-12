@@ -14243,7 +14243,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  outline-offset:3px!important;
 }
 
-/* V35.71 — Bouton de la banderole : mêmes couleurs, dégradé et relief
+/* V35.72 — Bouton de la banderole : mêmes couleurs, dégradé et relief
    que « Démarrer un inventaire », sans variation au toucher sur Safari. */
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:enabled,
@@ -14258,9 +14258,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  background-color:#f2f5f7!important;
  border:1px solid #d4dce2!important;border-radius:14px!important;
  color:#28343d!important;-webkit-text-fill-color:#28343d!important;
- box-shadow:-3px -3px 7px rgba(255,255,255,.98),-6px -6px 13px rgba(255,255,255,.60),
-  4px 5px 11px rgba(156,173,189,.35),1px 2px 4px rgba(156,173,189,.18),
-  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ box-shadow:none!important;
  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
  opacity:1!important;filter:none!important;transform:none!important;
  transition:none!important;-webkit-tap-highlight-color:transparent!important;
@@ -14284,6 +14282,47 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
   outline:2px solid #667783!important;outline-offset:3px!important;
  }
+}
+/* V35.72 — libellé principal, indicateur et flèche sur une ligne.
+   L'état reste accessible dans aria-label sans texte secondaire visuel. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
+ width:182px!important;max-width:min(70vw,195px)!important;padding:8px 15px!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content{
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ width:auto!important;max-width:100%!important;gap:11px!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy{
+ display:inline-flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-start!important;flex:0 1 auto!important;gap:9px!important;min-width:0!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
+ font-size:18px!important;font-weight:900!important;line-height:1.1!important;
+ letter-spacing:-.025em!important;white-space:nowrap!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus{
+ display:inline-flex!important;align-items:center!important;flex:0 0 auto!important;
+ width:auto!important;margin:0!important;padding:0!important;gap:0!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump #heroStatusText{
+ display:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .intro-session-dot{
+ width:8px!important;height:8px!important;flex:0 0 8px!important;box-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .intro-session-dot::after{
+ content:none!important;display:none!important;animation:none!important;box-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
+ margin:0!important;flex:0 0 12px!important;
+}
+@media(max-width:380px){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
+  width:174px!important;max-width:calc(100vw - 138px)!important;padding:8px 12px!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{font-size:16.5px!important}
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content{gap:8px!important}
 }
 /* Message de fin émeraude compact, sans coche ni espace inutile. */
 body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
