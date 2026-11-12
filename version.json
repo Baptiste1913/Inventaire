@@ -1,7 +1,7 @@
 {
-  "version": "35.27",
+  "version": "35.28",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Administrateur : un seul tableau de bord continu sans titres redondants, stats et mise à jour intégrées, journal en bas ; planning indépendant."
+  "notes": "Administration : mises à jour en haut, planning dans le tableau de bord et journal en bas ; boutons standard et destructifs harmonisés sur les styles du Compte."
 }

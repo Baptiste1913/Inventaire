@@ -11486,3 +11486,48 @@ body:not(.is-focus-mode) .app > #planningAdminCard.card[open]{
 #planningAdminCard .iu-admin-overview-section{
  border:0!important;padding:0!important;margin:0!important;
 }
+
+/* V35.28 — MAJ en tête, planning intégré, logs en bas,
+   boutons Administration identiques à Réinitialiser les statistiques. */
+#planningAdminCard .iu-admin-overview > .iu-admin-update{padding:0 0 15px!important;}
+#planningAdminCard .iu-admin-overview > .site-ops-panel{padding:7px 0 12px!important;}
+#planningAdminCard .iu-admin-overview > .iu-admin-planning-section{
+ border:0!important;padding:7px 0 12px!important;margin:0!important;min-width:0!important;
+}
+#planningAdminCard .iu-admin-overview > .iu-error-panel{padding:8px 0 4px!important;}
+body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body :is(button,.planning-file-label){
+ box-sizing:border-box!important;display:inline-flex;align-items:center;justify-content:center;
+ gap:6px;max-width:100%;min-height:46px!important;height:auto!important;
+ padding:10px 9px!important;border:1px solid #d8dfe3!important;border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;color:#414d56!important;
+ box-shadow:none!important;font-family:inherit!important;font-size:11.5px!important;
+ font-weight:800!important;line-height:1.35!important;text-align:center;
+ -webkit-tap-highlight-color:transparent;
+ transition:background .2s ease,transform .16s ease,opacity .2s ease!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body :is(
+ button.iu-error-clear,button.planning-mini-danger,button[data-action="delete"],button[data-action="remove"]
+){
+ border-color:#efd8dd!important;background:linear-gradient(145deg,#fff,#fbf0f2)!important;
+ color:#a84253!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body button:disabled{
+ opacity:.55!important;cursor:not-allowed!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body button:focus-visible,
+body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body .planning-file-label:focus-within{
+ outline:2px solid #6c8890!important;outline-offset:2px!important;
+}
+@media(hover:hover) and (pointer:fine){
+ body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body button:hover:not(:disabled){
+  filter:brightness(.985);
+ }
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body button:active:not(:disabled){transform:scale(.985);}
+#planningAdminCard .iu-admin-overview .iu-error-toolbar{gap:8px!important;}
+#planningAdminCard .iu-admin-overview .iu-error-toolbar > button{flex:1 1 120px!important;}
+@media(prefers-reduced-motion:reduce){
+ body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body :is(button,.planning-file-label){
+  transition:none!important;
+ }
+}
