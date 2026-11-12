@@ -14483,33 +14483,34 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  }
 }
 
-/* V35.84 — Banderole abstraite U : halos déformés, taches cyan /
-   turquoise et jade très diffuses. Calques derrière le contenu. */
+/* V35.85 — Aquarelle abstraite : plusieurs nuages colorés décentrés, sans
+   axe linéaire perceptible. Aucun nouvel élément HTML et aucun mouvement GPU. */
 html body .app > section.intro{
  position:relative!important;
  isolation:isolate!important;
  overflow:hidden!important;
  background:
-  radial-gradient(ellipse 72% 110% at 105% -7%,rgba(106,227,241,.38) 0%,rgba(71,191,214,.13) 43%,transparent 79%),
-  radial-gradient(ellipse 43% 83% at 74% 12%,rgba(9,130,170,.22) 0%,transparent 76%),
-  radial-gradient(ellipse 70% 130% at -15% 108%,rgba(8,68,64,.46) 0%,transparent 77%),
-  radial-gradient(ellipse 38% 93% at 37% -26%,rgba(69,204,185,.24),transparent 79%),
-  linear-gradient(124deg,#105b53 0%,#13796f 36%,#168a99 69%,#38b1bf 100%)!important;
+  radial-gradient(ellipse 46% 77% at 102% 2%,rgba(133,236,245,.63) 0%,rgba(62,195,218,.27) 47%,transparent 87%),
+  radial-gradient(ellipse 41% 104% at 68% 110%,rgba(0,102,146,.61) 0%,rgba(0,128,166,.17) 57%,transparent 86%),
+  radial-gradient(ellipse 43% 86% at 24% -12%,rgba(48,195,162,.42) 0%,rgba(27,168,146,.11) 53%,transparent 87%),
+  radial-gradient(ellipse 68% 83% at -19% 82%,rgba(5,52,58,.79),rgba(8,79,82,.36) 56%,transparent 88%),
+  radial-gradient(ellipse 48% 70% at 48% 50%,rgba(16,133,141,.42),transparent 83%),
+  linear-gradient(143deg,#0d5f61 0%,#117a7b 38%,#0d8297 68%,#209eb0 100%)!important;
 }
 html body .app > section.intro::before{
  content:""!important;
  display:block!important;
  position:absolute!important;
- inset:-16% -13% -22% -13%!important;
+ inset:-22% -22% -29% -22%!important;
  z-index:-1!important;
  pointer-events:none!important;
  background:
-  radial-gradient(ellipse 36% 49% at 93% 12%,rgba(195,251,255,.47) 0%,rgba(155,237,247,.18) 38%,transparent 76%),
-  radial-gradient(ellipse 33% 43% at 65% 43%,rgba(36,194,211,.33),transparent 78%),
-  radial-gradient(ellipse 53% 59% at 11% 89%,rgba(8,68,64,.45),transparent 77%),
-  radial-gradient(ellipse 28% 51% at 39% 5%,rgba(102,224,193,.25),transparent 74%)!important;
- filter:blur(24px)!important;
- -webkit-filter:blur(24px)!important;
+  radial-gradient(ellipse 28% 54% at 90% 10%,rgba(204,251,255,.68),rgba(133,235,247,.29) 50%,transparent 84%),
+  radial-gradient(ellipse 30% 41% at 66% 68%,rgba(4,169,198,.43),transparent 83%),
+  radial-gradient(ellipse 34% 64% at 33% 8%,rgba(87,224,179,.34),transparent 80%),
+  radial-gradient(ellipse 45% 58% at 7% 89%,rgba(4,53,61,.68),transparent 81%)!important;
+ -webkit-filter:blur(35px)!important;
+ filter:blur(35px)!important;
  mix-blend-mode:normal!important;
  opacity:1!important;
 }
@@ -14517,23 +14518,102 @@ html body .app > section.intro::after{
  content:""!important;
  display:block!important;
  position:absolute!important;
- inset:-18% -17% -24% -17%!important;
+ inset:-22% -17% -25% -17%!important;
  z-index:-1!important;
  pointer-events:none!important;
  background:
-  radial-gradient(ellipse 31% 49% at 100% 3%,rgba(203,249,255,.34) 0%,rgba(87,216,235,.17) 42%,transparent 77%),
-  radial-gradient(ellipse 26% 38% at 67% 86%,rgba(3,109,130,.22) 0%,transparent 80%),
-  radial-gradient(ellipse 30% 45% at 16% 15%,rgba(73,199,169,.13),transparent 76%)!important;
- filter:blur(34px)!important;
- -webkit-filter:blur(34px)!important;
+  radial-gradient(ellipse 25% 51% at 98% 42%,rgba(108,230,244,.39),transparent 86%),
+  radial-gradient(ellipse 31% 34% at 51% 11%,rgba(112,227,199,.24),transparent 80%),
+  radial-gradient(ellipse 35% 52% at 29% 101%,rgba(2,82,112,.48),transparent 84%)!important;
+ -webkit-filter:blur(44px)!important;
+ filter:blur(44px)!important;
  mix-blend-mode:screen!important;
- opacity:.92!important;
+ opacity:.88!important;
+}
+/* Essai du bouton : conserver l'anneau U et son fond blanc.
+   Le statut est seulement masqué visuellement, pas supprimé du DOM. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:hover,:active,:focus,:focus-visible),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"],
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="false"]{
+ width:fit-content!important;
+ min-width:0!important;
+ max-width:calc(100vw - 56px)!important;
+ height:49px!important;
+ min-height:49px!important;
+ padding:8px 16px!important;
+ border:3px solid transparent!important;
+ border-radius:999px!important;
+ background:linear-gradient(#fff,#fff) padding-box,
+  linear-gradient(130deg,#58c5e2 0%,#05869a 30%,#00798b 62%,#4fbbac 100%) border-box!important;
+ background-color:#fff!important;
+ color:#252b31!important;
+ -webkit-text-fill-color:#252b31!important;
+ box-shadow:inset 0 0 0 1px rgba(0,128,145,.07),1px 2px 0 rgba(44,158,159,.28)!important;
+ transform:none!important;
+ transition:none!important;
+ opacity:1!important;
+ filter:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content{
+ display:inline-flex!important;
+ width:auto!important;
+ max-width:100%!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:6px!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy{
+ display:inline-flex!important;
+ flex:0 0 auto!important;
+ width:auto!important;
+ min-width:0!important;
+ gap:0!important;
+ align-items:center!important;
+ justify-content:center!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
+ color:#252b31!important;
+ -webkit-text-fill-color:#252b31!important;
+ font-size:14px!important;
+ font-weight:900!important;
+ line-height:1.15!important;
+ white-space:nowrap!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state{
+ display:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
+ position:static!important;
+ order:2!important;
+ display:block!important;
+ flex:0 0 11px!important;
+ width:11px!important;
+ height:11px!important;
+ margin:0!important;
+ filter:brightness(0) saturate(100%) invert(18%) sepia(9%) saturate(799%) hue-rotate(169deg) brightness(93%) contrast(90%)!important;
+ opacity:.95!important;
+ transform:none!important;
 }
 @media(max-width:380px){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
+  width:fit-content!important;
+  max-width:calc(100vw - 56px)!important;
+  padding:8px 13px!important;
+ }
  html body .app > section.intro::before{
-  filter:blur(19px)!important;-webkit-filter:blur(19px)!important;
+  -webkit-filter:blur(26px)!important;
+  filter:blur(26px)!important;
  }
  html body .app > section.intro::after{
-  filter:blur(25px)!important;-webkit-filter:blur(25px)!important;
+  -webkit-filter:blur(33px)!important;
+  filter:blur(33px)!important;
+ }
+}
+@supports selector(:focus-visible){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
+  outline:2px solid #fff!important;
+  outline-offset:3px!important;
  }
 }
