@@ -11,6 +11,7 @@
   const loader=$('iuSplashLoader'),step=$('iuSplashStep'),percent=$('iuSplashPercent');
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
   let value=0,finished=false;
+  const splashStartedAt=performance.now();
   const set=(next,label)=>{
    if(finished)return;
    value=Math.max(value,Math.min(100,Math.round(next)));
@@ -64,17 +65,42 @@
     if(coreReady)set(50,'Pesée initialisée');
     const loaded=await readyOrTimeout(()=>document.readyState==='complete',1800);
     if(loaded)set(72,'Ressources chargées');
-    // La police ne doit pas ralentir indéfiniment le mode hors ligne.
+    // Attendre la préparation effective du cache hors ligne. Pas de préchargement
+    // des données privées ni de dépendance au réseau Supabase pour les pesées.
+    const offlineReady=await new Promise(resolve=>{
+     if(!('serviceWorker' in navigator)){resolve(false);return;}
+     let settled=false, timer=null, channel=null;
+     const finish=ok=>{if(settled)return;settled=true;clearTimeout(timer);try{channel?.port1.close();channel?.port2.close();}catch(_){}resolve(ok);};
+     timer=setTimeout(()=>finish(false),14000);
+     (async()=>{
+      try{
+       const reg=await navigator.serviceWorker.ready;
+       if(settled)return;
+       const worker=navigator.serviceWorker.controller||reg.active;
+       if(!worker){finish(false);return;}
+       channel=new MessageChannel();
+       channel.port1.onmessage=event=>{
+        const data=event.data||{};
+        if(data.type==='IU_OFFLINE_PROGRESS'&&data.total){
+         // 72 à 96 % correspondent aux fichiers réellement contrôlés.
+         set(72+Math.round(24*data.done/data.total),'Préparation hors ligne');
+        }
+        if(data.type==='IU_OFFLINE_COMPLETE')finish(data.missing===0);
+       };
+       worker.postMessage({type:'IU_PREPARE_OFFLINE'},[channel.port2]);
+      }catch(_){finish(false);}
+     })();
+    });
     if(document.fonts?.ready){
      await Promise.race([document.fonts.ready.catch(()=>{}),sleep(750)]);
     }
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
     const usable=Boolean(document.querySelector('.app > .calc-card')&&document.querySelector('#grossWeight'));
-    if(usable)set(92,'Espace prêt');
-    // Pas de durée minimum : 100 % uniquement si le moteur et le formulaire
-    // sont vérifiés. La transition se lance dès que ces étapes sont prêtes.
-    if(coreReady&&usable)set(100,'Ouverture terminée');
-    else console.warn('Ouverture : préparation non confirmée ; interface rendue sans fausse complétion.');
+    if(offlineReady&&coreReady&&usable)set(100,'Ouverture terminée');
+    else console.warn('Ouverture : certaines ressources hors ligne ou étapes de préparation ne sont pas confirmées.');
+    // Le chargement visible dépend des vérifications, avec un court temps
+    // de lecture de l'animation uniquement si tout est effectivement prêt.
+    if(offlineReady&&coreReady&&usable)await sleep(Math.max(0,950-performance.now()+splashStartedAt));
     reveal();
    }catch(error){
     console.warn('Ouverture : indicateur de chargement interrompu',error);

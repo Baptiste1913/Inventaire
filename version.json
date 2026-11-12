@@ -1,7 +1,7 @@
 {
-  "version": "35.67",
+  "version": "35.68",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Écrans de lancement et de mise à jour plus larges et compacts, barre adaptée au thème ; suppression des durées minimales artificielles, progression suivant les contrôles de disponibilité."
+  "notes": "Vérification et préparation du cache hors ligne pendant l'ouverture, progression liée aux ressources réelles, références de fichiers synchronisées."
 }

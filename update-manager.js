@@ -110,6 +110,7 @@
        updateProgress(2);
        await waitForAdmin();
        if(document.fonts?.ready)await document.fonts.ready;
+       // L'ouverture de la nouvelle page prépare son cache hors ligne avant révélation.
        // Deux frames confirment que la disposition a été peinte.
        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
        await waitForQuietAdmin();

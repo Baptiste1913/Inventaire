@@ -1,9 +1,9 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v35-67';
+const CACHE = 'inventaires-u-offline-v35-68';
 const CORE = [
-  './', './index.html', './version.json', './admin-categories.js?v=33.93', './technical-log.js?v=33.93', './update-manager.js?v=35.67', './error-journal.js?v=33.93', './site-operations.js?v=35.67', './push.js?v=33.75', './planning-admin.js?v=34.19', './events-data.js?v=33.19', './events.js?v=34.30', './style.css?v=35.67', './app.js?v=35.67',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=34.49', './manifest.webmanifest?v=13', './icon.png?v=11',
-  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon-u.svg?v=35.67',
+  './', './index.html', './version.json', './admin-categories.js?v=33.93', './technical-log.js?v=33.93', './update-manager.js?v=35.68', './error-journal.js?v=33.93', './site-operations.js?v=35.68', './push.js?v=33.75', './planning-admin.js?v=35.68', './events-data.js?v=33.19', './events.js?v=34.30', './style.css?v=35.68', './app.js?v=35.68',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=35.68', './manifest.webmanifest?v=13', './icon.png?v=11',
+  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon-u.svg?v=35.68',
    './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg', './start-inventory-icon.png?v=32.0'
 ];
 self.addEventListener('install', event => {
@@ -12,8 +12,8 @@ self.addEventListener('install', event => {
     // V35.67 : protéger les fichiers indispensables sans bloquer toute la
     // mise à jour lorsqu'une image ou une ressource secondaire manque.
     // Ne jamais activer un shell incomplet.
-    const required = ['./index.html', './style.css?v=35.67', './app.js?v=35.67',
-      './update-manager.js?v=35.67', './auth-config.js?v=32.0', './idb.js?v=33.0',
+    const required = ['./index.html', './style.css?v=35.68', './app.js?v=35.68',
+      './update-manager.js?v=35.68', './auth-config.js?v=32.0', './idb.js?v=33.0',
       './auth.js?v=34.49'];
     await cache.addAll(required);
     const optional = CORE.filter(path => !required.includes(path));
@@ -22,6 +22,29 @@ self.addEventListener('install', event => {
       if (response.ok) await cache.put(path, response);
     }));
     // L'activation reste manuelle pour protéger l'inventaire en cours.
+  })());
+});
+// Sur demande de l'interface, contrôler le cache réel avant l'ouverture.
+// Les fichiers déjà en cache ne sont pas rechargés, pour rester rapide hors ligne.
+self.addEventListener('message', event => {
+  if (event.data?.type !== 'IU_PREPARE_OFFLINE' || !event.ports?.[0]) return;
+  const port = event.ports[0];
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    let done = 0, missing = 0;
+    for (const path of CORE) {
+      try {
+        let response = await cache.match(path);
+        if (!response) {
+          response = await fetch(new Request(path, {cache:'reload'}));
+          if (!response.ok) throw new Error('HTTP '+response.status);
+          await cache.put(path, response.clone());
+        }
+      } catch (_) { missing++; }
+      done++;
+      try { port.postMessage({type:'IU_OFFLINE_PROGRESS',done,total:CORE.length,missing}); } catch (_) {}
+    }
+    try { port.postMessage({type:'IU_OFFLINE_COMPLETE',done,total:CORE.length,missing}); } catch (_) {}
   })());
 });
 self.addEventListener('activate', event => {
