@@ -12679,3 +12679,14 @@ body:not(.is-focus-mode) #inventoryCalendar .events-next-card #calendarNextCount
  border-color:#dbe1e5!important;
  box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
 }
+
+/* V35.45 — Prochain inventaire : ajustement typographique de précision.
+   Décalage horizontal identique des deux textes, date rapprochée du libellé.
+   Le compteur, le relief et le liseré restent inchangés. */
+body:not(.is-focus-mode) #inventoryCalendar .events-next-card .events-next-heading > .events-kicker{
+ transform:translateX(6px)!important;
+}
+body:not(.is-focus-mode) #inventoryCalendar .events-next-card #calendarNextDate{
+ transform:translateX(6px)!important;
+ margin-top:-4px!important;
+}
