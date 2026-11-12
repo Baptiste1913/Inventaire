@@ -11452,24 +11452,19 @@ body:not(.is-focus-mode){background:#aaa!important;}
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
   order:2!important;
 }
-
-/* V35.17 — Ombre Neumorph Accent strictement sur TOUTES les cartes
-   PRINCIPALES de l'application. Le sélecteur enfant direct exclut
-   les sous-cartes, tableaux de bord, réglages et toutes les surfaces internes. */
+/* V35.18 — Neumorphisme accentué et compact sur les 9 cartes principales.
+   Double ombre EXTERNE : lumière haut/gauche, ombre dense bas/droite.
+   Aucun effet sur les enfants des cartes ; aucune bordure ni fond modifié. */
 html{background:#fff!important;}
 body:not(.is-focus-mode){background:#fbfbfb!important;background-image:none!important;}
 body:not(.is-focus-mode) .app > .header{background:#fff!important;}
 
-/* Effet fourni : exclusivement à l'EXTERIEUR ; aucun inset.
-   Bordure supprimée sur les 9 cartes directes (Admin, Compte, Planification,
-   Session, Calcul, Historique, Bilans, Paniers, Sauvegarde). */
 body:not(.is-focus-mode) .app > .card{
   border:0!important;
   box-shadow:
-    -7px -7px 16px 0 rgba(255,255,255,.90),
-     7px  7px 16px 0 rgba(163,177,198,.85)!important;
+    -5px -5px 10px 0 rgba(255,255,255,1),
+     5px  6px 11px 0 rgba(105,121,142,.53),
+     2px  3px  4px 0 rgba(107,125,146,.19)!important;
 }
-
-/* Aucune règle neumorphique ne cible les descendants :
-   les composants imbriqués retrouvent leurs contours, fonds et ombres
-   propres à leurs styles originaux. Le bouton et la banderole sont inchangés. */
+/* Respect des tailles, des arrondis, de l'ouverture des tiroirs et des
+   animations. Le bouton Inventaire et son icône restent inchangés. */
