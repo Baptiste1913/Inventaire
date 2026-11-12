@@ -11668,3 +11668,27 @@ body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summar
   transition:none!important;
  }
 }
+
+/* V35.32 — Le moteur JS anime seulement la hauteur des tiroirs Planning :
+   pas de transition simultanée du contenu (source de micro-sauts Safari). */
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-content,
+#planningAdminCard .iu-admin-planning-section > .planning-accordion.is-planning-closing > .planning-panel-content{
+ opacity:1!important;
+ transform:none!important;
+ transition:none!important;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion.is-planning-closing > .planning-panel-content{
+ pointer-events:none;
+}
+/* La flèche accompagne l'ouverture sans décaler la hauteur de l'en-tête. */
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary > svg{
+ transition:transform 480ms cubic-bezier(.25,.74,.26,1)!important;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion.is-planning-closing > .planning-panel-summary > svg{
+ transform:rotate(0deg)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary > svg{
+  transition:none!important;
+ }
+}

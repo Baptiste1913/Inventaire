@@ -1,7 +1,7 @@
 {
-  "version": "35.31",
+  "version": "35.32",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Statut Supabase discret comme les sous-titres ; ouverture/fermeture des tiroirs de gestion des dates plus fluides."
+  "notes": "Ouverture et fermeture des tiroirs Planning optimisées pour Safari : hauteur conservée en cas de taps rapides, transitions du contenu concurrentes supprimées."
 }

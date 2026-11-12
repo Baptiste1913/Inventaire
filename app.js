@@ -1283,9 +1283,63 @@ function setupUnifiedFold(card,summary,content,closingClass){
  document.querySelectorAll('.fold-card').forEach(card=>
   setupUnifiedFold(card,card.querySelector(':scope > .fold-summary'),card.querySelector(':scope > .fold-body'),'is-fold-closing'));
 })();
-// V33.37 : même moteur d'animation (560 ms) pour les quatre outils d'administration.
-document.querySelectorAll('.planning-accordion').forEach(card=>
- setupUnifiedFold(card,card.querySelector(':scope > .planning-panel-summary'),card.querySelector(':scope > .planning-panel-content'),'is-planning-closing'));
+// V35.32 — moteur isolé pour les quatre tiroirs de gestion des dates.
+// Une seule animation de hauteur ; ne pas animer le contenu en parallèle.
+// Conserve la hauteur courante lors des taps rapides (Safari/PWA).
+function setupPlanningFold(card){
+ const summary=card.querySelector(':scope > .planning-panel-summary');
+ const content=card.querySelector(':scope > .planning-panel-content');
+ if(!summary||!content||card.dataset.planningFold==='yes')return;
+ card.dataset.planningFold='yes';
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let animation=null,requested=card.open;
+ summary.addEventListener('click',event=>{
+  if(reduced.matches||typeof card.animate!=='function')return;
+  event.preventDefault();
+  if(!animation)requested=card.open;
+  const next=!requested;requested=next;
+  // Important : geler la hauteur VISUELLE avant d'annuler une animation.
+  // Sans cela, Safari repasse une frame à la hauteur naturelle (=saccade).
+  const from=card.getBoundingClientRect().height;
+  card.style.height=from+'px';
+  if(animation){animation.cancel();animation=null;}
+  card.open=true;
+  card.classList.toggle('is-planning-closing',!next);
+  card.style.height='auto';
+  const cs=getComputedStyle(card);
+  const borders=(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0);
+  const closed=summary.getBoundingClientRect().height+borders;
+  const expanded=card.scrollHeight+borders;
+  const to=next?expanded:closed;
+  card.style.height=from+'px';
+  card.style.overflow='hidden';
+  if(Math.abs(from-to)<.5){
+   card.open=next;
+   card.style.removeProperty('height');
+   card.style.removeProperty('overflow');
+   card.classList.remove('is-planning-closing');
+   return;
+  }
+  const current=card.animate(
+   [{height:from+'px'},{height:to+'px'}],
+   {duration:480,easing:'cubic-bezier(.25,.74,.26,1)',fill:'forwards'}
+  );
+  animation=current;
+  current.onfinish=()=>{
+   if(animation!==current)return;
+   animation=null;
+   // Passer à l'état final sans laisser une frame intermédiaire.
+   card.style.height=next?'auto':closed+'px';
+   if(!next)card.open=false;
+   current.cancel();
+   card.style.removeProperty('height');
+   card.style.removeProperty('overflow');
+   card.classList.remove('is-planning-closing');
+  };
+ });
+}
+document.querySelectorAll('#planningAdminCard .iu-admin-planning-section > .planning-accordion')
+ .forEach(setupPlanningFold);
 function setupSecondaryDetailsAnimation(card,bodySelector){
  if(!card)return;
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
