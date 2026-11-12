@@ -1,7 +1,7 @@
 {
-  "version": "35.72",
+  "version": "35.73",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton Inventaire plat sans ombre ni halo, titre agrandi, seul indicateur d'état à côté du libellé et icône rapprochée. État toujours accessible."
+  "notes": "Refonte du bouton Inventaire : capsule émeraude satinée plus fine, texte et indicateur alignés avec la flèche, aucun glow ni ombre et apparence stable sur Safari."
 }
