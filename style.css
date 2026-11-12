@@ -14305,3 +14305,62 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  transition:none!important;
  -webkit-tap-highlight-color:transparent!important;
 }
+
+/* V35.66 — Splash / installation: glowing-white progress on graphite rail,
+   adapted from the supplied CSS to the app's light neumorphic surfaces.
+   Progress remains driven by the existing loading/installation state. */
+#iuPwaSplash .iu-splash-content,
+#iuUpdateOverlay .iu-update-screen{
+ box-sizing:border-box!important;background:#f5f7f8!important;
+ border:0!important;border-radius:23px!important;
+ box-shadow:-4px -4px 11px rgba(255,255,255,.68),5px 7px 19px rgba(155,172,186,.15)!important;
+}
+#iuPwaSplash .iu-splash-content{
+ width:min(100%,252px)!important;padding:27px 25px 29px!important;
+}
+#iuPwaSplash .iu-splash-logo{margin:0 0 26px!important;}
+#iuUpdateOverlay .iu-update-screen{
+ width:min(100%,286px)!important;
+ padding:26px 23px 25px!important;
+}
+/* Both progress tracks: maintain their own accessibility labels and stage values. */
+#iuPwaSplash #iuSplashLoader.iu-splash-loader,
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress{
+ position:relative!important;box-sizing:border-box!important;
+ max-width:100%!important;height:16px!important;padding:3px!important;
+ border:1px solid rgba(16,27,35,.20)!important;
+ border-radius:100px!important;background:#35434b!important;
+ box-shadow:inset 0 2px 4px rgba(7,17,23,.20),0 1px 0 rgba(255,255,255,.72)!important;
+ overflow:hidden!important;
+}
+#iuPwaSplash #iuSplashLoader.iu-splash-loader{width:178px!important;}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress{width:100%!important;}
+#iuPwaSplash #iuSplashLoader::before,
+#iuPwaSplash #iuSplashLoader::after,
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-cap{content:none!important;display:none!important;}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{
+ position:relative!important;display:block!important;
+ inset:auto!important;left:auto!important;top:auto!important;bottom:auto!important;
+ height:8px!important;border:0!important;border-radius:100px!important;
+ max-width:100%!important;min-width:0!important;
+ background:#fff!important;
+ box-shadow:0 0 8px rgba(255,255,255,.72),0 1px 7px rgba(255,255,255,.52)!important;
+ transform:none!important;animation:none!important;
+ transition:width .55s cubic-bezier(.2,.78,.22,1)!important;
+}
+#iuPwaSplash #iuSplashLoader .iu-splash-loader-fill{width:var(--iu-splash-progress,0%)!important;}
+#iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{width:var(--iu-update-complete,0%)!important;}
+#iuUpdateOverlay .iu-update-progress-block{width:100%!important;margin-top:19px!important;}
+#iuUpdateOverlay .iu-update-progress-meta{margin-bottom:10px!important;}
+#iuUpdateOverlay .iu-update-logo{margin-bottom:15px!important;}
+#iuUpdateOverlay #iuUpdateScreenTitle{font-weight:800!important;letter-spacing:-.015em!important;}
+#iuUpdateOverlay #iuUpdateScreenText{line-height:1.4!important;}
+@media(max-width:380px){
+ #iuPwaSplash .iu-splash-content{width:min(100%,242px)!important;}
+ #iuUpdateOverlay .iu-update-screen{width:min(100%,272px)!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ #iuPwaSplash #iuSplashLoader .iu-splash-loader-fill,
+ #iuUpdateOverlay #iuUpdateProgress.iu-update-progress > span{transition:none!important;}
+}
