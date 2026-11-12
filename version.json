@@ -1,7 +1,7 @@
 {
-  "version": "35.63",
+  "version": "35.64",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Message Inventaire terminé en dégradé émeraude comme la pesée ; correction des contours blancs du bouton Inventaire au clic et au focus."
+  "notes": "Message émeraude réduit sans coche ; bouton Inventaire stable au toucher, focus et désactivation."
 }

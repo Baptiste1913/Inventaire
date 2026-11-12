@@ -14241,3 +14241,49 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  outline:2px solid rgba(7,57,48,.65)!important;
  outline-offset:3px!important;
 }
+
+/* V35.64 — bouton Inventaire: rendu invariant sur iOS, sans transition visuelle. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:enabled,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:active,:focus,:focus-visible),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled:is(:hover,:active,:focus,:focus-visible){
+ -webkit-appearance:none!important;appearance:none!important;
+ background:linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))!important;
+ background-color:#185f54!important;
+ border:1px solid rgba(8,57,49,.46)!important;
+ color:#f8fffc!important;-webkit-text-fill-color:#f8fffc!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 9px rgba(6,54,48,.075)!important;
+ opacity:1!important;filter:none!important;transform:none!important;
+ transition:none!important;-webkit-tap-highlight-color:transparent!important;
+ outline:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::before,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::after{
+ content:none!important;display:none!important;animation:none!important;
+}
+@supports selector(:focus-visible){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
+  outline:2px solid rgba(7,57,48,.65)!important;outline-offset:3px!important;
+ }
+}
+/* Message de fin émeraude compact, sans coche ni espace inutile. */
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
+ display:block!important;min-height:0!important;margin:12px 0 4px!important;
+ padding:12px 15px 12px 17px!important;border-radius:14px!important;gap:0!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::before{
+ content:none!important;display:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::after{
+ top:11px!important;bottom:11px!important;width:2px!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-copy{
+ display:flex!important;flex-direction:column!important;gap:2px!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-title{
+ font-size:13px!important;line-height:1.25!important;font-weight:850!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
+ font-size:11px!important;line-height:1.35!important;font-weight:550!important;
+}

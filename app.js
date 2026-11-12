@@ -347,7 +347,7 @@ function renderHeroSummary(){
  if(heroAction&&heroLabel){
   heroLabel.textContent=session?.pausedAt?'Reprendre':'Inventaire';
   heroAction.disabled=Boolean(session&&!session.pausedAt);
-   heroAction.style.setProperty('background','linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))','important');
+   // Apparence stable, uniquement gérée par CSS.
   heroAction.setAttribute('aria-label',(session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire')+' — '+text.textContent);
  }
 }
