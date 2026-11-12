@@ -13014,3 +13014,62 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSessio
   background:linear-gradient(155deg,rgba(65,124,109,.83),rgba(22,83,72,.89))!important;
  }
 }
+
+/* V35.50 — Pastille satinée graphite : une alternative nettement plus
+   sobre au Liquid Glass précédent, sans surcouches de réfraction.
+   Elle reste translucide pour laisser vivre le vert du bandeau. */
+.app > .intro > #heroStatus.intro-session-state{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ gap:7px!important;
+ box-sizing:border-box!important;
+ min-height:32px!important;
+ max-width:100%!important;
+ padding:6px 12px 6px 11px!important;
+ border:1px solid rgba(255,255,255,.18)!important;
+ border-radius:999px!important;
+ background:linear-gradient(155deg,rgba(11,66,60,.40),rgba(5,46,46,.32))!important;
+ -webkit-backdrop-filter:blur(11px) saturate(112%)!important;
+ backdrop-filter:blur(11px) saturate(112%)!important;
+ box-shadow:
+   inset 0 1px 0 rgba(255,255,255,.15),
+   0 2px 8px rgba(7,42,41,.10)!important;
+ color:#f7fffc!important;
+ overflow:hidden!important;
+ isolation:isolate!important;
+}
+/* Plus de double reflet ni de verre bombé : un simple bord satiné. */
+.app > .intro > #heroStatus.intro-session-state::before,
+.app > .intro > #heroStatus.intro-session-state::after{
+ content:none!important;
+ display:none!important;
+}
+.app > .intro > #heroStatus.intro-session-state > *{
+ position:relative!important;
+ z-index:1!important;
+}
+.app > .intro > #heroStatus.intro-session-state #heroStatusText{
+ color:#f5f9f7!important;
+ font-size:11.5px!important;
+ font-weight:700!important;
+ letter-spacing:.008em!important;
+}
+/* Les teintes du point et sa pulsation reflètent toujours l'état métier.
+   Elles restent définies par les règles de la version précédente. */
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+ .app > .intro > #heroStatus.intro-session-state{
+  background:linear-gradient(155deg,rgba(22,81,71,.91),rgba(12,64,61,.91))!important;
+ }
+}
+/* Mascotte : 4px à gauche par rapport à 35.49, même taille et même ancrage. */
+.app > .intro > .intro-mascot{
+ right:18px!important;
+ bottom:0!important;
+}
+@media(max-width:600px){
+ .app > .intro > .intro-mascot{right:6px!important;bottom:0!important;}
+}
+@media(max-width:380px){
+ .app > .intro > .intro-mascot{right:5px!important;bottom:0!important;}
+}

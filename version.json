@@ -1,7 +1,7 @@
 {
-  "version": "35.49",
+  "version": "35.50",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Glow blanc du bouton Inventaire réduit de 50 % ; mascotte très légèrement réduite et décalée à droite ; pastille session Liquid Glass affinée avec états préservés."
+  "notes": "Mascotte décalée de 4 px vers la gauche ; pastille de statut repensée en verre fumé satiné, plus sobre, sans doubles reflets ; états et animations conservés."
 }
