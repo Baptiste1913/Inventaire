@@ -11184,3 +11184,14 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   border-color:#c8e8e3!important;
   color:#40837c!important;
 }
+
+/* V35.03 — Tous les libellés « SERVICES U / … » en vert turquoise foncé. */
+body .app .section-kicker,
+body .app #planningAdminCard .planning-admin-eyebrow,
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .section-kicker,
+body:not(.is-focus-mode) .app > details.card.fold-card > summary.fold-summary .planning-admin-eyebrow,
+body:not(.is-focus-mode) #accountCard .account-header-text > .section-kicker,
+body:not(.is-focus-mode) #planningAdminCard .planning-admin-title > .planning-admin-eyebrow,
+:is(body:not(.is-focus-mode),body.is-focus-mode) .app > .calc-card > .card-heading .section-kicker{
+  color:#28665e!important;
+}
