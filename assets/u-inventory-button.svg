@@ -1,13 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="145" height="49" viewBox="0 0 145 49" preserveAspectRatio="none">
+  <!-- Construction par silhouettes réellement décalées, comme le logo U.
+       Cyan à gauche, menthe à droite, couronne bleu canard traversante. -->
   <defs>
-    <linearGradient id="outerRing" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#58BDE6"/>
-      <stop offset="0.18" stop-color="#58BDE6"/>
-      <stop offset="0.56" stop-color="#0A7E8B"/>
-      <stop offset="1" stop-color="#77C6BC"/>
-    </linearGradient>
+    <clipPath id="capsule"><rect width="145" height="49" rx="24.5"/></clipPath>
   </defs>
-  <rect x="0.2" y="0.2" width="144.6" height="48.6" rx="24.3" fill="url(#outerRing)"/>
-  <path d="M7.4,5.1 C10.5,2.8 16.1,1.7 23.7,1.7 H121.7 C129.2,1.7 134.7,2.9 137.8,5.3 C140.8,7.6 142.3,11.8 142.3,18.0 V30.5 C142.3,36.8 140.7,41.2 137.6,43.6 C134.6,45.9 129.2,47.1 121.8,47.1 H23.2 C15.8,47.1 10.5,45.8 7.5,43.4 C4.5,41.0 3.0,36.7 3.0,30.6 V18.1 C3.0,11.9 4.5,7.5 7.4,5.1 Z" fill="#0A7E8B"/>
-  <path d="M11.6,8.5 C14.2,6.8 18.5,5.9 24.5,5.9 H120.5 C126.5,5.9 130.8,6.8 133.4,8.5 C136.0,10.2 137.3,13.5 137.3,18.4 V30.0 C137.3,34.9 136.0,38.2 133.4,39.9 C130.8,41.6 126.5,42.5 120.5,42.5 H24.5 C18.5,42.5 14.2,41.6 11.6,39.9 C9.0,38.2 7.7,34.9 7.7,30.0 V18.4 C7.7,13.5 9.0,10.2 11.6,8.5 Z" fill="#F2F2F2"/>
+  <g clip-path="url(#capsule)">
+    <rect width="145" height="49" fill="#52BEE7"/>
+    <!-- Une seconde pastille verte décalée vers la droite, non un dégradé linéaire. -->
+    <path d="M74 0 H145 V49 H74 C105 44 128 35 128 24.5 C128 14 105 5 74 0 Z" fill="#67B8B0"/>
+    <!-- Silhouette canard asymétrique, qui rejoint presque le bord en haut à droite
+         et en bas légèrement à gauche. -->
+    <path d="M25.6 1.5 C48.3 -1.1 99.1 -0.3 120.5 3.7 C134.5 6.4 141.7 14.2 141.9 24.3 C142.1 35.1 133.1 44.1 118.2 47 C95 50.2 49.4 49.3 24.1 45.8 C11.1 43.9 5 34.4 5.2 24.5 C5.4 13.9 12.6 4.2 25.6 1.5 Z" fill="#047987"/>
+    <!-- Blanc intérieur : épaisseur non uniforme, sans trait ni ombre. -->
+    <path d="M26.6 6.6 C47.1 4.6 98.6 4.7 117.7 8.2 C129.4 10.3 135.8 16.1 136 24.4 C136.2 32.7 129.6 38.9 117.2 41.3 C93.8 44.9 50.9 44.5 26 41.1 C15.7 39.6 10.5 33 10.6 24.5 C10.7 16.1 16 9.2 26.6 6.6 Z" fill="#F8F8F8"/>
+  </g>
 </svg>
