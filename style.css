@@ -14287,3 +14287,21 @@ body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-comp
 body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
  font-size:11px!important;line-height:1.35!important;font-weight:550!important;
 }
+
+/* V35.65 — Safari iPhone : la désactivation est sémantique (aria-disabled),
+   et non native, afin de ne plus déclencher le style blanc du bouton. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"],
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"]:is(:active,:hover,:focus),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="false"]:is(:active,:hover,:focus){
+ background:linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))!important;
+ background-color:#185f54!important;
+ border-color:rgba(8,57,49,.46)!important;
+ color:#f8fffc!important;
+ -webkit-text-fill-color:#f8fffc!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 9px rgba(6,54,48,.075)!important;
+ opacity:1!important;
+ filter:none!important;
+ transform:none!important;
+ transition:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+}

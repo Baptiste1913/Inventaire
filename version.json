@@ -1,7 +1,7 @@
 {
-  "version": "35.64",
+  "version": "35.65",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Message émeraude réduit sans coche ; bouton Inventaire stable au toucher, focus et désactivation."
+  "notes": "Safari iPhone : empêcher le blanchiment du bouton Inventaire au démarrage en remplaçant sa désactivation HTML native par aria-disabled ; démarrage multiple toujours bloqué."
 }

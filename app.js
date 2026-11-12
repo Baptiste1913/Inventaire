@@ -346,7 +346,10 @@ function renderHeroSummary(){
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
   heroLabel.textContent=session?.pausedAt?'Reprendre':'Inventaire';
-  heroAction.disabled=Boolean(session&&!session.pausedAt);
+  // Éviter le rendu natif :disabled de Safari iOS (bouton blanc).
+  // Le clic est déjà sans effet lorsque la session est en cours.
+  heroAction.disabled=false;
+  heroAction.setAttribute('aria-disabled',String(Boolean(session&&!session.pausedAt)));
    // Apparence stable, uniquement gérée par CSS.
   heroAction.setAttribute('aria-label',(session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire')+' — '+text.textContent);
  }
