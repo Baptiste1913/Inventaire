@@ -1,7 +1,7 @@
 {
-  "version": "35.10",
+  "version": "35.11",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Fond du site #AAA, reliefs neumorphiques réduits et icône Play du bouton Inventaire placée à droite."
+  "notes": "Fond presque blanc #FBFBFB (~1,03:1), haut de l’écran blanc et relief neumorphique homogénéisé sur les cartes et sous-cartes."
 }

@@ -11486,3 +11486,83 @@ body:not(.is-focus-mode) #accountCard .dashboard-trend{
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
   order:2!important;
 }
+
+/* V35.11 — Fond presque blanc (contraste ~1.03:1 avec le blanc)
+   et neumorphisme cohérent sur l'ensemble des blocs. */
+/* L'en-tête blanc se prolonge derrière la zone de statut de l'iPhone.
+   Le reste de la page est #FBFBFB, sans bande grise au-dessus du logo. */
+html{background:#fff!important;}
+body:not(.is-focus-mode){
+  background:#fbfbfb!important;
+  background:linear-gradient(to bottom,
+    #fff 0,
+    #fff env(safe-area-inset-top,0px),
+    #fbfbfb env(safe-area-inset-top,0px),
+    #fbfbfb 100%)!important;
+}
+body:not(.is-focus-mode) .app > .header{
+  background-color:#fff!important;
+}
+
+/* Relief externe : même lumière gauche / ombre droite que le bouton,
+   plus diffus pour préserver une apparence professionnelle. */
+body:not(.is-focus-mode) .app > .card{
+  box-shadow:
+    -4px -4px 10px rgba(255,255,255,.96),
+     4px  5px 12px rgba(116,135,147,.20),
+     inset 0 1px 0 rgba(255,255,255,.90)!important;
+}
+/* La banderole reste émeraude, mais reçoit la même signature de relief. */
+body:not(.is-focus-mode) .app > .intro{
+  box-shadow:
+    -3px -3px 9px rgba(255,255,255,.69),
+     4px  5px 13px rgba(111,131,141,.16)!important;
+}
+
+/* Sous-cartes : ombres plus courtes pour éviter un aspect empilé.
+   Aucune teinte métier, aucun état ni aucune dimension n'est remplacé. */
+body:not(.is-focus-mode) .app :is(
+  .iu-admin-category,
+  .planning-accordion,
+  .account-local-intro,
+  .account-connection-overview,
+  .account-dashboard .dashboard-trend,
+  .dashboard-reset-panel,
+  .site-ops-dashboard,
+  .events-next-card,
+  .events-disclosure,
+  .session-live,
+  .weigh-preferences,
+  .calc-card .result,
+  .backup-panel,
+  .v22-session-item
+){
+  box-shadow:
+    -3px -3px 8px rgba(255,255,255,.88),
+     3px  4px 9px rgba(115,136,148,.14),
+     inset 0 1px 0 rgba(255,255,255,.77)!important;
+}
+
+/* Les petits pavés du tableau de bord ont un relief encore plus discret. */
+body:not(.is-focus-mode) .app :is(
+  .dashboard-stat,
+  .basket-item,
+  .events-info-box:not(.events-next-card),
+  .dashboard-performance-summary
+){
+  box-shadow:
+    -2px -2px 6px rgba(255,255,255,.87),
+     2px  3px 7px rgba(117,135,148,.11)!important;
+}
+
+/* Harmonisation spécifique des sous-cartes utilisées dans les comptes. */
+body:not(.is-focus-mode) #accountCard .dashboard-trend,
+body:not(.is-focus-mode) #inventoryCalendar .events-next-card{
+  box-shadow:
+    -3px -3px 8px rgba(255,255,255,.88),
+     3px  4px 9px rgba(115,136,148,.14),
+     inset 0 1px 0 rgba(255,255,255,.77)!important;
+}
+
+/* Le bouton conserve son relief et l'icône Play à droite (V35.10).
+   Ne rien imposer au mode concentration, aux popups et aux toasts. */
