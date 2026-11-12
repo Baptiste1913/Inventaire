@@ -11130,3 +11130,31 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   border-color:#bbdcd0!important;
   color:#326f61!important;
 }
+
+/* V34.98 — Évolution du rythme : diagramme gris sauge / émeraude. */
+#accountCard .dashboard-trend{
+  background:linear-gradient(150deg,#fbfcfb,#f3f7f5)!important;
+  border-color:#dde7e1!important;
+}
+#accountCard .dashboard-trend-track{
+  background:#e8efeb!important;
+  border-color:#d5e2da!important;
+}
+#accountCard .dashboard-trend-fill{
+  background:linear-gradient(180deg,#9dbfb0 0%,#5c9581 52%,#347b68 100%)!important;
+  opacity:.94!important;
+}
+#accountCard .dashboard-trend-column > strong{color:#405b51!important;}
+#accountCard .dashboard-trend-column > span{color:#78867f!important;}
+/* Prochain inventaire : un vert pâle, presque neutre. */
+#inventoryCalendar .events-next-card{
+  background:linear-gradient(135deg,#f7faf8 0%,#f0f7f3 58%,#eaf4ee 100%)!important;
+  border-color:#dce9e1!important;
+}
+#inventoryCalendar .events-next-card .events-kicker{color:#607d6e!important;}
+#inventoryCalendar .events-next-card #calendarNextDate{color:#365a4b!important;}
+#inventoryCalendar .events-next-card .events-countdown:not([hidden]){
+  background:rgba(255,255,255,.82)!important;
+  border-color:#d7e7dd!important;
+  color:#537564!important;
+}
