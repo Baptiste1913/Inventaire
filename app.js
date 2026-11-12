@@ -8,6 +8,7 @@ const UNDO_DELAY_MS=8000;
 const UNDO_EXIT_MS=280;
 let pendingUndo=null,undoTimeout=null,undoExitTimeout=null;
 const toastTimers=new Map();
+const toastProgressTimers=new Map();
 let undoToastNode=null;
 function toastStack(){
  let stack=$('toastStack');
@@ -23,6 +24,9 @@ function closeToast(node,immediate=false){
  const timer=toastTimers.get(node);
  if(timer)clearTimeout(timer);
  toastTimers.delete(node);
+ const progressTimer=toastProgressTimers.get(node);
+ if(progressTimer!==undefined)clearInterval(progressTimer);
+ toastProgressTimers.delete(node);
  if(node===undoToastNode){
    pendingUndo=null;undoTimeout=null;undoToastNode=null;
  }
@@ -55,6 +59,21 @@ function createToast(message,{action=null,onAction=null,persistent=false,warning
  toast.append(close);
  toastStack().prepend(toast);
  if(!persistent){
+   // Même échéance absolue pour la fermeture et la barre, y compris après
+   // une mise en arrière-plan de Safari/PWA (timers suspendus par iOS).
+   const deadline=Date.now()+UNDO_DELAY_MS;
+   const progress=document.createElement('span');
+   progress.className='undo-toast-timer-fill';
+   progress.setAttribute('aria-hidden','true');
+   toast.append(progress);
+   toast.classList.add('toast-has-timer');
+   const tick=()=>{
+     const remaining=Math.max(0,deadline-Date.now());
+     progress.style.transform=`scaleX(${remaining/UNDO_DELAY_MS})`;
+     if(remaining===0)closeToast(toast);
+   };
+   tick();
+   toastProgressTimers.set(toast,setInterval(tick,100));
    const timer=setTimeout(()=>closeToast(toast),UNDO_DELAY_MS);
    toastTimers.set(toast,timer);
  }
