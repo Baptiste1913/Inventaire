@@ -1,7 +1,7 @@
 {
-  "version": "35.74",
+  "version": "35.70",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole remaniée : titre en casse normale, repère Rayon, texte court, statut indépendant en haut à droite, bouton crème pleine largeur sur iPhone, mascotte agrandie et fond émeraude à halo."
+  "notes": "Écrans de lancement et de mise à jour monochromes : dégradé graphite sur la piste et gris perle vers blanc sur le remplissage, dimensions et chargement réel préservés."
 }

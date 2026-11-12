@@ -340,7 +340,7 @@ function renderHeroSummary(){
  status.classList.toggle('is-running',Boolean(session&&!session.pausedAt));
  status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
  const count=session?session.entries.length:0;
- text.textContent=!session?'Prêt':(session.pausedAt?'En pause':'En cours');
+ text.textContent=!session?'Aucune session':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
  // Le raccourci de la banderole lance directement l'inventaire ;
  // si une session est en pause il propose de la reprendre, jamais d'en créer une deuxième.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
@@ -351,7 +351,7 @@ function renderHeroSummary(){
   heroAction.disabled=false;
   heroAction.setAttribute('aria-disabled',String(Boolean(session&&!session.pausedAt)));
    // Apparence stable, uniquement gérée par CSS.
-  heroAction.setAttribute('aria-label',(session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire')+' — '+text.textContent+(session?' · '+count+' pesée'+(count>1?'s':''):''));
+  heroAction.setAttribute('aria-label',(session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire')+' — '+text.textContent);
  }
 }
 // V33.65 — transition verticale par carte : l'accueil descend du bas vers

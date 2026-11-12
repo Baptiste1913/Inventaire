@@ -1,9 +1,9 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v35-74';
+const CACHE = 'inventaires-u-offline-v35-70';
 const CORE = [
-  './', './index.html', './version.json', './admin-categories.js?v=33.93', './technical-log.js?v=33.93', './update-manager.js?v=35.74', './error-journal.js?v=33.93', './site-operations.js?v=35.74', './push.js?v=33.75', './planning-admin.js?v=35.74', './events-data.js?v=33.19', './events.js?v=34.30', './style.css?v=35.74', './app.js?v=35.74',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=35.74', './manifest.webmanifest?v=13', './icon.png?v=11',
-  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon-u.svg?v=35.74',
+  './', './index.html', './version.json', './admin-categories.js?v=33.93', './technical-log.js?v=33.93', './update-manager.js?v=35.70', './error-journal.js?v=33.93', './site-operations.js?v=35.70', './push.js?v=33.75', './planning-admin.js?v=35.70', './events-data.js?v=33.19', './events.js?v=34.30', './style.css?v=35.70', './app.js?v=35.70',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=35.70', './manifest.webmanifest?v=13', './icon.png?v=11',
+  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png', './logo-u.png', './favicon-u.svg?v=35.70',
    './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg', './start-inventory-icon.png?v=32.0'
 ];
 self.addEventListener('install', event => {
@@ -12,8 +12,8 @@ self.addEventListener('install', event => {
     // V35.67 : protéger les fichiers indispensables sans bloquer toute la
     // mise à jour lorsqu'une image ou une ressource secondaire manque.
     // Ne jamais activer un shell incomplet.
-    const required = ['./index.html', './style.css?v=35.74', './app.js?v=35.74',
-      './update-manager.js?v=35.74', './auth-config.js?v=32.0', './idb.js?v=33.0',
+    const required = ['./index.html', './style.css?v=35.70', './app.js?v=35.70',
+      './update-manager.js?v=35.70', './auth-config.js?v=32.0', './idb.js?v=33.0',
       './auth.js?v=34.49'];
     await cache.addAll(required);
     const optional = CORE.filter(path => !required.includes(path));
