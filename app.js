@@ -661,7 +661,7 @@ function finishSession(){
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
   return;
  }
- clearWeigh();renderV22();reviewSessionQuality(session);$('sessionMessage').classList.add('is-complete');$('sessionMessage').textContent='Inventaire terminé. Retrouve son bilan dans « Mes inventaires ».';
+ clearWeigh();renderV22();reviewSessionQuality(session);$('sessionMessage').classList.add('is-complete');{const message=$('sessionMessage');message.replaceChildren();const title=document.createElement('strong');title.className='session-complete-title';title.textContent='Inventaire terminé';const detail=document.createElement('span');detail.className='session-complete-detail';detail.textContent='Retrouve son bilan dans « Mes inventaires ».';const content=document.createElement('span');content.className='session-complete-copy';content.append(title,detail);message.append(content);}
  offerUndo('Inventaire terminé.',()=>{
   if(activeSessionId||!session.endedAt||session.endedAt!==now)return false;
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;

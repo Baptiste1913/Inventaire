@@ -14072,3 +14072,127 @@ body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm :is(button#focusCan
  font-weight:800!important;
  line-height:1.3!important;
 }
+
+/* V35.62 — Banderole : la bordure ne doit jamais s'éclaircir lors
+   d'un appui, d'une reprise, ni avec le focus/disabled sur Safari. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:focus,:focus-visible,:active,:disabled),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled:is(:hover,:focus,:active){
+ border:1px solid rgba(226,255,247,.18)!important;
+ border-color:rgba(226,255,247,.18)!important;
+ outline-color:transparent!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
+ outline:2px solid rgba(255,255,255,.75)!important;
+ outline-offset:3px!important;
+}
+/* Arrêter : même rouge perle que Terminer, également au toucher. */
+body.is-focus-mode #focusToolbar .focus-actions button#focusStop.focus-stop,
+body.is-focus-mode #focusToolbar .focus-actions button#focusStop.focus-stop:is(:hover,:focus,:focus-visible,:active,:disabled){
+ border:1px solid #efd8dd!important;
+ background:linear-gradient(145deg,#fffafa,#f9edf0)!important;
+ color:#a84253!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 2px 7px rgba(139,57,70,.055)!important;
+}
+body.is-focus-mode #focusToolbar .focus-actions button#focusStop.focus-stop svg{
+ fill:currentColor!important;
+ stroke:currentColor!important;
+ color:#a84253!important;
+}
+/* En-tête Session en cours : un indicateur vivant, sans pulsation
+   sur l'ensemble de la carte ni distraction sur les statistiques. */
+body.is-focus-mode #focusToolbar .focus-heading .focus-live-dot{
+ position:relative!important;
+ width:9px!important;
+ height:9px!important;
+ flex:0 0 9px!important;
+ border-radius:50%!important;
+ background:#25aa7b!important;
+ box-shadow:0 0 0 3px rgba(37,170,123,.11)!important;
+ isolation:isolate!important;
+ animation:iu-v3562-dot 2.4s ease-in-out infinite!important;
+}
+body.is-focus-mode #focusToolbar .focus-heading .focus-live-dot::after{
+ content:""!important;
+ position:absolute!important;
+ inset:-7px!important;
+ border-radius:50%!important;
+ background:radial-gradient(circle,rgba(37,170,123,.24),rgba(37,170,123,.09) 45%,transparent 72%)!important;
+ animation:iu-v3562-ring 2.4s ease-in-out infinite!important;
+ pointer-events:none!important;
+}
+@keyframes iu-v3562-dot{
+ 0%,100%{opacity:.82;box-shadow:0 0 0 3px rgba(37,170,123,.08);}
+ 50%{opacity:1;box-shadow:0 0 0 5px rgba(37,170,123,.17);}
+}
+@keyframes iu-v3562-ring{
+ 0%,100%{opacity:.45;transform:scale(.83);}
+ 50%{opacity:1;transform:scale(1.15);}
+}
+/* Confirmation finale : même vocabulaire graphique que les cartes,
+   texte graphite structuré, filet latéral et pictogramme intégré. */
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
+ display:flex!important;
+ align-items:center!important;
+ gap:12px!important;
+ margin:17px 0 8px!important;
+ padding:17px 17px 17px 20px!important;
+ position:relative!important;
+ background:linear-gradient(145deg,#fff,#f0f3f5)!important;
+ border:1px solid #dbe2e6!important;
+ border-radius:14px!important;
+ color:#36434c!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 4px 12px rgba(80,98,111,.08)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::after{
+ content:""!important;
+ position:absolute!important;
+ left:0!important;
+ top:15px!important;
+ bottom:15px!important;
+ width:3px!important;
+ border-radius:0 3px 3px 0!important;
+ background:linear-gradient(180deg,#87959d,#cbd3d9)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::before{
+ content:"✓"!important;
+ flex:0 0 34px!important;
+ width:34px!important;
+ height:34px!important;
+ display:grid!important;
+ place-items:center!important;
+ border:1px solid #d9e0e4!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#e8edf0)!important;
+ color:#455761!important;
+ font-size:19px!important;
+ font-weight:850!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-copy{
+ display:flex!important;
+ flex:1 1 auto!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ gap:4px!important;
+ min-width:0!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-title{
+ display:block!important;
+ color:#27323a!important;
+ font-size:14px!important;
+ font-weight:850!important;
+ line-height:1.3!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
+ display:block!important;
+ color:#75818a!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
+ line-height:1.45!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.is-focus-mode #focusToolbar .focus-heading .focus-live-dot,
+ body.is-focus-mode #focusToolbar .focus-heading .focus-live-dot::after{animation:none!important;}
+}
