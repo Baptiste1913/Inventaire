@@ -12241,3 +12241,88 @@ body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summar
  stroke:currentColor!important;
  fill:none!important;
 }
+
+/* V35.40 — Mes paniers rejoint la charte commune des cartes principales :
+   même fond, même lumière et même relief que Ma session / Nouvelle pesée.
+   Le summary et les paniers ne sont plus séparés par un dégradé ou un filet. */
+body:not(.is-focus-mode) .app > .basket-card.card{
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:var(--iu-radius-card)!important;
+ box-shadow:var(--iu-main-card-shadow)!important;
+ overflow:hidden!important;
+ isolation:isolate;
+}
+body:not(.is-focus-mode) .app > .basket-card.card > .fold-summary,
+body:not(.is-focus-mode) .app > .basket-card.card > .fold-body{
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ border-top:0!important;
+ border-bottom:0!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .basket-card.card[open] > .fold-summary,
+body:not(.is-focus-mode) .app > .basket-card.card.is-fold-closing > .fold-summary{
+ border-bottom:0!important;
+ border-bottom-color:transparent!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .basket-card.card > .fold-body{
+ border-bottom-left-radius:var(--iu-radius-card)!important;
+ border-bottom-right-radius:var(--iu-radius-card)!important;
+ overflow:hidden!important;
+}
+body:not(.is-focus-mode) .app > .basket-card.card .basket-heading-subtitle{
+ display:block!important;
+ margin-top:4px!important;
+ font-size:11.5px!important;
+ line-height:1.45!important;
+ font-weight:500!important;
+ color:#7c8991!important;
+ letter-spacing:0!important;
+}
+body:not(.is-focus-mode) .app > .basket-card.card > .fold-summary .fold-label{
+ color:#272f36!important;
+ font-weight:850!important;
+}
+/* Les lignes de paniers restent manipulables sans surépaisseur de cadre. */
+body:not(.is-focus-mode) .app > .basket-card.card #basketList.basket-list{
+ border:1px solid #e3e8eb!important;
+ background:linear-gradient(155deg,#fff,#f8f9fa)!important;
+ border-radius:12px!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .basket-card.card #basketForm{
+ border-top:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .basket-card.card #basketForm #formTitle{
+ color:#272f36!important;
+ font-size:16px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+}
+body:not(.is-focus-mode) .app > .basket-card.card #basketForm :is(#saveBasketBtn,#cancelEditBtn){
+ box-sizing:border-box!important;
+ min-height:46px!important;
+ padding:10px 9px!important;
+ border:1px solid #d8dfe3!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;
+ box-shadow:none!important;
+ font-family:inherit!important;
+ font-size:11.5px!important;
+ font-weight:800!important;
+ line-height:1.35!important;
+}
+@media(max-width:380px){
+ body:not(.is-focus-mode) .app > .basket-card.card .basket-heading-subtitle{
+  font-size:11px!important;
+ }
+}
