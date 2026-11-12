@@ -1,7 +1,7 @@
 {
-  "version": "35.79",
+  "version": "35.80",
   "published": "2026-11-12",
-  "assets": 43,
+  "assets": 42,
   "bytes": 819245,
-  "notes": "Retour aux graisses et tailles typographiques d'origine (35.70), avec Nunito Sans, plus classique et légèrement arrondie. Police locale incluse dans le cache PWA hors ligne."
+  "notes": "Retour intégral à la typographie d’origine Arial/Helvetica de la version 35.70 (graisses, tailles et espacements) sans modification des fonctionnalités."
 }
