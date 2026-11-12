@@ -1,7 +1,7 @@
 {
-  "version": "35.48",
+  "version": "35.49",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Bouton Inventaire de la banderole en neumorphisme monochrome plus doux ; mascotte réduite de 10 % avec les pieds alignés sur le bord inférieur."
+  "notes": "Glow blanc du bouton Inventaire réduit de 50 % ; mascotte très légèrement réduite et décalée à droite ; pastille session Liquid Glass affinée avec états préservés."
 }
