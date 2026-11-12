@@ -1,7 +1,7 @@
 {
-  "version": "34.94",
+  "version": "34.95",
   "published": "2026-11-11",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole étendue vers le bas, bouton et mascotte suivent, textes et pastille fixes ; ombre portée plus contrastée."
+  "notes": "Correction du compte à rebours de toutes les notifications temporisées : barre synchronisée sur le délai réel, compatible Safari/PWA."
 }
