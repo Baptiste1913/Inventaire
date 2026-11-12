@@ -1,0 +1,36 @@
+name: Installer Nunito Sans localement
+on:
+  push:
+    paths:
+      - .github/workflows/install-nunito-sans.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Télécharger Nunito Sans et sa licence
+        run: |
+          set -euo pipefail
+          mkdir -p assets/fonts
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/nunitosans/NunitoSans%5BYTLC%2Copsz%2Cwdth%2Cwght%5D.ttf' \
+            --output assets/fonts/NunitoSansVariable.ttf
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/nunitosans/OFL.txt' \
+            --output assets/fonts/NunitoSans-OFL.txt
+          test "$(wc -c < assets/fonts/NunitoSansVariable.ttf)" -gt 100000
+      - name: Publier pour la PWA hors ligne
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/fonts/NunitoSansVariable.ttf assets/fonts/NunitoSans-OFL.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Vendor Nunito Sans variable font for offline PWA"
+            git push origin HEAD:main
+          fi

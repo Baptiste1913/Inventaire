@@ -1,7 +1,7 @@
 {
-  "version": "35.78",
+  "version": "35.79",
   "published": "2026-11-12",
   "assets": 43,
-  "bytes": 930129,
-  "notes": "Police Outfit variable, titres/résultats 600, boutons 500, corps 400 et textes secondaires affinés, mise en page préservée et fonctionnement PWA hors ligne."
+  "bytes": 819245,
+  "notes": "Retour aux graisses et tailles typographiques d'origine (35.70), avec Nunito Sans, plus classique et légèrement arrondie. Police locale incluse dans le cache PWA hors ligne."
 }
