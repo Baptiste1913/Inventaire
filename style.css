@@ -13781,3 +13781,164 @@ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #account
   animation:none!important;
  }
 }
+
+/* V35.59 — Planification : pastille « Notifications activées ».
+   Même palette douce des indicateurs, léger point animé sans altérer
+   le bouton de demande de permission ni son état désactivé. */
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell.is-active{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:7px!important;
+ min-height:34px!important;
+ padding:7px 11px!important;
+ background:linear-gradient(145deg,#e9f7f0,#d9f0e3)!important;
+ border:1px solid #c7e4d6!important;
+ border-radius:999px!important;
+ color:#176a50!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+ opacity:1!important;
+}
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell.is-active .events-bell-label{
+ display:inline-flex!important;
+ align-items:center!important;
+ gap:7px!important;
+ color:inherit!important;
+}
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell.is-active .events-bell-label::after{
+ content:""!important;
+ position:relative!important;
+ display:block!important;
+ width:7px!important;
+ height:7px!important;
+ flex:0 0 7px!important;
+ border-radius:50%!important;
+ background:#3ab989!important;
+ box-shadow:0 0 0 2px rgba(58,185,137,.12)!important;
+ animation:iu-v3559-notify-pulse 2.4s ease-in-out infinite!important;
+}
+@keyframes iu-v3559-notify-pulse{
+ 0%,100%{box-shadow:0 0 0 2px rgba(58,185,137,.10);opacity:.75;}
+ 50%{box-shadow:0 0 0 5px rgba(58,185,137,.16);opacity:1;}
+}
+/* Ma session : surfaces et chiffres en graphite neutre,
+   seule la lumière du point communique « en cours / pause ». */
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill,
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill.active,
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill.is-paused{
+ background:linear-gradient(145deg,#f8fafb,#e9eef1)!important;
+ border:1px solid #d9e1e5!important;
+ border-radius:999px!important;
+ color:#535e67!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.93)!important;
+ opacity:1!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionLive.session-live{
+ border:1px solid #e3e8eb!important;
+ background:linear-gradient(155deg,#fafbfc,#eff2f4)!important;
+ border-radius:14px!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionLive.session-live > div{
+ border:1px solid #e1e6e9!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#f5f7f8)!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionLive.session-live :is(small,strong){
+ color:#444f58!important;
+}
+/* Point et halo actifs, sans réintroduire une pastille colorée. */
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill::before{
+ content:""!important;
+ display:block!important;
+ left:13px!important;
+ top:50%!important;
+ width:8px!important;
+ height:8px!important;
+ border-radius:50%!important;
+ transform:translateY(-50%)!important;
+ background:#9caab3!important;
+ box-shadow:0 0 0 2px rgba(156,170,179,.08)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill.active::before{
+ background:#34bd8a!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill.is-paused::before{
+ background:#d9a960!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill::after{
+ content:""!important;
+ display:block!important;
+ left:4px!important;
+ top:50%!important;
+ width:26px!important;
+ height:26px!important;
+ border-radius:50%!important;
+ transform:translateY(-50%)!important;
+ background:radial-gradient(circle,rgba(156,170,179,.22),rgba(156,170,179,.08) 50%,transparent 72%)!important;
+ animation:iu-v3559-session-glow 2.25s ease-in-out infinite!important;
+ pointer-events:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill.active::after{
+ background:radial-gradient(circle,rgba(52,189,138,.34),rgba(52,189,138,.12) 50%,transparent 72%)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill.is-paused::after{
+ background:radial-gradient(circle,rgba(217,169,96,.30),rgba(217,169,96,.11) 50%,transparent 72%)!important;
+}
+@keyframes iu-v3559-session-glow{
+ 0%,100%{opacity:.57;transform:translateY(-50%) scale(.82);}
+ 50%{opacity:1;transform:translateY(-50%) scale(1.08);}
+}
+/* Commandes de session : mêmes boutons gris perle que la pesée.
+   Arrêter/Terminer conserve volontairement sa teinte rouge. */
+body:not(.is-focus-mode) .app > .session-card.card .session-actions :is(#startSession,#pauseSession,#resumeSession),
+body:not(.is-focus-mode) .app > .session-card.card .session-actions :is(#startSession,#pauseSession,#resumeSession):is(:hover,:focus,:active):not(:disabled){
+ border:1px solid #d8dfe3!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;
+ box-shadow:none!important;
+ font-family:inherit!important;
+ font-weight:800!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #finishSession,
+body:not(.is-focus-mode) .app > .session-card.card .session-actions #finishSession:is(:hover,:focus,:active):not(:disabled){
+ border:1px solid #efd8dd!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#fbf0f2)!important;
+ color:#a84253!important;
+ box-shadow:none!important;
+}
+/* Banderole : supprimer l'éclaircissement Safari après activation,
+   y compris focus/tap/disabled lors d'une session en cours. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump,
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled){
+ -webkit-appearance:none!important;
+ appearance:none!important;
+ background-color:#195f56!important;
+ background-image:linear-gradient(135deg,rgba(11,66,60,.82),rgba(21,92,81,.68))!important;
+ border-color:rgba(226,255,247,.19)!important;
+ color:#f7fffc!important;
+ -webkit-text-fill-color:#f7fffc!important;
+ opacity:1!important;
+ filter:none!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled) .hero-action-copy > #heroActionLabel{
+ color:#f8fffc!important;
+ -webkit-text-fill-color:#f8fffc!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled) .hero-action-copy > #heroStatus #heroStatusText{
+ color:rgba(237,251,246,.81)!important;
+ -webkit-text-fill-color:rgba(237,251,246,.81)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled) .hero-action-content > .hero-play-icon{
+ filter:brightness(0) invert(1)!important;
+ opacity:.89!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell.is-active .events-bell-label::after,
+ body:not(.is-focus-mode) .app > .session-card.card .session-top > #sessionBadge.session-pill::after{
+  animation:none!important;
+ }
+}
