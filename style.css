@@ -11487,37 +11487,49 @@ body:not(.is-focus-mode) #accountCard .dashboard-trend{
   order:2!important;
 }
 
-/* V35.15 — Retour au fond #FBFBFB et relief EXTERNE plus diffus.
-   Aucun effet neumorphique sur les blocs intérieurs : fonds, contours
-   et couleurs de ces blocs restent ceux de l'interface d'origine. */
+/* V35.16 — Neumorph Accent : ombres EXACTES du CSS fourni, uniquement
+   à l'extérieur des surfaces. Le fond général #FBFBFB est conservé.
+   Pas de fond #E0E5EC, de police importée ni de styles de bouton sur les cartes. */
 html{background:#fff!important;}
 body:not(.is-focus-mode){
   background:#fbfbfb!important;
   background-image:none!important;
 }
-body:not(.is-focus-mode) .app > .header{
-  background:#fff!important;
-}
-/* Seules les cartes de premier niveau portent la double ombre.
-   Aucun inset : toute la lumière et l'ombre restent à l'extérieur. */
-body:not(.is-focus-mode) .app > .card{
-  box-shadow:
-    -10px -10px 25px 0 rgba(255,255,255,.98),
-     10px  12px 28px 0 rgba(137,154,174,.39)!important;
-}
-/* Éléments imbriqués : suppression de l'effet neumorphique des versions
-   précédentes, sans changer leurs fonds, bordures ou disposition. */
+body:not(.is-focus-mode) .app > .header{background:#fff!important;}
+
+/* Toutes les surfaces de type carte, y compris celles imbriquées dans les
+   services, reçoivent le même relief EXTERNE que le bouton de référence.
+   Aucun inset, pseudo-élément, recoloration ni changement de rayon. */
 body:not(.is-focus-mode) .app :is(
-  .iu-admin-category,.iu-update-versions,.iu-update-state,
-  .planning-accordion,.account-local-intro,.account-connection-overview,
-  .dashboard-trend,.dashboard-stat,.dashboard-recent,
-  .dashboard-reset-panel,.site-ops-dashboard,.site-ops-status,
-  .events-next-card,.events-disclosure,.events-month-box,
-  .session-live,.weigh-preferences,.calc-card .result,
-  .backup-panel,.v22-session-item,.basket-item,.events-info-box,
+  .card,
+  .iu-admin-category,
+  .iu-update-versions,
+  .iu-update-state,
+  .planning-accordion,
+  .account-local-intro,
+  .account-connection-overview,
+  .dashboard-trend,
+  .dashboard-stat,
+  .dashboard-recent,
+  .dashboard-reset-panel,
+  .site-ops-dashboard,
+  .site-ops-status,
+  .events-next-card,
+  .events-disclosure,
+  .events-month-box,
+  .session-live,
+  .weigh-preferences,
+  .calc-card .result,
+  .backup-panel,
+  .v22-session-item,
+  .basket-item,
+  .events-info-box,
   .dashboard-performance-summary
 ){
-  box-shadow:none!important;
+  border:0!important;
+  box-shadow:
+    -7px -7px 16px 0 rgba(255,255,255,.9),
+     7px  7px 16px 0 rgba(163,177,198,.85)!important;
 }
-/* La banderole et le bouton Inventaire conservent leurs effets propres.
-   Les états de session, fenêtres et mode concentration sont préservés. */
+/* La banderole émeraude et le bouton Inventaire conservent leurs effets
+   propres. Aucun changement des états de connexion ou des popups. */
