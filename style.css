@@ -11571,3 +11571,74 @@ body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summar
  border-bottom:0!important;
  box-shadow:none!important;
 }
+
+/* V35.30 — Typographie unifiée : mêmes tailles et descriptifs sur
+   les quatre titres majeurs et les quatre dépliants Planning. */
+#planningAdminCard .iu-admin-overview :is(
+ .iu-update-head h3,.dashboard-heading h3,
+ .iu-admin-planning-header h3,.iu-error-heading h3
+){
+ margin:0!important;
+ font-family:inherit!important;
+ font-size:16px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ letter-spacing:-.25px!important;
+ color:#272f36!important;
+}
+#planningAdminCard .iu-admin-overview :is(
+ .iu-update-head p,.dashboard-heading p,
+ .iu-admin-planning-header p,.iu-error-heading p
+){
+ display:block!important;
+ margin:4px 0 0!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
+ line-height:1.45!important;
+ letter-spacing:0!important;
+ color:#7c8991!important;
+}
+#planningAdminCard .iu-admin-overview :is(
+ .iu-update-head,.dashboard-heading,
+ .iu-admin-planning-header,.iu-error-heading
+){margin-bottom:11px!important;}
+#planningAdminCard .iu-admin-overview .iu-error-heading{
+ display:flex!important;align-items:flex-start!important;
+}
+/* Dépliants : titre court et descriptif léger sous celui-ci. */
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary .iu-admin-drawer-label{
+ display:flex!important;flex-direction:column!important;
+ align-items:flex-start!important;justify-content:center!important;
+ gap:3px!important;min-width:0;flex:1;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary .iu-admin-drawer-label strong{
+ font-family:inherit!important;
+ font-size:13px!important;font-weight:800!important;
+ line-height:1.3!important;letter-spacing:-.1px!important;
+ color:#414d56!important;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary .iu-admin-drawer-label small{
+ display:block!important;font-size:11px!important;
+ line-height:1.4!important;font-weight:500!important;
+ color:#88939a!important;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary{
+ min-height:67px!important;
+}
+/* Continuité du fond sous le titre "Espace administrateur" :
+   suppression des anciens dégradés et de leur raccord visible. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card,
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary,
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-body{
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-body{
+ border:0!important;border-top:0!important;
+ box-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary{
+ border:0!important;border-bottom:0!important;
+ box-shadow:none!important;
+}
