@@ -11330,22 +11330,31 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
     transition:none!important;
   }
 }
-/* V35.22 — Carte Administrateur : surface identique au fond du site
-   (#F5F7F8), glow préservé, ombres externes encore réduites de 15 %. */
+/* V35.23 — Administrateur : glow moins brutal et coins propres ouvert/fermé.
+   Ombres limitées à l'extérieur du details ; aucun changement de layout. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card{
   background:#f5f7f8!important;
   background-color:#f5f7f8!important;
   border:0!important;
+  overflow:hidden!important;
   box-shadow:
-    -4px -4px 8px 1px rgba(255,255,255,1),
-    -6px -6px 12px 0 rgba(255,255,255,.98),
+    -4px -4px 8px 1px rgba(255,255,255,.70),
+    -6px -6px 12px 0 rgba(255,255,255,.65),
      4px  5px  8px 0 rgba(82,105,125,.2873),
      6px  7px 13px 0 rgba(98,122,141,.193375)!important;
 }
-/* En-tête replié : il imposait auparavant un fond blanc opaque.
-   Sa couleur suit désormais celle de la carte, y compris quand elle
-   est ouverte, sans modifier l'avatar, les infos ou les interactions. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary{
   background:#f5f7f8!important;
   background-color:#f5f7f8!important;
+}
+/* Lorsque le details est ouvert, le panneau interne ne doit plus produire
+   sa propre ombre rectangulaire sous les coins arrondis du conteneur. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-body{
+  box-shadow:none!important;
+  border-bottom-left-radius:0!important;
+  border-bottom-right-radius:0!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card[open]{
+  overflow:hidden!important;
+  isolation:isolate;
 }
