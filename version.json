@@ -1,7 +1,7 @@
 {
-  "version": "35.12",
+  "version": "35.13",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Effet neumorphique plus visible sur les cartes : surfaces gris perle et ombres directionnelles renforcées, sans changer les fonctions."
+  "notes": "Retour des fonds et couleurs intérieurs d’origine ; ombres neumorphiques externes uniformisées sur les cartes et sous-cartes."
 }

@@ -11567,52 +11567,40 @@ body:not(.is-focus-mode) #inventoryCalendar .events-next-card{
 /* Le bouton conserve son relief et l'icône Play à droite (V35.10).
    Ne rien imposer au mode concentration, aux popups et aux toasts. */
 
-/* V35.12 — Neumorphisme perceptible : le fond presque blanc de V35.11
-   rendait les ombres claires invisibles, et les ombres grises trop faibles.
-   Reprise du langage du bouton avec une surface gris-perle et deux reliefs
-   directionnels nets, sans toucher à la structure ni aux interactions. */
-body:not(.is-focus-mode) .app > :is(.card,details.card,section.card){
-  background:#edf1f4!important;
-  border:1px solid rgba(255,255,255,.88)!important;
+/* V35.13 — Relief exclusivement EXTERIEUR, fond d'origine conservé.
+   Un effet directionnel identique sur chaque carte, sans recolorer les
+   surfaces ni toucher aux contours, typographies ou états. */
+body:not(.is-focus-mode) .app .card{
   box-shadow:
     -7px -7px 15px rgba(255,255,255,.98),
-     7px  8px 17px rgba(139,153,169,.43),
-     inset 0 1px 0 rgba(255,255,255,.92)!important;
+     7px  8px 17px rgba(132,148,164,.36)!important;
 }
-/* Les surfaces intérieures restent légèrement plus claires, pour éviter
-   l'effet d'un empilement massif et préserver la lecture des informations. */
+/* Sous-cartes réellement présentes dans les différents services :
+   mêmes directions, échelle adaptée à leur taille. */
 body:not(.is-focus-mode) .app :is(
-  .iu-admin-category,.planning-accordion,.account-local-intro,
-  .account-connection-overview,.dashboard-reset-panel,.site-ops-dashboard,
-  .events-next-card,.events-disclosure,.session-live,.weigh-preferences,
-  .calc-card .result,.backup-panel,.v22-session-item
+  .iu-admin-category,
+  .iu-update-versions,
+  .iu-update-state,
+  .dashboard-stat,
+  .site-ops-dashboard,
+  .site-ops-status,
+  .account-local-intro,
+  .account-connection-overview,
+  .dashboard-trend,
+  .dashboard-recent,
+  .dashboard-reset-panel,
+  .events-next-card,
+  .events-disclosure,
+  .events-month-box,
+  .session-live,
+  .weigh-preferences,
+  .calc-card .result,
+  .backup-panel,
+  .v22-session-item
 ){
-  background-color:#f1f4f6!important;
-  border-color:rgba(255,255,255,.90)!important;
   box-shadow:
-    -5px -5px 11px rgba(255,255,255,.98),
-     5px  6px 12px rgba(139,153,169,.30),
-     inset 0 1px 0 rgba(255,255,255,.94)!important;
+    -5px -5px 11px rgba(255,255,255,.97),
+     5px  6px 13px rgba(132,148,164,.27)!important;
 }
-body:not(.is-focus-mode) #inventoryCalendar .events-next-card{
-  background:linear-gradient(135deg,#f7fbfa 0%,#edf8f5 60%,#e5f4f0 100%)!important;
-  border-color:rgba(255,255,255,.94)!important;
-  box-shadow:
-    -5px -5px 11px rgba(255,255,255,.98),
-     5px  6px 12px rgba(128,157,157,.29),
-     inset 0 1px 0 rgba(255,255,255,.94)!important;
-}
-body:not(.is-focus-mode) #accountCard .dashboard-trend{
-  box-shadow:
-    -5px -5px 11px rgba(255,255,255,.98),
-     5px  6px 12px rgba(128,157,157,.29),
-     inset 0 1px 0 rgba(255,255,255,.94)!important;
-}
-/* Les petites tuiles adoptent la même lumière à une échelle inférieure. */
-body:not(.is-focus-mode) .app :is(.dashboard-stat,.events-info-box:not(.events-next-card),.dashboard-performance-summary){
-  box-shadow:
-    -3px -3px 7px rgba(255,255,255,.96),
-     3px  4px 9px rgba(139,153,169,.25)!important;
-}
-/* La banderole conserve son vert et le bouton sa finition actuelle.
-   Aucun changement de layout, de police, de transition ni de logique JS. */
+/* Le bouton Inventaire garde son effet dédié et son Play à droite.
+   Les pop-ups et le mode concentration ne sont pas modifiés. */
