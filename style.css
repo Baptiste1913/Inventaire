@@ -12194,28 +12194,50 @@ body:not(.is-focus-mode) .app > .calc-card.card > .card-heading{
  box-shadow:none!important;
 }
 
-/* V35.38 — Calage visuel sur Ma session / Nouvelle pesée.
-   Les trois cartes du haut paraissaient plus "décollées" malgré les
-   mêmes ombres numériques : atténuer leurs ombres directionnelles
-   et étaler leur diffusion, sans changer les blocs de référence.
-   Ne concerne ni les dépliants internes, ni les états interactifs. */
-body:not(.is-focus-mode) .app > #planningAdminCard.card,
-body:not(.is-focus-mode) .app > #accountCard.card,
-body:not(.is-focus-mode) .app > #inventoryCalendar.events-card{
+/* V35.39 — Ombre véritablement partagée entre les 5 cartes principales.
+   Une seule définition CSS remplace le dernier override contradictoire.
+   On préserve les animations, contenus, tailles et états existants. */
+:root{
+ --iu-main-card-shadow:
+  -2px -2px 6px 0 rgba(255,255,255,.92),
+  -5px -5px 12px 0 rgba(255,255,255,.52),
+   3px 4px 10px 0 rgba(163,177,198,.12),
+   1px 2px 5px 0 rgba(163,177,198,.07);
+}
+body:not(.is-focus-mode) .app > :is(
+ #planningAdminCard.card,
+ #accountCard.card,
+ #inventoryCalendar.events-card,
+ .session-card.card,
+ .calc-card.card
+){
  background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
  background-image:none!important;
  border:0!important;
  border-radius:var(--iu-radius-card)!important;
- box-shadow:
-  -2px -2px 8px 0 rgba(255,255,255,.76),
-  -5px -5px 14px 0 rgba(255,255,255,.38),
-   3px 4px 14px 0 rgba(163,177,198,.135),
-   1px 2px 8px 0 rgba(163,177,198,.075)!important;
+ box-shadow:var(--iu-main-card-shadow)!important;
+ overflow:hidden!important;
+ isolation:isolate;
 }
-/* L'ombre doit être celle de la carte seule, sans relief propre
-   à l'en-tête ni raccord à l'ouverture. */
-body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary,
-body:not(.is-focus-mode) .app > #accountCard.card > .account-fold-summary,
-body:not(.is-focus-mode) .app > #inventoryCalendar.events-card > .events-static-header{
+body:not(.is-focus-mode) .app > #planningAdminCard.card > :is(.planning-admin-summary,.planning-admin-body),
+body:not(.is-focus-mode) .app > #accountCard.card > :is(.account-fold-summary,.account-body),
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card > :is(.events-static-header,.events-static-content){
+ background:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
  box-shadow:none!important;
+}
+/* Icône cadenas : reprendre précisément la surface des boutons neutres,
+   sans modifier sa taille ni l'alignement avec les titres. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-lock{
+ border:1px solid #d8dfe3!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ box-shadow:none!important;
+ color:#414d56!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-lock svg{
+ color:#414d56!important;
+ stroke:currentColor!important;
+ fill:none!important;
 }

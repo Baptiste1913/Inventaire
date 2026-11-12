@@ -1,7 +1,7 @@
 {
-  "version": "35.38",
+  "version": "35.39",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Relief extérieur des cartes Administrateur, Mon compte et Événements adouci pour correspondre visuellement à Ma session et Nouvelle pesée, qui restent inchangées."
+  "notes": "Ombre commune strictement identique pour les cinq cartes principales ; icône Administrateur monochrome gris dans une pastille au style du bouton Inventaire."
 }
