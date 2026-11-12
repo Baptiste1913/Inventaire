@@ -1,0 +1,36 @@
+name: Installer DM Sans localement
+on:
+  push:
+    paths:
+      - .github/workflows/install-dm-sans.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Récupérer DM Sans variable et la licence OFL
+        run: |
+          set -euo pipefail
+          mkdir -p assets/fonts
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/dmsans/DMSans%5Bopsz%2Cwght%5D.ttf' \
+            --output assets/fonts/DMSansVariable.ttf
+          curl --fail --location --retry 3 --silent --show-error \
+            'https://raw.githubusercontent.com/google/fonts/main/ofl/dmsans/OFL.txt' \
+            --output assets/fonts/DM-Sans-OFL.txt
+          test "$(wc -c < assets/fonts/DMSansVariable.ttf)" -gt 100000
+      - name: Publier la police pour la PWA hors ligne
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/fonts/DMSansVariable.ttf assets/fonts/DM-Sans-OFL.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Vendor licensed DM Sans variable for offline PWA"
+            git push origin HEAD:main
+          fi

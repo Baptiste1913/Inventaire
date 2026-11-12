@@ -1,7 +1,7 @@
 {
-  "version": "35.75",
+  "version": "35.76",
   "published": "2026-11-12",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Police Inter variable appliquée à toute l'application, typographie et alignements harmonisés, fichier local mis en cache pour la PWA hors ligne. Base visuelle 35.70 préservée."
+  "notes": "Typographie DM Sans plus fine, titres et boutons allégés, alignements préservés et police locale disponible hors ligne. Design 35.70 conservé."
 }
