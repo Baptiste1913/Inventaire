@@ -11531,3 +11531,43 @@ body:not(.is-focus-mode) .app > #planningAdminCard.card .planning-admin-body but
   transition:none!important;
  }
 }
+
+/* V35.29 — Options de dates autonomes et cohérentes avec le tableau de bord.
+   Aucun grand tiroir "Ajouter des dates" : les trois sous-sections
+   disposent de leurs propres ouvertures et animations existantes. */
+#planningAdminCard .iu-admin-planning-section > .planning-accordion{
+ min-width:0!important;
+ margin:9px 0!important;
+ border:1px solid #e0e5e9!important;
+ border-radius:15px!important;
+ overflow:hidden!important;
+ background:linear-gradient(150deg,#fff,#f6f8f9)!important;
+ box-shadow:none!important;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary{
+ min-height:60px!important;
+ padding:13px 15px!important;
+ background:transparent!important;
+ color:#414d56!important;
+ font-size:12.5px!important;
+ font-weight:800!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion[open] > .planning-panel-summary{
+ background:transparent!important;
+}
+#planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-content{
+ background:linear-gradient(150deg,#fff,#f8f9fa)!important;
+ border-top:1px solid #edf0f2!important;
+ box-shadow:none!important;
+}
+/* Retirer le filet entre "Espace administrateur" et le contenu,
+   tout en conservant le même fond et les angles arrondis. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-body{
+ border-top:0!important;
+}
+body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary{
+ border-bottom:0!important;
+ box-shadow:none!important;
+}
