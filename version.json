@@ -1,7 +1,7 @@
 {
-  "version": "35.08",
+  "version": "35.20",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Finitions premium : contours et ombres affinés, typographies harmonisées, bouton Inventaire vitré, carte Prochain inventaire adoucie et alignements réguliers."
+  "notes": "Essai visuel ciblé sur la carte Administrateur : double glow blanc en haut/gauche et double ombre soutenue en bas/droite. Autres cartes inchangées (base 35.08)."
 }
