@@ -1,7 +1,7 @@
 {
-  "version": "35.87",
+  "version": "35.88",
   "published": "2026-11-12",
-  "assets": 42,
+  "assets": 43,
   "bytes": 819245,
-  "notes": "Contour du bouton Inventaire plus fidèle au logo U : couche externe bleue à gauche, vert d'eau à droite, anneau intérieur bleu canard et fond blanc. Banderole et indicateur conservés."
+  "notes": "Contour du bouton Inventaire corrigé sur Safari : SVG local fiable, couronne extérieure bleu ciel/vert d’eau et anneau complet bleu canard. Bandes de couleur visibles sur tout le pourtour, mode hors ligne conservé."
 }
