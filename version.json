@@ -1,7 +1,7 @@
 {
-  "version": "35.33",
+  "version": "35.34",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Mon compte : même fond, mêmes ombres et lumière neumorphiques qu’Administrateur, tableau de bord intégré, titres, tiroir Récupération et boutons harmonisés."
+  "notes": "Planification : fond et neumorphisme identiques à Administrateur/Mon compte, en-tête continu, typographie et boutons unifiés ; états des notifications et des dates préservés."
 }
