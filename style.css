@@ -13681,3 +13681,103 @@ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #account
   animation:none!important;
  }
 }
+
+/* V35.58 — Le bouton fusionné devient une surface émeraude fumée
+   parfaitement intégrée au dégradé de la banderole.
+   L'indicateur et sa pulsation de session sont conservés. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump{
+ background:
+  linear-gradient(145deg,rgba(255,255,255,.065) 0%,rgba(255,255,255,.025) 42%,rgba(5,48,44,.055) 100%),
+  linear-gradient(115deg,rgba(13,71,65,.66),rgba(17,83,75,.43))!important;
+ border:1px solid rgba(226,255,247,.19)!important;
+ border-radius:15px!important;
+ -webkit-backdrop-filter:blur(12px) saturate(115%)!important;
+ backdrop-filter:blur(12px) saturate(115%)!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.16),
+  inset 0 -1px 0 rgba(3,47,41,.065),
+  0 3px 11px rgba(6,54,48,.09)!important;
+ color:#f7fffc!important;
+ opacity:1!important;
+}
+/* L'ancien repère gris du cadre "Prochain inventaire" n'avait
+   plus de sens sur fond vert et alourdissait le dessin. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump::before{
+ content:none!important;
+ display:none!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
+ color:#f8fffc!important;
+ text-shadow:0 1px 2px rgba(5,46,42,.12)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state{
+ color:rgba(237,251,246,.78)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state #heroStatusText{
+ color:rgba(237,251,246,.81)!important;
+ text-shadow:none!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state .intro-session-dot{
+ border:1px solid rgba(244,255,251,.16)!important;
+}
+/* Un point neutre plus clair sur fond sombre ; états actifs distincts. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot{
+ background:#bfcbc8!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state.is-running .intro-session-dot{
+ background:#59dbab!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state.is-paused .intro-session-dot{
+ background:#edc487!important;
+}
+/* La pulsation est aussi présente au repos, délicatement.
+   La version 35.57 garde ses animations en cours/en pause. */
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state:not(.is-running):not(.is-paused) .intro-session-dot::after{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:-4px!important;
+ border-radius:50%!important;
+ pointer-events:none!important;
+ background:radial-gradient(circle,rgba(222,239,233,.28),rgba(222,239,233,.11) 52%,transparent 80%)!important;
+ animation:halo-breathe 2.9s ease-in-out infinite!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
+ filter:brightness(0) invert(1)!important;
+ opacity:.89!important;
+}
+/* Bouton actif et rendu appuyé : même famille de verre vert. */
+@media(hover:hover) and (pointer:fine){
+ .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
+  background:
+   linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 50%,rgba(3,44,40,.04)),
+   linear-gradient(115deg,rgba(13,71,65,.73),rgba(17,83,75,.49))!important;
+  border-color:rgba(235,255,251,.25)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.21),
+             0 4px 12px rgba(6,54,48,.11)!important;
+ }
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
+ background:linear-gradient(125deg,rgba(8,60,56,.77),rgba(16,75,68,.60))!important;
+ border-color:rgba(225,255,245,.16)!important;
+ box-shadow:inset 1px 2px 6px rgba(1,40,36,.21),
+            inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+.app > .intro .intro-bottom > #heroStartSession.intro-jump:disabled{
+ opacity:1!important;
+ background:linear-gradient(135deg,rgba(13,71,65,.65),rgba(17,83,75,.45))!important;
+ border-color:rgba(226,255,247,.17)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.13),
+            0 3px 9px rgba(6,54,48,.075)!important;
+}
+/* iOS/PWA : ne pas créer de recadrage ou d'un halo coûteux. */
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+ .app > .intro .intro-bottom > #heroStartSession.intro-jump{
+  background:linear-gradient(135deg,#205f57,#2c796a)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-copy > #heroStatus.intro-session-state .intro-session-dot::after{
+  animation:none!important;
+ }
+}

@@ -1,7 +1,7 @@
 {
-  "version": "35.57",
+  "version": "35.58",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Finition du bouton Inventaire à statut intégré : conserve la petite animation de l’indicateur en cours et en pause, sans animation inutile au repos."
+  "notes": "Bouton Inventaire fusionné désormais verre émeraude fumé, intégré à la banderole ; reflets et contours très discrets, texte blanc et point animé conservé."
 }
