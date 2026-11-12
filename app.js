@@ -25,7 +25,8 @@ function closeToast(node,immediate=false){
  if(timer)clearTimeout(timer);
  toastTimers.delete(node);
  const progressTimer=toastProgressTimers.get(node);
- if(progressTimer!==undefined)clearInterval(progressTimer);
+ if(typeof progressTimer==='function')progressTimer();
+ else if(progressTimer!==undefined)clearInterval(progressTimer);
  toastProgressTimers.delete(node);
  if(node===undoToastNode){
    pendingUndo=null;undoTimeout=null;undoToastNode=null;
@@ -67,13 +68,33 @@ function createToast(message,{action=null,onAction=null,persistent=false,warning
    progress.setAttribute('aria-hidden','true');
    toast.append(progress);
    toast.classList.add('toast-has-timer');
-   const tick=()=>{
+   // Une seule animation native au moteur de rendu : progression réellement
+   // continue (sans paliers de 100 ms), recalée au retour sur l'app.
+   let animation=null;
+   const animateRemaining=()=>{
+     if(!toast.isConnected)return;
      const remaining=Math.max(0,deadline-Date.now());
-     progress.style.transform=`scaleX(${remaining/UNDO_DELAY_MS})`;
-     if(remaining===0)closeToast(toast);
+     const ratio=remaining/UNDO_DELAY_MS;
+     if(animation)animation.cancel();
+     progress.style.transform=`scaleX(${ratio})`;
+     if(remaining===0){closeToast(toast);return;}
+     if(progress.animate){
+       animation=progress.animate([{transform:`scaleX(${ratio})`},{transform:'scaleX(0)'}],
+         {duration:remaining,easing:'linear',fill:'forwards'});
+     }else{
+       progress.style.transition='none';
+       void progress.offsetWidth;
+       progress.style.transition=`transform ${remaining}ms linear`;
+       requestAnimationFrame(()=>{if(toast.isConnected)progress.style.transform='scaleX(0)';});
+     }
    };
-   tick();
-   toastProgressTimers.set(toast,setInterval(tick,100));
+   animateRemaining();
+   const onVisibility=()=>{if(!document.hidden)animateRemaining();};
+   document.addEventListener('visibilitychange',onVisibility);
+   toastProgressTimers.set(toast,()=>{
+     document.removeEventListener('visibilitychange',onVisibility);
+     if(animation)animation.cancel();
+   });
    const timer=setTimeout(()=>closeToast(toast),UNDO_DELAY_MS);
    toastTimers.set(toast,timer);
  }
