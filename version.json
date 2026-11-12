@@ -1,7 +1,7 @@
 {
-  "version": "35.24",
+  "version": "35.25",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Carte Administrateur : lumière plus fine et relief doux ; arrondis du panneau interne corrigés pendant l’ouverture des sous-tiroirs, sans modifier leurs animations."
+  "notes": "Carte Administrateur : glow blanc et ombres extérieures +15 % d’intensité, diffusion augmentée de 2 px. Correction des coins et autres cartes conservées."
 }

@@ -11331,7 +11331,7 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header .events-bell{
   }
 }
 
-/* V35.24 — Administrateur : relief doux, visible mais moins brutal.
+/* V35.25 — Administrateur : glow et ombre +15 %, flou +2 px.
    Seule la carte extérieure porte l'ombre ; les tiroirs internes conservent
    leurs propres styles et leurs animations d'origine. */
 body:not(.is-focus-mode) .app > #planningAdminCard.card{
@@ -11340,10 +11340,10 @@ body:not(.is-focus-mode) .app > #planningAdminCard.card{
   border-radius:var(--iu-radius-card)!important;
   overflow:hidden!important;
   box-shadow:
-    -2px -2px 4px 0 rgba(255,255,255,.82),
-    -5px -5px 10px 0 rgba(255,255,255,.49),
-     4px  5px 9px 0 rgba(163,177,198,.24),
-     1px  2px 3px 0 rgba(163,177,198,.14)!important;
+    -2px -2px 6px 0 rgba(255,255,255,.943),
+    -5px -5px 12px 0 rgba(255,255,255,.5635),
+     4px  5px 11px 0 rgba(163,177,198,.276),
+     1px  2px 5px 0 rgba(163,177,198,.161)!important;
 }
 body:not(.is-focus-mode) .app > #planningAdminCard.card > .planning-admin-summary{
   background:#f5f7f8!important;
