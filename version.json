@@ -1,7 +1,7 @@
 {
-  "version": "35.53",
+  "version": "35.54",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Banderole : bouton rapproché de 11 px, hauteur réduite naturellement, pastille plus compacte et remontée de 3 px, mascotte décalée de 6 px vers la gauche ; adaptation petits iPhone."
+  "notes": "Banderole plus aérée : espace description/bouton augmenté, marge basse rééquilibrée sur iPhone, pastille restaurée à 32 px et descendue de 2 px. Styles inchangés."
 }
