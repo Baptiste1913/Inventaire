@@ -1,7 +1,7 @@
 {
-  "version": "35.18",
+  "version": "35.19",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Neumorphisme plus contrasté et compact sur les 9 cartes principales, sans contour ni effet sur leurs composants intérieurs."
+  "notes": "Glow blanc plus puissant et resserré sur les 9 cartes principales ; suppression du contour résiduel de la carte Compte."
 }

@@ -11452,19 +11452,30 @@ body:not(.is-focus-mode){background:#aaa!important;}
 .app > .intro .intro-bottom > #heroStartSession.intro-jump .hero-action-content .hero-play-icon{
   order:2!important;
 }
-/* V35.18 — Neumorphisme accentué et compact sur les 9 cartes principales.
-   Double ombre EXTERNE : lumière haut/gauche, ombre dense bas/droite.
-   Aucun effet sur les enfants des cartes ; aucune bordure ni fond modifié. */
+/* V35.19 — Glow blanc renforcé, toujours compact et EXTERNE.
+   Le blanc est déjà à 100 % : sa puissance visuelle augmente grâce
+   à deux couches blanches proches du bord, sans étendre fortement le halo. */
 html{background:#fff!important;}
 body:not(.is-focus-mode){background:#fbfbfb!important;background-image:none!important;}
 body:not(.is-focus-mode) .app > .header{background:#fff!important;}
-
 body:not(.is-focus-mode) .app > .card{
   border:0!important;
   box-shadow:
-    -5px -5px 10px 0 rgba(255,255,255,1),
+    -4px -4px 7px 2px rgba(255,255,255,1),
+    -7px -7px 13px 0 rgba(255,255,255,1),
      5px  6px 11px 0 rgba(105,121,142,.53),
      2px  3px  4px 0 rgba(107,125,146,.19)!important;
 }
-/* Respect des tailles, des arrondis, de l'ouverture des tiroirs et des
-   animations. Le bouton Inventaire et son icône restent inchangés. */
+/* Compte : neutraliser aussi l'ancien contour de son en-tête,
+   sans toucher à l'avatar, au statut et aux éléments du tableau de bord. */
+body:not(.is-focus-mode) .app > #accountCard.account-card{
+  border:0!important;
+  border-width:0!important;
+  outline:0!important;
+}
+body:not(.is-focus-mode) .app > #accountCard.account-card > summary.account-fold-summary{
+  border:0!important;
+  border-width:0!important;
+  box-shadow:none!important;
+}
+/* Le focus-visible clavier reste géré par les règles d'accessibilité. */
