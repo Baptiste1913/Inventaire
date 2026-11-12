@@ -13206,3 +13206,59 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSessio
  object-fit:contain!important;
  transform:translateY(.25px)!important;
 }
+
+/* V35.53 — Agencement de la banderole : 5 retouches de géométrie.
+   Ne change ni les couleurs / effets, ni la logique des sessions. */
+/* (1 + 4) Le bouton se rapproche de la description et la hauteur
+   naturelle du bandeau diminue d'environ 11px (sans toucher au tap target). */
+.app > .intro .intro-bottom{
+ margin-top:13px!important;
+}
+@media(max-width:600px){
+ .app > .intro .intro-bottom{
+  margin-top:11px!important;
+ }
+}
+/* (2 + 5) Capsule subtilement réduite, et son centre relevé de 3px
+   pour s'aligner optiquement sur le titre. Position absolue maintenue. */
+.app > .intro > #heroStatus.intro-session-state{
+ position:absolute!important;
+ top:14px!important;
+ right:20px!important;
+ height:30px!important;
+ min-height:30px!important;
+ max-height:30px!important;
+ padding:4px 10px 4px 9px!important;
+}
+@media(max-width:380px){
+ .app > .intro > #heroStatus.intro-session-state{
+  top:13px!important;
+  right:16px!important;
+  padding:4px 8px!important;
+ }
+}
+/* Préserver une séparation nette titre / statut sur les petits iPhone. */
+@media(max-width:340px){
+ .app > .intro > #heroStatus.intro-session-state{
+  font-size:10.5px!important;
+  padding:4px 7px!important;
+  gap:6px!important;
+ }
+}
+/* (3) Mascotte : 6px plus à gauche, même taille et pieds sur le bord bas. */
+.app > .intro > .intro-mascot{
+ right:24px!important;
+ bottom:0!important;
+}
+@media(max-width:600px){
+ .app > .intro > .intro-mascot{
+  right:12px!important;
+  bottom:0!important;
+ }
+}
+@media(max-width:380px){
+ .app > .intro > .intro-mascot{
+  right:11px!important;
+  bottom:0!important;
+ }
+}

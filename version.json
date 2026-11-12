@@ -1,7 +1,7 @@
 {
-  "version": "35.52",
+  "version": "35.53",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Pastille repositionnée en haut à droite ; Liquid Glass plus discret, bordures amincies ; texte Inventaire renforcé et aligné sur Play."
+  "notes": "Banderole : bouton rapproché de 11 px, hauteur réduite naturellement, pastille plus compacte et remontée de 3 px, mascotte décalée de 6 px vers la gauche ; adaptation petits iPhone."
 }
