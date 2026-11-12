@@ -12151,3 +12151,45 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #finishSessi
 body:not(.is-focus-mode) .app > .session-card.card .session-actions .session-btn:active:not(:disabled){
  transform:scale(.985);
 }
+
+/* V35.37 — "Ma session" est la référence de surface.
+   Ce bloc et les quatre autres utilisent les mêmes propriétés externes.
+   Les composants internes, l'animation d'ouverture et le mode concentration
+   conservent leurs règles spécifiques. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card,
+body:not(.is-focus-mode) .app > #accountCard.card,
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card,
+body:not(.is-focus-mode) .app > .session-card.card,
+body:not(.is-focus-mode) .app > .calc-card.card{
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:var(--iu-radius-card)!important;
+ box-shadow:
+  -2px -2px 6px 0 rgba(255,255,255,.943),
+  -5px -5px 12px 0 rgba(255,255,255,.5635),
+   4px 5px 11px 0 rgba(163,177,198,.276),
+   1px 2px 5px 0 rgba(163,177,198,.161)!important;
+ overflow:hidden!important;
+ isolation:isolate;
+}
+/* Conserver le même fond de surface au raccord des cartes repliables.
+   Les bordures de contenu et faux dégradés ne réapparaissent pas. */
+body:not(.is-focus-mode) .app > #planningAdminCard.card > :is(.planning-admin-summary,.planning-admin-body),
+body:not(.is-focus-mode) .app > #accountCard.card > :is(.account-fold-summary,.account-body),
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card > :is(.events-static-header,.events-static-content){
+ background:#f5f7f8!important;
+ background-color:#f5f7f8!important;
+ background-image:none!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+/* La pesée conserve les mêmes espacements métier et son contenu calculé ;
+   seul le contenant porte le relief repris de Ma session. */
+body:not(.is-focus-mode) .app > .calc-card.card > .card-heading{
+ background:transparent!important;
+ background-image:none!important;
+ border:0!important;
+ box-shadow:none!important;
+}

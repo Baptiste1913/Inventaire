@@ -1,7 +1,7 @@
 {
-  "version": "35.36",
+  "version": "35.37",
   "published": "2026-11-12",
   "assets": 42,
   "bytes": 819245,
-  "notes": "Planification : un seul dépliant événements sans double carte ; Ma session en neumorphisme identique, boutons démarrer/pause/reprendre gris et terminer rouge."
+  "notes": "Style extérieur de Ma session appliqué uniformément à Administrateur, Mon compte, Événements et Nouvelle pesée ; contenu et mode concentration préservés."
 }
