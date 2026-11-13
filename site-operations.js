@@ -258,7 +258,7 @@
    return name+' ('+(x.effects||'normal')+') : '+x.durationMs+' ms, '+(x.slowFrames||0)+' intervalle(s) > 34 ms, écart max '+(x.maxGapMs||0)+' ms';
   });
   results.textContent='Cache : '+(perf?.cacheHits||0)+' utilisation(s), '+(perf?.cacheMisses||0)+' nouvelle(s) mesure(s).'+
-   (lines.length?'\\n'+lines.join('\\n'):'\\nAucune animation mesurée. Ouvre puis ferme un tiroir pour comparer.');
+   (lines.length?'\n'+lines.join('\n'):'\\nAucune animation mesurée. Ouvre puis ferme un tiroir pour comparer.');
  };
  compare?.addEventListener('click',()=>{
   const enabled=window.IUSetFoldLightEffects?.(!window.IUGetFoldLightEffects?.())===true;
