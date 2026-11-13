@@ -162,7 +162,6 @@
  // déplacement du grand panneau. On ne diffère que la présentation,
  // jamais la récupération réseau ou les données elles-mêmes.
  const deferredAdminValues=new Map();
- let deferredChecked=null;
  const adminPresentationFrozen=()=>window.IUGetHeavyContentFreeze?.()!==false&&
    Boolean($('planningAdminCard')?.classList.contains('iu-fold-animating'));
  const applyValue=(id,tone,message)=>{
@@ -179,10 +178,6 @@
   if(adminPresentationFrozen())return;
   for(const [id,[tone,message]] of deferredAdminValues)applyValue(id,tone,message);
   deferredAdminValues.clear();
-  if(deferredChecked!==null){
-   const el=$('opsChecked');if(el&&el.textContent!==deferredChecked)el.textContent=deferredChecked;
-   deferredChecked=null;
-  }
  };
  window.addEventListener('iu-heavy-fold-end',event=>{
   if(event.detail?.id!=='planningAdminCard')return;
@@ -237,74 +232,38 @@
     }catch{window.IUTechnicalLog?.('service');value('opsSupabase','warning','Non vérifiable');}})(),
    updateCheck()
   ]);
-  const startup=window.IUStartupMetrics;
-  const folds=window.IUFoldPerformance?.();
-  const perfInfo=startup?.totalMs!==undefined
-   ?' · Préparation '+startup.totalMs+' ms · Dimensions '+(folds?.prepared||0)+' blocs · Cache '+(folds?.cacheHits||0)+' utilisation(s) · '+(folds?.cacheMisses||0)+' recalcul(s)'
-   :'';
-  const checkedText='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.'+perfInfo;
-  if(adminPresentationFrozen())deferredChecked=checkedText;
-  else $('opsChecked').textContent=checkedText;
   refreshing=false;if(button)button.disabled=false;
  }
- // V36.40 — Diagnostics préparés dès que l'accès administrateur est
- // autorisé, idéalement avant le premier dépliage. Pas de requêtes réseau
- // répétées à chaque ouverture ; le bouton Actualiser reste disponible.
+ // V36.57 — Une actualisation au démarrage lorsque le tableau de bord
+ // devient accessible à l'administrateur. Aucune nouvelle actualisation
+ // quand le volet est ouvert ou fermé ; bouton explicite ensuite.
  const adminCard=$('planningAdminCard');
- let diagnosticTimer=0,diagnosticsReady=false;
- const queueDiagnostics=(delay=900)=>{
-  clearTimeout(diagnosticTimer);
-  if(!adminCard||adminCard.hidden||diagnosticsReady)return;
-  diagnosticTimer=setTimeout(async()=>{
-   diagnosticTimer=0;
-   if(adminCard.hidden||diagnosticsReady)return;
-   // Ne pas modifier les indicateurs en pleine animation de hauteur.
-   if(adminCard.classList.contains('iu-fold-animating')){
-    queueDiagnostics(520);return;
-   }
-   await refresh();
-   diagnosticsReady=true;
-  },delay);
+ let startupRefreshStarted=false,startupTimer=0;
+ const refreshAtStartup=()=>{
+  if(startupRefreshStarted||!adminCard||adminCard.hidden)return;
+  if(adminCard.classList.contains('iu-fold-animating')||
+     window.IUIsHeavyFoldAnimating?.()){
+   clearTimeout(startupTimer);
+   startupTimer=setTimeout(refreshAtStartup,500);
+   return;
+  }
+  startupRefreshStarted=true;
+  clearTimeout(startupTimer);
+  void refresh();
  };
- if(adminCard){
-  const visibilityObserver=new MutationObserver(()=>{
-   if(!adminCard.hidden)queueDiagnostics(900);
-   else clearTimeout(diagnosticTimer);
-  });
-  visibilityObserver.observe(adminCard,{attributes:true,attributeFilter:['hidden']});
-  if(!adminCard.hidden)queueDiagnostics(1000);
-  adminCard.addEventListener('toggle',()=>{
-   if(adminCard.open&&!diagnosticsReady)queueDiagnostics(520);
-  });
- }
- // V36.43 — Comparaison A/B sur les seules cartes lourdes.
- // Les mesures sont locales et limitées aux dernières animations.
+ const adminVisibilityObserver=new MutationObserver(()=>{
+  if(!adminCard.hidden)refreshAtStartup();
+ });
+ adminVisibilityObserver.observe(adminCard,{attributes:true,attributeFilter:['hidden']});
+ if(!adminCard.hidden)refreshAtStartup();
+ // Les options de comparaison restent utilisables, sans journal
+ // technique affiché ni mesures FPS persistantes.
  const compare=$('opsFoldCompare'),rafToggle=$('opsFoldRaf'),
-  fpsToggle=$('opsFoldFps'),paintToggle=$('opsFoldPaint'),
-  freezeToggle=$('opsFoldFreeze'),results=$('opsFoldTestResults');
- const showFoldResults=()=>{
-  if(!results)return;
-  const perf=window.IUFoldPerformance?.();
-  const recent=(perf?.recent||[]).filter(x=>x&&Number.isFinite(x.durationMs));
-  const shown=recent.slice(-6);
-  const lines=shown.map(x=>{
-   const name=x.name==='planningAdminCard'?'Administrateur':x.name==='accountCard'?'Mon compte':x.name?.slice(0,35)||'Tiroir';
-   const frames=x.measured
-    ?'~'+(x.approxFps||'—')+' i/s échantillonnées, '+(x.slowFrames||0)+
-      ' intervalle(s) > 34 ms, écart max '+(x.maxGapMs||0)+' ms'
-    :'mesures FPS désactivées';
-   return name+' · '+(x.direction||'animation')+' · '+(x.engine==='raf'?'rAF horodaté':'native')+
-    ' ('+(x.effects||'normal')+') : '+x.durationMs+' ms, '+frames;
-  });
-  results.textContent='Cache : '+(perf?.cacheHits||0)+' utilisation(s), '+(perf?.cacheMisses||0)+
-   ' nouvelle(s) mesure(s), '+(perf?.liveCacheHits||0)+' ouverture(s) sans recalcul de contenu.'+
-   (lines.length?'\n'+lines.join('\n'):'\\nAucune animation mesurée. Ouvre puis ferme un tiroir pour comparer.');
- };
+  paintToggle=$('opsFoldPaint'),freezeToggle=$('opsFoldFreeze');
  compare?.addEventListener('click',()=>{
   const enabled=window.IUSetFoldLightEffects?.(!window.IUGetFoldLightEffects?.())===true;
   compare.setAttribute('aria-pressed',String(enabled));
   compare.textContent=enabled?'Rétablir les effets graphiques':'Tester la fluidité sans effets graphiques';
-  showFoldResults();
  });
  // Choix expérimental limité à Administrateur / Mon compte.
  // La méthode native est conservée au démarrage et après rechargement.
@@ -318,23 +277,8 @@
   const mode=window.IUGetHeavyFoldMotionMode?.()==='raf'?'native':'raf';
   window.IUSetHeavyFoldMotionMode?.(mode);
   showRafMode();
-  showFoldResults();
  });
  showRafMode();
- // L'ancien échantillonnage rAF tournait pendant CHAQUE animation du site.
- // Il ne se déclenche maintenant que lors d'un test explicitement demandé.
- const showFpsMode=()=>{
-  if(!fpsToggle)return;
-  const enabled=window.IUGetFoldFrameDiagnostics?.()===true;
-  fpsToggle.setAttribute('aria-pressed',String(enabled));
-  fpsToggle.textContent=enabled?'Désactiver la mesure des FPS':'Mesurer les FPS (mode test)';
- };
- fpsToggle?.addEventListener('click',()=>{
-  window.IUSetFoldFrameDiagnostics?.(!window.IUGetFoldFrameDiagnostics?.());
-  showFpsMode();
-  showFoldResults();
- });
- showFpsMode();
  // Test A/B de l'allégement graphique des grands tiroirs : conserve
  // les styles d'origine au repos, même lorsque l'option est activée.
  const showPaintMode=()=>{
@@ -347,7 +291,6 @@
  paintToggle?.addEventListener('click',()=>{
   window.IUSetHeavyPaintLite?.(window.IUGetHeavyPaintLite?.()===false);
   showPaintMode();
-  showFoldResults();
  });
  showPaintMode();
  // Gel léger A/B : traitement admin secondaire différé + animations
@@ -363,12 +306,8 @@
   window.IUSetHeavyContentFreeze?.(!wasOn);
   if(wasOn)flushAdminPresentation();
   showFreezeMode();
-  showFoldResults();
  });
  showFreezeMode();
- window.addEventListener('iu-fold-performance',showFoldResults);
- showFoldResults();
  $('opsRefresh')?.addEventListener('click',refresh);
- window.addEventListener('iu-update-ready',()=>{if(adminCard?.open)updateCheck();});
  // Signaler une version publiée même si le worker en attente n'a pas terminé.
 })();
