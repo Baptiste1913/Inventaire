@@ -1,7 +1,7 @@
 {
-  "version": "36.42",
+  "version": "36.43",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Préparation par étapes au démarrage, cache local temporaire des dimensions des tiroirs principaux avec invalidation, graphiques et listes réutilisés, cache PWA vérifié en lots, diagnostics de chargement et d'animation."
+  "notes": "Diagnostics de fluidité : mesures des écarts entre images pendant les tiroirs, invalidation du cache limitée aux changements réels de contenu, mode de comparaison graphique réversible pour Administrateur et Mon compte."
 }
