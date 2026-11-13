@@ -456,7 +456,14 @@ $('otherTabReload')?.addEventListener('click',()=>location.reload());
 $('otherTabLater')?.addEventListener('click',()=>{$('otherTabDialog')?.close();localStatus('Attention : cet onglet peut contenir des données anciennes');});
 // Le suivi du tableau de bord doit rester dans cette closure : user et
 // renderDashboard sont privés au module d'authentification.
-init();
+// V36.41 : le splash peut attendre une initialisation auth finie et chauffer
+// les graphiques du compte avant le premier clic, sans bloquer les pesées.
+window.IUPrewarmAccount=()=>{if(user)renderDashboard();return true;};
+window.IUAuthInitialReady=false;
+Promise.resolve().then(init).catch(error=>console.warn('Initialisation compte',error)).finally(()=>{
+ window.IUAuthInitialReady=true;
+ window.dispatchEvent(new Event('iu-auth-initial-ready'));
+});
 window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
 // Les données sont invalidées par leur signature dans renderDashboard().
 // Plus de reconstruction du graphique toutes les cinq secondes.
