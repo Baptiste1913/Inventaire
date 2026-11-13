@@ -1,22 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="145" height="49" viewBox="0 0 145 49">
-  <!-- Contour U, conserve la capsule exacte 145 x 49.
-       Bleu ciel à gauche, vert d'eau à droite, bleu canard
-       affleurant en haut-droite et en bas-gauche. -->
   <defs>
-    <clipPath id="capsule">
-      <rect x=".2" y=".2" width="144.6" height="48.6" rx="24.3"/>
-    </clipPath>
+    <clipPath id="capsule"><rect x="0.18" y="0.18" width="144.64" height="48.64" rx="24.32"/></clipPath>
   </defs>
   <g clip-path="url(#capsule)">
-    <rect width="73" height="49" fill="#52BCE6"/>
-    <rect x="73" width="72" height="49" fill="#68BDB3"/>
-    <!-- Anneau canard intérieur continu et régulier. -->
-    <rect x="1.85" y="1.8" width="141.3" height="45.4" rx="22.7" fill="#047986"/>
-    <!-- Décalage du canard jusqu'au bord supérieur, côté droit. -->
-    <path d="M62 1.8 C75 1.2 83 0 95.5 -.7 H115 C124 0 133.5 3.4 138.7 10.9 C133.5 5.6 124.5 2.5 115 2.1 C91.5 1.7 77 1.8 62 1.8 Z" fill="#047986"/>
-    <!-- Décalage inverse jusqu'au bord inférieur, côté gauche. -->
-    <path d="M19.5 39.6 C25.4 44.8 36.2 47.5 50.7 47.1 L95 47.1 C85.7 48.1 75 49.4 61 49.4 H49.4 C34.1 49.4 24 45.7 19.5 39.6 Z" fill="#047986"/>
-    <!-- Intérieur régulier : aucune déformation du bouton ni surépaisseur. -->
+    <!-- Couronne intérieure bleu pétrole continue. -->
+    <rect x="0" y="0" width="145" height="49" fill="#007583"/>
+    <!-- Cyan gauche : les pointes se prolongent sur le haut et le bas,
+         leur largeur diminue progressivement sans arrêt abrupt. -->
+    <path d="M73 0.18
+      C55 0.18 38 0.18 24.5 0.18
+      C11.06 0.18 0.18 11.06 0.18 24.5
+      C0.18 37.94 11.06 48.82 24.5 48.82
+      C33.7 48.82 43.2 48.82 54 48.82
+      C44 48.62 34.3 47.62 24.5 46.25
+      C12.2 44.55 2.75 34.7 2.75 24.5
+      C2.75 14.3 12.1 4.75 24.5 2.55
+      C40 0.82 58.8 0.27 73 0.18 Z" fill="#53C0E9"/>
+    <!-- Vert d'eau droit : mêmes transitions longues, asymétrie
+         conservée avec le bleu pétrole en haut-droite / bas-gauche. -->
+    <path d="M94 0.18
+      C102.8 0.18 113.8 0.18 120.5 0.18
+      C133.94 0.18 144.82 11.06 144.82 24.5
+      C144.82 37.94 133.94 48.82 120.5 48.82
+      C107.5 48.82 94.6 48.82 82 48.82
+      C98 48.45 111.8 47.1 120.5 46.1
+      C132.85 44.5 142.2 34.75 142.2 24.5
+      C142.2 14.25 132.9 4.73 120.5 2.45
+      C112.1 0.9 102.9 0.28 94 0.18 Z" fill="#64B9AE"/>
+    <!-- Même intérieur et même épaisseur totale que la version 35.93. -->
     <rect x="3.75" y="3.75" width="137.5" height="41.5" rx="20.75" fill="#FFFFFF"/>
   </g>
 </svg>
