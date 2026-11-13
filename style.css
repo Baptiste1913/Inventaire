@@ -15370,3 +15370,21 @@ html body .app > #accountCard.iu-fold-animating.iu-heavy-paint-lite :is(
 ){
  box-shadow:none!important;
 }
+
+/* V36.56 — Gel leger de contenu, uniquement Administrateur et Mon compte.
+   Safari anime toujours la hauteur native 420 ms et les fleches restent
+   mobiles. Seules les animations decoratives internes sont suspendues,
+   pas les indicateurs de chargement, l'authentification ou les actions.
+   Aucun contain:paint ni content-visibility sur ces grands panneaux :
+   ces proprietes risqueraient de couper les sous-sections ou de modifier
+   les mesures de hauteur. L'etat normal est restitue apres l'animation. */
+html body .app > #planningAdminCard.iu-fold-animating.iu-heavy-content-frozen :is(
+ .iu-admin-category-body,.dashboard-trend-fill,.site-ops-metric,
+ .iu-update-indicator,.iu-admin-category,.site-ops-grid
+),
+html body .app > #accountCard.iu-fold-animating.iu-heavy-content-frozen :is(
+ .dashboard-trend-fill,.dashboard-stat,.dashboard-performance-summary,
+ .dashboard-cloud-pill,.dashboard-recent,.dashboard-recent-row
+){
+ animation-play-state:paused!important;
+}
