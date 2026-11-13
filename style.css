@@ -15343,3 +15343,42 @@ html.iu-test-light-fold-effects #accountCard *{
  margin:8px 2px 10px;
 }
 #opsFoldCompare{width:100%;}
+
+
+/* V36.50 — Optimize Web Animations : seules les animations CSS situees
+   hors de la zone visible, ou les effets decoratifs lors des mouvements
+   des tiroirs, sont suspendues. Les transitions des volets et les barres de
+   progression WAAPI restent independantes (aucune animation supprimee). */
+html.iu-motion-managed .app .iu-motion-offscreen,
+html.iu-motion-managed .app .iu-motion-offscreen *,
+html.iu-motion-managed .app .iu-motion-offscreen::before,
+html.iu-motion-managed .app .iu-motion-offscreen::after,
+html.iu-motion-managed .app .iu-motion-offscreen *::before,
+html.iu-motion-managed .app .iu-motion-offscreen *::after {
+ animation-play-state:paused!important;
+}
+/* L'application n'est pas au premier plan : il n'y a aucune peinture utile. */
+html.iu-motion-in-background .app,
+html.iu-motion-in-background .app *,
+html.iu-motion-in-background .app::before,
+html.iu-motion-in-background .app::after,
+html.iu-motion-in-background .app *::before,
+html.iu-motion-in-background .app *::after {
+ animation-play-state:paused!important;
+}
+/* Pendant le depliage/repliage, conserver l'animation des tiroirs et
+   soulager uniquement les halos / petits indicateurs decoratifs. */
+html.iu-motion-fold-busy .app :is(
+ .intro-session-dot,.session-pill,.account-summary-status,.account-status-dot,
+ .focus-live-dot,.iu-admin-spinner
+),
+html.iu-motion-fold-busy .app :is(
+ .intro-session-dot,.session-pill,.account-summary-status,.account-status-dot,
+ .focus-live-dot,.iu-admin-spinner
+)::before,
+html.iu-motion-fold-busy .app :is(
+ .intro-session-dot,.session-pill,.account-summary-status,.account-status-dot,
+ .focus-live-dot,.iu-admin-spinner
+)::after {
+ animation-play-state:paused!important;
+}
