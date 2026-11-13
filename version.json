@@ -1,7 +1,7 @@
 {
-  "version": "36.27",
+  "version": "36.28",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte décalée de 12 px vers la droite dans l'angle, découpe au bord de la banderole et rotation antihoraire inchangées."
+  "notes": "Mascotte réduite d'environ 11 % sans changer son alignement inférieur ni son ancrage à droite, rotation et masquage au bord de la banderole conservés."
 }
