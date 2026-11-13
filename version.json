@@ -1,7 +1,7 @@
 {
-  "version": "36.14",
+  "version": "36.15",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Le cadre Poids net reprend exactement les quatre halos et les couleurs de la banderole (flou adapté à sa taille). Le bouton Copier utilise le SVG de Inventaire dans un format compact 96 × 42 px, stable au toucher et avec confirmation courte « Copié »."
+  "notes": "Bouton Copier restauré à son style blanc d'origine (avant 36.14) et confirmation « Poids copié ». Nouveau dégradé émeraude/turquoise organique discret sur le message « Inventaire terminé ». Dégradé Poids net conservé."
 }
