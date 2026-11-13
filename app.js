@@ -1342,18 +1342,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   if(records.some(r=>r.target!==card&&r.type!=='attributes'))IU_FOLD_CACHE.delete(card);
  });
  invalidator.observe(content,{subtree:true,childList:true,characterData:true});
- let intended=card.open,animation=null,visualAnimation=null,animationStartedAt=0;
- // V36.44 — Test hybride limité aux panneaux les plus lourds : le corps
- // utilise les propriétés composites translate/scale, mais height conserve
- // le déplacement normal des cartes suivantes et les interactions.
- const hybridMotion=(card.id==='accountCard'||card.id==='planningAdminCard')&&
-  typeof CSS!=='undefined'&&CSS.supports?.('translate','0px 1px')&&
-  CSS.supports?.('scale','1 1');
- const cancelVisual=()=>{
-  if(visualAnimation){const old=visualAnimation;visualAnimation=null;old.cancel();}
-  content.style.removeProperty('will-change');
- };
-
+ let intended=card.open,animation=null,animationStartedAt=0;
  let rafSamples=0,lastSampleAt=0,sampleGaps=0,largestGap=0,frameLoop=0;
  const stopSampling=()=>{
   if(frameLoop){cancelAnimationFrame(frameLoop);frameLoop=0;}
@@ -1376,7 +1365,6 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
  function cleanup(){
-  cancelVisual();
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
@@ -1395,7 +1383,6 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    durationMs:Math.round(performance.now()-animationStartedAt),
    frames:rafSamples,slowFrames:sampleGaps,maxGapMs:Math.round(largestGap),
    effects:iuFoldLightEffects?'allégés':'normaux',
-   motion:hybridMotion?'hybride (hauteur + transform)':'hauteur',
    pixels:Math.round(Math.abs(to-(card.dataset.iuFoldStart?Number(card.dataset.iuFoldStart):to)))});
   if(IU_FOLD_METRICS.length>24)IU_FOLD_METRICS.shift();
   window.dispatchEvent(new Event('iu-fold-performance'));
@@ -1410,7 +1397,6 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   card.style.height=from+'px';
   const previous=animation;animation=null;
   stopSampling();
-  cancelVisual();
   if(previous)previous.cancel();
   intended=!intended;
   if(foldReducedMotion.matches||typeof card.animate!=='function'){
@@ -1442,27 +1428,12 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    card.open=intended;cleanup();return;
   }
   const distance=Math.abs(to-from)/Math.max(1,expanded-collapsed);
-  // V36.47 — Les deux grands tiroirs utilisent enfin EXACTEMENT la même
-  // fermeture que les autres détails (hauteur + durée + easing).
-  // Leur ouverture visuelle hybride, maintenant fluide, est conservée.
-  // La fermeture hybride ajoutait un second travail sur le contenu lourd.
   const duration=Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
+  // Une animation déclarative et une seule écriture de hauteur au démarrage.
   const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
    duration,easing:FOLD_MOTION_EASE,fill:'both'
   });
   animation=anim;
-  if(hybridMotion&&intended){
-   try{
-    content.style.willChange='translate, scale';
-    visualAnimation=content.animate([
-      {translate:'0 10px',scale:'1 .965'},
-      {translate:'0 0px',scale:'1 1'}
-    ],{duration,easing:FOLD_MOTION_EASE,fill:'both'});
-   }catch(error){
-    cancelVisual();
-    console.info('Animation transform indisponible, repli standard',error);
-   }
-  }
   animationStartedAt=performance.now();
   beginSampling();
   card.dataset.iuFoldStart=String(from);
