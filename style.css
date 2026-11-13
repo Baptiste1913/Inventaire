@@ -10421,16 +10421,9 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
 }
 .app > .intro .intro-bottom > #heroStartSession.intro-jump span{position:relative;}
 @media(hover:hover){
-  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-    transform:translateY(-2px)!important;
-    background:linear-gradient(165deg,#fff 0%,#e8fff2 100%)!important;
-    box-shadow:inset 0 1px 0 #fff,0 7px 17px rgba(4,55,45,.18)!important;
-  }
+
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  transform:translateY(1px) scale(.98)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 7px rgba(4,55,45,.12)!important;
-}
+
 .app > .intro .intro-bottom > #heroStartSession.intro-jump:focus-visible{
   outline:2px solid rgba(7,57,48,.65)!important;
   outline-offset:3px!important;
@@ -10469,14 +10462,9 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
   filter:none!important;
 }
 @media(hover:hover){
-  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-    background:linear-gradient(145deg,rgba(14,113,91,.94),rgba(7,82,71,.96))!important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 8px 18px rgba(3,57,48,.20)!important;
-  }
+
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 7px rgba(3,57,48,.12)!important;
-}
+
 
 
 /* V34.67 — Bouton Inventaire assorti à la pastille de Ma session. */
@@ -10506,15 +10494,9 @@ body:not(.is-focus-mode) .sessions-history-card .v22-session-item > summary span
   filter:none!important;
 }
 @media(hover:hover){
-  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-    background:#e4e9eb!important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 3px 9px rgba(6,53,48,.10)!important;
-  }
+
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  background:#dce3e6!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.65)!important;
-}
+
 
 
 /* V34.68 — Inventaire compact et bouton Démarrer assorti au résultat de pesée. */
@@ -10799,10 +10781,7 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   width:13px!important;height:13px!important;flex:0 0 13px!important;
   opacity:.79!important;
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  transform:scale(.975)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 10px rgba(18,75,61,.10)!important;
-}
+
 .app > .intro > p{
   display:-webkit-box!important;
   -webkit-box-orient:vertical!important;
@@ -10860,14 +10839,8 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   opacity:.93!important;
   filter:brightness(0) invert(1)!important;
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-  background:linear-gradient(145deg,rgba(8,98,84,.77),rgba(6,110,99,.64))!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 6px 17px rgba(5,62,53,.17)!important;
-}
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  transform:scale(.975)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 2px 8px rgba(5,62,53,.12)!important;
-}
+
+
 @media(max-width:600px){
   .app > .intro .intro-bottom > #heroStartSession.intro-jump{
     min-width:146px!important;min-height:44px!important;height:44px!important;padding:0 16px!important;
@@ -10921,14 +10894,8 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   filter:brightness(0) invert(1)!important;
   opacity:.93!important;
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-  background:rgba(255,255,255,.065)!important;
-  box-shadow:inset 0 .5px 0 rgba(255,255,255,.17),0 3px 10px rgba(8,62,54,.08)!important;
-}
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  background:rgba(255,255,255,.09)!important;
-  transform:scale(.975)!important;
-}
+
+
 @media(max-width:600px){
   .app > .intro .intro-bottom > #heroStartSession.intro-jump{
     min-width:146px!important;min-height:44px!important;height:44px!important;padding:0 16px!important;
@@ -10973,14 +10940,8 @@ button,a,summary,[role="button"],.app > .intro .intro-bottom > #heroStartSession
   width:12px!important;height:12px!important;flex:0 0 12px!important;
   filter:none!important;opacity:.86!important;
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-  background:linear-gradient(150deg,rgba(255,255,255,.99),rgba(245,255,252,.9))!important;
-  box-shadow:inset 0 1px 1px #fff,0 6px 18px rgba(5,64,54,.14)!important;
-}
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  transform:scale(.975)!important;
-  box-shadow:inset 0 1px 1px #fff,0 2px 8px rgba(5,64,54,.10)!important;
-}
+
+
 .app > .intro > .intro-mascot{
   display:block!important;
   width:clamp(125px,16.9vw,172px)!important;
@@ -11266,17 +11227,9 @@ body:not(.is-focus-mode) #inventoryCalendar .events-static-header #calendarHeadi
              rgba(255,255,255,.04) 52%,transparent 80%)!important;
 }
 @media (hover:hover) and (pointer:fine){
-  .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-    background:linear-gradient(145deg,rgba(255,255,255,.88),
-               rgba(246,255,252,.67))!important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.87),
-               0 6px 17px rgba(8,62,54,.11)!important;
-  }
+
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.8),
-             0 2px 8px rgba(8,62,54,.07)!important;
-}
+
 
 /* 5. Prochain inventaire : blanc verdâtre vers turquoise pâle,
    date dominante, compte à rebours assorti aux autres statuts. */
@@ -12833,23 +12786,9 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSessio
  opacity:.94!important;
 }
 @media(hover:hover) and (pointer:fine){
- .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-  background:linear-gradient(145deg,#fff 0%,#f8fafb 38%,#e6ebef 100%)!important;
-  border-color:#d9e1e6!important;
-  box-shadow:
-   -2px -2px 6px rgba(255,255,255,.44),
-    3px 5px 11px rgba(10,59,51,.16),
-    inset 1px 1px 0 rgba(255,255,255,.85)!important;
-  transform:translateY(-1px)!important;
- }
+
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
- background:linear-gradient(145deg,#e7edf1,#f7f9fa)!important;
- box-shadow:
-  inset 2px 2px 5px rgba(96,119,132,.19),
-  inset -1px -1px 3px rgba(255,255,255,.8)!important;
- transform:translateY(1px) scale(.99)!important;
-}
+
 .app > .intro .intro-bottom > #heroStartSession.intro-jump:disabled{
  opacity:.72!important;
  transform:none!important;
@@ -12893,12 +12832,7 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #startSessio
    inset 1px 1px 0 rgba(255,255,255,.78)!important;
 }
 @media(hover:hover) and (pointer:fine){
- .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-  box-shadow:
-   -2px -2px 6px rgba(255,255,255,.22),
-    3px 5px 11px rgba(10,59,51,.16),
-    inset 1px 1px 0 rgba(255,255,255,.85)!important;
- }
+
 }
 
 /* 2. Mascotte : légère réduction supplémentaire, +6px vers la droite.
@@ -13604,20 +13538,9 @@ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #account
 }
 /* Interaction identique à la précédente, relief légèrement plus discret. */
 @media(hover:hover) and (pointer:fine){
- .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-  background:linear-gradient(145deg,#fff 0%,#f8fafb 52%,#e9eff2 100%)!important;
-  box-shadow:
-   inset 0 1px 0 rgba(255,255,255,.97),
-   0 5px 13px rgba(21,69,64,.125)!important;
-  transform:translateY(-1px)!important;
- }
+
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
- background:linear-gradient(145deg,#e9eef1,#f8fafb)!important;
- box-shadow:inset 2px 2px 5px rgba(125,145,155,.19),
-            inset -1px -1px 3px rgba(255,255,255,.9)!important;
- transform:translateY(1px) scale(.992)!important;
-}
+
 .app > .intro .intro-bottom > #heroStartSession.intro-jump:disabled{
  opacity:.88!important;
  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),
@@ -13748,21 +13671,9 @@ body:not(.is-focus-mode) .app > #accountCard.account-card.is-signed-out #account
 }
 /* Bouton actif et rendu appuyé : même famille de verre vert. */
 @media(hover:hover) and (pointer:fine){
- .app > .intro .intro-bottom > #heroStartSession.intro-jump:hover:not(:disabled){
-  background:
-   linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 50%,rgba(3,44,40,.04)),
-   linear-gradient(115deg,rgba(13,71,65,.73),rgba(17,83,75,.49))!important;
-  border-color:rgba(235,255,251,.25)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.21),
-             0 4px 12px rgba(6,54,48,.11)!important;
- }
+
 }
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:active:not(:disabled){
- background:linear-gradient(125deg,rgba(8,60,56,.77),rgba(16,75,68,.60))!important;
- border-color:rgba(225,255,245,.16)!important;
- box-shadow:inset 1px 2px 6px rgba(1,40,36,.21),
-            inset 0 1px 0 rgba(255,255,255,.08)!important;
-}
+
 .app > .intro .intro-bottom > #heroStartSession.intro-jump:disabled{
  opacity:1!important;
  background:linear-gradient(135deg,rgba(13,71,65,.65),rgba(17,83,75,.45))!important;
@@ -13909,32 +13820,6 @@ body:not(.is-focus-mode) .app > .session-card.card .session-actions #finishSessi
  background:linear-gradient(145deg,#fff,#fbf0f2)!important;
  color:#a84253!important;
  box-shadow:none!important;
-}
-/* Banderole : supprimer l'éclaircissement Safari après activation,
-   y compris focus/tap/disabled lors d'une session en cours. */
-.app > .intro .intro-bottom > #heroStartSession.intro-jump,
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled){
- -webkit-appearance:none!important;
- appearance:none!important;
- background-color:#195f56!important;
- background-image:linear-gradient(135deg,rgba(11,66,60,.82),rgba(21,92,81,.68))!important;
- border-color:rgba(226,255,247,.19)!important;
- color:#f7fffc!important;
- -webkit-text-fill-color:#f7fffc!important;
- opacity:1!important;
- filter:none!important;
-}
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled) .hero-action-copy > #heroActionLabel{
- color:#f8fffc!important;
- -webkit-text-fill-color:#f8fffc!important;
-}
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled) .hero-action-copy > #heroStatus #heroStatusText{
- color:rgba(237,251,246,.81)!important;
- -webkit-text-fill-color:rgba(237,251,246,.81)!important;
-}
-.app > .intro .intro-bottom > #heroStartSession.intro-jump:is(:focus,:focus-visible,:disabled) .hero-action-content > .hero-play-icon{
- filter:brightness(0) invert(1)!important;
- opacity:.89!important;
 }
 @media(prefers-reduced-motion:reduce){
  body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell.is-active .events-bell-label::after,
@@ -14242,31 +14127,6 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  outline-offset:3px!important;
 }
 
-/* V35.64 — bouton Inventaire: rendu invariant sur iOS, sans transition visuelle. */
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:enabled,
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled,
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:active,:focus,:focus-visible),
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:disabled:is(:hover,:active,:focus,:focus-visible){
- -webkit-appearance:none!important;appearance:none!important;
- background:linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))!important;
- background-color:#185f54!important;
- border:1px solid rgba(8,57,49,.46)!important;
- color:#f8fffc!important;-webkit-text-fill-color:#f8fffc!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 9px rgba(6,54,48,.075)!important;
- opacity:1!important;filter:none!important;transform:none!important;
- transition:none!important;-webkit-tap-highlight-color:transparent!important;
- outline:none!important;
-}
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::before,
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::after{
- content:none!important;display:none!important;animation:none!important;
-}
-@supports selector(:focus-visible){
- html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
-  outline:2px solid rgba(7,57,48,.65)!important;outline-offset:3px!important;
- }
-}
 /* Message de fin émeraude compact, sans coche ni espace inutile. */
 body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
  display:block!important;min-height:0!important;margin:12px 0 4px!important;
@@ -14286,24 +14146,6 @@ body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-comp
 }
 body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
  font-size:11px!important;line-height:1.35!important;font-weight:550!important;
-}
-
-/* V35.65 — Safari iPhone : la désactivation est sémantique (aria-disabled),
-   et non native, afin de ne plus déclencher le style blanc du bouton. */
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"],
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"]:is(:active,:hover,:focus),
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="false"]:is(:active,:hover,:focus){
- background:linear-gradient(135deg,rgba(10,63,56,.89),rgba(20,87,76,.74))!important;
- background-color:#185f54!important;
- border-color:rgba(8,57,49,.46)!important;
- color:#f8fffc!important;
- -webkit-text-fill-color:#f8fffc!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 9px rgba(6,54,48,.075)!important;
- opacity:1!important;
- filter:none!important;
- transform:none!important;
- transition:none!important;
- -webkit-tap-highlight-color:transparent!important;
 }
 
 /* V35.66 — Splash / installation: glowing-white progress on graphite rail,
@@ -14909,7 +14751,7 @@ html body .app > section.intro > #heroStatus.intro-session-state.is-paused > .in
 /* V36.03 — Le contour et le gabarit du bouton Inventaire ne changent JAMAIS
    au toucher sur Safari : états normal, actif, focus, hover et désactivé. */
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
-html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:active,:hover,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:active,:hover,:focus,:focus-visible,:active:not(:disabled),:hover:not(:disabled),[aria-disabled="true"],[aria-disabled="false"]){
  -webkit-appearance:none!important;
  appearance:none!important;
  display:inline-flex!important;
@@ -14924,7 +14766,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  padding:6px 12px!important;
  border:0!important;
  border-radius:999px!important;
- background:transparent url("./assets/u-inventory-button.svg?v=36.05") center / 100% 100% no-repeat!important;
+ background:transparent url("./assets/u-inventory-button.svg?v=36.06") center / 100% 100% no-repeat!important;
  background-color:transparent!important;
  box-shadow:none!important;
  outline:0!important;
@@ -14951,7 +14793,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 }
 @media(max-width:380px){
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
- html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:active,:hover,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:active,:hover,:focus,:focus-visible,:active:not(:disabled),:hover:not(:disabled),[aria-disabled="true"],[aria-disabled="false"]){
   width:152px!important;min-width:152px!important;max-width:152px!important;
   height:44px!important;min-height:44px!important;max-height:44px!important;
   padding:6px 11px!important;
