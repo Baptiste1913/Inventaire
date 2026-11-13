@@ -163,23 +163,35 @@
   $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.';
   refreshing=false;if(button)button.disabled=false;
  }
- // V36.39 — Diagnostic réseau différé après la transition du panneau lourd.
+ // V36.40 — Diagnostics préparés dès que l'accès administrateur est
+ // autorisé, idéalement avant le premier dépliage. Pas de requêtes réseau
+ // répétées à chaque ouverture ; le bouton Actualiser reste disponible.
  const adminCard=$('planningAdminCard');
- let diagnosticTimer=0;
- const queueDiagnostics=()=>{
+ let diagnosticTimer=0,diagnosticsReady=false;
+ const queueDiagnostics=(delay=900)=>{
   clearTimeout(diagnosticTimer);
-  if(!adminCard?.open)return;
-  diagnosticTimer=setTimeout(()=>{
+  if(!adminCard||adminCard.hidden||diagnosticsReady)return;
+  diagnosticTimer=setTimeout(async()=>{
    diagnosticTimer=0;
-   if(adminCard.open)refresh();
-  },560);
+   if(adminCard.hidden||diagnosticsReady)return;
+   // Ne pas modifier les indicateurs en pleine animation de hauteur.
+   if(adminCard.classList.contains('iu-fold-animating')){
+    queueDiagnostics(520);return;
+   }
+   await refresh();
+   diagnosticsReady=true;
+  },delay);
  };
  if(adminCard){
-  adminCard.addEventListener('toggle',()=>{
-   if(adminCard.open)queueDiagnostics();
-   else{clearTimeout(diagnosticTimer);diagnosticTimer=0;}
+  const visibilityObserver=new MutationObserver(()=>{
+   if(!adminCard.hidden)queueDiagnostics(900);
+   else clearTimeout(diagnosticTimer);
   });
-  if(adminCard.open)queueDiagnostics();
+  visibilityObserver.observe(adminCard,{attributes:true,attributeFilter:['hidden']});
+  if(!adminCard.hidden)queueDiagnostics(1000);
+  adminCard.addEventListener('toggle',()=>{
+   if(adminCard.open&&!diagnosticsReady)queueDiagnostics(520);
+  });
  }
  $('opsRefresh')?.addEventListener('click',refresh);
  window.addEventListener('iu-update-ready',()=>{if(adminCard?.open)updateCheck();});
