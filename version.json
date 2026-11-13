@@ -1,7 +1,7 @@
 {
-  "version": "36.26",
+  "version": "36.27",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte rognée aux limites de la banderole, halo parasite supprimé ; position dans l'angle et inclinaison de 12° conservées. Cache PWA renouvelé."
+  "notes": "Mascotte décalée de 12 px vers la droite dans l'angle, découpe au bord de la banderole et rotation antihoraire inchangées."
 }
