@@ -15323,3 +15323,14 @@ html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"].iu-fold
   transition:none!important;
  }
 }
+
+/* L'admin comprend une ligne supplémentaire pour l'état de chargement. */
+html body .app details#planningAdminCard[data-unified-fold="yes"][data-iu-grid-fold="yes"]{
+ grid-template-rows:auto auto minmax(0,0fr)!important;
+}
+html body .app details#planningAdminCard[data-unified-fold="yes"][data-iu-grid-fold="yes"][data-iu-grid-expanded="yes"]{
+ grid-template-rows:auto auto minmax(0,1fr)!important;
+}
+html body .app details#planningAdminCard[data-unified-fold="yes"][data-iu-grid-fold="yes"] > .iu-admin-loading-message{
+ overflow:visible!important;
+}
