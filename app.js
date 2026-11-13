@@ -1271,7 +1271,9 @@ window.IUPrewarmFoldLayouts=async(progress)=>{
  iuFoldMeasurementActive=true;
  const started=performance.now();
  const cards=[...document.querySelectorAll('details[data-unified-fold="yes"]')]
-  .filter(card=>!card.hidden&&!card.closest('[hidden]'));
+  // Les sous-tiroirs heritent de styles contextuels de leur carte parente :
+  // seuls les tiroirs principaux se mesurent de facon fiable dans un clone.
+  .filter(card=>card.parentElement?.classList.contains('app')&&!card.hidden);
  // Chaque carte est preparee par etape : ne jamais bloquer toute une frame.
  const yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
  let done=0;
