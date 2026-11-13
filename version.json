@@ -1,7 +1,7 @@
 {
-  "version": "36.48",
+  "version": "36.49",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Sur base 36.43 : fermeture Administrateur/Mon compte synchronisée par requestAnimationFrame, mesure réduite aux dimensions nécessaires, sans passage height:auto ni animation JS par image. Courbe et durée 420 ms conservées."
+  "notes": "Fermeture Administrateur et Mon compte affinée : mesures préservées, styles overflow et classes regroupés dans requestAnimationFrame pour éviter une invalidation de rendu intermédiaire. Ouverture, durée 420 ms et autres tiroirs inchangés."
 }
