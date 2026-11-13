@@ -212,7 +212,13 @@
   const perfInfo=startup?.totalMs!==undefined
    ?' · Préparation '+startup.totalMs+' ms · Dimensions '+(folds?.prepared||0)+' blocs · Cache '+(folds?.cacheHits||0)+' utilisation(s) · '+(folds?.cacheMisses||0)+' recalcul(s)'
    :'';
-  $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.'+perfInfo;
+  // V36.50 — Surfaces surveillées par l'optimiseur (mesures locales,
+  // pas une estimation inventée du nombre de FPS).
+  const animationStats=window.IUMotionOptimizer?.stats();
+  const motionInfo=animationStats
+   ?' · Animation : '+animationStats.offscreen+' zone(s) hors écran sur '+(animationStats.owners+animationStats.details)+' suivie(s)'
+   :'';
+  $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.'+perfInfo+motionInfo;
   refreshing=false;if(button)button.disabled=false;
  }
  // V36.40 — Diagnostics préparés dès que l'accès administrateur est
