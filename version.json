@@ -1,7 +1,7 @@
 {
-  "version": "35.95",
+  "version": "35.96",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Contour Inventaire légèrement plus fin, courbes cyan et vert d’eau allongées et bleu pétrole plus visible sur la droite ; forme du bouton et interactions préservées."
+  "notes": "Répartition cyan, pétrole et vert d'eau de la 35.95 conservée ; transitions allongées et effilées comme en 35.94, sans changer la forme, l'épaisseur ni les fonctions."
 }
