@@ -1393,6 +1393,15 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   if(event.defaultPrevented)return;
   event.preventDefault();
   const from=card.getBoundingClientRect().height;
+  // V36.48 : regrouper TOUTES les lectures du grand tiroir avant
+  // la première écriture style, pour éviter un layout forcé supplémentaire.
+  let closingTarget=null;
+  if(intended&&(card.id==='accountCard'||card.id==='planningAdminCard')){
+   const cs=getComputedStyle(card);
+   const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
+   closingTarget=summary.getBoundingClientRect().height+
+    borders+px(cs.paddingTop)+px(cs.paddingBottom);
+  }
   // Conserver le point visible pendant l'annulation de l'ancienne trajectoire.
   card.style.height=from+'px';
   // Annuler une fermeture préparée mais pas encore envoyée au navigateur.
@@ -1409,12 +1418,8 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   // Lire seulement la hauteur visible et l'en-tête, puis regrouper les
   // écritures CSS dans requestAnimationFrame, juste avant la peinture.
   // Une seule animation native de height, sans boucle JavaScript par image.
-  if(!intended&&(card.id==='accountCard'||card.id==='planningAdminCard')){
-   const cs=getComputedStyle(card);
-   const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
-   const collapsed=summary.getBoundingClientRect().height+
-    borders+px(cs.paddingTop)+px(cs.paddingBottom);
-   const to=Math.min(from,collapsed);
+  if(!intended&&closingTarget!==null){
+   const to=Math.min(from,closingTarget);
    card.style.height=from+'px';
    card.style.overflow='hidden';
    card.classList.add('iu-fold-animating',closingClass);
