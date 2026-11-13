@@ -15131,3 +15131,26 @@ html body .app > section.intro > img.intro-mascot{
     transform:translate3d(0,12%,0) rotate(-8deg)!important;
   }
 }
+
+
+/* V36.24 — Mascotte volontairement plus proche du coin droit.
+   Agrandissement exclusivement CSS ; rotation antihoraire conservée. */
+html body .app > section.intro > img.intro-mascot{
+  width:clamp(150px,19.3vw,184px)!important;
+  right:-5px!important;
+  bottom:0!important;
+  transform-origin:50% 60%!important;
+  transform:translate3d(0,12%,0) rotate(-8deg)!important;
+}
+@media(max-width:600px){
+  html body .app > section.intro > img.intro-mascot{
+    width:154px!important;
+    right:-8px!important;
+  }
+}
+@media(max-width:380px){
+  html body .app > section.intro > img.intro-mascot{
+    width:145px!important;
+    right:-8px!important;
+  }
+}
