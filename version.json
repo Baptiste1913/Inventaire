@@ -1,7 +1,7 @@
 {
-  "version": "36.61",
+  "version": "36.62",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Nouvelle correction iPhone ciblée : stabilise la position visible du champ Poids brut pendant les calculs et la sauvegarde automatique, uniquement lorsqu'une session est active et le clavier déjà ouvert. N'interfère pas avec les gestes de défilement ni l'ouverture/fermeture du clavier. Données et design conservés."
+  "notes": "Stabilisation du défilement Safari iPhone pendant un inventaire : conservation du cadrage dès la saisie et lors de la sauvegarde différée, avec surveillance ponctuelle des déplacements. Défilement manuel et changements du clavier respectés ; meilleure conservation du focus du champ lors de Nouvelle pesée. Saisie et données inchangées."
 }
