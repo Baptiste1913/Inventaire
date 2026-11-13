@@ -245,6 +245,29 @@
    if(adminCard.open&&!diagnosticsReady)queueDiagnostics(520);
   });
  }
+ // V36.43 — Comparaison A/B sur les seules cartes lourdes.
+ // Les mesures sont locales et limitées aux dernières animations.
+ const compare=$('opsFoldCompare'),results=$('opsFoldTestResults');
+ const showFoldResults=()=>{
+  if(!results)return;
+  const perf=window.IUFoldPerformance?.();
+  const recent=(perf?.recent||[]).filter(x=>x&&Number.isFinite(x.durationMs));
+  const shown=recent.slice(-6);
+  const lines=shown.map(x=>{
+   const name=x.name==='planningAdminCard'?'Administrateur':x.name==='accountCard'?'Mon compte':x.name?.slice(0,35)||'Tiroir';
+   return name+' ('+(x.effects||'normal')+') : '+x.durationMs+' ms, '+(x.slowFrames||0)+' intervalle(s) > 34 ms, écart max '+(x.maxGapMs||0)+' ms';
+  });
+  results.textContent='Cache : '+(perf?.cacheHits||0)+' utilisation(s), '+(perf?.cacheMisses||0)+' nouvelle(s) mesure(s).'+
+   (lines.length?'\\n'+lines.join('\\n'):'\\nAucune animation mesurée. Ouvre puis ferme un tiroir pour comparer.');
+ };
+ compare?.addEventListener('click',()=>{
+  const enabled=window.IUSetFoldLightEffects?.(!window.IUGetFoldLightEffects?.())===true;
+  compare.setAttribute('aria-pressed',String(enabled));
+  compare.textContent=enabled?'Rétablir les effets graphiques':'Tester la fluidité sans effets graphiques';
+  showFoldResults();
+ });
+ window.addEventListener('iu-fold-performance',showFoldResults);
+ showFoldResults();
  $('opsRefresh')?.addEventListener('click',refresh);
  window.addEventListener('iu-update-ready',()=>{if(adminCard?.open)updateCheck();});
  // Signaler une version publiée même si le worker en attente n'a pas terminé.
