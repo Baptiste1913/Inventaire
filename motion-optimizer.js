@@ -9,7 +9,7 @@
  const detailSelector='.app .intro-session-dot, .app .session-pill, .app .account-summary-status, .app .account-status-dot, .app .iu-admin-spinner, .app .focus-live-dot';
  const watched=new Map();
  const folding=new Set();
- let observer=null,detailObserver=null,connected=false,queued=false;
+ let observer=null,detailObserver=null,dynamicObserver=null,connected=false,queued=false;
  let intersections=0;
  const mark=entries=>{
   for(const entry of entries){
@@ -22,6 +22,12 @@
  const isVisible=element=>{
   if(document.hidden||!element?.isConnected||element.hidden||element.closest('[hidden]'))return false;
   if(element.closest('.iu-motion-offscreen'))return false;
+  // Le contenu d'un <details> replie n'est pas visible, meme lorsque
+  // son titre reste dans le viewport et fait fonctionner l'observateur.
+  for(let closed=element.closest('details:not([open])');closed;closed=closed.parentElement?.closest('details:not([open])')){
+   const heading=closed.querySelector(':scope > summary');
+   if(!heading?.contains(element))return false;
+  }
   return true;
  };
  const refresh=()=>{
@@ -104,13 +110,30 @@
    observer=new IntersectionObserver(mark,{threshold:0.01,rootMargin:'80px 0px 80px 0px'});
    detailObserver=new IntersectionObserver(mark,{threshold:0.01,rootMargin:'24px 0px 24px 0px'});
    refresh();
+   const app=document.querySelector('.app');
+   if(app&&typeof MutationObserver==='function'){
+    // N'observer que les insertions d'indicateurs animés (pas les
+    // changements de texte à chaque seconde) et mutualiser les scans.
+    dynamicObserver=new MutationObserver(records=>{
+     for(const record of records){
+      for(const node of record.addedNodes){
+       if(node.nodeType!==1)continue;
+       if(node.matches?.(detailSelector)||node.querySelector?.(detailSelector)||
+          node.matches?.(ownerSelector)){
+        scheduleRefresh();return;
+       }
+      }
+     }
+    });
+    dynamicObserver.observe(app,{childList:true,subtree:true});
+   }
   }
  };
  // Les deux observateurs sont libérés à la sortie de page. Reconnexion
  // lorsque Safari restaure une PWA depuis son cache d'historique (BFCache).
  const onPageHide=()=>{
-  observer?.disconnect();detailObserver?.disconnect();
-  observer=null;detailObserver=null;
+  observer?.disconnect();detailObserver?.disconnect();dynamicObserver?.disconnect();
+  observer=null;detailObserver=null;dynamicObserver=null;
   watched.clear();folding.clear();connected=false;
   root.classList.remove('iu-motion-fold-busy');
  };
