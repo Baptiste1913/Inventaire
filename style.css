@@ -15089,3 +15089,11 @@ html body #iuUpdateOverlay .iu-update-logo img{
 html body #iuUpdateOverlay .iu-update-logo::before{
  content:none!important;display:none!important;
 }
+
+
+/* V36.20 — Contour des cartes principales identique au panneau de chargement.
+   Seulement les cartes externes : préserver le neumorphisme, les tiroirs,
+   les surfaces internes et le mode concentration. */
+html body:not(.is-focus-mode) .app > .card{
+  border:1px solid rgba(211,220,225,.72)!important;
+}
