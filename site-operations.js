@@ -248,7 +248,7 @@
  // V36.43 — Comparaison A/B sur les seules cartes lourdes.
  // Les mesures sont locales et limitées aux dernières animations.
  const compare=$('opsFoldCompare'),rafToggle=$('opsFoldRaf'),
-  fpsToggle=$('opsFoldFps'),results=$('opsFoldTestResults');
+  fpsToggle=$('opsFoldFps'),paintToggle=$('opsFoldPaint'),results=$('opsFoldTestResults');
  const showFoldResults=()=>{
   if(!results)return;
   const perf=window.IUFoldPerformance?.();
@@ -302,6 +302,21 @@
   showFoldResults();
  });
  showFpsMode();
+ // Test A/B de l'allégement graphique des grands tiroirs : conserve
+ // les styles d'origine au repos, même lorsque l'option est activée.
+ const showPaintMode=()=>{
+  if(!paintToggle)return;
+  const enabled=window.IUGetHeavyPaintLite?.()!==false;
+  paintToggle.setAttribute('aria-pressed',String(enabled));
+  paintToggle.textContent=enabled?
+   'Désactiver l’optimisation graphique':'Activer l’optimisation graphique';
+ };
+ paintToggle?.addEventListener('click',()=>{
+  window.IUSetHeavyPaintLite?.(window.IUGetHeavyPaintLite?.()===false);
+  showPaintMode();
+  showFoldResults();
+ });
+ showPaintMode();
  window.addEventListener('iu-fold-performance',showFoldResults);
  showFoldResults();
  $('opsRefresh')?.addEventListener('click',refresh);
