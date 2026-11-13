@@ -14862,3 +14862,28 @@ html body .app > section.intro > #heroStatus.intro-session-state.is-paused > .in
   animation:none!important;
  }
 }
+
+/* V36.07 — Intégration de la pastèque sans modifier la bannière :
+   légère remontée et deux ombres de contact discrètes sous le dessin.
+   Dimensions et position horizontale de la version précédente conservées. */
+html body .app > section.intro > img.intro-mascot{
+ bottom:0!important;
+ transform:translate3d(0,-4px,0)!important;
+ transform-origin:bottom right!important;
+ filter:drop-shadow(0 5px 4px rgba(13,92,86,.15))
+        drop-shadow(0 2px 2px rgba(24,40,43,.085))!important;
+}
+@media(max-width:600px){
+ html body .app > section.intro > img.intro-mascot{
+  transform:translate3d(0,-3px,0)!important;
+  filter:drop-shadow(0 5px 4px rgba(13,92,86,.14))
+         drop-shadow(0 2px 2px rgba(24,40,43,.08))!important;
+ }
+}
+@media(max-width:380px){
+ html body .app > section.intro > img.intro-mascot{
+  transform:translate3d(0,-2px,0)!important;
+  filter:drop-shadow(0 4px 4px rgba(13,92,86,.13))
+         drop-shadow(0 2px 2px rgba(24,40,43,.07))!important;
+ }
+}
