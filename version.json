@@ -1,7 +1,7 @@
 {
-  "version": "36.34",
+  "version": "36.35",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Tiroirs pilotés par requestAnimationFrame synchronisé au rafraîchissement Safari, sans setInterval ni redémarrage des animations CSS. Suppression des isolations coûteuses, inversion depuis la hauteur affichée et cache PWA renouvelé."
+  "notes": "Retour à la base 36.33. Optimisation des tiroirs par un gestionnaire requestAnimationFrame partagé, interpolation temporelle, inversion sans à-coups et suppression des couches forcées ; aucun bridage FPS."
 }
