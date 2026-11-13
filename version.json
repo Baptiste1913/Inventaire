@@ -1,7 +1,7 @@
 {
-  "version": "36.43",
+  "version": "36.48",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Diagnostics de fluidité : mesures des écarts entre images pendant les tiroirs, invalidation du cache limitée aux changements réels de contenu, mode de comparaison graphique réversible pour Administrateur et Mon compte."
+  "notes": "Sur base 36.43 : fermeture Administrateur/Mon compte synchronisée par requestAnimationFrame, mesure réduite aux dimensions nécessaires, sans passage height:auto ni animation JS par image. Courbe et durée 420 ms conservées."
 }
