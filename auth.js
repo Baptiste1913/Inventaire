@@ -467,5 +467,14 @@ Promise.resolve().then(init).catch(error=>console.warn('Initialisation compte',e
 window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
 // Les données sont invalidées par leur signature dans renderDashboard().
 // Plus de reconstruction du graphique toutes les cinq secondes.
-setInterval(()=>{if(user&&!document.hidden&&!document.body.classList.contains('is-focus-mode')&&$('accountCard')?.open)renderDashboard();},30000);
+// V36.50 — Le rafraîchissement périodique du tableau de bord ne doit pas
+// reconstruire le DOM au milieu d'un tiroir ni si le compte est hors écran.
+// Les changements de session/auth continuent d'être traités immédiatement.
+setInterval(()=>{
+ const card=$('accountCard');
+ if(!user||document.hidden||document.body.classList.contains('is-focus-mode')||!card?.open)return;
+ if(window.IUMotionOptimizer?.isBusy())return;
+ if(window.IUMotionOptimizer&&!window.IUMotionOptimizer.isVisible(card))return;
+ renderDashboard();
+},30000);
 })();
