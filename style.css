@@ -15343,3 +15343,30 @@ html.iu-test-light-fold-effects #accountCard *{
  margin:8px 2px 10px;
 }
 #opsFoldCompare{width:100%;}
+
+/* V36.55 — Repaint léger des deux grands volets, uniquement durant leur
+   mouvement. Ne pas toucher aux dimensions, à l'ombre extérieure, aux
+   couleurs ni aux animations des autres zones. L'effet est réversible
+   depuis le tableau de bord technique pour comparer sur Safari iPhone. */
+html body .app > #planningAdminCard.iu-fold-animating.iu-heavy-paint-lite :is(
+ .iu-admin-overview,.site-ops-panel,.iu-admin-planning-section,
+ .iu-admin-category-body,.site-ops-metric
+),
+html body .app > #accountCard.iu-fold-animating.iu-heavy-paint-lite :is(
+ .account-dashboard,.dashboard-performance,.dashboard-recent,
+ .dashboard-stat,.dashboard-performance-summary,.dashboard-reset-panel
+){
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+/* Les ombres internes très détaillées sont omises pendant les 420 ms.
+   Elles sont restaurées automatiquement dès la fin de l'animation. */
+html body .app > #planningAdminCard.iu-fold-animating.iu-heavy-paint-lite :is(
+ .site-ops-metric,.iu-admin-category,.iu-admin-update,.iu-error-panel
+),
+html body .app > #accountCard.iu-fold-animating.iu-heavy-paint-lite :is(
+ .dashboard-stat,.dashboard-performance-summary,.dashboard-reset-panel,
+ .account-dashboard-identity,.recovery-card
+){
+ box-shadow:none!important;
+}
