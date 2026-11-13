@@ -15104,3 +15104,30 @@ html body:not(.is-focus-mode) .app > .card{
               5px 7px 18px rgba(143,159,172,.17),
               inset 0 1px 0 rgba(255,255,255,.75)!important;
 }
+
+
+/* V36.23 — Mascotte : dessin SVG à échelle native, agrandissement dans
+   l'application uniquement. Inclinaison antihoraire et marge anti-rognage.
+   Les jambes restent absentes du SVG ; laisser le reste de la banderole intact. */
+html body .app > section.intro > img.intro-mascot{
+  width:clamp(132px,17.4vw,162px)!important;
+  height:auto!important;
+  right:24px!important;
+  bottom:0!important;
+  transform-origin:50% 60%!important;
+  transform:translate3d(0,12%,0) rotate(-8deg)!important;
+}
+@media(max-width:600px){
+  html body .app > section.intro > img.intro-mascot{
+    width:132px!important;
+    right:20px!important;
+    transform:translate3d(0,12%,0) rotate(-8deg)!important;
+  }
+}
+@media(max-width:380px){
+  html body .app > section.intro > img.intro-mascot{
+    width:124px!important;
+    right:16px!important;
+    transform:translate3d(0,12%,0) rotate(-8deg)!important;
+  }
+}
