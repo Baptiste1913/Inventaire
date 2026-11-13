@@ -246,10 +246,31 @@
 
  main.addEventListener('click',()=>{if(ready&&sessionSafe())install();else check();});
  secondary.addEventListener('click',()=>{if(sessionSafe())location.reload();else set('waiting','Inventaire en cours','Termine ton inventaire avant de recharger.','Vérifier à nouveau');});
- const activated=()=>{if(ADMIN?.open)check();};
- ADMIN?.addEventListener('toggle',activated);
- window.addEventListener('iu-update-ready',()=>{if(ADMIN?.open)check();});
- window.addEventListener('online',()=>{if(ADMIN?.open)check();});
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&ADMIN?.open)check();});
- if(ADMIN?.open)check();
+ // V36.52 — Une ouverture de l'administration ne doit plus lancer le
+ // téléchargement / la vérification du service worker dans les 420 ms
+ // où Safari calcule la hauteur du grand tiroir.
+ let autoCheckPending=false;
+ const checkWhenSettled=()=>{
+  if(!ADMIN?.open||ADMIN.hidden)return;
+  if(ADMIN.classList.contains('iu-fold-animating')||window.IUIsHeavyFoldAnimating?.()){
+   autoCheckPending=true;return;
+  }
+  autoCheckPending=false;
+  check();
+ };
+ ADMIN?.addEventListener('toggle',checkWhenSettled);
+ window.addEventListener('iu-update-ready',checkWhenSettled);
+ window.addEventListener('online',checkWhenSettled);
+ document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible')checkWhenSettled();
+ });
+ window.addEventListener('iu-heavy-fold-end',event=>{
+  if(event.detail?.id!=='planningAdminCard'||!autoCheckPending)return;
+  autoCheckPending=false;
+  // Laisser Safari peindre la dernière image avant de lancer l'I/O.
+  requestAnimationFrame(()=>{
+   if(ADMIN?.open&&!ADMIN.hidden&&!window.IUIsHeavyFoldAnimating?.())check();
+  });
+ });
+ if(ADMIN?.open)checkWhenSettled();
 })();
