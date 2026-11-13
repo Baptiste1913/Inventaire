@@ -15431,43 +15431,41 @@ html body .app > .calc-card :is(
 }
 
 
-/* V36.64 — Résultat monochrome, fin liseré bleu du logo U.
-   Des halos bleutés diffus restent dans le fond, sans teinter
-   la surface entière. Le contenu conserve la même géométrie,
-   notamment la hauteur minimale 36.63 pour Safari iPhone. */
+/* V36.65 — Résultat de pesée : retour au dégradé organique
+   vert émeraude / turquoise / bleu du logo U. Halos plus diffus
+   pour fondre les couleurs, sans modifier la hauteur du résultat
+   ni la correction de défilement Safari v36.63. */
 html body .app > section.calc-card .result{
- background:#f3f5f6!important;
- background-color:#f3f5f6!important;
- border:1px solid rgba(44,141,191,.44)!important;
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+ background:#087583!important;
+ background-color:#087583!important;
+ color:#fff!important;
+ border:1px solid rgba(213,248,245,.25)!important;
  border-radius:18px!important;
- color:#26343b!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.88),
-            0 8px 20px rgba(31,52,65,.075)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.18),
+            0 8px 19px rgba(9,78,82,.13)!important;
 }
 html body .app > section.calc-card .result::before{
  content:""!important;
  display:block!important;
  position:absolute!important;
- inset:-45% -30% -45% -30%!important;
+ inset:-64% -46% -66% -46%!important;
  z-index:0!important;
  pointer-events:none!important;
  background:
-  radial-gradient(ellipse 43% 48% at 78% 15%,rgba(63,161,207,.20),transparent 79%),
-  radial-gradient(ellipse 40% 55% at 7% 89%,rgba(73,185,218,.13),transparent 82%)!important;
- -webkit-filter:blur(80px)!important;
- filter:blur(80px)!important;
- opacity:.92!important;
+  radial-gradient(ellipse 53% 48% at 49% 91%,rgba(37,202,128,.94) 0%,rgba(29,175,121,.60) 48%,transparent 90%),
+  radial-gradient(circle at 14% 24%,rgba(83,192,233,.90) 0%,rgba(83,192,233,.69) 27%,rgba(83,192,233,.23) 57%,transparent 85%),
+  radial-gradient(circle at 54% 12%,rgba(0,117,131,.92) 0%,rgba(0,117,131,.70) 33%,rgba(0,117,131,.25) 65%,transparent 89%),
+  radial-gradient(circle at 89% 66%,rgba(100,185,174,.91) 0%,rgba(100,185,174,.69) 32%,rgba(100,185,174,.25) 63%,transparent 88%)!important;
+ -webkit-filter:blur(82px)!important;
+ filter:blur(82px)!important;
+ opacity:1!important;
 }
 html body .app > section.calc-card .result::after{
- content:""!important;
- display:block!important;
- position:absolute!important;
- inset:-40% -20% -42% -20%!important;
- z-index:0!important;
- pointer-events:none!important;
- background:radial-gradient(ellipse 50% 55% at 45% 48%,rgba(255,255,255,.68),transparent 85%)!important;
- -webkit-filter:blur(55px)!important;
- filter:blur(55px)!important;
+ content:none!important;
+ display:none!important;
 }
 html body .app > section.calc-card .result > :is(.result-heading,.net-line,.result-subtitle){
  position:relative!important;
@@ -15475,18 +15473,41 @@ html body .app > section.calc-card .result > :is(.result-heading,.net-line,.resu
 }
 html body .app > section.calc-card .result .result-heading > span,
 html body .app > section.calc-card .result .net-line strong{
- color:#26353e!important;
+ color:#fff!important;
 }
 html body .app > section.calc-card .result .net-line span,
 html body .app > section.calc-card .result .result-subtitle{
- color:#64727c!important;
+ color:rgba(249,255,253,.86)!important;
+}
+
+/* V36.65 — La confirmation « Inventaire terminé » située dans
+   Ma session (et non la notification Annuler) est monochrome,
+   avec un liseré bleu fin repris du contour du logo U. */
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
+ background:linear-gradient(165deg,#fafbfc 0%,#f0f3f5 100%)!important;
+ color:#27333c!important;
+ border:1px solid rgba(44,141,191,.44)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.88),
+            0 5px 15px rgba(31,52,65,.075)!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::after{
+ background:linear-gradient(180deg,rgba(44,141,191,.66),rgba(44,141,191,.16))!important;
+ opacity:.72!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-title{
+ color:#29343d!important;
+ text-shadow:none!important;
+}
+body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
+ color:#66747e!important;
+ text-shadow:none!important;
 }
 
 /* V36.64 — Retours de cartes plus légers : 15 px au lieu de 23 px,
    780 ms au lieu de 620 ms, espacement 70 ms.
    Appliquer au splash PWA et à la fin d'installation d'une MAJ. */
 @keyframes iu85-rise{
- from{transform:translate3d(0,15px,0);opacity:.72}
+ from{transform:translate3d(0,7px,0);opacity:.78}
  to{transform:translate3d(0,0,0);opacity:1}
 }
 html.iu-pwa-revealing .app > .card,
