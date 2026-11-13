@@ -15388,3 +15388,26 @@ html body .app > #accountCard.iu-fold-animating.iu-heavy-content-frozen :is(
 ){
  animation-play-state:paused!important;
 }
+
+/* V36.60 — Stabilité de la saisie sur Safari iOS.
+   Le statut de pesée était display:none lorsqu'il était vide : à chaque
+   enregistrement et à chaque nouvelle pesée, sa réapparition modifiait la
+   hauteur sous le champ de poids tandis que le clavier était ouvert.
+   Réserver une ligne, sans modifier la sauvegarde ni la présentation du
+   message quand il existe. */
+html body .app > .calc-card #weighStatus.weigh-status{
+ display:block!important;
+ min-height:1.5em!important;
+ line-height:1.5!important;
+}
+html body .app > .calc-card #weighStatus.weigh-status:empty{
+ visibility:hidden!important;
+}
+/* Empêcher les mises à jour du résultat et des alertes de devenir des
+   ancres de défilement pendant la saisie. Ne pas désactiver le défilement
+   manuel, le clavier ou le zoom. */
+html body .app > .calc-card :is(
+ .v22-warning,.result,.weigh-status,.calc-equation,.error
+){
+ overflow-anchor:none;
+}
