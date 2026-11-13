@@ -1444,9 +1444,10 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   const distance=Math.abs(to-from)/Math.max(1,expanded-collapsed);
   // V36.45 — La fermeture des grands panneaux est plus courte et surtout
   // démarre rapidement. L'ouverture fluide validée en 36.44 est inchangée.
+  // V36.46 : fermeture moins brusque, ouverture conservée.
   const closingHeavy=hybridMotion&&!intended;
   const duration=closingHeavy
-   ?Math.max(125,Math.round(275*Math.min(1,distance)))
+   ?Math.max(125,Math.round(340*Math.min(1,distance)))
    :Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
   const motionEase=closingHeavy?'cubic-bezier(.18,.8,.24,1)':FOLD_MOTION_EASE;
   // Garder le repli dans le flux, avec une cadence gérée par Safari.
