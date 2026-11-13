@@ -1,7 +1,7 @@
 {
-  "version": "36.29",
+  "version": "36.30",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte réduite de 20 % supplémentaires, ancrages inférieur et droit conservés, rotation et rognage de banderole inchangés."
+  "notes": "Mascotte remontée de 4 px et déplacée de 3 px vers la gauche sans modifier sa taille, sa rotation ni son découpage dans la banderole."
 }
