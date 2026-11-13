@@ -1247,79 +1247,97 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
-/* V36.34 — Tiroirs pilotés par requestAnimationFrame (pas de setInterval).
-   Déroulement calé sur les vraies frames Safari, inversion depuis la hauteur
-   visible et aucune couche compositée forcée sur les contenus volumineux. */
-const FOLD_MOTION_MS=410;
-const FOLD_MOTION_EASE='cubic-bezier(.35,0,.20,1)';
+/* V36.35 — Depuis 36.33 : gestionnaire de frames commun inspiré du
+   AnimationManager de Giuseppe Ciullo. Le temps réel, pas un compteur
+   de frames, pilote chaque tiroir. Aucune limite fixe à 60 FPS :
+   Safari utilise naturellement la cadence de son écran. */
+const FOLD_MOTION_MS=420;
+const FOLD_MOTION_EASE='cubic-bezier(.25,.55,.25,1)';
 window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE});
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+const iuFoldFrameManager=(()=>{
+ const tasks=new Set();
+ let request=null;
+ const tick=now=>{
+  request=null;
+  for(const task of Array.from(tasks))if(tasks.has(task))task(now);
+  if(tasks.size)request=requestAnimationFrame(tick);
+ };
+ return {
+  add(task){tasks.add(task);if(request===null)request=requestAnimationFrame(tick);},
+  remove(task){tasks.delete(task);if(!tasks.size&&request!==null){cancelAnimationFrame(request);request=null;}}
+ };
+})();
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- let intended=card.open,frame=0,run=0,from=0,to=0,started=0,duration=FOLD_MOTION_MS;
+ let intended=card.open;
+ let activeTask=null;
  const isEvents=card.id==='eventsDisclosure';
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
- const borders=()=>{const cs=getComputedStyle(card);return px(cs.borderTopWidth)+px(cs.borderBottomWidth);};
- const collapsed=()=>{const cs=getComputedStyle(card);
-  return summary.getBoundingClientRect().height+borders()+px(cs.paddingTop)+px(cs.paddingBottom);
+ // Lerp + courbe douce. Une seule écriture CSS par frame ; zéro lecture
+ // de layout / scrollHeight / computedStyle dans la boucle de frames.
+ const lerp=(a,b,t)=>a+(b-a)*t;
+ const ease=t=>t*t*(3-2*t);
+ const cancelTask=()=>{
+  if(!activeTask)return;
+  const previous=activeTask;
+  activeTask=null;
+  iuFoldFrameManager.remove(previous);
  };
- // Courbe ease-in-out douce ; ne crée aucune lecture de layout pendant les frames.
- const easing=t=>t*t*(3-2*t);
- function stop(){if(frame){cancelAnimationFrame(frame);frame=0;}run++;}
- function cleanup(){
+ const cleanup=()=>{
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
   if(isEvents)card.removeAttribute('data-motion');
- }
- function finish(){
-  frame=0;
-  card.style.height=to+'px';
+ };
+ const settle=target=>{
+  cancelTask();
+  card.style.height=target+'px';
   card.open=intended;
   cleanup();
- }
- function tick(now,token){
-  if(token!==run)return;
-  if(!started)started=now;
-  const t=Math.min(1,(now-started)/duration);
-  const height=from+(to-from)*easing(t);
-  card.style.height=height.toFixed(2)+'px';
-  if(t>=1){finish();return;}
-  frame=requestAnimationFrame(time=>tick(time,token));
- }
- card.addEventListener('toggle',()=>{if(!frame)intended=card.open;});
+ };
+ card.addEventListener('toggle',()=>{if(!activeTask)intended=card.open;});
  summary.addEventListener('click',event=>{
   if(event.defaultPrevented)return;
   event.preventDefault();
-  // Le prochain mouvement repart du pixel effectivement affiché, même
-  // lors d'un double appui. Ne pas synchroniser via un timer fixe.
-  const current=card.getBoundingClientRect().height;
-  stop();
+  // Toujours reprendre de la hauteur actuellement affichée sur un 2e clic.
+  const from=card.getBoundingClientRect().height;
+  cancelTask();
   intended=!intended;
   if(foldReducedMotion.matches){
    card.open=intended;cleanup();return;
   }
-  card.style.height=current+'px';
+  card.style.height=from+'px';
   card.style.overflow='hidden';
   card.open=true;
+  // Mesure une fois, en dehors de la boucle partagée. Le contenu peut
+  // encore changer naturellement après la fin de la transition.
+  card.style.height='auto';
+  const cs=getComputedStyle(card);
+  const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
+  const collapsed=summary.getBoundingClientRect().height+
+    borders+px(cs.paddingTop)+px(cs.paddingBottom);
+  const expanded=Math.max(collapsed,card.scrollHeight+borders);
+  const target=intended?expanded:collapsed;
+  card.style.height=from+'px';
+  if(Math.abs(target-from)<1){settle(target);return;}
   card.classList.add('iu-fold-animating');
   card.classList.toggle(closingClass,!intended);
   if(isAdminCategory)card.classList.add('iu-admin-animating');
   if(isEvents)card.dataset.motion=intended?'opening':'closing';
-  // Une seule mesure de la hauteur naturelle à l'ouverture, jamais dans tick().
-  card.style.height='auto';
-  const closed=collapsed();
-  const expanded=Math.max(card.scrollHeight+borders(),closed);
-  from=current;
-  to=intended?expanded:closed;
-  card.style.height=from+'px';
-  if(Math.abs(to-from)<1){finish();return;}
-  duration=FOLD_MOTION_MS;
-  started=0;
-  const token=run;
-  frame=requestAnimationFrame(now=>tick(now,token));
+  // Une inversion partielle ne doit pas mettre 420 ms pour parcourir 10 px.
+  const portion=Math.min(1,Math.abs(target-from)/Math.max(1,expanded-collapsed));
+  const duration=Math.max(140,FOLD_MOTION_MS*portion);
+  const start=performance.now();
+  const task=now=>{
+   const progress=Math.min(1,Math.max(0,(now-start)/duration));
+   card.style.height=lerp(from,target,ease(progress)).toFixed(2)+'px';
+   if(progress>=1)settle(target);
+  };
+  activeTask=task;
+  iuFoldFrameManager.add(task);
  });
 }
 window.IUSetupFold=setupUnifiedFold;
