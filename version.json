@@ -1,7 +1,7 @@
 {
-  "version": "36.36",
+  "version": "36.37",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Essai CSS Grid 0fr/1fr pour les tiroirs : suppression des animations JS de hauteur, bascule réversible, respect de l'état natif details et mises à jour du cache PWA."
+  "notes": "Retour à la base 36.34. Animation des tiroirs par interpolation amortie vers une hauteur cible, cadence adaptée à Safari 60/120 Hz, inversion sans redémarrage, cache PWA actualisé."
 }
