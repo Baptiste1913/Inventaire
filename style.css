@@ -15156,7 +15156,7 @@ html body .app > section.intro > img.intro-mascot{
 }
 
 
-/* V36.30 — Mascotte remontée de 4px et décalée de 3px à gauche ; taille inchangée. */
+/* V36.31 — Mascotte encore 3 px à gauche, même hauteur et inclinaison. */
 html body .app > section.intro{
   position:relative!important;
   overflow:hidden!important;
@@ -15165,7 +15165,7 @@ html body .app > section.intro > img.intro-mascot{
   position:absolute!important;
   width:clamp(116px,14.8vw,140px)!important;
   height:auto!important;
-  right:-27px!important;
+  right:-24px!important;
   bottom:-10px!important;
   z-index:1!important;
   transform-origin:bottom right!important;
@@ -15177,7 +15177,7 @@ html body .app > section.intro > img.intro-mascot{
 @media(max-width:600px){
   html body .app > section.intro > img.intro-mascot{
     width:118px!important;
-    right:-29px!important;
+    right:-26px!important;
     bottom:-12px!important;
     transform:rotate(-12deg)!important;
   }
@@ -15185,8 +15185,21 @@ html body .app > section.intro > img.intro-mascot{
 @media(max-width:380px){
   html body .app > section.intro > img.intro-mascot{
     width:110px!important;
-    right:-27px!important;
+    right:-24px!important;
     bottom:-10px!important;
     transform:rotate(-12deg)!important;
   }
+}
+
+
+/* V36.31 — Raccourcir les deux pistes de chargement de 25 px,
+   sans modifier les cartes, leur progression ni les animations. */
+#iuPwaSplash #iuSplashLoader.iu-splash-loader{
+  width:min(100%,151px)!important;
+}
+#iuPwaSplash .iu-splash-progress-meta{
+  width:min(100%,151px)!important;
+}
+#iuUpdateOverlay .iu-update-progress-block{
+  width:min(100%,171px)!important;
 }
