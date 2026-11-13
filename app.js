@@ -501,12 +501,17 @@ function exitFocusWithoutSnapshot(action){
  ],{duration:450,easing:'ease-out',fill:'forwards'});
  animations.push(homeBlur);
  for(const [index,tile] of tiles.entries()){
-  // Même décalage entre les blocs que l'ouverture PWA (85 ms).
-  // Déplacement vertical préservé ; seule la succession est nouvelle.
+  // V36.64 — Le retour de fin d'inventaire se fait plus lentement,
+  // mais part moins bas pour ménager le regard. Ne modifie pas
+  // le masque de sortie ni les interactions du formulaire de pesée.
   animate(tile,[
-   {transform:'translate3d(0,105dvh,0)',opacity:1},
+   {transform:'translate3d(0,68dvh,0)',opacity:1},
    {transform:'translate3d(0,0,0)',opacity:1}
-  ],{delay:index*85});
+  ],{
+   duration:720,
+   delay:index*70,
+   easing:'cubic-bezier(.18,.82,.24,1)'
+  });
  }
  for(const anchor of anchors){
   // V33.74 : l'en-tête et la banderole restent visibles dès le début,
