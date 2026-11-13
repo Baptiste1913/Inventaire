@@ -1,7 +1,7 @@
 {
-  "version": "36.45",
+  "version": "36.46",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Fermeture plus rapide des tiroirs Administrateur et Mon compte (275 ms max), courbe de fermeture plus réactive, ouverture 36.44 conservée et diagnostics maintenus."
+  "notes": "Ajustement progressif : fermeture des panneaux Administrateur et Mon compte à 340 ms au lieu de 275 ms, ouverture et diagnostics inchangés."
 }
