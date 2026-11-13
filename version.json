@@ -1,7 +1,7 @@
 {
-  "version": "36.30",
+  "version": "36.31",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte remontée de 4 px et déplacée de 3 px vers la gauche sans modifier sa taille, sa rotation ni son découpage dans la banderole."
+  "notes": "Mascotte déplacée de 3 px vers la gauche à hauteur constante ; barres de chargement au démarrage et à la mise à jour raccourcies de 25 px."
 }
