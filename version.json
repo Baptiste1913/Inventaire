@@ -1,7 +1,7 @@
 {
-  "version": "36.19",
+  "version": "36.20",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Dégradé du résultat de pesée adouci : flou 58 px et zone de diffusion élargie pour un mélange plus harmonieux des couleurs. Bouton Copier et calcul inchangés."
+  "notes": "Contour gris perle translucide de 1 px identique au bloc de chargement appliqué aux cartes principales ; ombres, contenus et animations inchangés."
 }
