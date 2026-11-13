@@ -15700,3 +15700,215 @@ html body.is-admin-mode .app > #planningAdminCard[data-admin-loading="true"] > .
 html body.is-admin-mode .app > #planningAdminCard[hidden]{
  display:none!important;
 }
+
+
+/* V36.67 — Une véritable page administrateur plein écran, calquée sur
+   la composition du mode Session : bandeau (focus-toolbar) indépendant
+   puis carte de contenu (calc-card). L'accueil reste derrière, sans être
+   rendu interactif. Aucun panneau géant, aucune animation de hauteur. */
+html.iu-admin-page-active,
+html body.is-admin-mode{
+ overflow:hidden!important;
+ overscroll-behavior:none!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary{
+ display:grid!important;
+ grid-template-columns:44px minmax(0,1fr)!important;
+ grid-template-rows:auto auto!important;
+ column-gap:12px!important;
+ row-gap:13px!important;
+ align-items:center!important;
+ justify-items:stretch!important;
+ padding:18px 17px 17px!important;
+ cursor:pointer!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-lock{
+ grid-column:1!important;grid-row:1!important;
+ margin:0!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-title{
+ grid-column:2!important;grid-row:1!important;
+ min-width:0!important;margin:0!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing{
+ grid-column:1/-1!important;grid-row:2!important;
+ width:100%!important;max-width:none!important;
+ display:flex!important;flex:initial!important;
+ margin:0!important;padding:0!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary .iu-admin-launch-action{
+ display:flex!important;
+ align-items:center!important;justify-content:center!important;
+ flex:1 1 100%!important;
+ gap:9px!important;
+ width:100%!important;
+ min-width:0!important;min-height:45px!important;
+ padding:10px 14px!important;
+ border:1px solid #d8dfe3!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;
+ box-shadow:none!important;
+ font:800 13px/1.3 inherit!important;
+ white-space:normal!important;
+ text-align:center!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary:is(:hover,:active,:focus) .iu-admin-launch-action{
+ border-color:#d8dfe3!important;
+ background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#414d56!important;
+ box-shadow:none!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary .iu-admin-launch-action svg{
+ width:14px!important;height:14px!important;flex:0 0 14px!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card{
+ position:fixed!important;
+ inset:0!important;
+ top:0!important;left:0!important;right:0!important;bottom:0!important;
+ z-index:1800!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ justify-content:flex-start!important;
+ gap:16px!important;
+ width:100%!important;max-width:none!important;
+ height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;
+ margin:0!important;
+ padding:max(14px,env(safe-area-inset-top)) 0 max(28px,env(safe-area-inset-bottom))!important;
+ box-sizing:border-box!important;
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+ overscroll-behavior-y:contain!important;
+ -webkit-overflow-scrolling:touch;
+ background:#f3f6f7!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;
+}
+html body.is-admin-mode .app > #planningAdminCard[hidden]{
+ display:none!important;
+}
+/* Même bandeau et mêmes métriques que Session en cours. */
+html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-page-head.focus-toolbar{
+ position:sticky!important;
+ top:0!important;
+ z-index:12!important;
+ display:block!important;
+ flex:0 0 auto!important;
+ align-self:center!important;
+ width:calc(100% - 26px)!important;
+ max-width:734px!important;
+ min-width:0!important;
+ height:auto!important;
+ margin:0 auto!important;
+ padding:20px 18px!important;
+ box-sizing:border-box!important;
+ border:1px solid #d5e9e9!important;
+ border-radius:24px!important;
+ background:linear-gradient(155deg,#fff 0%,#f5fbfb 68%,#eef6f7 100%)!important;
+ box-shadow:0 7px 25px rgba(32,56,63,.055)!important;
+ overflow:hidden!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-heading{
+ display:flex!important;align-items:center!important;gap:12px!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-heading h2{
+ margin:3px 0 0!important;
+ font-size:clamp(1.15rem,4.8vw,1.55rem)!important;
+ color:#252e35!important;font-weight:850!important;
+ letter-spacing:-.025em!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-metrics{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ gap:10px!important;margin:17px 0!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-metrics > div{
+ padding:13px 14px!important;
+ background:linear-gradient(150deg,#f9fcfd,#eef6f7)!important;
+ border:1px solid #d6e6ea!important;
+ border-radius:16px!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-metrics small{
+ font-size:.75rem!important;line-height:1.3!important;color:#54747d!important;
+ font-weight:750!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-metrics strong{
+ display:block!important;
+ font-size:clamp(.9rem,3.8vw,1.2rem)!important;
+ color:#263c46!important;
+ font-weight:850!important;
+ line-height:1.3!important;
+ overflow-wrap:anywhere!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ gap:10px!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions > button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-width:0!important;min-height:45px!important;
+ padding:10px 12px!important;gap:8px!important;
+ border:1px solid #d7dde2!important;border-radius:13px!important;
+ background:linear-gradient(145deg,#fff,#e9edf0)!important;
+ color:#4b5963!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.99),0 2px 7px rgba(35,45,55,.045)!important;
+ font:800 12.5px/1.3 inherit!important;
+ cursor:pointer!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions > button svg{
+ width:15px!important;height:15px!important;
+ fill:none!important;stroke:currentColor!important;
+ stroke-width:2.2!important;stroke-linecap:round!important;stroke-linejoin:round!important;
+ margin:0!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions > button:active{
+ transform:scale(.985)!important;
+}
+/* Les fonctionnalités existantes deviennent une SECONDE carte distincte,
+   alignée sur le bloc de pesée du mode Session. */
+html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body{
+ display:block!important;
+ flex:0 0 auto!important;
+ align-self:center!important;
+ width:calc(100% - 26px)!important;
+ max-width:734px!important;
+ min-width:0!important;
+ height:auto!important;max-height:none!important;min-height:0!important;
+ margin:0 auto 14px!important;
+ padding:18px 15px 22px!important;
+ box-sizing:border-box!important;
+ overflow:visible!important;
+ border:1px solid #d5e9e9!important;
+ border-radius:24px!important;
+ background:linear-gradient(175deg,#fff 75%,#f6fbfb)!important;
+ box-shadow:0 7px 25px rgba(32,56,63,.055)!important;
+ opacity:1!important;
+ transform:none!important;
+}
+html body.is-admin-mode .app > #planningAdminCard[data-admin-loading="true"] > .planning-admin-body{
+ display:none!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-loading-message{
+ flex:0 0 auto!important;
+ width:calc(100% - 26px)!important;max-width:734px!important;
+ margin:0 auto!important;
+ border:1px solid #d5e9e9!important;
+ border-radius:24px!important;
+ background:#fff!important;
+}
+@media(max-width:430px){
+ html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-page-head.focus-toolbar{
+  padding:16px!important;border-radius:22px!important;
+ }
+ html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body{
+  padding:15px 11px 19px!important;border-radius:22px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-admin-mode .app > #planningAdminCard.card,
+ html body.is-admin-mode .app > #planningAdminCard .iu-admin-page-head,
+ html body.is-admin-mode .app > #planningAdminCard .planning-admin-body{
+  scroll-behavior:auto!important;
+ }
+}
