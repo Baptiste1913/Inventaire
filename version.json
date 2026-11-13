@@ -1,7 +1,7 @@
 {
-  "version": "36.09",
+  "version": "36.10",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Pastèque inclinée de 13° (+10° dans le sens horaire), avec compensation verticale selon la largeur de l’écran pour maintenir les pieds contre le bas de la banderole, ombre inchangée."
+  "notes": "Rotation de la pastèque réduite de 13° à 10° dans le sens horaire. Pied droit aligné sur le bas de la bannière avec une compensation relative à la taille du SVG, pour rester cohérent sur mobile et ordinateur."
 }
