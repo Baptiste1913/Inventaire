@@ -35,6 +35,38 @@
    if(document.readyState!=='loading'){resolve();return;}
    document.addEventListener('DOMContentLoaded',resolve,{once:true});
   });
+  // V36.41 — Préparation complète des contenus déjà autorisés avant de
+  // masquer le splash. Aucun <details> n'est ouvert artificiellement, aucune
+  // écriture dans localStorage et aucune requête cloud obligatoire hors ligne.
+  const prewarmPanels=async()=>{
+   set(96,'Préparation des blocs');
+   const [authReady,adminReady]=await Promise.all([
+    readyOrTimeout(()=>window.IUAuthInitialReady===true,4500),
+    readyOrTimeout(()=>window.IUAdminInitialReady===true,4500)
+   ]);
+   try{window.IUPrewarmLocalPanels?.();}catch(error){console.warn('Préparation des listes',error);}
+   try{window.IUPrewarmAccount?.();}catch(error){console.warn('Préparation du compte',error);}
+   set(97,'Préparation des éléments');
+   // Le DOM est construit, les blocs ont leurs styles initiaux et les images
+   // sont décodées avant la première animation visible, dans la limite d'un
+   // chargement raisonnable si une ressource externe ne répond pas.
+   const pictures=[...document.images].filter(img=>img.getAttribute('src'));
+   const decoded=pictures.map(img=>{
+    try{return typeof img.decode==='function'?img.decode().catch(()=>{}):Promise.resolve();}
+    catch(_){return Promise.resolve();}
+   });
+   await Promise.race([Promise.allSettled(decoded),sleep(2200)]);
+   if(document.fonts?.ready)await Promise.race([document.fonts.ready.catch(()=>{}),sleep(1200)]);
+   const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar')];
+   for(const card of cards){
+    if(card.hidden)continue;
+    try{getComputedStyle(card).display;card.getBoundingClientRect();}catch(_){}
+   }
+   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+   set(99,'Interface prête');
+   if(!authReady||!adminReady)console.info('Ouverture : préparation des services distants limitée pour préserver le mode hors ligne.');
+   return true;
+  };
   const reveal=()=>{
    if(finished)return;
    finished=true;
@@ -91,10 +123,7 @@
       }catch(_){finish(false);}
      })();
     });
-    if(document.fonts?.ready){
-     await Promise.race([document.fonts.ready.catch(()=>{}),sleep(750)]);
-    }
-    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    await prewarmPanels();
     const usable=Boolean(document.querySelector('.app > .calc-card')&&document.querySelector('#grossWeight'));
     if(offlineReady&&coreReady&&usable)set(100,'Ouverture terminée');
     else console.warn('Ouverture : certaines ressources hors ligne ou étapes de préparation ne sont pas confirmées.');
