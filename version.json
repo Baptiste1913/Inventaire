@@ -1,7 +1,7 @@
 {
-  "version": "35.99",
+  "version": "36.00",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Bouton Inventaire plus étroit (158 px ; 156 sur petit écran), titre et description descendus et rapprochés, indicateur de session harmonisé avec la pastille Ma session (point/halo/couleurs/animation)."
+  "notes": "Titre de la banderole aligné avec le point de statut, description rapprochée, fond à trois grandes formes floutées reprenant le cyan, le bleu pétrole et le vert d'eau du logo U."
 }
