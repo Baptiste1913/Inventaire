@@ -207,7 +207,12 @@
     }catch{window.IUTechnicalLog?.('service');value('opsSupabase','warning','Non vérifiable');}})(),
    updateCheck()
   ]);
-  $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.';
+  const startup=window.IUStartupMetrics;
+  const folds=window.IUFoldPerformance?.();
+  const perfInfo=startup?.totalMs!==undefined
+   ?' · Préparation '+startup.totalMs+' ms · Dimensions '+(folds?.prepared||0)+' blocs · Cache '+(folds?.cacheHits||0)+' utilisation(s) · '+(folds?.cacheMisses||0)+' recalcul(s)'
+   :'';
+  $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.'+perfInfo;
   refreshing=false;if(button)button.disabled=false;
  }
  // V36.40 — Diagnostics préparés dès que l'accès administrateur est
