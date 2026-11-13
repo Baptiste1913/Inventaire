@@ -591,6 +591,40 @@ function changeFocusWithMotion(action,entering,config={}){
 }
 function animateFocusEntry(action){changeFocusWithMotion(action,true);}
 function animateFocusExit(action){changeFocusWithMotion(action,false);}
+/* V36.66 — Vue Administrateur : le même moteur d'entrée/sortie que le
+   mode concentration, sans dupliquer le contenu protégé ni ses formulaires.
+   Le <details> reste en place pour les scripts administrateur et Supabase. */
+const iuAdminPageMotion={
+ modeClass:'is-admin-mode',
+ viewSelectors:'.app > #planningAdminCard',
+ exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-page-head',
+ normalSelectors:focusNormalSelectors,
+ surfaceSelectors:focusSurfaceSelectors
+};
+let iuAdminReturnY=0;
+function iuOpenAdminPage(){
+ const card=$('planningAdminCard');
+ if(!card||card.hidden||card.dataset.adminLoading==='true'||
+    document.body.classList.contains('is-admin-mode')||focusMotionBusy)return;
+ iuAdminReturnY=window.scrollY;
+ changeFocusWithMotion(()=>{
+  card.open=true;
+  document.body.classList.add('is-admin-mode');
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+ },true,iuAdminPageMotion);
+}
+function iuCloseAdminPage(immediate=false){
+ const card=$('planningAdminCard');
+ if(!card||!document.body.classList.contains('is-admin-mode'))return;
+ const exit=()=>{
+  document.body.classList.remove('is-admin-mode');
+  card.open=false;
+  window.scrollTo({top:iuAdminReturnY,left:0,behavior:'instant'});
+ };
+ if(immediate||focusMotionBusy||focusReducedMotion()){exit();return;}
+ changeFocusWithMotion(exit,false,iuAdminPageMotion);
+}
+window.IUOpenAdminPage=iuOpenAdminPage;
 function syncFocusMode(sessionInput,statsInput){
  const session=arguments.length?sessionInput:getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
@@ -1675,13 +1709,33 @@ window.IUSetupFold=setupUnifiedFold;
   document.querySelectorAll(selector).forEach(card=>
    setupUnifiedFold(card,card.querySelector(summary),card.querySelector(content),closing));
  };
- bind('.fold-card',':scope > .fold-summary',':scope > .fold-body','is-fold-closing');
+ // L'administration n'est plus un accordéon : elle occupe une vue dédiée.
+ bind('.fold-card:not(#planningAdminCard)',':scope > .fold-summary',':scope > .fold-body','is-fold-closing');
  bind('#planningAdminCard .planning-accordion',':scope > .planning-panel-summary',':scope > .planning-panel-content','is-planning-closing');
  bind('.planning-import-help',':scope > summary',':scope > .planning-import-help-body','is-detail-closing');
  bind('details.calc-alerts',':scope > summary',':scope > .calc-alerts-body, :scope > .recovery-body','is-detail-closing');
  bind('details.backup-advanced',':scope > summary',':scope > .backup-advanced-body','is-detail-closing');
  bind('details.events-disclosure',':scope > summary',':scope > .events-disclosure-content','is-events-closing');
  bind('#planningAdminCard details.iu-admin-category',':scope > summary',':scope > .iu-admin-category-body','is-admin-closing');
+ const adminCard=$('planningAdminCard');
+ const summary=adminCard?.querySelector(':scope > summary');
+ summary?.addEventListener('click',event=>{
+  event.preventDefault();
+  iuOpenAdminPage();
+ });
+ $('iuAdminReturn')?.addEventListener('click',()=>iuCloseAdminPage());
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
+   event.preventDefault();iuCloseAdminPage();
+  }
+ });
+ if(adminCard){
+  // Si l'accès est révoqué (déconnexion / RLS), ne jamais laisser
+  // la vue administrateur affichée alors que le volet est masqué.
+  new MutationObserver(()=>{
+   if(adminCard.hidden)iuCloseAdminPage(true);
+  }).observe(adminCard,{attributes:true,attributeFilter:['hidden']});
+ }
 })();
 function setupSecondaryDetailsAnimation(card,bodySelector){
  if(!card)return;
