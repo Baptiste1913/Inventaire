@@ -629,7 +629,13 @@ function iuCloseAdminPage(immediate=false){
   card.open=false;
   window.scrollTo({top:iuAdminReturnY,left:0,behavior:'instant'});
  };
- if(immediate||focusMotionBusy||focusReducedMotion()){exit();return;}
+ if(!immediate&&focusMotionBusy){
+  // Comme pour la session, la sortie attend la fin de l'entrée
+  // plutôt que couper une transition à mi-mouvement.
+  focusPendingTask=()=>iuCloseAdminPage();
+  return;
+ }
+ if(immediate||focusReducedMotion()){exit();return;}
  changeFocusWithMotion(exit,false,iuAdminPageMotion);
 }
 window.IUOpenAdminPage=iuOpenAdminPage;
@@ -1745,8 +1751,9 @@ window.IUSetupFold=setupUnifiedFold;
   // Si l'accès est révoqué (déconnexion / RLS), ne jamais laisser
   // la vue administrateur affichée alors que le volet est masqué.
   new MutationObserver(()=>{
-   if(adminCard.hidden)iuCloseAdminPage(true);
-  }).observe(adminCard,{attributes:true,attributeFilter:['hidden']});
+   if(adminCard.hidden||adminCard.dataset.adminLoading==='true')
+    iuCloseAdminPage(true);
+  }).observe(adminCard,{attributes:true,attributeFilter:['hidden','data-admin-loading']});
  }
 })();
 function setupSecondaryDetailsAnimation(card,bodySelector){
