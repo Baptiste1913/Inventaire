@@ -1,7 +1,7 @@
 {
-  "version": "36.66",
+  "version": "36.67",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Essai d’un espace administrateur en page dédiée : le bloc d’accueil propose « Accéder aux réglages », ouverture et retour avec le moteur d’animation du mode concentration. Tout le tableau de bord, la mise à jour et la planification restent dans le même DOM protégé, avec bouton Retour et navigation sticky. Mon compte et les pesées restent inchangés."
+  "notes": "Espace administrateur en véritable page plein écran avec défilement indépendant et fond dédié : même composition visuelle que le mode Session (bandeau, indicateurs, actions, carte de contenu). Le bouton Accéder aux réglages est désormais une commande pleine largeur sous le titre, comme Démarrer un inventaire. Transitions du mode concentration réutilisées, navigation Retour et Actualiser, état Supabase protégé, correction des pesées et Mon compte inchangés."
 }
