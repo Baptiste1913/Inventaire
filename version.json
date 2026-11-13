@@ -1,7 +1,7 @@
 {
-  "version": "36.13",
+  "version": "36.14",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Tous les tiroirs reprennent le rythme du tiroir Réglages d’alertes : ouverture et fermeture 380 ms, même courbe, mêmes chevrons, y compris compte, administrateur, planning, bilans, sauvegarde et événements. Maintien des ouvertures interrompues fluides et de l’accessibilité."
+  "notes": "Le cadre Poids net reprend exactement les quatre halos et les couleurs de la banderole (flou adapté à sa taille). Le bouton Copier utilise le SVG de Inventaire dans un format compact 96 × 42 px, stable au toucher et avec confirmation courte « Copié »."
 }

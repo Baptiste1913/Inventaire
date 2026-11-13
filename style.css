@@ -14766,7 +14766,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  padding:6px 12px!important;
  border:0!important;
  border-radius:999px!important;
- background:transparent url("./assets/u-inventory-button.svg?v=36.06") center / 100% 100% no-repeat!important;
+ background:transparent url("./assets/u-inventory-button.svg?v=36.14") center / 100% 100% no-repeat!important;
  background-color:transparent!important;
  box-shadow:none!important;
  outline:0!important;
@@ -14994,5 +14994,122 @@ html body #inventoryCalendar .events-more-inline svg{
  html body #inventoryCalendar .events-disclosure-chevron,
  html body #inventoryCalendar .events-more-inline svg{
   transition:none!important;
+ }
+}
+
+/* V36.14 — Résultat de pesée : exactement les mêmes quatre sources
+   lumineuses, coordonnées et teintes que la banderole V36.00.
+   Seule la valeur de flou est adaptée à la hauteur du petit cadre. */
+html body .app > section.calc-card .result{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+ background:#087583!important;
+ background-color:#087583!important;
+ border:1px solid rgba(213,248,245,.25)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.18),
+            0 8px 19px rgba(9,78,82,.13)!important;
+}
+html body .app > section.calc-card .result::before{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:-28% -20% -30% -20%!important;
+ z-index:0!important;
+ pointer-events:none!important;
+ background:
+  radial-gradient(ellipse 46% 40% at 49% 91%,rgba(37,202,128,.98) 0%,rgba(29,175,121,.66) 44%,transparent 83%),
+  radial-gradient(circle at 14% 24%,rgba(83,192,233,.95) 0%,rgba(83,192,233,.78) 24%,rgba(83,192,233,.28) 48%,transparent 72%),
+  radial-gradient(circle at 54% 12%,rgba(0,117,131,.96) 0%,rgba(0,117,131,.82) 28%,rgba(0,117,131,.32) 52%,transparent 76%),
+  radial-gradient(circle at 89% 66%,rgba(100,185,174,.96) 0%,rgba(100,185,174,.80) 27%,rgba(100,185,174,.34) 54%,transparent 78%)!important;
+ -webkit-filter:blur(40px)!important;
+ filter:blur(40px)!important;
+ opacity:1!important;
+}
+html body .app > section.calc-card .result > :is(.result-heading,.net-line,.result-subtitle){
+ position:relative!important;
+ z-index:1!important;
+}
+html body .app > section.calc-card .result .result-heading > span,
+html body .app > section.calc-card .result .net-line strong{
+ color:#fff!important;
+}
+html body .app > section.calc-card .result .net-line span,
+html body .app > section.calc-card .result .result-subtitle{
+ color:rgba(249,255,253,.83)!important;
+}
+
+/* Bouton Copier : habillage avec le SVG d'origine du bouton Inventaire.
+   Gabarit resserré (96 × 42 px contre 154 × 45 px), icône et libellé conservés.
+   Aspect identique au survol, à l'appui, au focus et après copie sur iPhone. */
+html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn,
+html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn:is(:enabled,:disabled,:hover,:active,:focus,:focus-visible),
+html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn.is-copied{
+ -webkit-appearance:none!important;
+ appearance:none!important;
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ flex:0 0 96px!important;
+ width:96px!important;
+ min-width:96px!important;
+ max-width:96px!important;
+ height:42px!important;
+ min-height:42px!important;
+ max-height:42px!important;
+ gap:5px!important;
+ padding:0 10px!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:999px!important;
+ background:transparent url("./assets/u-inventory-button.svg?v=36.14") center / 100% 100% no-repeat!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+ color:#28343d!important;
+ -webkit-text-fill-color:#28343d!important;
+ font-size:11.5px!important;
+ font-weight:850!important;
+ line-height:1!important;
+ white-space:nowrap!important;
+ text-shadow:none!important;
+ opacity:1!important;
+ filter:none!important;
+ transform:none!important;
+ transition:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn:disabled{
+ opacity:.65!important;
+ cursor:not-allowed!important;
+}
+html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn:focus-visible{
+ outline:2px solid rgba(255,255,255,.85)!important;
+ outline-offset:2px!important;
+}
+html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn :is(.copy-btn-icon,.copy-btn-check){
+ flex:0 0 14px!important;
+ width:14px!important;
+ height:14px!important;
+ color:#28343d!important;
+ stroke:currentColor!important;
+}
+html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn #copyBtnLabel{
+ flex:0 1 auto!important;
+ white-space:nowrap!important;
+ color:#28343d!important;
+ -webkit-text-fill-color:#28343d!important;
+}
+@media(max-width:380px){
+ html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn,
+ html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn:is(:enabled,:disabled,:hover,:active,:focus,:focus-visible),
+ html body .app > section.calc-card .result-heading > button#copyBtn.copy-btn.is-copied{
+  flex-basis:90px!important;
+  width:90px!important;
+  min-width:90px!important;
+  max-width:90px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  padding:0 8px!important;
+  font-size:11px!important;
  }
 }

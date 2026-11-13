@@ -1107,7 +1107,7 @@ $('copyBtn').addEventListener('click',async()=>{
   const btn=$('copyBtn'),label=$('copyBtnLabel');
   clearTimeout(copyFeedbackTimer);
   btn.classList.add('is-copied');
-  label.textContent='Poids copié';
+  label.textContent='Copié';
   btn.setAttribute('aria-label','Poids copié');
   copyFeedbackTimer=setTimeout(()=>{
    btn.classList.remove('is-copied');
