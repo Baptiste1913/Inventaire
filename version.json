@@ -1,7 +1,7 @@
 {
-  "version": "36.67",
+  "version": "36.68",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Espace administrateur en véritable page plein écran avec défilement indépendant et fond dédié : même composition visuelle que le mode Session (bandeau, indicateurs, actions, carte de contenu). Le bouton Accéder aux réglages est désormais une commande pleine largeur sous le titre, comme Démarrer un inventaire. Transitions du mode concentration réutilisées, navigation Retour et Actualiser, état Supabase protégé, correction des pesées et Mon compte inchangés."
+  "notes": "Refonte de la page Administrateur : vraie vue plein écran à défilement indépendant, bandeau et carte séparés reprenant les codes du mode Session en cours, commandes Retour et Actualiser. Le bloc d’accueil affiche un bouton Accéder aux réglages pleine largeur sous le titre, à la place de l’ancien bouton latéral. Animations de concentration conservées, protection Supabase prioritaire et correction du défilement des pesées intacte."
 }
