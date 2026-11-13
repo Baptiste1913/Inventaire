@@ -15261,12 +15261,12 @@ html body .app details[data-unified-fold="yes"].iu-fold-animating > summary{
 }
 
 
-/* V36.35 — Repartir de 36.33 : une seule boucle rAF pour tous les tiroirs,
-   sans isolation de sous-contenu ni couche GPU forcée pendant l'ouverture.
-   Les effets visuels permanents des cartes restent inchangés. */
+/* V36.34 — Annuler l'isolation des sous-contenus V36.33 qui pouvait
+   provoquer des repaints/clippings lors de l'animation sur Safari iOS.
+   requestAnimationFrame anime maintenant uniquement la hauteur du tiroir. */
 :root{
- --iu-drawer-reference-duration:420ms;
- --iu-drawer-reference-ease:cubic-bezier(.25,.55,.25,1);
+ --iu-drawer-reference-duration:410ms;
+ --iu-drawer-reference-ease:cubic-bezier(.35,0,.20,1);
 }
 html body .app details[data-unified-fold="yes"].iu-fold-animating{
  contain:none!important;
@@ -15284,53 +15284,9 @@ html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
 }
 
 
-/* V36.36 — Tiroirs CSS Grid sur Safari/iOS : le navigateur interpole
-   0fr -> 1fr ; aucune ecriture de height sur chaque image.
-   Les cartes, en-tetes et ombres gardent leur style actuel. */
+/* V36.37 — Retour aux styles 36.34. La hauteur est maintenant amortie
+   au fil des frames ; aucun effet de GPU additionnel sur les tiroirs. */
 :root{
- --iu-drawer-reference-duration:440ms;
- --iu-drawer-reference-ease:cubic-bezier(.25,.65,.25,1);
-}
-html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"]{
- display:grid!important;
- grid-template-columns:minmax(0,1fr)!important;
- grid-template-rows:auto minmax(0,0fr)!important;
- transition:grid-template-rows var(--iu-drawer-reference-duration) var(--iu-drawer-reference-ease)!important;
- contain:none!important;
- isolation:auto!important;
-}
-html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"][data-iu-grid-expanded="yes"]{
- grid-template-rows:auto minmax(0,1fr)!important;
-}
-html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"] > :not(summary){
- min-height:0!important;
- min-width:0!important;
- overflow:hidden!important;
- contain:none!important;
- transform:none!important;
- -webkit-backface-visibility:visible!important;
- backface-visibility:visible!important;
- transition:none!important;
- animation:none!important;
-}
-html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"].iu-fold-animating{
- contain:none!important;
- isolation:auto!important;
- overflow:hidden!important;
-}
-@media(prefers-reduced-motion:reduce){
- html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"]{
-  transition:none!important;
- }
-}
-
-/* L'admin comprend une ligne supplémentaire pour l'état de chargement. */
-html body .app details#planningAdminCard[data-unified-fold="yes"][data-iu-grid-fold="yes"]{
- grid-template-rows:auto auto minmax(0,0fr)!important;
-}
-html body .app details#planningAdminCard[data-unified-fold="yes"][data-iu-grid-fold="yes"][data-iu-grid-expanded="yes"]{
- grid-template-rows:auto auto minmax(0,1fr)!important;
-}
-html body .app details#planningAdminCard[data-unified-fold="yes"][data-iu-grid-fold="yes"] > .iu-admin-loading-message{
- overflow:visible!important;
+ --iu-drawer-reference-duration:500ms;
+ --iu-drawer-reference-ease:cubic-bezier(.22,.75,.24,1);
 }
