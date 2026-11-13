@@ -15156,14 +15156,14 @@ html body .app > section.intro > img.intro-mascot{
 }
 
 
-/* V36.28 — Mascotte réduite d'environ 11 %, même ancrage bas et à droite. */
+/* V36.29 — Mascotte encore réduite de 20 %, ancrage bas/droite inchangé. */
 html body .app > section.intro{
   position:relative!important;
   overflow:hidden!important;
 }
 html body .app > section.intro > img.intro-mascot{
   position:absolute!important;
-  width:clamp(145px,18.5vw,175px)!important;
+  width:clamp(116px,14.8vw,140px)!important;
   height:auto!important;
   right:-30px!important;
   bottom:-14px!important;
@@ -15176,7 +15176,7 @@ html body .app > section.intro > img.intro-mascot{
 }
 @media(max-width:600px){
   html body .app > section.intro > img.intro-mascot{
-    width:148px!important;
+    width:118px!important;
     right:-32px!important;
     bottom:-16px!important;
     transform:rotate(-12deg)!important;
@@ -15184,7 +15184,7 @@ html body .app > section.intro > img.intro-mascot{
 }
 @media(max-width:380px){
   html body .app > section.intro > img.intro-mascot{
-    width:137px!important;
+    width:110px!important;
     right:-30px!important;
     bottom:-14px!important;
     transform:rotate(-12deg)!important;
