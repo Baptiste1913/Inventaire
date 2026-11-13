@@ -1,7 +1,7 @@
 {
-  "version": "36.15",
+  "version": "36.16",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Bouton Copier restauré à son style blanc d'origine (avant 36.14) et confirmation « Poids copié ». Nouveau dégradé émeraude/turquoise organique discret sur le message « Inventaire terminé ». Dégradé Poids net conservé."
+  "notes": "Une légère touche de bleu du logo U a été intégrée à la bulle « Inventaire terminé » : deux halos bleutés diffus sur fond vert émeraude conservé. Bouton Copier et cadre Poids net inchangés."
 }

@@ -15050,7 +15050,8 @@ html body .app > section.calc-card .result .result-subtitle{
    la lisibilité du titre et de la description sur un cadre très compact. */
 body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
  background:
-  radial-gradient(ellipse 63% 94% at 12% -8%,rgba(80,190,219,.22),transparent 76%),
+  radial-gradient(ellipse 55% 85% at 14% -9%,rgba(83,192,233,.32),transparent 76%),
+  radial-gradient(ellipse 51% 84% at 91% 18%,rgba(0,128,166,.23),transparent 80%),
   radial-gradient(ellipse 77% 94% at 92% -14%,rgba(97,191,184,.21),transparent 78%),
   radial-gradient(ellipse 83% 90% at 52% 114%,rgba(41,184,126,.25),transparent 77%),
   radial-gradient(ellipse 55% 90% at 0% 90%,rgba(8,81,86,.19),transparent 85%),
@@ -15066,3 +15067,6 @@ body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-comp
 body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
  color:rgba(247,255,251,.88)!important;
 }
+
+/* V36.16 — Une touche du bleu du logo U, localisée en deux halos floutés
+   sur la confirmation « Inventaire terminé ». Le vert reste dominant. */
