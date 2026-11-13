@@ -1258,9 +1258,12 @@ window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
- // Cette implementation est reservee aux <details> avec exactement
- // deux enfants directs (summary et contenu) : deux pistes CSS Grid.
- if(card.children.length!==2||card.firstElementChild!==summary||card.lastElementChild!==content)return;
+ // Deux enfants directs pour les volets classiques. Le panneau admin a
+ // une ligne de chargement supplementaire entre summary et fold-body.
+ const adminLoading=card.id==='planningAdminCard'&&card.children.length===3&&
+  card.children[1].classList.contains('iu-admin-loading-message');
+ if(card.firstElementChild!==summary||card.lastElementChild!==content||
+    (card.children.length!==2&&!adminLoading))return;
  card.dataset.unifiedFold='yes';
  card.dataset.iuGridFold='yes';
  let intended=card.open,animating=false,finishTimer=0,openFrame=0;
