@@ -1124,6 +1124,14 @@ $('importInput').addEventListener('change',async e=>{const file=e.target.files?.
 
 render();renderHistory();renderV22();
 renderBackupSummary();
+// V36.41 — Préparer les listes et bilans locaux pendant le splash.
+// Utilise les fonctions existantes sans ouvrir de détails ni écrire de données.
+window.IUPrewarmLocalPanels=()=>{
+ renderHistory();
+ renderSessionsHistory();
+ renderBackupSummary();
+ return true;
+};
 $('backupCard').addEventListener('toggle',()=>{if($('backupCard').open)renderBackupSummary();});
 // V33.84 — vérifications régulières non bloquantes, sans rechargement forcé.
 window.IUCanSafelyUpdate=()=>!getActiveSession();
