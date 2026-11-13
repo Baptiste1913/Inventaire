@@ -163,10 +163,23 @@
   $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.';
   refreshing=false;if(button)button.disabled=false;
  }
+ // V36.39 — Diagnostic réseau différé après la transition du panneau lourd.
  const adminCard=$('planningAdminCard');
+ let diagnosticTimer=0;
+ const queueDiagnostics=()=>{
+  clearTimeout(diagnosticTimer);
+  if(!adminCard?.open)return;
+  diagnosticTimer=setTimeout(()=>{
+   diagnosticTimer=0;
+   if(adminCard.open)refresh();
+  },560);
+ };
  if(adminCard){
-  adminCard.addEventListener('toggle',()=>{if(adminCard.open)refresh();});
-  if(adminCard.open)refresh();
+  adminCard.addEventListener('toggle',()=>{
+   if(adminCard.open)queueDiagnostics();
+   else{clearTimeout(diagnosticTimer);diagnosticTimer=0;}
+  });
+  if(adminCard.open)queueDiagnostics();
  }
  $('opsRefresh')?.addEventListener('click',refresh);
  window.addEventListener('iu-update-ready',()=>{if(adminCard?.open)updateCheck();});
