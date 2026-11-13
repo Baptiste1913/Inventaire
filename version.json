@@ -1,7 +1,7 @@
 {
-  "version": "36.20",
+  "version": "36.21",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Contour gris perle translucide de 1 px identique au bloc de chargement appliqué aux cartes principales ; ombres, contenus et animations inchangés."
+  "notes": "Cartes principales : finition strictement calquée sur le panneau de chargement (contour gris perle 1 px, dégradé perle et relief lumineux). Éléments internes et mode concentration conservés."
 }
