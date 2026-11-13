@@ -1,7 +1,7 @@
 {
-  "version": "36.58",
+  "version": "36.59",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Ouverture plus douce des volets Administrateur et Mon compte : 520 ms au lieu de 420 ms, avec la même courbe et le moteur natif. Fermeture à 420 ms et animations des autres tiroirs inchangées."
+  "notes": "Correction du défilement automatique lors d'une nouvelle pesée sur Safari iPhone : focus du champ Poids brut sans défilement et aucune refocalisation inutile si le champ est déjà actif. Calcul, saisie, enregistrement automatique, mode concentration et autres animations inchangés."
 }
