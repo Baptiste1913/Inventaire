@@ -1,7 +1,7 @@
 {
-  "version": "36.43",
+  "version": "36.44",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Diagnostics de fluidité : mesures des écarts entre images pendant les tiroirs, invalidation du cache limitée aux changements réels de contenu, mode de comparaison graphique réversible pour Administrateur et Mon compte."
+  "notes": "Essai ciblé sur Administrateur et Mon compte : animation hybride translate/scale pilotée par le compositeur avec hauteur conservée pour déplacer les cartes, diagnostics de fluidité préservés et repli standard automatique."
 }
