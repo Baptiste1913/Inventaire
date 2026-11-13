@@ -1420,15 +1420,18 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   // Une seule animation native de height, sans boucle JavaScript par image.
   if(!intended&&closingTarget!==null){
    const to=Math.min(from,closingTarget);
-   card.style.height=from+'px';
-   card.style.overflow='hidden';
-   card.classList.add('iu-fold-animating',closingClass);
    if(Math.abs(from-to)<1){card.open=false;cleanup();return;}
+   // V36.49 — Une seule écriture de hauteur durant le clic (ci-dessus).
+   // Les changements de classes et d'overflow sont regroupés dans la
+   // prochaine frame, sans nouvelle lecture de layout après ces écritures.
+   // Cela évite une invalidation du rendu sur la frame intermédiaire.
    pendingCloseFrame=requestAnimationFrame(()=>{
     pendingCloseFrame=0;
-    // Si l'utilisateur a rouvert entre-temps, ne jamais déclencher une
-    // fermeture différée sur la nouvelle intention.
+    // Une réouverture rapide annule le travail sans laisser de styles
+    // transitoires ou d'animation concurrente.
     if(intended||!card.isConnected){cleanup();return;}
+    card.style.overflow='hidden';
+    card.classList.add('iu-fold-animating',closingClass);
     const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
      duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'
     });
