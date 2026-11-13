@@ -15228,3 +15228,34 @@ html body #inventoryCalendar .events-more-inline svg{
  html body .app details[data-unified-fold="yes"] > summary.planning-panel-summary > svg,
  html body #inventoryCalendar .events-more-inline svg{transition:none!important;}
 }
+
+
+/* V36.33 — Limiter les repaints Safari pendant les dépliages.
+   Isolation uniquement le temps de l'animation, restituée à la fin. */
+:root{
+ --iu-drawer-reference-duration:440ms;
+ --iu-drawer-reference-ease:cubic-bezier(.32,.08,.20,1);
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating{
+ contain:layout!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
+ .fold-body,.planning-panel-content,.iu-admin-category-body,.calc-alerts-body,
+ .backup-advanced-body,.v22-bilan,.planning-import-help-body,.recovery-body,
+ .events-disclosure-content){
+ transform:translateZ(0)!important;
+ -webkit-backface-visibility:hidden!important;
+ backface-visibility:hidden!important;
+ contain:layout paint!important;
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating > summary{
+ transition:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
+ .fold-body,.planning-panel-content,.iu-admin-category-body,.calc-alerts-body,
+ .backup-advanced-body,.v22-bilan,.planning-import-help-body,.recovery-body,
+ .events-disclosure-content){transform:none!important;contain:none!important;}
+}
