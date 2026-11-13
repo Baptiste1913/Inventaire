@@ -324,9 +324,17 @@ function flushPending(){if(autoSaveTimer!==null)return saveCurrentWeigh();if(net
  return true;
 }
 function clearWeigh(){clearTimeout(autoSaveTimer);autoSaveTimer=null;currentWeighId=null;acceptedAnomalyKey='';$('grossWeight').value='';$('weighStatus').textContent='';calculate();}
+// V36.59 — Sur Safari iOS, focus() sans option force parfois un scroll
+// lorsque le clavier numérique est déjà affiché. Garder le focus existant
+// et ne jamais demander à Safari de recentrer la page pour une nouvelle pesée.
+function focusGrossWithoutScroll(){
+ const field=$('grossWeight');
+ if(!field||document.activeElement===field)return;
+ field.focus({preventScroll:true});
+}
 function newWeigh(){if(!flushPending())return;if(!netGrams&&$('grossWeight').value.trim()){$('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;}
- if(!$('grossWeight').value.trim()){$('grossWeight').focus();return;}
- clearWeigh();$('grossWeight').focus();}
+ if(!$('grossWeight').value.trim()){focusGrossWithoutScroll();return;}
+ clearWeigh();focusGrossWithoutScroll();}
 function beginGroup(){return false;}
 function finishGroup(){return true;}
 function removeGroupEntry(id){return false;}
