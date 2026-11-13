@@ -14782,7 +14782,7 @@ html body .app > section.intro > #heroStatus.intro-session-state > .intro-sessio
  }
 }
 
-/* V35.88 — Contour U fiable sur Safari : un SVG local remplace les
+/* V35.97 — Contour personnalise de l'utilisateur, recadre sans distortion ;
    pseudo-éléments contradictoires des anciennes versions.
    Couronne bleu ciel à gauche, vert d'eau à droite, anneau canard continu. */
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
@@ -14792,10 +14792,10 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  -webkit-appearance:none!important;appearance:none!important;
  box-sizing:border-box!important;position:relative!important;
  isolation:isolate!important;overflow:hidden!important;
- width:145px!important;min-width:145px!important;max-width:calc(100vw - 56px)!important;
+ width:193px!important;min-width:193px!important;max-width:calc(100vw - 56px)!important;
  height:49px!important;min-height:49px!important;max-height:49px!important;
  padding:7px 16px!important;border:0!important;border-radius:999px!important;
- background:#fff url("./assets/u-inventory-button.svg?v=35.96") center / 100% 100% no-repeat!important;
+ background:#fff url("./assets/u-inventory-button.svg?v=35.97") center / contain no-repeat!important;
  background-color:#fff!important;
  box-shadow:none!important;
  color:#252b31!important;-webkit-text-fill-color:#252b31!important;
@@ -14827,7 +14827,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 }
 @media(max-width:380px){
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
-  width:145px!important;min-width:145px!important;padding:7px 14px!important;
+  width:193px!important;min-width:193px!important;padding:7px 14px!important;
  }
 }
 @supports selector(:focus-visible){

@@ -1,7 +1,7 @@
 {
-  "version": "35.96",
+  "version": "35.97",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Répartition cyan, pétrole et vert d'eau de la 35.95 conservée ; transitions allongées et effilées comme en 35.94, sans changer la forme, l'épaisseur ni les fonctions."
+  "notes": "Bouton Inventaire remplace par le visuel SVG fourni, recadre sans modifier le dessin, adapte a ses proportions et conserve en cache hors ligne sur iPhone."
 }
