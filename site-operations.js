@@ -247,7 +247,8 @@
  }
  // V36.43 — Comparaison A/B sur les seules cartes lourdes.
  // Les mesures sont locales et limitées aux dernières animations.
- const compare=$('opsFoldCompare'),rafToggle=$('opsFoldRaf'),results=$('opsFoldTestResults');
+ const compare=$('opsFoldCompare'),rafToggle=$('opsFoldRaf'),
+  fpsToggle=$('opsFoldFps'),results=$('opsFoldTestResults');
  const showFoldResults=()=>{
   if(!results)return;
   const perf=window.IUFoldPerformance?.();
@@ -255,11 +256,15 @@
   const shown=recent.slice(-6);
   const lines=shown.map(x=>{
    const name=x.name==='planningAdminCard'?'Administrateur':x.name==='accountCard'?'Mon compte':x.name?.slice(0,35)||'Tiroir';
+   const frames=x.measured
+    ?'~'+(x.approxFps||'—')+' i/s échantillonnées, '+(x.slowFrames||0)+
+      ' intervalle(s) > 34 ms, écart max '+(x.maxGapMs||0)+' ms'
+    :'mesures FPS désactivées';
    return name+' · '+(x.direction||'animation')+' · '+(x.engine==='raf'?'rAF horodaté':'native')+
-    ' ('+(x.effects||'normal')+') : '+x.durationMs+' ms, ~'+(x.approxFps||'—')+
-    ' i/s échantillonnées, '+(x.slowFrames||0)+' intervalle(s) > 34 ms, écart max '+(x.maxGapMs||0)+' ms';
+    ' ('+(x.effects||'normal')+') : '+x.durationMs+' ms, '+frames;
   });
-  results.textContent='Cache : '+(perf?.cacheHits||0)+' utilisation(s), '+(perf?.cacheMisses||0)+' nouvelle(s) mesure(s).'+
+  results.textContent='Cache : '+(perf?.cacheHits||0)+' utilisation(s), '+(perf?.cacheMisses||0)+
+   ' nouvelle(s) mesure(s), '+(perf?.liveCacheHits||0)+' ouverture(s) sans recalcul de contenu.'+
    (lines.length?'\n'+lines.join('\n'):'\\nAucune animation mesurée. Ouvre puis ferme un tiroir pour comparer.');
  };
  compare?.addEventListener('click',()=>{
@@ -283,6 +288,20 @@
   showFoldResults();
  });
  showRafMode();
+ // L'ancien échantillonnage rAF tournait pendant CHAQUE animation du site.
+ // Il ne se déclenche maintenant que lors d'un test explicitement demandé.
+ const showFpsMode=()=>{
+  if(!fpsToggle)return;
+  const enabled=window.IUGetFoldFrameDiagnostics?.()===true;
+  fpsToggle.setAttribute('aria-pressed',String(enabled));
+  fpsToggle.textContent=enabled?'Désactiver la mesure des FPS':'Mesurer les FPS (mode test)';
+ };
+ fpsToggle?.addEventListener('click',()=>{
+  window.IUSetFoldFrameDiagnostics?.(!window.IUGetFoldFrameDiagnostics?.());
+  showFpsMode();
+  showFoldResults();
+ });
+ showFpsMode();
  window.addEventListener('iu-fold-performance',showFoldResults);
  showFoldResults();
  $('opsRefresh')?.addEventListener('click',refresh);
