@@ -247,7 +247,7 @@
  }
  // V36.43 — Comparaison A/B sur les seules cartes lourdes.
  // Les mesures sont locales et limitées aux dernières animations.
- const compare=$('opsFoldCompare'),results=$('opsFoldTestResults');
+ const compare=$('opsFoldCompare'),rafToggle=$('opsFoldRaf'),results=$('opsFoldTestResults');
  const showFoldResults=()=>{
   if(!results)return;
   const perf=window.IUFoldPerformance?.();
@@ -255,7 +255,9 @@
   const shown=recent.slice(-6);
   const lines=shown.map(x=>{
    const name=x.name==='planningAdminCard'?'Administrateur':x.name==='accountCard'?'Mon compte':x.name?.slice(0,35)||'Tiroir';
-   return name+' ('+(x.effects||'normal')+') : '+x.durationMs+' ms, '+(x.slowFrames||0)+' intervalle(s) > 34 ms, écart max '+(x.maxGapMs||0)+' ms';
+   return name+' · '+(x.direction||'animation')+' · '+(x.engine==='raf'?'rAF horodaté':'native')+
+    ' ('+(x.effects||'normal')+') : '+x.durationMs+' ms, ~'+(x.approxFps||'—')+
+    ' i/s échantillonnées, '+(x.slowFrames||0)+' intervalle(s) > 34 ms, écart max '+(x.maxGapMs||0)+' ms';
   });
   results.textContent='Cache : '+(perf?.cacheHits||0)+' utilisation(s), '+(perf?.cacheMisses||0)+' nouvelle(s) mesure(s).'+
    (lines.length?'\n'+lines.join('\n'):'\\nAucune animation mesurée. Ouvre puis ferme un tiroir pour comparer.');
@@ -266,6 +268,21 @@
   compare.textContent=enabled?'Rétablir les effets graphiques':'Tester la fluidité sans effets graphiques';
   showFoldResults();
  });
+ // Choix expérimental limité à Administrateur / Mon compte.
+ // La méthode native est conservée au démarrage et après rechargement.
+ const showRafMode=()=>{
+  if(!rafToggle)return;
+  const usingRaf=window.IUGetHeavyFoldMotionMode?.()==='raf';
+  rafToggle.setAttribute('aria-pressed',String(usingRaf));
+  rafToggle.textContent=usingRaf?'Rétablir l’animation native':'Tester l’animation JS (rAF)';
+ };
+ rafToggle?.addEventListener('click',()=>{
+  const mode=window.IUGetHeavyFoldMotionMode?.()==='raf'?'native':'raf';
+  window.IUSetHeavyFoldMotionMode?.(mode);
+  showRafMode();
+  showFoldResults();
+ });
+ showRafMode();
  window.addEventListener('iu-fold-performance',showFoldResults);
  showFoldResults();
  $('opsRefresh')?.addEventListener('click',refresh);
