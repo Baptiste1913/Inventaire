@@ -205,9 +205,24 @@ $('accountResetCancel')?.addEventListener('click',()=>$('accountResetDialog')?.c
 $('accountResetConfirm')?.addEventListener('click',confirmDashboardReset);
 $('accountResetDialog')?.addEventListener('close',()=>{pendingDashboardReset=null;});
 
+// V36.39 — Les composants secondaires du compte attendent la fin du tiroir.
+let deferredAccountRender=0;
+const accountCardForDashboard=$('accountCard');
+function queueAccountDashboardRender(){
+ clearTimeout(deferredAccountRender);
+ if(!accountCardForDashboard?.open||!user)return;
+ deferredAccountRender=setTimeout(()=>{
+  deferredAccountRender=0;
+  if(accountCardForDashboard.open&&user&&!accountCardForDashboard.classList.contains('iu-fold-animating'))renderDashboard();
+ },560);
+}
+accountCardForDashboard?.addEventListener('toggle',()=>{
+ if(!accountCardForDashboard.open){clearTimeout(deferredAccountRender);deferredAccountRender=0;return;}
+ queueAccountDashboardRender();
+});
 function renderDashboard(){
  const panel=$('accountDashboard');if(!panel)return;
- panel.hidden=!user;if(!user)return;
+ panel.hidden=!user;if(!user||!accountCardForDashboard?.open)return;
  let all=[];try{const parsed=JSON.parse(localStorage.getItem('inventaires-u-sessions-v1')||'{}');all=Array.isArray(parsed.sessions)?parsed.sessions:[];}catch{}
  const cutoff=dashboardResetAt();const completed=all.filter(x=>x&&Number.isFinite(x.startedAt)&&Number.isFinite(x.endedAt)&&x.endedAt>=x.startedAt&&x.endedAt>cutoff);
  const entries=completed.flatMap(x=>Array.isArray(x.entries)?x.entries:[]).filter(x=>x&&Number.isSafeInteger(x.net)&&x.net>=0);
@@ -222,6 +237,9 @@ function renderDashboard(){
  const totalDuration=durations.reduce((sum,x)=>sum+x,0);
  const pace=entries.length?Math.round(totalDuration/entries.length/1000):null;
  $('dashSecondsPerWeigh').textContent=pace===null?'—':`${pace} s`;
+ // Les graphiques et la liste d'inventaires ne sont reconstruits qu'une fois
+ // la transition terminée. Les compteurs essentiels restent rapides.
+ if(accountCardForDashboard.classList.contains('iu-fold-animating'))return;
  const trend=$('dashTrend');trend.replaceChildren();
  const plotted=[...completed].filter(x=>Array.isArray(x.entries)&&x.entries.length>0)
   .sort((a,b)=>b.endedAt-a.endedAt).slice(0,6).reverse();
