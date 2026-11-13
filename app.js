@@ -1346,6 +1346,15 @@ const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 // du mouvement sans modifier la moindre animation ou son esthétique.
 const iuBusyHeavyFolds=new Set();
 window.IUIsHeavyFoldAnimating=()=>iuBusyHeavyFolds.size>0;
+// V36.55 — Allégement graphique temporaire des deux grands tiroirs.
+// On garde les ombres extérieures des cartes et le moteur natif.
+// Réversible depuis le tableau de bord sans recharger la PWA.
+let iuHeavyPaintLiteEnabled=true;
+window.IUGetHeavyPaintLite=()=>iuHeavyPaintLiteEnabled;
+window.IUSetHeavyPaintLite=enabled=>{
+ iuHeavyPaintLiteEnabled=Boolean(enabled);
+ return iuHeavyPaintLiteEnabled;
+};
 // V36.53 : test A/B sans affecter les autres tiroirs, ni le mode par défaut.
 let iuHeavyFoldMotionMode='native';
 window.IUGetHeavyFoldMotionMode=()=>iuHeavyFoldMotionMode;
@@ -1411,11 +1420,14 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  const isEvents=card.id==='eventsDisclosure';
  const beginHeavyFold=()=>{
   if(!isHeavyFold||iuBusyHeavyFolds.has(card))return;
+  if(iuHeavyPaintLiteEnabled)card.classList.add('iu-heavy-paint-lite');
   iuBusyHeavyFolds.add(card);
   window.dispatchEvent(new CustomEvent('iu-heavy-fold-start',{detail:{id:card.id}}));
  };
  const endHeavyFold=()=>{
-  if(!isHeavyFold||!iuBusyHeavyFolds.delete(card))return;
+  if(!isHeavyFold)return;
+  card.classList.remove('iu-heavy-paint-lite');
+  if(!iuBusyHeavyFolds.delete(card))return;
   window.dispatchEvent(new CustomEvent('iu-heavy-fold-end',{detail:{id:card.id}}));
  };
  const isAdminCategory=card.classList.contains('iu-admin-category');
@@ -1479,7 +1491,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   IU_FOLD_METRICS.push({name:card.id||card.className.slice(0,40),
    durationMs:Math.round(performance.now()-animationStartedAt),
    frames:rafSamples,slowFrames:sampleGaps,maxGapMs:Math.round(largestGap),
-   effects:iuFoldLightEffects?'allégés':'normaux',
+   effects:iuFoldLightEffects?'allégés':(iuHeavyPaintLiteEnabled&&isHeavyFold?'optimisés':'normaux'),
    engine:activeEngine,
    direction:intended?'ouverture':'fermeture',
    measured:rafSamples>0,
