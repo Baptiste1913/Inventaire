@@ -1,7 +1,7 @@
 {
-  "version": "36.32",
+  "version": "36.33",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Tiroirs plus fluides : animation de hauteur unique de 420 ms, sans redémarrages ResizeObserver, inversion sans saut, rotations des flèches harmonisées, préférence de mouvement réduit respectée."
+  "notes": "Refonte des tiroirs : isolation du rendu pendant l'animation sur Safari et inversion directe en cas de double appui, réduction des recalculs d'affichage et harmonisation des transitions."
 }
