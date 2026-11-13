@@ -1,7 +1,7 @@
 {
-  "version": "36.01",
+  "version": "36.02",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Banderole allongée avec halo vert en bas au centre et bouton/mascotte suivant la nouvelle hauteur ; textes réespacés, indicateur animé comme Ma session et espace sous l'en-tête diminué."
+  "notes": "Vert renforcé en bas-centre, marges verticales égales autour de la banderole, bouton affiné à 154 px, pastèque réduite et ancrée au bas, ombre plus courte et douce."
 }
