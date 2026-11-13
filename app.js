@@ -501,11 +501,11 @@ function exitFocusWithoutSnapshot(action){
  ],{duration:450,easing:'ease-out',fill:'forwards'});
  animations.push(homeBlur);
  for(const [index,tile] of tiles.entries()){
-  // V36.64 — Le retour de fin d'inventaire se fait plus lentement,
+  // V36.65 — Le retour de fin d'inventaire commence encore moins bas,
   // mais part moins bas pour ménager le regard. Ne modifie pas
   // le masque de sortie ni les interactions du formulaire de pesée.
   animate(tile,[
-   {transform:'translate3d(0,68dvh,0)',opacity:1},
+   {transform:'translate3d(0,30dvh,0)',opacity:1},
    {transform:'translate3d(0,0,0)',opacity:1}
   ],{
    duration:720,
