@@ -15070,3 +15070,22 @@ body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-comp
 
 /* V36.16 — Une touche du bleu du logo U, localisée en deux halos floutés
    sur la confirmation « Inventaire terminé ». Le vert reste dominant. */
+
+/* V36.17 — Nouvelle icône de l'application sur les deux écrans de chargement.
+   Image 192 px nette en Retina iPhone, aucun fond blanc parasite. */
+html body #iuPwaSplash .iu-splash-logo,
+html body #iuUpdateOverlay .iu-update-logo{
+ width:58px!important;height:58px!important;min-width:58px!important;
+ padding:0!important;border:0!important;border-radius:14px!important;
+ background:transparent!important;box-shadow:none!important;overflow:hidden!important;
+}
+html body #iuPwaSplash .iu-splash-logo img,
+html body #iuUpdateOverlay .iu-update-logo img{
+ display:block!important;width:58px!important;height:58px!important;
+ min-width:58px!important;max-width:58px!important;
+ object-fit:cover!important;border-radius:14px!important;
+ background:transparent!important;
+}
+html body #iuUpdateOverlay .iu-update-logo::before{
+ content:none!important;display:none!important;
+}

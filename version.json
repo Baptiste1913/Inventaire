@@ -1,7 +1,7 @@
 {
-  "version": "36.16",
+  "version": "36.17",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Une légère touche de bleu du logo U a été intégrée à la bulle « Inventaire terminé » : deux halos bleutés diffus sur fond vert émeraude conservé. Bouton Copier et cadre Poids net inchangés."
+  "notes": "Nouvelle icône personnalisée à partir du SVG fourni, fichiers carrés 192/512/180 px pour PWA et iOS, affichée à l'ouverture et pendant les mises à jour ; cache hors ligne actualisé. Logo de l'en-tête conservé."
 }
