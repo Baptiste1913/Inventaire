@@ -1261,6 +1261,14 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
 const IU_FOLD_CACHE=new WeakMap();
 const IU_FOLD_METRICS=[];
 let iuFoldMeasurementActive=false;
+// V36.43 — Mode de comparaison graphique temporaire, sans données privées.
+let iuFoldLightEffects=false;
+window.IUSetFoldLightEffects=enabled=>{
+ iuFoldLightEffects=Boolean(enabled);
+ document.documentElement.classList.toggle('iu-test-light-fold-effects',iuFoldLightEffects);
+ return iuFoldLightEffects;
+};
+window.IUGetFoldLightEffects=()=>iuFoldLightEffects;
 const iuFoldStats={prepared:0,cacheHits:0,cacheMisses:0,lastWarmupMs:0};
 window.IUFoldPerformance=()=>({
  ...iuFoldStats,
@@ -1327,11 +1335,32 @@ const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
+ // Invalidation seulement lors de vraies mutations du contenu.
+ // L'ancien observateur surveillait style/hidden : les indicateurs et
+ // barres graphiques invalidaient le cache sans changer la structure.
  const invalidator=new MutationObserver(records=>{
-  if(records.some(r=>r.target!==card))IU_FOLD_CACHE.delete(card);
+  if(records.some(r=>r.target!==card&&r.type!=='attributes'))IU_FOLD_CACHE.delete(card);
  });
- invalidator.observe(card,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['hidden','style']});
+ invalidator.observe(content,{subtree:true,childList:true,characterData:true});
  let intended=card.open,animation=null,animationStartedAt=0;
+ let rafSamples=0,lastSampleAt=0,sampleGaps=0,largestGap=0,frameLoop=0;
+ const stopSampling=()=>{
+  if(frameLoop){cancelAnimationFrame(frameLoop);frameLoop=0;}
+ };
+ const beginSampling=()=>{
+  stopSampling();rafSamples=0;sampleGaps=0;largestGap=0;lastSampleAt=0;
+  const sample=now=>{
+   if(!animation){frameLoop=0;return;}
+   if(lastSampleAt){
+    const gap=now-lastSampleAt;
+    if(gap>34)sampleGaps++;
+    largestGap=Math.max(largestGap,gap);
+   }
+   lastSampleAt=now;rafSamples++;
+   frameLoop=requestAnimationFrame(sample);
+  };
+  frameLoop=requestAnimationFrame(sample);
+ };
  const isEvents=card.id==='eventsDisclosure';
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
@@ -1349,8 +1378,11 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   anim.cancel();
   card.open=intended;
   cleanup();
+  stopSampling();
   IU_FOLD_METRICS.push({name:card.id||card.className.slice(0,40),
    durationMs:Math.round(performance.now()-animationStartedAt),
+   frames:rafSamples,slowFrames:sampleGaps,maxGapMs:Math.round(largestGap),
+   effects:iuFoldLightEffects?'allégés':'normaux',
    pixels:Math.round(Math.abs(to-(card.dataset.iuFoldStart?Number(card.dataset.iuFoldStart):to)))});
   if(IU_FOLD_METRICS.length>24)IU_FOLD_METRICS.shift();
   delete card.dataset.iuFoldStart;
@@ -1363,6 +1395,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   // Conserver le point visible pendant l'annulation de l'ancienne trajectoire.
   card.style.height=from+'px';
   const previous=animation;animation=null;
+  stopSampling();
   if(previous)previous.cancel();
   intended=!intended;
   if(foldReducedMotion.matches||typeof card.animate!=='function'){
@@ -1401,9 +1434,10 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   });
   animation=anim;
   animationStartedAt=performance.now();
+  beginSampling();
   card.dataset.iuFoldStart=String(from);
   anim.onfinish=()=>finish(anim,to);
-  anim.oncancel=()=>{if(animation===anim){animation=null;cleanup();}};
+  anim.oncancel=()=>{if(animation===anim){animation=null;stopSampling();cleanup();}};
  });
 }
 window.IUSetupFold=setupUnifiedFold;
