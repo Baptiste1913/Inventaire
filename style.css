@@ -14997,9 +14997,9 @@ html body #inventoryCalendar .events-more-inline svg{
  }
 }
 
-/* V36.14 — Résultat de pesée : exactement les mêmes quatre sources
+/* V36.19 — Résultat de pesée : exactement les mêmes quatre sources
    lumineuses, coordonnées et teintes que la banderole V36.00.
-   Seule la valeur de flou est adaptée à la hauteur du petit cadre. */
+   Flou plus diffus (58 px) et surface de diffusion élargie pour fondre les couleurs. */
 html body .app > section.calc-card .result{
  position:relative!important;
  isolation:isolate!important;
@@ -15014,7 +15014,7 @@ html body .app > section.calc-card .result::before{
  content:""!important;
  display:block!important;
  position:absolute!important;
- inset:-28% -20% -30% -20%!important;
+ inset:-38% -27% -40% -27%!important;
  z-index:0!important;
  pointer-events:none!important;
  background:
@@ -15022,8 +15022,8 @@ html body .app > section.calc-card .result::before{
   radial-gradient(circle at 14% 24%,rgba(83,192,233,.95) 0%,rgba(83,192,233,.78) 24%,rgba(83,192,233,.28) 48%,transparent 72%),
   radial-gradient(circle at 54% 12%,rgba(0,117,131,.96) 0%,rgba(0,117,131,.82) 28%,rgba(0,117,131,.32) 52%,transparent 76%),
   radial-gradient(circle at 89% 66%,rgba(100,185,174,.96) 0%,rgba(100,185,174,.80) 27%,rgba(100,185,174,.34) 54%,transparent 78%)!important;
- -webkit-filter:blur(40px)!important;
- filter:blur(40px)!important;
+ -webkit-filter:blur(58px)!important;
+ filter:blur(58px)!important;
  opacity:1!important;
 }
 html body .app > section.calc-card .result > :is(.result-heading,.net-line,.result-subtitle){
