@@ -1,7 +1,7 @@
 {
-  "version": "36.03",
+  "version": "36.04",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Rouge de la chair de pastèque aligné exactement sur le U du logo (#E11F1C), animation lumineuse de l'indicateur renforcée, bouton Inventaire verrouillé dans tous ses états sur Safari/iPhone."
+  "notes": "Pastèque rouge moins saturée (#D9403D) ; indicateur plus lumineux avec pulsation compacte (20 px) et variation du point central, sans halo trop étendu. Bouton Inventaire inchangé."
 }
