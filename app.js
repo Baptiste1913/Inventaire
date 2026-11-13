@@ -1385,6 +1385,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    effects:iuFoldLightEffects?'allégés':'normaux',
    pixels:Math.round(Math.abs(to-(card.dataset.iuFoldStart?Number(card.dataset.iuFoldStart):to)))});
   if(IU_FOLD_METRICS.length>24)IU_FOLD_METRICS.shift();
+  window.dispatchEvent(new Event('iu-fold-performance'));
   delete card.dataset.iuFoldStart;
  }
  card.addEventListener('toggle',()=>{if(!animation)intended=card.open;});
