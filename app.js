@@ -1342,7 +1342,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   if(records.some(r=>r.target!==card&&r.type!=='attributes'))IU_FOLD_CACHE.delete(card);
  });
  invalidator.observe(content,{subtree:true,childList:true,characterData:true});
- let intended=card.open,animation=null,animationStartedAt=0;
+ let intended=card.open,animation=null,animationStartedAt=0,pendingCloseFrame=0;
  let rafSamples=0,lastSampleAt=0,sampleGaps=0,largestGap=0,frameLoop=0;
  const stopSampling=()=>{
   if(frameLoop){cancelAnimationFrame(frameLoop);frameLoop=0;}
@@ -1388,13 +1388,15 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   window.dispatchEvent(new Event('iu-fold-performance'));
   delete card.dataset.iuFoldStart;
  }
- card.addEventListener('toggle',()=>{if(!animation)intended=card.open;});
+ card.addEventListener('toggle',()=>{if(!animation&&!pendingCloseFrame)intended=card.open;});
  summary.addEventListener('click',event=>{
   if(event.defaultPrevented)return;
   event.preventDefault();
   const from=card.getBoundingClientRect().height;
   // Conserver le point visible pendant l'annulation de l'ancienne trajectoire.
   card.style.height=from+'px';
+  // Annuler une fermeture préparée mais pas encore envoyée au navigateur.
+  if(pendingCloseFrame){cancelAnimationFrame(pendingCloseFrame);pendingCloseFrame=0;}
   const previous=animation;animation=null;
   stopSampling();
   if(previous)previous.cancel();
@@ -1402,6 +1404,39 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   if(foldReducedMotion.matches||typeof card.animate!=='function'){
    card.open=intended;cleanup();return;
   }
+  // V36.48 : sur les deux cartes lourdes, la fermeture ne modifie pas
+  // temporairement open/height:auto pour relire tout le contenu.
+  // Lire seulement la hauteur visible et l'en-tête, puis regrouper les
+  // écritures CSS dans requestAnimationFrame, juste avant la peinture.
+  // Une seule animation native de height, sans boucle JavaScript par image.
+  if(!intended&&(card.id==='accountCard'||card.id==='planningAdminCard')){
+   const cs=getComputedStyle(card);
+   const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
+   const collapsed=summary.getBoundingClientRect().height+
+    borders+px(cs.paddingTop)+px(cs.paddingBottom);
+   const to=Math.min(from,collapsed);
+   card.style.height=from+'px';
+   card.style.overflow='hidden';
+   card.classList.add('iu-fold-animating',closingClass);
+   if(Math.abs(from-to)<1){card.open=false;cleanup();return;}
+   pendingCloseFrame=requestAnimationFrame(()=>{
+    pendingCloseFrame=0;
+    // Si l'utilisateur a rouvert entre-temps, ne jamais déclencher une
+    // fermeture différée sur la nouvelle intention.
+    if(intended||!card.isConnected){cleanup();return;}
+    const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
+     duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'
+    });
+    animation=anim;
+    animationStartedAt=performance.now();
+    beginSampling();
+    card.dataset.iuFoldStart=String(from);
+    anim.onfinish=()=>finish(anim,to);
+    anim.oncancel=()=>{if(animation===anim){animation=null;stopSampling();cleanup();}};
+   });
+   return;
+  }
+  // Le moteur des autres tiroirs et toute l'ouverture restent inchangés.
   // Grouper les mesures avant le lancement de la nouvelle animation.
   // La hauteur du contenu ne sera plus consultée à chaque image.
   card.open=true;
