@@ -268,7 +268,41 @@ function refreshActionButtons(){
  const resetLabel=$('resetBtn').querySelector('span');
  if(resetLabel&&resetLabel.innerHTML!=='Nouvelle<br>pesée')resetLabel.innerHTML='Nouvelle<br>pesée';
 }
+// V36.61 — Ancrage ponctuel du champ lors d'une pesée active sur iPhone.
+// Ne s'exécute QUE si le clavier est déjà ouvert et que le champ a le focus.
+// Contrairement aux anciennes corrections, aucun listener global de scroll
+// ou de visualViewport : l'utilisateur conserve le défilement manuel.
+function preserveWeighInputPosition(update){
+ const field=$('grossWeight');
+ const viewport=window.visualViewport;
+ const session=getActiveSession();
+ const keyboardOpen=viewport&&window.innerHeight-viewport.height>100;
+ if(!session||session.pausedAt||!field||document.activeElement!==field||
+    !keyboardOpen||document.hidden)return update();
+ const before=field.getBoundingClientRect().top-viewport.offsetTop;
+ const oldHeight=viewport.height,oldWidth=viewport.width;
+ const result=update();
+ // Les messages, alertes et statistiques peuvent modifier la mise en page.
+ // Compenser uniquement un mouvement involontaire du champ, avec un
+ // viewport stable : ne jamais contrer l'ouverture/fermeture du clavier.
+ const correct=()=>{
+  if(document.activeElement!==field||document.hidden||
+     Math.abs(viewport.height-oldHeight)>8||
+     Math.abs(viewport.width-oldWidth)>2)return;
+  const after=field.getBoundingClientRect().top-viewport.offsetTop;
+  const drift=after-before;
+  if(Math.abs(drift)>2&&Math.abs(drift)<240){
+   window.scrollBy({top:drift,left:0,behavior:'instant'});
+  }
+ };
+ correct();
+ requestAnimationFrame(correct);
+ return result;
+}
 function saveCurrentWeigh(){
+ return preserveWeighInputPosition(saveCurrentWeighInternal);
+}
+function saveCurrentWeighInternal(){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
  const b=baskets.find(x=>x.id===$('basketSelect').value),gross=parseWeight($('grossWeight').value);
  if(!b||gross===null||gross<b.tare)return false;
@@ -1034,8 +1068,8 @@ $('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='
  });
 })();
 
-$('grossWeight').addEventListener('input',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
-$('basketSelect').addEventListener('change',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
+$('grossWeight').addEventListener('input',()=>preserveWeighInputPosition(()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();}));
+$('basketSelect').addEventListener('change',()=>preserveWeighInputPosition(()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();}));
 $('grossWeight').addEventListener('blur',()=>{if(autoSaveTimer!==null)saveCurrentWeigh();});
 // iOS peut suspendre le timer de 1,1 s dès que l'application se verrouille.
 // Forcer une sauvegarde synchrone des données valides avant la suspension.
