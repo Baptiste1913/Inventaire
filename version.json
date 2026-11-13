@@ -1,7 +1,7 @@
 {
-  "version": "36.00",
+  "version": "36.01",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Titre de la banderole aligné avec le point de statut, description rapprochée, fond à trois grandes formes floutées reprenant le cyan, le bleu pétrole et le vert d'eau du logo U."
+  "notes": "Banderole allongée avec halo vert en bas au centre et bouton/mascotte suivant la nouvelle hauteur ; textes réespacés, indicateur animé comme Ma session et espace sous l'en-tête diminué."
 }

@@ -12614,20 +12614,20 @@ body:not(.is-focus-mode) .app > .history-card.card #clearHistoryBtn.history-clea
    artificiellement la zone de sécurité iOS (déjà gérée par body). */
 body:not(.is-focus-mode) .app > .header.header{
  box-sizing:border-box!important;
- min-height:105px!important;
+ min-height:97px!important;
  padding-top:26px!important;
- padding-bottom:16px!important;
+ padding-bottom:8px!important;
 }
 @media(max-width:600px){
  body:not(.is-focus-mode) .app > .header.header{
-  min-height:107px!important;
+  min-height:99px!important;
   padding-top:28px!important;
-  padding-bottom:17px!important;
+  padding-bottom:9px!important;
  }
 }
 @media(max-width:380px){
  body:not(.is-focus-mode) .app > .header.header{
-  min-height:101px!important;
+  min-height:93px!important;
   padding-top:25px!important;
   padding-bottom:16px!important;
  }
@@ -14625,7 +14625,7 @@ html body .app > section.intro{
  isolation:isolate!important;
  overflow:hidden!important;
  padding-top:24px!important;
- padding-bottom:12px!important;
+ padding-bottom:28px!important;
  background:#087583!important;
 }
 html body .app > section.intro::before{
@@ -14636,6 +14636,7 @@ html body .app > section.intro::before{
  z-index:-1!important;
  pointer-events:none!important;
  background:
+  radial-gradient(ellipse 41% 35% at 49% 91%,rgba(42,184,128,.82) 0%,rgba(31,159,125,.46) 44%,transparent 83%),
   radial-gradient(circle at 14% 24%,rgba(83,192,233,.95) 0%,rgba(83,192,233,.78) 24%,rgba(83,192,233,.28) 48%,transparent 72%),
   radial-gradient(circle at 54% 12%,rgba(0,117,131,.96) 0%,rgba(0,117,131,.82) 28%,rgba(0,117,131,.32) 52%,transparent 76%),
   radial-gradient(circle at 89% 66%,rgba(100,185,174,.96) 0%,rgba(100,185,174,.80) 27%,rgba(100,185,174,.34) 54%,transparent 78%)!important;
@@ -14648,7 +14649,7 @@ html body .app > section.intro::after{
  display:none!important;
 }
 html body .app > section.intro .intro-bottom{
- margin-top:12px!important;
+ margin-top:20px!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:hover,:active,:focus,:focus-visible),
@@ -14744,10 +14745,10 @@ html body .app > section.intro > #heroStatus.intro-session-state > .intro-sessio
 @media(max-width:380px){
  html body .app > section.intro{
   padding-top:20px!important;
-  padding-bottom:10px!important;
+  padding-bottom:24px!important;
  }
  html body .app > section.intro .intro-bottom{
-  margin-top:10px!important;
+  margin-top:18px!important;
  }
  html body .app > section.intro > #heroStatus.intro-session-state{
   top:18px!important;
@@ -14832,20 +14833,20 @@ html body .app > section.intro > #intro-title{
 html body .app > section.intro > p{
  position:relative!important;
  top:-1px!important;
- margin-top:1px!important;
+ margin-top:7px!important;
  line-height:1.42!important;
  max-width:min(69%,370px)!important;
 }
 @media(max-width:600px){
  html body .app > section.intro{padding-top:22px!important;}
  html body .app > section.intro > #intro-title{max-width:calc(100% - 56px)!important;}
- html body .app > section.intro > p{margin-top:0!important;max-width:72%!important;}
+ html body .app > section.intro > p{margin-top:6px!important;max-width:72%!important;}
  html body .app > section.intro > #heroStatus.intro-session-state{top:20px!important;right:14px!important;}
 }
 @media(max-width:380px){
- html body .app > section.intro{padding-top:20px!important;padding-bottom:10px!important;}
+ html body .app > section.intro{padding-top:20px!important;padding-bottom:24px!important;}
  html body .app > section.intro > #intro-title{top:0!important;max-width:calc(100% - 52px)!important;}
- html body .app > section.intro > p{margin-top:0!important;max-width:74%!important;}
+ html body .app > section.intro > p{margin-top:6px!important;max-width:74%!important;}
  html body .app > section.intro > #heroStatus.intro-session-state{top:18px!important;right:12px!important;}
  html body .app > section.intro::before{-webkit-filter:blur(58px)!important;filter:blur(58px)!important;}
 }
@@ -14888,6 +14889,7 @@ html body .app > section.intro > #heroStatus.intro-session-state > .intro-sessio
  border-radius:50%!important;
  background:radial-gradient(circle,rgba(156,170,179,.22),rgba(156,170,179,.08) 50%,transparent 72%)!important;
  pointer-events:none!important;
+ will-change:transform,opacity!important;
  animation:iu-v3559-session-glow 2.25s ease-in-out infinite!important;
 }
 html body .app > section.intro > #heroStatus.intro-session-state.is-running > .intro-session-dot::after{
