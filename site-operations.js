@@ -95,7 +95,7 @@
    setTimeout(()=>{
     root.classList.remove('iu-pwa-starting','iu-pwa-splash-leaving');
     splash?.setAttribute('aria-hidden','true');
-    const finalDuration=reduced?0:620+Math.max(0,cards.length-1)*85;
+    const finalDuration=reduced?0:780+Math.max(0,cards.length-1)*70;
     setTimeout(()=>{
      root.classList.remove('iu-pwa-revealing');
      cards.forEach(el=>el.style.removeProperty('--iu-pwa-order'));
