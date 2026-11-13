@@ -15290,3 +15290,33 @@ html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
  --iu-drawer-reference-duration:500ms;
  --iu-drawer-reference-ease:cubic-bezier(.22,.75,.24,1);
 }
+
+
+/* V36.38 — Optimisation de rendu suivant Grafikart : plus de boucle JS
+   écrivant height à chaque frame. Le CSS ne conserve que les rotations
+   (transform), sans forcer de couche GPU ni déclencher d'animation du corps.
+   Supprimer les effets visuels concurrents seulement pendant le mouvement. */
+:root{
+ --iu-drawer-reference-duration:420ms;
+ --iu-drawer-reference-ease:cubic-bezier(.28,.72,.24,1);
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating{
+ contain:none!important;
+ isolation:auto!important;
+ overflow:hidden!important;
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
+ .fold-body,.planning-panel-content,.iu-admin-category-body,.calc-alerts-body,
+ .backup-advanced-body,.v22-bilan,.planning-import-help-body,.recovery-body,
+ .events-disclosure-content){
+ contain:none!important;
+ transform:none!important;
+ -webkit-backface-visibility:visible!important;
+ backface-visibility:visible!important;
+ opacity:1!important;
+ transition:none!important;
+ animation:none!important;
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating > summary{
+ transition:none!important;
+}
