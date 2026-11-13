@@ -1247,64 +1247,45 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
-/* V36.13 — La cinématique de « Réglages d’alertes » sert de référence.
-   Un seul mouvement de hauteur, interruption sans flash, et adaptation
-   si le contenu (compte, planning, bilan) change pendant l'ouverture. */
-// La hauteur du tiroir d'alertes donne environ 380ms avec le moteur 36.12.
-// Fixer cette durée (ouverture = fermeture) pour tous les autres tiroirs.
-const FOLD_MOTION_MS=380;
-const FOLD_MOTION_EASE='cubic-bezier(.23,.72,.24,1)';
+/* V36.32 — Animations unifiées sans redémarrage pendant le mouvement.
+   Safari : une seule animation WAAPI par action, pas de ResizeObserver
+   qui annule/relance la hauteur à chaque changement du contenu.
+   La hauteur redevient automatique à l'arrivée afin de respecter les
+   données chargées en différé. Les actions rapides restent réversibles. */
+const FOLD_MOTION_MS=420;
+const FOLD_MOTION_EASE='cubic-bezier(.22,.82,.24,1)';
 window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE});
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- let animation=null,intended=card.open,targetHeight=0;
- let resizeFrame=0;
+ let animation=null,intended=card.open;
  const isEvents=card.id==='eventsDisclosure';
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
  const cardBorders=()=>{const cs=getComputedStyle(card);return px(cs.borderTopWidth)+px(cs.borderBottomWidth);};
- const naturalExpanded=()=>card.scrollHeight+cardBorders();
  const naturalCollapsed=()=>{
   const cs=getComputedStyle(card);
   return summary.getBoundingClientRect().height+cardBorders()+px(cs.paddingTop)+px(cs.paddingBottom);
  };
- const contentObserver=typeof ResizeObserver==='function'?new ResizeObserver(()=>{
-  if(!animation||!intended||resizeFrame)return;
-  resizeFrame=requestAnimationFrame(()=>{
-   resizeFrame=0;
-   if(!animation||!intended)return;
-   const updated=Math.max(naturalExpanded(),naturalCollapsed());
-   if(Math.abs(updated-targetHeight)<6)return;
-   // Un chargement de données a changé la hauteur durant l'ouverture :
-   // repartir de la position réellement affichée, pas de la hauteur naturelle.
-   const from=card.getBoundingClientRect().height;
-   card.style.height=from+'px';
-   const old=animation;animation=null;old.cancel();
-   launch(from,updated,Math.max(190,Math.min(330,old.effect?.getTiming?.().duration*.55||260)));
-  });
- }):null;
  const cleanup=()=>{
-  if(resizeFrame){cancelAnimationFrame(resizeFrame);resizeFrame=0;}
-  contentObserver?.disconnect();
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
   if(isEvents)card.removeAttribute('data-motion');
  };
- function launch(from,to,duration){
-  targetHeight=to;
+ function launch(from,to){
   if(Math.abs(to-from)<1){
    card.open=intended;cleanup();return;
   }
   const current=card.animate([{height:from+'px'},{height:to+'px'}],{
-   duration,easing:FOLD_MOTION_EASE,fill:'both'
+   duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'
   });
   animation=current;
   current.onfinish=()=>{
    if(animation!==current)return;
-   card.style.height=targetHeight+'px';
+   // Garder la valeur finale pendant l'annulation évite le flash WebKit.
+   card.style.height=to+'px';
    animation=null;current.cancel();
    card.open=intended;
    cleanup();
@@ -1320,34 +1301,25 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    if(animation){const old=animation;animation=null;old.cancel();}
    card.open=intended;cleanup();return;
   }
-  // Lire AVANT l'annulation WAAPI ; figer cette hauteur pour empêcher
-  // WebKit de peindre une frame à la taille dépliée.
+  // Lire la hauteur réellement visible avant de couper l'animation précédente :
+  // les doubles appuis repartent exactement du point affiché, sans saut.
   const from=card.getBoundingClientRect().height;
   card.style.height=from+'px';
   card.style.overflow='hidden';
   if(animation){const old=animation;animation=null;old.cancel();}
-  if(resizeFrame){cancelAnimationFrame(resizeFrame);resizeFrame=0;}
-  contentObserver?.disconnect();
   card.open=true;
   card.classList.add('iu-fold-animating');
   card.classList.toggle(closingClass,!intended);
   if(isAdminCategory)card.classList.add('iu-admin-animating');
   if(isEvents)card.dataset.motion=intended?'opening':'closing';
-  // Mesurer la taille complète une seule fois, sans additionner des
-  // sous-hauteurs dont les marges peuvent être fusionnées.
   card.style.height='auto';
-  const expanded=Math.max(naturalExpanded(),naturalCollapsed());
+  // Une mesure par interaction. Ne pas redémarrer sur les ResizeObserver
+  // déclenchés par les données ou le reflow du panneau.
+  const expanded=Math.max(card.scrollHeight+cardBorders(),naturalCollapsed());
   const collapsed=naturalCollapsed();
   const to=intended?expanded:collapsed;
   card.style.height=from+'px';
-  // Même rythme que Réglages d’alertes pour les grands et petits tiroirs,
-  // indépendamment de leur hauteur ou de leur contenu.
-  const duration=FOLD_MOTION_MS;
-  launch(from,to,duration);
-  if(animation&&intended&&contentObserver){
-   contentObserver.observe(summary);
-   contentObserver.observe(content);
-  }
+  launch(from,to);
  });
 }
 window.IUSetupFold=setupUnifiedFold;
