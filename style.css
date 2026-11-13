@@ -15203,3 +15203,28 @@ html body .app > section.intro > img.intro-mascot{
 #iuUpdateOverlay .iu-update-progress-block{
   width:min(100%,171px)!important;
 }
+
+
+/* V36.32 — Même mouvement de tiroir et rotation de flèche, sans transition
+   d'en-tête concurrente pendant que Safari anime la hauteur. */
+:root{
+  --iu-drawer-reference-duration:420ms;
+  --iu-drawer-reference-ease:cubic-bezier(.22,.82,.24,1);
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating > summary{
+  transition:none!important;
+}
+html body .app details[data-unified-fold="yes"] > summary :is(
+  .fold-chevron,.calc-alerts-chevron,.iu-admin-category-arrow,.events-disclosure-chevron),
+html body .app details[data-unified-fold="yes"] > summary.planning-panel-summary > svg,
+html body #inventoryCalendar .events-more-inline svg{
+  transition-property:transform!important;
+  transition-duration:var(--iu-drawer-reference-duration)!important;
+  transition-timing-function:var(--iu-drawer-reference-ease)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app details[data-unified-fold="yes"] > summary :is(
+  .fold-chevron,.calc-alerts-chevron,.iu-admin-category-arrow,.events-disclosure-chevron),
+ html body .app details[data-unified-fold="yes"] > summary.planning-panel-summary > svg,
+ html body #inventoryCalendar .events-more-inline svg{transition:none!important;}
+}
