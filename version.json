@@ -1,7 +1,7 @@
 {
-  "version": "36.21",
+  "version": "36.22",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Cartes principales : finition strictement calquée sur le panneau de chargement (contour gris perle 1 px, dégradé perle et relief lumineux). Éléments internes et mode concentration conservés."
+  "notes": "Recharge de la nouvelle mascotte SVG : jambes et pieds supprimés, cœur rouge et taille augmentée. Références HTML et cache hors ligne actualisés pour iOS/PWA."
 }
