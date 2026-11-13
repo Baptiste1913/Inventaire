@@ -1342,7 +1342,18 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   if(records.some(r=>r.target!==card&&r.type!=='attributes'))IU_FOLD_CACHE.delete(card);
  });
  invalidator.observe(content,{subtree:true,childList:true,characterData:true});
- let intended=card.open,animation=null,animationStartedAt=0;
+ let intended=card.open,animation=null,visualAnimation=null,animationStartedAt=0;
+ // V36.44 — Test hybride limité aux panneaux les plus lourds : le corps
+ // utilise les propriétés composites translate/scale, mais height conserve
+ // le déplacement normal des cartes suivantes et les interactions.
+ const hybridMotion=(card.id==='accountCard'||card.id==='planningAdminCard')&&
+  typeof CSS!=='undefined'&&CSS.supports?.('translate','0px 1px')&&
+  CSS.supports?.('scale','1 1');
+ const cancelVisual=()=>{
+  if(visualAnimation){const old=visualAnimation;visualAnimation=null;old.cancel();}
+  content.style.removeProperty('will-change');
+ };
+
  let rafSamples=0,lastSampleAt=0,sampleGaps=0,largestGap=0,frameLoop=0;
  const stopSampling=()=>{
   if(frameLoop){cancelAnimationFrame(frameLoop);frameLoop=0;}
@@ -1365,6 +1376,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
  function cleanup(){
+  cancelVisual();
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
@@ -1383,6 +1395,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    durationMs:Math.round(performance.now()-animationStartedAt),
    frames:rafSamples,slowFrames:sampleGaps,maxGapMs:Math.round(largestGap),
    effects:iuFoldLightEffects?'allégés':'normaux',
+   motion:hybridMotion?'hybride (hauteur + transform)':'hauteur',
    pixels:Math.round(Math.abs(to-(card.dataset.iuFoldStart?Number(card.dataset.iuFoldStart):to)))});
   if(IU_FOLD_METRICS.length>24)IU_FOLD_METRICS.shift();
   window.dispatchEvent(new Event('iu-fold-performance'));
@@ -1397,6 +1410,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   card.style.height=from+'px';
   const previous=animation;animation=null;
   stopSampling();
+  cancelVisual();
   if(previous)previous.cancel();
   intended=!intended;
   if(foldReducedMotion.matches||typeof card.animate!=='function'){
@@ -1434,6 +1448,27 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    duration,easing:FOLD_MOTION_EASE,fill:'both'
   });
   animation=anim;
+  // La transformation visuelle est indépendante du flux : elle peut être
+  // calculée par le compositeur sans forcer de lecture de hauteur.
+  // La hauteur continue d'assurer un dépliage accessible et sans saut.
+  if(hybridMotion){
+   try{
+    content.style.willChange='translate, scale';
+    visualAnimation=content.animate(
+     intended?[
+      {translate:'0 10px',scale:'1 .965'},
+      {translate:'0 0px',scale:'1 1'}
+     ]:[
+      {translate:'0 0px',scale:'1 1'},
+      {translate:'0 -6px',scale:'1 .975'}
+     ],
+     {duration,easing:FOLD_MOTION_EASE,fill:'both'}
+    );
+   }catch(error){
+    cancelVisual();
+    console.info('Animation transform indisponible, repli standard',error);
+   }
+  }
   animationStartedAt=performance.now();
   beginSampling();
   card.dataset.iuFoldStart=String(from);
