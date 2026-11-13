@@ -385,12 +385,15 @@ const focusVisible=node=>{
  const style=getComputedStyle(node),r=node.getBoundingClientRect();
  return style.display!=='none'&&style.visibility!=='hidden'&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;
 };
-function focusTagViews(entering,phase,tagged){
+function focusTagViews(entering,phase,tagged,config={}){
+ const normalSelectors=config.normalSelectors||focusNormalSelectors;
+ const viewSelectors=config.viewSelectors||focusViewSelectors;
+ const surfaceSelectors=config.surfaceSelectors||focusSurfaceSelectors;
  const normal=(entering&&phase==='old')||(!entering&&phase==='new');
  if(normal){
   // L'ordre commence au bloc le plus bas : il sort en premier.
   // Seuls les blocs a l'ecran sont captures (les autres restent intacts).
-  const cards=[...document.querySelectorAll(focusNormalSelectors)]
+  const cards=[...document.querySelectorAll(normalSelectors)]
    .filter(focusVisible).sort((a,b)=>b.getBoundingClientRect().top-a.getBoundingClientRect().top).slice(0,12);
   for(const [i,el] of cards.entries()){
    el.style.viewTransitionName=`iu-normal-${i}`;
@@ -406,12 +409,12 @@ function focusTagViews(entering,phase,tagged){
  }else{
   // Dans le mode concentre, le bandeau et la pesée arrivent ensemble
   // depuis le bas ; la pesée suit le bandeau de quelques millisecondes.
-  const surface=document.querySelector(focusSurfaceSelectors);
+  const surface=document.querySelector(surfaceSelectors);
   if(focusVisible(surface)){
    surface.style.viewTransitionName='iu-focus-surface';
    tagged.add(surface);
   }
-  const focus=[...document.querySelectorAll(focusViewSelectors)].filter(focusVisible);
+  const focus=[...document.querySelectorAll(viewSelectors)].filter(focusVisible);
   for(const [i,el] of focus.entries()){
    el.style.viewTransitionName=`iu-focus-${i}`;
    tagged.add(el);
@@ -422,12 +425,12 @@ function focusTagViews(entering,phase,tagged){
    à leurs coordonnées réelles plutôt que les snapshots View Transitions.
    Ces snapshots pouvaient prendre la largeur de l'état Concentration et
    déplacer tout l'accueil vers la droite. Durée/courbe/flou INCHANGÉS. */
-function exitFocusWithoutSnapshot(action){
+function exitFocusWithoutSnapshot(action,config={}){
  const duration=610;
  const easing='cubic-bezier(.16,.84,.24,1)';
  const app=document.querySelector('.app');
- const source=[...document.querySelectorAll(focusViewSelectors)].filter(focusVisible);
- const surface=document.querySelector(focusSurfaceSelectors);
+ const source=[...document.querySelectorAll(config.exitSourceSelectors||focusViewSelectors)].filter(focusVisible);
+ const surface=document.querySelector(config.surfaceSelectors||focusSurfaceSelectors);
  const layer=document.createElement('div');
  layer.className='iu70-exit-overlay';
  layer.setAttribute('aria-hidden','true');
@@ -467,7 +470,7 @@ function exitFocusWithoutSnapshot(action){
  action();
  // Retour en cascade comme à l'ouverture PWA : de haut en bas.
  // La descente du mode Concentration et son flou restent inchangés.
- const tiles=[...document.querySelectorAll(focusNormalSelectors)]
+ const tiles=[...document.querySelectorAll(config.normalSelectors||focusNormalSelectors)]
   .filter(focusVisible)
   .sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
  const anchors=[...document.querySelectorAll(focusStaticSelectors)].filter(focusVisible);
@@ -536,16 +539,16 @@ function exitFocusWithoutSnapshot(action){
  Promise.all(animations.map(anim=>anim.finished.catch(()=>{}))).then(cleanup,cleanup);
  if(!animations.length)cleanup();
 }
-function changeFocusWithMotion(action,entering){
+function changeFocusWithMotion(action,entering,config={}){
  if(focusMotionBusy)return;
  if(focusReducedMotion()){action();return;}
  const html=document.documentElement;
- const before=document.body.classList.contains('is-focus-mode');
+ const before=document.body.classList.contains(config.modeClass||'is-focus-mode');
  // La transition n'est utile que si l'action peut changer de mode.
  if((entering&&before)||(!entering&&!before)){action();return;}
  // Sortie : les éléments réels préservent le cadrage iPhone.
  if(!entering && typeof Element.prototype.animate==='function'){
-  exitFocusWithoutSnapshot(action);
+  exitFocusWithoutSnapshot(action,config);
   return;
  }
  focusMotionBusy=true;
@@ -564,10 +567,10 @@ function changeFocusWithMotion(action,entering){
   // Les anciens noms doivent etre retires avant la capture de la cible.
   for(const el of tagged)el.style.viewTransitionName='';
   action();
-  focusTagViews(entering,'new',tagged);
+  focusTagViews(entering,'new',tagged,config);
  };
  html.classList.add('iu-focus-slide',entering?'iu-focus-entering':'iu-focus-exiting');
- focusTagViews(entering,'old',tagged);
+ focusTagViews(entering,'old',tagged,config);
  if(typeof document.startViewTransition==='function'){
   try{
    const transition=document.startViewTransition(update);
@@ -578,7 +581,7 @@ function changeFocusWithMotion(action,entering){
  // Repli sans View Transitions : une seule phase courte, sans cascade ni
  // deux animations séparées qui provoquent un saut à mi-parcours.
  update();
- const incoming=[...document.querySelectorAll(entering?focusViewSelectors:focusNormalSelectors)]
+ const incoming=[...document.querySelectorAll(entering?(config.viewSelectors||focusViewSelectors):(config.normalSelectors||focusNormalSelectors))]
   .filter(focusVisible);
  const anims=incoming.map(el=>el.animate(
   [{transform:'translate3d(0,30px,0)',opacity:.7},{transform:'translate3d(0,0,0)',opacity:1}],
