@@ -1442,35 +1442,22 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    card.open=intended;cleanup();return;
   }
   const distance=Math.abs(to-from)/Math.max(1,expanded-collapsed);
-  // V36.45 — La fermeture des grands panneaux est plus courte et surtout
-  // démarre rapidement. L'ouverture fluide validée en 36.44 est inchangée.
-  // V36.46 : fermeture moins brusque, ouverture conservée.
-  const closingHeavy=hybridMotion&&!intended;
-  const duration=closingHeavy
-   ?Math.max(125,Math.round(340*Math.min(1,distance)))
-   :Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
-  const motionEase=closingHeavy?'cubic-bezier(.18,.8,.24,1)':FOLD_MOTION_EASE;
-  // Garder le repli dans le flux, avec une cadence gérée par Safari.
+  // V36.47 — Les deux grands tiroirs utilisent enfin EXACTEMENT la même
+  // fermeture que les autres détails (hauteur + durée + easing).
+  // Leur ouverture visuelle hybride, maintenant fluide, est conservée.
+  // La fermeture hybride ajoutait un second travail sur le contenu lourd.
+  const duration=Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
   const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
-   duration,easing:motionEase,fill:'both'
+   duration,easing:FOLD_MOTION_EASE,fill:'both'
   });
   animation=anim;
-  // La transformation visuelle est indépendante du flux : elle peut être
-  // calculée par le compositeur sans forcer de lecture de hauteur.
-  // La hauteur continue d'assurer un dépliage accessible et sans saut.
-  if(hybridMotion){
+  if(hybridMotion&&intended){
    try{
     content.style.willChange='translate, scale';
-    visualAnimation=content.animate(
-     intended?[
+    visualAnimation=content.animate([
       {translate:'0 10px',scale:'1 .965'},
       {translate:'0 0px',scale:'1 1'}
-     ]:[
-      {translate:'0 0px',scale:'1 1'},
-      {translate:'0 -6px',scale:'1 .975'}
-     ],
-     {duration,easing:motionEase,fill:'both'}
-    );
+    ],{duration,easing:FOLD_MOTION_EASE,fill:'both'});
    }catch(error){
     cancelVisual();
     console.info('Animation transform indisponible, repli standard',error);
