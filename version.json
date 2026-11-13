@@ -1,7 +1,7 @@
 {
-  "version": "36.22",
+  "version": "36.23",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Recharge de la nouvelle mascotte SVG : jambes et pieds supprimés, cœur rouge et taille augmentée. Références HTML et cache hors ligne actualisés pour iOS/PWA."
+  "notes": "Mascotte non agrandie dans le SVG ; taille légèrement supérieure pilotée par CSS, rotation antihoraire de 8° et position ajustée pour éviter le rognage. SVG et cache actualisés."
 }
