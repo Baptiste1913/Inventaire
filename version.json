@@ -1,7 +1,7 @@
 {
-  "version": "36.59",
+  "version": "36.60",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Correction du défilement automatique lors d'une nouvelle pesée sur Safari iPhone : focus du champ Poids brut sans défilement et aucune refocalisation inutile si le champ est déjà actif. Calcul, saisie, enregistrement automatique, mode concentration et autres animations inchangés."
+  "notes": "Stabilisation de la zone de pesée sur Safari iPhone : l'espace du message d'enregistrement reste réservé même quand il est vide, et le résultat, les alertes et le statut ne servent plus d'ancre de défilement. Conservation de la correction focus preventScroll et de toutes les données."
 }
