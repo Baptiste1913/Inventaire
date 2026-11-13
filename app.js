@@ -1055,7 +1055,7 @@ function animateExpandedList(id,renderChange){
  if(Math.abs(to-from)<1){
   list.style.removeProperty('height');list.style.removeProperty('overflow');return;
  }
- const duration=Math.round(Math.min(480,Math.max(300,250+8*Math.sqrt(Math.abs(to-from)))));
+ const duration=FOLD_MOTION_MS;
  const motion=list.animate([{height:from+'px'},{height:to+'px'}],{
   duration,easing:FOLD_MOTION_EASE,fill:'both'
  });
@@ -1247,10 +1247,14 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
-/* V36.12 — Tiroirs stables et fluides sur Safari iPhone.
+/* V36.13 — La cinématique de « Réglages d’alertes » sert de référence.
    Un seul mouvement de hauteur, interruption sans flash, et adaptation
    si le contenu (compte, planning, bilan) change pendant l'ouverture. */
+// La hauteur du tiroir d'alertes donne environ 380ms avec le moteur 36.12.
+// Fixer cette durée (ouverture = fermeture) pour tous les autres tiroirs.
+const FOLD_MOTION_MS=380;
 const FOLD_MOTION_EASE='cubic-bezier(.23,.72,.24,1)';
+window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE});
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
@@ -1336,10 +1340,9 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   const collapsed=naturalCollapsed();
   const to=intended?expanded:collapsed;
   card.style.height=from+'px';
-  const distance=Math.abs(to-from);
-  // Même rythme à l'ouverture / fermeture ; limiter les longs
-  // calculs de layout sur iPhone lors des grands panneaux administrateur.
-  const duration=Math.round(Math.min(480,Math.max(310,265+7.5*Math.sqrt(distance))));
+  // Même rythme que Réglages d’alertes pour les grands et petits tiroirs,
+  // indépendamment de leur hauteur ou de leur contenu.
+  const duration=FOLD_MOTION_MS;
   launch(from,to,duration);
   if(animation&&intended&&contentObserver){
    contentObserver.observe(summary);

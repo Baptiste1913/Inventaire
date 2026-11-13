@@ -14963,3 +14963,36 @@ html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
   transition:none!important;
  }
 }
+
+/* V36.13 — Cinématique uniforme calquée sur « Réglages d’alertes ».
+   Le déploiement des panneaux, des historiques et des sous-tiroirs utilise
+   exactement 380 ms et cubic-bezier(.23,.72,.24,1), ouverture ET fermeture.
+   Conserver les couleurs et la géométrie des en-têtes propres à chaque zone. */
+:root{
+ --iu-drawer-reference-duration:380ms;
+ --iu-drawer-reference-ease:cubic-bezier(.23,.72,.24,1);
+}
+html body .app details[data-unified-fold="yes"] > summary .fold-chevron,
+html body .app details[data-unified-fold="yes"] > summary .calc-alerts-chevron,
+html body .app details[data-unified-fold="yes"] > summary .iu-admin-category-arrow,
+html body .app details[data-unified-fold="yes"] > summary .events-disclosure-chevron,
+html body .app details[data-unified-fold="yes"] > summary.planning-panel-summary > svg,
+html body #planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary > svg,
+html body #planningAdminCard .iu-admin-category > summary > .iu-admin-category-arrow,
+html body #inventoryCalendar .events-disclosure-chevron,
+html body #inventoryCalendar .events-more-inline svg{
+ transition:transform var(--iu-drawer-reference-duration) var(--iu-drawer-reference-ease)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app details[data-unified-fold="yes"] > summary .fold-chevron,
+ html body .app details[data-unified-fold="yes"] > summary .calc-alerts-chevron,
+ html body .app details[data-unified-fold="yes"] > summary .iu-admin-category-arrow,
+ html body .app details[data-unified-fold="yes"] > summary .events-disclosure-chevron,
+ html body .app details[data-unified-fold="yes"] > summary.planning-panel-summary > svg,
+ html body #planningAdminCard .iu-admin-planning-section > .planning-accordion > .planning-panel-summary > svg,
+ html body #planningAdminCard .iu-admin-category > summary > .iu-admin-category-arrow,
+ html body #inventoryCalendar .events-disclosure-chevron,
+ html body #inventoryCalendar .events-more-inline svg{
+  transition:none!important;
+ }
+}

@@ -65,9 +65,9 @@ function render(data){
    if(Math.abs(to-from)<1){
     more.hidden=!open;more.style.removeProperty('height');more.style.removeProperty('overflow');return;
    }
-   const duration=Math.round(Math.min(480,Math.max(300,250+8*Math.sqrt(Math.abs(to-from)))));
+   const duration=window.IU_FOLD_MOTION?.duration??380;
    const motion=more.animate([{height:from+'px'},{height:to+'px'}],
-    {duration,easing:'cubic-bezier(.23,.72,.24,1)',fill:'both'});
+    {duration,easing:window.IU_FOLD_MOTION?.easing??'cubic-bezier(.23,.72,.24,1)',fill:'both'});
    moreAnimation=motion;
    motion.onfinish=()=>{
     if(moreAnimation!==motion)return;

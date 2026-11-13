@@ -1,7 +1,7 @@
 {
-  "version": "36.12",
+  "version": "36.13",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Deuxième passe sur les tiroirs : ouverture/fermeture harmonisées et optimisées iPhone, recalcul de hauteur lors des chargements de contenu pendant une animation, suspension des transitions simultanées d’en-tête, appuis rapides sans saut, accessibilité conservée."
+  "notes": "Tous les tiroirs reprennent le rythme du tiroir Réglages d’alertes : ouverture et fermeture 380 ms, même courbe, mêmes chevrons, y compris compte, administrateur, planning, bilans, sauvegarde et événements. Maintien des ouvertures interrompues fluides et de l’accessibilité."
 }
