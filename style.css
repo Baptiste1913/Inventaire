@@ -14928,3 +14928,38 @@ html body #inventoryCalendar .events-more-inline svg{
  html body .app details[data-unified-fold="yes"] > .planning-panel-summary > svg,
  html body #inventoryCalendar .events-more-inline svg{transition:none!important;}
 }
+
+/* V36.12 — Surfaces en mouvement : neutraliser les transitions d'en-têtes
+   en même temps que la hauteur (évite des recalculs de peinture sur iPhone).
+   La flèche conserve sa propre rotation, indépendante et accélérée. */
+html body .app details[data-unified-fold="yes"].iu-fold-animating > summary{
+ transition-property:none!important;
+}
+html body .app details[data-unified-fold="yes"] > summary :is(
+ .fold-chevron,.calc-alerts-chevron,.iu-admin-category-arrow,.events-disclosure-chevron),
+html body .app details[data-unified-fold="yes"] > .planning-panel-summary > svg{
+ transition-property:transform!important;
+ transition-duration:360ms!important;
+ transition-timing-function:cubic-bezier(.23,.72,.24,1)!important;
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating{
+ overflow:hidden!important;
+ overflow-anchor:none;
+}
+/* Les volets de données restent lisibles jusqu'au terme de la fermeture. */
+html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
+ .fold-body,.planning-panel-content,.iu-admin-category-body,.calc-alerts-body,
+ .backup-advanced-body,.v22-bilan,.planning-import-help-body,.recovery-body,
+ .events-disclosure-content){
+ transition:none!important;
+ animation:none!important;
+ transform:none!important;
+ opacity:1!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app details[data-unified-fold="yes"] > summary :is(
+  .fold-chevron,.calc-alerts-chevron,.iu-admin-category-arrow,.events-disclosure-chevron),
+ html body .app details[data-unified-fold="yes"] > .planning-panel-summary > svg{
+  transition:none!important;
+ }
+}

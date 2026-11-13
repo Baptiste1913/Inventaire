@@ -1,7 +1,7 @@
 {
-  "version": "36.11",
+  "version": "36.12",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Moteur unifié et interruptible pour les tiroirs : hauteur réelle animée sans double fondu ni saccade, tiroirs planning/admin, événements, sauvegarde, compte, pesée et historiques harmonisés, accessibilité et reduced motion conservés."
+  "notes": "Deuxième passe sur les tiroirs : ouverture/fermeture harmonisées et optimisées iPhone, recalcul de hauteur lors des chargements de contenu pendant une animation, suspension des transitions simultanées d’en-tête, appuis rapides sans saut, accessibilité conservée."
 }

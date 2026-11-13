@@ -1247,56 +1247,104 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
-/* V36.11 — Moteur unique, interruption fluide : mesurer une seule hauteur
-   et figer la hauteur affichée avant d'annuler une animation Safari. */
+/* V36.12 — Tiroirs stables et fluides sur Safari iPhone.
+   Un seul mouvement de hauteur, interruption sans flash, et adaptation
+   si le contenu (compte, planning, bilan) change pendant l'ouverture. */
 const FOLD_MOTION_EASE='cubic-bezier(.23,.72,.24,1)';
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- let animation=null,intended=card.open;
- const events=card.id==='eventsDisclosure',admin=card.classList.contains('iu-admin-category');
- const clear=()=>{
-  card.style.removeProperty('height');card.style.removeProperty('overflow');
-  card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
-  if(events)card.removeAttribute('data-motion');
+ let animation=null,intended=card.open,targetHeight=0;
+ let resizeFrame=0;
+ const isEvents=card.id==='eventsDisclosure';
+ const isAdminCategory=card.classList.contains('iu-admin-category');
+ const px=value=>parseFloat(value)||0;
+ const cardBorders=()=>{const cs=getComputedStyle(card);return px(cs.borderTopWidth)+px(cs.borderBottomWidth);};
+ const naturalExpanded=()=>card.scrollHeight+cardBorders();
+ const naturalCollapsed=()=>{
+  const cs=getComputedStyle(card);
+  return summary.getBoundingClientRect().height+cardBorders()+px(cs.paddingTop)+px(cs.paddingBottom);
  };
+ const contentObserver=typeof ResizeObserver==='function'?new ResizeObserver(()=>{
+  if(!animation||!intended||resizeFrame)return;
+  resizeFrame=requestAnimationFrame(()=>{
+   resizeFrame=0;
+   if(!animation||!intended)return;
+   const updated=Math.max(naturalExpanded(),naturalCollapsed());
+   if(Math.abs(updated-targetHeight)<6)return;
+   // Un chargement de données a changé la hauteur durant l'ouverture :
+   // repartir de la position réellement affichée, pas de la hauteur naturelle.
+   const from=card.getBoundingClientRect().height;
+   card.style.height=from+'px';
+   const old=animation;animation=null;old.cancel();
+   launch(from,updated,Math.max(190,Math.min(330,old.effect?.getTiming?.().duration*.55||260)));
+  });
+ }):null;
+ const cleanup=()=>{
+  if(resizeFrame){cancelAnimationFrame(resizeFrame);resizeFrame=0;}
+  contentObserver?.disconnect();
+  card.style.removeProperty('height');
+  card.style.removeProperty('overflow');
+  card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
+  if(isEvents)card.removeAttribute('data-motion');
+ };
+ function launch(from,to,duration){
+  targetHeight=to;
+  if(Math.abs(to-from)<1){
+   card.open=intended;cleanup();return;
+  }
+  const current=card.animate([{height:from+'px'},{height:to+'px'}],{
+   duration,easing:FOLD_MOTION_EASE,fill:'both'
+  });
+  animation=current;
+  current.onfinish=()=>{
+   if(animation!==current)return;
+   card.style.height=targetHeight+'px';
+   animation=null;current.cancel();
+   card.open=intended;
+   cleanup();
+  };
+ }
  card.addEventListener('toggle',()=>{if(!animation)intended=card.open;});
  summary.addEventListener('click',event=>{
   if(event.defaultPrevented)return;
   if(!animation)intended=card.open;
-  const next=!intended;event.preventDefault();intended=next;
+  intended=!intended;
+  event.preventDefault();
   if(foldReducedMotion.matches||typeof card.animate!=='function'){
-   if(animation){const previous=animation;animation=null;previous.cancel();}
-   card.open=next;clear();return;
+   if(animation){const old=animation;animation=null;old.cancel();}
+   card.open=intended;cleanup();return;
   }
+  // Lire AVANT l'annulation WAAPI ; figer cette hauteur pour empêcher
+  // WebKit de peindre une frame à la taille dépliée.
   const from=card.getBoundingClientRect().height;
-  card.style.height=from+'px';card.style.overflow='hidden';
-  if(animation){const previous=animation;animation=null;previous.cancel();}
+  card.style.height=from+'px';
+  card.style.overflow='hidden';
+  if(animation){const old=animation;animation=null;old.cancel();}
+  if(resizeFrame){cancelAnimationFrame(resizeFrame);resizeFrame=0;}
+  contentObserver?.disconnect();
   card.open=true;
   card.classList.add('iu-fold-animating');
-  card.classList.toggle(closingClass,!next);
-  if(admin)card.classList.add('iu-admin-animating');
-  if(events)card.dataset.motion=next?'opening':'closing';
+  card.classList.toggle(closingClass,!intended);
+  if(isAdminCategory)card.classList.add('iu-admin-animating');
+  if(isEvents)card.dataset.motion=intended?'opening':'closing';
+  // Mesurer la taille complète une seule fois, sans additionner des
+  // sous-hauteurs dont les marges peuvent être fusionnées.
   card.style.height='auto';
-  const cs=getComputedStyle(card),px=s=>parseFloat(s)||0;
-  const border=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
-  const padding=px(cs.paddingTop)+px(cs.paddingBottom);
-  const expanded=card.scrollHeight+border;
-  const collapsed=summary.getBoundingClientRect().height+border+padding;
-  const to=next?Math.max(expanded,collapsed):collapsed;
+  const expanded=Math.max(naturalExpanded(),naturalCollapsed());
+  const collapsed=naturalCollapsed();
+  const to=intended?expanded:collapsed;
   card.style.height=from+'px';
-  if(Math.abs(to-from)<1){card.open=next;clear();return;}
-  const duration=Math.round(Math.min(510,Math.max(330,260+9*Math.sqrt(Math.abs(to-from)))));
-  const current=card.animate([{height:from+'px'},{height:to+'px'}],
-   {duration,easing:FOLD_MOTION_EASE,fill:'both'});
-  animation=current;
-  current.onfinish=()=>{
-   if(animation!==current)return;
-   card.style.height=to+'px';
-   animation=null;current.cancel();
-   card.open=next;clear();
-  };
+  const distance=Math.abs(to-from);
+  // Même rythme à l'ouverture / fermeture ; limiter les longs
+  // calculs de layout sur iPhone lors des grands panneaux administrateur.
+  const duration=Math.round(Math.min(480,Math.max(310,265+7.5*Math.sqrt(distance))));
+  launch(from,to,duration);
+  if(animation&&intended&&contentObserver){
+   contentObserver.observe(summary);
+   contentObserver.observe(content);
+  }
  });
 }
 window.IUSetupFold=setupUnifiedFold;
