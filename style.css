@@ -15156,11 +15156,10 @@ html body .app > section.intro > img.intro-mascot{
 }
 
 
-/* V36.25 — Mascotte ancrée dans l'angle inférieur droit et débordant légèrement.
-   Agrandissement CSS uniquement, inclinaison antihoraire. */
+/* V36.26 — Mascotte coupée aux bords de la banderole, sans halo parasite. */
 html body .app > section.intro{
   position:relative!important;
-  overflow:visible!important;
+  overflow:hidden!important;
 }
 html body .app > section.intro > img.intro-mascot{
   position:absolute!important;
@@ -15171,6 +15170,9 @@ html body .app > section.intro > img.intro-mascot{
   z-index:1!important;
   transform-origin:bottom right!important;
   transform:rotate(-12deg)!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  box-shadow:none!important;
 }
 @media(max-width:600px){
   html body .app > section.intro > img.intro-mascot{
