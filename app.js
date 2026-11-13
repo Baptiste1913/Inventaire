@@ -614,6 +614,7 @@ function iuOpenAdminPage(){
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-admin-mode');
+  document.documentElement.classList.add('iu-admin-page-active');
   // L'espace Administrateur possède maintenant son PROPRE viewport.
   // Ne pas déplacer le scroll de l'accueil pendant son ouverture.
   card.scrollTop=0;
@@ -624,6 +625,7 @@ function iuCloseAdminPage(immediate=false){
  if(!card||!document.body.classList.contains('is-admin-mode'))return;
  const exit=()=>{
   document.body.classList.remove('is-admin-mode');
+  document.documentElement.classList.remove('iu-admin-page-active');
   card.open=false;
   window.scrollTo({top:iuAdminReturnY,left:0,behavior:'instant'});
  };
