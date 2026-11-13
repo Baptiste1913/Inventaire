@@ -1269,7 +1269,7 @@ window.IUSetFoldLightEffects=enabled=>{
  return iuFoldLightEffects;
 };
 window.IUGetFoldLightEffects=()=>iuFoldLightEffects;
-const iuFoldStats={prepared:0,cacheHits:0,cacheMisses:0,lastWarmupMs:0};
+const iuFoldStats={prepared:0,cacheHits:0,cacheMisses:0,liveCacheHits:0,lastWarmupMs:0};
 // V36.54 — L'échantillonnage rAF produit lui-même du travail par image.
  // Désactivé en usage normal ; activation manuelle dans l'administration.
 let iuFoldFrameDiagnosticsEnabled=false;
@@ -1581,6 +1581,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   if(canOpenFromCache){
    collapsed=cached.closed;
    expanded=cached.expanded;
+   iuFoldStats.liveCacheHits++;
   }else{
    const cs=getComputedStyle(card);
    const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
