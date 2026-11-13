@@ -1355,6 +1355,15 @@ window.IUSetHeavyPaintLite=enabled=>{
  iuHeavyPaintLiteEnabled=Boolean(enabled);
  return iuHeavyPaintLiteEnabled;
 };
+// V36.56 — Gel léger, réversible : pause des animations décoratives
+// internes et report des seules écritures du diagnostic administrateur.
+// Ne bloque ni les clics, ni le login, ni les sauvegardes ou le réseau.
+let iuHeavyContentFreezeEnabled=true;
+window.IUGetHeavyContentFreeze=()=>iuHeavyContentFreezeEnabled;
+window.IUSetHeavyContentFreeze=enabled=>{
+ iuHeavyContentFreezeEnabled=Boolean(enabled);
+ return iuHeavyContentFreezeEnabled;
+};
 // V36.53 : test A/B sans affecter les autres tiroirs, ni le mode par défaut.
 let iuHeavyFoldMotionMode='native';
 window.IUGetHeavyFoldMotionMode=()=>iuHeavyFoldMotionMode;
@@ -1421,12 +1430,13 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  const beginHeavyFold=()=>{
   if(!isHeavyFold||iuBusyHeavyFolds.has(card))return;
   if(iuHeavyPaintLiteEnabled)card.classList.add('iu-heavy-paint-lite');
+  if(iuHeavyContentFreezeEnabled)card.classList.add('iu-heavy-content-frozen');
   iuBusyHeavyFolds.add(card);
   window.dispatchEvent(new CustomEvent('iu-heavy-fold-start',{detail:{id:card.id}}));
  };
  const endHeavyFold=()=>{
   if(!isHeavyFold)return;
-  card.classList.remove('iu-heavy-paint-lite');
+  card.classList.remove('iu-heavy-paint-lite','iu-heavy-content-frozen');
   if(!iuBusyHeavyFolds.delete(card))return;
   window.dispatchEvent(new CustomEvent('iu-heavy-fold-end',{detail:{id:card.id}}));
  };
