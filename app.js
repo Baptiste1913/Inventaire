@@ -1036,32 +1036,36 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)saveBeforeS
 window.addEventListener('pagehide',saveBeforeSuspend);
 $('resetBtn').addEventListener('click',newWeigh);
 
-// V34.44 — ouverture de « Voir les pesées » / « Voir les sessions ».
-// Animer la hauteur d'une seule liste, uniquement au clic : ne jamais
-// animer les re-rendus automatiques lors des enregistrements de pesées.
+
+/* V36.11 — Historiques/Bilans : une seule trajectoire de hauteur, même
+   après deux appuis rapprochés. Aucune animation des rafraîchissements. */
 const iuListMotion=new WeakMap();
 function animateExpandedList(id,renderChange){
- const list=$(id),reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
- if(!list){renderChange();return;}
+ const list=$(id);if(!list){renderChange();return;}
  const previous=iuListMotion.get(list);
- if(previous){previous.cancel();iuListMotion.delete(list);}
  const from=list.getBoundingClientRect().height;
+ list.style.height=from+'px';list.style.overflow='hidden';
+ if(previous){iuListMotion.delete(list);previous.cancel();}
  renderChange();
- if(reduced||typeof list.animate!=='function')return;
- const to=list.scrollHeight;
- if(Math.abs(to-from)<3)return;
- const motion=list.animate([{height:from+'px',overflow:'hidden'},{height:to+'px',overflow:'hidden'}],{
-  duration:420,easing:'cubic-bezier(.22,.75,.24,1)',fill:'both'
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||typeof list.animate!=='function'){
+  list.style.removeProperty('height');list.style.removeProperty('overflow');return;
+ }
+ list.style.height='auto';const to=list.scrollHeight;
+ list.style.height=from+'px';
+ if(Math.abs(to-from)<1){
+  list.style.removeProperty('height');list.style.removeProperty('overflow');return;
+ }
+ const duration=Math.round(Math.min(480,Math.max(300,250+8*Math.sqrt(Math.abs(to-from)))));
+ const motion=list.animate([{height:from+'px'},{height:to+'px'}],{
+  duration,easing:FOLD_MOTION_EASE,fill:'both'
  });
  iuListMotion.set(list,motion);
- const finish=()=>{
+ motion.onfinish=()=>{
   if(iuListMotion.get(list)!==motion)return;
-  iuListMotion.delete(list);
-  motion.cancel();
+  iuListMotion.delete(list);list.style.height=to+'px';motion.cancel();
+  list.style.removeProperty('height');list.style.removeProperty('overflow');
  };
- motion.onfinish=finish;
 }
-
 $('historyToggleTop').addEventListener('click',()=>animateExpandedList('historyList',()=>{historyExpanded=!historyExpanded;renderHistory();}));
 $('clearHistoryBtn').addEventListener('click',()=>{
  if(!history.length)return;
@@ -1242,123 +1246,77 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
 })();
  
  
-// V31.31 — moteur d’accordéon partagé : une seule courbe, aucune animation
-// concurrente sur le contenu et mesure de hauteur cohérente pour Safari.
-const FOLD_MOTION_MS=560;
-const FOLD_MOTION_EASE='cubic-bezier(.22,.75,.24,1)';
-function setupUnifiedFold(card,summary,content,closingClass){
+
+/* V36.11 — Moteur unique, interruption fluide : mesurer une seule hauteur
+   et figer la hauteur affichée avant d'annuler une animation Safari. */
+const FOLD_MOTION_EASE='cubic-bezier(.23,.72,.24,1)';
+const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
- let animation=null,requested=card.open;
+ let animation=null,intended=card.open;
+ const events=card.id==='eventsDisclosure',admin=card.classList.contains('iu-admin-category');
+ const clear=()=>{
+  card.style.removeProperty('height');card.style.removeProperty('overflow');
+  card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
+  if(events)card.removeAttribute('data-motion');
+ };
+ card.addEventListener('toggle',()=>{if(!animation)intended=card.open;});
  summary.addEventListener('click',event=>{
-  if(reduced.matches||typeof card.animate!=='function')return;
-  event.preventDefault();
-  // Respecter aussi les ouvertures programmatiques (édition depuis la liste).
-  if(!animation)requested=card.open;
-  const next=!requested;requested=next;
-  const currentHeight=card.getBoundingClientRect().height;
-  if(animation){animation.cancel();animation=null;}
-  // Maintenir le contenu dans le flux pendant toute la fermeture.
-  card.open=true;
-  card.classList.toggle(closingClass,!next);
-  const cs=getComputedStyle(card);
-  const px=x=>parseFloat(x)||0;
-  const extra=px(cs.borderTopWidth)+px(cs.borderBottomWidth)+px(cs.paddingTop)+px(cs.paddingBottom);
-  const collapsed=summary.getBoundingClientRect().height+extra;
-  const expanded=collapsed+content.getBoundingClientRect().height;
-  const target=next?expanded:collapsed;
-  if(Math.abs(currentHeight-target)<.5){card.open=next;card.classList.remove(closingClass);return;}
-  // Fluidité spécifique aux tiroirs Planning (autres cartes inchangées).
-  const planningDrawer=card.matches('#planningAdminCard .iu-admin-planning-section > .planning-accordion');
-  const anim=card.animate([{height:`${currentHeight}px`},{height:`${target}px`}],
-    {duration:planningDrawer?540:FOLD_MOTION_MS,
-     easing:planningDrawer?'cubic-bezier(.26,.72,.24,1)':FOLD_MOTION_EASE,fill:'both'});
-  animation=anim;
-  anim.onfinish=()=>{
-   if(animation!==anim)return;
-   animation=null;
-   if(!next)card.open=false;
-   anim.cancel();
-   card.classList.remove(closingClass);
-  };
- });
-}
-(function setupFoldAnimations(){
- document.querySelectorAll('.fold-card').forEach(card=>
-  setupUnifiedFold(card,card.querySelector(':scope > .fold-summary'),card.querySelector(':scope > .fold-body'),'is-fold-closing'));
-})();
-// V35.32 — moteur isolé pour les quatre tiroirs de gestion des dates.
-// Une seule animation de hauteur ; ne pas animer le contenu en parallèle.
-// Conserve la hauteur courante lors des taps rapides (Safari/PWA).
-function setupPlanningFold(card){
- const summary=card.querySelector(':scope > .planning-panel-summary');
- const content=card.querySelector(':scope > .planning-panel-content');
- if(!summary||!content||card.dataset.planningFold==='yes')return;
- card.dataset.planningFold='yes';
- const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
- let animation=null,requested=card.open;
- summary.addEventListener('click',event=>{
-  if(reduced.matches||typeof card.animate!=='function')return;
-  event.preventDefault();
-  if(!animation)requested=card.open;
-  const next=!requested;requested=next;
-  // Important : geler la hauteur VISUELLE avant d'annuler une animation.
-  // Sans cela, Safari repasse une frame à la hauteur naturelle (=saccade).
-  const from=card.getBoundingClientRect().height;
-  card.style.height=from+'px';
-  if(animation){animation.cancel();animation=null;}
-  card.open=true;
-  card.classList.toggle('is-planning-closing',!next);
-  card.style.height='auto';
-  const cs=getComputedStyle(card);
-  const borders=(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0);
-  const closed=summary.getBoundingClientRect().height+borders;
-  const expanded=card.scrollHeight+borders;
-  const to=next?expanded:closed;
-  card.style.height=from+'px';
-  card.style.overflow='hidden';
-  if(Math.abs(from-to)<.5){
-   card.open=next;
-   card.style.removeProperty('height');
-   card.style.removeProperty('overflow');
-   card.classList.remove('is-planning-closing');
-   return;
+  if(event.defaultPrevented)return;
+  if(!animation)intended=card.open;
+  const next=!intended;event.preventDefault();intended=next;
+  if(foldReducedMotion.matches||typeof card.animate!=='function'){
+   if(animation){const previous=animation;animation=null;previous.cancel();}
+   card.open=next;clear();return;
   }
-  const current=card.animate(
-   [{height:from+'px'},{height:to+'px'}],
-   {duration:480,easing:'cubic-bezier(.25,.74,.26,1)',fill:'forwards'}
-  );
+  const from=card.getBoundingClientRect().height;
+  card.style.height=from+'px';card.style.overflow='hidden';
+  if(animation){const previous=animation;animation=null;previous.cancel();}
+  card.open=true;
+  card.classList.add('iu-fold-animating');
+  card.classList.toggle(closingClass,!next);
+  if(admin)card.classList.add('iu-admin-animating');
+  if(events)card.dataset.motion=next?'opening':'closing';
+  card.style.height='auto';
+  const cs=getComputedStyle(card),px=s=>parseFloat(s)||0;
+  const border=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
+  const padding=px(cs.paddingTop)+px(cs.paddingBottom);
+  const expanded=card.scrollHeight+border;
+  const collapsed=summary.getBoundingClientRect().height+border+padding;
+  const to=next?Math.max(expanded,collapsed):collapsed;
+  card.style.height=from+'px';
+  if(Math.abs(to-from)<1){card.open=next;clear();return;}
+  const duration=Math.round(Math.min(510,Math.max(330,260+9*Math.sqrt(Math.abs(to-from)))));
+  const current=card.animate([{height:from+'px'},{height:to+'px'}],
+   {duration,easing:FOLD_MOTION_EASE,fill:'both'});
   animation=current;
   current.onfinish=()=>{
    if(animation!==current)return;
-   animation=null;
-   // Passer à l'état final sans laisser une frame intermédiaire.
-   card.style.height=next?'auto':closed+'px';
-   if(!next)card.open=false;
-   current.cancel();
-   card.style.removeProperty('height');
-   card.style.removeProperty('overflow');
-   card.classList.remove('is-planning-closing');
+   card.style.height=to+'px';
+   animation=null;current.cancel();
+   card.open=next;clear();
   };
  });
 }
-document.querySelectorAll('#planningAdminCard .iu-admin-planning-section > .planning-accordion')
- .forEach(setupPlanningFold);
+window.IUSetupFold=setupUnifiedFold;
+(function setupAllFolds(){
+ const bind=(selector,summary,content,closing)=>{
+  document.querySelectorAll(selector).forEach(card=>
+   setupUnifiedFold(card,card.querySelector(summary),card.querySelector(content),closing));
+ };
+ bind('.fold-card',':scope > .fold-summary',':scope > .fold-body','is-fold-closing');
+ bind('#planningAdminCard .planning-accordion',':scope > .planning-panel-summary',':scope > .planning-panel-content','is-planning-closing');
+ bind('.planning-import-help',':scope > summary',':scope > .planning-import-help-body','is-detail-closing');
+ bind('details.calc-alerts',':scope > summary',':scope > .calc-alerts-body, :scope > .recovery-body','is-detail-closing');
+ bind('details.backup-advanced',':scope > summary',':scope > .backup-advanced-body','is-detail-closing');
+ bind('details.events-disclosure',':scope > summary',':scope > .events-disclosure-content','is-events-closing');
+ bind('#planningAdminCard details.iu-admin-category',':scope > summary',':scope > .iu-admin-category-body','is-admin-closing');
+})();
 function setupSecondaryDetailsAnimation(card,bodySelector){
  if(!card)return;
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
-setupSecondaryDetailsAnimation($('weighSettings'),'.calc-alerts-body');
-// V34.44 — compléter les sous-tiroirs qui utilisaient encore l'ouverture
-// native immédiate ; les grands tiroirs et les rubriques administrateur
-// possèdent déjà leur moteur indépendant et ne sont pas modifiés ici.
-setupSecondaryDetailsAnimation($('recoveryCard'),'.recovery-body');
-setupSecondaryDetailsAnimation($('backupAdvanced'),'.backup-advanced-body');
-document.querySelectorAll('.planning-import-help').forEach(card=>
- setupSecondaryDetailsAnimation(card,'.planning-import-help-body'));
-
-
 // V34.45 — Le bouton « Inventaire » déclenche le même parcours que les
 // boutons Ma session : animation d'entrée, contrôle des données et
 // persistance inchangés. Aucun défilement ni changement de focus imposé.

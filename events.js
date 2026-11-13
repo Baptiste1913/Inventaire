@@ -2,55 +2,8 @@
    events-data.js est uniquement le secours de première installation / hors ligne. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-// V34.29 — ouverture / fermeture animée du volet Événements du mois.
-// Le panneau reste techniquement ouvert pendant la fermeture pour éviter
-// que Safari iPhone masque son contenu avant la fin de la transition.
-(function setupEventsDisclosure(){
- const panel=$('eventsDisclosure');
- const summary=panel?.querySelector('.events-disclosure-summary');
- if(!panel||!summary)return;
- let animation=null;
- const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
- summary.addEventListener('click',event=>{
-  event.preventDefault();
-  const opening=!panel.open||panel.dataset.motion==='closing';
-  const initialHeight=panel.getBoundingClientRect().height;
-  if(animation){
-   const running=animation;
-   animation=null;
-   running.cancel();
-  }
-  if(reduced()||typeof panel.animate!=='function'){
-   panel.open=opening;
-   panel.removeAttribute('data-motion');
-   return;
-  }
-  // Animer la hauteur du cadre complet (bordure et marges comprises).
-  // L'ancienne animation du contenu laissait sa marge et son bord visible
-  // pendant la fermeture, avant un deuxième saut à la fermeture native.
-  panel.open=true;
-  const cs=getComputedStyle(panel);
-  const border=(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0);
-  const summaryHeight=summary.getBoundingClientRect().height;
-  const collapsedHeight=summaryHeight+border;
-  const expandedHeight=panel.scrollHeight+border;
-  panel.dataset.motion=opening?'opening':'closing';
-  animation=panel.animate(
-   [{height:initialHeight+'px'},
-    {height:(opening?expandedHeight:collapsedHeight)+'px'}],
-   {duration:opening?420:350,easing:'cubic-bezier(.22,.75,.24,1)',fill:'forwards'}
-  );
-  const current=animation;
-  current.onfinish=()=>{
-   if(animation!==current)return;
-   animation=null;
-   if(!opening)panel.open=false;
-   panel.removeAttribute('data-motion');
-   current.cancel();
-  };
- });
-})();
-
+// V36.11 — Le volet Événements est animé par app.js.
+let moreAnimation=null;
 const fallback=window.INVENTAIRES_U_EVENTS||{inventories:[],events:[]};
 const CACHE='inventaires-u-planning-cache-v33.35';
 const date=s=>new Date(s+'T12:00:00');
@@ -81,7 +34,8 @@ function render(data){
   return Number(bLive)-Number(aLive)||a.start.localeCompare(b.start)||a.title.localeCompare(b.title,'fr');
  });
  const first=$('eventsFirst'),more=$('eventsMoreList'),button=$('eventsMoreButton'),label=$('eventsMoreLabel');
- first.replaceChildren();more.replaceChildren();more.hidden=true;more.classList.remove('is-open');more.style.maxHeight='0px';
+ if(moreAnimation){const old=moreAnimation;moreAnimation=null;old.cancel();}
+  more.removeAttribute('style');first.replaceChildren();more.replaceChildren();more.hidden=true;more.classList.remove('is-open');
  button.hidden=true;button.setAttribute('aria-expanded','false');
  function item(e){
   const node=document.createElement('div');node.className='events-entry';
@@ -97,12 +51,30 @@ function render(data){
  if(current.length>1){
   button.hidden=false;label.textContent='Voir les '+(current.length-1)+' autres événements';
   button.onclick=()=>{
-   const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));
+   const open=button.getAttribute('aria-expanded')!=='true';
+   const from=more.hidden?0:more.getBoundingClientRect().height;
+   more.style.height=from+'px';more.style.overflow='hidden';
+   if(moreAnimation){const previous=moreAnimation;moreAnimation=null;previous.cancel();}
+   button.setAttribute('aria-expanded',String(open));
    label.textContent=open?'Masquer les autres événements':'Voir les '+(current.length-1)+' autres événements';
-   if(open){more.hidden=false;more.style.maxHeight='0px';more.getBoundingClientRect();more.classList.add('is-open');more.style.maxHeight=more.scrollHeight+'px';
-    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='true')more.style.maxHeight='none';},610);
-   }else{more.style.maxHeight=more.scrollHeight+'px';more.getBoundingClientRect();more.classList.remove('is-open');more.style.maxHeight='0px';
-    setTimeout(()=>{if(button.getAttribute('aria-expanded')==='false')more.hidden=true;},610);}
+   more.hidden=false;more.classList.toggle('is-open',open);
+   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||typeof more.animate!=='function'){
+    more.hidden=!open;more.style.removeProperty('height');more.style.removeProperty('overflow');return;
+   }
+   more.style.height='auto';const to=open?more.scrollHeight:0;more.style.height=from+'px';
+   if(Math.abs(to-from)<1){
+    more.hidden=!open;more.style.removeProperty('height');more.style.removeProperty('overflow');return;
+   }
+   const duration=Math.round(Math.min(480,Math.max(300,250+8*Math.sqrt(Math.abs(to-from)))));
+   const motion=more.animate([{height:from+'px'},{height:to+'px'}],
+    {duration,easing:'cubic-bezier(.23,.72,.24,1)',fill:'both'});
+   moreAnimation=motion;
+   motion.onfinish=()=>{
+    if(moreAnimation!==motion)return;
+    moreAnimation=null;more.style.height=to+'px';motion.cancel();
+    more.hidden=!open;
+    more.style.removeProperty('height');more.style.removeProperty('overflow');
+   };
   };
  }
 }

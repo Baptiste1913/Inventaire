@@ -1,7 +1,7 @@
 {
-  "version": "36.10",
+  "version": "36.11",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Rotation de la pastèque réduite de 13° à 10° dans le sens horaire. Pied droit aligné sur le bas de la bannière avec une compensation relative à la taille du SVG, pour rester cohérent sur mobile et ordinateur."
+  "notes": "Moteur unifié et interruptible pour les tiroirs : hauteur réelle animée sans double fondu ni saccade, tiroirs planning/admin, événements, sauvegarde, compte, pesée et historiques harmonisés, accessibilité et reduced motion conservés."
 }
