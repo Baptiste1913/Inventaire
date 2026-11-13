@@ -1,7 +1,7 @@
 {
-  "version": "36.18",
+  "version": "36.19",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Icône de l’application actualisée depuis le nouveau SVG, déclinée pour iPhone, PWA, écran de démarrage et écran de mise à jour. Cache des icônes renouvelé."
+  "notes": "Dégradé du résultat de pesée adouci : flou 58 px et zone de diffusion élargie pour un mélange plus harmonieux des couleurs. Bouton Copier et calcul inchangés."
 }
