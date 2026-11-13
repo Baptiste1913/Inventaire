@@ -1,7 +1,7 @@
 {
-  "version": "36.51",
+  "version": "36.52",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Retour au comportement fluide de la version 36.49 : retrait du système global de mise en pause des animations (36.50) responsable de ralentissements. Le moteur des tiroirs, les durées et les fonctionnalités restent ceux de 36.49."
+  "notes": "Sur base 36.51 : coordination du cycle des grands tiroirs, vérification réseau des mises à jour reportée après l'ouverture d'Administrateur et rendu des statistiques du compte différé jusqu'à la fin du mouvement. Aucun changement de durée, de courbe ou d'apparence."
 }
