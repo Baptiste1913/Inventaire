@@ -1,7 +1,7 @@
 {
-  "version": "36.64",
+  "version": "36.65",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Résultat de pesée monochrome avec fin contour bleu U et halos bleus davantage floutés. Ouverture de l’application et retour après mise à jour plus progressifs (780 ms, déplacement réduit à 15 px). Retour des cartes après fin d’inventaire ralenti (720 ms) et allégé (68dvh contre 105dvh). Correction du défilement des pesées 36.63 conservée."
+  "notes": "Résultat de pesée : restauration du dégradé émeraude, turquoise et bleu, avec mélange des couleurs plus diffus (flou 82 px). Message « Inventaire terminé » dans Ma session : fond monochrome et fin contour bleu U. Cartes de fin d’inventaire remontées (départ 30dvh contre 68dvh) et ouverture PWA / mise à jour adoucies (7 px contre 15 px). Correction Safari de défilement préservée."
 }
