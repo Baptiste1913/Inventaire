@@ -210,22 +210,45 @@ $('accountResetDialog')?.addEventListener('close',()=>{pendingDashboardReset=nul
 // cloud ou toutes les cinq secondes. Aucune donnée n'est stockée hors espace.
 let dashboardRenderedKey=null;
 let dashboardWarmupTimer=0;
+let dashboardWarmupPending=false;
 const accountCardForDashboard=$('accountCard');
 const scheduleDashboardWarmup=()=>{
  clearTimeout(dashboardWarmupTimer);
  if(!user)return;
+ dashboardWarmupPending=true;
  dashboardWarmupTimer=setTimeout(()=>{
   dashboardWarmupTimer=0;
-  if(user&&!accountCardForDashboard?.classList.contains('iu-fold-animating'))renderDashboard();
+  if(!user){dashboardWarmupPending=false;return;}
+  if(accountCardForDashboard?.classList.contains('iu-fold-animating'))return;
+  dashboardWarmupPending=false;
+  renderDashboard();
  },490);
 };
+// V36.52 — Le panneau peut recevoir une mise à jour cloud pendant son
+// mouvement. Les statistiques non essentielles sont reportées APRES la
+// dernière image, jamais perdues si le timer s'est déclenché trop tôt.
+window.addEventListener('iu-heavy-fold-end',event=>{
+ if(event.detail?.id!=='accountCard'||!dashboardWarmupPending||dashboardWarmupTimer)return;
+ dashboardWarmupTimer=setTimeout(()=>{
+  dashboardWarmupTimer=0;
+  if(!user){dashboardWarmupPending=false;return;}
+  if(accountCardForDashboard?.classList.contains('iu-fold-animating'))return;
+  dashboardWarmupPending=false;
+  renderDashboard();
+ },70);
+});
 accountCardForDashboard?.addEventListener('toggle',()=>{
  if(accountCardForDashboard.open&&dashboardRenderedKey===null)scheduleDashboardWarmup();
 });
 function renderDashboard(){
  const panel=$('accountDashboard');if(!panel)return;
+ // La visibilité du compte change toujours immédiatement pour protéger les
+ // données ; seuls les graphiques et les textes secondaires sont différés.
  panel.hidden=!user;
- if(!user){dashboardRenderedKey=null;return;}
+ if(!user){dashboardRenderedKey=null;dashboardWarmupPending=false;return;}
+ if(accountCardForDashboard?.classList.contains('iu-fold-animating')){
+  scheduleDashboardWarmup();return;
+ }
  // Lire les données sans changer de DOM. Garder le contenu prêt même fermé.
  const rawSessions=localStorage.getItem('inventaires-u-sessions-v1')||'{}';
  const key=scopeId()+':'+dashboardResetAt()+':'+rawSessions;
@@ -467,5 +490,9 @@ Promise.resolve().then(init).catch(error=>console.warn('Initialisation compte',e
 window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
 // Les données sont invalidées par leur signature dans renderDashboard().
 // Plus de reconstruction du graphique toutes les cinq secondes.
-setInterval(()=>{if(user&&!document.hidden&&!document.body.classList.contains('is-focus-mode')&&$('accountCard')?.open)renderDashboard();},30000);
+setInterval(()=>{
+ if(user&&!document.hidden&&!document.body.classList.contains('is-focus-mode')&&
+    $('accountCard')?.open&&!accountCardForDashboard?.classList.contains('iu-fold-animating'))
+  renderDashboard();
+},30000);
 })();
