@@ -1,7 +1,7 @@
 {
-  "version": "36.31",
+  "version": "36.32",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte déplacée de 3 px vers la gauche à hauteur constante ; barres de chargement au démarrage et à la mise à jour raccourcies de 25 px."
+  "notes": "Tiroirs plus fluides : animation de hauteur unique de 420 ms, sans redémarrages ResizeObserver, inversion sans saut, rotations des flèches harmonisées, préférence de mouvement réduit respectée."
 }
