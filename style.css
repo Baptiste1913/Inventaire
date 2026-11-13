@@ -15693,3 +15693,10 @@ html body.is-admin-mode .app > #planningAdminCard[data-admin-loading="true"] > .
 @media(prefers-reduced-motion:reduce){
  html body.is-admin-mode .app > #planningAdminCard{animation:none!important;transition:none!important;}
 }
+
+/* Les droits Supabase restent prioritaires sur l'affichage de la vue.
+   L'attribut hidden doit toujours masquer le volet, même pendant
+   la fermeture automatique après révocation de l'accès. */
+html body.is-admin-mode .app > #planningAdminCard[hidden]{
+ display:none!important;
+}
