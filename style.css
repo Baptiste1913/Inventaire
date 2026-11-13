@@ -14905,3 +14905,86 @@ html body .app > section.intro > #heroStatus.intro-session-state.is-paused > .in
   transform:translateY(-50%)!important;
  }
 }
+
+/* V36.03 — Le contour et le gabarit du bouton Inventaire ne changent JAMAIS
+   au toucher sur Safari : états normal, actif, focus, hover et désactivé. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:active,:hover,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
+ -webkit-appearance:none!important;
+ appearance:none!important;
+ display:inline-flex!important;
+ box-sizing:border-box!important;
+ flex-shrink:0!important;
+ width:154px!important;
+ min-width:154px!important;
+ max-width:154px!important;
+ height:45px!important;
+ min-height:45px!important;
+ max-height:45px!important;
+ padding:6px 12px!important;
+ border:0!important;
+ border-radius:999px!important;
+ background:transparent url("./assets/u-inventory-button.svg?v=36.03") center / 100% 100% no-repeat!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+ outline:0!important;
+ filter:none!important;
+ opacity:1!important;
+ transform:none!important;
+ scale:1!important;
+ transition:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:active,:hover,:focus,:focus-visible,:disabled) .hero-action-content,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:active,:hover,:focus,:focus-visible,:disabled) .hero-action-copy,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:active,:hover,:focus,:focus-visible,:disabled) .hero-play-icon{
+ transform:none!important;
+ scale:1!important;
+ filter:none;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:active,:hover,:focus,:focus-visible,:disabled) .hero-play-icon{
+ filter:brightness(0) saturate(100%) invert(18%) sepia(9%) saturate(799%) hue-rotate(169deg) brightness(93%) contrast(90%)!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:active,:hover,:focus,:focus-visible,:disabled) .hero-action-copy > #heroActionLabel{
+ color:#252b31!important;
+ -webkit-text-fill-color:#252b31!important;
+}
+@media(max-width:380px){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:active,:hover,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
+  width:152px!important;min-width:152px!important;max-width:152px!important;
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  padding:6px 11px!important;
+ }
+}
+@supports selector(:focus-visible){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
+  outline:2px solid #fff!important;
+  outline-offset:3px!important;
+ }
+}
+/* Indicateur du bandeau : même principe que le halo « Ma session »,
+   davantage de diamètre, d'intensité et de contraste à chaque pulsation. */
+html body .app > section.intro > #heroStatus.intro-session-state > .intro-session-dot::after{
+ left:-11px!important;
+ width:30px!important;
+ height:30px!important;
+ animation:iu-v3603-hero-glow 2.1s ease-in-out infinite!important;
+ background:radial-gradient(circle,rgba(156,170,179,.39) 0%,rgba(156,170,179,.18) 40%,transparent 75%)!important;
+}
+html body .app > section.intro > #heroStatus.intro-session-state.is-running > .intro-session-dot::after{
+ background:radial-gradient(circle,rgba(52,189,138,.58) 0%,rgba(52,189,138,.28) 42%,transparent 75%)!important;
+}
+html body .app > section.intro > #heroStatus.intro-session-state.is-paused > .intro-session-dot::after{
+ background:radial-gradient(circle,rgba(217,169,96,.52) 0%,rgba(217,169,96,.25) 42%,transparent 75%)!important;
+}
+@keyframes iu-v3603-hero-glow{
+ 0%,100%{opacity:.50;transform:translateY(-50%) scale(.76)}
+ 50%{opacity:1;transform:translateY(-50%) scale(1.23)}
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app > section.intro > #heroStatus.intro-session-state > .intro-session-dot::after{
+  animation:none!important;opacity:1!important;
+  transform:translateY(-50%)!important;
+ }
+}

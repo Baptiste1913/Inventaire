@@ -1,7 +1,7 @@
 {
-  "version": "36.02",
+  "version": "36.03",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Vert renforcé en bas-centre, marges verticales égales autour de la banderole, bouton affiné à 154 px, pastèque réduite et ancrée au bas, ombre plus courte et douce."
+  "notes": "Rouge de la chair de pastèque aligné exactement sur le U du logo (#E11F1C), animation lumineuse de l'indicateur renforcée, bouton Inventaire verrouillé dans tous ses états sur Safari/iPhone."
 }
