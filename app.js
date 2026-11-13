@@ -1247,82 +1247,79 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
-/* V36.33 — Tiroirs iOS : optimiser le rendu, inverser l'animation en cours
-   au lieu d'en lancer une nouvelle et éviter les mesures répétées. */
-const FOLD_MOTION_MS=440;
-const FOLD_MOTION_EASE='cubic-bezier(.32,.08,.20,1)';
+/* V36.34 — Tiroirs pilotés par requestAnimationFrame (pas de setInterval).
+   Déroulement calé sur les vraies frames Safari, inversion depuis la hauteur
+   visible et aucune couche compositée forcée sur les contenus volumineux. */
+const FOLD_MOTION_MS=410;
+const FOLD_MOTION_EASE='cubic-bezier(.35,0,.20,1)';
 window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE});
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- let animation=null,intended=card.open,collapsedHeight=0,expandedHeight=0;
+ let intended=card.open,frame=0,run=0,from=0,to=0,started=0,duration=FOLD_MOTION_MS;
  const isEvents=card.id==='eventsDisclosure';
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
- function borderHeight(){const cs=getComputedStyle(card);return px(cs.borderTopWidth)+px(cs.borderBottomWidth);}
- function closedHeight(){
-  const cs=getComputedStyle(card);
-  return summary.getBoundingClientRect().height+borderHeight()+px(cs.paddingTop)+px(cs.paddingBottom);
- }
- function syncState(){
-  card.classList.toggle(closingClass,!intended);
-  if(isAdminCategory)card.classList.toggle('iu-admin-animating',!!animation);
-  if(isEvents)card.dataset.motion=intended?'opening':'closing';
- }
+ const borders=()=>{const cs=getComputedStyle(card);return px(cs.borderTopWidth)+px(cs.borderBottomWidth);};
+ const collapsed=()=>{const cs=getComputedStyle(card);
+  return summary.getBoundingClientRect().height+borders()+px(cs.paddingTop)+px(cs.paddingBottom);
+ };
+ // Courbe ease-in-out douce ; ne crée aucune lecture de layout pendant les frames.
+ const easing=t=>t*t*(3-2*t);
+ function stop(){if(frame){cancelAnimationFrame(frame);frame=0;}run++;}
  function cleanup(){
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
   if(isEvents)card.removeAttribute('data-motion');
  }
- card.addEventListener('toggle',()=>{if(!animation)intended=card.open;});
+ function finish(){
+  frame=0;
+  card.style.height=to+'px';
+  card.open=intended;
+  cleanup();
+ }
+ function tick(now,token){
+  if(token!==run)return;
+  if(!started)started=now;
+  const t=Math.min(1,(now-started)/duration);
+  const height=from+(to-from)*easing(t);
+  card.style.height=height.toFixed(2)+'px';
+  if(t>=1){finish();return;}
+  frame=requestAnimationFrame(time=>tick(time,token));
+ }
+ card.addEventListener('toggle',()=>{if(!frame)intended=card.open;});
  summary.addEventListener('click',event=>{
   if(event.defaultPrevented)return;
   event.preventDefault();
-  if(!animation)intended=card.open;
+  // Le prochain mouvement repart du pixel effectivement affiché, même
+  // lors d'un double appui. Ne pas synchroniser via un timer fixe.
+  const current=card.getBoundingClientRect().height;
+  stop();
   intended=!intended;
-  if(foldReducedMotion.matches||typeof card.animate!=='function'){
-   if(animation){const old=animation;animation=null;old.cancel();}
+  if(foldReducedMotion.matches){
    card.open=intended;cleanup();return;
   }
-  if(animation){
-   // Inverser les mêmes images déjà composées, sans reflow/recalcul complet.
-   animation.reverse();
-   syncState();
-   return;
-  }
-  const from=card.getBoundingClientRect().height;
-  card.style.height=from+'px';
+  card.style.height=current+'px';
   card.style.overflow='hidden';
   card.open=true;
-  // Mesurer l'état naturel avant l'isolation de rendu.
-  card.style.height='auto';
-  expandedHeight=card.scrollHeight+borderHeight();
-  collapsedHeight=closedHeight();
-  expandedHeight=Math.max(expandedHeight,collapsedHeight);
-  const to=intended?expandedHeight:collapsedHeight;
-  card.style.height=from+'px';
-  if(Math.abs(to-from)<1){
-   card.open=intended;cleanup();return;
-  }
   card.classList.add('iu-fold-animating');
-  syncState();
-  // La composition du contenu est isolée sur iOS dans le CSS ; seule
-  // la dimension extérieure change. Les clics suivants inversent ce trajet.
-  const motion=card.animate([
-   {height:from+'px'},
-   {height:(intended?expandedHeight:collapsedHeight)+'px'}
-  ],{duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'});
-  animation=motion;
-  motion.onfinish=()=>{
-   if(animation!==motion)return;
-   card.style.height=(intended?expandedHeight:collapsedHeight)+'px';
-   animation=null;motion.cancel();
-   card.open=intended;
-   cleanup();
-  };
-  motion.oncancel=()=>{if(animation===motion){animation=null;cleanup();}};
+  card.classList.toggle(closingClass,!intended);
+  if(isAdminCategory)card.classList.add('iu-admin-animating');
+  if(isEvents)card.dataset.motion=intended?'opening':'closing';
+  // Une seule mesure de la hauteur naturelle à l'ouverture, jamais dans tick().
+  card.style.height='auto';
+  const closed=collapsed();
+  const expanded=Math.max(card.scrollHeight+borders(),closed);
+  from=current;
+  to=intended?expanded:closed;
+  card.style.height=from+'px';
+  if(Math.abs(to-from)<1){finish();return;}
+  duration=FOLD_MOTION_MS;
+  started=0;
+  const token=run;
+  frame=requestAnimationFrame(now=>tick(now,token));
  });
 }
 window.IUSetupFold=setupUnifiedFold;
