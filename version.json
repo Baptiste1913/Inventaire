@@ -1,7 +1,7 @@
 {
-  "version": "36.17",
+  "version": "36.18",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Nouvelle icône personnalisée à partir du SVG fourni, fichiers carrés 192/512/180 px pour PWA et iOS, affichée à l'ouverture et pendant les mises à jour ; cache hors ligne actualisé. Logo de l'en-tête conservé."
+  "notes": "Icône de l’application actualisée depuis le nouveau SVG, déclinée pour iPhone, PWA, écran de démarrage et écran de mise à jour. Cache des icônes renouvelé."
 }
