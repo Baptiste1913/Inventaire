@@ -1623,7 +1623,10 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    card.open=intended;cleanup();return;
   }
   const distance=Math.abs(to-from)/Math.max(1,expanded-collapsed);
-  const duration=Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
+  // V36.58 — Uniquement l'ouverture des grands volets est ralentie.
+  // Fermeture et autres tiroirs restent à 420 ms pour une course complète.
+  const openingMs=isHeavyFold&&intended?520:FOLD_MOTION_MS;
+  const duration=Math.max(150,Math.round(openingMs*Math.min(1,distance)));
   // Une animation déclarative et une seule écriture de hauteur au démarrage.
   const anim=makeHeightMotion(from,to,duration);
   animation=anim;
