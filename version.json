@@ -1,7 +1,7 @@
 {
-  "version": "36.23",
+  "version": "36.24",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte non agrandie dans le SVG ; taille légèrement supérieure pilotée par CSS, rotation antihoraire de 8° et position ajustée pour éviter le rognage. SVG et cache actualisés."
+  "notes": "Bras et main droits retirés du SVG ; mascotte agrandie côté CSS et rapprochée du bord droit avec léger rognage autorisé. Inclinaison antihoraire conservée. Cache renouvelé."
 }
