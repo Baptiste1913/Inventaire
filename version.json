@@ -1,7 +1,7 @@
 {
-  "version": "36.40",
+  "version": "36.41",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Préparation des contenus lourds en amont : graphique et listes du compte mis en cache, diagnostics administrateur préchargés après autorisation, reconstructions inutiles évitées. Animations et mode hors ligne inchangés."
+  "notes": "Préparation générale pendant le splash : listes d'inventaire, historique, bilans, compte, disponibilité du panneau administrateur, décodage des images, polices et styles avant affichage. Garde-fous hors ligne et données préservées."
 }
