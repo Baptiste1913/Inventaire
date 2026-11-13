@@ -15259,3 +15259,26 @@ html body .app details[data-unified-fold="yes"].iu-fold-animating > summary{
  .backup-advanced-body,.v22-bilan,.planning-import-help-body,.recovery-body,
  .events-disclosure-content){transform:none!important;contain:none!important;}
 }
+
+
+/* V36.34 — Annuler l'isolation des sous-contenus V36.33 qui pouvait
+   provoquer des repaints/clippings lors de l'animation sur Safari iOS.
+   requestAnimationFrame anime maintenant uniquement la hauteur du tiroir. */
+:root{
+ --iu-drawer-reference-duration:410ms;
+ --iu-drawer-reference-ease:cubic-bezier(.35,0,.20,1);
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating{
+ contain:none!important;
+ isolation:auto!important;
+ overflow:hidden!important;
+}
+html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
+ .fold-body,.planning-panel-content,.iu-admin-category-body,.calc-alerts-body,
+ .backup-advanced-body,.v22-bilan,.planning-import-help-body,.recovery-body,
+ .events-disclosure-content){
+ contain:none!important;
+ transform:none!important;
+ -webkit-backface-visibility:visible!important;
+ backface-visibility:visible!important;
+}
