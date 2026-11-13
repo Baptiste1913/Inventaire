@@ -1,7 +1,7 @@
 {
-  "version": "36.56",
+  "version": "36.57",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Gel léger réversible du contenu des tiroirs Administrateur et Mon compte : pause des animations décoratives internes, report des écritures du diagnostic administrateur après le mouvement. Animation native 420 ms, optimisation graphique 36.55 et fonctions essentielles inchangées. Retour possible à 36.55."
+  "notes": "Tableau de bord administrateur épuré : suppression des lignes de cache, mesures d’animation et texte de dernière vérification. Bouton « Actualiser ». État des services et mises à jour contrôlé une seule fois au démarrage après validation des droits administrateur, puis uniquement sur demande. Animations inchangées."
 }
