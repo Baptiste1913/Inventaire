@@ -1,7 +1,7 @@
 {
-  "version": "36.54",
+  "version": "36.55",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Optimisation prudente des tiroirs Administrateur et Mon compte : cache de hauteur réelle réutilisé si contenu inchangé, invalidation sur ouverture/masquage des sous-panneaux, mesure FPS image par image désactivée par défaut et réactivable pour les tests. Animation native et rendu conservés ; retour possible à 36.53."
+  "notes": "Optimisation de peinture réversible pour Administrateur et Mon compte : allégement des flous et ombres internes uniquement pendant l'animation native, sans modifier la hauteur, la durée ni les autres tiroirs. Comparaison activable/désactivable depuis le tableau de bord."
 }
