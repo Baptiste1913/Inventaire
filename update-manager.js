@@ -246,31 +246,27 @@
 
  main.addEventListener('click',()=>{if(ready&&sessionSafe())install();else check();});
  secondary.addEventListener('click',()=>{if(sessionSafe())location.reload();else set('waiting','Inventaire en cours','Termine ton inventaire avant de recharger.','Vérifier à nouveau');});
- // V36.52 — Une ouverture de l'administration ne doit plus lancer le
- // téléchargement / la vérification du service worker dans les 420 ms
- // où Safari calcule la hauteur du grand tiroir.
- let autoCheckPending=false;
- const checkWhenSettled=()=>{
-  if(!ADMIN?.open||ADMIN.hidden)return;
+ // V36.57 — Une vérification de la version par ouverture de l'app,
+ // lorsque les droits administrateur sont confirmés. Les ouvertures du
+ // tiroir, retours au premier plan et événements réseau ne déclenchent
+ // plus de nouvelles vérifications. Le bouton de mise à jour reste actif.
+ let startupCheckStarted=false,startupCheckTimer=0;
+ const checkAtStartup=()=>{
+  if(startupCheckStarted||!ADMIN||ADMIN.hidden)return;
   if(ADMIN.classList.contains('iu-fold-animating')||window.IUIsHeavyFoldAnimating?.()){
-   autoCheckPending=true;return;
+   clearTimeout(startupCheckTimer);
+   startupCheckTimer=setTimeout(checkAtStartup,500);
+   return;
   }
-  autoCheckPending=false;
-  check();
+  startupCheckStarted=true;
+  clearTimeout(startupCheckTimer);
+  void check();
  };
- ADMIN?.addEventListener('toggle',checkWhenSettled);
- window.addEventListener('iu-update-ready',checkWhenSettled);
- window.addEventListener('online',checkWhenSettled);
- document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible')checkWhenSettled();
- });
- window.addEventListener('iu-heavy-fold-end',event=>{
-  if(event.detail?.id!=='planningAdminCard'||!autoCheckPending)return;
-  autoCheckPending=false;
-  // Laisser Safari peindre la dernière image avant de lancer l'I/O.
-  requestAnimationFrame(()=>{
-   if(ADMIN?.open&&!ADMIN.hidden&&!window.IUIsHeavyFoldAnimating?.())check();
+ if(ADMIN){
+  const adminReadyObserver=new MutationObserver(()=>{
+   if(!ADMIN.hidden)checkAtStartup();
   });
- });
- if(ADMIN?.open)checkWhenSettled();
+  adminReadyObserver.observe(ADMIN,{attributes:true,attributeFilter:['hidden']});
+  if(!ADMIN.hidden)checkAtStartup();
+ }
 })();
