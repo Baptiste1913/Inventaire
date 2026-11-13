@@ -15411,3 +15411,21 @@ html body .app > .calc-card :is(
 ){
  overflow-anchor:none;
 }
+
+
+/* V36.63 — Safari iPhone : conserver une réserve de défilement lorsque
+   le clavier numérique couvre le bas de l'écran. Sans cette réserve,
+   la disparition d'une alerte ou d'un résultat réduit la page et WebKit
+   rabat scrollY jusqu'en haut, cachant le champ encore actif.
+   Cette réserve existe uniquement en mode inventaire sur écran tactile,
+   et ne bascule pas à chaque focus ou pesée. */
+@media (max-width:700px) and (pointer:coarse){
+ body.is-focus-mode .app{
+  padding-bottom:max(320px,48svh,env(safe-area-inset-bottom))!important;
+ }
+ /* Éviter une variation de hauteur du résultat entre vide et renseigné. */
+ body.is-focus-mode .app > .calc-card .result{
+  min-height:185px;
+  box-sizing:border-box;
+ }
+}
