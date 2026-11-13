@@ -268,83 +268,11 @@ function refreshActionButtons(){
  const resetLabel=$('resetBtn').querySelector('span');
  if(resetLabel&&resetLabel.innerHTML!=='Nouvelle<br>pesée')resetLabel.innerHTML='Nouvelle<br>pesée';
 }
-// V36.62 — Stabilisation du champ de pesée sur Safari iPhone.
-// L'ancienne détection innerHeight - visualViewport.height n'est pas
-// fiable en PWA : certains iPhone réduisent les deux simultanément.
-// Capturer le cadrage AVANT input et le surveiller aussi après la
-// sauvegarde différée (1,1 s), sans bloquer un défilement manuel.
-let iuWeighScrollLock=null;
-let iuWeighScrollTimeout=0;
-const iuWeighViewport=()=>window.visualViewport;
-function iuWeighLockEligible(){
- const session=getActiveSession(),field=$('grossWeight');
- return Boolean(session&&!session.pausedAt&&field&&
-  document.activeElement===field&&!document.hidden&&iuWeighViewport());
-}
-function iuWeighUnlock(){
- iuWeighScrollLock=null;
- if(iuWeighScrollTimeout){clearTimeout(iuWeighScrollTimeout);iuWeighScrollTimeout=0;}
-}
-function iuWeighRememberPosition(duration=1700){
- if(!iuWeighLockEligible())return;
- const vp=iuWeighViewport(),field=$('grossWeight');
- // Une saisie suivante renouvelle la durée sans réinitialiser l'ancre.
- // Le déplacement reste mesuré depuis le cadrage choisi par l'utilisateur.
- if(iuWeighScrollLock&&Math.abs(vp.height-iuWeighScrollLock.height)<9){
-  iuWeighScrollLock.until=Date.now()+duration;
- }else{
-  iuWeighScrollLock={
-   top:field.getBoundingClientRect().top-vp.offsetTop,
-   height:vp.height,width:vp.width,until:Date.now()+duration,
-   restoring:false
-  };
- }
- clearTimeout(iuWeighScrollTimeout);
- iuWeighScrollTimeout=setTimeout(iuWeighUnlock,duration+60);
-}
-function iuWeighRestorePosition(){
- const lock=iuWeighScrollLock,vp=iuWeighViewport(),field=$('grossWeight');
- if(!lock||!vp||!field||Date.now()>lock.until||!iuWeighLockEligible()){
-  if(lock)iuWeighUnlock();return;
- }
- // L'ouverture du clavier, une rotation et un vrai défilement restent libres.
- if(Math.abs(vp.height-lock.height)>9||Math.abs(vp.width-lock.width)>3){
-  iuWeighUnlock();return;
- }
- if(lock.restoring)return;
- const top=field.getBoundingClientRect().top-vp.offsetTop;
- const drift=top-lock.top;
- if(Math.abs(drift)<=2||Math.abs(drift)>190)return;
- lock.restoring=true;
- window.scrollBy({left:0,top:drift,behavior:'instant'});
- lock.restoring=false;
-}
-function iuWeighAfterUpdate(){
- iuWeighRestorePosition();
- requestAnimationFrame(iuWeighRestorePosition);
- // Safari peut recadrer après l'image de l'input et après le clavier.
- setTimeout(iuWeighRestorePosition,70);
- setTimeout(iuWeighRestorePosition,180);
-}
-function preserveWeighInputPosition(update){
- if(iuWeighLockEligible())iuWeighRememberPosition();
- const result=update();
- if(iuWeighScrollLock)iuWeighAfterUpdate();
- return result;
-}
-function iuWeighStartInputGuard(){iuWeighRememberPosition();}
-window.addEventListener('scroll',iuWeighRestorePosition,{passive:true});
-window.visualViewport?.addEventListener('scroll',iuWeighRestorePosition,{passive:true});
-window.visualViewport?.addEventListener('resize',()=>{
- if(iuWeighScrollLock&&
-   Math.abs(window.visualViewport.height-iuWeighScrollLock.height)>9)iuWeighUnlock();
-},{passive:true});
-document.addEventListener('touchmove',iuWeighUnlock,{passive:true});
-document.addEventListener('wheel',iuWeighUnlock,{passive:true});
+// V36.63 — Pas de scroll forcé pendant la saisie.
+// Le correctif 36.62 surveillait le scroll puis appelait window.scrollBy,
+// provoquant des compensations concurrentes de l'ancrage clavier Safari.
+// La mise en page conserve désormais assez de hauteur sous le calcul.
 function saveCurrentWeigh(){
- return preserveWeighInputPosition(saveCurrentWeighInternal);
-}
-function saveCurrentWeighInternal(){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
  const b=baskets.find(x=>x.id===$('basketSelect').value),gross=parseWeight($('grossWeight').value);
  if(!b||gross===null||gross<b.tare)return false;
@@ -660,9 +588,12 @@ function syncFocusMode(sessionInput,statsInput){
  const active=Boolean(session&&!session.pausedAt);
  const toolbar=$('focusToolbar');
  if(!toolbar)return;
- toolbar.hidden=!active;
- document.body.classList.toggle('is-focus-mode',active);
- if(!active)$('focusConfirm').hidden=true;
+ // Éviter de réécrire les propriétés de mise en page pendant chaque
+ // sauvegarde ou chaque actualisation de la durée de session.
+ if(toolbar.hidden===active)toolbar.hidden=!active;
+ if(document.body.classList.contains('is-focus-mode')!==active)
+  document.body.classList.toggle('is-focus-mode',active);
+ if(!active&&!$('focusConfirm').hidden)$('focusConfirm').hidden=true;
  if(active){
   const stats=statsInput||activeStats(session);
   const durationValue=durationLabel(stats.duration),countValue=String(stats.count);
@@ -1110,9 +1041,8 @@ $('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='
  });
 })();
 
-$('grossWeight').addEventListener('beforeinput',iuWeighStartInputGuard);
-$('grossWeight').addEventListener('input',()=>preserveWeighInputPosition(()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();}));
-$('basketSelect').addEventListener('change',()=>preserveWeighInputPosition(()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();}));
+$('grossWeight').addEventListener('input',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
+$('basketSelect').addEventListener('change',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('grossWeight').addEventListener('blur',()=>{if(autoSaveTimer!==null)saveCurrentWeigh();});
 // iOS peut suspendre le timer de 1,1 s dès que l'application se verrouille.
 // Forcer une sauvegarde synchrone des données valides avant la suspension.
@@ -1122,11 +1052,12 @@ window.addEventListener('pagehide',saveBeforeSuspend);
 // Sur iOS, pointerdown.preventDefault() peut encore laisser le bouton
 // voler le focus au champ (WebKit 316402 / 322721). mousedown permet
 // de garder le clavier et le cadrage avant le clic Nouvelle pesée.
-$('resetBtn').addEventListener('pointerdown',iuWeighStartInputGuard);
+// Éviter qu'un appui sur Nouvelle pesée vole le focus au clavier iPhone.
+// Aucune compensation de scroll ni listener global sur visualViewport.
 $('resetBtn').addEventListener('mousedown',event=>{
- if(iuWeighLockEligible())event.preventDefault();
+ if(document.activeElement===$('grossWeight'))event.preventDefault();
 });
-$('resetBtn').addEventListener('click',()=>preserveWeighInputPosition(newWeigh));
+$('resetBtn').addEventListener('click',newWeigh);
 
 
 /* V36.11 — Historiques/Bilans : une seule trajectoire de hauteur, même
