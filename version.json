@@ -1,7 +1,7 @@
 {
-  "version": "36.04",
+  "version": "36.05",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Pastèque rouge moins saturée (#D9403D) ; indicateur plus lumineux avec pulsation compacte (20 px) et variation du point central, sans halo trop étendu. Bouton Inventaire inchangé."
+  "notes": "Pastèque : rouge pastel dérivé du #E11F1C (#E96764). Indicateur de la banderole : géométrie, halo et animations 2,4 s identiques à l'écran Session en cours, avec couleurs adaptées à l'état."
 }
