@@ -1,7 +1,7 @@
 {
-  "version": "36.49",
+  "version": "36.50",
   "published": "2026-11-13",
-  "assets": 43,
+  "assets": 44,
   "bytes": 819245,
-  "notes": "Fermeture Administrateur et Mon compte affinée : mesures préservées, styles overflow et classes regroupés dans requestAnimationFrame pour éviter une invalidation de rendu intermédiaire. Ouverture, durée 420 ms et autres tiroirs inchangés."
+  "notes": "Optimisation globale inspirée d'Optimize Web Animations : animations CSS hors écran et en arrière-plan suspendues par IntersectionObserver, halos décoratifs mis en pause durant les tiroirs, mises à jour périodiques visibles uniquement, reprise et nettoyage des observateurs. Pesées et synchronisation préservées."
 }
