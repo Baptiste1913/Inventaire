@@ -1,7 +1,7 @@
 {
-  "version": "36.62",
+  "version": "36.63",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Stabilisation du défilement Safari iPhone pendant un inventaire : conservation du cadrage dès la saisie et lors de la sauvegarde différée, avec surveillance ponctuelle des déplacements. Défilement manuel et changements du clavier respectés ; meilleure conservation du focus du champ lors de Nouvelle pesée. Saisie et données inchangées."
+  "notes": "Correction du saut de page lors des pesées iPhone : retrait des compensations scrollBy concurrentes de Safari, réserve de défilement stable en mode concentration avec clavier, hauteur du résultat stabilisée, et suppression des écritures répétées du mode concentration pendant la sauvegarde. Données et calculs inchangés."
 }
