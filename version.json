@@ -1,7 +1,7 @@
 {
-  "version": "36.44",
+  "version": "36.45",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Essai ciblé sur Administrateur et Mon compte : animation hybride translate/scale pilotée par le compositeur avec hauteur conservée pour déplacer les cartes, diagnostics de fluidité préservés et repli standard automatique."
+  "notes": "Fermeture plus rapide des tiroirs Administrateur et Mon compte (275 ms max), courbe de fermeture plus réactive, ouverture 36.44 conservée et diagnostics maintenus."
 }
