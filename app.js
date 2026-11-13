@@ -1337,6 +1337,29 @@ const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 // du mouvement sans modifier la moindre animation ou son esthétique.
 const iuBusyHeavyFolds=new Set();
 window.IUIsHeavyFoldAnimating=()=>iuBusyHeavyFolds.size>0;
+// V36.53 : test A/B sans affecter les autres tiroirs, ni le mode par défaut.
+let iuHeavyFoldMotionMode='native';
+window.IUGetHeavyFoldMotionMode=()=>iuHeavyFoldMotionMode;
+window.IUSetHeavyFoldMotionMode=mode=>{
+ if(mode!=='native'&&mode!=='raf')return iuHeavyFoldMotionMode;
+ iuHeavyFoldMotionMode=mode;
+ return iuHeavyFoldMotionMode;
+};
+// Équivalent du cubic-bezier CSS (.28,.72,.24,1), calculé sur le TEMPS
+// écoulé. La recherche binaire inverse x(t) pour conserver la même courbe.
+function iuHeavyFoldEase(progress){
+ if(progress<=0)return 0;
+ if(progress>=1)return 1;
+ let low=0,high=1,t=progress;
+ for(let i=0;i<10;i++){
+  const s=1-t;
+  const x=3*s*s*t*.28+3*s*t*t*.24+t*t*t;
+  if(x<progress)low=t;else high=t;
+  t=(low+high)/2;
+ }
+ const s=1-t;
+ return 3*s*s*t*.72+3*s*t*t*1+t*t*t;
+}
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
@@ -1348,6 +1371,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  });
  invalidator.observe(content,{subtree:true,childList:true,characterData:true});
  let intended=card.open,animation=null,animationStartedAt=0,pendingCloseFrame=0;
+ let activeEngine='native';
  let rafSamples=0,lastSampleAt=0,sampleGaps=0,largestGap=0,frameLoop=0;
  const stopSampling=()=>{
   if(frameLoop){cancelAnimationFrame(frameLoop);frameLoop=0;}
@@ -1379,6 +1403,46 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  };
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
+ // Expérience activable depuis le tableau de bord : boucle rAF pilotée
+ // par le timestamp réel, jamais par un incrément fixe de pixels/frame.
+ // Le navigateur continue de gérer tous les autres tiroirs avec WAAPI.
+ function makeHeightMotion(from,to,duration){
+  activeEngine=isHeavyFold&&iuHeavyFoldMotionMode==='raf'?'raf':'native';
+  if(activeEngine==='native'){
+   return card.animate([{height:from+'px'},{height:to+'px'}],{
+    duration,easing:FOLD_MOTION_EASE,fill:'both'
+   });
+  }
+  const startedAt=performance.now();
+  let frame=0,cancelled=false;
+  const motion={
+   onfinish:null,oncancel:null,
+   cancel(){
+    if(cancelled)return;
+    cancelled=true;
+    if(frame)cancelAnimationFrame(frame);
+    if(typeof motion.oncancel==='function')motion.oncancel();
+   }
+  };
+  const step=timestamp=>{
+   if(cancelled)return;
+   if(!card.isConnected){
+    motion.cancel();
+    if(animation===motion){animation=null;stopSampling();cleanup();}
+    return;
+   }
+   const progress=Math.min(1,Math.max(0,(timestamp-startedAt)/duration));
+   const eased=iuHeavyFoldEase(progress);
+   card.style.height=(from+(to-from)*eased).toFixed(2)+'px';
+   if(progress>=1){
+    if(typeof motion.onfinish==='function')motion.onfinish();
+   }else{
+    frame=requestAnimationFrame(step);
+   }
+  };
+  frame=requestAnimationFrame(step);
+  return motion;
+ }
  function cleanup(){
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
@@ -1399,6 +1463,9 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    durationMs:Math.round(performance.now()-animationStartedAt),
    frames:rafSamples,slowFrames:sampleGaps,maxGapMs:Math.round(largestGap),
    effects:iuFoldLightEffects?'allégés':'normaux',
+   engine:activeEngine,
+   direction:intended?'ouverture':'fermeture',
+   approxFps:rafSamples>1?Math.round((rafSamples-1)*1000/Math.max(1,performance.now()-animationStartedAt)):0,
    pixels:Math.round(Math.abs(to-(card.dataset.iuFoldStart?Number(card.dataset.iuFoldStart):to)))});
   if(IU_FOLD_METRICS.length>24)IU_FOLD_METRICS.shift();
   window.dispatchEvent(new Event('iu-fold-performance'));
@@ -1448,9 +1515,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
     if(intended||!card.isConnected){cleanup();return;}
     card.style.overflow='hidden';
     card.classList.add('iu-fold-animating',closingClass);
-    const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
-     duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'
-    });
+    const anim=makeHeightMotion(from,to,FOLD_MOTION_MS);
     animation=anim;
     beginHeavyFold();
     animationStartedAt=performance.now();
@@ -1490,9 +1555,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   const distance=Math.abs(to-from)/Math.max(1,expanded-collapsed);
   const duration=Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
   // Une animation déclarative et une seule écriture de hauteur au démarrage.
-  const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
-   duration,easing:FOLD_MOTION_EASE,fill:'both'
-  });
+  const anim=makeHeightMotion(from,to,duration);
   animation=anim;
   beginHeavyFold();
   animationStartedAt=performance.now();
