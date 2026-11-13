@@ -1247,85 +1247,79 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
-/* V36.36 — CSS Grid pour les tiroirs : fini les modifications de
-   height a chaque image. L'interpolation est deleguee a Safari via
-   grid-template-rows (0fr -> 1fr). Le <details> reste ouvert pendant la
-   fermeture pour rendre le contenu, puis est ferme a la fin.
-   Les clics repetes inversent la transition CSS en cours. */
-const FOLD_MOTION_MS=440;
-const FOLD_MOTION_EASE='cubic-bezier(.25,.65,.25,1)';
+/* V36.37 — Base 36.34 + interpolation amortie inspiree du code fourni.
+   A chaque frame: position += (cible - position) * facteur.
+   Le facteur tient compte du temps ecoule pour rester regulier a 60/120 Hz.
+   Une inversion change seulement la cible, sans redemarrer le mouvement. */
+const FOLD_MOTION_MS=500;
+const FOLD_MOTION_EASE='cubic-bezier(.22,.75,.24,1)';
 window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE});
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
- // Deux enfants directs pour les volets classiques. Le panneau admin a
- // une ligne de chargement supplementaire entre summary et fold-body.
- const adminLoading=card.id==='planningAdminCard'&&card.children.length===3&&
-  card.children[1].classList.contains('iu-admin-loading-message');
- if(card.firstElementChild!==summary||card.lastElementChild!==content||
-    (card.children.length!==2&&!adminLoading))return;
  card.dataset.unifiedFold='yes';
- card.dataset.iuGridFold='yes';
- let intended=card.open,animating=false,finishTimer=0,openFrame=0;
+ let intended=card.open,frame=0,currentHeight=0,targetHeight=0,lastTime=0,started=0;
  const isEvents=card.id==='eventsDisclosure';
  const isAdminCategory=card.classList.contains('iu-admin-category');
- card.dataset.iuGridExpanded=intended?'yes':'no';
- function clearPending(){
-  if(finishTimer){clearTimeout(finishTimer);finishTimer=0;}
-  if(openFrame){cancelAnimationFrame(openFrame);openFrame=0;}
- }
- function finish(){
-  clearPending();
-  if(!animating)return;
-  animating=false;
+ const px=value=>parseFloat(value)||0;
+ const borders=()=>{const cs=getComputedStyle(card);return px(cs.borderTopWidth)+px(cs.borderBottomWidth);};
+ const collapsed=()=>{const cs=getComputedStyle(card);
+  return summary.getBoundingClientRect().height+borders()+px(cs.paddingTop)+px(cs.paddingBottom);
+ };
+ function cleanup(){
+  card.style.removeProperty('height');
+  card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
   if(isEvents)card.removeAttribute('data-motion');
-  if(!intended)card.open=false;
  }
- card.addEventListener('transitionend',event=>{
-  if(event.target===card&&event.propertyName==='grid-template-rows')finish();
- });
- card.addEventListener('toggle',()=>{
-  // Les changements de <details> provenant des autres fonctions de l'app
-  // restent compatibles (ouverture du compte, planning, etc.).
-  if(animating)return;
-  intended=card.open;
-  card.dataset.iuGridExpanded=intended?'yes':'no';
- });
+ function finish(){
+  if(frame){cancelAnimationFrame(frame);frame=0;}
+  card.style.height=targetHeight+'px';
+  card.open=intended;
+  cleanup();
+  lastTime=0;
+ }
+ function tick(now){
+  frame=0;
+  if(!lastTime){lastTime=now;started=now;}
+  // Equivaut a 0.18 par image a 60 Hz, sans ralentir sur 120 Hz.
+  const delta=Math.min(48,Math.max(0,now-lastTime));
+  lastTime=now;
+  const blend=1-Math.pow(1-.18,delta/(1000/60));
+  currentHeight+=(targetHeight-currentHeight)*blend;
+  if(Math.abs(targetHeight-currentHeight)<.55||now-started>900){
+   finish();return;
+  }
+  card.style.height=currentHeight.toFixed(2)+'px';
+  frame=requestAnimationFrame(tick);
+ }
+ card.addEventListener('toggle',()=>{if(!frame)intended=card.open;});
  summary.addEventListener('click',event=>{
   if(event.defaultPrevented)return;
   event.preventDefault();
+  const moving=frame!==0;
+  if(!moving)currentHeight=card.getBoundingClientRect().height;
   intended=!intended;
-  clearPending();
   if(foldReducedMotion.matches){
-   animating=false;
-   card.dataset.iuGridExpanded=intended?'yes':'no';
-   card.open=intended;
-   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
-   if(isEvents)card.removeAttribute('data-motion');
-   return;
+   if(frame){cancelAnimationFrame(frame);frame=0;}
+   card.open=intended;cleanup();return;
   }
-  animating=true;
+  card.style.height=currentHeight+'px';
+  card.style.overflow='hidden';
+  card.open=true;
+  // Mesures hors boucle. La cible peut changer, mais la hauteur courante
+  // reste intacte en cas d'appui rapide.
+  card.style.height='auto';
+  const closed=collapsed();
+  const expanded=Math.max(card.scrollHeight+borders(),closed);
+  targetHeight=intended?expanded:closed;
+  card.style.height=currentHeight+'px';
   card.classList.add('iu-fold-animating');
   card.classList.toggle(closingClass,!intended);
   if(isAdminCategory)card.classList.add('iu-admin-animating');
   if(isEvents)card.dataset.motion=intended?'opening':'closing';
-  if(intended&&!card.open){
-   // Premiere frame fermee rendue AVANT de demander l'expansion :
-   // sans cette separation WebKit peut sauter directement a 1fr.
-   card.dataset.iuGridExpanded='no';
-   card.open=true;
-   void card.offsetHeight;
-   openFrame=requestAnimationFrame(()=>{
-    openFrame=0;
-    if(intended)card.dataset.iuGridExpanded='yes';
-   });
-  }else{
-   // Inversion native de la transition CSS sans mesurer la hauteur.
-   card.dataset.iuGridExpanded=intended?'yes':'no';
-  }
-  // Secours si Safari ne renvoie pas transitionend (onglet suspendu).
-  finishTimer=setTimeout(finish,FOLD_MOTION_MS+130);
+  if(Math.abs(targetHeight-currentHeight)<.55){finish();return;}
+  if(!moving){lastTime=0;started=0;frame=requestAnimationFrame(tick);}
  });
 }
 window.IUSetupFold=setupUnifiedFold;
