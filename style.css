@@ -15749,7 +15749,8 @@ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-s
  background:linear-gradient(145deg,#fff,#edf0f2)!important;
  color:#414d56!important;
  box-shadow:none!important;
- font:800 13px/1.3 inherit!important;
+ font-family:inherit!important;font-size:13px!important;
+ font-weight:800!important;line-height:1.3!important;
  white-space:normal!important;
  text-align:center!important;
 }
@@ -15853,7 +15854,8 @@ html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions > 
  background:linear-gradient(145deg,#fff,#e9edf0)!important;
  color:#4b5963!important;
  box-shadow:inset 0 1px 0 rgba(255,255,255,.99),0 2px 7px rgba(35,45,55,.045)!important;
- font:800 12.5px/1.3 inherit!important;
+ font-family:inherit!important;font-size:12.5px!important;
+ font-weight:800!important;line-height:1.3!important;
  cursor:pointer!important;
 }
 html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions > button svg{
@@ -15911,4 +15913,12 @@ html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-loading-messa
  html body.is-admin-mode .app > #planningAdminCard .planning-admin-body{
   scroll-behavior:auto!important;
  }
+}
+
+html body:not(.is-admin-mode) .app > #planningAdminCard .iu-admin-launch-action:focus-visible{
+ outline:2px solid #6c8890!important;outline-offset:3px!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard[data-admin-loading="true"] .iu-admin-launch-action{
+ opacity:.55!important;
+ pointer-events:none!important;
 }
