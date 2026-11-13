@@ -1,7 +1,7 @@
 {
-  "version": "36.65",
+  "version": "36.66",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Résultat de pesée : restauration du dégradé émeraude, turquoise et bleu, avec mélange des couleurs plus diffus (flou 82 px). Message « Inventaire terminé » dans Ma session : fond monochrome et fin contour bleu U. Cartes de fin d’inventaire remontées (départ 30dvh contre 68dvh) et ouverture PWA / mise à jour adoucies (7 px contre 15 px). Correction Safari de défilement préservée."
+  "notes": "Essai d’un espace administrateur en page dédiée : le bloc d’accueil propose « Accéder aux réglages », ouverture et retour avec le moteur d’animation du mode concentration. Tout le tableau de bord, la mise à jour et la planification restent dans le même DOM protégé, avec bouton Retour et navigation sticky. Mon compte et les pesées restent inchangés."
 }
