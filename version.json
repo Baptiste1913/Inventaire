@@ -1,7 +1,7 @@
 {
-  "version": "36.33",
+  "version": "36.34",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Refonte des tiroirs : isolation du rendu pendant l'animation sur Safari et inversion directe en cas de double appui, réduction des recalculs d'affichage et harmonisation des transitions."
+  "notes": "Tiroirs pilotés par requestAnimationFrame synchronisé au rafraîchissement Safari, sans setInterval ni redémarrage des animations CSS. Suppression des isolations coûteuses, inversion depuis la hauteur affichée et cache PWA renouvelé."
 }
