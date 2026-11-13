@@ -15615,6 +15615,9 @@ html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-summary
 }
 html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-page-head{
  display:flex!important;
+ position:sticky!important;
+ top:env(safe-area-inset-top,0px)!important;
+ z-index:12!important;
  align-items:center!important;
  justify-content:space-between!important;
  gap:12px!important;
