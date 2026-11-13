@@ -1,33 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="145" height="49" viewBox="0 0 145 49">
   <defs>
-    <clipPath id="capsule"><rect x="0.18" y="0.18" width="144.64" height="48.64" rx="24.32"/></clipPath>
+    <clipPath id="capsule">
+      <rect x="0.18" y="0.18" width="144.64" height="48.64" rx="24.32"/>
+    </clipPath>
   </defs>
   <g clip-path="url(#capsule)">
-    <!-- Couronne intérieure bleu pétrole continue. -->
-    <rect x="0" y="0" width="145" height="49" fill="#007583"/>
-    <!-- Cyan gauche : les pointes se prolongent sur le haut et le bas,
-         leur largeur diminue progressivement sans arrêt abrupt. -->
-    <path d="M73 0.18
-      C55 0.18 38 0.18 24.5 0.18
-      C11.06 0.18 0.18 11.06 0.18 24.5
-      C0.18 37.94 11.06 48.82 24.5 48.82
-      C33.7 48.82 43.2 48.82 54 48.82
-      C44 48.62 34.3 47.62 24.5 46.25
-      C12.2 44.55 2.75 34.7 2.75 24.5
-      C2.75 14.3 12.1 4.75 24.5 2.55
-      C40 0.82 58.8 0.27 73 0.18 Z" fill="#53C0E9"/>
-    <!-- Vert d'eau droit : mêmes transitions longues, asymétrie
-         conservée avec le bleu pétrole en haut-droite / bas-gauche. -->
-    <path d="M94 0.18
-      C102.8 0.18 113.8 0.18 120.5 0.18
-      C133.94 0.18 144.82 11.06 144.82 24.5
-      C144.82 37.94 133.94 48.82 120.5 48.82
-      C107.5 48.82 94.6 48.82 82 48.82
-      C98 48.45 111.8 47.1 120.5 46.1
-      C132.85 44.5 142.2 34.75 142.2 24.5
-      C142.2 14.25 132.9 4.73 120.5 2.45
-      C112.1 0.9 102.9 0.28 94 0.18 Z" fill="#64B9AE"/>
-    <!-- Même intérieur et même épaisseur totale que la version 35.93. -->
-    <rect x="3.75" y="3.75" width="137.5" height="41.5" rx="20.75" fill="#FFFFFF"/>
+    <!-- Fond extérieur cyan -->
+    <rect width="145" height="49" fill="#53C0E9"/>
+
+    <!-- Croissant vert d’eau prolongé pour une jonction progressive -->
+    <path d="M92 0 H145 V49 H82
+      C101 47.8 116 45.8 126.5 40.8
+      C138.5 35.1 143.2 30.1 143.2 24.5
+      C143.2 18.9 138.5 13.9 126.5 8.2
+      C116 3.2 101 1.2 92 0 Z" fill="#64B9AE"/>
+
+    <!-- Bleu pétrole dominant, avec prolongement sur la droite -->
+    <path d="M18.2 2.5
+      C34.8 0.75 58.8 0.95 79.1 0.95
+      C98.4 0.95 114.6 0.15 125.8 0.95
+      C135.2 1.65 141.0 8.7 141.6 18.2
+      C141.8 20.5 142.0 22.5 142.0 24.5
+      C142.0 26.5 141.8 28.5 141.6 30.8
+      C140.9 40.2 134.9 47.2 125.5 48.0
+      C114.0 49.0 98.8 48.05 79.5 48.05
+      C58.2 48.05 37.7 48.45 19.7 46.9
+      C8.9 45.95 3.55 35.35 3.55 24.5
+      C3.55 13.6 7.3 3.65 18.2 2.5 Z" fill="#007583"/>
+
+    <!-- Capsule intérieure agrandie pour amincir l'anneau -->
+    <rect x="4.35" y="4.35" width="136.3" height="40.2" rx="20.1" fill="#FFFFFF"/>
   </g>
 </svg>
