@@ -596,7 +596,11 @@ function animateFocusExit(action){changeFocusWithMotion(action,false);}
    Le <details> reste en place pour les scripts administrateur et Supabase. */
 const iuAdminPageMotion={
  modeClass:'is-admin-mode',
- viewSelectors:'.app > #planningAdminCard',
+ // Deux surfaces distinctes, comme bandeau et pesée du mode Concentration :
+ // la page entière ne se comporte plus comme une carte qui se déplie.
+ viewSelectors:'.app > #planningAdminCard > .iu-admin-page-head, .app > #planningAdminCard > .planning-admin-body',
+ // Ne pas dupliquer l'immense DOM administrateur pendant le retour :
+ // le moteur conserve le même retour des cartes que le mode session.
  exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-page-head',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:focusSurfaceSelectors
@@ -610,7 +614,9 @@ function iuOpenAdminPage(){
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-admin-mode');
-  window.scrollTo({top:0,left:0,behavior:'instant'});
+  // L'espace Administrateur possède maintenant son PROPRE viewport.
+  // Ne pas déplacer le scroll de l'accueil pendant son ouverture.
+  card.scrollTop=0;
  },true,iuAdminPageMotion);
 }
 function iuCloseAdminPage(immediate=false){
@@ -1724,6 +1730,10 @@ window.IUSetupFold=setupUnifiedFold;
   iuOpenAdminPage();
  });
  $('iuAdminReturn')?.addEventListener('click',()=>iuCloseAdminPage());
+ $('iuAdminRefreshShortcut')?.addEventListener('click',()=>{
+  if(!document.body.classList.contains('is-admin-mode'))return;
+  $('opsRefresh')?.click();
+ });
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
