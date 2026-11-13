@@ -1002,17 +1002,7 @@ $('sessionsToggle').addEventListener('click',()=>animateExpandedList('sessionsHi
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
-// V36.50 — Les chiffres restent calcules a la demande lors des pesees,
- // mais l'horloge visuelle n'ecrit rien si son panneau n'est pas visible.
- // Les sauvegardes et les sessions continuent independamment.
-setInterval(()=>{
- if(document.hidden)return;
- if(window.IUMotionOptimizer?.isBusy())return;
- const inFocus=document.body.classList.contains('is-focus-mode');
- const sessionField=$('sessionDuration');
- if(!inFocus&&window.IUMotionOptimizer&&!window.IUMotionOptimizer.isVisible(sessionField))return;
- renderLiveSessionStats(false);
-},1000);
+setInterval(()=>{if(!document.hidden)renderLiveSessionStats(false);},1000);
 
 $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){$('basketFormError').textContent='Indique un nom et une tare valide en kg (ex. 0.554).';return;}$('basketFormError').textContent='';const next=baskets.map(b=>({...b}));if(editingId){const b=next.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else next.push({id:uid(),name,tare});if(commitBaskets(next)){cancelEdit();$('basketFormError').textContent='';}});
 $('basketName').addEventListener('input',()=>{$('basketFormError').textContent='';});
@@ -1375,8 +1365,6 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
  function cleanup(){
-  // La fermeture est terminee (ou annulee) : reprendre les petits effets.
-  window.IUMotionOptimizer?.endFold(card);
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
@@ -1448,7 +1436,6 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
      duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'
     });
     animation=anim;
-    window.IUMotionOptimizer?.beginFold(card);
     animationStartedAt=performance.now();
     beginSampling();
     card.dataset.iuFoldStart=String(from);
@@ -1478,7 +1465,6 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   card.style.overflow='hidden';
   card.classList.add('iu-fold-animating');
   card.classList.toggle(closingClass,!intended);
-  window.IUMotionOptimizer?.beginFold(card);
   if(isAdminCategory)card.classList.add('iu-admin-animating');
   if(isEvents)card.dataset.motion=intended?'opening':'closing';
   if(Math.abs(to-from)<1){
