@@ -15156,7 +15156,7 @@ html body .app > section.intro > img.intro-mascot{
 }
 
 
-/* V36.26 — Mascotte coupée aux bords de la banderole, sans halo parasite. */
+/* V36.27 — Mascotte décalée de 12 px vers la droite, rognage et inclinaison conservés. */
 html body .app > section.intro{
   position:relative!important;
   overflow:hidden!important;
@@ -15165,7 +15165,7 @@ html body .app > section.intro > img.intro-mascot{
   position:absolute!important;
   width:clamp(162px,20.8vw,196px)!important;
   height:auto!important;
-  right:-18px!important;
+  right:-30px!important;
   bottom:-14px!important;
   z-index:1!important;
   transform-origin:bottom right!important;
@@ -15177,7 +15177,7 @@ html body .app > section.intro > img.intro-mascot{
 @media(max-width:600px){
   html body .app > section.intro > img.intro-mascot{
     width:166px!important;
-    right:-20px!important;
+    right:-32px!important;
     bottom:-16px!important;
     transform:rotate(-12deg)!important;
   }
@@ -15185,7 +15185,7 @@ html body .app > section.intro > img.intro-mascot{
 @media(max-width:380px){
   html body .app > section.intro > img.intro-mascot{
     width:154px!important;
-    right:-18px!important;
+    right:-30px!important;
     bottom:-14px!important;
     transform:rotate(-12deg)!important;
   }
