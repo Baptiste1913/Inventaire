@@ -1332,6 +1332,11 @@ const FOLD_MOTION_MS=420;
 const FOLD_MOTION_EASE='cubic-bezier(.28,.72,.24,1)';
 window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE});
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+// V36.52 — Une information de cycle de vie, limitée aux deux grands volets.
+// Elle permet aux statistiques / contrôles réseau secondaires d'attendre la fin
+// du mouvement sans modifier la moindre animation ou son esthétique.
+const iuBusyHeavyFolds=new Set();
+window.IUIsHeavyFoldAnimating=()=>iuBusyHeavyFolds.size>0;
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
@@ -1362,6 +1367,16 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   frameLoop=requestAnimationFrame(sample);
  };
  const isEvents=card.id==='eventsDisclosure';
+ const isHeavyFold=card.id==='planningAdminCard'||card.id==='accountCard';
+ const beginHeavyFold=()=>{
+  if(!isHeavyFold||iuBusyHeavyFolds.has(card))return;
+  iuBusyHeavyFolds.add(card);
+  window.dispatchEvent(new CustomEvent('iu-heavy-fold-start',{detail:{id:card.id}}));
+ };
+ const endHeavyFold=()=>{
+  if(!isHeavyFold||!iuBusyHeavyFolds.delete(card))return;
+  window.dispatchEvent(new CustomEvent('iu-heavy-fold-end',{detail:{id:card.id}}));
+ };
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
  function cleanup(){
@@ -1369,6 +1384,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
   if(isEvents)card.removeAttribute('data-motion');
+  endHeavyFold();
  }
  function finish(anim,to){
   if(animation!==anim)return;
@@ -1436,6 +1452,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
      duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE,fill:'both'
     });
     animation=anim;
+    beginHeavyFold();
     animationStartedAt=performance.now();
     beginSampling();
     card.dataset.iuFoldStart=String(from);
@@ -1477,6 +1494,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    duration,easing:FOLD_MOTION_EASE,fill:'both'
   });
   animation=anim;
+  beginHeavyFold();
   animationStartedAt=performance.now();
   beginSampling();
   card.dataset.iuFoldStart=String(from);
