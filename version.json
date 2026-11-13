@@ -1,7 +1,7 @@
 {
-  "version": "36.38",
+  "version": "36.39",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Optimisation inspirée de Grafikart : suppression des écritures de hauteur à chaque frame, mesures groupées, animation native du navigateur, transitions secondaires neutralisées."
+  "notes": "Chargement progressif Administrateur et Mon compte : diagnostics, graphiques et listes différés après ouverture, moteur d'animation inchangé."
 }
