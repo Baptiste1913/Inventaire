@@ -205,25 +205,36 @@ $('accountResetCancel')?.addEventListener('click',()=>$('accountResetDialog')?.c
 $('accountResetConfirm')?.addEventListener('click',confirmDashboardReset);
 $('accountResetDialog')?.addEventListener('close',()=>{pendingDashboardReset=null;});
 
-// V36.39 — Les composants secondaires du compte attendent la fin du tiroir.
-let deferredAccountRender=0;
+// V36.40 — Préparer et conserver le tableau de bord avant son ouverture.
+// Le même jeu de données ne reconstruit plus ses graphiques à chaque statut
+// cloud ou toutes les cinq secondes. Aucune donnée n'est stockée hors espace.
+let dashboardRenderedKey=null;
+let dashboardWarmupTimer=0;
 const accountCardForDashboard=$('accountCard');
-function queueAccountDashboardRender(){
- clearTimeout(deferredAccountRender);
- if(!accountCardForDashboard?.open||!user)return;
- deferredAccountRender=setTimeout(()=>{
-  deferredAccountRender=0;
-  if(accountCardForDashboard.open&&user&&!accountCardForDashboard.classList.contains('iu-fold-animating'))renderDashboard();
- },560);
-}
+const scheduleDashboardWarmup=()=>{
+ clearTimeout(dashboardWarmupTimer);
+ if(!user)return;
+ dashboardWarmupTimer=setTimeout(()=>{
+  dashboardWarmupTimer=0;
+  if(user&&!accountCardForDashboard?.classList.contains('iu-fold-animating'))renderDashboard();
+ },490);
+};
 accountCardForDashboard?.addEventListener('toggle',()=>{
- if(!accountCardForDashboard.open){clearTimeout(deferredAccountRender);deferredAccountRender=0;return;}
- queueAccountDashboardRender();
+ if(accountCardForDashboard.open&&dashboardRenderedKey===null)scheduleDashboardWarmup();
 });
 function renderDashboard(){
  const panel=$('accountDashboard');if(!panel)return;
- panel.hidden=!user;if(!user||!accountCardForDashboard?.open)return;
- let all=[];try{const parsed=JSON.parse(localStorage.getItem('inventaires-u-sessions-v1')||'{}');all=Array.isArray(parsed.sessions)?parsed.sessions:[];}catch{}
+ panel.hidden=!user;
+ if(!user){dashboardRenderedKey=null;return;}
+ // Lire les données sans changer de DOM. Garder le contenu prêt même fermé.
+ const rawSessions=localStorage.getItem('inventaires-u-sessions-v1')||'{}';
+ const key=scopeId()+':'+dashboardResetAt()+':'+rawSessions;
+ const rebuild=key!==dashboardRenderedKey;
+ if(rebuild&&accountCardForDashboard?.classList.contains('iu-fold-animating')){
+  scheduleDashboardWarmup();return;
+ }
+ if(rebuild){
+ let all=[];try{const parsed=JSON.parse(rawSessions);all=Array.isArray(parsed.sessions)?parsed.sessions:[];}catch{}
  const cutoff=dashboardResetAt();const completed=all.filter(x=>x&&Number.isFinite(x.startedAt)&&Number.isFinite(x.endedAt)&&x.endedAt>=x.startedAt&&x.endedAt>cutoff);
  const entries=completed.flatMap(x=>Array.isArray(x.entries)?x.entries:[]).filter(x=>x&&Number.isSafeInteger(x.net)&&x.net>=0);
  const total=entries.reduce((sum,x)=>sum+x.net,0);
@@ -237,9 +248,6 @@ function renderDashboard(){
  const totalDuration=durations.reduce((sum,x)=>sum+x,0);
  const pace=entries.length?Math.round(totalDuration/entries.length/1000):null;
  $('dashSecondsPerWeigh').textContent=pace===null?'—':`${pace} s`;
- // Les graphiques et la liste d'inventaires ne sont reconstruits qu'une fois
- // la transition terminée. Les compteurs essentiels restent rapides.
- if(accountCardForDashboard.classList.contains('iu-fold-animating'))return;
  const trend=$('dashTrend');trend.replaceChildren();
  const plotted=[...completed].filter(x=>Array.isArray(x.entries)&&x.entries.length>0)
   .sort((a,b)=>b.endedAt-a.endedAt).slice(0,6).reverse();
@@ -268,6 +276,8 @@ function renderDashboard(){
   sub.textContent=valid.reduce((sum,x)=>sum+x.net,0)/1000+' kg net';
   count.textContent=`${valid.length} pesée${valid.length>1?'s':''}`;
   info.append(title,sub);row.append(info,count);list.append(row);
+ }
+ dashboardRenderedKey=key;
  }
  const cloud=$('cloudStatus')?.textContent||'';
  const pill=$('dashboardCloudPill');pill.textContent=cloud.includes('Synchronisé')?'Cloud synchronisé':cloud.includes('Choix nécessaire')?'Conflit à résoudre':cloud.includes('attente')?'En attente':'Cloud à vérifier';
@@ -448,5 +458,7 @@ $('otherTabLater')?.addEventListener('click',()=>{$('otherTabDialog')?.close();l
 // renderDashboard sont privés au module d'authentification.
 init();
 window.addEventListener('storage',e=>{if(e.key==='inventaires-u-sessions-v1')renderDashboard();});
-setInterval(()=>{if(user&&!document.hidden&&!document.body.classList.contains('is-focus-mode')&&$('accountCard')?.open)renderDashboard();},5000);
+// Les données sont invalidées par leur signature dans renderDashboard().
+// Plus de reconstruction du graphique toutes les cinq secondes.
+setInterval(()=>{if(user&&!document.hidden&&!document.body.classList.contains('is-focus-mode')&&$('accountCard')?.open)renderDashboard();},30000);
 })();
