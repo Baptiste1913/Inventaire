@@ -31,18 +31,27 @@ self.addEventListener('message', event => {
   const port = event.ports[0];
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
+    // V36.42 : verifier en un seul passage les URLs deja presentes.
+    // Les ressources absentes se chargent par petits lots pour ne pas
+    // saturer Safari au demarrage. Aucun retelechargement inutile.
     let done = 0, missing = 0;
-    for (const path of CORE) {
+    const keys = await cache.keys();
+    const stored = new Set(keys.map(req => req.url));
+    const absolute = path => new URL(path, self.registration.scope).href;
+    const absent = CORE.filter(path => !stored.has(absolute(path)));
+    done = CORE.length - absent.length;
+    try { port.postMessage({type:'IU_OFFLINE_PROGRESS',done,total:CORE.length,missing}); } catch (_) {}
+    const check = async path => {
       try {
-        let response = await cache.match(path);
-        if (!response) {
-          response = await fetch(new Request(path, {cache:'reload'}));
-          if (!response.ok) throw new Error('HTTP '+response.status);
-          await cache.put(path, response.clone());
-        }
+        const response = await fetch(new Request(path,{cache:'reload'}));
+        if(!response.ok)throw Error('HTTP '+response.status);
+        await cache.put(path,response.clone());
       } catch (_) { missing++; }
       done++;
       try { port.postMessage({type:'IU_OFFLINE_PROGRESS',done,total:CORE.length,missing}); } catch (_) {}
+    };
+    for(let i=0;i<absent.length;i+=3){
+      await Promise.all(absent.slice(i,i+3).map(check));
     }
     try { port.postMessage({type:'IU_OFFLINE_COMPLETE',done,total:CORE.length,missing}); } catch (_) {}
   })());
