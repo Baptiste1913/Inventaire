@@ -1442,10 +1442,16 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    card.open=intended;cleanup();return;
   }
   const distance=Math.abs(to-from)/Math.max(1,expanded-collapsed);
-  const duration=Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
-  // Une animation déclarative et une seule écriture de hauteur au démarrage.
+  // V36.45 — La fermeture des grands panneaux est plus courte et surtout
+  // démarre rapidement. L'ouverture fluide validée en 36.44 est inchangée.
+  const closingHeavy=hybridMotion&&!intended;
+  const duration=closingHeavy
+   ?Math.max(125,Math.round(275*Math.min(1,distance)))
+   :Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
+  const motionEase=closingHeavy?'cubic-bezier(.18,.8,.24,1)':FOLD_MOTION_EASE;
+  // Garder le repli dans le flux, avec une cadence gérée par Safari.
   const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
-   duration,easing:FOLD_MOTION_EASE,fill:'both'
+   duration,easing:motionEase,fill:'both'
   });
   animation=anim;
   // La transformation visuelle est indépendante du flux : elle peut être
@@ -1462,7 +1468,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
       {translate:'0 0px',scale:'1 1'},
       {translate:'0 -6px',scale:'1 .975'}
      ],
-     {duration,easing:FOLD_MOTION_EASE,fill:'both'}
+     {duration,easing:motionEase,fill:'both'}
     );
    }catch(error){
     cancelVisual();
