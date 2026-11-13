@@ -158,7 +158,37 @@
  }
  const panel=$('siteOperationsPanel');if(!panel)return;
  const apply=null;
- const value=(id,tone,text)=>{const el=$(id);if(!el)return;el.textContent=text;el.dataset.state=tone;};
+ // V36.56 — Ne pas reconstruire les cellules techniques pendant le
+ // déplacement du grand panneau. On ne diffère que la présentation,
+ // jamais la récupération réseau ou les données elles-mêmes.
+ const deferredAdminValues=new Map();
+ let deferredChecked=null;
+ const adminPresentationFrozen=()=>window.IUGetHeavyContentFreeze?.()!==false&&
+   Boolean($('planningAdminCard')?.classList.contains('iu-fold-animating'));
+ const applyValue=(id,tone,message)=>{
+  const el=$(id);if(!el)return;
+  if(el.textContent!==message)el.textContent=message;
+  if(el.dataset.state!==tone)el.dataset.state=tone;
+ };
+ const value=(id,tone,message)=>{
+  if(adminPresentationFrozen()){deferredAdminValues.set(id,[tone,message]);return;}
+  applyValue(id,tone,message);
+ };
+ const flushAdminPresentation=()=>{
+  // Un nouvel aller-retour rapide ne doit pas forcer de repaint au milieu.
+  if(adminPresentationFrozen())return;
+  for(const [id,[tone,message]] of deferredAdminValues)applyValue(id,tone,message);
+  deferredAdminValues.clear();
+  if(deferredChecked!==null){
+   const el=$('opsChecked');if(el&&el.textContent!==deferredChecked)el.textContent=deferredChecked;
+   deferredChecked=null;
+  }
+ };
+ window.addEventListener('iu-heavy-fold-end',event=>{
+  if(event.detail?.id!=='planningAdminCard')return;
+  // Repousser les écritures à l'image suivante, après la fin du repli.
+  requestAnimationFrame(flushAdminPresentation);
+ });
  const formatBytes=n=>n>=1048576?(n/1048576).toFixed(2)+' Mo':Math.round(n/1024)+' Ko';
  let refreshing=false;
  const fetchTimed=async(url,options={})=>{
@@ -212,7 +242,9 @@
   const perfInfo=startup?.totalMs!==undefined
    ?' · Préparation '+startup.totalMs+' ms · Dimensions '+(folds?.prepared||0)+' blocs · Cache '+(folds?.cacheHits||0)+' utilisation(s) · '+(folds?.cacheMisses||0)+' recalcul(s)'
    :'';
-  $('opsChecked').textContent='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.'+perfInfo;
+  const checkedText='Dernière vérification : '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Indicateurs techniques observés depuis cet appareil.'+perfInfo;
+  if(adminPresentationFrozen())deferredChecked=checkedText;
+  else $('opsChecked').textContent=checkedText;
   refreshing=false;if(button)button.disabled=false;
  }
  // V36.40 — Diagnostics préparés dès que l'accès administrateur est
@@ -248,7 +280,8 @@
  // V36.43 — Comparaison A/B sur les seules cartes lourdes.
  // Les mesures sont locales et limitées aux dernières animations.
  const compare=$('opsFoldCompare'),rafToggle=$('opsFoldRaf'),
-  fpsToggle=$('opsFoldFps'),paintToggle=$('opsFoldPaint'),results=$('opsFoldTestResults');
+  fpsToggle=$('opsFoldFps'),paintToggle=$('opsFoldPaint'),
+  freezeToggle=$('opsFoldFreeze'),results=$('opsFoldTestResults');
  const showFoldResults=()=>{
   if(!results)return;
   const perf=window.IUFoldPerformance?.();
@@ -317,6 +350,22 @@
   showFoldResults();
  });
  showPaintMode();
+ // Gel léger A/B : traitement admin secondaire différé + animations
+ // décoratives internes mises en pause pendant le mouvement uniquement.
+ const showFreezeMode=()=>{
+  if(!freezeToggle)return;
+  const enabled=window.IUGetHeavyContentFreeze?.()!==false;
+  freezeToggle.setAttribute('aria-pressed',String(enabled));
+  freezeToggle.textContent=enabled?'Désactiver le gel du contenu':'Activer le gel du contenu';
+ };
+ freezeToggle?.addEventListener('click',()=>{
+  const wasOn=window.IUGetHeavyContentFreeze?.()!==false;
+  window.IUSetHeavyContentFreeze?.(!wasOn);
+  if(wasOn)flushAdminPresentation();
+  showFreezeMode();
+  showFoldResults();
+ });
+ showFreezeMode();
  window.addEventListener('iu-fold-performance',showFoldResults);
  showFoldResults();
  $('opsRefresh')?.addEventListener('click',refresh);
