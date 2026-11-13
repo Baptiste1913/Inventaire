@@ -122,7 +122,7 @@
        const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
          .filter(el=>{const st=getComputedStyle(el);return !el.hidden&&st.display!=='none'&&st.visibility!=='hidden';});
        const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-       const cascadeMs=reduced?0:620+Math.max(0,cards.length-1)*85;
+       const cascadeMs=reduced?0:780+Math.max(0,cards.length-1)*70;
        // Les contrôles du chargement, de l'administration, des polices et
        // de la peinture sont terminés : aucun délai minimum artificiel.
        overlayText.textContent='Finalisation de la mise à jour…';
