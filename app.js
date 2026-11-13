@@ -1270,8 +1270,17 @@ window.IUSetFoldLightEffects=enabled=>{
 };
 window.IUGetFoldLightEffects=()=>iuFoldLightEffects;
 const iuFoldStats={prepared:0,cacheHits:0,cacheMisses:0,lastWarmupMs:0};
+// V36.54 — L'échantillonnage rAF produit lui-même du travail par image.
+ // Désactivé en usage normal ; activation manuelle dans l'administration.
+let iuFoldFrameDiagnosticsEnabled=false;
+window.IUGetFoldFrameDiagnostics=()=>iuFoldFrameDiagnosticsEnabled;
+window.IUSetFoldFrameDiagnostics=enabled=>{
+ iuFoldFrameDiagnosticsEnabled=Boolean(enabled);
+ return iuFoldFrameDiagnosticsEnabled;
+};
 window.IUFoldPerformance=()=>({
  ...iuFoldStats,
+ frameDiagnosticsEnabled:iuFoldFrameDiagnosticsEnabled,
  recent:IU_FOLD_METRICS.slice(-16).map(item=>({...item}))
 });
 window.IUPrewarmFoldLayouts=async(progress)=>{
@@ -1363,13 +1372,21 @@ function iuHeavyFoldEase(progress){
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- // Invalidation seulement lors de vraies mutations du contenu.
- // L'ancien observateur surveillait style/hidden : les indicateurs et
- // barres graphiques invalidaient le cache sans changer la structure.
+ const isHeavyFold=card.id==='planningAdminCard'||card.id==='accountCard';
+ // Le cache géométrique d'un grand volet doit aussi être invalidé quand
+ // une sous-rubrique s'ouvre ou quand une section se masque (auth/admin).
+ // Les indicateurs et barres de progression n'invalident toujours pas
+ // la mesure à chaque modification de style.
  const invalidator=new MutationObserver(records=>{
-  if(records.some(r=>r.target!==card&&r.type!=='attributes'))IU_FOLD_CACHE.delete(card);
+  if(records.some(r=>r.type==='childList'||r.type==='characterData'||
+   (isHeavyFold&&r.type==='attributes'&&
+    (r.attributeName==='hidden'||r.attributeName==='open'))))
+   IU_FOLD_CACHE.delete(card);
  });
- invalidator.observe(content,{subtree:true,childList:true,characterData:true});
+ invalidator.observe(content,{
+  subtree:true,childList:true,characterData:true,
+  ...(isHeavyFold?{attributes:true,attributeFilter:['hidden','open']}:{})
+ });
  let intended=card.open,animation=null,animationStartedAt=0,pendingCloseFrame=0;
  let activeEngine='native';
  let rafSamples=0,lastSampleAt=0,sampleGaps=0,largestGap=0,frameLoop=0;
@@ -1378,6 +1395,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  };
  const beginSampling=()=>{
   stopSampling();rafSamples=0;sampleGaps=0;largestGap=0;lastSampleAt=0;
+  if(!iuFoldFrameDiagnosticsEnabled)return;
   const sample=now=>{
    if(!animation){frameLoop=0;return;}
    if(lastSampleAt){
@@ -1391,7 +1409,6 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   frameLoop=requestAnimationFrame(sample);
  };
  const isEvents=card.id==='eventsDisclosure';
- const isHeavyFold=card.id==='planningAdminCard'||card.id==='accountCard';
  const beginHeavyFold=()=>{
   if(!isHeavyFold||iuBusyHeavyFolds.has(card))return;
   iuBusyHeavyFolds.add(card);
@@ -1465,6 +1482,7 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    effects:iuFoldLightEffects?'allégés':'normaux',
    engine:activeEngine,
    direction:intended?'ouverture':'fermeture',
+   measured:rafSamples>0,
    approxFps:rafSamples>1?Math.round((rafSamples-1)*1000/Math.max(1,performance.now()-animationStartedAt)):0,
    pixels:Math.round(Math.abs(to-(card.dataset.iuFoldStart?Number(card.dataset.iuFoldStart):to)))});
   if(IU_FOLD_METRICS.length>24)IU_FOLD_METRICS.shift();
@@ -1475,7 +1493,18 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  summary.addEventListener('click',event=>{
   if(event.defaultPrevented)return;
   event.preventDefault();
-  const from=card.getBoundingClientRect().height;
+  const rect=card.getBoundingClientRect();
+  const from=rect.height;
+  // V36.54 — Seule une mesure réelle du tiroir totalement ouvert
+  // peut être réutilisée. Les clones de préparation restent des solutions
+  // de repli pour éviter un cache imprécis après authentification.
+  const cached=(!intended&&isHeavyFold)?IU_FOLD_CACHE.get(card):null;
+  const canOpenFromCache=Boolean(cached?.source==='live'&&
+   cached.viewport===window.innerWidth&&Math.abs(cached.width-rect.width)<1&&
+   Number.isFinite(cached.closed)&&Number.isFinite(cached.expanded)&&
+   cached.expanded>=cached.closed&&cached.closed>0);
+  const wasFullyOpen=isHeavyFold&&intended&&card.open&&!animation&&
+   !pendingCloseFrame&&!card.style.height;
   // V36.48 : regrouper TOUTES les lectures du grand tiroir avant
   // la première écriture style, pour éviter un layout forcé supplémentaire.
   let closingTarget=null;
@@ -1484,6 +1513,15 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
    closingTarget=summary.getBoundingClientRect().height+
     borders+px(cs.paddingTop)+px(cs.paddingBottom);
+  }
+  // La hauteur mesurée à la fermeture d'un volet stabilisé est
+  // réutilisable aux ouvertures suivantes, sans forcer height:auto +
+  // scrollHeight sur tout son tableau de bord.
+  if(wasFullyOpen&&closingTarget!==null&&from>=closingTarget){
+   IU_FOLD_CACHE.set(card,{
+    closed:closingTarget,expanded:from,width:rect.width,
+    viewport:window.innerWidth,source:'live'
+   });
   }
   // Conserver le point visible pendant l'annulation de l'ancienne trajectoire.
   card.style.height=from+'px';
@@ -1530,17 +1568,26 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   // Grouper les mesures avant le lancement de la nouvelle animation.
   // La hauteur du contenu ne sera plus consultée à chaque image.
   card.open=true;
-  card.style.height='auto';
-  // Employer les tailles preparees si le contenu n'a pas change.
-  // Sinon garder les mesures live, indispensables pour les cartes dynamiques.
-  const prepared=IU_FOLD_CACHE.get(card);
-  const valid=prepared&&prepared.viewport===window.innerWidth&&
-   Math.abs(prepared.width-card.getBoundingClientRect().width)<1;
-  const cs=getComputedStyle(card);
-  const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
-  const collapsed=valid?prepared.closed:summary.getBoundingClientRect().height+
-   borders+px(cs.paddingTop)+px(cs.paddingBottom);
-  const expanded=valid?prepared.expanded:Math.max(collapsed,card.scrollHeight+borders);
+  // Pour un grand volet inchangé, la hauteur ouverte exacte a été mesurée
+  // à sa dernière fermeture. Safari peut lancer WAAPI directement sans
+  // recalculer la hauteur de tout le contenu et de ses descendants.
+  // Le moindre changement de contenu/visibilité invalide cette voie rapide.
+  if(!canOpenFromCache)card.style.height='auto';
+  const prepared=canOpenFromCache?cached:IU_FOLD_CACHE.get(card);
+  const valid=canOpenFromCache||Boolean(prepared&&
+   prepared.viewport===window.innerWidth&&
+   Math.abs(prepared.width-rect.width)<1);
+  let collapsed,expanded;
+  if(canOpenFromCache){
+   collapsed=cached.closed;
+   expanded=cached.expanded;
+  }else{
+   const cs=getComputedStyle(card);
+   const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
+   collapsed=valid?prepared.closed:summary.getBoundingClientRect().height+
+    borders+px(cs.paddingTop)+px(cs.paddingBottom);
+   expanded=valid?prepared.expanded:Math.max(collapsed,card.scrollHeight+borders);
+  }
   if(valid)iuFoldStats.cacheHits++;else iuFoldStats.cacheMisses++;
   const to=intended?expanded:collapsed;
   card.style.height=from+'px';
