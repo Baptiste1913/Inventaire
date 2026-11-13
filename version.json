@@ -1,7 +1,7 @@
 {
-  "version": "36.63",
+  "version": "36.64",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Correction du saut de page lors des pesées iPhone : retrait des compensations scrollBy concurrentes de Safari, réserve de défilement stable en mode concentration avec clavier, hauteur du résultat stabilisée, et suppression des écritures répétées du mode concentration pendant la sauvegarde. Données et calculs inchangés."
+  "notes": "Résultat de pesée monochrome avec fin contour bleu U et halos bleus davantage floutés. Ouverture de l’application et retour après mise à jour plus progressifs (780 ms, déplacement réduit à 15 px). Retour des cartes après fin d’inventaire ralenti (720 ms) et allégé (68dvh contre 105dvh). Correction du défilement des pesées 36.63 conservée."
 }
