@@ -1247,79 +1247,78 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
-/* V36.37 — Base 36.34 + interpolation amortie inspiree du code fourni.
-   A chaque frame: position += (cible - position) * facteur.
-   Le facteur tient compte du temps ecoule pour rester regulier a 60/120 Hz.
-   Une inversion change seulement la cible, sans redemarrer le mouvement. */
-const FOLD_MOTION_MS=500;
-const FOLD_MOTION_EASE='cubic-bezier(.22,.75,.24,1)';
+/* V36.38 — Inspiré de Grafikart : limiter les lectures/écritures forcées.
+   Le JavaScript ne réécrit plus height à chaque frame : Web Animations
+   interpole la hauteur. Une mesure initiale par interaction, puis un rendu
+   géré par le navigateur ; l'icône reste animée par transform en CSS.
+   Les doubles appuis reprennent à la hauteur réellement affichée. */
+const FOLD_MOTION_MS=420;
+const FOLD_MOTION_EASE='cubic-bezier(.28,.72,.24,1)';
 window.IU_FOLD_MOTION=Object.freeze({duration:FOLD_MOTION_MS,easing:FOLD_MOTION_EASE});
 const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- let intended=card.open,frame=0,currentHeight=0,targetHeight=0,lastTime=0,started=0;
+ let intended=card.open,animation=null;
  const isEvents=card.id==='eventsDisclosure';
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
- const borders=()=>{const cs=getComputedStyle(card);return px(cs.borderTopWidth)+px(cs.borderBottomWidth);};
- const collapsed=()=>{const cs=getComputedStyle(card);
-  return summary.getBoundingClientRect().height+borders()+px(cs.paddingTop)+px(cs.paddingBottom);
- };
  function cleanup(){
   card.style.removeProperty('height');
   card.style.removeProperty('overflow');
   card.classList.remove('iu-fold-animating',closingClass,'iu-admin-animating');
   if(isEvents)card.removeAttribute('data-motion');
  }
- function finish(){
-  if(frame){cancelAnimationFrame(frame);frame=0;}
-  card.style.height=targetHeight+'px';
+ function finish(anim,to){
+  if(animation!==anim)return;
+  // Maintenir la dernière hauteur avant l'annulation évite une frame de saut.
+  card.style.height=to+'px';
+  animation=null;
+  anim.cancel();
   card.open=intended;
   cleanup();
-  lastTime=0;
  }
- function tick(now){
-  frame=0;
-  if(!lastTime){lastTime=now;started=now;}
-  // Equivaut a 0.18 par image a 60 Hz, sans ralentir sur 120 Hz.
-  const delta=Math.min(48,Math.max(0,now-lastTime));
-  lastTime=now;
-  const blend=1-Math.pow(1-.18,delta/(1000/60));
-  currentHeight+=(targetHeight-currentHeight)*blend;
-  if(Math.abs(targetHeight-currentHeight)<.55||now-started>900){
-   finish();return;
-  }
-  card.style.height=currentHeight.toFixed(2)+'px';
-  frame=requestAnimationFrame(tick);
- }
- card.addEventListener('toggle',()=>{if(!frame)intended=card.open;});
+ card.addEventListener('toggle',()=>{if(!animation)intended=card.open;});
  summary.addEventListener('click',event=>{
   if(event.defaultPrevented)return;
   event.preventDefault();
-  const moving=frame!==0;
-  if(!moving)currentHeight=card.getBoundingClientRect().height;
+  const from=card.getBoundingClientRect().height;
+  // Conserver le point visible pendant l'annulation de l'ancienne trajectoire.
+  card.style.height=from+'px';
+  const previous=animation;animation=null;
+  if(previous)previous.cancel();
   intended=!intended;
-  if(foldReducedMotion.matches){
-   if(frame){cancelAnimationFrame(frame);frame=0;}
+  if(foldReducedMotion.matches||typeof card.animate!=='function'){
    card.open=intended;cleanup();return;
   }
-  card.style.height=currentHeight+'px';
-  card.style.overflow='hidden';
+  // Grouper les mesures avant le lancement de la nouvelle animation.
+  // La hauteur du contenu ne sera plus consultée à chaque image.
   card.open=true;
-  // Mesures hors boucle. La cible peut changer, mais la hauteur courante
-  // reste intacte en cas d'appui rapide.
   card.style.height='auto';
-  const closed=collapsed();
-  const expanded=Math.max(card.scrollHeight+borders(),closed);
-  targetHeight=intended?expanded:closed;
-  card.style.height=currentHeight+'px';
+  const cs=getComputedStyle(card);
+  const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
+  const collapsed=summary.getBoundingClientRect().height+
+   borders+px(cs.paddingTop)+px(cs.paddingBottom);
+  const expanded=Math.max(collapsed,card.scrollHeight+borders);
+  const to=intended?expanded:collapsed;
+  card.style.height=from+'px';
+  card.style.overflow='hidden';
   card.classList.add('iu-fold-animating');
   card.classList.toggle(closingClass,!intended);
   if(isAdminCategory)card.classList.add('iu-admin-animating');
   if(isEvents)card.dataset.motion=intended?'opening':'closing';
-  if(Math.abs(targetHeight-currentHeight)<.55){finish();return;}
-  if(!moving){lastTime=0;started=0;frame=requestAnimationFrame(tick);}
+  if(Math.abs(to-from)<1){
+   card.open=intended;cleanup();return;
+  }
+  const distance=Math.abs(to-from)/Math.max(1,expanded-collapsed);
+  const duration=Math.max(150,Math.round(FOLD_MOTION_MS*Math.min(1,distance)));
+  // Une animation déclarative et une seule écriture de hauteur au démarrage.
+  const anim=card.animate([{height:from+'px'},{height:to+'px'}],{
+   duration,easing:FOLD_MOTION_EASE,fill:'both'
+  });
+  animation=anim;
+  anim.onfinish=()=>finish(anim,to);
+  anim.oncancel=()=>{if(animation===anim){animation=null;cleanup();}};
  });
 }
 window.IUSetupFold=setupUnifiedFold;
