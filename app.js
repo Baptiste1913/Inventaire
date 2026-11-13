@@ -1255,6 +1255,64 @@ if('serviceWorker'in navigator)window.addEventListener('load',async()=>{
  
  
 
+/* V36.42 — Caches de dimensions, invalidation et diagnostic leger.
+   Les clones sont mesures hors ecran pendant le splash, jamais caches dans
+   localStorage : les tailles dependent du viewport, de l'utilisateur et du DOM. */
+const IU_FOLD_CACHE=new WeakMap();
+const IU_FOLD_METRICS=[];
+let iuFoldMeasurementActive=false;
+const iuFoldStats={prepared:0,cacheHits:0,cacheMisses:0,lastWarmupMs:0};
+window.IUFoldPerformance=()=>({
+ ...iuFoldStats,
+ recent:IU_FOLD_METRICS.slice(-16).map(item=>({...item}))
+});
+window.IUPrewarmFoldLayouts=async(progress)=>{
+ if(iuFoldMeasurementActive)return false;
+ iuFoldMeasurementActive=true;
+ const started=performance.now();
+ const cards=[...document.querySelectorAll('details[data-unified-fold="yes"]')]
+  .filter(card=>!card.hidden&&!card.closest('[hidden]'));
+ // Chaque carte est preparee par etape : ne jamais bloquer toute une frame.
+ const yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+ let done=0;
+ try{
+  for(const card of cards){
+   try{
+    // Mesurer dans un conteneur invisible, sans cliquer ni changer l'etat
+    // des <details> existants (ce qui declencherait leurs handlers).
+    const owner=card.closest('.app');
+    const root=document.createElement('div');
+    root.className='app';
+    root.style.cssText='position:fixed!important;left:-200vw!important;top:0!important;visibility:hidden!important;pointer-events:none!important;transition:none!important;animation:none!important;';
+    const width=owner?.getBoundingClientRect().width||document.documentElement.clientWidth;
+    root.style.width=width+'px';
+    const clone=card.cloneNode(true);
+    clone.removeAttribute('hidden');
+    clone.style.cssText='height:auto!important;max-height:none!important;animation:none!important;transition:none!important;';
+    clone.open=false;
+    root.append(clone);document.body.append(root);
+    const closed=clone.getBoundingClientRect().height;
+    clone.open=true;
+    const expanded=clone.getBoundingClientRect().height;
+    root.remove();
+    if(Number.isFinite(closed)&&Number.isFinite(expanded)&&expanded>=closed&&closed>0){
+     IU_FOLD_CACHE.set(card,{closed,expanded,width:card.getBoundingClientRect().width,viewport:window.innerWidth});
+     iuFoldStats.prepared++;
+    }
+   }catch(error){console.debug('Preparation dimension tiroir ignoree',error);}
+   done++;
+   if(typeof progress==='function')progress(done,cards.length);
+   await yieldFrame();
+  }
+  iuFoldStats.lastWarmupMs=Math.round(performance.now()-started);
+  return true;
+ }finally{iuFoldMeasurementActive=false;}
+};
+window.addEventListener('resize',()=>{
+ // Le cache verifie aussi la largeur et le viewport au moment d'utilisation.
+ iuFoldStats.prepared=0;
+},{passive:true});
+
 /* V36.38 — Inspiré de Grafikart : limiter les lectures/écritures forcées.
    Le JavaScript ne réécrit plus height à chaque frame : Web Animations
    interpole la hauteur. Une mesure initiale par interaction, puis un rendu
@@ -1267,7 +1325,11 @@ const foldReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
  if(!card||!summary||!content||card.dataset.unifiedFold==='yes')return;
  card.dataset.unifiedFold='yes';
- let intended=card.open,animation=null;
+ const invalidator=new MutationObserver(records=>{
+  if(records.some(r=>r.target!==card))IU_FOLD_CACHE.delete(card);
+ });
+ invalidator.observe(card,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['hidden','style']});
+ let intended=card.open,animation=null,animationStartedAt=0;
  const isEvents=card.id==='eventsDisclosure';
  const isAdminCategory=card.classList.contains('iu-admin-category');
  const px=value=>parseFloat(value)||0;
@@ -1285,6 +1347,11 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   anim.cancel();
   card.open=intended;
   cleanup();
+  IU_FOLD_METRICS.push({name:card.id||card.className.slice(0,40),
+   durationMs:Math.round(performance.now()-animationStartedAt),
+   pixels:Math.round(Math.abs(to-(card.dataset.iuFoldStart?Number(card.dataset.iuFoldStart):to)))});
+  if(IU_FOLD_METRICS.length>24)IU_FOLD_METRICS.shift();
+  delete card.dataset.iuFoldStart;
  }
  card.addEventListener('toggle',()=>{if(!animation)intended=card.open;});
  summary.addEventListener('click',event=>{
@@ -1303,11 +1370,17 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
   // La hauteur du contenu ne sera plus consultée à chaque image.
   card.open=true;
   card.style.height='auto';
+  // Employer les tailles preparees si le contenu n'a pas change.
+  // Sinon garder les mesures live, indispensables pour les cartes dynamiques.
+  const prepared=IU_FOLD_CACHE.get(card);
+  const valid=prepared&&prepared.viewport===window.innerWidth&&
+   Math.abs(prepared.width-card.getBoundingClientRect().width)<1;
   const cs=getComputedStyle(card);
   const borders=px(cs.borderTopWidth)+px(cs.borderBottomWidth);
-  const collapsed=summary.getBoundingClientRect().height+
+  const collapsed=valid?prepared.closed:summary.getBoundingClientRect().height+
    borders+px(cs.paddingTop)+px(cs.paddingBottom);
-  const expanded=Math.max(collapsed,card.scrollHeight+borders);
+  const expanded=valid?prepared.expanded:Math.max(collapsed,card.scrollHeight+borders);
+  if(valid)iuFoldStats.cacheHits++;else iuFoldStats.cacheMisses++;
   const to=intended?expanded:collapsed;
   card.style.height=from+'px';
   card.style.overflow='hidden';
@@ -1325,6 +1398,8 @@ function setupUnifiedFold(card,summary,content,closingClass='is-fold-closing'){
    duration,easing:FOLD_MOTION_EASE,fill:'both'
   });
   animation=anim;
+  animationStartedAt=performance.now();
+  card.dataset.iuFoldStart=String(from);
   anim.onfinish=()=>finish(anim,to);
   anim.oncancel=()=>{if(animation===anim){animation=null;cleanup();}};
  });
