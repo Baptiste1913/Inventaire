@@ -1,7 +1,7 @@
 {
-  "version": "36.50",
+  "version": "36.51",
   "published": "2026-11-13",
-  "assets": 44,
+  "assets": 43,
   "bytes": 819245,
-  "notes": "Optimisation globale inspirée d'Optimize Web Animations : animations CSS hors écran et en arrière-plan suspendues par IntersectionObserver, halos décoratifs mis en pause durant les tiroirs, mises à jour périodiques visibles uniquement, reprise et nettoyage des observateurs. Pesées et synchronisation préservées."
+  "notes": "Retour au comportement fluide de la version 36.49 : retrait du système global de mise en pause des animations (36.50) responsable de ralentissements. Le moteur des tiroirs, les durées et les fonctionnalités restent ceux de 36.49."
 }
