@@ -38,33 +38,51 @@
   // V36.41 — Préparation complète des contenus déjà autorisés avant de
   // masquer le splash. Aucun <details> n'est ouvert artificiellement, aucune
   // écriture dans localStorage et aucune requête cloud obligatoire hors ligne.
+  // V36.42 — Ordonnanceur des preparations, mesures factuelles et repli
+  // sur le demarrage local lorsque le reseau ou l'authentification est lent.
   const prewarmPanels=async()=>{
-   set(96,'Préparation des blocs');
-   const [authReady,adminReady]=await Promise.all([
-    readyOrTimeout(()=>window.IUAuthInitialReady===true,4500),
-    readyOrTimeout(()=>window.IUAdminInitialReady===true,4500)
-   ]);
-   try{window.IUPrewarmLocalPanels?.();}catch(error){console.warn('Préparation des listes',error);}
-   try{window.IUPrewarmAccount?.();}catch(error){console.warn('Préparation du compte',error);}
-   set(97,'Préparation des éléments');
-   // Le DOM est construit, les blocs ont leurs styles initiaux et les images
-   // sont décodées avant la première animation visible, dans la limite d'un
-   // chargement raisonnable si une ressource externe ne répond pas.
-   const pictures=[...document.images].filter(img=>img.getAttribute('src'));
-   const decoded=pictures.map(img=>{
-    try{return typeof img.decode==='function'?img.decode().catch(()=>{}):Promise.resolve();}
-    catch(_){return Promise.resolve();}
+   const begin=performance.now();
+   const metrics={version:VERSION,startedAt:Date.now(),tasks:[],longTasks:0,slowestTaskMs:0};
+   window.IUStartupMetrics=metrics;
+   const observer=typeof PerformanceObserver==='function'?new PerformanceObserver(list=>{
+    metrics.longTasks+=list.getEntries().length;
+   }):null;
+   try{observer?.observe({entryTypes:['longtask']});}catch(_){}
+   const yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
+   const run=async(name,from,to,fn)=>{
+    const t=performance.now();
+    set(from,name);
+    try{await fn();metrics.tasks.push({name,ms:Math.round(performance.now()-t),ok:true});}
+    catch(error){metrics.tasks.push({name,ms:Math.round(performance.now()-t),ok:false});console.warn('Preparation '+name,error);}
+    metrics.slowestTaskMs=Math.max(metrics.slowestTaskMs,metrics.tasks[metrics.tasks.length-1].ms);
+    set(to,name);
+    await yieldFrame();
+   };
+   // Le calcul local peut se faire avant la connexion Google.
+   await run('Listes et bilans',96,97,()=>window.IUPrewarmLocalPanels?.());
+   await run('Images et polices',97,98,async()=>{
+    const images=[...document.images].filter(el=>el.getAttribute('src'));
+    await Promise.race([Promise.allSettled(images.map(el=>{
+     try{return typeof el.decode==='function'?el.decode().catch(()=>{}):Promise.resolve();}
+     catch(_){return Promise.resolve();}
+    })),sleep(2600)]);
+    if(document.fonts?.ready)await Promise.race([document.fonts.ready.catch(()=>{}),sleep(1200)]);
    });
-   await Promise.race([Promise.allSettled(decoded),sleep(2200)]);
-   if(document.fonts?.ready)await Promise.race([document.fonts.ready.catch(()=>{}),sleep(1200)]);
-   const cards=[...document.querySelectorAll('.app > .card, .app > .inventory-calendar')];
-   for(const card of cards){
-    if(card.hidden)continue;
-    try{getComputedStyle(card).display;card.getBoundingClientRect();}catch(_){}
-   }
-   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-   set(99,'Interface prête');
-   if(!authReady||!adminReady)console.info('Ouverture : préparation des services distants limitée pour préserver le mode hors ligne.');
+   // On laisse au login/planning un délai raisonnable, mais jamais infini :
+   // ces services ne doivent pas empêcher l'inventaire sans réseau.
+   await run('Compte et administration',98,98,async()=>{
+    await Promise.all([
+     readyOrTimeout(()=>window.IUAuthInitialReady===true,4800),
+     readyOrTimeout(()=>window.IUAdminInitialReady===true,4800)
+    ]);
+    window.IUPrewarmAccount?.();
+   });
+   await run('Dimensions et animations',98,99,async()=>{
+    await window.IUPrewarmFoldLayouts?.();
+   });
+   metrics.totalMs=Math.round(performance.now()-begin);
+   metrics.foldCache=window.IUFoldPerformance?.();
+   try{observer?.disconnect();}catch(_){}
    return true;
   };
   const reveal=()=>{
