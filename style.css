@@ -15922,3 +15922,15 @@ html body:not(.is-admin-mode) .app > #planningAdminCard[data-admin-loading="true
  opacity:.55!important;
  pointer-events:none!important;
 }
+
+/* Accès RLS prioritaire sur toutes les règles de présentation :
+   aucun panneau ne doit rester visible si l'autorisation est révoquée
+   ou si une vérification Supabase est en cours. */
+html body.is-admin-mode .app > #planningAdminCard.card[hidden]{
+ display:none!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card[data-admin-loading="true"] > .planning-admin-body{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
