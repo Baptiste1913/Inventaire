@@ -1,7 +1,7 @@
 {
-  "version": "36.53",
+  "version": "36.54",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Test A/B des grands tiroirs : animation native conservée par défaut et mode expérimental requestAnimationFrame basé sur le temps réel, même durée 420 ms et courbe, diagnostics par direction et intervalles entre images. Aucun changement sur les autres animations."
+  "notes": "Optimisation prudente des tiroirs Administrateur et Mon compte : cache de hauteur réelle réutilisé si contenu inchangé, invalidation sur ouverture/masquage des sous-panneaux, mesure FPS image par image désactivée par défaut et réactivable pour les tests. Animation native et rendu conservés ; retour possible à 36.53."
 }
