@@ -1,7 +1,7 @@
 {
-  "version": "36.07",
+  "version": "36.08",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte pastèque intégrée à la banderole : ombre douce, léger décalage vers le haut et contours noirs adoucis en anthracite #20282F. Couleurs du fond, tailles et fonctionnalités conservées."
+  "notes": "Mascotte inclinée de 3° dans le sens horaire, pieds rapprochés du bas de la banderole avec un pivot bas-droit et une compensation de 2 px, ombre de contact légèrement réduite."
 }

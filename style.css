@@ -14863,27 +14863,27 @@ html body .app > section.intro > #heroStatus.intro-session-state.is-paused > .in
  }
 }
 
-/* V36.07 — Intégration de la pastèque sans modifier la bannière :
-   légère remontée et deux ombres de contact discrètes sous le dessin.
-   Dimensions et position horizontale de la version précédente conservées. */
+/* V36.08 — Mascotte : légère inclinaison horaire, pieds contre le bas
+   de la bannière. Pivot bas-droit et compensation de 2 px pour maintenir
+   le contact après rotation, sans modifier dimensions ni placement latéral. */
 html body .app > section.intro > img.intro-mascot{
  bottom:0!important;
- transform:translate3d(0,-4px,0)!important;
  transform-origin:bottom right!important;
- filter:drop-shadow(0 5px 4px rgba(13,92,86,.15))
-        drop-shadow(0 2px 2px rgba(24,40,43,.085))!important;
+ transform:translate3d(0,2px,0) rotate(3deg)!important;
+ filter:drop-shadow(0 4px 3.5px rgba(13,92,86,.12))
+        drop-shadow(0 1.5px 1.5px rgba(24,40,43,.065))!important;
 }
 @media(max-width:600px){
  html body .app > section.intro > img.intro-mascot{
-  transform:translate3d(0,-3px,0)!important;
-  filter:drop-shadow(0 5px 4px rgba(13,92,86,.14))
-         drop-shadow(0 2px 2px rgba(24,40,43,.08))!important;
+  transform:translate3d(0,2px,0) rotate(3deg)!important;
+  filter:drop-shadow(0 4px 3px rgba(13,92,86,.11))
+         drop-shadow(0 1.5px 1.5px rgba(24,40,43,.06))!important;
  }
 }
 @media(max-width:380px){
  html body .app > section.intro > img.intro-mascot{
-  transform:translate3d(0,-2px,0)!important;
-  filter:drop-shadow(0 4px 4px rgba(13,92,86,.13))
-         drop-shadow(0 2px 2px rgba(24,40,43,.07))!important;
+  transform:translate3d(0,2px,0) rotate(3deg)!important;
+  filter:drop-shadow(0 3px 3px rgba(13,92,86,.10))
+         drop-shadow(0 1.5px 1.5px rgba(24,40,43,.055))!important;
  }
 }
