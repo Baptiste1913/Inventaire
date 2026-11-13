@@ -1,7 +1,7 @@
 {
-  "version": "36.08",
+  "version": "36.09",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mascotte inclinée de 3° dans le sens horaire, pieds rapprochés du bas de la banderole avec un pivot bas-droit et une compensation de 2 px, ombre de contact légèrement réduite."
+  "notes": "Pastèque inclinée de 13° (+10° dans le sens horaire), avec compensation verticale selon la largeur de l’écran pour maintenir les pieds contre le bas de la banderole, ombre inchangée."
 }

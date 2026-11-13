@@ -14863,26 +14863,26 @@ html body .app > section.intro > #heroStatus.intro-session-state.is-paused > .in
  }
 }
 
-/* V36.08 — Mascotte : légère inclinaison horaire, pieds contre le bas
-   de la bannière. Pivot bas-droit et compensation de 2 px pour maintenir
-   le contact après rotation, sans modifier dimensions ni placement latéral. */
+/* V36.09 — Inclinaison horaire à 13° (+10°).
+   Pivot bas-droit conservé ; compensation verticale calculée suivant
+   la largeur responsive pour garder les pieds au bord bas du bandeau. */
 html body .app > section.intro > img.intro-mascot{
  bottom:0!important;
  transform-origin:bottom right!important;
- transform:translate3d(0,2px,0) rotate(3deg)!important;
+ transform:translate3d(0,14px,0) rotate(13deg)!important;
  filter:drop-shadow(0 4px 3.5px rgba(13,92,86,.12))
         drop-shadow(0 1.5px 1.5px rgba(24,40,43,.065))!important;
 }
 @media(max-width:600px){
  html body .app > section.intro > img.intro-mascot{
-  transform:translate3d(0,2px,0) rotate(3deg)!important;
+  transform:translate3d(0,12px,0) rotate(13deg)!important;
   filter:drop-shadow(0 4px 3px rgba(13,92,86,.11))
          drop-shadow(0 1.5px 1.5px rgba(24,40,43,.06))!important;
  }
 }
 @media(max-width:380px){
  html body .app > section.intro > img.intro-mascot{
-  transform:translate3d(0,2px,0) rotate(3deg)!important;
+  transform:translate3d(0,11px,0) rotate(13deg)!important;
   filter:drop-shadow(0 3px 3px rgba(13,92,86,.10))
          drop-shadow(0 1.5px 1.5px rgba(24,40,43,.055))!important;
  }
