@@ -1,7 +1,7 @@
 {
-  "version": "35.98",
+  "version": "35.99",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Bouton SVG personnel réduit à 186 × 45 px (182 × 44 sur petits écrans), légèrement aplati ; couche blanche irrégulière supprimée, intérieur vectoriel net, contour haute résolution et cache hors ligne conservés."
+  "notes": "Bouton Inventaire plus étroit (158 px ; 156 sur petit écran), titre et description descendus et rapprochés, indicateur de session harmonisé avec la pastille Ma session (point/halo/couleurs/animation)."
 }
