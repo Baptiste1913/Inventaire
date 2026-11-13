@@ -1,7 +1,7 @@
 {
-  "version": "36.46",
+  "version": "36.47",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Ajustement progressif : fermeture des panneaux Administrateur et Mon compte à 340 ms au lieu de 275 ms, ouverture et diagnostics inchangés."
+  "notes": "Fermeture Administrateur et Mon compte alignée sur tous les autres tiroirs (même hauteur, 420 ms et easing), retrait de la seconde animation transform en fermeture ; ouverture fluide conservée."
 }
