@@ -15261,12 +15261,12 @@ html body .app details[data-unified-fold="yes"].iu-fold-animating > summary{
 }
 
 
-/* V36.34 — Annuler l'isolation des sous-contenus V36.33 qui pouvait
-   provoquer des repaints/clippings lors de l'animation sur Safari iOS.
-   requestAnimationFrame anime maintenant uniquement la hauteur du tiroir. */
+/* V36.35 — Repartir de 36.33 : une seule boucle rAF pour tous les tiroirs,
+   sans isolation de sous-contenu ni couche GPU forcée pendant l'ouverture.
+   Les effets visuels permanents des cartes restent inchangés. */
 :root{
- --iu-drawer-reference-duration:410ms;
- --iu-drawer-reference-ease:cubic-bezier(.35,0,.20,1);
+ --iu-drawer-reference-duration:420ms;
+ --iu-drawer-reference-ease:cubic-bezier(.25,.55,.25,1);
 }
 html body .app details[data-unified-fold="yes"].iu-fold-animating{
  contain:none!important;
