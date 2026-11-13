@@ -15282,3 +15282,44 @@ html body .app details[data-unified-fold="yes"].iu-fold-animating > :is(
  -webkit-backface-visibility:visible!important;
  backface-visibility:visible!important;
 }
+
+
+/* V36.36 — Tiroirs CSS Grid sur Safari/iOS : le navigateur interpole
+   0fr -> 1fr ; aucune ecriture de height sur chaque image.
+   Les cartes, en-tetes et ombres gardent leur style actuel. */
+:root{
+ --iu-drawer-reference-duration:440ms;
+ --iu-drawer-reference-ease:cubic-bezier(.25,.65,.25,1);
+}
+html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"]{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:auto minmax(0,0fr)!important;
+ transition:grid-template-rows var(--iu-drawer-reference-duration) var(--iu-drawer-reference-ease)!important;
+ contain:none!important;
+ isolation:auto!important;
+}
+html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"][data-iu-grid-expanded="yes"]{
+ grid-template-rows:auto minmax(0,1fr)!important;
+}
+html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"] > :not(summary){
+ min-height:0!important;
+ min-width:0!important;
+ overflow:hidden!important;
+ contain:none!important;
+ transform:none!important;
+ -webkit-backface-visibility:visible!important;
+ backface-visibility:visible!important;
+ transition:none!important;
+ animation:none!important;
+}
+html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"].iu-fold-animating{
+ contain:none!important;
+ isolation:auto!important;
+ overflow:hidden!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app details[data-unified-fold="yes"][data-iu-grid-fold="yes"]{
+  transition:none!important;
+ }
+}
