@@ -1,7 +1,7 @@
 {
-  "version": "35.97",
+  "version": "35.98",
   "published": "2026-11-13",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Bouton Inventaire remplace par le visuel SVG fourni, recadre sans modifier le dessin, adapte a ses proportions et conserve en cache hors ligne sur iPhone."
+  "notes": "Bouton SVG personnel réduit à 186 × 45 px (182 × 44 sur petits écrans), légèrement aplati ; couche blanche irrégulière supprimée, intérieur vectoriel net, contour haute résolution et cache hors ligne conservés."
 }

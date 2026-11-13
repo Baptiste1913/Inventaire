@@ -14782,9 +14782,8 @@ html body .app > section.intro > #heroStatus.intro-session-state > .intro-sessio
  }
 }
 
-/* V35.97 — Contour personnalise de l'utilisateur, recadre sans distortion ;
-   pseudo-éléments contradictoires des anciennes versions.
-   Couronne bleu ciel à gauche, vert d'eau à droite, anneau canard continu. */
+/* V35.98 — Bouton personnel compact : couche PNG blanche parasite retirée ;
+   fond intérieur vectoriel net + contour HD d'origine ; pas de halo blanc extérieur. */
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:enabled,:disabled,:hover,:active,:focus,:focus-visible),
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump[aria-disabled="true"],
@@ -14792,11 +14791,11 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  -webkit-appearance:none!important;appearance:none!important;
  box-sizing:border-box!important;position:relative!important;
  isolation:isolate!important;overflow:hidden!important;
- width:193px!important;min-width:193px!important;max-width:calc(100vw - 56px)!important;
- height:49px!important;min-height:49px!important;max-height:49px!important;
- padding:7px 16px!important;border:0!important;border-radius:999px!important;
- background:#fff url("./assets/u-inventory-button.svg?v=35.97") center / contain no-repeat!important;
- background-color:#fff!important;
+ width:186px!important;min-width:186px!important;max-width:calc(100vw - 56px)!important;
+ height:45px!important;min-height:45px!important;max-height:45px!important;
+ padding:6px 14px!important;border:0!important;border-radius:999px!important;
+ background:transparent url("./assets/u-inventory-button.svg?v=35.98") center / 100% 100% no-repeat!important;
+ background-color:transparent!important;
  box-shadow:none!important;
  color:#252b31!important;-webkit-text-fill-color:#252b31!important;
  filter:none!important;opacity:1!important;transform:none!important;
@@ -14827,7 +14826,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 }
 @media(max-width:380px){
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
-  width:193px!important;min-width:193px!important;padding:7px 14px!important;
+  width:182px!important;min-width:182px!important;height:44px!important;min-height:44px!important;max-height:44px!important;padding:6px 13px!important;
  }
 }
 @supports selector(:focus-visible){
