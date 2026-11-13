@@ -1,0 +1,57 @@
+name: Générer les icônes de l'application
+on:
+  push:
+    paths:
+      - 'assets/app-icon-source.svg'
+      - '.github/workflows/generate-app-icons.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Installer les bibliothèques d'image
+        run: python -m pip install --disable-pip-version-check "Pillow>=10,<13" "CairoSVG>=2.7,<3"
+      - name: Générer les icônes sans déformer le logo
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from io import BytesIO
+          from PIL import Image
+          import cairosvg
+
+          original = Path("assets/app-icon-source.svg").read_bytes()
+          png = cairosvg.svg2png(bytestring=original, output_width=1447, output_height=1375)
+          image = Image.open(BytesIO(png)).convert("RGB")
+          width, height = image.size
+          if (width, height) != (1447, 1375):
+              raise ValueError(f"Dimensions SVG inattendues : {image.size}")
+          # Rogner uniquement 36 px sur les marges gauche/droite du fond,
+          # plutôt que déformer le cercle du logo. Zone utile 1375 × 1375.
+          offset = (width-height)//2
+          square = image.crop((offset, 0, offset+height, height))
+          for size, name in [
+              (192, "icon.png"),
+              (512, "icon-512.png"),
+              (180, "apple-touch-icon.png"),
+              (32, "favicon-32.png"),
+              (16, "favicon-16.png"),
+          ]:
+              square.resize((size,size), Image.Resampling.LANCZOS).save(name, optimize=True)
+          square.resize((256,256), Image.Resampling.LANCZOS).save(
+              "favicon.ico", format="ICO", sizes=[(16,16),(32,32),(48,48)])
+          PY
+      - name: Publier les icônes de l'application
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icon.png icon-512.png apple-touch-icon.png favicon-16.png favicon-32.png favicon.ico
+          if ! git diff --cached --quiet; then
+            git commit -m "Generate iOS and PWA icons from custom SVG"
+            git push origin HEAD:main
+          fi
