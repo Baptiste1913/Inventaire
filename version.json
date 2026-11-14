@@ -1,7 +1,7 @@
 {
-  "version": "36.96",
+  "version": "36.97",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 967332,
-  "notes": "Supprime à la source l'indicateur gris de la pastille Activer et neutralise les anciens pseudo-éléments des états actif/inactif. Graphique Évolution du rythme entièrement monochrome (barres, rail, relief, tendance) avec plus d'espace sous le statut ; données, calculs, et animations conservés. Cache PWA actualisé."
+  "bytes": 971571,
+  "notes": "Harmonise les sept champs Date de l’inventaire, Nom de l’événement, Date de début, Date de fin, Code opération, Tableau à importer et Recherche avec le champ Nom du panier : fond, bordure, arrondis, typographie, relief intérieur, focus et placeholders identiques. Préserve loupe, date Safari, import CSV et validations. Cache PWA actualisé."
 }
