@@ -433,7 +433,9 @@ async function logout(){
    }
   }
   const {error}=await s.auth.signOut();if(error&&!isMissingSession(error))throw error;
-  user=null;activeProvider=null;lastSynced=null;localBaseline=null;remoteBaseline=null;clearInterval(interval);
+  // Garder la sauvegarde locale régulière active après la déconnexion.
+  // Les vérifications cloud sont automatiquement inactives sans utilisateur.
+  user=null;activeProvider=null;lastSynced=null;localBaseline=null;remoteBaseline=null;
   sessionStorage.setItem('inventaires-u-logout-feedback','Déconnexion réussie');
   if(switchWorkspace('guest'))return;
   render();feedback('Déconnexion réussie');sessionStorage.removeItem('inventaires-u-logout-feedback');
@@ -469,7 +471,35 @@ async function activateUser(u){
   if(changed&&shouldClaimGuest)localStorage.setItem(IMPORT_KEY,provider+':'+u.id);
   return changed;
 }
-async function init(){render();const resetMessage=sessionStorage.getItem('inventaires-u-reset-message');if(resetMessage){feedback(resetMessage);sessionStorage.removeItem('inventaires-u-reset-message');}const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{user:u},error}=await s.auth.getUser();if(error&&!isMissingSession(error))throw error;if(await activateUser(u))return;if(user)await reconcile();s.auth.onAuthStateChange((event,session)=>{queueMicrotask(async()=>{try{const previous=user?accountId(user,activeProvider):null;if(await activateUser(session?.user||null))return;if(user&&accountId(user,activeProvider)!==previous){lastSynced=null;remoteBaseline=null;await reconcile();}}catch(e){feedback(e.message||'Changement de compte impossible.');}});});interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);window.addEventListener('online',()=>reconcile());document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
+/* V36.75 — Synchronisation automatique tant que l'app est ouverte :
+   copie locale toutes les 12 s, envoi des modifications dès la détection,
+   puis lecture du cloud chaque minute pour récupérer les autres appareils.
+   iOS suspend les timers en arrière-plan : reprendre au retour dans l'app.
+   Le verrou busy, les conflits et l'écriture sécurisée RPC sont inchangés. */
+let regularCloudInterval=null;
+function runAutomaticSync(){
+ if(!user||busy||!navigator.onLine||document.hidden||
+    !$('cloudConflict')?.hidden)return;
+ void reconcile();
+}
+function installAutomaticSync(){
+ if(interval)clearInterval(interval);
+ interval=setInterval(()=>{
+  try{saveActive();localStatus('Enregistré sur cet appareil');}
+  catch{localStatus('Stockage local indisponible');}
+  if(user&&lastSynced!==serialize(snapshot()))runAutomaticSync();
+ },12000);
+ if(regularCloudInterval)clearInterval(regularCloudInterval);
+ regularCloudInterval=setInterval(runAutomaticSync,60000);
+ window.addEventListener('online',runAutomaticSync);
+ document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden)runAutomaticSync();
+ });
+ window.addEventListener('pageshow',runAutomaticSync);
+ window.addEventListener('focus',runAutomaticSync);
+ window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});
+}
+async function init(){render();const resetMessage=sessionStorage.getItem('inventaires-u-reset-message');if(resetMessage){feedback(resetMessage);sessionStorage.removeItem('inventaires-u-reset-message');}const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{user:u},error}=await s.auth.getUser();if(error&&!isMissingSession(error))throw error;if(await activateUser(u))return;if(user)await reconcile();s.auth.onAuthStateChange((event,session)=>{queueMicrotask(async()=>{try{const previous=user?accountId(user,activeProvider):null;if(await activateUser(session?.user||null))return;if(user&&accountId(user,activeProvider)!==previous){lastSynced=null;remoteBaseline=null;await reconcile();}}catch(e){feedback(e.message||'Changement de compte impossible.');}});});installAutomaticSync();}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
 $('accountGoogle').addEventListener('click',()=>connect('google'));$('accountAvatarImage').addEventListener('error',()=>{const avatar=$('accountAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountPageAvatarImage')?.addEventListener('error',()=>{const avatar=$('accountPageAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountLogout').addEventListener('click',logout);
