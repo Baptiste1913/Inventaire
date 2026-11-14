@@ -1,7 +1,7 @@
 {
-  "version": "37.16",
+  "version": "37.17",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1080967,
-  "notes": "Administration : correction du blocage de tous les boutons lors d'Annuler/Supprimer une date. Le dialogue de confirmation est maintenant en dehors de .app, qui était masquée en mode Administrateur pendant que Safari gardait un modal actif invisible. Protection supplémentaire dans planning-admin.js (repositionnement défensif et gestion d'erreur de showModal). Tests simulés : ouverture de confirmation, fermeture, changement de statut Supabase et retour des commandes. Événements : légende Aujourd'hui avec contour graphite et point gris, pastille À venir verte, décompte de début toujours gris. Cache PWA renouvelé."
+  "bytes": 1086419,
+  "notes": "Harmonisation visuelle du dialogue de confirmation du planning administrateur : fond blanc/gris, bordure fine, ombre diffuse, icône graphite, bouton de fermeture discret, texte plus lisible et boutons Retour / Confirmer cohérents avec les autres pop-ups monochromes. Focus clavier neutralisé visuellement en gris plutôt qu'en bleu. Animations existantes, annulation/réactivation Supabase et correctif Safari 37.16 inchangés. Cache PWA actualisé."
 }
