@@ -105,13 +105,8 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
 <details id="planningAdminCard" class="card fold-card planning-admin-card" aria-labelledby="planningAdminTitle" hidden>
  <summary class="fold-summary planning-admin-summary"><span class="planning-admin-lock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><span class="planning-admin-title" id="planningAdminTitle"><span class="planning-admin-eyebrow">SERVICES U / ADMINISTRATION</span><span class="planning-admin-heading">Espace administrateur</span></span><span class="planning-admin-trailing"><span class="iu-admin-spinner" aria-hidden="true"></span><button id="iuAdminLaunch" type="button" class="primary-btn session-btn iu-admin-launch-action" aria-label="Accéder aux réglages administrateur"><span>Accéder aux réglages</span><svg class="iu-admin-launch-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></span></summary>
  <div class="iu-admin-opaque-backdrop" aria-hidden="true"></div>
- <div class="iu-admin-page-head focus-toolbar" aria-label="Navigation des réglages administrateur">
-  <div class="iu-admin-compact-heading"><h2>Réglages administrateur</h2></div>
-  <div class="focus-actions iu-admin-page-actions">
-   <button id="iuAdminReturn" type="button" class="focus-pause iu-admin-page-back"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button>
-  </div>
- </div>
  <div class="iu-admin-loading-message" role="status" aria-live="polite"><span class="iu-admin-spinner" aria-hidden="true"></span><span>Vérification de l’accès administrateur…</span></div><div class="fold-body planning-admin-body" id="iuAdminProtectedBody">
+ <div class="iu-admin-inpage-top"><strong>Réglages administrateur</strong><button id="iuAdminReturn" type="button" class="iu-page-inline-back" aria-label="Retour à l’accueil"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button></div>
  <div class="iu-admin-categories iu-admin-layout" aria-label="Rubriques administrateur">
  <section class="iu-admin-overview" aria-label="Tableau de bord administrateur">
   
@@ -224,12 +219,6 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
     <span class="iu-account-launch-row"><button id="iuAccountLaunch" type="button" class="primary-btn session-btn iu-account-launch-action" aria-label="Accéder aux options de compte et de connexion"><span class="iu-account-launch-member">Accéder à mon compte</span><span class="iu-account-launch-guest">Connexion et sauvegardes</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></span>
   </summary>
   <div class="iu-account-opaque-backdrop" aria-hidden="true"></div>
-  <div class="iu-account-page-head focus-toolbar" aria-label="Navigation du compte">
-    <div class="iu-account-compact-heading"><h2 class="iu-account-page-member-title">Mon compte</h2><h2 class="iu-account-page-guest-title">Connexion et sauvegardes</h2></div>
-    <div class="focus-actions iu-account-page-actions">
-      <button id="iuAccountReturn" type="button" class="focus-pause iu-account-page-back"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button>
-    </div>
-  </div>
   <section class="iu-account-profile-card" id="iuAccountProfileCard" aria-labelledby="accountPageProfileName" hidden>
     <div class="iu-account-profile-top">
       <span class="iu-account-profile-photo" aria-hidden="true">
@@ -241,6 +230,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
         <strong id="accountPageProfileName">Mon compte</strong>
         <span class="iu-account-profile-provider"><img src="google-logo.png?v=32.0" width="14" height="14" alt="" aria-hidden="true"/> Compte connecté</span>
       </div>
+      <button id="iuAccountReturn" type="button" class="iu-page-inline-back iu-account-profile-back" aria-label="Retour à l’accueil"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button>
     </div>
     <div class="iu-account-profile-details-heading">
       <strong>Informations du compte</strong>
@@ -257,6 +247,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   </section>
   <div class="fold-body account-body">
     <div id="accountSignedOut">
+      <div class="iu-account-guest-top"><strong>Connexion et sauvegardes</strong><button id="iuAccountGuestReturn" type="button" class="iu-page-inline-back" aria-label="Retour à l’accueil"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button></div>
       <div class="account-local-intro">
         <div class="account-local-intro-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17.5H6.8a4.3 4.3 0 0 1-.5-8.57A6 6 0 0 1 18 10a3.8 3.8 0 0 1-.8 7.5H16"/><path d="m9 14 3-3 3 3m-3-3v9"/></svg></div>
         <div class="account-local-intro-copy"><strong>Retrouvez vos inventaires sur vos appareils</strong><p>Connectez-vous avec Google pour synchroniser vos données. Vous pouvez aussi continuer à utiliser l’application sans compte.</p></div>
