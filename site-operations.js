@@ -215,7 +215,12 @@
   value('opsVersion','normal',VERSION);
   const nav=performance.getEntriesByType?.('navigation')?.[0];
   value('opsLoad','normal',nav?.duration>0?Math.round(nav.duration)+' ms':'Indisponible');
-  value('opsPush','normal',!('Notification' in window)?'Non compatible':Notification.permission==='granted'?'Autorisées':Notification.permission==='denied'?'Bloquées':'Non autorisées');
+  const notificationSupported='Notification' in window;
+  const notificationPermission=notificationSupported?Notification.permission:null;
+  value('opsPush',notificationPermission==='granted'?'success':
+   notificationPermission==='denied'?'warning':'muted',
+   !notificationSupported?'Non compatible':notificationPermission==='granted'?'Autorisées':
+   notificationPermission==='denied'?'Bloquées':'Non autorisées');
   try{
    const r=await navigator.serviceWorker?.getRegistration();
    const controlled=!!navigator.serviceWorker?.controller;
