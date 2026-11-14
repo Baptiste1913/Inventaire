@@ -1,7 +1,7 @@
 {
-  "version": "37.09",
+  "version": "37.10",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1033114,
-  "notes": "Refonte des événements : le bloc d'accueil affiche directement le cadre Prochain inventaire (notifications conservées), puis un bouton Accéder aux événements. Une nouvelle page dédiée, opaque et animée par le même moteur que Mon compte et Administrateur, présente l'événement en cours/à venir, un calendrier mensuel interactif (lunes à dimanches, sélection d'une date, navigation entre les mois, indicateurs, événements sur plusieurs jours), la fiche de la date choisie et l'agenda trié. Données Supabase et cache hors ligne préservés ; cache PWA actualisé."
+  "bytes": 1047772,
+  "notes": "Accueil : en-tête SERVICE U / ÉVÉNEMENT rétabli au-dessus du titre du mois, et bouton Accéder aux événements avec exactement les dimensions, dégradés, reliefs, animations tactiles et typographie d’Accéder à mon compte. Calendrier : périodes continues d’un même événement, vert pour en cours, gris pour à venir, gris atténué pour terminé, sans relier des événements différents ni franchir le dimanche. Aujourd’hui et date sélectionnée ont des contours distincts ; +N indique les événements supplémentaires. Carte de l’événement actif : décompte des jours avant sa fin, ou le début du prochain. Légende détaillée ; sélection d’une date, mois, données Supabase et cache hors-ligne conservés."
 }
