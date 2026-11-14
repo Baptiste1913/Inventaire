@@ -599,9 +599,9 @@ const iuAdminPageMotion={
  // Deux surfaces distinctes, comme bandeau et pesée du mode Concentration :
  // la page entière ne se comporte plus comme une carte qui se déplie.
  viewSelectors:'.app > #planningAdminCard > .iu-admin-page-head, .app > #planningAdminCard > .planning-admin-body',
- // Ne pas dupliquer l'immense DOM administrateur pendant le retour :
- // le moteur conserve le même retour des cartes que le mode session.
- exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-page-head',
+ // Même paire de surfaces que le mode Concentration (bandeau + carte) :
+ // les deux descendent ensemble à la fermeture avec le même flou.
+ exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-page-head, .app > #planningAdminCard > .planning-admin-body',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:focusSurfaceSelectors
 };
@@ -615,9 +615,9 @@ function iuOpenAdminPage(){
   card.open=true;
   document.body.classList.add('is-admin-mode');
   document.documentElement.classList.add('iu-admin-page-active');
-  // L'espace Administrateur possède maintenant son PROPRE viewport.
-  // Ne pas déplacer le scroll de l'accueil pendant son ouverture.
-  card.scrollTop=0;
+  // Comme pour le mode Session, c'est la page qui défile. Ne pas
+  // enfermer tous les réglages dans un <details> à scroll interne iOS.
+  window.scrollTo({top:0,left:0,behavior:'instant'});
  },true,iuAdminPageMotion);
 }
 function iuCloseAdminPage(immediate=false){
@@ -1732,6 +1732,14 @@ window.IUSetupFold=setupUnifiedFold;
  bind('details.events-disclosure',':scope > summary',':scope > .events-disclosure-content','is-events-closing');
  bind('#planningAdminCard details.iu-admin-category',':scope > summary',':scope > .iu-admin-category-body','is-admin-closing');
  const adminCard=$('planningAdminCard');
+ // L'icône et son fichier sont strictement ceux de « Démarrer un inventaire ».
+ // Reprise directe du DOM existant, sans seconde ressource et sans CSS divergent.
+ const launch=$('iuAdminLaunch');
+ const originalPlayIcon=$('startSession')?.querySelector('.start-play-icon');
+ if(launch&&originalPlayIcon&&!launch.querySelector('.start-play-icon')){
+  const icon=originalPlayIcon.cloneNode(true);
+  launch.append(icon);
+ }
  const summary=adminCard?.querySelector(':scope > summary');
  summary?.addEventListener('click',event=>{
   event.preventDefault();
