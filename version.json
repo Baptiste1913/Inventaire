@@ -1,7 +1,7 @@
 {
-  "version": "36.76",
+  "version": "36.77",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Suppression des bandeaux supérieurs dans Mon compte et Administrateur. Petit bouton Retour monochrome intégré en haut à droite de la carte profil Google (à côté du nom), dans la carte de connexion en mode local, et en tête de la carte de réglages administrateur. Fond opaque, animations de concentration et défilement Safari conservés. Actualisation manuelle d’État des services et synchronisation automatique régulière conservées."
+  "notes": "Boutons Retour déplacés hors des cartes Mon compte et Administrateur, chacun dans une petite ligne en haut à droite, de taille et style identiques (92 × 34 px). Titre Réglages administrateur conservé dans le haut de la carte, centré et agrandi à 18 px. En mode local le Retour reste accessible au même endroit. Animations de concentration opaques, scroll Safari, synchronisation automatique et état des services préservés."
 }
