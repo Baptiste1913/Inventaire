@@ -1,7 +1,7 @@
 {
-  "version": "36.90",
+  "version": "36.91",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 827658,
-  "notes": "Deux boutons Retour aux ombres plus discrètes. Dans Mon compte, photo alignée au libellé PROFIL GOOGLE, nom centré verticalement sur la photo et nouvelle pastille Connecté à droite du nom. La pastille Connecté de l'accueil adopte exactement le même style. Aucune modification des animations, des données, des pesées, de la connexion ou de la synchronisation ; cache PWA renouvelé."
+  "bytes": 831397,
+  "notes": "Pastille Connecté monochrome avec logo Google à gauche, identique sur l'accueil et dans Mon compte. Le nom du profil est agrandi et aligné sur le centre du cercle de la photo ; PROFIL GOOGLE est agrandi et conserve son alignement supérieur. Animations et corrections Retour, inventaires, authentification et synchronisation conservés. Cache PWA renouvelé."
 }
