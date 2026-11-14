@@ -17788,12 +17788,8 @@ body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.event
 body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell:not(.is-active) .events-bell-label{
  display:inline-flex!important;align-items:center!important;gap:7px!important;
 }
-body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell:not(.is-active) .events-bell-label::after{
- content:""!important;position:relative!important;display:block!important;
- width:7px!important;height:7px!important;flex:0 0 7px!important;
- border-radius:50%!important;background:#9ba6af!important;
- box-shadow:0 0 0 2px rgba(139,152,164,.13)!important;animation:none!important;
-}
+/* V36.96 : l'indicateur pseudo-élément de l'état inactif est supprimé
+   à sa source, plutôt que seulement masqué par une règle plus faible. */
 /* Cloud : bottom spacing equal to top (desktop and iPhone). */
 html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-cloud-panel{
  padding-bottom:6px!important;
@@ -17871,5 +17867,75 @@ html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column:last-o
 @media(prefers-reduced-motion:reduce){
  html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column:last-of-type .dashboard-trend-fill{
   animation:none!important;transform:none!important;
+ }
+}
+
+
+/* V36.96 — Notifications : aucune pastille n'affiche de point additionnel.
+   Sélecteurs ciblés sur les deux états, plus spécifiques que les
+   anciennes règles V35.59 et V36.94 (évite le point sur Safari iPhone). */
+html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell:not(.is-active) .events-bell-label::after,
+html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell.is-active .events-bell-label::after,
+html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell .events-bell-label::after{
+ content:none!important;
+ display:none!important;
+ width:0!important;
+ height:0!important;
+ min-width:0!important;
+ flex:0 0 0!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ background:none!important;
+ box-shadow:none!important;
+ animation:none!important;
+}
+html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell .events-bell-label{
+ gap:0!important;
+}
+
+/* Évolution du rythme : toutes les surfaces en nuances graphite.
+   Les 6 temps réels et la tendance calculée demeurent inchangés. */
+html body.is-account-mode #accountCard #dashTrend.dashboard-trend{
+ min-height:166px!important;
+ padding:47px 12px 13px!important;
+ border-color:#dce2e6!important;
+ background:linear-gradient(150deg,#fcfdfe 0%,#f5f7f8 60%,#edf1f3 100%)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.97),0 3px 10px rgba(53,63,73,.035)!important;
+}
+html body.is-account-mode #accountCard #dashTrend.dashboard-trend::before{
+ background:radial-gradient(ellipse at 78% 50%,rgba(96,108,120,.08),transparent 64%)!important;
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column > strong{
+ color:#4c5760!important;
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column > span{
+ color:#7b858e!important;
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-track,
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column:last-of-type .dashboard-trend-track{
+ border:1px solid #dce2e6!important;
+ background:linear-gradient(180deg,#eef2f4,#e4e9ec)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.86)!important;
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-fill{
+ background:linear-gradient(180deg,#b8c3cb 0%,#858f99 100%)!important;
+ opacity:1!important;
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column:last-of-type .dashboard-trend-fill{
+ background:linear-gradient(180deg,#a9b4bd,#66737e)!important;
+ opacity:1!important;
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-insight,
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-insight.is-faster,
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-insight.is-slower{
+ color:#515e68!important;
+ border:1px solid #d5dde2!important;
+ background:linear-gradient(145deg,#fafbfc,#ecf0f2)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+@media(max-width:430px){
+ html body.is-account-mode #accountCard #dashTrend.dashboard-trend{
+  padding:46px 8px 11px!important;
  }
 }
