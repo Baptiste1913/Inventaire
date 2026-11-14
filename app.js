@@ -855,6 +855,52 @@ function iuCloseAccountPage(immediate=false){
 }
 window.IUOpenAccountPage=iuOpenAccountPage;
 window.IUCloseAccountPage=iuCloseAccountPage;
+
+/* V37.09 — Événements : même navigation plein écran opaque que les
+   pages Mon compte et Administrateur, y compris la fermeture iOS. */
+const iuEventsPageMotion={
+ modeClass:'is-events-mode',
+ viewSelectors:'.app > #eventsPage > .iu-events-page-inner',
+ exitSourceSelectors:'.app > #eventsPage > .iu-events-page-inner',
+ normalSelectors:focusNormalSelectors,
+ surfaceSelectors:'.app > #eventsPage > .iu-events-opaque-backdrop',
+ solidDuringMotion:true,
+ homeScrollY:()=>0
+};
+function iuOpenEventsPage(){
+ const page=$('eventsPage');
+ if(!page||focusMotionBusy||
+    document.body.classList.contains('is-events-mode')||
+    document.body.classList.contains('is-account-mode')||
+    document.body.classList.contains('is-admin-mode'))return;
+ window.InventairesPlanning?.preparePage?.();
+ changeFocusWithMotion(()=>{
+  page.hidden=false;
+  document.body.classList.add('is-events-mode');
+  document.documentElement.classList.add('iu-events-page-active');
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+ },true,iuEventsPageMotion);
+}
+function iuCloseEventsPage(immediate=false){
+ const page=$('eventsPage');
+ if(!page||!document.body.classList.contains('is-events-mode'))return;
+ const action=()=>{
+  document.body.classList.remove('is-events-mode');
+  document.documentElement.classList.remove('iu-events-page-active');
+  page.hidden=true;
+  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+  document.body.scrollTop=0;
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+ };
+ if(!immediate&&focusMotionBusy){
+  focusPendingTask=()=>iuCloseEventsPage();
+  return;
+ }
+ if(immediate||focusReducedMotion()){action();return;}
+ changeFocusWithMotion(action,false,iuEventsPageMotion);
+}
+window.IUOpenEventsPage=iuOpenEventsPage;
+window.IUCloseEventsPage=iuCloseEventsPage;
 function syncFocusMode(sessionInput,statsInput){
  const session=arguments.length?sessionInput:getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
@@ -1972,11 +2018,15 @@ window.IUSetupFold=setupUnifiedFold;
  // Les deux pages n'ont qu'un Retour. L'actualisation de
  // l'état des services reste dans sa rubrique (#opsRefresh).
  $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage()); $('iuAccountReturnGuest')?.addEventListener('click',()=>iuCloseAccountPage());
+ $('eventsOpenPage')?.addEventListener('click',()=>iuOpenEventsPage());
+ $('iuEventsReturn')?.addEventListener('click',()=>iuCloseEventsPage());
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
   }else if(event.key==='Escape'&&document.body.classList.contains('is-account-mode')){
    event.preventDefault();iuCloseAccountPage();
+  }else if(event.key==='Escape'&&document.body.classList.contains('is-events-mode')){
+   event.preventDefault();iuCloseEventsPage();
   }
  });
  if(adminCard){
