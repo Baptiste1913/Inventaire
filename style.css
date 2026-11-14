@@ -20708,3 +20708,54 @@ html body.is-events-mode #eventsPage .iu-events-feature-state.is-upcoming{
 @media(prefers-reduced-motion:reduce){
  #planningConfirmDialog .planning-actions > button{transition:none!important;}
 }
+
+
+/* V37.18 — Relief subtil du bouton Démarrer un inventaire.
+   La forme, le dégradé, l'icône, la taille et les réactions tactiles
+   restent inchangés : seul le liseré gris bleuté gagne en précision. */
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):not(:active){
+ border-color:#bfd0d7!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.96),
+  inset 0 0 0 1px rgba(255,255,255,.53),
+  0 0 0 1px rgba(153,179,191,.22),
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18)!important;
+}
+@media(hover:hover){
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):hover:not(:disabled):not(:active){
+  border-color:#afc4cd!important;
+  box-shadow:
+   inset 0 1px 0 rgba(255,255,255,.97),
+   inset 0 0 0 1px rgba(255,255,255,.58),
+   0 0 0 1px rgba(150,178,190,.27),
+   -4px -4px 8px rgba(255,255,255,.98),
+   -7px -7px 14px rgba(255,255,255,.64),
+    5px 6px 13px rgba(156,173,189,.38),
+    2px 3px 5px rgba(156,173,189,.19)!important;
+ }
+}
+/* Au toucher, conserver la légère pression et l'ombre intérieure déjà
+   présentes ; la bordure reste cependant cohérente avec le nouveau liseré. */
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):active:not(:disabled){
+ border-color:#c1d0d6!important;
+}
+
+/* Pastille des notifications : hauteur strictement alignée sur
+   « Connecté » Google (32 px), dans les états Activer ET Activées.
+   Aucune modification de palette, icône ou texte. */
+html body:not(.is-focus-mode):not(.is-events-mode) .app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell{
+ box-sizing:border-box!important;
+ height:32px!important;
+ min-height:32px!important;
+ max-height:32px!important;
+ padding-block:0!important;
+ padding-inline:11px!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode):not(.is-events-mode) .app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell{
+  padding-inline:9px!important;
+ }
+}
