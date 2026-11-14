@@ -18362,3 +18362,120 @@ html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actio
  background:#2ac78f!important;
  box-shadow:0 0 0 3px rgba(42,199,143,.13),0 0 9px rgba(42,199,143,.32)!important;
 }
+
+
+/* V37.05 — Mon compte : voyant cloud confirmé et copie de récupération
+   alignée sur le tiroir « Événements à venir », sans changer ses actions. */
+/* Le voyant vert est exclusivement lié au statut authentiquement synchronisé,
+   déjà calculé par auth.js. Il est fixe, comme dans l'État des services. */
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-cloud-primary > #accountProfileSyncState.is-synced{
+ display:inline-flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:flex-end!important;
+ gap:8px!important;
+ color:#20252b!important;
+ text-align:right!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-cloud-primary > #accountProfileSyncState.is-synced::before{
+ content:""!important;
+ display:block!important;
+ flex:0 0 8px!important;
+ width:8px!important;
+ height:8px!important;
+ border-radius:50%!important;
+ background:#2ac78f!important;
+ box-shadow:0 0 0 3px rgba(42,199,143,.13)!important;
+ animation:none!important;
+ transition:none!important;
+}
+
+/* Copie de récupération = même encadrement, titres, espacements et
+   chevron qu'« Événements à venir ». Le moteur d'ouverture reste intact. */
+html body.is-account-mode #accountCard #recoveryCard.recovery-card{
+ box-sizing:border-box!important;
+ padding:0!important;
+ border:1px solid #e0e5e9!important;
+ border-radius:15px!important;
+ background:linear-gradient(150deg,#fff,#f6f8f9)!important;
+ box-shadow:none!important;
+ overflow:hidden!important;
+}
+html body.is-account-mode #accountCard #recoveryCard.recovery-card > summary.calc-alerts-summary{
+ box-sizing:border-box!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+ min-height:67px!important;
+ padding:13px 15px!important;
+ border:0!important;
+ background:transparent!important;
+ background-image:none!important;
+ box-shadow:none!important;
+ color:#414d56!important;
+ list-style:none!important;
+}
+html body.is-account-mode #accountCard #recoveryCard.recovery-card > summary.calc-alerts-summary:hover{
+ background:transparent!important;
+}
+html body.is-account-mode #accountCard #recoveryCard.recovery-card .calc-alerts-title{
+ display:grid!important;
+ flex:1 1 auto!important;
+ gap:3px!important;
+ min-width:0!important;
+}
+html body.is-account-mode #accountCard #recoveryCard.recovery-card .calc-alerts-title > strong{
+ color:#414d56!important;
+ font-family:inherit!important;
+ font-size:13px!important;
+ font-weight:800!important;
+ line-height:1.3!important;
+ letter-spacing:-.1px!important;
+}
+html body.is-account-mode #accountCard #recoveryCard.recovery-card .calc-alerts-title > small{
+ color:#88939a!important;
+ font-family:inherit!important;
+ font-size:11px!important;
+ font-weight:500!important;
+ line-height:1.4!important;
+ letter-spacing:normal!important;
+}
+html body.is-account-mode #accountCard #recoveryCard.recovery-card .calc-alerts-chevron{
+ display:block!important;
+ width:18px!important;
+ height:18px!important;
+ flex:0 0 18px!important;
+ fill:none!important;
+ stroke:#778690!important;
+ stroke-width:2.2!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+}
+html body.is-account-mode #accountCard #recoveryCard.recovery-card > .recovery-body{
+ background:linear-gradient(150deg,#fff,#f8f9fa)!important;
+ border-top:1px solid #edf0f2!important;
+ box-shadow:none!important;
+}
+@media(max-width:380px){
+ html body.is-account-mode #accountCard #recoveryCard.recovery-card > summary.calc-alerts-summary{
+  min-height:67px!important;
+  padding:13px 15px!important;
+ }
+}
+
+/* Durées en minutes : autoriser deux lignes de texte au-dessus des barres
+   sur les petits iPhone, sans modifier la hauteur calculée des barres. */
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column > strong{
+ box-sizing:border-box!important;
+ display:flex!important;
+ align-items:flex-end!important;
+ justify-content:center!important;
+ min-height:2.5em!important;
+ width:100%!important;
+ line-height:1.2!important;
+ text-align:center!important;
+ white-space:normal!important;
+ overflow-wrap:normal!important;
+ word-break:normal!important;
+}
