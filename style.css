@@ -16595,3 +16595,220 @@ html body.is-account-mode #accountCard #cloudConflict[hidden]{
   transition:none!important;transform:none!important;
  }
 }
+
+
+/* V36.72 — Identité Google indépendante : petite carte après Retour /
+   Actualiser et AVANT le tableau de bord. Même style monochrome et
+   largeur que la page Mon compte. L'invité ne voit jamais cette carte. */
+html body:not(.is-account-mode) .app > #accountCard.card > #iuAccountProfileCard,
+html body.is-account-mode .app > #accountCard.card.is-signed-out > #iuAccountProfileCard,
+html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard[hidden]{
+ display:none!important;
+}
+html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard.iu-account-profile-card:not([hidden]){
+ display:flex!important;
+ flex:0 0 auto!important;
+ flex-direction:column!important;
+ gap:12px!important;
+ position:relative!important;
+ z-index:1!important;
+ align-self:center!important;
+ box-sizing:border-box!important;
+ width:calc(100% - 26px)!important;
+ max-width:734px!important;
+ min-width:0!important;
+ height:auto!important;
+ margin:0 auto 0!important;
+ padding:14px 15px 12px!important;
+ border:1px solid #d8e1e5!important;
+ border-radius:19px!important;
+ background:linear-gradient(165deg,#fff 0%,#f7f9fa 100%)!important;
+ color:#303c44!important;
+ box-shadow:0 5px 17px rgba(35,54,64,.06),
+            inset 0 1px 0 rgba(255,255,255,.94)!important;
+ overflow:hidden!important;
+ opacity:1!important;
+ transform:none!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-top{
+ display:flex!important;
+ align-items:center!important;
+ gap:12px!important;
+ min-height:55px!important;
+ width:100%!important;
+ min-width:0!important;
+ padding:0!important;
+ margin:0!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo{
+ display:grid!important;
+ place-items:center!important;
+ position:relative!important;
+ flex:0 0 55px!important;
+ width:55px!important;height:55px!important;
+ box-sizing:border-box!important;
+ border:1px solid #d9e2e5!important;
+ border-radius:50%!important;
+ background:linear-gradient(145deg,#fff,#e9eef0)!important;
+ color:#66747e!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),
+            0 2px 6px rgba(55,70,80,.07)!important;
+ overflow:hidden!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo > img:not([hidden]){
+ display:block!important;
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;height:100%!important;
+ object-fit:cover!important;
+ border-radius:50%!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo > img[hidden]{
+ display:none!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo > svg{
+ display:block!important;
+ width:27px!important;height:27px!important;
+ stroke:currentColor!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo.has-photo > svg{
+ display:none!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-main{
+ display:flex!important;
+ flex:1 1 0!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ gap:3px!important;
+ min-width:0!important;
+ overflow:hidden!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-eyebrow{
+ display:block!important;
+ color:#8a959c!important;
+ font-size:9px!important;
+ font-weight:800!important;
+ line-height:1.3!important;
+ letter-spacing:.08em!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard #accountPageProfileName{
+ display:block!important;
+ max-width:100%!important;
+ min-width:0!important;
+ color:#27313a!important;
+ font-family:inherit!important;
+ font-size:clamp(14px,3.9vw,17px)!important;
+ font-weight:850!important;
+ line-height:1.24!important;
+ letter-spacing:-.012em!important;
+ overflow-wrap:anywhere!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-provider{
+ display:inline-flex!important;
+ align-items:center!important;
+ gap:5px!important;
+ color:#697680!important;
+ font-size:10px!important;
+ font-weight:700!important;
+ line-height:1.3!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-provider img{
+ display:block!important;
+ width:14px!important;height:14px!important;
+ flex:0 0 14px!important;
+ object-fit:contain!important;
+}
+/* Conserver les IDs des éléments précédemment présents dans le
+   tableau de bord : le statut Cloud les met toujours à jour directement. */
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity.iu-account-profile-details{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ border:1px solid #e3e8eb!important;
+ border-radius:12px!important;
+ background:#f8f9fa!important;
+ box-shadow:none!important;
+ overflow:hidden!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row{
+ display:grid!important;
+ grid-template-columns:minmax(0,.85fr) minmax(0,1.35fr)!important;
+ align-items:center!important;
+ gap:9px!important;
+ box-sizing:border-box!important;
+ min-height:35px!important;
+ padding:9px 11px!important;
+ border:0!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row + .account-dashboard-identity-row{
+ border-top:1px solid #e3e8eb!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row > span{
+ color:#79858c!important;
+ font-size:11px!important;
+ font-weight:700!important;
+ line-height:1.4!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row > strong,
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row > small{
+ color:#303a43!important;
+ font-size:11px!important;
+ font-weight:750!important;
+ line-height:1.4!important;
+ text-align:right!important;
+ min-width:0!important;
+ overflow-wrap:anywhere!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row > small{
+ font-weight:650!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-hidden-state[hidden]{
+ display:none!important;
+}
+/* La carte de données fait partie des trois surfaces opaques animées
+   du mode compte ; aucun affichage transparent ou entrée en retard. */
+html.iu-focus-slide::view-transition-group(iu-focus-2){
+ animation:none!important;
+ z-index:8!important;
+}
+html.iu-focus-slide::view-transition-old(iu-focus-2),
+html.iu-focus-slide::view-transition-new(iu-focus-2){
+ mix-blend-mode:normal!important;
+ transform-origin:top center!important;
+}
+html.iu-focus-entering::view-transition-new(iu-focus-2){
+ animation:iu65-rise var(--iu65-duration) var(--iu65-ease) 0ms both!important;
+}
+html.iu-admin-solid-transition.iu-focus-entering::view-transition-new(iu-focus-2){
+ opacity:1!important;
+ filter:none!important;
+ mix-blend-mode:normal!important;
+}
+@media(max-width:430px){
+ html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard.iu-account-profile-card:not([hidden]){
+  padding:12px 12px 11px!important;
+  gap:10px!important;
+  border-radius:17px!important;
+ }
+ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo{
+  flex-basis:49px!important;width:49px!important;height:49px!important;
+ }
+ html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row{
+  padding:9px 10px!important;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)!important;
+ }
+}
+@media(max-width:360px){
+ html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:2px!important;
+  padding:9px 10px!important;
+ }
+ html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row > strong,
+ html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row > small{
+  text-align:left!important;
+ }
+}
