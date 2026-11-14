@@ -1,7 +1,7 @@
 {
-  "version": "36.70",
+  "version": "36.71",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Réglages administrateur : ancienne flèche du bouton Accéder aux réglages restaurée. Transition de page opaque dès la première image grâce à un fond plein écran indépendant des captures View Transitions, sans modifier les animations de concentration. En-tête réduit au seul titre Réglages administrateur et boutons Retour / Actualiser monochromes, avec marge inférieure. Défilement naturel iPhone, contrôles Supabase et pesées préservés."
+  "notes": "Mon compte possède désormais sa page autonome, sur le modèle Administrateur 36.70 : bloc d'accueil compact avec bouton pleine largeur, transition identique au mode concentration, fond totalement opaque, titre et retour monochromes, défilement naturel Safari et restauration du scroll. En mode local : connexion Google et copies de récupération ; connecté : tableau de bord, synchronisation et inventaires, avec Actualiser. Traitement graphique différé après l'animation ; stockage local, comptes distincts, permissions administrateur et pesées préservés."
 }
