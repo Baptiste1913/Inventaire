@@ -16975,3 +16975,23 @@ html body.is-account-mode #accountCard #iuAccountProfileCard #accountProfileSync
   min-height:0!important;
  }
 }
+
+
+/* V36.75 — En-têtes simplifiés : un seul bouton Retour, pleine largeur.
+   L'actualisation manuelle reste disponible exclusivement dans la
+   rubrique État des services administrateur (#opsRefresh). */
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions.iu-admin-page-actions,
+html body.is-account-mode #accountCard .iu-account-page-actions.focus-actions,
+html body.is-account-mode #accountCard.is-signed-out .iu-account-page-actions{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:0!important;
+ width:100%!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions.iu-admin-page-actions > #iuAdminReturn,
+html body.is-account-mode #accountCard .iu-account-page-actions > #iuAccountReturn{
+ display:inline-flex!important;
+ width:100%!important;
+ min-width:0!important;
+ justify-content:center!important;
+}
