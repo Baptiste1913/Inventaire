@@ -221,9 +221,17 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
     </span>
     <span class="account-header-end">
       <span class="account-summary-status" id="accountSummaryStatus">Mode local</span>
-      <svg aria-hidden="true" class="fold-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
     </span>
+    <span class="iu-account-launch-row"><button id="iuAccountLaunch" type="button" class="primary-btn session-btn iu-account-launch-action" aria-label="Accéder aux options de compte et de connexion"><span class="iu-account-launch-member">Accéder à mon compte</span><span class="iu-account-launch-guest">Connexion et sauvegardes</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></span>
   </summary>
+  <div class="iu-account-opaque-backdrop" aria-hidden="true"></div>
+  <div class="iu-account-page-head focus-toolbar" aria-label="Navigation du compte">
+    <div class="iu-account-compact-heading"><h2 class="iu-account-page-member-title">Mon compte</h2><h2 class="iu-account-page-guest-title">Connexion et sauvegardes</h2></div>
+    <div class="focus-actions iu-account-page-actions">
+      <button id="iuAccountReturn" type="button" class="focus-pause iu-account-page-back"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button>
+      <button id="iuAccountRefresh" type="button" class="focus-pause iu-account-page-refresh"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M5.7 9a7.5 7.5 0 0 1 12.9-2L20 12M4 12l1.4 3a7.5 7.5 0 0 0 13 0"/></svg><span>Actualiser</span></button>
+    </div>
+  </div>
   <div class="fold-body account-body">
     <div id="accountSignedOut">
       <div class="account-local-intro">
