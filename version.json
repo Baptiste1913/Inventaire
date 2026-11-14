@@ -1,7 +1,7 @@
 {
-  "version": "36.84",
+  "version": "36.85",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Correction Safari iPhone des espaces blancs pendant les ouvertures/fermetures de Mon compte et Administrateur. Les instantanés des deux pages ne quittent plus simultanément l'écran : à l'ouverture l'accueil reste fixe et opaque sous la nouvelle page qui remonte, à la fermeture la page redescend devant l'accueil déjà affiché. Durée et courbe du mode concentration préservées, bouton Retour indépendant, anciennes photos/SVG intacts, position de l'accueil restaurée et synchronisation cloud conservée."
+  "notes": "Correction de la zone blanche persistante dans les ouvertures et fermetures de Mon compte et Administrateur sur Safari iPhone. Abandon des captures View Transition de l'écran root, qui causaient des zones vides. Réutilisation du moteur de transition du mode concentration : captures natives des cartes visibles, du fond opaque et des en-têtes, même durée et courbe, bouton Retour séparé. Position d'accueil restaurée après fermeture, sans clones DOM et sans modifications des pesées ou de la synchronisation."
 }
