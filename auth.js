@@ -341,6 +341,16 @@ function renderDashboard(){
  const totalDuration=durations.reduce((sum,x)=>sum+x,0);
  const pace=entries.length?Math.round(totalDuration/entries.length/1000):null;
  $('dashSecondsPerWeigh').textContent=pace===null?'—':`${pace} s`;
+ // Les hauteurs et comparaisons du graphique restent calculées en secondes.
+ // Seuls les libellés sont convertis pour faciliter la lecture des durées.
+ const formatTrendDuration=seconds=>{
+  const total=Math.max(0,Math.round(seconds));
+  if(total<60)return total+' s';
+  const minutes=Math.floor(total/60),remainingSeconds=total%60;
+  if(total<3600)return minutes+' min'+(remainingSeconds?' '+remainingSeconds+' s':'');
+  const hours=Math.floor(total/3600),remainingMinutes=Math.floor((total%3600)/60);
+  return hours+' h'+(remainingMinutes?' '+remainingMinutes+' min':'')+(remainingSeconds?' '+remainingSeconds+' s':'');
+ };
  const trend=$('dashTrend');trend.replaceChildren();
  const plotted=[...completed].filter(x=>Array.isArray(x.entries)&&x.entries.length>0)
   .sort((a,b)=>b.endedAt-a.endedAt).slice(0,6).reverse();
@@ -362,7 +372,7 @@ function renderDashboard(){
   trend.setAttribute('aria-label','Évolution du temps moyen par pesée. '+indicator.textContent);
   plotted.forEach((item,i)=>{
    const column=document.createElement('div');column.className='dashboard-trend-column';
-   const value=document.createElement('strong');value.textContent=`${values[i]} s`;
+   const value=document.createElement('strong');value.textContent=formatTrendDuration(values[i]);
    const track=document.createElement('div');track.className='dashboard-trend-track';
    const fill=document.createElement('div');fill.className='dashboard-trend-fill';fill.style.height=`${Math.max(5,values[i]/max*100)}%`;track.append(fill);
    const label=document.createElement('span');label.textContent=`N° ${i+1}`;
