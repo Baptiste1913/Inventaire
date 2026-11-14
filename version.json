@@ -1,7 +1,7 @@
 {
-  "version": "36.68",
-  "published": "2026-11-13",
+  "version": "36.69",
+  "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Refonte de la page Administrateur : vraie vue plein écran à défilement indépendant, bandeau et carte séparés reprenant les codes du mode Session en cours, commandes Retour et Actualiser. Le bloc d’accueil affiche un bouton Accéder aux réglages pleine largeur sous le titre, à la place de l’ancien bouton latéral. Animations de concentration conservées, protection Supabase prioritaire et correction du défilement des pesées intacte."
+  "notes": "Bouton « Accéder aux réglages » identique au bouton « Démarrer un inventaire » : mêmes classes, icône, taille, couleurs, relief et états tactiles. Page Administrateur : défilement naturel de Safari restauré au lieu du verrouillage html/body et d’un <details> à scroll interne. Entrée et sortie utilisant exactement le moteur de transition du mode concentration, avec deux surfaces (bandeau + carte) y compris à la fermeture. Données, autorisations Supabase, Mon compte et correctif des pesées conservés."
 }
