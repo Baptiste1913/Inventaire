@@ -1,7 +1,7 @@
 {
-  "version": "36.85",
+  "version": "36.86",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Correction de la zone blanche persistante dans les ouvertures et fermetures de Mon compte et Administrateur sur Safari iPhone. Abandon des captures View Transition de l'écran root, qui causaient des zones vides. Réutilisation du moteur de transition du mode concentration : captures natives des cartes visibles, du fond opaque et des en-têtes, même durée et courbe, bouton Retour séparé. Position d'accueil restaurée après fermeture, sans clones DOM et sans modifications des pesées ou de la synchronisation."
+  "notes": "Les boutons Retour des pages Mon compte et Administrateur utilisent maintenant exactement la fonction de sortie du mode Concentration (exitFocusWithoutSnapshot), avec la même animation de descente, le même flou, le fond opaque et le retour progressif des cartes d'accueil. Une copie des styles calculés (grilles, typographies, dimensions des SVG et photos) préserve la présentation des cartes Google et administrateur durant cette fermeture. L'ouverture reste inchangée. Défilement d'accueil, pesées, synchronisation cloud et cache PWA conservés."
 }
