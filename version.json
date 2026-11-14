@@ -1,7 +1,7 @@
 {
-  "version": "36.72",
+  "version": "36.73",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mon compte connecté : nouvelle carte de profil indépendante, placée entre Retour/Actualiser et le tableau de bord. Affiche la photo Google (ou avatar de remplacement), le nom, le fournisseur Google, l'adresse e-mail et la date de dernière sauvegarde en réutilisant les champs cloud existants. La page sans compte ne montre pas cette carte. Animation opaque de concentration étendue à trois cartes, Safari défilable et données/synchronisation inchangées."
+  "notes": "Mon compte : carte de profil plus aérée avec informations réparties en petites tuiles, plus d’espace avant le tableau de bord. Nouvelles données vérifiables depuis Supabase : date de création du compte dans l’application, dernière connexion et statut de synchronisation cloud en direct. E-mail et dernière sauvegarde conservés, photo/nom Google inchangés. Affichage adapté iPhone, données indisponibles signalées, mode local et animations opaques préservés."
 }
