@@ -244,9 +244,16 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
         <span class="iu-account-profile-provider"><img src="google-logo.png?v=32.0" width="14" height="14" alt="" aria-hidden="true"/> Compte connecté</span>
       </div>
     </div>
-    <div class="account-dashboard-identity iu-account-profile-details" aria-label="Informations et sauvegarde du compte">
-      <div class="account-dashboard-identity-row"><span>Adresse e-mail</span><strong id="accountIdentity"></strong></div>
-      <div class="account-dashboard-identity-row account-dashboard-backup-row"><span>Dernière sauvegarde</span><small id="cloudStatusDetail" class="account-dashboard-backup-detail">Vérification en cours…</small></div>
+    <div class="iu-account-profile-details-heading">
+      <strong>Informations du compte</strong>
+      <span>Profil et sauvegardes</span>
+    </div>
+    <div class="account-dashboard-identity iu-account-profile-details" aria-label="Informations et sauvegardes du compte">
+      <div class="account-dashboard-identity-row iu-account-profile-field iu-account-profile-email"><span>Adresse e-mail</span><strong id="accountIdentity"></strong></div>
+      <div class="account-dashboard-identity-row iu-account-profile-field"><span>Compte créé dans l’app</span><strong id="accountProfileCreatedAt">—</strong></div>
+      <div class="account-dashboard-identity-row iu-account-profile-field"><span>Dernière connexion</span><strong id="accountProfileLastSignIn">—</strong></div>
+      <div class="account-dashboard-identity-row account-dashboard-backup-row iu-account-profile-field"><span>Dernière sauvegarde</span><small id="cloudStatusDetail" class="account-dashboard-backup-detail">Vérification en cours…</small></div>
+      <div class="account-dashboard-identity-row iu-account-profile-field"><span>Synchronisation cloud</span><strong id="accountProfileSyncState" role="status">Vérification en cours…</strong></div>
       <div class="account-dashboard-hidden-state" hidden><span id="cloudStatusMain"></span><span id="cloudStatus" role="status"></span></div>
     </div>
   </section>
