@@ -1,7 +1,7 @@
 {
-  "version": "37.05",
+  "version": "37.06",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 989927,
-  "notes": "Mon compte : « Compte créé dans l’app » devient « Date de création » ; État du cloud « Synchronisé » affiche un texte noir et un voyant vert fixe à gauche, uniquement si la synchronisation est confirmée. Les durées de l’Évolution du rythme sont affichées en secondes sous 60 s, puis en minutes et secondes (et heures si nécessaire), sans altérer les calculs. Copies de récupération reprend le style exact d’Événements à venir ; fonctions de restauration et synchronisation conservées. Cache PWA actualisé."
+  "bytes": 991847,
+  "notes": "Mon compte / Évolution du rythme : les six temps moyens sont affichés sur une seule ligne au format hh:mm:ss (ex. 00:00:46, 00:02:29, 01:02:34), avec une petite légende « hh:mm:ss » dans le coin supérieur gauche et une typographie monospace compacte adaptée à Safari iPhone. Comparaisons et proportions des barres inchangées, tendance toujours à droite. Cache PWA actualisé."
 }
