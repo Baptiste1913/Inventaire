@@ -574,22 +574,38 @@ function changeFocusWithMotion(action,entering,config={}){
  // fondu translucide des captures. Le mode Concentration reste inchangé.
  if(config.solidDuringMotion)html.classList.add('iu-admin-solid-transition');
  focusTagViews(entering,'old',tagged,config);
- if(typeof document.startViewTransition==='function'){
+ // V36.79 — Si l'utilisateur avait fait défiler l'accueil avant
+ // d'ouvrir Admin/Mon compte, Safari peut capturer l'ancienne banderole
+ // avec un décalage vertical, puis la laisser visible à la place du fond.
+ // Dans ce cas précis, éviter la capture View Transition : on utilise
+ // directement les cartes réelles, sans toucher au mode Concentration.
+ const enteringFromScrolledHome=entering&&config.solidDuringMotion&&
+  Math.max(window.scrollY||0,document.scrollingElement?.scrollTop||0)>8;
+ if(!enteringFromScrolledHome&&typeof document.startViewTransition==='function'){
   try{
    const transition=document.startViewTransition(update);
    transition.finished.then(cleanup,cleanup);
   }catch(error){cleanup();action();}
   return;
  }
- // Repli sans View Transitions : une seule phase courte, sans cascade ni
- // deux animations séparées qui provoquent un saut à mi-parcours.
+ // Repli natif Web Animations : page immédiatement opaque, mouvement
+ // identique des cartes, sans ancienne capture décalée en Safari iOS.
  update();
+ if(enteringFromScrolledHome){
+  // Un seul rattrapage après la nouvelle mise en page. Ne pas surveiller
+  // le scroll de manière continue : l'utilisateur garde ses gestes libres.
+  requestAnimationFrame(()=>{
+   if(document.body.classList.contains(config.modeClass||'is-focus-mode')&&
+      window.scrollY>2)window.scrollTo({top:0,left:0,behavior:'instant'});
+  });
+ }
  const incoming=[...document.querySelectorAll(entering?(config.viewSelectors||focusViewSelectors):(config.normalSelectors||focusNormalSelectors))]
   .filter(focusVisible);
  const anims=incoming.map(el=>el.animate(
   [{transform:'translate3d(0,30px,0)',opacity:config.solidDuringMotion?1:.7},
    {transform:'translate3d(0,0,0)',opacity:1}],
-  {duration:420,delay:0,easing:'cubic-bezier(.38,0,.62,1)'}));
+  {duration:config.solidDuringMotion?610:420,delay:0,
+   easing:'cubic-bezier(.38,0,.62,1)'}));
  Promise.all(anims.map(a=>a.finished.catch(()=>{}))).then(cleanup,cleanup);
  if(!anims.length)cleanup();
 }
