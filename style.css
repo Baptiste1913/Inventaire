@@ -17317,3 +17317,97 @@ html.iu-page-cards::view-transition-group(iu-focus-1){
   animation-delay:0ms!important;
  }
 }
+
+/* V36.89 — Retours Admin / Compte : dimensions identiques et relief
+   exactement repris de « Accéder aux réglages », sans toucher au
+   moteur d'ouverture / fermeture ni au bouton d'origine. */
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav,
+html body.is-account-mode #accountCard .iu-page-internal-nav{
+  align-items:center!important;
+  justify-content:flex-start!important;
+  min-height:34px!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav,
+html body.is-account-mode #accountCard .iu-account-guest-nav{
+  margin-bottom:25px!important;
+}
+/* Le profil utilise déjà un gap de 12px en plus de sa marge de 13px.
+   25px sont donc visibles sur les deux écrans, sans déplacer son contenu. */
+html body.is-account-mode #accountCard .iu-account-profile-nav{
+  margin-bottom:13px!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back,
+html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back{
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  flex:0 0 92px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:92px!important;
+  min-width:92px!important;
+  max-width:92px!important;
+  min-height:34px!important;
+  height:34px!important;
+  gap:5px!important;
+  padding:6px 10px!important;
+  border:1px solid #d4dce2!important;
+  border-radius:14px!important;
+  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+  color:#28343d!important;
+  box-shadow:-3px -3px 7px rgba(255,255,255,.98),
+             -6px -6px 13px rgba(255,255,255,.60),
+              4px 5px 11px rgba(156,173,189,.35),
+              1px 2px 4px rgba(156,173,189,.18),
+              inset 1px 1px 0 rgba(255,255,255,.96)!important;
+  font-family:inherit!important;
+  font-size:13.5px!important;
+  font-weight:850!important;
+  line-height:1.25!important;
+  letter-spacing:.005em!important;
+  white-space:nowrap!important;
+  transform:translateY(0)!important;
+  transition:box-shadow .22s ease,background .22s ease,
+             border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+@media(hover:hover){
+  html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back:hover:not(:disabled),
+  html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back:hover:not(:disabled){
+    border-color:#cad4dc!important;
+    background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
+    box-shadow:-4px -4px 8px rgba(255,255,255,.98),
+               -7px -7px 14px rgba(255,255,255,.64),
+                5px 6px 13px rgba(156,173,189,.38),
+                2px 3px 5px rgba(156,173,189,.19),
+                inset 1px 1px 0 rgba(255,255,255,.97)!important;
+    transform:translateY(-1px)!important;
+  }
+}
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back:active:not(:disabled),
+html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back:active:not(:disabled){
+  border-color:#d1d9df!important;
+  background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+  box-shadow:inset 2px 3px 6px rgba(150,166,181,.24),
+             inset -2px -2px 5px rgba(255,255,255,.96),
+             1px 1px 3px rgba(156,173,189,.12)!important;
+  transform:translateY(1px) scale(.992)!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back:focus-visible,
+html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back:focus-visible{
+  outline:2px solid #8d9ca8!important;outline-offset:3px!important;
+}
+@media(max-width:430px){
+  /* Le profil a déjà 15px de gap : 13+15 = 28px au total. */
+  html body.is-admin-mode #planningAdminCard .iu-page-internal-nav,
+  html body.is-account-mode #accountCard .iu-account-guest-nav{
+    margin-bottom:28px!important;
+    margin-left:3px!important;
+    width:calc(100% - 3px)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > .iu-page-inline-back,
+  html body.is-account-mode #accountCard .iu-page-internal-nav > .iu-page-inline-back{
+    transform:none!important;transition:none!important;
+  }
+}
