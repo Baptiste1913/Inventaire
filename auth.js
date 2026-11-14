@@ -329,6 +329,19 @@ function render(){
  avatar.parentElement.classList.toggle('has-photo',validAvatar);
  if(validAvatar&&avatar.src!==avatarUrl)avatar.src=avatarUrl;
  else if(!validAvatar)avatar.removeAttribute('src');
+ // V36.72 : le profil au-dessus du tableau de bord utilise les mêmes
+ // informations Google, sans requête supplémentaire ni données doublées.
+ const profileCard=$('iuAccountProfileCard');
+ if(profileCard)profileCard.hidden=!user;
+ const profileName=$('accountPageProfileName');
+ if(profileName)profileName.textContent=user?name:'Mon compte';
+ const profileAvatar=$('accountPageAvatarImage');
+ if(profileAvatar){
+  profileAvatar.hidden=!validAvatar;
+  profileAvatar.parentElement.classList.toggle('has-photo',validAvatar);
+  if(validAvatar&&profileAvatar.src!==avatarUrl)profileAvatar.src=avatarUrl;
+  else if(!validAvatar)profileAvatar.removeAttribute('src');
+ }
  $('accountCard').title=user?'Ouvrir le compte de '+name:'Ouvrir les options de connexion';
  $('accountSignedOut').hidden=!!user;
  $('accountSignedIn').hidden=!user;
@@ -436,6 +449,7 @@ async function activateUser(u){
 }
 async function init(){render();const resetMessage=sessionStorage.getItem('inventaires-u-reset-message');if(resetMessage){feedback(resetMessage);sessionStorage.removeItem('inventaires-u-reset-message');}const logoutMessage=sessionStorage.getItem('inventaires-u-logout-feedback');if(logoutMessage){feedback(logoutMessage);sessionStorage.removeItem('inventaires-u-logout-feedback');}if(!configured()){feedback('Configure Supabase dans auth-config.js.');return;}try{const s=await sb();const {data:{user:u},error}=await s.auth.getUser();if(error&&!isMissingSession(error))throw error;if(await activateUser(u))return;if(user)await reconcile();s.auth.onAuthStateChange((event,session)=>{queueMicrotask(async()=>{try{const previous=user?accountId(user,activeProvider):null;if(await activateUser(session?.user||null))return;if(user&&accountId(user,activeProvider)!==previous){lastSynced=null;remoteBaseline=null;await reconcile();}}catch(e){feedback(e.message||'Changement de compte impossible.');}});});interval=setInterval(()=>{try{saveActive();localStatus('Enregistré sur cet appareil');}catch{localStatus('Stockage local indisponible');}if(user&&$('cloudConflict').hidden&&lastSynced!==serialize(snapshot()))reconcile();},12000);setInterval(()=>{if(user&&navigator.onLine&&$('cloudConflict').hidden)reconcile();},120000);window.addEventListener('online',()=>reconcile());document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)reconcile();});window.addEventListener('pagehide',()=>{try{saveActive();}catch{}});}catch(e){if(isMissingSession(e)){if(scopeId()!=='guest')switchWorkspace('guest');else{user=null;render();}return;}feedback(navigator.onLine?(e.message||'Authentification indisponible.'):'Mode hors ligne : pesées et données locales disponibles. La connexion Google reprendra avec Internet.');}}
 $('accountGoogle').addEventListener('click',()=>connect('google'));$('accountAvatarImage').addEventListener('error',()=>{const avatar=$('accountAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
+$('accountPageAvatarImage')?.addEventListener('error',()=>{const avatar=$('accountPageAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountLogout').addEventListener('click',logout);
 $('cloudKeepLocal').addEventListener('click',async()=>{if(!user||busy)return;busy=true;try{const remote=JSON.parse($('cloudConflict').dataset.payload);if(!preserveRecovery('cloud-avant-remplacement-local',snapshot())||!preserveRecovery('cloud-avant-remplacement-distant',remote))throw Error('Impossible de créer la copie de sécurité.');const current=await readRemote();if(serialize(current?.data)!==serialize(remote)){askConflict(current?.data);throw Error('Le cloud a encore changé. Vérifie les nouvelles données.');}remoteBaseline=remote;await upload(snapshot());$('cloudConflict').hidden=true;}catch(e){feedback(e.message);}finally{busy=false;}});
 $('cloudUseRemote').addEventListener('click',async()=>{try{if(busy)return;busy=true;const chosen=JSON.parse($('cloudConflict').dataset.payload);if(!preserveRecovery('cloud-avant-choix-distant',chosen))throw Error('Impossible de conserver la copie cloud.');const current=await readRemote();if(serialize(current?.data)!==serialize(chosen)){askConflict(current?.data);throw Error('Le cloud a changé depuis ton choix. Réessaie.');}remoteBaseline=chosen;restore(chosen);}catch(e){feedback(e.message);}finally{busy=false;}});
