@@ -1,7 +1,7 @@
 {
-  "version": "36.95",
+  "version": "36.96",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 964427,
-  "notes": "Nouveau logo U fourni appliqué sur iPhone, PWA, favoris, écrans de chargement et de mise à jour ; pastille Notifications sans indicateur rond ; graphique Évolution du rythme modernisé avec relief discret, mise en valeur du dernier inventaire et comparaison fiable des temps par pesée. Cache PWA renouvelé, fonctionnalités conservées."
+  "bytes": 967332,
+  "notes": "Supprime à la source l'indicateur gris de la pastille Activer et neutralise les anciens pseudo-éléments des états actif/inactif. Graphique Évolution du rythme entièrement monochrome (barres, rail, relief, tendance) avec plus d'espace sous le statut ; données, calculs, et animations conservés. Cache PWA actualisé."
 }
