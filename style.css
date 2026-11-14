@@ -18254,3 +18254,104 @@ html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actio
   transition:none!important;
  }
 }
+
+
+/* V37.01 — Déboggage devient une section ouverte, au même niveau
+   visuel que Planning et événements : titre non encadré, sous-titre et
+   commandes indépendantes, sans carte/tiroir externe. */
+html body.is-admin-mode #planningAdminCard .iu-admin-overview > #iuAdminDebugCategory.iu-admin-debug-section{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:7px 0 12px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ overflow:visible!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory > .iu-admin-planning-header{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ width:100%!important;
+ margin:0 0 12px!important;
+ padding:0!important;
+ border:0!important;
+ background:none!important;
+ box-shadow:none!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory > .iu-admin-planning-header h3{
+ margin:0 0 5px!important;
+ font-size:18px!important;
+ font-weight:850!important;
+ line-height:1.28!important;
+ color:#242a30!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory > .iu-admin-planning-header p{
+ margin:0!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ color:#6a727b!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .iu-admin-debug-options{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:10px!important;
+ width:100%!important;
+ min-width:0!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions{
+ display:flex!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions > button{
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex:1 1 100%!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+ width:100%!important;
+ min-width:0!important;
+ min-height:62px!important;
+ padding:14px 15px!important;
+ border:1px solid #dfe4e7!important;
+ border-radius:15px!important;
+ background:linear-gradient(150deg,#fff,#f7f9fa)!important;
+ color:#303940!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+ font-family:inherit!important;
+ font-size:12.5px!important;
+ font-weight:800!important;
+ line-height:1.35!important;
+ text-align:left!important;
+}
+/* Petits indicateurs actifs/inactifs repris de l'État des services,
+   toujours fixes, et pilotés par les aria-pressed existants. */
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions > button::after{
+ content:""!important;
+ display:block!important;
+ flex:0 0 8px!important;
+ width:8px!important;
+ height:8px!important;
+ min-width:8px!important;
+ border:0!important;
+ border-radius:50%!important;
+ background:#a1a7ae!important;
+ box-shadow:0 0 0 3px rgba(150,157,165,.12)!important;
+ opacity:1!important;
+ transform:none!important;
+ transition:none!important;
+ animation:none!important;
+ pointer-events:none!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions > button[aria-pressed="true"]::after{
+ background:#2ac78f!important;
+ box-shadow:0 0 0 3px rgba(42,199,143,.13),0 0 9px rgba(42,199,143,.32)!important;
+}
