@@ -1,7 +1,7 @@
 {
-  "version": "37.12",
+  "version": "37.13",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1066231,
-  "notes": "Calendrier simplifié pour afficher uniquement les inventaires (issus des dates d'inventaire) et les opérations 10 % POUVOIR D'ACHAT (issues du planning Supabase). Un point vert représente l'inventaire et un trait bleu représente la période 10 % ; les deux catégories sont rappelées par une légende et leurs pastilles dans la liste. Les autres événements restent dans les données d'origine et les notifications ne changent pas. Accueil : la pastille Activer/Activées est à droite et centrée sur le titre SERVICE U / ÉVÉNEMENT et Événements en [mois]. Le cadre Prochain inventaire retrouve son aspect classique, avec la date et le compte à rebours, directement au-dessus du bouton Accéder aux événements. Navigation, animations de page et mode hors connexion conservés."
+  "bytes": 1076365,
+  "notes": "Page Événements : le calendrier et l'agenda principal restent réservés aux inventaires et aux opérations 10 % Pouvoir d’achat. Toutes les autres opérations du mois réapparaissent sous « Autres événements » dans un tiroir distinct, animé comme les autres, avec leurs dates et états, sans modifier le planning Supabase. La date du prochain inventaire sur l'accueil retrouve sa taille d'origine (19–25 px). Suppression des lignes séparatrices sous Date sélectionnée et Agenda de [mois]. Les périodes bleues de 10 % disposent désormais d’un calque continu au-dessus des cases du calendrier pour éviter les coupures lors de la sélection, sans bloquer les clics. Cache PWA mis à jour."
 }
