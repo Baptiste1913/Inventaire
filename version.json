@@ -1,7 +1,7 @@
 {
-  "version": "36.91",
+  "version": "36.92",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 831397,
-  "notes": "Pastille Connecté monochrome avec logo Google à gauche, identique sur l'accueil et dans Mon compte. Le nom du profil est agrandi et aligné sur le centre du cercle de la photo ; PROFIL GOOGLE est agrandi et conserve son alignement supérieur. Animations et corrections Retour, inventaires, authentification et synchronisation conservés. Cache PWA renouvelé."
+  "bytes": 840097,
+  "notes": "Profil Google réorganisé en Informations du compte et Sauvegarde et synchronisation. Date de dernière synchronisation confirmée, modifications locales en attente, nombre d'inventaires et pesées de la dernière copie cloud confirmée, état de session Google et bouton Synchroniser maintenant uniquement en cas de besoin. Aucun décompte inventé, protections conflits/compte Google et fonctions d'inventaire préservées. Cache PWA renouvelé."
 }
