@@ -1,7 +1,7 @@
 {
-  "version": "37.07",
+  "version": "37.08",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 997207,
-  "notes": "Le tiroir « Événements à venir » est supprimé : mois, événement principal (état, titre, période) et bouton « Voir les X autres événements » apparaissent directement dans la carte Événements. Les pastilles En cours et À venir reprennent exactement les couleurs, dimensions, bordures et reliefs des états Activées et Activer des notifications, sans animation. Chargement Supabase et animation des autres événements inchangés ; cache PWA actualisé."
+  "bytes": 1000915,
+  "notes": "Le bandeau Événements devient « Inventaire » avec sous-titre « Prochaine date d’inventaire prévue ». Nouveau titre « Événements en [mois] » calculé automatiquement avec sous-titre « Liste de tous les événements en cours ou à venir ce mois-ci. ». Les pastilles En cours/À venir sont réduites à 30 px et positionnées à droite, centrées sur le bloc titre et dates de chaque événement. Autres événements et synchronisation conservés ; cache PWA actualisé."
 }
