@@ -1,7 +1,7 @@
 {
-  "version": "36.75",
+  "version": "36.76",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "En-têtes Mon compte et Administrateur simplifiés : bouton Retour uniquement. L'action Actualiser d'État des services reste dans sa rubrique. Synchronisation automatique Google/Supabase vérifiée toutes les minutes en fonctionnement, modifications détectées toutes les 12 s, reprise au retour dans l'app, après reconnexion réseau et au premier plan. Vérifications de conflit, stockage local et séparation des comptes préservés ; aucune synchronisation pendant la fermeture de l'app iOS."
+  "notes": "Suppression des bandeaux supérieurs dans Mon compte et Administrateur. Petit bouton Retour monochrome intégré en haut à droite de la carte profil Google (à côté du nom), dans la carte de connexion en mode local, et en tête de la carte de réglages administrateur. Fond opaque, animations de concentration et défilement Safari conservés. Actualisation manuelle d’État des services et synchronisation automatique régulière conservées."
 }
