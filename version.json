@@ -1,7 +1,7 @@
 {
-  "version": "37.20",
+  "version": "37.21",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1088307,
-  "notes": "Essai du bouton Démarrer un inventaire en noir profond avec libellé blanc. Le pictogramme PNG Play est remplacé par le caractère « ▷ » (masqué aux lecteurs d’écran). Les dimensions, le liseré, les ombres et le relief de v37.19, ainsi que les effets au toucher, sont conservés. Le fond reste noir aux états repos, survol, focus et appui. La pastille Notifications à 32 px et les fonctionnalités métier ne changent pas. Cache PWA actualisé."
+  "bytes": 1088823,
+  "notes": "Bouton « Démarrer un inventaire » revenu exactement au contenu et à la surface de la version 37.17, avec son icône Play originale. Ajout d'une bordure #007583 de 2 px et d'une forme dégradée horizontale #53C0E9 → #64B9AE, dépassant de 4 px autour de chacun des côtés sans recouvrir le fond gris perle. Les dimensions, les ombres, les interactions de session et la pastille Notifications à 32 px sont conservées. Cache PWA renouvelé."
 }
