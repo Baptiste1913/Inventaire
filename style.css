@@ -20449,15 +20449,59 @@ html body.is-events-mode #eventsPage #eventsOtherPanel .iu-events-other-state.is
 }
 
 
-/* V37.14 — Opérations 10 % en rouge, y compris la carte principale
-   et son délai. L'inventaire conserve son vert distinct. */
-html body.is-events-mode #eventsPage .iu-events-feature-state.is-purchase{
+/* V37.15 — Le rouge appartient uniquement à une opération 10 %
+   réellement EN COURS. Avant son début, le statut et le compte à rebours
+   retrouvent leur gris monochrome d'origine (règles génériques ci-dessus). */
+html body.is-events-mode #eventsPage .iu-events-feature-state.is-purchase.is-live{
  border-color:#ecc6c6!important;
  background:linear-gradient(145deg,#fff3f3,#fbe4e4)!important;
  color:#963739!important;
 }
-html body.is-events-mode #eventsPage #eventsFeatureCountdown.iu-events-feature-countdown.is-purchase:not([hidden]){
+html body.is-events-mode #eventsPage #eventsFeatureCountdown.iu-events-feature-countdown.is-purchase.is-live:not([hidden]){
  border-color:#ecc6c6!important;
  background:linear-gradient(150deg,#fff6f6,#fbe7e7)!important;
  color:#963739!important;
+}
+
+
+/* V37.15 — Aujourd'hui : un seul repère graphite, discret et animé.
+   La sélection garde son contour propre, sans masquer les traits 10 %. */
+html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day.is-today{
+ border:1.5px solid #9da9b2!important;
+ background:linear-gradient(160deg,#fff,#f4f6f7)!important;
+ color:#34424c!important;
+ box-shadow:0 0 0 1px rgba(112,126,139,.12),inset 0 1px 0 rgba(255,255,255,.96)!important;
+ font-weight:850!important;
+}
+html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day.is-today.is-selected{
+ border-color:#617788!important;
+ background:#edf1f4!important;
+ color:#2e3b46!important;
+ box-shadow:0 0 0 2px rgba(112,126,139,.19),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day.is-today::after{
+ content:""!important;
+ position:absolute!important;
+ display:block!important;
+ z-index:4!important;
+ top:6px!important;
+ left:6px!important;
+ width:6px!important;
+ height:6px!important;
+ border-radius:50%!important;
+ background:#778692!important;
+ box-shadow:0 0 0 2px rgba(119,134,146,.13)!important;
+ opacity:.85!important;
+ pointer-events:none!important;
+ animation:iu-today-dot-soft 3.6s ease-in-out infinite!important;
+}
+@keyframes iu-today-dot-soft{
+ 0%,100%{opacity:.78;box-shadow:0 0 0 2px rgba(119,134,146,.12);}
+ 50%{opacity:1;box-shadow:0 0 0 4px rgba(119,134,146,.055);}
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day.is-today::after{
+  animation:none!important;
+  opacity:.85!important;
+ }
 }
