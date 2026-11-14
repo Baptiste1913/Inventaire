@@ -20860,11 +20860,11 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  position:relative!important;
  isolation:isolate!important;
  display:inline-flex!important;
- flex:0 1 248px!important;
+ flex:1 1 100%!important;
  align-items:center!important;
  justify-content:center!important;
  box-sizing:border-box!important;
- width:min(248px,100%)!important;
+ width:100%!important;
  min-width:0!important;
  max-width:100%!important;
  height:55px!important;
@@ -20933,19 +20933,14 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  pointer-events:none!important;
  transition:box-shadow .22s ease,background .22s ease!important;
 }
-/* Forme dégradée extérieure : même épaisseur, mêmes ombres que v37.25. */
+/* Forme dégradée extérieure, sans aucun effet de lumière ni d’ombre. */
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-gradient{
  inset:0!important;
  width:100%!important;
  height:100%!important;
  border-radius:14px!important;
  background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
- box-shadow:
-  -3px -3px 7px rgba(255,255,255,.98),
-  -6px -6px 13px rgba(255,255,255,.60),
-   4px 5px 11px rgba(91,148,155,.28),
-   1px 2px 4px rgba(72,126,136,.17),
-   inset 0 1px 0 rgba(255,255,255,.48)!important;
+ box-shadow:none!important;
  z-index:0!important;
 }
 /* Centre gris perle avec le liseré turquoise, sans ombre propre. */
@@ -21021,12 +21016,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
   transform:translateY(-1px)!important;
  }
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:hover:not(:disabled) > .hero-start-gradient{
-  box-shadow:
-   -4px -4px 8px rgba(255,255,255,.98),
-   -7px -7px 14px rgba(255,255,255,.64),
-    5px 6px 13px rgba(91,148,155,.31),
-    2px 3px 5px rgba(72,126,136,.18),
-    inset 0 1px 0 rgba(255,255,255,.5)!important;
+  box-shadow:none!important;
  }
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:hover:not(:disabled) > .hero-start-surface{
   background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
@@ -21036,10 +21026,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  transform:translateY(1px)!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:active:not(:disabled) > .hero-start-gradient{
- box-shadow:
-  -2px -2px 5px rgba(255,255,255,.88),
-   2px 3px 7px rgba(91,148,155,.19),
-   inset 0 1px 0 rgba(255,255,255,.32)!important;
+ box-shadow:none!important;
 }
 html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:active:not(:disabled) > .hero-start-surface{
  background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
@@ -21051,7 +21038,7 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 @media(max-width:380px){
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible){
-  width:min(248px,100%)!important;
+  width:100%!important;
   min-width:0!important;
   max-width:100%!important;
   height:55px!important;
@@ -21063,5 +21050,42 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-layer{
   transition:none!important;
+ }
+}
+
+
+/* V37.28 — Largeur identique à l'action de Ma session : tout l'espace
+   horizontal disponible. Le bouton est rapproché du bord inférieur,
+   sans ombre ou halo ajoutés (même au toucher). */
+html body .app > section.intro{
+ padding-bottom:8px!important;
+}
+html body .app > section.intro .intro-bottom{
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ width:100%!important;
+ max-width:100%!important;
+ margin-bottom:0!important;
+ padding-bottom:0!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
+ flex:1 1 auto!important;
+ align-self:stretch!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ box-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-gradient,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:active,:focus,:focus-visible) > .hero-start-gradient{
+ box-shadow:none!important;
+ filter:none!important;
+}
+@media(max-width:380px){
+ html body .app > section.intro{
+  padding-bottom:8px!important;
  }
 }
