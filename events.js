@@ -185,31 +185,35 @@ function renderPage(){
   });
   grid.append(button);
  }
- // Un seul tracé rouge par plage continue de jours 10 %.
- // Les zones sont des éléments IN-FLOW de la grille CSS, superposés aux
- // dates via grid-column/grid-row : contrairement au positionnement absolu,
- // Safari calcule correctement la largeur et la ligne lors d'une sélection.
- // Les dates hors du mois affiché ne dessinent aucune barre.
- const gridStart=new Date(y,m,1-offset,12);
+ // Une couche unique pour toutes les périodes 10 %. Elle ne participe
+ // pas au placement des cases et reste toujours AU-DESSUS de la sélection.
+ // Cela évite sur Safari les deux rendus superposés et les segments coupés.
+ const gridOverlay=document.createElement('div');
+ gridOverlay.className='iu-events-week-overlay';
+ gridOverlay.setAttribute('aria-hidden','true');
+ gridOverlay.style.setProperty('--iu-calendar-weeks',String(cells/7));
  const purchaseDays=Array.from({length:cells},(_,i)=>{
   const d=new Date(y,m,1-offset+i,12);
+  // Les jours du mois précédent/suivant ne portent pas de trait : leur
+  // opération apparaîtra quand l'utilisateur affichera leur propre mois.
   return d.getMonth()===m&&events.some(e=>e.kind==='purchase'&&intersects(e,d,d));
  });
+ let barCount=0;
  for(let week=0;week<cells/7;week++){
-  let col=0;
-  while(col<7){
+  for(let col=0;col<7;){
    if(!purchaseDays[week*7+col]){col++;continue;}
-   const begin=col;
+   const from=col;
    while(col<7&&purchaseDays[week*7+col])col++;
    const bar=document.createElement('span');
    bar.className='iu-events-week-bar';
-   bar.setAttribute('aria-hidden','true');
-   bar.style.gridColumn=(begin+1)+' / '+(col+1);
+   bar.style.gridColumn=(from+1)+' / '+(col+1);
    bar.style.gridRow=String(week+1);
    bar.style.setProperty('--iu-event-accent',TYPE_COLORS.purchase);
-   grid.append(bar);
+   gridOverlay.append(bar);
+   barCount++;
   }
  }
+ if(barCount)grid.append(gridOverlay);
  const selected=date(selectedKey);
  $('eventsSelectedDate').textContent=cap(long.format(selected));
  const dayEvents=sorted(events.filter(e=>intersects(e,selected,selected)));
