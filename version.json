@@ -1,7 +1,7 @@
 {
-  "version": "37.30",
+  "version": "37.31",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1106024,
-  "notes": "Banderole Fruits et Légumes : mascotte pastèque réduite de 35 % par rapport à la version 37.29 (desktop 150,8–182 px, mobile 153,4 px, petit mobile 143 px) et repositionnée sur son ancrage d'origine en bas à droite (avant agrandissement). Bouton d'inventaire réduit de 25 % en largeur et en hauteur (75 % de largeur, hauteur 41,25 px) et aligné à gauche, en conservant son dégradé #53C0E9 → #64B9AE, son liseré #007583, sans ombres. Ajustement du texte sur petits écrans, fonctions d'inventaire inchangées. Cache PWA actualisé."
+  "bytes": 1106898,
+  "notes": "Bouton d'inventaire de la banderole réduit de 25 % supplémentaires en largeur : il passe de 75 % à 56,25 % de la largeur du conteneur, tout en restant aligné à gauche. Sa hauteur reste 41,25 px. Espacement, icône et taille du texte sont légèrement adaptés sur petits écrans pour éviter la coupure du libellé. Pastèque, couleurs, dégradé, contour, fonctions de session et absence d'ombres inchangés. Cache PWA actualisé."
 }
