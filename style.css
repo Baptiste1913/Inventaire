@@ -20729,7 +20729,7 @@ html body:not(.is-focus-mode):not(.is-events-mode) .app > #inventoryCalendar.eve
 
 /* V37.21 — Bouton de la version 37.17 intégralement restauré.
    1) contour intérieur de 2 px (#007583), toujours visible au toucher ;
-   2) forme dégradée indépendante, qui dépasse de 3 px sur CHAQUE côté.
+   2) forme dégradée indépendante, qui dépasse de 2,5 px sur CHAQUE côté.
    La surface gris perle, le texte graphite, l'icône Play, les dimensions,
    les ombres et le comportement au toucher de v37.17 sont conservés. */
 html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]){
@@ -20747,10 +20747,10 @@ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #star
 html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::before{
  content:""!important;
  position:absolute!important;
- inset:-3px!important;
+ inset:-2.5px!important;
  box-sizing:border-box!important;
- border-radius:17px!important;
- padding:3px!important;
+ border-radius:16.5px!important;
+ padding:2.5px!important;
  background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
  -webkit-mask-composite:xor!important;
