@@ -1,7 +1,7 @@
 {
-  "version": "36.69",
+  "version": "36.70",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Bouton « Accéder aux réglages » identique au bouton « Démarrer un inventaire » : mêmes classes, icône, taille, couleurs, relief et états tactiles. Page Administrateur : défilement naturel de Safari restauré au lieu du verrouillage html/body et d’un <details> à scroll interne. Entrée et sortie utilisant exactement le moteur de transition du mode concentration, avec deux surfaces (bandeau + carte) y compris à la fermeture. Données, autorisations Supabase, Mon compte et correctif des pesées conservés."
+  "notes": "Réglages administrateur : ancienne flèche du bouton Accéder aux réglages restaurée. Transition de page opaque dès la première image grâce à un fond plein écran indépendant des captures View Transitions, sans modifier les animations de concentration. En-tête réduit au seul titre Réglages administrateur et boutons Retour / Actualiser monochromes, avec marge inférieure. Défilement naturel iPhone, contrôles Supabase et pesées préservés."
 }
