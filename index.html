@@ -313,28 +313,51 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   </div>
 </details>
 <section class="inventory-calendar card events-card" id="inventoryCalendar" aria-labelledby="calendarHeading">
-  <header class="events-static-header"><div class="events-header-title"><span class="section-kicker">SERVICES U / PLANIFICATION</span><strong id="calendarHeading">Inventaire</strong><small class="events-header-subtitle">Prochaine date d’inventaire prévue</small></div><button type="button" id="pushToggle" class="events-bell" aria-label="Activer les notifications" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="events-bell-label">Activer</span></button></header>
-  <div class="events-static-content">
-    
-    <p id="pushStatus" class="events-push-status" role="status" aria-live="polite"></p>
-    <div class="events-info-box events-next-card"><div class="events-next-heading"><span class="events-kicker">PROCHAIN INVENTAIRE</span><span class="events-countdown" id="calendarNextCountdown" hidden></span></div><strong id="calendarNextDate">Chargement…</strong></div>
-    <section class="events-month-preview" aria-label="Événements du mois">
-      <div class="events-month-content">
-        <header class="events-month-heading">
-          <h3 id="eventsMonthHeading">Événements en novembre</h3>
-          <p class="events-month-subtitle">Liste de tous les événements en cours ou à venir ce mois-ci.</p>
-        </header>
-        <div class="events-unified-list" id="eventsUnifiedList">
-          <div id="eventsFirst"></div>
-          <button type="button" id="eventsMoreButton" class="events-more events-more-inline" aria-label="Afficher ou masquer les autres événements" hidden aria-expanded="false" aria-controls="eventsMoreList">
-            <span id="eventsMoreLabel"></span>
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-          </button>
-          <div id="eventsMoreList" class="events-more-list" hidden></div>
-        </div>
-      </div>
-    </section>
+ <div class="events-static-content">
+  <p id="pushStatus" class="events-push-status" role="status" aria-live="polite"></p>
+  <div class="events-info-box events-next-card">
+   <div class="events-next-heading">
+    <span class="events-kicker" id="calendarHeading">PROCHAIN INVENTAIRE</span>
+    <button type="button" id="pushToggle" class="events-bell" aria-label="Activer les notifications" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="events-bell-label">Activer</span></button>
+   </div>
+   <div class="events-next-date-line"><strong id="calendarNextDate">Chargement…</strong><span class="events-countdown" id="calendarNextCountdown" hidden></span></div>
   </div>
+  <section class="events-month-preview" aria-labelledby="eventsMonthHeading">
+   <div class="events-month-content">
+    <header class="events-month-heading">
+     <h3 id="eventsMonthHeading">Événements en novembre</h3>
+     <p class="events-month-subtitle">Liste de tous les événements en cours ou à venir ce mois-ci.</p>
+    </header>
+    <button type="button" id="eventsOpenPage" class="events-access-button" aria-controls="eventsPage"><span>Accéder aux événements</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+   </div>
+  </section>
+ </div>
+</section>
+<section id="eventsPage" class="card iu-events-page" aria-labelledby="eventsPageHeading" hidden>
+ <div class="iu-events-opaque-backdrop" aria-hidden="true"></div>
+ <div class="iu-events-page-inner">
+  <nav class="iu-page-internal-nav iu-events-page-nav" aria-label="Retour à l’accueil depuis les événements"><button type="button" id="iuEventsReturn" class="iu-page-inline-back" aria-label="Retour à l’accueil"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button></nav>
+  <header class="iu-events-page-heading"><span class="section-kicker">SERVICES U / PLANIFICATION</span><h2 id="eventsPageHeading">Événements</h2><p>Retrouvez les opérations commerciales, leurs dates et votre calendrier.</p></header>
+  <section class="iu-events-feature" aria-labelledby="eventsFeatureHeading">
+   <div class="iu-events-feature-caption"><span class="section-kicker">À LA UNE</span><span class="iu-events-feature-hint" id="eventsFeatureHint">Prochain événement</span></div>
+   <div class="iu-events-feature-main"><div class="iu-events-feature-copy"><h3 id="eventsFeatureHeading">Chargement des événements…</h3><p id="eventsFeaturePeriod"></p></div><span class="iu-events-feature-state" id="eventsFeatureState" hidden>À venir</span></div>
+  </section>
+  <section class="iu-events-calendar-panel" aria-labelledby="eventsCalendarTitle">
+   <div class="iu-events-calendar-top">
+    <div class="iu-events-calendar-heading"><span class="section-kicker">CALENDRIER</span><h3 id="eventsCalendarTitle">Novembre 2026</h3><p id="eventsCalendarSummary">Événements du mois</p></div>
+    <nav class="iu-events-calendar-controls" aria-label="Navigation dans le calendrier">
+     <button type="button" id="eventsCalendarPrevious" aria-label="Mois précédent" title="Mois précédent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+     <button type="button" id="eventsCalendarToday">Aujourd’hui</button>
+     <button type="button" id="eventsCalendarNext" aria-label="Mois suivant" title="Mois suivant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    </nav>
+   </div>
+   <div class="iu-events-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div>
+   <div id="eventsCalendarGrid" class="iu-events-calendar-grid" role="group" aria-label="Dates des événements"></div>
+   <div class="iu-events-calendar-legend"><span><i class="iu-events-legend-dot is-live" aria-hidden="true"></i>En cours</span><span><i class="iu-events-legend-dot" aria-hidden="true"></i>À venir</span><span class="iu-events-legend-help">Touchez une date pour voir ses événements</span></div>
+  </section>
+  <section class="iu-events-day-panel" aria-labelledby="eventsSelectedDate"><header class="iu-events-section-heading"><div><span class="section-kicker">DATE SÉLECTIONNÉE</span><h3 id="eventsSelectedDate">Aujourd’hui</h3></div><span class="iu-events-count" id="eventsSelectedCount">0 événement</span></header><div id="eventsSelectedList" class="iu-events-day-list" aria-live="polite"></div></section>
+  <section class="iu-events-agenda-panel" aria-labelledby="eventsAgendaHeading"><header class="iu-events-section-heading"><div><span class="section-kicker">AGENDA</span><h3 id="eventsAgendaHeading">Événements du mois</h3></div><span class="iu-events-count" id="eventsAgendaCount">0 événement</span></header><div id="eventsAgendaList" class="iu-events-agenda-list"></div></section>
+ </div>
 </section>
 <dialog id="planningConfirmDialog" class="planning-confirm-dialog" aria-labelledby="planningConfirmTitle" aria-describedby="planningConfirmText">
  <div class="planning-confirm-inner">
