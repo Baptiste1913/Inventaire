@@ -425,6 +425,59 @@ function focusTagViews(entering,phase,tagged,config={}){
    à leurs coordonnées réelles plutôt que les snapshots View Transitions.
    Ces snapshots pouvaient prendre la largeur de l'état Concentration et
    déplacer tout l'accueil vers la droite. Durée/courbe/flou INCHANGÉS. */
+/* V36.86 — Copie VISUELLE des styles calculés avant la sortie.
+   Le moteur « Quitter » clone ses cartes dans une surface fixe. Sur
+   Compte/Admin, ces cartes dépendent de sélecteurs liés à leur parent :
+   reproduire les valeurs calculées empêche les énormes icônes SVG et
+   les cartes déstructurées, sans reconstituer ni modifier leurs données. */
+const iuExitVisualProperties=[
+ 'display','box-sizing','position','inset','top','right','bottom','left',
+ 'flex','flex-grow','flex-shrink','flex-basis','flex-direction','flex-wrap',
+ 'align-items','align-self','align-content','justify-content','gap',
+ 'row-gap','column-gap','grid-template-columns','grid-template-rows',
+ 'grid-auto-flow','grid-column','grid-row','order',
+ 'width','height','min-width','max-width','min-height','max-height',
+ 'margin','padding','overflow','overflow-x','overflow-y',
+ 'border','border-width','border-style','border-color','border-radius',
+ 'background','background-color','background-image','background-size',
+ 'background-position','background-repeat','box-shadow',
+ 'color','font-family','font-size','font-weight','font-style',
+ 'line-height','letter-spacing','text-align','text-transform',
+ 'text-decoration','white-space','word-break','overflow-wrap',
+ 'text-overflow','vertical-align','opacity','visibility',
+ 'object-fit','object-position','fill','stroke','stroke-width',
+ 'stroke-linecap','stroke-linejoin','stroke-dasharray',
+ 'filter','clip-path','aspect-ratio','align-self','place-items'
+];
+function iuPreserveExitVisual(source,copy){
+ const orig=[source,...source.querySelectorAll('*')];
+ const cloned=[copy,...copy.querySelectorAll('*')];
+ // Toutes les lectures sont regroupées avant toute écriture : aucune
+ // alternance lecture/écriture pendant le départ de l'animation Safari.
+ const captures=orig.map((el,i)=>{
+  const style=getComputedStyle(el);
+  const props=iuExitVisualProperties
+   .filter(p=>i!==0||!['opacity','filter'].includes(p))
+   .map(p=>[p,style.getPropertyValue(p)])
+   .filter(pair=>Boolean(pair[1]));
+  const media=/^(svg|img|video|canvas)$/i.test(el.tagName);
+  const rect=media?el.getBoundingClientRect():null;
+  return {props,rect,tag:el.tagName};
+ });
+ for(let i=0;i<captures.length&&i<cloned.length;i++){
+  const {props,rect,tag}=captures[i],el=cloned[i];
+  for(const [prop,value] of props)el.style.setProperty(prop,value,'important');
+  // Une icône dépendant d'un parent ne doit jamais se dilater quand elle
+  // entre dans la couche fixe de l'animation.
+  if(rect&&rect.width>0&&rect.height>0){
+   el.style.setProperty('width',rect.width+'px','important');
+   el.style.setProperty('height',rect.height+'px','important');
+  }
+  if(tag?.toLowerCase()==='canvas'){
+   try{el.getContext('2d')?.drawImage(orig[i],0,0);}catch{}
+  }
+ }
+}
 function exitFocusWithoutSnapshot(action,config={}){
  const duration=610;
  const easing='cubic-bezier(.16,.84,.24,1)';
@@ -440,11 +493,14 @@ function exitFocusWithoutSnapshot(action,config={}){
   const rect=node.getBoundingClientRect();
   const computed=getComputedStyle(node);
   const clone=node.cloneNode(true);
+  if(config.preservePageCloneStyles)iuPreserveExitVisual(node,clone);
   clone.removeAttribute('id');
   clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
   clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
   clone.style.setProperty('position','absolute','important');
-  clone.style.setProperty('display','block','important');
+  clone.style.setProperty('display',
+   config.preservePageCloneStyles?getComputedStyle(node).display:'block',
+   'important');
   clone.style.setProperty('left',rect.left+'px','important');
   clone.style.setProperty('top',rect.top+'px','important');
   clone.style.setProperty('width',rect.width+'px','important');
@@ -452,6 +508,8 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.style.setProperty('max-width','none','important');
   clone.style.setProperty('margin','0','important');
   clone.style.setProperty('box-sizing','border-box','important');
+  // Les éléments quittant Mon compte/Administrateur sont déjà stylés
+  // intégralement ; le parent du clone n'existe plus dans l'overlay.
   clone.style.setProperty('background',computed.background,'important');
   clone.style.setProperty('box-shadow',computed.boxShadow,'important');
   clone.style.setProperty('border',computed.border,'important');
@@ -626,7 +684,14 @@ function changeFocusWithMotion(action,entering,config={}){
  if((entering&&before)||(!entering&&!before)){action();return;}
  // Pages séparées : pas de captures View Transition ni de copie
  // des cartes. Le moteur Concentration conserve son comportement existant.
- if(config.solidDuringMotion&&typeof Element.prototype.animate==='function'){
+ // Le bouton Retour appelle désormais EXACTEMENT la même fonction
+ // que Pause/Quitter en concentration. Les styles des panneaux sont
+ // conservés dans les copies du moteur pour Safari iPhone.
+ if(!entering&&config.solidDuringMotion&&typeof Element.prototype.animate==='function'){
+  exitFocusWithoutSnapshot(action,{...config,preservePageCloneStyles:true});
+  return;
+ }
+ if(entering&&config.solidDuringMotion&&typeof Element.prototype.animate==='function'){
   iuAnimateStandalonePage(action,entering,config);
   return;
  }
