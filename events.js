@@ -71,6 +71,18 @@ function fillRows(container,rows,now,empty,accent){
  }
  for(const e of sorted(rows))container.append(makeEventRow(e,now,accent(e)));
 }
+function makeOtherRow(e,now){
+ const row=document.createElement('article');
+ row.className='iu-events-list-row iu-events-other-row';
+ const main=document.createElement('div');main.className='iu-events-list-main';
+ const name=document.createElement('strong');name.textContent=e.title;
+ const period=document.createElement('span');period.textContent=datePeriod(e);
+ const [status,cls]=eventStatus(e,now);
+ const pill=document.createElement('span');pill.className='iu-events-row-state iu-events-other-state '+cls;
+ pill.textContent=status;
+ main.append(name,period);row.append(main,pill);
+ return row;
+}
 function renderPage(){
  if(!$('eventsCalendarGrid'))return;
  const now=today(),events=calendarItems(latestData);
@@ -172,12 +184,50 @@ function renderPage(){
   });
   grid.append(button);
  }
+ // Une barre autonome, placée SUR la grille et non sous le fond d'un bouton.
+ // Même après avoir sélectionné un jour, la période bleue reste d'un seul
+ // tenant : la sélection ne peut plus cacher le raccord entre deux cases.
+ const gridStart=new Date(y,m,1-offset,12);
+ const gridEnd=new Date(y,m,1-offset+cells-1,12);
+ for(const e of events.filter(e=>e.kind==='purchase'&&intersects(e,gridStart,gridEnd))){
+  const begin=Math.max(0,daysBetween(gridStart,date(e.start)));
+  const finish=Math.min(cells-1,daysBetween(gridStart,eventEnd(e)));
+  if(finish<begin)continue;
+  for(let week=Math.floor(begin/7);week<=Math.floor(finish/7);week++){
+   const colStart=Math.max(begin,week*7)-week*7+1;
+   const colEnd=Math.min(finish,week*7+6)-week*7+2;
+   const bar=document.createElement('span');
+   bar.className='iu-events-week-bar';
+   bar.setAttribute('aria-hidden','true');
+   bar.style.gridColumn=colStart+' / '+colEnd;
+   bar.style.gridRow=String(week+1);
+   bar.style.setProperty('--iu-event-accent',accent(e));
+   grid.append(bar);
+  }
+ }
  const selected=date(selectedKey);
  $('eventsSelectedDate').textContent=cap(long.format(selected));
  const dayEvents=sorted(events.filter(e=>intersects(e,selected,selected)));
  $('eventsSelectedCount').textContent=countLabel(dayEvents.length);
  fillRows($('eventsSelectedList'),dayEvents,now,'Aucun inventaire ni opération 10 % pour cette date.',accent);
  fillRows($('eventsAgendaList'),monthEvents,now,'Aucun inventaire ni opération 10 % prévu ce mois-ci.',accent);
+
+ // Les autres opérations ne sont pas perdues : elles restent accessibles
+ // dans leur propre volet, sans apparaître sur la grille prioritaire.
+ const others=sorted(usable(latestData.events).filter(e=>!powerPurchase(e)&&intersects(e,first,last)));
+ const otherCount=$('eventsOtherCount'),otherSubtitle=$('eventsOtherSubtitle'),otherList=$('eventsOtherList');
+ if(otherCount)otherCount.textContent=countLabel(others.length);
+ if(otherSubtitle)otherSubtitle.textContent='Autres opérations en '+month.format(first);
+ if(otherList){
+  otherList.replaceChildren();
+  if(!others.length){
+   const empty=document.createElement('p');empty.className='iu-events-empty';
+   empty.textContent='Aucun autre événement prévu pour ce mois.';
+   otherList.append(empty);
+  }else{
+   for(const e of others)otherList.append(makeOtherRow(e,now));
+  }
+ }
 }
 function preparePage(){
  if(firstOpen){
