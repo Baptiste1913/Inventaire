@@ -545,13 +545,14 @@ function exitFocusWithoutSnapshot(action,config={}){
    perd les sélecteurs CSS, grossit les SVG et affiche l'ancien accueil.
    La page réelle reste montée/opaque jusqu'à la FIN de sa fermeture.
    Le bouton Retour n'est jamais translaté. */
+/* V36.82 — Reproduction complète du mouvement Concentration sans clone.
+   Deux mouvements simultanés : les cartes d'accueil descendent quand la
+   page arrive, puis elles remontent pendant que la page repart. Le fond
+   reste opaque et les vraies cartes conservent leur CSS/SVG sur iOS. */
 function iuAnimateStandalonePage(action,entering,config){
- // V36.81 — Alignement sur les keyframes du mode Concentration :
- // iu65-rise / iu65-focus-away, mêmes durée, courbe et déplacement 105dvh.
- // Aucune capture ni clone : on anime les cartes réellement affichées.
  const motionVars=getComputedStyle(document.documentElement);
  const duration=parseFloat(motionVars.getPropertyValue('--iu65-duration'))||610;
- const easing=motionVars.getPropertyValue('--iu65-ease').trim()||'cubic-bezier(.38,0,.62,1)';
+ const easing=motionVars.getPropertyValue('--iu65-ease').trim()||'cubic-bezier(.16,.84,.24,1)';
  const finishPending=()=>{
   focusMotionBusy=false;
   const pending=focusPendingTask;
@@ -559,27 +560,86 @@ function iuAnimateStandalonePage(action,entering,config){
   if(pending)requestAnimationFrame(pending);
  };
  const positionAtTop=()=>{
-  // Safari PWA peut garder le scroll de l'accueil lors du changement de
-  // hauteur du document. Le cadrage est fixé AVANT la première image.
   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
   document.body.scrollTop=0;
   window.scrollTo({top:0,left:0,behavior:'instant'});
  };
+ // Capturer uniquement les éléments réellement visibles de l'accueil.
+ // Pas de cloneNode : les vrais éléments conservent leur CSS, leurs images
+ // et les dimensions des SVG, y compris pendant les transitions.
+ const homeRoot=document.querySelector('.app > '+(config.modeClass==='is-admin-mode'?'#planningAdminCard':'#accountCard'));
+ const captureHome=(selector,max)=>[...document.querySelectorAll(selector)]
+  .filter(el=>el!==homeRoot&&focusVisible(el))
+  .slice(0,max).map(el=>{
+   const r=el.getBoundingClientRect(),style=getComputedStyle(el);
+   return {el,rect:{top:r.top,left:r.left,width:r.width,height:r.height},
+    display:style.display,anchor:selector===focusStaticSelectors};
+  });
  focusMotionBusy=true;
  if(entering){
+  config._homeMotion=[
+   ...captureHome(focusNormalSelectors,10),
+   ...captureHome(focusStaticSelectors,2)
+  ];
   action();
   positionAtTop();
-  // Forcer la mise en page finale avant de démarrer les animations :
-  // pas de recentrage différé du bouton Retour.
   void document.documentElement.offsetHeight;
- } 
+ }
+ const pinHome=(entry)=>{
+  const el=entry.el;
+  if(!el?.isConnected)return null;
+  const props={
+   display:entry.display,position:'fixed',top:entry.rect.top+'px',
+   left:entry.rect.left+'px',width:entry.rect.width+'px',
+   height:entry.rect.height+'px','max-width':'none',margin:'0',
+   'box-sizing':'border-box','pointer-events':'none',
+   'z-index':'2147400000','will-change':'transform,filter,opacity'
+  };
+  const old=Object.keys(props).map(p=>[p,el.style.getPropertyValue(p),
+   el.style.getPropertyPriority(p)]);
+  for(const [p,v] of Object.entries(props))el.style.setProperty(p,v,'important');
+  return ()=>{
+   for(const [p,value,priority] of old){
+    if(value)el.style.setProperty(p,value,priority);
+    else el.style.removeProperty(p);
+   }
+  };
+ };
+ const pinned=[];
+ const homeAnimations=[];
+ // À la fermeture, les mêmes cartes récupèrent exactement leurs positions
+ // d'avant navigation, indépendamment du scroll fait dans Mon compte/Admin.
+ for(const entry of (config._homeMotion||[])){
+  const restore=pinHome(entry);
+  if(!restore)continue;
+  pinned.push(restore);
+  const frames=entry.anchor?
+   (entering?[
+    {offset:0,opacity:1,filter:'blur(0px)'},
+    {offset:.12,opacity:1,filter:'blur(0px)'},
+    {offset:1,opacity:0,filter:'blur(1.8px)'}
+   ]:[
+    {offset:0,opacity:0,filter:'blur(1.8px)'},
+    {offset:.75,opacity:1,filter:'blur(0px)'},
+    {offset:1,opacity:1,filter:'blur(0px)'}
+   ]):
+   (entering?[
+    {offset:0,transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1},
+    {offset:.12,filter:'blur(0px)',opacity:1},
+    {offset:.60,filter:'blur(1.7px)',opacity:1},
+    {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
+   ]:[
+    {transform:'translate3d(0,105dvh,0)',filter:'blur(0px)',opacity:1},
+    {transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1}
+   ]);
+  homeAnimations.push(entry.el.animate(frames,{duration,easing,fill:'both'}));
+ }
+ // Même progression que les snapshots iu65-rise / iu65-focus-away, mais
+ // sur le vrai panneau pour ne pas perdre son contexte CSS à la fermeture.
  const surfaces=[...document.querySelectorAll(config.viewSelectors)]
   .filter(focusVisible)
   .filter(el=>!el.classList.contains('iu-page-external-nav'));
- // Le bouton Retour reste volontairement fixe : Safari l'avait
- // auparavant déplacé au-dessus des autres cartes lors de l'ouverture.
- // Les cartes suivent exactement le sens et le rythme du mode Session.
- const animations=surfaces.map(el=>el.animate(
+ const pageAnimations=surfaces.map(el=>el.animate(
   entering?[
    {transform:'translate3d(0,105dvh,0)',filter:'blur(0px)',opacity:1},
    {transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1}
@@ -588,31 +648,31 @@ function iuAnimateStandalonePage(action,entering,config){
    {offset:.12,filter:'blur(0px)',opacity:1},
    {offset:.60,filter:'blur(1.7px)',opacity:1},
    {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
-  ],
-  {duration,easing,fill:'both'}
+  ],{duration,easing,fill:'both'}
  ));
- const clearAnimations=()=>animations.forEach(a=>a.cancel());
+ const animations=[...homeAnimations,...pageAnimations];
+ const clearAnimations=()=>{
+  animations.forEach(a=>a.cancel());
+  pinned.forEach(restore=>restore());
+ };
  const closeAfterAnimation=()=>{
-  // Couverture NEUTRE, sans copier de données Google ni d'icônes SVG.
-  // La restauration du scroll de l'accueil a lieu derrière cette surface.
+  // Réafficher la position antérieure de l'accueil uniquement après que
+  // toutes les cartes ont terminé leur course, sous une surface opaque.
   const veil=document.createElement('div');
   veil.className='iu-standalone-exit-veil';
   veil.setAttribute('aria-hidden','true');
   veil.style.cssText='position:fixed;inset:0;z-index:2147483000;pointer-events:none;background:#f3f6f7;opacity:1';
   document.body.appendChild(veil);
   const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
-  try{action();}finally{clearAnimations();}
+  try{action();}finally{clearAnimations();config._homeMotion=null;}
   if(Number.isFinite(homeY)){
-   document.scrollingElement&&(document.scrollingElement.scrollTop=homeY);
+   if(document.scrollingElement)document.scrollingElement.scrollTop=homeY;
    window.scrollTo({top:homeY,left:0,behavior:'instant'});
   }
   requestAnimationFrame(()=>{
-   // Laisser WebKit finir la mise en page au bon scroll derrière le voile.
    if(Number.isFinite(homeY)&&Math.abs(window.scrollY-homeY)>2)
     window.scrollTo({top:homeY,left:0,behavior:'instant'});
    const fade=veil.animate([{opacity:1},{opacity:0}],{
-    // Brève révélation seulement après le retour au bon scroll :
-    // jamais de copie de profil ni d'ancienne capture déformée.
     duration:120,easing:'ease-out',fill:'forwards'
    });
    fade.finished.catch(()=>{}).then(()=>{
@@ -627,8 +687,8 @@ function iuAnimateStandalonePage(action,entering,config){
   if(entering){clearAnimations();finishPending();}
   else closeAfterAnimation();
  });
- // Promise.all([]) se résout aussi : aucune seconde fermeture à lancer.
 }
+
 function changeFocusWithMotion(action,entering,config={}){
  if(focusMotionBusy)return;
  if(focusReducedMotion()){action();return;}
