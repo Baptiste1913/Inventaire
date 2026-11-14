@@ -16082,3 +16082,197 @@ html body.is-admin-mode .app > #planningAdminCard.card[hidden],
 html body.is-admin-mode .app > #planningAdminCard.card[data-admin-loading="true"] > .planning-admin-body{
  display:none!important;
 }
+
+
+/* V36.70 — Admin entièrement opaque dès la première frame.
+   Le fond est une vraie surface native de View Transition, sans crossfade.
+   Il masque le site d'accueil durant l'apparition du bandeau et des cartes. */
+html body .app > #planningAdminCard > .iu-admin-opaque-backdrop{
+ display:none!important;
+}
+html body.is-admin-mode .app > #planningAdminCard > .iu-admin-opaque-backdrop{
+ display:block!important;
+ position:fixed!important;
+ inset:0!important;
+ width:100%!important;
+ height:100dvh!important;
+ min-height:100vh!important;
+ background:#f3f6f7!important;
+ opacity:1!important;
+ border:0!important;
+ border-radius:0!important;
+ filter:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ pointer-events:none!important;
+ z-index:0!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card{
+ isolation:isolate!important;
+ background:#f3f6f7!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-page-head,
+html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body,
+html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-loading-message{
+ position:relative!important;
+ z-index:1!important;
+ opacity:1!important;
+}
+html.iu-admin-solid-transition::view-transition{
+ background:#f3f6f7!important;
+}
+html.iu-admin-solid-transition.iu-focus-entering::view-transition-group(iu-focus-surface){
+ animation:none!important;
+ z-index:7!important;
+}
+html.iu-admin-solid-transition.iu-focus-entering::view-transition-new(iu-focus-surface){
+ animation:none!important;
+ transition:none!important;
+ opacity:1!important;
+ filter:none!important;
+ transform:none!important;
+ mix-blend-mode:normal!important;
+}
+html.iu-admin-solid-transition.iu-focus-entering::view-transition-new(iu-focus-0),
+html.iu-admin-solid-transition.iu-focus-entering::view-transition-new(iu-focus-1){
+ opacity:1!important;
+ mix-blend-mode:normal!important;
+}
+/* Le fond du navigateur reste neutre, opaque et homogène. */
+html.iu-admin-solid-transition.iu-focus-entering::view-transition-old(root),
+html.iu-admin-solid-transition.iu-focus-entering::view-transition-new(root){
+ animation:none!important;
+ opacity:0!important;
+}
+
+/* V36.70 — Bandeau administrateur compact, 100 % monochrome.
+   Pas de point vert, pas d'indicateurs Access/Gestion ni de description :
+   seulement le titre et les deux actions. */
+html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-page-head.focus-toolbar{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ justify-content:flex-start!important;
+ gap:9px!important;
+ flex:0 0 auto!important;
+ position:sticky!important;
+ top:0!important;
+ width:calc(100% - 26px)!important;
+ max-width:734px!important;
+ min-height:0!important;
+ height:auto!important;
+ padding:11px 12px!important;
+ margin:0 auto 8px!important;
+ border:1px solid #d7dfe4!important;
+ border-radius:16px!important;
+ background:#f5f6f7!important;
+ background-image:none!important;
+ box-shadow:0 4px 14px rgba(43,56,66,.055),
+            inset 0 1px 0 rgba(255,255,255,.86)!important;
+ color:#2c3740!important;
+ opacity:1!important;
+ overflow:hidden!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .iu-admin-compact-heading{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ gap:7px!important;
+ width:100%!important;
+ min-height:27px!important;
+ padding:0!important;
+ margin:0!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .iu-admin-compact-heading h2{
+ display:inline-flex!important;
+ align-items:center!important;
+ margin:0!important;
+ padding:6px 10px!important;
+ border:1px solid #e1e5e8!important;
+ border-radius:9px!important;
+ background:#eceff1!important;
+ color:#354149!important;
+ font-family:inherit!important;
+ font-size:12.5px!important;
+ font-weight:800!important;
+ line-height:1.2!important;
+ letter-spacing:0!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head :is(
+ .focus-heading,.focus-live-dot,.focus-metrics,.iu-admin-page-title
+){
+ display:none!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions.iu-admin-page-actions{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ gap:8px!important;
+ margin:0!important;
+ padding:0!important;
+ width:100%!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions.iu-admin-page-actions > button{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:6px!important;
+ min-height:35px!important;
+ height:35px!important;
+ padding:6px 10px!important;
+ border:1px solid #d9dfe3!important;
+ border-radius:10px!important;
+ background:linear-gradient(155deg,#fff,#edf0f2)!important;
+ color:#424c55!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.93),
+            0 2px 5px rgba(55,70,80,.045)!important;
+ font-family:inherit!important;
+ font-size:12px!important;
+ font-weight:750!important;
+ line-height:1.3!important;
+ text-shadow:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions.iu-admin-page-actions > button svg{
+ width:14px!important;
+ height:14px!important;
+ color:inherit!important;
+ stroke:currentColor!important;
+ fill:none!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-page-head .focus-actions.iu-admin-page-actions > button:active{
+ background:#e9edf0!important;
+ color:#424c55!important;
+ border-color:#d9dfe3!important;
+ transform:scale(.99)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body{
+ margin-top:0!important;
+}
+/* Petite respiration entre le bandeau compact et le contenu. */
+@media(max-width:430px){
+ html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-page-head.focus-toolbar{
+  padding:10px 11px!important;
+  gap:8px!important;
+  margin-bottom:8px!important;
+  border-radius:15px!important;
+ }
+}
+
+/* V36.70 — Retour de l'ancienne icône chevron du bouton Réglages.
+   Ne pas ajouter la flèche Play de Démarrer un inventaire. */
+html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch .iu-admin-launch-arrow{
+ display:block!important;
+ width:14px!important;
+ height:14px!important;
+ flex:0 0 14px!important;
+ stroke:currentColor!important;
+ stroke-width:2.25!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+ fill:none!important;
+ filter:none!important;
+ opacity:1!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch .start-play-icon{
+ display:none!important;
+}
