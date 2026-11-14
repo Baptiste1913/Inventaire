@@ -2,6 +2,6 @@
   "version": "37.09",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1001013,
+  "bytes": 1033114,
   "notes": "Refonte des événements : le bloc d'accueil affiche directement le cadre Prochain inventaire (notifications conservées), puis un bouton Accéder aux événements. Une nouvelle page dédiée, opaque et animée par le même moteur que Mon compte et Administrateur, présente l'événement en cours/à venir, un calendrier mensuel interactif (lunes à dimanches, sélection d'une date, navigation entre les mois, indicateurs, événements sur plusieurs jours), la fiche de la date choisie et l'agenda trié. Données Supabase et cache hors ligne préservés ; cache PWA actualisé."
 }
