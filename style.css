@@ -17806,3 +17806,70 @@ html body.is-account-mode #accountCard #iuAccountProfileCard #accountSyncNow.iu-
   padding-bottom:4px!important;
  }
 }
+
+
+/* V36.95 — Notifications : les deux états gardent leur forme et leur
+   cloche, mais sans indicateur rond ajouté après le libellé. */
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell .events-bell-label::after{
+ content:none!important;display:none!important;width:0!important;height:0!important;
+ flex:none!important;animation:none!important;box-shadow:none!important;
+}
+
+/* V36.95 — Évolution du rythme : surface graphite douce, tendance lisible,
+   dernier inventaire délicatement souligné sans surcharge sur Safari iOS. */
+html body.is-account-mode #accountCard #dashTrend.dashboard-trend{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+ box-sizing:border-box!important;
+ min-height:154px!important;padding:35px 12px 12px!important;
+ border:1px solid #dce5e9!important;border-radius:14px!important;
+ background:linear-gradient(150deg,#fdfefe 0%,#f7f9fb 57%,#f0f4f6 100%)!important;
+ box-shadow:inset 0 1px 0 #fff,0 3px 10px rgba(52,66,79,.035)!important;
+}
+html body.is-account-mode #accountCard #dashTrend.dashboard-trend::before{
+ content:"";position:absolute;inset:auto -12% -45px -12%;height:96px;
+ z-index:-1;pointer-events:none;
+ background:radial-gradient(ellipse at 78% 50%,rgba(93,136,162,.095),transparent 64%);
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-insight{
+ position:absolute;top:9px;right:11px;z-index:1;
+ display:inline-flex;align-items:center;justify-content:center;
+ max-width:calc(100% - 22px);padding:5px 9px;
+ border:1px solid #dce4e8;border-radius:999px;
+ background:linear-gradient(145deg,#fff,#f1f4f6);
+ color:#55636e;font:750 10.5px/1.25 inherit;
+ font-family:inherit;font-size:10.5px;font-weight:750;line-height:1.25;
+ letter-spacing:.005em;white-space:nowrap;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94);
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-insight.is-faster{
+ color:#367d6c;border-color:#d1e7de;background:linear-gradient(145deg,#f9fcfb,#edf6f2);
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-insight.is-slower{
+ color:#796c61;border-color:#e9e0d9;background:linear-gradient(145deg,#fff,#f8f4f0);
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column:last-of-type .dashboard-trend-track{
+ border-color:#bfd1dc!important;background:#e8eff3!important;
+ box-shadow:0 0 0 2px rgba(103,144,165,.07)!important;
+}
+html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column:last-of-type .dashboard-trend-fill{
+ background:linear-gradient(180deg,#91b7c9,#587f96)!important;
+ opacity:1!important;transform-origin:bottom center;
+ animation:iu-trend-last-rise .6s cubic-bezier(.2,.8,.25,1) both;
+}
+@keyframes iu-trend-last-rise{
+ from{transform:scaleY(.55);opacity:.7}
+ to{transform:scaleY(1);opacity:1}
+}
+@media(max-width:430px){
+ html body.is-account-mode #accountCard #dashTrend.dashboard-trend{
+  padding:35px 8px 10px!important;gap:5px!important;
+ }
+ html body.is-account-mode #accountCard #dashTrend .dashboard-trend-insight{
+  right:9px;top:8px;font-size:10px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-account-mode #accountCard #dashTrend .dashboard-trend-column:last-of-type .dashboard-trend-fill{
+  animation:none!important;transform:none!important;
+ }
+}

@@ -1,7 +1,7 @@
 {
-  "version": "36.94",
+  "version": "36.95",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 957668,
-  "notes": "Nouveau logo U fourni : icones iPhone, PWA 192/512, favoris, chargement et mise a jour. La pastille Activer les notifications reprend le visuel de Activées avec des couleurs monochromes. Espacement inferieur Sauvegarde et synchronisation ajuste. Cache PWA et manifeste actualises, fonctions metier inchangées."
+  "bytes": 964427,
+  "notes": "Nouveau logo U fourni appliqué sur iPhone, PWA, favoris, écrans de chargement et de mise à jour ; pastille Notifications sans indicateur rond ; graphique Évolution du rythme modernisé avec relief discret, mise en valeur du dernier inventaire et comparaison fiable des temps par pesée. Cache PWA renouvelé, fonctionnalités conservées."
 }

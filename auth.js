@@ -348,6 +348,18 @@ function renderDashboard(){
  else{
   const values=plotted.map(x=>Math.round(Math.max(0,x.endedAt-x.startedAt-Math.max(0,Number(x.pausedMs)||0))/x.entries.length/1000));
   const max=Math.max(1,...values);
+  // V36.95 : un repère léger, calculé uniquement avec les deux derniers
+  // inventaires disponibles (moins de secondes = rythme plus rapide).
+  const last=values[values.length-1],previous=values.length>1?values[values.length-2]:null;
+  const difference=previous>0?Math.round((last-previous)/previous*100):null;
+  const indicator=document.createElement('span');indicator.className='dashboard-trend-insight';
+  if(difference===null||values.length<2){indicator.textContent='Premier repère';indicator.classList.add('is-neutral');}
+  else if(Math.abs(difference)<4){indicator.textContent='Rythme stable';indicator.classList.add('is-neutral');}
+  else if(difference<0){indicator.textContent=`Plus rapide · ${Math.abs(difference)} %`;indicator.classList.add('is-faster');}
+  else{indicator.textContent=`Plus lent · ${difference} %`;indicator.classList.add('is-slower');}
+  indicator.title='Écart de temps moyen par pesée par rapport à l’inventaire précédent';
+  trend.append(indicator);
+  trend.setAttribute('aria-label','Évolution du temps moyen par pesée. '+indicator.textContent);
   plotted.forEach((item,i)=>{
    const column=document.createElement('div');column.className='dashboard-trend-column';
    const value=document.createElement('strong');value.textContent=`${values[i]} s`;
