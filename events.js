@@ -20,29 +20,25 @@ const countLabel=n=>n+' événement'+(n>1?'s':'');
 const daysBetween=(from,to)=>Math.round((Date.UTC(to.getFullYear(),to.getMonth(),to.getDate())-Date.UTC(from.getFullYear(),from.getMonth(),from.getDate()))/86400000);
 const eventKey=e=>String(e.id??[e.title,e.start,e.end||e.start].join('|'));
 const statusClass=(e,now)=>eventEnd(e)<now?'is-past':date(e.start)<=now?'is-live':'is-upcoming';
-const statusPriority=state=>state==='is-live'?3:state==='is-upcoming'?2:state==='is-past'?1:0;
-// Une palette stable par mois : deux traits discrets maximum dans chaque case.
-// Les autres événements restent accessibles en sélectionnant la journée.
-const EVENT_COLORS=['#259773','#6D89AF','#A781AF','#C28D59','#669B9D',
- '#897FA6','#B1777C','#8A9D67','#67849B','#B29B72'];
-const MAX_DAY_LANES=2;
-function weekAssignments(events,start,end,now){
- const candidates=events.filter(e=>intersects(e,start,end)).sort((a,b)=>{
-  const priority=statusPriority(statusClass(b,now))-statusPriority(statusClass(a,now));
-  return priority||a.start.localeCompare(b.start)||eventKey(a).localeCompare(eventKey(b));
- });
- const assigned=[];
- for(const event of candidates){
-  for(let lane=0;lane<MAX_DAY_LANES;lane++){
-   const overlaps=assigned.some(row=>row.lane===lane&&
-    date(row.event.start)<=eventEnd(event)&&eventEnd(row.event)>=date(event.start));
-   if(!overlaps){assigned.push({event,lane});break;}
-  }
- }
- return assigned;
-}
+// V37.12 — Deux seules catégories visibles, sans effacer les données du planning.
+const TYPE_COLORS={inventory:'#2b9a74',purchase:'#6588b3'};
+const powerPurchase=event=>{
+ const normalized=String(event.title||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/[\u2018\u2019]/g,"'").toUpperCase();
+ return /10\s*%\s*POUVOIR\s+D['\s]*ACHAT/.test(normalized);
+};
+const kindName=event=>event.kind==='inventory'?'Inventaire':'10 % Pouvoir d’achat';
+const accent=event=>TYPE_COLORS[event.kind]||TYPE_COLORS.purchase;
 const sorted=rows=>[...rows].sort((a,b)=>a.start.localeCompare(b.start)||String(a.title||'').localeCompare(String(b.title||''),'fr'));
 const usable=rows=>(Array.isArray(rows)?rows:[]).filter(e=>e&&typeof e.title==='string'&&Number.isFinite(date(e.start).getTime())&&Number.isFinite(eventEnd(e).getTime())&&eventEnd(e)>=date(e.start));
+const calendarItems=data=>{
+ const purchases=usable(data?.events).filter(powerPurchase).map(e=>({...e,kind:'purchase'}));
+ const inventories=[...new Set(Array.isArray(data?.inventories)?data.inventories:[])]
+  .filter(value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(date(value).getTime()))
+  .map(value=>({id:'inventory:'+value,title:'Inventaire Fruits et Légumes',
+   start:value,end:value,kind:'inventory'}));
+ return sorted([...purchases,...inventories]);
+};
 let lastRefresh=0,loading=false;
 let latestData=fallback;
 let calendarCursor=new Date(today().getFullYear(),today().getMonth(),1,12);
@@ -60,7 +56,10 @@ function makeEventRow(e,now,accent){
  const title=document.createElement('strong');title.textContent=e.title;
  const period=document.createElement('span');period.textContent=datePeriod(e);
  const pill=document.createElement('span');
- const [status,cls]=eventStatus(e,now);pill.className='iu-events-row-state '+cls;pill.textContent=status;
+ const [status,cls]=eventStatus(e,now);
+ pill.className='iu-events-row-state is-'+e.kind+' '+cls;
+ pill.textContent=kindName(e);
+ pill.setAttribute('aria-label',kindName(e)+' · '+status);
  main.append(title,period);row.append(main,pill);return row;
 }
 function fillRows(container,rows,now,empty,accent){
@@ -74,7 +73,7 @@ function fillRows(container,rows,now,empty,accent){
 }
 function renderPage(){
  if(!$('eventsCalendarGrid'))return;
- const now=today(),events=usable(latestData.events);
+ const now=today(),events=calendarItems(latestData);
  const coming=events.filter(e=>eventEnd(e)>=now).sort((a,b)=>{
   const activeA=date(a.start)<=now,activeB=date(b.start)<=now;
   return Number(activeB)-Number(activeA)||a.start.localeCompare(b.start)||a.title.localeCompare(b.title,'fr');
@@ -84,7 +83,7 @@ function renderPage(){
   const [status,cls]=eventStatus(lead,now);
   $('eventsFeatureHeading').textContent=lead.title;
   $('eventsFeaturePeriod').textContent=datePeriod(lead);
-  $('eventsFeatureHint').textContent=status==='En cours'?'Événement en cours':'Prochain événement';
+  $('eventsFeatureHint').textContent=lead.kind==='inventory'?'Inventaire':status==='En cours'?'10 % en cours':'Prochain 10 % Pouvoir d’achat';
   leadState.textContent=status;leadState.className='iu-events-feature-state '+cls;leadState.hidden=false;
   const remaining=daysBetween(now,status==='En cours'?eventEnd(lead):date(lead.start));
   const countdown=$('eventsFeatureCountdown'),message=$('eventsFeatureCountdownText');
@@ -96,32 +95,30 @@ function renderPage(){
    countdown.hidden=false;
   }
  }else{
-  $('eventsFeatureHeading').textContent='Aucun événement à venir';
-  $('eventsFeaturePeriod').textContent='Les prochains événements apparaîtront ici dès leur publication.';
+  $('eventsFeatureHeading').textContent='Aucune date à venir';
+  $('eventsFeaturePeriod').textContent='Les prochains inventaires et opérations 10 % apparaîtront ici dès leur publication.';
   $('eventsFeatureHint').textContent='Planning à jour';leadState.hidden=true;
   const countdown=$('eventsFeatureCountdown');if(countdown)countdown.hidden=true;
  }
  const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth();
  const first=new Date(y,m,1,12),last=new Date(y,m+1,0,12);
  const monthEvents=sorted(events.filter(e=>intersects(e,first,last)));
- const colored=[...monthEvents].sort((a,b)=>{
-  const priority=statusPriority(statusClass(b,now))-statusPriority(statusClass(a,now));
-  return priority||a.start.localeCompare(b.start)||eventKey(a).localeCompare(eventKey(b));
- });
- const accentMap=new Map(colored.map((e,i)=>[eventKey(e),EVENT_COLORS[i%EVENT_COLORS.length]]));
- const accent=e=>accentMap.get(eventKey(e))||EVENT_COLORS[0];
+ // Les catégories gardent toujours les mêmes couleurs, quel que soit le mois.
  $('eventsCalendarTitle').textContent=cap(fullMonth.format(first));
- $('eventsCalendarSummary').textContent=countLabel(monthEvents.length)+' planifié'+(monthEvents.length>1?'s':'');
+ const nInventories=monthEvents.filter(e=>e.kind==='inventory').length;
+ const nPurchases=monthEvents.length-nInventories;
+ $('eventsCalendarSummary').textContent=nInventories+' inventaire'+(nInventories>1?'s':'')+
+  ' · '+nPurchases+' opération'+(nPurchases>1?'s':'')+' 10 %';
  $('eventsAgendaHeading').textContent='Agenda de '+month.format(first);
  $('eventsAgendaCount').textContent=countLabel(monthEvents.length);
  const grid=$('eventsCalendarGrid');grid.replaceChildren();
  const offset=(first.getDay()+6)%7;
  const cells=Math.ceil((offset+last.getDate())/7)*7;
- const weekPlans=Array.from({length:cells/7},(_,w)=>{
-  const start=new Date(y,m,1-offset+w*7,12);
-  const end=new Date(y,m,7-offset+w*7,12);
-  return weekAssignments(monthEvents,start,end,now);
- });
+ const forDay=day=>{
+  const rows=events.filter(e=>intersects(e,day,day));
+  return ['inventory','purchase'].map(kind=>rows.filter(e=>e.kind===kind)
+   .sort((a,b)=>a.start.localeCompare(b.start)||eventKey(a).localeCompare(eventKey(b)))[0]).filter(Boolean);
+ };
  for(let i=0;i<cells;i++){
   const day=new Date(y,m,1-offset+i,12);
   const key=dayKey(day),inMonth=day.getMonth()===m;
@@ -130,8 +127,7 @@ function renderPage(){
   button.className='iu-events-calendar-day';
   if(!inMonth)button.classList.add('is-outside');
   if(matches.length)button.classList.add('has-events');
-  const weekPlan=weekPlans[Math.floor(i/7)];
-  const visible=weekPlan.filter(({event})=>intersects(event,day,day));
+  const visible=forDay(day);
   const hiddenCount=Math.max(0,matches.length-visible.length);
   if(key===dayKey(now)){button.classList.add('is-today');button.setAttribute('aria-current','date');}
   if(key===selectedKey)button.classList.add('is-selected');
@@ -143,13 +139,15 @@ function renderPage(){
   const ribbons=document.createElement('span');
   ribbons.className='iu-events-day-ribbons';
   ribbons.setAttribute('aria-hidden','true');
-  for(const {event,lane} of visible){
+  for(const event of visible){
    const ribbon=document.createElement('span');
-   ribbon.className='iu-events-day-ribbon is-lane-'+lane;
+   ribbon.className='iu-events-day-ribbon is-kind-'+event.kind;
    ribbon.style.setProperty('--iu-event-accent',accent(event));
-   const prev=new Date(y,m,-offset+i,12),next=new Date(y,m,2-offset+i,12);
-   if(i%7!==0&&intersects(event,prev,prev))ribbon.classList.add('joins-prev');
-   if(i%7!==6&&intersects(event,next,next))ribbon.classList.add('joins-next');
+   if(event.kind==='purchase'){
+    const prev=new Date(y,m,-offset+i,12),next=new Date(y,m,2-offset+i,12);
+    if(i%7!==0&&forDay(prev).some(e=>eventKey(e)===eventKey(event)))ribbon.classList.add('joins-prev');
+    if(i%7!==6&&forDay(next).some(e=>eventKey(e)===eventKey(event)))ribbon.classList.add('joins-next');
+   }
    ribbons.append(ribbon);
   }
   button.append(num,ribbons);
@@ -178,13 +176,13 @@ function renderPage(){
  $('eventsSelectedDate').textContent=cap(long.format(selected));
  const dayEvents=sorted(events.filter(e=>intersects(e,selected,selected)));
  $('eventsSelectedCount').textContent=countLabel(dayEvents.length);
- fillRows($('eventsSelectedList'),dayEvents,now,'Aucun événement pour cette date.',accent);
- fillRows($('eventsAgendaList'),monthEvents,now,'Aucun événement prévu pour ce mois.',accent);
+ fillRows($('eventsSelectedList'),dayEvents,now,'Aucun inventaire ni opération 10 % pour cette date.',accent);
+ fillRows($('eventsAgendaList'),monthEvents,now,'Aucun inventaire ni opération 10 % prévu ce mois-ci.',accent);
 }
 function preparePage(){
  if(firstOpen){
   const now=today();
-  const upcoming=usable(latestData.events).filter(e=>eventEnd(e)>=now).sort((a,b)=>{
+  const upcoming=calendarItems(latestData).filter(e=>eventEnd(e)>=now).sort((a,b)=>{
    const aLive=date(a.start)<=now,bLive=date(b.start)<=now;
    return Number(bLive)-Number(aLive)||a.start.localeCompare(b.start);
   });
@@ -198,7 +196,7 @@ function changeMonth(direction){
  calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+direction,1,12);
  const first=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth(),1,12);
  const last=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,0,12);
- const next=sorted(usable(latestData.events).filter(e=>intersects(e,first,last)))[0];
+ const next=sorted(calendarItems(latestData).filter(e=>intersects(e,first,last)))[0];
  selectedKey=dayKey(next?(date(next.start)<first?first:date(next.start)):first);
  renderPage();
 }
