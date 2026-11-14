@@ -1653,7 +1653,7 @@ window.IUSetHeavyPaintLite=enabled=>{
 // V36.56 — Gel léger, réversible : pause des animations décoratives
 // internes et report des seules écritures du diagnostic administrateur.
 // Ne bloque ni les clics, ni le login, ni les sauvegardes ou le réseau.
-let iuHeavyContentFreezeEnabled=true;
+let iuHeavyContentFreezeEnabled=false;
 window.IUGetHeavyContentFreeze=()=>iuHeavyContentFreezeEnabled;
 window.IUSetHeavyContentFreeze=enabled=>{
  iuHeavyContentFreezeEnabled=Boolean(enabled);
