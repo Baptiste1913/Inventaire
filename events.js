@@ -19,9 +19,28 @@ const datePeriod=e=>e.start===(e.end||e.start)?cap(short.format(date(e.start))):
 const countLabel=n=>n+' événement'+(n>1?'s':'');
 const daysBetween=(from,to)=>Math.round((Date.UTC(to.getFullYear(),to.getMonth(),to.getDate())-Date.UTC(from.getFullYear(),from.getMonth(),from.getDate()))/86400000);
 const eventKey=e=>String(e.id??[e.title,e.start,e.end||e.start].join('|'));
-const isSameEvent=(a,b)=>eventKey(a)===eventKey(b);
 const statusClass=(e,now)=>eventEnd(e)<now?'is-past':date(e.start)<=now?'is-live':'is-upcoming';
 const statusPriority=state=>state==='is-live'?3:state==='is-upcoming'?2:state==='is-past'?1:0;
+// Une palette stable par mois : deux traits discrets maximum dans chaque case.
+// Les autres événements restent accessibles en sélectionnant la journée.
+const EVENT_COLORS=['#259773','#6D89AF','#A781AF','#C28D59','#669B9D',
+ '#897FA6','#B1777C','#8A9D67','#67849B','#B29B72'];
+const MAX_DAY_LANES=2;
+function weekAssignments(events,start,end,now){
+ const candidates=events.filter(e=>intersects(e,start,end)).sort((a,b)=>{
+  const priority=statusPriority(statusClass(b,now))-statusPriority(statusClass(a,now));
+  return priority||a.start.localeCompare(b.start)||eventKey(a).localeCompare(eventKey(b));
+ });
+ const assigned=[];
+ for(const event of candidates){
+  for(let lane=0;lane<MAX_DAY_LANES;lane++){
+   const overlaps=assigned.some(row=>row.lane===lane&&
+    date(row.event.start)<=eventEnd(event)&&eventEnd(row.event)>=date(event.start));
+   if(!overlaps){assigned.push({event,lane});break;}
+  }
+ }
+ return assigned;
+}
 const sorted=rows=>[...rows].sort((a,b)=>a.start.localeCompare(b.start)||String(a.title||'').localeCompare(String(b.title||''),'fr'));
 const usable=rows=>(Array.isArray(rows)?rows:[]).filter(e=>e&&typeof e.title==='string'&&Number.isFinite(date(e.start).getTime())&&Number.isFinite(eventEnd(e).getTime())&&eventEnd(e)>=date(e.start));
 let lastRefresh=0,loading=false;
@@ -34,8 +53,9 @@ function eventStatus(e,now){
  if(date(e.start)<=now)return ['En cours','is-live'];
  return ['À venir','is-upcoming'];
 }
-function makeEventRow(e,now){
+function makeEventRow(e,now,accent){
  const row=document.createElement('article');row.className='iu-events-list-row';
+ row.style.setProperty('--iu-event-accent',accent);
  const main=document.createElement('div');main.className='iu-events-list-main';
  const title=document.createElement('strong');title.textContent=e.title;
  const period=document.createElement('span');period.textContent=datePeriod(e);
@@ -43,14 +63,14 @@ function makeEventRow(e,now){
  const [status,cls]=eventStatus(e,now);pill.className='iu-events-row-state '+cls;pill.textContent=status;
  main.append(title,period);row.append(main,pill);return row;
 }
-function fillRows(container,rows,now,empty){
+function fillRows(container,rows,now,empty,accent){
  if(!container)return;
  container.replaceChildren();
  if(!rows.length){
   const p=document.createElement('p');p.className='iu-events-empty';p.textContent=empty;
   container.append(p);return;
  }
- for(const e of sorted(rows))container.append(makeEventRow(e,now));
+ for(const e of sorted(rows))container.append(makeEventRow(e,now,accent(e)));
 }
 function renderPage(){
  if(!$('eventsCalendarGrid'))return;
@@ -84,6 +104,12 @@ function renderPage(){
  const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth();
  const first=new Date(y,m,1,12),last=new Date(y,m+1,0,12);
  const monthEvents=sorted(events.filter(e=>intersects(e,first,last)));
+ const colored=[...monthEvents].sort((a,b)=>{
+  const priority=statusPriority(statusClass(b,now))-statusPriority(statusClass(a,now));
+  return priority||a.start.localeCompare(b.start)||eventKey(a).localeCompare(eventKey(b));
+ });
+ const accentMap=new Map(colored.map((e,i)=>[eventKey(e),EVENT_COLORS[i%EVENT_COLORS.length]]));
+ const accent=e=>accentMap.get(eventKey(e))||EVENT_COLORS[0];
  $('eventsCalendarTitle').textContent=cap(fullMonth.format(first));
  $('eventsCalendarSummary').textContent=countLabel(monthEvents.length)+' planifié'+(monthEvents.length>1?'s':'');
  $('eventsAgendaHeading').textContent='Agenda de '+month.format(first);
@@ -91,6 +117,11 @@ function renderPage(){
  const grid=$('eventsCalendarGrid');grid.replaceChildren();
  const offset=(first.getDay()+6)%7;
  const cells=Math.ceil((offset+last.getDate())/7)*7;
+ const weekPlans=Array.from({length:cells/7},(_,w)=>{
+  const start=new Date(y,m,1-offset+w*7,12);
+  const end=new Date(y,m,7-offset+w*7,12);
+  return weekAssignments(monthEvents,start,end,now);
+ });
  for(let i=0;i<cells;i++){
   const day=new Date(y,m,1-offset+i,12);
   const key=dayKey(day),inMonth=day.getMonth()===m;
@@ -98,45 +129,38 @@ function renderPage(){
   const button=document.createElement('button');button.type='button';
   button.className='iu-events-calendar-day';
   if(!inMonth)button.classList.add('is-outside');
-  if(matches.length){
-   button.classList.add('has-events','has-period');
-   // Hiérarchie visuelle : l'événement en cours est prioritaire.
-   const best=Math.max(...matches.map(e=>statusPriority(statusClass(e,now))));
-   const state=best===3?'is-live':best===2?'is-upcoming':'is-past';
-   button.classList.add('period-'+state.slice(3));
-   // La bande ne traverse jamais deux événements distincts ou un changement de semaine.
-   if(i%7!==6){
-    const nextDay=new Date(y,m,1-offset+i+1,12);
-    const matchesNext=events.filter(e=>intersects(e,nextDay,nextDay));
-    const linked=matches.some(e=>statusClass(e,now)===state&&
-      matchesNext.some(next=>isSameEvent(e,next)&&statusClass(next,now)===state));
-    if(linked)button.classList.add('is-linked-right');
-   }
-   // Pour qu'une bande qui commence au milieu d'une semaine ait un bout arrondi.
-   if(i%7!==0){
-    const previousDay=new Date(y,m,-offset+i,12);
-    const previous=events.filter(e=>intersects(e,previousDay,previousDay));
-    const joined=matches.some(e=>statusClass(e,now)===state&&
-      previous.some(prev=>isSameEvent(e,prev)&&statusClass(prev,now)===state));
-    if(joined)button.classList.add('is-linked-left');
-   }
-  }
+  if(matches.length)button.classList.add('has-events');
+  const weekPlan=weekPlans[Math.floor(i/7)];
+  const visible=weekPlan.filter(({event})=>intersects(event,day,day));
+  const hiddenCount=Math.max(0,matches.length-visible.length);
   if(key===dayKey(now)){button.classList.add('is-today');button.setAttribute('aria-current','date');}
   if(key===selectedKey)button.classList.add('is-selected');
   button.setAttribute('aria-pressed',String(key===selectedKey));
   button.setAttribute('aria-label',cap(long.format(day))+' · '+countLabel(matches.length)+
-   (matches.length?' · '+(matches.some(e=>statusClass(e,now)==='is-live')?'Événement en cours':matches.some(e=>statusClass(e,now)==='is-upcoming')?'À venir':'Terminés'):'')+
+   (matches.length?' · '+sorted(matches).slice(0,2).map(e=>e.title).join(', ')+(matches.length>2?' et autres':''):'')+
    (key===dayKey(now)?' · Aujourd’hui':'')+(key===selectedKey?' · Date sélectionnée':''));
   const num=document.createElement('span');num.className='iu-events-day-number';num.textContent=String(day.getDate());
-  const marker=document.createElement('span');marker.className='iu-events-day-marker';
-  marker.setAttribute('aria-hidden','true');
-  if(matches.some(e=>date(e.start)<=now&&eventEnd(e)>=now))marker.classList.add('is-live');
-  if(matches.length>1){
-   marker.classList.add('is-multi');
-   const count=document.createElement('span');count.className='iu-events-day-count';
-   count.textContent='+'+String(matches.length-1);marker.append(count);
+  const ribbons=document.createElement('span');
+  ribbons.className='iu-events-day-ribbons';
+  ribbons.setAttribute('aria-hidden','true');
+  for(const {event,lane} of visible){
+   const ribbon=document.createElement('span');
+   ribbon.className='iu-events-day-ribbon is-lane-'+lane;
+   ribbon.style.setProperty('--iu-event-accent',accent(event));
+   const prev=new Date(y,m,-offset+i,12),next=new Date(y,m,2-offset+i,12);
+   if(i%7!==0&&intersects(event,prev,prev))ribbon.classList.add('joins-prev');
+   if(i%7!==6&&intersects(event,next,next))ribbon.classList.add('joins-next');
+   ribbons.append(ribbon);
   }
-  button.append(num,marker);
+  button.append(num,ribbons);
+  if(hiddenCount){
+   const marker=document.createElement('span');
+   marker.className='iu-events-day-marker is-multi';
+   marker.setAttribute('aria-hidden','true');
+   const count=document.createElement('span');count.className='iu-events-day-count';
+   count.textContent='+'+String(hiddenCount);
+   marker.append(count);button.append(marker);
+  }
   button.addEventListener('click',event=>{
    selectedKey=key;
    if(day.getMonth()!==calendarCursor.getMonth()||day.getFullYear()!==calendarCursor.getFullYear()){
@@ -154,8 +178,8 @@ function renderPage(){
  $('eventsSelectedDate').textContent=cap(long.format(selected));
  const dayEvents=sorted(events.filter(e=>intersects(e,selected,selected)));
  $('eventsSelectedCount').textContent=countLabel(dayEvents.length);
- fillRows($('eventsSelectedList'),dayEvents,now,'Aucun événement pour cette date.');
- fillRows($('eventsAgendaList'),monthEvents,now,'Aucun événement prévu pour ce mois.');
+ fillRows($('eventsSelectedList'),dayEvents,now,'Aucun événement pour cette date.',accent);
+ fillRows($('eventsAgendaList'),monthEvents,now,'Aucun événement prévu pour ce mois.',accent);
 }
 function preparePage(){
  if(firstOpen){
