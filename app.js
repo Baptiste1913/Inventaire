@@ -616,9 +616,6 @@ function exitFocusWithoutSnapshot(action,config={}){
 function iuAnimateStandalonePage(action,entering,config){
  const html=document.documentElement;
  const tagged=new Set();
- const navSelector=config.modeClass==='is-admin-mode'?
-  '.app > #planningAdminCard > .iu-admin-external-nav':
-  '.app > #accountCard > .iu-account-external-nav';
  const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
  let updated=false;
  const cleanup=()=>{
@@ -629,12 +626,6 @@ function iuAnimateStandalonePage(action,entering,config){
   const pending=focusPendingTask;
   focusPendingTask=null;
   if(pending)requestAnimationFrame(pending);
- };
- const tagNav=()=>{
-  const nav=document.querySelector(navSelector);
-  if(!focusVisible(nav))return;
-  nav.style.viewTransitionName='iu-page-nav';
-  tagged.add(nav);
  };
  const update=()=>{
   for(const el of tagged)el.style.viewTransitionName='';
@@ -651,13 +642,13 @@ function iuAnimateStandalonePage(action,entering,config){
    window.scrollTo({top:homeY,left:0,behavior:'instant'});
   }
   focusTagViews(entering,'new',tagged,config);
-  if(entering)tagNav();
+
  };
  focusMotionBusy=true;
  html.classList.add('iu-page-cards','iu-focus-slide',
   entering?'iu-focus-entering':'iu-focus-exiting');
  focusTagViews(entering,'old',tagged,config);
- if(!entering)tagNav();
+
  if(typeof document.startViewTransition==='function'){
   try{
    const transition=document.startViewTransition(update);
@@ -768,8 +759,8 @@ const iuAdminPageMotion={
  // Deux surfaces distinctes, comme bandeau et pesée du mode Concentration :
  // la page entière ne se comporte plus comme une carte qui se déplie.
  // V36.76 — La seule carte Admin contient maintenant son Retour.
- viewSelectors:'.app > #planningAdminCard > .planning-admin-body',
- exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-external-nav, .app > #planningAdminCard > .planning-admin-body',
+ viewSelectors:'.app > #planningAdminCard > .planning-admin-body, .app > #planningAdminCard > .iu-admin-loading-message',
+ exitSourceSelectors:'.app > #planningAdminCard > .planning-admin-body, .app > #planningAdminCard > .iu-admin-loading-message',
  normalSelectors:focusNormalSelectors,
  // Taguer la surface opaque en vue-transition : elle reste statique
  // pendant que le bandeau et la carte avancent comme en concentration.
@@ -826,7 +817,7 @@ const iuAccountPageMotion={
  // La carte profil (si connecté) porte le Retour ; en mode local, il
  // apparaît dans account-body. Même moteur opaque de concentration.
  viewSelectors:'.app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
- exitSourceSelectors:'.app > #accountCard > .iu-account-external-nav, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
+ exitSourceSelectors:'.app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
  solidDuringMotion:true,
@@ -1964,7 +1955,7 @@ window.IUSetupFold=setupUnifiedFold;
   event.preventDefault();
   iuOpenAdminPage();
  });
- $('iuAdminReturn')?.addEventListener('click',()=>iuCloseAdminPage());
+ $('iuAdminReturn')?.addEventListener('click',()=>iuCloseAdminPage()); $('iuAdminReturnLoading')?.addEventListener('click',()=>iuCloseAdminPage());
  // Même navigation par page que l'administrateur. Ne jamais activer
  // l'animation d'accordéon sur un <details> qui contient les données Google.
  const accountCard=$('accountCard');
@@ -1980,7 +1971,7 @@ window.IUSetupFold=setupUnifiedFold;
  });
  // Les deux pages n'ont qu'un Retour. L'actualisation de
  // l'état des services reste dans sa rubrique (#opsRefresh).
- $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage());
+ $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage()); $('iuAccountReturnGuest')?.addEventListener('click',()=>iuCloseAccountPage());
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
