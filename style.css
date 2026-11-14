@@ -20164,29 +20164,10 @@ html body.is-events-mode #eventsPage .iu-events-calendar-day .iu-events-day-ribb
  box-shadow:0 0 0 2px rgba(43,154,116,.10)!important;
  opacity:1!important;
 }
+/* Sécurité anti-doublon : les anciennes barres rouges par case restent masquées.
+   Une seule bande est dessinée par le calque mensuel. */
 html body.is-events-mode #eventsPage .iu-events-calendar-day .iu-events-day-ribbon.is-kind-purchase{
- position:absolute!important;
- left:4px!important;
- right:4px!important;
- bottom:7px!important;
- width:auto!important;
- height:4px!important;
- min-height:4px!important;
- border:0!important;
- border-radius:999px!important;
- background:#d65050!important;
- box-shadow:none!important;
- opacity:.86!important;
-}
-html body.is-events-mode #eventsPage .iu-events-calendar-day .iu-events-day-ribbon.is-kind-purchase.joins-prev{
- left:-5px!important;
- border-top-left-radius:0!important;
- border-bottom-left-radius:0!important;
-}
-html body.is-events-mode #eventsPage .iu-events-calendar-day .iu-events-day-ribbon.is-kind-purchase.joins-next{
- right:-5px!important;
- border-top-right-radius:0!important;
- border-bottom-right-radius:0!important;
+ display:none!important;
 }
 html body.is-events-mode #eventsPage .iu-events-calendar-legend .iu-events-legend-inventory{
  display:inline-block!important;
