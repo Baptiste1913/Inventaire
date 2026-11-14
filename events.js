@@ -1,86 +1,160 @@
-/* Inventaires U V33.35 — calendrier partagé : Supabase est la source de vérité.
-   events-data.js est uniquement le secours de première installation / hors ligne. */
+/* Inventaires U V37.09 — Planning public Supabase et calendrier mensuel.
+   Les données en cache restent consultables hors ligne ; aucune API
+   supplémentaire n'est appelée pour afficher la page Événements. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-// V36.11 — Le volet Événements est animé par app.js.
-let moreAnimation=null;
 const fallback=window.INVENTAIRES_U_EVENTS||{inventories:[],events:[]};
 const CACHE='inventaires-u-planning-cache-v33.35';
-const date=s=>new Date(s+'T12:00:00');
+const date=s=>new Date(String(s)+'T12:00:00');
 const long=new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 const short=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'});
 const month=new Intl.DateTimeFormat('fr-FR',{month:'long'});
+const fullMonth=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'});
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const today=()=>{const d=new Date();d.setHours(12,0,0,0);return d;};
+const dayKey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const eventEnd=e=>date(e.end||e.start);
+const intersects=(e,start,end)=>date(e.start)<=end&&eventEnd(e)>=start;
+const datePeriod=e=>e.start===(e.end||e.start)?cap(short.format(date(e.start))):'Du '+short.format(date(e.start))+' au '+short.format(eventEnd(e));
+const countLabel=n=>n+' événement'+(n>1?'s':'');
+const sorted=rows=>[...rows].sort((a,b)=>a.start.localeCompare(b.start)||String(a.title||'').localeCompare(String(b.title||''),'fr'));
+const usable=rows=>(Array.isArray(rows)?rows:[]).filter(e=>e&&typeof e.title==='string'&&Number.isFinite(date(e.start).getTime())&&Number.isFinite(eventEnd(e).getTime())&&eventEnd(e)>=date(e.start));
 let lastRefresh=0,loading=false;
+let latestData=fallback;
+let calendarCursor=new Date(today().getFullYear(),today().getMonth(),1,12);
+let selectedKey=dayKey(today()),firstOpen=true;
 function readCache(){try{const o=JSON.parse(localStorage.getItem(CACHE)||'null');return Array.isArray(o?.inventories)&&Array.isArray(o?.events)?o:null;}catch{return null;}}
+function eventStatus(e,now){
+ if(eventEnd(e)<now)return ['Terminé','is-past'];
+ if(date(e.start)<=now)return ['En cours','is-live'];
+ return ['À venir','is-upcoming'];
+}
+function makeEventRow(e,now){
+ const row=document.createElement('article');row.className='iu-events-list-row';
+ const main=document.createElement('div');main.className='iu-events-list-main';
+ const title=document.createElement('strong');title.textContent=e.title;
+ const period=document.createElement('span');period.textContent=datePeriod(e);
+ const pill=document.createElement('span');
+ const [status,cls]=eventStatus(e,now);pill.className='iu-events-row-state '+cls;pill.textContent=status;
+ main.append(title,period);row.append(main,pill);return row;
+}
+function fillRows(container,rows,now,empty){
+ if(!container)return;
+ container.replaceChildren();
+ if(!rows.length){
+  const p=document.createElement('p');p.className='iu-events-empty';p.textContent=empty;
+  container.append(p);return;
+ }
+ for(const e of sorted(rows))container.append(makeEventRow(e,now));
+}
+function renderPage(){
+ if(!$('eventsCalendarGrid'))return;
+ const now=today(),events=usable(latestData.events);
+ const coming=events.filter(e=>eventEnd(e)>=now).sort((a,b)=>{
+  const activeA=date(a.start)<=now,activeB=date(b.start)<=now;
+  return Number(activeB)-Number(activeA)||a.start.localeCompare(b.start)||a.title.localeCompare(b.title,'fr');
+ });
+ const lead=coming[0],leadState=$('eventsFeatureState');
+ if(lead){
+  const [status,cls]=eventStatus(lead,now);
+  $('eventsFeatureHeading').textContent=lead.title;
+  $('eventsFeaturePeriod').textContent=datePeriod(lead);
+  $('eventsFeatureHint').textContent=status==='En cours'?'Événement en cours':'Prochain événement';
+  leadState.textContent=status;leadState.className='iu-events-feature-state '+cls;leadState.hidden=false;
+ }else{
+  $('eventsFeatureHeading').textContent='Aucun événement à venir';
+  $('eventsFeaturePeriod').textContent='Les prochains événements apparaîtront ici dès leur publication.';
+  $('eventsFeatureHint').textContent='Planning à jour';leadState.hidden=true;
+ }
+ const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth();
+ const first=new Date(y,m,1,12),last=new Date(y,m+1,0,12);
+ const monthEvents=sorted(events.filter(e=>intersects(e,first,last)));
+ $('eventsCalendarTitle').textContent=cap(fullMonth.format(first));
+ $('eventsCalendarSummary').textContent=countLabel(monthEvents.length)+' planifié'+(monthEvents.length>1?'s':'');
+ $('eventsAgendaHeading').textContent='Agenda de '+month.format(first);
+ $('eventsAgendaCount').textContent=countLabel(monthEvents.length);
+ const grid=$('eventsCalendarGrid');grid.replaceChildren();
+ const offset=(first.getDay()+6)%7;
+ const cells=Math.ceil((offset+last.getDate())/7)*7;
+ for(let i=0;i<cells;i++){
+  const day=new Date(y,m,1-offset+i,12);
+  const key=dayKey(day),inMonth=day.getMonth()===m;
+  const matches=events.filter(e=>intersects(e,day,day));
+  const button=document.createElement('button');button.type='button';
+  button.className='iu-events-calendar-day';
+  if(!inMonth)button.classList.add('is-outside');
+  if(matches.length)button.classList.add('has-events');
+  if(key===dayKey(now)){button.classList.add('is-today');button.setAttribute('aria-current','date');}
+  if(key===selectedKey)button.classList.add('is-selected');
+  button.setAttribute('aria-pressed',String(key===selectedKey));
+  button.setAttribute('aria-label',cap(long.format(day))+' · '+countLabel(matches.length));
+  const num=document.createElement('span');num.className='iu-events-day-number';num.textContent=String(day.getDate());
+  const marker=document.createElement('span');marker.className='iu-events-day-marker';
+  marker.setAttribute('aria-hidden','true');
+  if(matches.some(e=>date(e.start)<=now&&eventEnd(e)>=now))marker.classList.add('is-live');
+  if(matches.length>1){const count=document.createElement('span');count.className='iu-events-day-count';count.textContent=String(matches.length);marker.append(count);}
+  button.append(num,marker);
+  button.addEventListener('click',event=>{
+   selectedKey=key;
+   if(day.getMonth()!==calendarCursor.getMonth()||day.getFullYear()!==calendarCursor.getFullYear()){
+    calendarCursor=new Date(day.getFullYear(),day.getMonth(),1,12);
+   }
+   renderPage();
+   if(event.detail===0){
+    const chosen=[...$('eventsCalendarGrid').querySelectorAll('.iu-events-calendar-day')].find(el=>el.getAttribute('aria-pressed')==='true');
+    chosen?.focus({preventScroll:true});
+   }
+  });
+  grid.append(button);
+ }
+ const selected=date(selectedKey);
+ $('eventsSelectedDate').textContent=cap(long.format(selected));
+ const dayEvents=sorted(events.filter(e=>intersects(e,selected,selected)));
+ $('eventsSelectedCount').textContent=countLabel(dayEvents.length);
+ fillRows($('eventsSelectedList'),dayEvents,now,'Aucun événement pour cette date.');
+ fillRows($('eventsAgendaList'),monthEvents,now,'Aucun événement prévu pour ce mois.');
+}
+function preparePage(){
+ if(firstOpen){
+  const now=today();
+  const upcoming=usable(latestData.events).filter(e=>eventEnd(e)>=now).sort((a,b)=>{
+   const aLive=date(a.start)<=now,bLive=date(b.start)<=now;
+   return Number(bLive)-Number(aLive)||a.start.localeCompare(b.start);
+  });
+  const next=upcoming[0]&&date(upcoming[0].start)>now?date(upcoming[0].start):now;
+  calendarCursor=new Date(next.getFullYear(),next.getMonth(),1,12);
+  selectedKey=dayKey(next);firstOpen=false;
+ }
+ renderPage();
+}
+function changeMonth(direction){
+ calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+direction,1,12);
+ const first=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth(),1,12);
+ const last=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,0,12);
+ const next=sorted(usable(latestData.events).filter(e=>intersects(e,first,last)))[0];
+ selectedKey=dayKey(next?(date(next.start)<first?first:date(next.start)):first);
+ renderPage();
+}
 function render(data){
- const now=new Date();now.setHours(0,0,0,0);
- const next=(data.inventories||[]).map(date).filter(d=>Number.isFinite(d.getTime())).sort((a,b)=>a-b).find(d=>d>=now);
+ latestData=data||fallback;
+ const now=today();
+ const next=(latestData.inventories||[]).map(date).filter(d=>Number.isFinite(d.getTime())).sort((a,b)=>a-b).find(d=>d>=now);
  $('calendarNextDate').textContent=next?cap(long.format(next)):'Date à confirmer';
  const countdown=$('calendarNextCountdown');
  if(countdown){
   if(!next){countdown.hidden=true;countdown.textContent='';}
-  else {
-   // Jours calendaires (UTC) : ne varie pas lors des changements d'heure à Paris.
+  else{
    const days=Math.round((Date.UTC(next.getFullYear(),next.getMonth(),next.getDate())-Date.UTC(now.getFullYear(),now.getMonth(),now.getDate()))/86400000);
-   countdown.textContent=days===0?"Aujourd’hui":days===1?"Demain":`Dans ${days} jours`;
+   countdown.textContent=days===0?"Aujourd’hui":days===1?"Demain":'Dans '+days+' jours';
    countdown.hidden=false;
   }
  }
  $('eventsMonthHeading').textContent='Événements en '+month.format(now);
- const endOfMonth=new Date(now.getFullYear(),now.getMonth()+1,0,23,59);
- const current=(data.events||[]).filter(e=>date(e.start)<=endOfMonth&&date(e.end)>=now).sort((a,b)=>{
-  const aLive=date(a.start)<=now,bLive=date(b.start)<=now;
-  return Number(bLive)-Number(aLive)||a.start.localeCompare(b.start)||a.title.localeCompare(b.title,'fr');
- });
- const first=$('eventsFirst'),more=$('eventsMoreList'),button=$('eventsMoreButton'),label=$('eventsMoreLabel');
- if(moreAnimation){const old=moreAnimation;moreAnimation=null;old.cancel();}
-  more.removeAttribute('style');first.replaceChildren();more.replaceChildren();more.hidden=true;more.classList.remove('is-open');
- button.hidden=true;button.setAttribute('aria-expanded','false');
- function item(e){
-  const node=document.createElement('div');node.className='events-entry';
-  const live=date(e.start)<=now;node.classList.add(live?'events-entry-live':'events-entry-upcoming');
-  const badge=document.createElement('span');badge.className='events-state';badge.textContent=live?'En cours':'À venir';
-  const name=document.createElement('strong');name.textContent=e.title;
-  const period=document.createElement('span');period.className='events-period';
-  period.textContent=e.start===e.end?short.format(date(e.start)):'Du '+short.format(date(e.start))+' au '+short.format(date(e.end));
-  node.append(badge,name,period);return node;
- }
- if(!current.length){const empty=document.createElement('p');empty.className='events-empty';empty.textContent='Aucun événement en cours ou à venir ce mois-ci.';first.append(empty);}
- else{first.append(item(current[0]));current.slice(1).forEach(e=>more.append(item(e)));}
- if(current.length>1){
-  button.hidden=false;label.textContent='Voir les '+(current.length-1)+' autres événements';
-  button.onclick=()=>{
-   const open=button.getAttribute('aria-expanded')!=='true';
-   const from=more.hidden?0:more.getBoundingClientRect().height;
-   more.style.height=from+'px';more.style.overflow='hidden';
-   if(moreAnimation){const previous=moreAnimation;moreAnimation=null;previous.cancel();}
-   button.setAttribute('aria-expanded',String(open));
-   label.textContent=open?'Masquer les autres événements':'Voir les '+(current.length-1)+' autres événements';
-   more.hidden=false;more.classList.toggle('is-open',open);
-   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||typeof more.animate!=='function'){
-    more.hidden=!open;more.style.removeProperty('height');more.style.removeProperty('overflow');return;
-   }
-   more.style.height='auto';const to=open?more.scrollHeight:0;more.style.height=from+'px';
-   if(Math.abs(to-from)<1){
-    more.hidden=!open;more.style.removeProperty('height');more.style.removeProperty('overflow');return;
-   }
-   const duration=window.IU_FOLD_MOTION?.duration??380;
-   const motion=more.animate([{height:from+'px'},{height:to+'px'}],
-    {duration,easing:window.IU_FOLD_MOTION?.easing??'cubic-bezier(.23,.72,.24,1)',fill:'both'});
-   moreAnimation=motion;
-   motion.onfinish=()=>{
-    if(moreAnimation!==motion)return;
-    moreAnimation=null;more.style.height=to+'px';motion.cancel();
-    more.hidden=!open;
-    more.style.removeProperty('height');more.style.removeProperty('overflow');
-   };
-  };
- }
+ renderPage();
 }
 function rowsToData(rows){return {
  inventories:rows.filter(r=>r.enabled&&r.kind==='inventory').map(r=>r.starts_on),
- events:rows.filter(r=>r.enabled&&r.kind==='store').map(r=>({id:r.id,title:r.title,start:r.starts_on,end:r.ends_on}))
+ events:rows.filter(r=>r.enabled&&r.kind==='store').map(r=>({id:r.id,title:r.title,start:r.starts_on,end:r.ends_on||r.starts_on}))
 };}
 async function refresh(force=false){
  if(loading||!navigator.onLine||(!force&&Date.now()-lastRefresh<30000))return;
@@ -90,12 +164,19 @@ async function refresh(force=false){
   const client=await auth.getClient();
   const {data,error}=await client.from('inventory_push_events').select('id,kind,title,starts_on,ends_on,enabled').eq('enabled',true).order('starts_on').limit(1000);
   if(error)throw error;
-  const next=rowsToData(data||[]);localStorage.setItem(CACHE,JSON.stringify(next));render(next);lastRefresh=Date.now();
+  const next=rowsToData(data||[]);
+  localStorage.setItem(CACHE,JSON.stringify(next));render(next);lastRefresh=Date.now();
  }catch(e){console.info('Planning en mode local (synchronisation indisponible)',e?.message||e);}
  finally{loading=false;}
 }
+$('eventsCalendarPrevious')?.addEventListener('click',()=>changeMonth(-1));
+$('eventsCalendarNext')?.addEventListener('click',()=>changeMonth(1));
+$('eventsCalendarToday')?.addEventListener('click',()=>{
+ const now=today();calendarCursor=new Date(now.getFullYear(),now.getMonth(),1,12);
+ selectedKey=dayKey(now);renderPage();
+});
 render(readCache()||fallback);
-window.InventairesPlanning={refresh,render};
+window.InventairesPlanning={refresh,render,renderPage,preparePage};
 refresh(true);
 window.addEventListener('online',()=>refresh(true));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
