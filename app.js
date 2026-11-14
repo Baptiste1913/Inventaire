@@ -1806,15 +1806,9 @@ window.IUSetupFold=setupUnifiedFold;
   event.stopPropagation();
   iuOpenAccountPage();
  });
+ // Les deux pages n'ont qu'un Retour. L'actualisation de
+ // l'état des services reste dans sa rubrique (#opsRefresh).
  $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage());
- $('iuAccountRefresh')?.addEventListener('click',()=>{
-  if(!document.body.classList.contains('is-account-mode'))return;
-  window.IURefreshAccount?.();
- });
- $('iuAdminRefreshShortcut')?.addEventListener('click',()=>{
-  if(!document.body.classList.contains('is-admin-mode'))return;
-  $('opsRefresh')?.click();
- });
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
