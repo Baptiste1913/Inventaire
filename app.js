@@ -646,6 +646,50 @@ function iuCloseAdminPage(immediate=false){
  changeFocusWithMotion(exit,false,iuAdminPageMotion);
 }
 window.IUOpenAdminPage=iuOpenAdminPage;
+
+/* V36.71 — Mon compte devient une vraie page, suivant exactement
+   les choix validés pour l'Administration (v36.69/70) :
+   document naturellement défilable sur Safari, bandeau compact,
+   fond opaque durant la transition, retour à la position d'accueil.
+   Le DOM du tableau de bord et de l'authentification n'est pas cloné. */
+const iuAccountPageMotion={
+ modeClass:'is-account-mode',
+ viewSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .account-body',
+ exitSourceSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .account-body',
+ normalSelectors:focusNormalSelectors,
+ surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
+ solidDuringMotion:true
+};
+let iuAccountReturnY=0;
+function iuOpenAccountPage(){
+ const card=$('accountCard');
+ if(!card||document.body.classList.contains('is-account-mode')||focusMotionBusy)return;
+ iuAccountReturnY=window.scrollY;
+ changeFocusWithMotion(()=>{
+  card.open=true;
+  document.body.classList.add('is-account-mode');
+  document.documentElement.classList.add('iu-account-page-active');
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+ },true,iuAccountPageMotion);
+}
+function iuCloseAccountPage(immediate=false){
+ const card=$('accountCard');
+ if(!card||!document.body.classList.contains('is-account-mode'))return;
+ const exit=()=>{
+  document.body.classList.remove('is-account-mode');
+  document.documentElement.classList.remove('iu-account-page-active');
+  card.open=false;
+  window.scrollTo({top:iuAccountReturnY,left:0,behavior:'instant'});
+ };
+ if(!immediate&&focusMotionBusy){
+  focusPendingTask=()=>iuCloseAccountPage();
+  return;
+ }
+ if(immediate||focusReducedMotion()){exit();return;}
+ changeFocusWithMotion(exit,false,iuAccountPageMotion);
+}
+window.IUOpenAccountPage=iuOpenAccountPage;
+window.IUCloseAccountPage=iuCloseAccountPage;
 function syncFocusMode(sessionInput,statsInput){
  const session=arguments.length?sessionInput:getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
@@ -1731,7 +1775,7 @@ window.IUSetupFold=setupUnifiedFold;
    setupUnifiedFold(card,card.querySelector(summary),card.querySelector(content),closing));
  };
  // L'administration n'est plus un accordéon : elle occupe une vue dédiée.
- bind('.fold-card:not(#planningAdminCard)',':scope > .fold-summary',':scope > .fold-body','is-fold-closing');
+ bind('.fold-card:not(#planningAdminCard):not(#accountCard)',':scope > .fold-summary',':scope > .fold-body','is-fold-closing');
  bind('#planningAdminCard .planning-accordion',':scope > .planning-panel-summary',':scope > .planning-panel-content','is-planning-closing');
  bind('.planning-import-help',':scope > summary',':scope > .planning-import-help-body','is-detail-closing');
  bind('details.calc-alerts',':scope > summary',':scope > .calc-alerts-body, :scope > .recovery-body','is-detail-closing');
@@ -1747,6 +1791,24 @@ window.IUSetupFold=setupUnifiedFold;
   iuOpenAdminPage();
  });
  $('iuAdminReturn')?.addEventListener('click',()=>iuCloseAdminPage());
+ // Même navigation par page que l'administrateur. Ne jamais activer
+ // l'animation d'accordéon sur un <details> qui contient les données Google.
+ const accountCard=$('accountCard');
+ const accountSummary=accountCard?.querySelector(':scope > summary');
+ accountSummary?.addEventListener('click',event=>{
+  event.preventDefault();
+  iuOpenAccountPage();
+ });
+ $('iuAccountLaunch')?.addEventListener('click',event=>{
+  event.preventDefault();
+  event.stopPropagation();
+  iuOpenAccountPage();
+ });
+ $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage());
+ $('iuAccountRefresh')?.addEventListener('click',()=>{
+  if(!document.body.classList.contains('is-account-mode'))return;
+  window.IURefreshAccount?.();
+ });
  $('iuAdminRefreshShortcut')?.addEventListener('click',()=>{
   if(!document.body.classList.contains('is-admin-mode'))return;
   $('opsRefresh')?.click();
@@ -1754,6 +1816,8 @@ window.IUSetupFold=setupUnifiedFold;
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
+  }else if(event.key==='Escape'&&document.body.classList.contains('is-account-mode')){
+   event.preventDefault();iuCloseAccountPage();
   }
  });
  if(adminCard){
