@@ -617,11 +617,7 @@ function iuAnimateStandalonePage(action,entering,config){
   if(entering){clearAnimations();finishPending();}
   else closeAfterAnimation();
  });
- if(!animations.length){
-  // Aucun élément visible : la fermeture reste fonctionnelle.
-  if(entering)finishPending();
-  else closeAfterAnimation();
- }
+ // Promise.all([]) se résout aussi : aucune seconde fermeture à lancer.
 }
 function changeFocusWithMotion(action,entering,config={}){
  if(focusMotionBusy)return;
