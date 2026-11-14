@@ -341,17 +341,22 @@ function renderDashboard(){
  const totalDuration=durations.reduce((sum,x)=>sum+x,0);
  const pace=entries.length?Math.round(totalDuration/entries.length/1000):null;
  $('dashSecondsPerWeigh').textContent=pace===null?'—':`${pace} s`;
- // Les hauteurs et comparaisons du graphique restent calculées en secondes.
- // Seuls les libellés sont convertis pour faciliter la lecture des durées.
+ // La hauteur des colonnes et la comparaison restent calculées en secondes.
+ // HH:MM:SS à largeur constante pour que les six durées restent lisibles sur iPhone.
  const formatTrendDuration=seconds=>{
   const total=Math.max(0,Math.round(seconds));
-  if(total<60)return total+' s';
-  const minutes=Math.floor(total/60),remainingSeconds=total%60;
-  if(total<3600)return minutes+' min'+(remainingSeconds?' '+remainingSeconds+' s':'');
-  const hours=Math.floor(total/3600),remainingMinutes=Math.floor((total%3600)/60);
-  return hours+' h'+(remainingMinutes?' '+remainingMinutes+' min':'')+(remainingSeconds?' '+remainingSeconds+' s':'');
+  const hours=Math.floor(total/3600);
+  const minutes=Math.floor((total%3600)/60);
+  const secs=total%60;
+  return [hours,minutes,secs].map(value=>String(value).padStart(2,'0')).join(':');
  };
  const trend=$('dashTrend');trend.replaceChildren();
+ const formatHint=document.createElement('span');
+ formatHint.className='dashboard-trend-format';
+ formatHint.textContent='hh:mm:ss';
+ formatHint.setAttribute('aria-hidden','true');
+ trend.append(formatHint);
+ trend.setAttribute('aria-label','Évolution du temps moyen par pesée, affichée au format heures, minutes, secondes.');
  const plotted=[...completed].filter(x=>Array.isArray(x.entries)&&x.entries.length>0)
   .sort((a,b)=>b.endedAt-a.endedAt).slice(0,6).reverse();
  if(!plotted.length){const empty=document.createElement('p');empty.className='dashboard-empty';empty.textContent='Termine un inventaire pour afficher ton évolution.';trend.append(empty);}
@@ -369,10 +374,12 @@ function renderDashboard(){
   else{indicator.textContent=`Plus lent · ${difference} %`;indicator.classList.add('is-slower');}
   indicator.title='Écart de temps moyen par pesée par rapport à l’inventaire précédent';
   trend.append(indicator);
-  trend.setAttribute('aria-label','Évolution du temps moyen par pesée. '+indicator.textContent);
+  trend.setAttribute('aria-label','Évolution du temps moyen par pesée, format hh:mm:ss. '+indicator.textContent);
   plotted.forEach((item,i)=>{
    const column=document.createElement('div');column.className='dashboard-trend-column';
-   const value=document.createElement('strong');value.textContent=formatTrendDuration(values[i]);
+   const value=document.createElement('strong');
+   value.textContent=formatTrendDuration(values[i]);
+   value.title='Temps moyen par pesée : '+formatTrendDuration(values[i]);
    const track=document.createElement('div');track.className='dashboard-trend-track';
    const fill=document.createElement('div');fill.className='dashboard-trend-fill';fill.style.height=`${Math.max(5,values[i]/max*100)}%`;track.append(fill);
    const label=document.createElement('span');label.textContent=`N° ${i+1}`;
