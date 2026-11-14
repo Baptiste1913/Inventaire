@@ -1,7 +1,7 @@
 {
-  "version": "37.00",
+  "version": "37.01",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 981437,
-  "notes": "Le voyant Notifications de l'État des services devient vert lorsque la permission est accordée, orange si bloquée, gris sinon. Les quatre boutons techniques sont regroupés dans le nouveau tiroir Déboggage, au-dessus du Journal des erreurs, avec les animations et voyants existants. Suppression de « Diagnostic actuel ». Boutons Retour des pages Administrateur et Mon compte harmonisés avec « Voir les X sessions ». Fonctions, permissions et cache PWA conservés."
+  "bytes": 984567,
+  "notes": "Déboggage s'affiche désormais comme la section Planning et événements : titre et description directement sur la page, quatre commandes séparées sans carte extérieure. Voyants de statut fixes et fonctions des options préservés. Cache PWA réactualisé."
 }
