@@ -1,7 +1,7 @@
 {
-  "version": "37.26",
+  "version": "37.27",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1102359,
-  "notes": "Le bouton de la banderole « Fruits et Légumes » reprend le même rendu que « Démarrer un inventaire » v37.25 : hauteur 55 px, couronne dégradée #53C0E9 vers #64B9AE, liseré #007583 de 2 px, surface gris perle, reflets et ombres uniquement sur la couronne, mêmes réactions tactiles et icône Play identique. Largeur compacte adaptée à la banderole (jusqu'à 248 px) pour préserver la mascotte. Libellé Démarrer un inventaire, Reprendre l’inventaire ou Inventaire en cours selon l'état ; l’action existante de démarrage/reprise, les données et la pastille de session sont inchangées. Cache PWA actualisé."
+  "bytes": 1101836,
+  "notes": "Correction du bouton de la banderole, dont le dégradé et la surface avaient disparu sur Safari iPhone à cause d'anciens pseudo-éléments dotés de largeurs/décalages forcés. Les anciens ::before/::after sont désactivés et remplacés par deux véritables couches HTML indépendantes : couronne dégradée #53C0E9 → #64B9AE portant seule les ombres, surface gris perle avec liseré #007583 de 2 px, gabarit 55 px et icône Play comme dans « Ma session » v37.25. Fond de secours ajouté pour éviter toute transparence. Rendu tactile stable, états Démarrer/Reprendre/In cours et actions d'inventaire préservés. Cache PWA renouvelé."
 }
