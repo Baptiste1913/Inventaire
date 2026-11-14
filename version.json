@@ -1,7 +1,7 @@
 {
-  "version": "37.13",
+  "version": "37.14",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1076365,
-  "notes": "Page Événements : le calendrier et l'agenda principal restent réservés aux inventaires et aux opérations 10 % Pouvoir d’achat. Toutes les autres opérations du mois réapparaissent sous « Autres événements » dans un tiroir distinct, animé comme les autres, avec leurs dates et états, sans modifier le planning Supabase. La date du prochain inventaire sur l'accueil retrouve sa taille d'origine (19–25 px). Suppression des lignes séparatrices sous Date sélectionnée et Agenda de [mois]. Les périodes bleues de 10 % disposent désormais d’un calque continu au-dessus des cases du calendrier pour éviter les coupures lors de la sélection, sans bloquer les clics. Cache PWA mis à jour."
+  "bytes": 1077015,
+  "notes": "Calendrier 10 % : un seul tracé par plage de jours, désormais rouge, dessiné sur les lignes de la grille sans doublon, sans coupure lors de la sélection d'une date et sans barre anticipée sur les jours du mois suivant. Les points verts d'inventaire restent indépendants, la rubrique Autres événements et les données Supabase sont préservées. La carte principale affiche désormais uniquement « PROCHAINE OPÉRATION » au lieu du double intitulé. Compte à rebours et pastilles des opérations 10 % harmonisés en rouge. Cache PWA renouvelé."
 }
