@@ -1,7 +1,7 @@
 {
-  "version": "37.22",
+  "version": "37.23",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1089478,
-  "notes": "Correction du contour #007583 du bouton Démarrer un inventaire : ajout d'un liseré indépendant de 2 px au premier plan afin qu'il reste visible sur Safari iPhone, sans être masqué par la forme dégradée. La forme extérieure +4 px, le dégradé #53C0E9 vers #64B9AE, le style du bouton 37.17 et la pastille Notifications à 32 px sont conservés. Mise à jour des références et du cache PWA."
+  "bytes": 1089398,
+  "notes": "Réduction légère de la forme dégradée derrière « Démarrer un inventaire » : débordement et épaisseur de 4 à 3 px, avec rayon extérieur adapté de 18 à 17 px. Bordure turquoise #007583 de 2 px, dégradé #53C0E9 → #64B9AE, visuel du bouton v37.17, icône et interactions inchangés. Cache PWA actualisé."
 }
