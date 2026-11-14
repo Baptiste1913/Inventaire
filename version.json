@@ -1,7 +1,7 @@
 {
-  "version": "37.03",
+  "version": "37.04",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 984809,
-  "notes": "Section Déboggage : suppression du trait de séparation supérieur et harmonisation de l'espacement au-dessus du titre avec les autres sections administratives (18 px). Boutons, voyants, titre, sous-titre et logique technique conservés ; cache PWA actualisé."
+  "bytes": 984794,
+  "notes": "Marge supérieure de Déboggage réduite de 18 à 8 px pour correspondre à l'espacement des autres parties de l'administration, sans réintroduire de séparation. Boutons, titres, indicateurs et fonctionnalités inchangés ; cache PWA actualisé."
 }
