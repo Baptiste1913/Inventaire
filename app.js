@@ -1992,6 +1992,7 @@ window.IUSetupFold=setupUnifiedFold;
  bind('details.calc-alerts',':scope > summary',':scope > .calc-alerts-body, :scope > .recovery-body','is-detail-closing');
  bind('details.backup-advanced',':scope > summary',':scope > .backup-advanced-body','is-detail-closing');
  bind('details.events-disclosure',':scope > summary',':scope > .events-disclosure-content','is-events-closing');
+ bind('#eventsOtherPanel',':scope > .iu-events-other-summary',':scope > .iu-events-other-list','is-events-closing');
  bind('#planningAdminCard details.iu-admin-category',':scope > summary',':scope > .iu-admin-category-body','is-admin-closing');
  const adminCard=$('planningAdminCard');
  // La flèche d'accès aux réglages est maintenant directement dans
