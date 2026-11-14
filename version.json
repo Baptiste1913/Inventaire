@@ -1,7 +1,7 @@
 {
-  "version": "36.79",
+  "version": "36.80",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Correction Safari iPhone : ouverture de Mon compte et Administrateur depuis un accueil déjà défilé. Évite les captures View Transition désalignées avec l'ancien bandeau et utilise une animation opaque directe de 610 ms, sans clignotement ni capture de l'arrière-plan. Conserve les animations normales depuis le haut, le retour à la position d'accueil, le défilement des pages, le mode concentration et la synchronisation automatique."
+  "notes": "Correction des ouvertures/fermetures Mon compte et Administrateur depuis un accueil déjà défilé sur Safari iPhone : suppression des clones DOM qui provoquaient les icônes agrandies et le bandeau superposé ; animation directe des véritables cartes, bouton Retour immobile dès la première image, page d'origine et sa position de défilement rétablies uniquement après la sortie avec fond opaque neutre. Moteur de pesée, mode concentration et synchronisation auto inchangés."
 }
