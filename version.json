@@ -1,7 +1,7 @@
 {
-  "version": "37.11",
+  "version": "37.12",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1057007,
-  "notes": "Calendrier épuré : les cases restent neutres et affichent jusqu'à deux traits fins distincts, avec une couleur stable par événement et par mois, reliés seulement lorsque le même événement continue sur les journées voisines. Les autres événements sont signalés par +N et accessibles en touchant la date ; leurs couleurs sont reprises à côté de leurs titres dans l'agenda. Aujourd'hui et date choisie restent identifiables. Sur l'accueil, la date du prochain inventaire revient directement sous son titre, tandis que la pastille Activer est centrée verticalement sur l'ensemble. Suppression du surtitre SERVICES U / PLANIFICATION et de la ligne séparatrice de la page Événements. Navigation, cache et données Supabase préservés."
+  "bytes": 1066231,
+  "notes": "Calendrier simplifié pour afficher uniquement les inventaires (issus des dates d'inventaire) et les opérations 10 % POUVOIR D'ACHAT (issues du planning Supabase). Un point vert représente l'inventaire et un trait bleu représente la période 10 % ; les deux catégories sont rappelées par une légende et leurs pastilles dans la liste. Les autres événements restent dans les données d'origine et les notifications ne changent pas. Accueil : la pastille Activer/Activées est à droite et centrée sur le titre SERVICE U / ÉVÉNEMENT et Événements en [mois]. Le cadre Prochain inventaire retrouve son aspect classique, avec la date et le compte à rebours, directement au-dessus du bouton Accéder aux événements. Navigation, animations de page et mode hors connexion conservés."
 }
