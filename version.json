@@ -1,7 +1,7 @@
 {
-  "version": "37.28",
+  "version": "37.29",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1102694,
-  "notes": "Bouton de la banderole « Fruits et Légumes » élargi à 100 % de la largeur disponible, sans la limite 248 px, afin de s'aligner sur le bouton Démarrer de « Ma session ». Bord inférieur de la banderole rapproché à 8 px. Suppression complète des ombres et reflets du bouton de la banderole, y compris au survol et au toucher ; dégradé #53C0E9 → #64B9AE, liseré #007583, surface gris perle, dimensions verticales 55 px et deux couches stables conservés. Les fonctions démarrer/reprendre, le bouton de Ma session, les données et la pastille Notifications restent inchangés. Cache PWA actualisé."
+  "bytes": 1103145,
+  "notes": "Mascotte pastèque de la banderole Fruits et Légumes agrandie exactement deux fois : largeur bureau 116–140 px → 232–280 px, mobile 118 → 236 px et petit mobile 110 → 220 px. Inclinaison et ancrage conservés ; texte d'introduction maintenu au premier plan pour rester lisible. Boutons, calculs et interactions inchangés. Cache PWA mis à jour."
 }
