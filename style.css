@@ -20750,3 +20750,31 @@ html body:not(.is-focus-mode):not(.is-events-mode) .app > #inventoryCalendar.eve
   padding-inline:9px!important;
  }
 }
+
+
+/* V37.20 — Essai noir : conserver le relief de v37.19, sa géométrie,
+   son liseré et toutes ses ombres. Seule la surface devient noire,
+   avec le libellé blanc. Même couleur au survol/toucher sur Safari. */
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]),
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):is(:hover,:active,:focus-visible){
+ background:linear-gradient(145deg,#232427 0%,#161719 55%,#0e0f11 100%)!important;
+ color:#fff!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn > span.start-play-glyph{
+ display:inline-flex!important;
+ flex:0 0 14px!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:14px!important;
+ height:18px!important;
+ margin:0!important;
+ padding:0!important;
+ font-family:inherit!important;
+ font-size:20px!important;
+ font-weight:500!important;
+ line-height:1!important;
+ color:inherit!important;
+ letter-spacing:0!important;
+ white-space:nowrap!important;
+ transform:translateY(-.5px)!important;
+}
