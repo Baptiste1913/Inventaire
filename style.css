@@ -15934,3 +15934,151 @@ html body.is-admin-mode .app > #planningAdminCard.card[data-admin-loading="true"
  visibility:hidden!important;
  pointer-events:none!important;
 }
+
+
+/* V36.69 — La référence visuelle EST #startSession (Ma session).
+   Même géométrie, typographie, relief, ombre, image et réactions tactile.
+   Les anciens styles génériques d'administration ne doivent plus gagner. */
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action{
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:1 1 100%!important;
+ width:100%!important;
+ min-width:0!important;
+ min-height:55px!important;
+ height:auto!important;
+ gap:10px!important;
+ padding:14px 18px!important;
+ border:1px solid #d4dce2!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#28343d!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ font-family:inherit!important;
+ font-size:13.5px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ letter-spacing:.005em!important;
+ white-space:normal!important;
+ transform:translateY(0)!important;
+ transition:box-shadow .22s ease,background .22s ease,
+            border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch .start-play-icon{
+ display:block!important;
+ width:12px!important;
+ height:12px!important;
+ flex:0 0 12px!important;
+ object-fit:contain!important;
+ filter:grayscale(1) brightness(.64)!important;
+ opacity:.94!important;
+}
+@media(hover:hover){
+ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch:hover:not(:disabled){
+  border-color:#cad4dc!important;
+  background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
+  box-shadow:
+   -4px -4px 8px rgba(255,255,255,.98),
+   -7px -7px 14px rgba(255,255,255,.64),
+    5px 6px 13px rgba(156,173,189,.38),
+    2px 3px 5px rgba(156,173,189,.19),
+    inset 1px 1px 0 rgba(255,255,255,.97)!important;
+  transform:translateY(-1px)!important;
+ }
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch:active:not(:disabled){
+ border-color:#d1d9df!important;
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+ box-shadow:
+  inset 2px 3px 6px rgba(150,166,181,.24),
+  inset -2px -2px 5px rgba(255,255,255,.96),
+  1px 1px 3px rgba(156,173,189,.12)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch:focus-visible{
+ outline:2px solid #8d9ca8!important;
+ outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch{
+  transition:none!important;transform:none!important;
+ }
+}
+
+/* V36.69 — Correction de la cause du blocage du scroll sur Safari :
+   ne plus verrouiller html/body et ne plus forcer la page Administrateur
+   dans un <details> position:fixed qui porte lui-même le scroll.
+   Comme pour Concentration, document/body défilent naturellement. */
+html.iu-admin-page-active,
+html body.is-admin-mode{
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+ overscroll-behavior-y:auto!important;
+}
+html body.is-admin-mode{
+ touch-action:pan-y!important;
+}
+html body.is-admin-mode .app{
+ position:relative!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ width:100%!important;
+ max-width:760px!important;
+ min-width:0!important;
+ min-height:100dvh!important;
+ height:auto!important;
+ margin-inline:auto!important;
+ padding-top:0!important;
+ padding-bottom:0!important;
+ overflow:visible!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card{
+ position:relative!important;
+ inset:auto!important;
+ top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
+ z-index:auto!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ justify-content:flex-start!important;
+ gap:16px!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ height:auto!important;
+ min-height:100dvh!important;
+ max-height:none!important;
+ margin:0!important;
+ padding:max(14px,env(safe-area-inset-top)) 0 max(28px,env(safe-area-inset-bottom))!important;
+ box-sizing:border-box!important;
+ overflow:visible!important;
+ overscroll-behavior-y:auto!important;
+ background:#f3f6f7!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ transform:none!important;
+ touch-action:pan-y!important;
+ -webkit-overflow-scrolling:auto!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card > .iu-admin-page-head.focus-toolbar{
+ touch-action:pan-y!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body{
+ touch-action:pan-y!important;
+}
+/* Conservation stricte des autorisations : hidden et chargement Supabase. */
+html body.is-admin-mode .app > #planningAdminCard.card[hidden],
+html body.is-admin-mode .app > #planningAdminCard.card[data-admin-loading="true"] > .planning-admin-body{
+ display:none!important;
+}
