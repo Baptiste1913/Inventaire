@@ -15672,7 +15672,7 @@ html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body{
  min-height:0!important;
  overflow:visible!important;
  opacity:1!important;
- transform:none!important;
+ transform:none;
  border-radius:0 0 23px 23px!important;
  padding-bottom:18px!important;
 }
@@ -15886,7 +15886,7 @@ html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body{
  background:linear-gradient(175deg,#fff 75%,#f6fbfb)!important;
  box-shadow:0 7px 25px rgba(32,56,63,.055)!important;
  opacity:1!important;
- transform:none!important;
+ transform:none;
 }
 html body.is-admin-mode .app > #planningAdminCard[data-admin-loading="true"] > .planning-admin-body{
  display:none!important;
@@ -16472,7 +16472,7 @@ html body.is-account-mode .app > #accountCard.card > :is(.iu-account-page-head,.
  position:relative!important;
  z-index:1!important;
  opacity:1!important;
- transform:none!important;
+ transform:none;
  touch-action:pan-y!important;
 }
 html body.is-account-mode .app > #accountCard.card > .iu-account-page-head.focus-toolbar{
@@ -16628,7 +16628,7 @@ html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard.iu-ac
             inset 0 1px 0 rgba(255,255,255,.94)!important;
  overflow:hidden!important;
  opacity:1!important;
- transform:none!important;
+ transform:none;
 }
 html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-top{
  display:flex!important;
@@ -17244,3 +17244,8 @@ html body.is-account-mode #accountCard .iu-page-external-nav > #iuAccountReturn{
 html body.is-admin-mode #planningAdminCard .iu-admin-inpage-top{
  display:none!important;
 }
+
+/* V36.80 — Les vraies cartes Compte/Administration conservent leur DOM
+   et leurs styles pendant la sortie. Le retrait local du !important sur
+   transform permet au moteur Web Animations de déplacer doucement les
+   cartes, sans toucher au verrou du défilement des pesées. */
