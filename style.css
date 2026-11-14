@@ -21089,3 +21089,27 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
   padding-bottom:8px!important;
  }
 }
+
+
+/* V37.29 — Agrandissement x2 de la mascotte pastèque uniquement.
+   Tailles précédentes : 116–140 px (bureau), 118 px (mobile),
+   110 px (petit mobile). Inclinaison et ancrage en bas à droite
+   sont conservés ; les textes demeurent lisibles devant le SVG. */
+html body .app > section.intro > img.intro-mascot{
+ width:clamp(232px,29.6vw,280px)!important;
+ height:auto!important;
+}
+@media(max-width:600px){
+ html body .app > section.intro > img.intro-mascot{
+  width:236px!important;
+ }
+}
+@media(max-width:380px){
+ html body .app > section.intro > img.intro-mascot{
+  width:220px!important;
+ }
+}
+html body .app > section.intro > :is(h2,p){
+ position:relative!important;
+ z-index:2!important;
+}
