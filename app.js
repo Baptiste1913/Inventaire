@@ -357,7 +357,7 @@ function renderHeroSummary(){
  // si une session est en pause il propose de la reprendre, jamais d'en créer une deuxième.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
-  heroLabel.textContent=session?.pausedAt?'Reprendre':'Inventaire';
+  heroLabel.textContent=session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire';
   // Éviter le rendu natif :disabled de Safari iOS (bouton blanc).
   // Le clic est déjà sans effet lorsque la session est en cours.
   heroAction.disabled=false;
