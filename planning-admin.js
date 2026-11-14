@@ -4,6 +4,11 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const card=$('planningAdminCard');if(!card)return;
+// V37.16 : une <dialog> modale ne doit jamais rester dans .app :
+// en vue Administrateur, tous les enfants sauf la carte Admin sont masqués.
+// Safari peut garder le backdrop modal actif et rendre tous les boutons inertes.
+const planningConfirmDialog=$('planningConfirmDialog');
+if(planningConfirmDialog?.closest('.app'))document.body.append(planningConfirmDialog);
 let client=null,authorized=false,rows=[],editingEvent=null,editingInventory=null,pendingImport=null,confirmId=null;
 let busy=false,authGeneration=0;
 const dateLabel=iso=>{const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`;};
@@ -110,10 +115,19 @@ function renderRows(){
     ?'Il disparaîtra du planning public et aucun nouveau rappel ne sera envoyé pour cet élément.'
     :'Il redeviendra visible et pourra déclencher un rappel à J-7 si la date le permet.';
    $('planningConfirmAccept').textContent=r.enabled?'Confirmer l’annulation':'Confirmer la réactivation';
-   const dialog=$('planningConfirmDialog');
+   const dialog=planningConfirmDialog;
+   if(!dialog){confirmId=null;status('Confirmation indisponible. Réessaie après avoir actualisé l’application.',true);return;}
+   // Protection en cas de réintroduction accidentelle de la fenêtre dans .app.
+   if(dialog.closest('.app'))document.body.append(dialog);
    dialog.classList.remove('is-leaving');
-   if(!dialog.open)dialog.showModal();
-   $('planningConfirmDismiss').focus({preventScroll:true});
+   try{
+    if(!dialog.open)dialog.showModal();
+    $('planningConfirmDismiss').focus({preventScroll:true});
+   }catch(error){
+    confirmId=null;
+    status('La fenêtre de confirmation ne peut pas s’ouvrir. Réessaie après une actualisation.',true);
+    console.warn('Ouverture de la confirmation du planning impossible',error);
+   }
   });
   actions.append(edit,toggle);item.append(details,actions);list.append(item);
  }
