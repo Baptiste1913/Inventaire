@@ -1,7 +1,7 @@
 {
-  "version": "37.10",
+  "version": "37.11",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1047772,
-  "notes": "Accueil : en-tête SERVICE U / ÉVÉNEMENT rétabli au-dessus du titre du mois, et bouton Accéder aux événements avec exactement les dimensions, dégradés, reliefs, animations tactiles et typographie d’Accéder à mon compte. Calendrier : périodes continues d’un même événement, vert pour en cours, gris pour à venir, gris atténué pour terminé, sans relier des événements différents ni franchir le dimanche. Aujourd’hui et date sélectionnée ont des contours distincts ; +N indique les événements supplémentaires. Carte de l’événement actif : décompte des jours avant sa fin, ou le début du prochain. Légende détaillée ; sélection d’une date, mois, données Supabase et cache hors-ligne conservés."
+  "bytes": 1057007,
+  "notes": "Calendrier épuré : les cases restent neutres et affichent jusqu'à deux traits fins distincts, avec une couleur stable par événement et par mois, reliés seulement lorsque le même événement continue sur les journées voisines. Les autres événements sont signalés par +N et accessibles en touchant la date ; leurs couleurs sont reprises à côté de leurs titres dans l'agenda. Aujourd'hui et date choisie restent identifiables. Sur l'accueil, la date du prochain inventaire revient directement sous son titre, tandis que la pastille Activer est centrée verticalement sur l'ensemble. Suppression du surtitre SERVICES U / PLANIFICATION et de la ligne séparatrice de la page Événements. Navigation, cache et données Supabase préservés."
 }
