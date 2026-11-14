@@ -17749,3 +17749,23 @@ html body.is-account-mode #accountCard #iuAccountProfileCard #accountSyncNow:act
   font-size:12px!important;
  }
 }
+
+
+/* V36.93 — L'icône U fournie remplit entièrement la surface de mise
+   à jour, sans seconde couche blanche autour de son fond gris d'origine. */
+#iuUpdateOverlay .iu-update-logo{
+ padding:0!important;
+ border:0!important;
+ border-radius:20px!important;
+ background:transparent!important;
+ overflow:hidden!important;
+ box-shadow:none!important;
+}
+#iuUpdateOverlay .iu-update-logo img{
+ width:86px!important;
+ height:86px!important;
+ max-width:100%!important;
+ object-fit:cover!important;
+ border-radius:20px!important;
+ background:transparent!important;
+}

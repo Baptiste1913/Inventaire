@@ -191,7 +191,6 @@ function renderProfileCloudDetails(){
   put('accountLastSyncAt','Non disponible');
   put('accountPendingChanges','Non connecté');
   put('accountCloudCounts','Non disponible');
-  put('accountGoogleSessionState','Non connecté');
   if(button)button.hidden=true;
   return;
  }
@@ -209,7 +208,6 @@ function renderProfileCloudDetails(){
  put('accountCloudCounts',counts
   ?number(counts.sessions)+' inventaire'+(counts.sessions>1?'s':'')+' · '+number(counts.weighs)+' pesée'+(counts.weighs>1?'s':'')
   :'Copie non vérifiée');
- put('accountGoogleSessionState',navigator.onLine?'Session présente':'Session locale · hors ligne');
  if(button){
   const raw=$('cloudStatus')?.textContent||'';
   const issue=/attente|nécessaire|indisponible|échec|erreur|actualisation/i.test(raw);

@@ -1,7 +1,7 @@
 {
-  "version": "36.92",
+  "version": "36.93",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 840097,
-  "notes": "Profil Google réorganisé en Informations du compte et Sauvegarde et synchronisation. Date de dernière synchronisation confirmée, modifications locales en attente, nombre d'inventaires et pesées de la dernière copie cloud confirmée, état de session Google et bouton Synchroniser maintenant uniquement en cas de besoin. Aucun décompte inventé, protections conflits/compte Google et fonctions d'inventaire préservées. Cache PWA renouvelé."
+  "bytes": 876609,
+  "notes": "Retrait de « Identité Google » et « Session Google » du profil. Le nouveau logo U fourni remplace les icônes PWA 192/512, l'icône iPhone 180, le favicon, l'écran de chargement et l'écran de mise à jour. SVG source conservé et cache PWA renouvelé, sans changement aux inventaires, animations ni à la synchronisation."
 }
