@@ -566,8 +566,21 @@ function iuAnimateStandalonePage(action,entering,config){
  const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
  let nav=null;
  let updated=false;
+ const namedAnchors=[];
+ const tagVisibleHomeAnchors=()=>{
+  // Comme dans focusTagViews : la banderole et l'en-tête restent à
+  // leur place pendant que le reste de l'écran se déplace.
+  const anchors=[...document.querySelectorAll(focusStaticSelectors)]
+   .filter(focusVisible);
+  anchors.forEach((el,i)=>{
+   if(i>=2)return;
+   el.style.viewTransitionName='iu-route-anchor-'+i;
+   namedAnchors.push(el);
+  });
+ };
  const cleanup=()=>{
   if(nav)nav.style.viewTransitionName='';
+  for(const el of namedAnchors)el.style.viewTransitionName='';
   html.classList.remove('iu-page-route','iu-page-enter','iu-page-exit');
   focusMotionBusy=false;
   const pending=focusPendingTask;
@@ -590,6 +603,7 @@ function iuAnimateStandalonePage(action,entering,config){
    // position ; aucun rattrapage de scroll ne sera visible ensuite.
    if(document.scrollingElement)document.scrollingElement.scrollTop=homeY;
    window.scrollTo({top:homeY,left:0,behavior:'instant'});
+   if(typeof document.startViewTransition==='function')tagVisibleHomeAnchors();
   }
  };
  focusMotionBusy=true;
@@ -598,6 +612,7 @@ function iuAnimateStandalonePage(action,entering,config){
  // images Google, tailles SVG et typographie comprises, même sur iPhone.
  if(typeof document.startViewTransition==='function'){
   try{
+   if(entering)tagVisibleHomeAnchors();
    if(!entering){
     nav=document.querySelector(navSelector);
     if(nav)nav.style.viewTransitionName='iu-route-nav';
