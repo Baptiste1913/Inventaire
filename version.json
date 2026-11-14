@@ -1,7 +1,7 @@
 {
-  "version": "36.78",
+  "version": "36.79",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Retrait de la rangée « Réglages administrateur » et de son séparateur au-dessus des mises à jour. Boutons Retour des pages Administrateur et Mon compte alignés à gauche, avec une marge plus généreuse sous le bouton. Navigation hors cartes, retour animé opaque, défilement Safari et synchronisation automatique préservés."
+  "notes": "Correction Safari iPhone : ouverture de Mon compte et Administrateur depuis un accueil déjà défilé. Évite les captures View Transition désalignées avec l'ancien bandeau et utilise une animation opaque directe de 610 ms, sans clignotement ni capture de l'arrière-plan. Conserve les animations normales depuis le haut, le retour à la position d'accueil, le défilement des pages, le mode concentration et la synchronisation automatique."
 }
