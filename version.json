@@ -1,7 +1,7 @@
 {
-  "version": "37.08",
+  "version": "37.09",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1000915,
-  "notes": "Le bandeau Événements devient « Inventaire » avec sous-titre « Prochaine date d’inventaire prévue ». Nouveau titre « Événements en [mois] » calculé automatiquement avec sous-titre « Liste de tous les événements en cours ou à venir ce mois-ci. ». Les pastilles En cours/À venir sont réduites à 30 px et positionnées à droite, centrées sur le bloc titre et dates de chaque événement. Autres événements et synchronisation conservés ; cache PWA actualisé."
+  "bytes": 1001013,
+  "notes": "Refonte des événements : le bloc d'accueil affiche directement le cadre Prochain inventaire (notifications conservées), puis un bouton Accéder aux événements. Une nouvelle page dédiée, opaque et animée par le même moteur que Mon compte et Administrateur, présente l'événement en cours/à venir, un calendrier mensuel interactif (lunes à dimanches, sélection d'une date, navigation entre les mois, indicateurs, événements sur plusieurs jours), la fiche de la date choisie et l'agenda trié. Données Supabase et cache hors ligne préservés ; cache PWA actualisé."
 }
