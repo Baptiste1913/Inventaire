@@ -9,7 +9,7 @@ const CACHE='inventaires-u-planning-cache-v33.35';
 const date=s=>new Date(s+'T12:00:00');
 const long=new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 const short=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'});
-const month=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'});
+const month=new Intl.DateTimeFormat('fr-FR',{month:'long'});
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 let lastRefresh=0,loading=false;
 function readCache(){try{const o=JSON.parse(localStorage.getItem(CACHE)||'null');return Array.isArray(o?.inventories)&&Array.isArray(o?.events)?o:null;}catch{return null;}}
@@ -27,7 +27,7 @@ function render(data){
    countdown.hidden=false;
   }
  }
- $('eventsMonthHeading').textContent='ÉVÉNEMENTS · '+month.format(now).toLocaleUpperCase('fr-FR');
+ $('eventsMonthHeading').textContent='Événements en '+month.format(now);
  const endOfMonth=new Date(now.getFullYear(),now.getMonth()+1,0,23,59);
  const current=(data.events||[]).filter(e=>date(e.start)<=endOfMonth&&date(e.end)>=now).sort((a,b)=>{
   const aLive=date(a.start)<=now,bLive=date(b.start)<=now;
