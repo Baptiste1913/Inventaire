@@ -1,7 +1,7 @@
 {
-  "version": "37.25",
+  "version": "37.26",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1092926,
-  "notes": "Le bouton « Démarrer un inventaire » est unifié en une seule silhouette de 55 px de hauteur, comme « Accéder aux événements » : la couronne dégradée #53C0E9 → #64B9AE, le liseré #007583 de 2 px et la surface gris perle s'inscrivent dans la même boîte, sans augmenter les dimensions extérieures. Les ombres et lumières ne sont appliquées qu'à la couronne arrière ; le bouton central ne porte plus de relief propre. Suppression des masques composités et des contours superposés responsables d'artefacts aux coins sur Safari au toucher ; animation d'appui sans réduction d'échelle. Icône Play, textes, actions d'inventaire et pastille Notifications à 32 px conservés. Cache PWA actualisé."
+  "bytes": 1102359,
+  "notes": "Le bouton de la banderole « Fruits et Légumes » reprend le même rendu que « Démarrer un inventaire » v37.25 : hauteur 55 px, couronne dégradée #53C0E9 vers #64B9AE, liseré #007583 de 2 px, surface gris perle, reflets et ombres uniquement sur la couronne, mêmes réactions tactiles et icône Play identique. Largeur compacte adaptée à la banderole (jusqu'à 248 px) pour préserver la mascotte. Libellé Démarrer un inventaire, Reprendre l’inventaire ou Inventaire en cours selon l'état ; l’action existante de démarrage/reprise, les données et la pastille de session sont inchangées. Cache PWA actualisé."
 }
