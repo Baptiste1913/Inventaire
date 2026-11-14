@@ -1,7 +1,7 @@
 {
-  "version": "36.73",
+  "version": "36.74",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mon compte : carte de profil plus aérée avec informations réparties en petites tuiles, plus d’espace avant le tableau de bord. Nouvelles données vérifiables depuis Supabase : date de création du compte dans l’application, dernière connexion et statut de synchronisation cloud en direct. E-mail et dernière sauvegarde conservés, photo/nom Google inchangés. Affichage adapté iPhone, données indisponibles signalées, mode local et animations opaques préservés."
+  "notes": "Harmonisation des tailles de textes de la fiche de profil avec le tableau de bord : titre de section 16 px, descriptions et libellés 11,5 px, valeurs 14 px, titre du profil 16 px et fournisseur 11,5 px. Spacings, données Google, animations et défilement conservés."
 }
