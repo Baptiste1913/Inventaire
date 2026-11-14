@@ -1,7 +1,7 @@
 {
-  "version": "37.02",
+  "version": "37.03",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 984930,
-  "notes": "Rubrique Déboggage harmonisée avec Planning et événements : boutons techniques revenus à leur hauteur compacte de 44 px, padding 10 × 13 px, style monochrome et rayons 11 px ; titre 16 px et sous-titre 11,5 px, espacement 4 px et marges de rubrique cohérentes. Voyants fixes, logique des quatre options et journal d'erreurs inchangés. Cache PWA renouvelé."
+  "bytes": 984809,
+  "notes": "Section Déboggage : suppression du trait de séparation supérieur et harmonisation de l'espacement au-dessus du titre avec les autres sections administratives (18 px). Boutons, voyants, titre, sous-titre et logique technique conservés ; cache PWA actualisé."
 }
