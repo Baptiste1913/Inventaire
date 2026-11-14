@@ -20269,27 +20269,47 @@ html body.is-events-mode #eventsPage :is(.iu-events-day-panel,.iu-events-agenda-
  box-shadow:none!important;
 }
 
-/* Périodes de 10 % : un trait continu indépendant des boutons du
-   calendrier. Les segments sont rendus au-dessus de toute sélection,
-   pour que le contour sélectionné ne coupe plus la barre bleue. */
+/* V37.14 — Un SEUL calque indépendant au-dessus de la grille.
+   Les vrais boutons ne sont jamais recouverts par un autre bouton.
+   Une ligne continue traverse les espaces entre les jours, y compris
+   lorsqu'un jour est sélectionné. Aucun tracé n'est créé par case. */
 html body.is-events-mode #eventsPage #eventsCalendarGrid.iu-events-calendar-grid{
  position:relative!important;
  isolation:isolate!important;
  overflow:visible!important;
 }
-html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-bar{
- /* Une seule barre, véritable élément de grille superposé aux dates.
-    Elle traverse les cases sélectionnées sans positionnement absolu. */
+html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day{
+ position:relative!important;
+ z-index:1!important;
+}
+html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day.is-selected{
+ z-index:3!important;
+}
+html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-overlay{
+ position:absolute!important;
+ inset:0!important;
+ z-index:10!important;
+ display:grid!important;
+ grid-template-columns:repeat(7,minmax(0,1fr))!important;
+ grid-template-rows:repeat(var(--iu-calendar-weeks,5),minmax(0,1fr))!important;
+ gap:5px!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ overflow:visible!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ pointer-events:none!important;
+ user-select:none!important;
+ -webkit-user-select:none!important;
+}
+html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-overlay > .iu-events-week-bar{
  position:relative!important;
  display:block!important;
- z-index:8!important;
+ z-index:1!important;
  align-self:end!important;
  justify-self:stretch!important;
  inset:auto!important;
- left:auto!important;
- right:auto!important;
- bottom:auto!important;
- top:auto!important;
  width:auto!important;
  height:4px!important;
  min-height:4px!important;
@@ -20301,21 +20321,18 @@ html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-bar{
  opacity:.95!important;
  box-shadow:none!important;
  transform:none!important;
+ animation:none!important;
+ transition:none!important;
  pointer-events:none!important;
- user-select:none!important;
- -webkit-user-select:none!important;
 }
-html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-bar:first-child{
- border-radius:999px!important;
+@media(max-width:430px){
+ html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-overlay{
+  gap:3px!important;
+ }
+ html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-overlay > .iu-events-week-bar{
+  margin:0 3px 7px!important;
+ }
 }
-html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day{
- z-index:1!important;
-}
-html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-day.is-selected{
- z-index:3!important;
-}
-/* Les traits de 10 % sont désormais dessinés uniquement par ces éléments
-   de grille : aucun deuxième tracé n'est présent dans les boutons. */
 
 /* Autres événements : volet distinct, replié au départ pour
    préserver une vue immédiatement centrée sur les inventaires et 10 %. */
@@ -20443,10 +20460,6 @@ html body.is-events-mode #eventsPage #eventsOtherPanel .iu-events-other-state.is
  html body.is-events-mode #eventsPage #eventsOtherPanel > .iu-events-other-list{
   padding:0 10px 12px;
  }
- html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-bar{
-  left:4px!important;
-  right:4px!important;
- }
 }
 @media(prefers-reduced-motion:reduce){
  html body.is-events-mode #eventsPage #eventsOtherPanel .iu-events-other-chevron{
@@ -20466,9 +20479,4 @@ html body.is-events-mode #eventsPage #eventsFeatureCountdown.iu-events-feature-c
  border-color:#ecc6c6!important;
  background:linear-gradient(150deg,#fff6f6,#fbe7e7)!important;
  color:#963739!important;
-}
-/* Pour les dates sélectionnées, le trait rouge reste au-dessus du fond
-   de sélection ; le contour conserve sa place et les clics traversent. */
-html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-week-bar{
- pointer-events:none!important;
 }
