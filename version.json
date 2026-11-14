@@ -1,7 +1,7 @@
 {
-  "version": "36.82",
+  "version": "36.83",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Animations Mon compte et Administrateur : retour du mouvement croisé complet du mode concentration. Les cartes visibles de l'accueil descendent en même temps que les vraies cartes de la page remontent à l'ouverture ; mouvements inversés à la fermeture (610 ms, 105dvh, même courbe de vitesse et flou progressif). Aucun clonage DOM ni capture WebKit : photos, icônes et styles restent corrects. Boutons Retour fixes, fond opaque et restauration du défilement après fermeture préservés."
+  "notes": "Animations Mon compte / Administrateur entièrement refaites après comparaison des vidéos iPhone : transition native GPU entre deux rendus complets de l'écran plutôt que l'animation de nombreuses cartes et de leur contenu. Mouvement vertical et durée du mode concentration (610 ms, 105dvh, même courbe et flou), banderole et en-tête fixes avec fondu, bouton Retour indépendant. Aucun clonage DOM ni styles déplacés ; restauration du scroll avant la capture d'arrivée, préservation des données Google et du correctif de retour Safari. Repli léger sans View Transitions."
 }
