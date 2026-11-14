@@ -1,10 +1,10 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v36-78';
+const CACHE = 'inventaires-u-offline-v36-79';
 const CORE = [
-  './', './index.html', './version.json', './admin-categories.js?v=36.78', './technical-log.js?v=33.93', './update-manager.js?v=36.78', './error-journal.js?v=33.93', './site-operations.js?v=36.78', './push.js?v=33.75', './planning-admin.js?v=36.78', './events-data.js?v=33.19', './events.js?v=36.78', './style.css?v=36.78', './app.js?v=36.78',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=36.78', './manifest.webmanifest?v=15', './icon.png?v=36.78',
-  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=36.78', './apple-touch-icon.png?v=36.78', './logo-u.png', './favicon-32.png?v=36.78',
-   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=36.78', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=36.78'
+  './', './index.html', './version.json', './admin-categories.js?v=36.79', './technical-log.js?v=33.93', './update-manager.js?v=36.79', './error-journal.js?v=33.93', './site-operations.js?v=36.79', './push.js?v=33.75', './planning-admin.js?v=36.79', './events-data.js?v=33.19', './events.js?v=36.79', './style.css?v=36.79', './app.js?v=36.79',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=36.79', './manifest.webmanifest?v=15', './icon.png?v=36.79',
+  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=36.79', './apple-touch-icon.png?v=36.79', './logo-u.png', './favicon-32.png?v=36.79',
+   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=36.79', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=36.79'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -12,9 +12,9 @@ self.addEventListener('install', event => {
     // V35.67 : protéger les fichiers indispensables sans bloquer toute la
     // mise à jour lorsqu'une image ou une ressource secondaire manque.
     // Ne jamais activer un shell incomplet.
-    const required = ['./index.html', './style.css?v=36.78', './app.js?v=36.78',
-      './update-manager.js?v=36.78', './auth-config.js?v=32.0', './idb.js?v=33.0',
-      './auth.js?v=36.78', './icon.png?v=36.78', './assets/u-inventory-button.svg?v=36.78'];
+    const required = ['./index.html', './style.css?v=36.79', './app.js?v=36.79',
+      './update-manager.js?v=36.79', './auth-config.js?v=32.0', './idb.js?v=33.0',
+      './auth.js?v=36.79', './icon.png?v=36.79', './assets/u-inventory-button.svg?v=36.79'];
     await cache.addAll(required);
     const optional = CORE.filter(path => !required.includes(path));
     await Promise.allSettled(optional.map(async path => {
@@ -31,7 +31,7 @@ self.addEventListener('message', event => {
   const port = event.ports[0];
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    // V36.78 : verifier en un seul passage les URLs deja presentes.
+    // V36.79 : verifier en un seul passage les URLs deja presentes.
     // Les ressources absentes se chargent par petits lots pour ne pas
     // saturer Safari au demarrage. Aucun retelechargement inutile.
     let done = 0, missing = 0;
