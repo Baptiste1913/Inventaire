@@ -83,7 +83,7 @@ function renderPage(){
   const [status,cls]=eventStatus(lead,now);
   $('eventsFeatureHeading').textContent=lead.title;
   $('eventsFeaturePeriod').textContent=datePeriod(lead);
-  $('eventsFeatureHint').textContent=lead.kind==='inventory'?'Inventaire':status==='En cours'?'10 % en cours':'Prochain 10 % Pouvoir d’achat';
+  $('eventsFeatureHint').textContent=lead.kind==='inventory'?(status==='En cours'?'Inventaire aujourd’hui':'Prochain inventaire'):(status==='En cours'?'Opération 10 % en cours':'Prochaine opération 10 %');
   leadState.textContent=status;leadState.className='iu-events-feature-state '+cls;leadState.hidden=false;
   const remaining=daysBetween(now,status==='En cours'?eventEnd(lead):date(lead.start));
   const countdown=$('eventsFeatureCountdown'),message=$('eventsFeatureCountdownText');
