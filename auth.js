@@ -113,6 +113,15 @@ const status=msg=>{
    main.textContent=msg;detail.textContent='Statut en cours de vérification';
   }
  }
+ // Profil visible entre le bandeau et le tableau de bord : afficher
+ // l'état cloud réellement calculé, sans déduire « synchronisé » de
+ // la seule présence d'un compte Google.
+ const profileSync=$('accountProfileSyncState');
+ if(profileSync){
+  profileSync.textContent=main?.textContent?.trim()||'Vérification en cours…';
+  profileSync.classList.toggle('is-synced',synced);
+  profileSync.classList.toggle('is-warning',/attente|nécessaire|différentes|indisponible|échec|erreur|choix/i.test(msg));
+ }
  renderDashboard();
 };
 const localStatus=msg=>{
@@ -311,6 +320,16 @@ function renderDashboard(){
  pill.classList.toggle('is-synced',cloud.includes('Synchronisé'));
  pill.classList.toggle('is-warning',/Choix nécessaire|attente|indisponible|échec|erreur/i.test(cloud));
 }
+// Dates d'authentification Supabase : première inscription à l'app
+// et dernier accès Google, sans recherche externe ni stockage supplémentaire.
+const formatAccountDate=(value,withTime=false)=>{
+ if(!value)return 'Non disponible';
+ const date=new Date(value);
+ if(!Number.isFinite(date.getTime()))return 'Non disponible';
+ const options={day:'2-digit',month:'2-digit',year:'numeric'};
+ if(withTime){options.hour='2-digit';options.minute='2-digit';}
+ return new Intl.DateTimeFormat('fr-FR',options).format(date);
+};
 function render(){
  const name=user?(user.user_metadata?.full_name||user.user_metadata?.name||user.email||'Mon compte'):'Mon compte';
  const accountCard=$('accountCard');
@@ -335,6 +354,9 @@ function render(){
  if(profileCard)profileCard.hidden=!user;
  const profileName=$('accountPageProfileName');
  if(profileName)profileName.textContent=user?name:'Mon compte';
+ const created=$('accountProfileCreatedAt'),lastSignIn=$('accountProfileLastSignIn');
+ if(created)created.textContent=user?formatAccountDate(user.created_at):'—';
+ if(lastSignIn)lastSignIn.textContent=user?formatAccountDate(user.last_sign_in_at,true):'—';
  const profileAvatar=$('accountPageAvatarImage');
  if(profileAvatar){
   profileAvatar.hidden=!validAvatar;
