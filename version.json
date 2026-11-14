@@ -1,7 +1,7 @@
 {
-  "version": "36.99",
+  "version": "37.00",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 976424,
-  "notes": "Le voyant Application à jour passe à droite, centré verticalement, avec son animation inchangée. Le gel du contenu est désactivé par défaut à chaque lancement. Quatre petits voyants fixes (gris = désactivé, vert = activé), identiques aux indicateurs de l'état des services, sont ajoutés aux options techniques : effets graphiques, animation JS, optimisation graphique et gel du contenu. Aucun changement aux inventaires ni à la synchronisation."
+  "bytes": 981437,
+  "notes": "Le voyant Notifications de l'État des services devient vert lorsque la permission est accordée, orange si bloquée, gris sinon. Les quatre boutons techniques sont regroupés dans le nouveau tiroir Déboggage, au-dessus du Journal des erreurs, avec les animations et voyants existants. Suppression de « Diagnostic actuel ». Boutons Retour des pages Administrateur et Mon compte harmonisés avec « Voir les X sessions ». Fonctions, permissions et cache PWA conservés."
 }
