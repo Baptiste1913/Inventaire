@@ -549,119 +549,72 @@ function exitFocusWithoutSnapshot(action,config={}){
    Deux mouvements simultanés : les cartes d'accueil descendent quand la
    page arrive, puis elles remontent pendant que la page repart. Le fond
    reste opaque et les vraies cartes conservent leur CSS/SVG sur iOS. */
-/* V36.83 — Navigation unifiée avec les transitions natives Concentration.
-   Un UNIQUE rendu de chaque écran (View Transition racine) remplace
-   l'animation séparée de dizaines de cartes. Le navigateur compose les
-   deux images une seule fois et anime uniquement les surfaces graphiques.
-   AUCUN cloneNode, AUCUN style inline appliqué à l'accueil, AUCUN
-   recalcul de la position de chaque carte pendant le mouvement. */
+/* V36.85 — Même moteur de snapshots PAR CARTE que Concentration.
+   Ne jamais translater la capture root : elle comporte parfois de grands
+   vides après la mise en page iOS, d'où la bande blanche des vidéos.
+   Utiliser exactement les groupes iu-normal-N, iu-focus-N et la surface
+   opaque iu-focus-surface, déjà éprouvés dans le mode Concentration.
+   Aucun clone du DOM, aucune copie des photos ni des SVG. */
 function iuAnimateStandalonePage(action,entering,config){
  const html=document.documentElement;
- const mode=config.modeClass;
- const navSelector=mode==='is-admin-mode'?
+ const tagged=new Set();
+ const navSelector=config.modeClass==='is-admin-mode'?
   '.app > #planningAdminCard > .iu-admin-external-nav':
   '.app > #accountCard > .iu-account-external-nav';
- const duration=parseFloat(getComputedStyle(html).getPropertyValue('--iu65-duration'))||610;
- const easing=getComputedStyle(html).getPropertyValue('--iu65-ease').trim()||'cubic-bezier(.16,.84,.24,1)';
  const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
- let nav=null;
  let updated=false;
- const namedAnchors=[];
- const tagVisibleHomeAnchors=()=>{
-  // Comme dans focusTagViews : la banderole et l'en-tête restent à
-  // leur place pendant que le reste de l'écran se déplace.
-  const anchors=[...document.querySelectorAll(focusStaticSelectors)]
-   .filter(focusVisible);
-  anchors.forEach((el,i)=>{
-   if(i>=2)return;
-   el.style.viewTransitionName='iu-route-anchor-'+i;
-   namedAnchors.push(el);
-  });
- };
  const cleanup=()=>{
-  if(nav)nav.style.viewTransitionName='';
-  for(const el of namedAnchors)el.style.viewTransitionName='';
-  html.classList.remove('iu-page-route','iu-page-enter','iu-page-exit');
+  for(const el of tagged)el.style.viewTransitionName='';
+  html.classList.remove('iu-page-cards','iu-focus-slide',
+   'iu-focus-entering','iu-focus-exiting');
   focusMotionBusy=false;
   const pending=focusPendingTask;
   focusPendingTask=null;
   if(pending)requestAnimationFrame(pending);
  };
+ const tagNav=()=>{
+  const nav=document.querySelector(navSelector);
+  if(!focusVisible(nav))return;
+  nav.style.viewTransitionName='iu-page-nav';
+  tagged.add(nav);
+ };
  const update=()=>{
+  for(const el of tagged)el.style.viewTransitionName='';
   action();
   updated=true;
   if(entering){
-   // Fixer la nouvelle page à sa position finale AVANT le snapshot.
-   // L'accueil garde sa position précédente dans homeY pour le retour.
+   // Safari : capturer l'arrivée EN HAUT, sans image déplacée de root.
    if(document.scrollingElement)document.scrollingElement.scrollTop=0;
    document.body.scrollTop=0;
    window.scrollTo({top:0,left:0,behavior:'instant'});
-   nav=document.querySelector(navSelector);
-   if(nav)nav.style.viewTransitionName='iu-route-nav';
   }else if(Number.isFinite(homeY)){
-   // La capture de destination correspond à l'accueil à la BONNE
-   // position ; aucun rattrapage de scroll ne sera visible ensuite.
+   // Le retour capture l'accueil à sa position mémorisée.
    if(document.scrollingElement)document.scrollingElement.scrollTop=homeY;
    window.scrollTo({top:homeY,left:0,behavior:'instant'});
-   if(typeof document.startViewTransition==='function')tagVisibleHomeAnchors();
   }
+  focusTagViews(entering,'new',tagged,config);
+  if(entering)tagNav();
  };
  focusMotionBusy=true;
- html.classList.add('iu-page-route',entering?'iu-page-enter':'iu-page-exit');
- // Les snapshots racine gardent le rendu exact de l'accueil et de la page,
- // images Google, tailles SVG et typographie comprises, même sur iPhone.
+ html.classList.add('iu-page-cards','iu-focus-slide',
+  entering?'iu-focus-entering':'iu-focus-exiting');
+ focusTagViews(entering,'old',tagged,config);
+ if(!entering)tagNav();
  if(typeof document.startViewTransition==='function'){
   try{
-   if(entering)tagVisibleHomeAnchors();
-   if(!entering){
-    nav=document.querySelector(navSelector);
-    if(nav)nav.style.viewTransitionName='iu-route-nav';
-   }
    const transition=document.startViewTransition(update);
    transition.finished.then(cleanup,cleanup);
    return;
   }catch(error){
-   if(nav)nav.style.viewTransitionName='';
    if(!updated)update();
    cleanup();
    return;
   }
  }
- // Repli pour navigateurs sans View Transitions : aucune duplication de
- // DOM ; les cartes existantes gardent leur contexte CSS et leur opacité.
- // Le mode Concentration reste entièrement indépendant de ce repli.
- const veil=document.createElement('div');
- veil.setAttribute('aria-hidden','true');
- veil.style.cssText='position:fixed;inset:0;background:#f3f6f7;z-index:2147483000;pointer-events:none;opacity:0';
- if(entering)update();
- const panels=[...document.querySelectorAll(config.viewSelectors)]
-  .filter(focusVisible).filter(el=>!el.classList.contains('iu-page-external-nav'));
- const animations=panels.map(el=>el.animate(
-  entering?[
-   {transform:'translate3d(0,105dvh,0)',opacity:1},
-   {transform:'translate3d(0,0,0)',opacity:1}
-  ]:[
-   {transform:'translate3d(0,0,0)',opacity:1},
-   {transform:'translate3d(0,105dvh,0)',opacity:1}
-  ],{duration,easing,fill:'both'}
- ));
- Promise.all(animations.map(a=>a.finished.catch(()=>{}))).then(()=>{
-  document.body.appendChild(veil);
-  veil.style.opacity='1';
-  if(!entering)update();
-  animations.forEach(a=>a.cancel());
-  requestAnimationFrame(()=>{
-   const fade=veil.animate([{opacity:1},{opacity:0}],{
-    duration:120,easing:'ease-out',fill:'forwards'
-   });
-   fade.finished.catch(()=>{}).then(()=>{fade.cancel();veil.remove();cleanup();});
-  });
- },()=>{
-  if(!updated)update();
-  animations.forEach(a=>a.cancel());
-  veil.remove();
-  cleanup();
- });
+ // Navigateur sans View Transitions : passage immédiat et entièrement
+ // opaque. Ne pas réintroduire l'animation de copies de DOM sur Safari.
+ if(!updated)update();
+ cleanup();
 }
 
 function changeFocusWithMotion(action,entering,config={}){
@@ -750,7 +703,7 @@ const iuAdminPageMotion={
  // Deux surfaces distinctes, comme bandeau et pesée du mode Concentration :
  // la page entière ne se comporte plus comme une carte qui se déplie.
  // V36.76 — La seule carte Admin contient maintenant son Retour.
- viewSelectors:'.app > #planningAdminCard > .iu-admin-external-nav, .app > #planningAdminCard > .planning-admin-body',
+ viewSelectors:'.app > #planningAdminCard > .planning-admin-body',
  exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-external-nav, .app > #planningAdminCard > .planning-admin-body',
  normalSelectors:focusNormalSelectors,
  // Taguer la surface opaque en vue-transition : elle reste statique
@@ -805,7 +758,7 @@ const iuAccountPageMotion={
  // leur surface dans l'animation de concentration, sans fondu transparent.
  // La carte profil (si connecté) porte le Retour ; en mode local, il
  // apparaît dans account-body. Même moteur opaque de concentration.
- viewSelectors:'.app > #accountCard > .iu-account-external-nav, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
+ viewSelectors:'.app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
  exitSourceSelectors:'.app > #accountCard > .iu-account-external-nav, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
