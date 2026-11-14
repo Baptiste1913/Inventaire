@@ -122,6 +122,7 @@ const status=msg=>{
   profileSync.classList.toggle('is-synced',synced);
   profileSync.classList.toggle('is-warning',/attente|nécessaire|différentes|indisponible|échec|erreur|choix/i.test(msg));
  }
+ renderProfileCloudDetails();
  renderDashboard();
 };
 const localStatus=msg=>{
@@ -156,8 +157,66 @@ function resumeConfirmedBaseline(){
   remoteBaseline=record.data;
   lastSynced=serialize(record.data);
   localBaseline=lastSynced;
+  const at=Number(record.at);
+  lastSuccessAt=Number.isFinite(at)&&at>0&&at<=Date.now()+300000?at:null;
  }catch(e){console.warn('Référence de synchronisation illisible',e);}
 }
+
+// V36.92 — Métriques fondées sur la référence cloud confirmée et sur le
+// snapshot local actuel. Ne jamais assimiler une connexion à une sauvegarde.
+function iuCloudInventoryCounts(data){
+ if(!data||typeof data!=='object')return null;
+ try{
+  const raw=data[KEYS[2]];
+  if(raw===null)return {sessions:0,weighs:0};
+  if(typeof raw!=='string')return null;
+  const parsed=JSON.parse(raw);
+  if(!Array.isArray(parsed.sessions))return null;
+  let weighs=0;
+  for(const session of parsed.sessions){
+   if(!session||!Array.isArray(session.entries))return null;
+   weighs+=session.entries.length;
+  }
+  return {sessions:parsed.sessions.length,weighs};
+ }catch{return null;}
+}
+function renderProfileCloudDetails(){
+ const put=(id,value)=>{
+  const el=$(id);
+  if(el&&el.textContent!==value)el.textContent=value;
+ };
+ const button=$('accountSyncNow');
+ const validAccount=!!user&&activeProvider==='google'&&scopeId()===accountId(user,activeProvider);
+ if(!validAccount){
+  put('accountLastSyncAt','Non disponible');
+  put('accountPendingChanges','Non connecté');
+  put('accountCloudCounts','Non disponible');
+  put('accountGoogleSessionState','Non connecté');
+  if(button)button.hidden=true;
+  return;
+ }
+ const conflict=$('cloudConflict')?.hidden===false;
+ const unconfirmed=lastSynced===null;
+ const changed=!unconfirmed&&serialize(snapshot())!==lastSynced;
+ const checked=lastSuccessAt&&Number.isFinite(lastSuccessAt)&&lastSuccessAt>0;
+ put('accountLastSyncAt',checked
+  ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short'}).format(lastSuccessAt)
+  :'Aucune confirmation');
+ put('accountPendingChanges',conflict?'Conflit à résoudre':
+  unconfirmed?'Vérification nécessaire':changed?'À synchroniser':'Aucune');
+ const counts=iuCloudInventoryCounts(remoteBaseline);
+ const number=n=>n.toLocaleString('fr-FR');
+ put('accountCloudCounts',counts
+  ?number(counts.sessions)+' inventaire'+(counts.sessions>1?'s':'')+' · '+number(counts.weighs)+' pesée'+(counts.weighs>1?'s':'')
+  :'Copie non vérifiée');
+ put('accountGoogleSessionState',navigator.onLine?'Session présente':'Session locale · hors ligne');
+ if(button){
+  const raw=$('cloudStatus')?.textContent||'';
+  const issue=/attente|nécessaire|indisponible|échec|erreur|actualisation/i.test(raw);
+  button.hidden=!!(busy||conflict||!navigator.onLine||(!changed&&!issue&&!unconfirmed));
+ }
+}
+
 function restore(data){if(!data||typeof data!=='object'||KEYS.some(k=>!(k in data)||!(typeof data[k]==='string'||data[k]===null)))throw Error('Sauvegarde cloud invalide.');
   // Store a complete rollback copy before touching any user data.
   const previous=snapshot();if(!preserveRecovery('avant-restauration',previous))throw Error('Espace de stockage saturé : exporte tes données avant de restaurer.');try{for(const key of KEYS){if(data[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,data[key]);}}catch(err){for(const key of KEYS){try{if(previous[key]===null)localStorage.removeItem(key);else localStorage.setItem(key,previous[key]);}catch{}}throw err;}
@@ -369,6 +428,7 @@ function render(){
  $('accountSignedIn').hidden=!user;
  $('accountIdentity').textContent=user?(user.email||name):'';
  if(!user)status('Stockage local uniquement');
+ renderProfileCloudDetails();
  renderDashboard();
 }
 async function sb(){if(client)return client;if(!configured())throw Error('Connexion Google indisponible : configuration manquante.');const mod=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');client=mod.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{flowType:'pkce',detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});return client;}
@@ -412,7 +472,7 @@ if(lastSynced===rs){await upload(local);$('cloudConflict').hidden=true;return tr
 if(lastSynced===ls){remoteBaseline=remote.data;restore(remote.data);return true;}
 if(empty(local)){remoteBaseline=remote.data;restore(remote.data);return true;}
 askConflict(remote.data);return false;
-}catch(e){status('Synchronisation en attente');feedback(e.message||'Erreur de synchronisation.');console.warn('Cloud sync',e);return false;}finally{busy=false;}}
+}catch(e){status('Synchronisation en attente');feedback(e.message||'Erreur de synchronisation.');console.warn('Cloud sync',e);return false;}finally{busy=false;renderProfileCloudDetails();}}
 async function connect(provider){if(provider!=='google'){feedback('Connexion non disponible.');return;}feedback('Ouverture de la connexion…');try{const s=await sb();const {error}=await s.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+location.pathname}});if(error)throw error;}catch(e){feedback(e.message||'Connexion impossible.');}}
 async function logout(){
  if($('accountLogout').disabled)return;
@@ -435,7 +495,7 @@ async function logout(){
   const {error}=await s.auth.signOut();if(error&&!isMissingSession(error))throw error;
   // Garder la sauvegarde locale régulière active après la déconnexion.
   // Les vérifications cloud sont automatiquement inactives sans utilisateur.
-  user=null;activeProvider=null;lastSynced=null;localBaseline=null;remoteBaseline=null;
+  user=null;activeProvider=null;lastSynced=null;localBaseline=null;remoteBaseline=null;lastSuccessAt=null;
   sessionStorage.setItem('inventaires-u-logout-feedback','Déconnexion réussie');
   if(switchWorkspace('guest'))return;
   render();feedback('Déconnexion réussie');sessionStorage.removeItem('inventaires-u-logout-feedback');
@@ -445,7 +505,7 @@ async function logout(){
 async function activateUser(u){
   if(!u){activeProvider=null;if(scopeId()!=='guest'){switchWorkspace('guest');return true;}user=null;render();return false;}
   const provider=providerFor(u);if(provider!=='google')throw Error('Cette version accepte uniquement la connexion Google.');const id=accountId(u,provider);
-  if(scopeId()===id){if(!user||user.id!==u.id||activeProvider!==provider){lastSynced=null;remoteBaseline=null;}user=u;activeProvider=provider;if(lastSynced===null)resumeConfirmedBaseline();render();return false;}
+  if(scopeId()===id){if(!user||user.id!==u.id||activeProvider!==provider){lastSynced=null;remoteBaseline=null;lastSuccessAt=null;}user=u;activeProvider=provider;if(lastSynced===null)resumeConfirmedBaseline();render();return false;}
   // Never copy a different provider's data, even if Supabase links both identities to one user_id.
   // Verify that the provider-specific database exists BEFORE switching workspaces.
   const {data,error}=await client.from('provider_backups').select('data').eq('user_id',u.id).eq('provider',provider).maybeSingle();
@@ -487,7 +547,7 @@ function installAutomaticSync(){
  interval=setInterval(()=>{
   try{saveActive();localStatus('Enregistré sur cet appareil');}
   catch{localStatus('Stockage local indisponible');}
-  if(user&&lastSynced!==serialize(snapshot()))runAutomaticSync();
+  if(user){renderProfileCloudDetails();if(lastSynced!==serialize(snapshot()))runAutomaticSync();}
  },12000);
  if(regularCloudInterval)clearInterval(regularCloudInterval);
  regularCloudInterval=setInterval(runAutomaticSync,60000);
@@ -503,6 +563,12 @@ async function init(){render();const resetMessage=sessionStorage.getItem('invent
 $('accountGoogle').addEventListener('click',()=>connect('google'));$('accountAvatarImage').addEventListener('error',()=>{const avatar=$('accountAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountPageAvatarImage')?.addEventListener('error',()=>{const avatar=$('accountPageAvatarImage');avatar.hidden=true;avatar.parentElement.classList.remove('has-photo');});
 $('accountLogout').addEventListener('click',logout);
+$('accountSyncNow')?.addEventListener('click',async()=>{
+ if(!user||busy||!navigator.onLine||$('cloudConflict')?.hidden===false)return;
+ const result=await reconcile();
+ renderProfileCloudDetails();
+ if(!result&&$('cloudConflict')?.hidden!==false)feedback('Synchronisation non confirmée. Vérifie la connexion et réessaie.');
+});
 $('cloudKeepLocal').addEventListener('click',async()=>{if(!user||busy)return;busy=true;try{const remote=JSON.parse($('cloudConflict').dataset.payload);if(!preserveRecovery('cloud-avant-remplacement-local',snapshot())||!preserveRecovery('cloud-avant-remplacement-distant',remote))throw Error('Impossible de créer la copie de sécurité.');const current=await readRemote();if(serialize(current?.data)!==serialize(remote)){askConflict(current?.data);throw Error('Le cloud a encore changé. Vérifie les nouvelles données.');}remoteBaseline=remote;await upload(snapshot());$('cloudConflict').hidden=true;}catch(e){feedback(e.message);}finally{busy=false;}});
 $('cloudUseRemote').addEventListener('click',async()=>{try{if(busy)return;busy=true;const chosen=JSON.parse($('cloudConflict').dataset.payload);if(!preserveRecovery('cloud-avant-choix-distant',chosen))throw Error('Impossible de conserver la copie cloud.');const current=await readRemote();if(serialize(current?.data)!==serialize(chosen)){askConflict(current?.data);throw Error('Le cloud a changé depuis ton choix. Réessaie.');}remoteBaseline=chosen;restore(chosen);}catch(e){feedback(e.message);}finally{busy=false;}});
 function showRecoveries(){
