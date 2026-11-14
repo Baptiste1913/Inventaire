@@ -1,7 +1,7 @@
 {
-  "version": "37.01",
+  "version": "37.02",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 984567,
-  "notes": "Déboggage s'affiche désormais comme la section Planning et événements : titre et description directement sur la page, quatre commandes séparées sans carte extérieure. Voyants de statut fixes et fonctions des options préservés. Cache PWA réactualisé."
+  "bytes": 984930,
+  "notes": "Rubrique Déboggage harmonisée avec Planning et événements : boutons techniques revenus à leur hauteur compacte de 44 px, padding 10 × 13 px, style monochrome et rayons 11 px ; titre 16 px et sous-titre 11,5 px, espacement 4 px et marges de rubrique cohérentes. Voyants fixes, logique des quatre options et journal d'erreurs inchangés. Cache PWA renouvelé."
 }
