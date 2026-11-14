@@ -1,7 +1,7 @@
 {
-  "version": "36.88",
+  "version": "36.89",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 817928,
-  "notes": "Les boutons Retour des pages Administrateur et Mon compte sont maintenant intégrés à l'intérieur des cartes, en haut à gauche avec une petite marge dessous. Ils sont animés avec leurs cartes sans mouvement indépendant. La page Google, le mode local et le chargement administrateur disposent chacun d'un Retour accessible. Le retour de l'accueil en haut, le mode Concentration, les pesées, la synchronisation et les droits Supabase ne sont pas modifiés."
+  "bytes": 822498,
+  "notes": "Boutons Retour Admin et Mon compte harmonisés à 92 × 34 px, avec les mêmes retraits et espacements visibles. Dégradé, relief, typographie, états tactiles et survol identiques au bouton « Accéder aux réglages ». Aucun changement aux transitions, au fonctionnement métier, aux données ou à la synchronisation. Références et cache PWA actualisés."
 }
