@@ -18092,3 +18092,63 @@ html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state >
   animation:none!important;
  }
 }
+
+
+/* V36.99 — « Application à jour » : le voyant animé est à DROITE
+   du libellé, centré verticalement dans la même carte. Conserver
+   exactement les animations V36.05 déjà appliquées au voyant. */
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > div{
+ order:1!important;
+ flex:1 1 auto!important;
+ min-width:0!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > #iuUpdateIndicator.iu-update-indicator{
+ order:2!important;
+ align-self:center!important;
+ flex:0 0 9px!important;
+ margin:0 3px 0 0!important;
+}
+
+/* Voyants statiques pour les quatre options techniques, avec la
+   même taille, le même halo et les couleurs de l'état des services.
+   « aria-pressed » est déjà mis à jour par site-operations.js. */
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .site-ops-actions
+> :is(#opsFoldCompare,#opsFoldRaf,#opsFoldPaint,#opsFoldFreeze){
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:10px!important;
+ text-align:left!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .site-ops-actions
+> :is(#opsFoldCompare,#opsFoldRaf,#opsFoldPaint,#opsFoldFreeze)::after{
+ content:""!important;
+ display:block!important;
+ position:static!important;
+ flex:0 0 8px!important;
+ width:8px!important;
+ height:8px!important;
+ min-width:8px!important;
+ border:0!important;
+ border-radius:50%!important;
+ background:#a1a7ae!important;
+ box-shadow:0 0 0 3px rgba(150,157,165,.12)!important;
+ opacity:1!important;
+ transform:none!important;
+ transition:none!important;
+ animation:none!important;
+ pointer-events:none!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .site-ops-actions
+> :is(#opsFoldCompare,#opsFoldRaf,#opsFoldPaint,#opsFoldFreeze)[aria-pressed="true"]::after{
+ background:#2ac78f!important;
+ box-shadow:0 0 0 3px rgba(42,199,143,.13),0 0 9px rgba(42,199,143,.32)!important;
+ animation:none!important;
+}
