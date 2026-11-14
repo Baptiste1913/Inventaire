@@ -1,7 +1,7 @@
 {
-  "version": "36.71",
+  "version": "36.72",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Mon compte possède désormais sa page autonome, sur le modèle Administrateur 36.70 : bloc d'accueil compact avec bouton pleine largeur, transition identique au mode concentration, fond totalement opaque, titre et retour monochromes, défilement naturel Safari et restauration du scroll. En mode local : connexion Google et copies de récupération ; connecté : tableau de bord, synchronisation et inventaires, avec Actualiser. Traitement graphique différé après l'animation ; stockage local, comptes distincts, permissions administrateur et pesées préservés."
+  "notes": "Mon compte connecté : nouvelle carte de profil indépendante, placée entre Retour/Actualiser et le tableau de bord. Affiche la photo Google (ou avatar de remplacement), le nom, le fournisseur Google, l'adresse e-mail et la date de dernière sauvegarde en réutilisant les champs cloud existants. La page sans compte ne montre pas cette carte. Animation opaque de concentration étendue à trois cartes, Safari défilable et données/synchronisation inchangées."
 }
