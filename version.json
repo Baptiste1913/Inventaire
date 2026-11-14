@@ -1,7 +1,7 @@
 {
-  "version": "36.74",
+  "version": "36.75",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Harmonisation des tailles de textes de la fiche de profil avec le tableau de bord : titre de section 16 px, descriptions et libellés 11,5 px, valeurs 14 px, titre du profil 16 px et fournisseur 11,5 px. Spacings, données Google, animations et défilement conservés."
+  "notes": "En-têtes Mon compte et Administrateur simplifiés : bouton Retour uniquement. L'action Actualiser d'État des services reste dans sa rubrique. Synchronisation automatique Google/Supabase vérifiée toutes les minutes en fonctionnement, modifications détectées toutes les 12 s, reprise au retour dans l'app, après reconnexion réseau et au premier plan. Vérifications de conflit, stockage local et séparation des comptes préservés ; aucune synchronisation pendant la fermeture de l'app iOS."
 }
