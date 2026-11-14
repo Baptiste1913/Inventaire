@@ -549,143 +549,103 @@ function exitFocusWithoutSnapshot(action,config={}){
    Deux mouvements simultanés : les cartes d'accueil descendent quand la
    page arrive, puis elles remontent pendant que la page repart. Le fond
    reste opaque et les vraies cartes conservent leur CSS/SVG sur iOS. */
+/* V36.83 — Navigation unifiée avec les transitions natives Concentration.
+   Un UNIQUE rendu de chaque écran (View Transition racine) remplace
+   l'animation séparée de dizaines de cartes. Le navigateur compose les
+   deux images une seule fois et anime uniquement les surfaces graphiques.
+   AUCUN cloneNode, AUCUN style inline appliqué à l'accueil, AUCUN
+   recalcul de la position de chaque carte pendant le mouvement. */
 function iuAnimateStandalonePage(action,entering,config){
- const motionVars=getComputedStyle(document.documentElement);
- const duration=parseFloat(motionVars.getPropertyValue('--iu65-duration'))||610;
- const easing=motionVars.getPropertyValue('--iu65-ease').trim()||'cubic-bezier(.16,.84,.24,1)';
- const finishPending=()=>{
+ const html=document.documentElement;
+ const mode=config.modeClass;
+ const navSelector=mode==='is-admin-mode'?
+  '.app > #planningAdminCard > .iu-admin-external-nav':
+  '.app > #accountCard > .iu-account-external-nav';
+ const duration=parseFloat(getComputedStyle(html).getPropertyValue('--iu65-duration'))||610;
+ const easing=getComputedStyle(html).getPropertyValue('--iu65-ease').trim()||'cubic-bezier(.16,.84,.24,1)';
+ const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
+ let nav=null;
+ let updated=false;
+ const cleanup=()=>{
+  if(nav)nav.style.viewTransitionName='';
+  html.classList.remove('iu-page-route','iu-page-enter','iu-page-exit');
   focusMotionBusy=false;
   const pending=focusPendingTask;
   focusPendingTask=null;
   if(pending)requestAnimationFrame(pending);
  };
- const positionAtTop=()=>{
-  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
-  document.body.scrollTop=0;
-  window.scrollTo({top:0,left:0,behavior:'instant'});
- };
- // Capturer uniquement les éléments réellement visibles de l'accueil.
- // Pas de cloneNode : les vrais éléments conservent leur CSS, leurs images
- // et les dimensions des SVG, y compris pendant les transitions.
- const homeRoot=document.querySelector('.app > '+(config.modeClass==='is-admin-mode'?'#planningAdminCard':'#accountCard'));
- const captureHome=(selector,max)=>[...document.querySelectorAll(selector)]
-  .filter(el=>el!==homeRoot&&focusVisible(el))
-  .slice(0,max).map(el=>{
-   const r=el.getBoundingClientRect(),style=getComputedStyle(el);
-   return {el,rect:{top:r.top,left:r.left,width:r.width,height:r.height},
-    display:style.display,anchor:selector===focusStaticSelectors};
-  });
- focusMotionBusy=true;
- if(entering){
-  config._homeMotion=[
-   ...captureHome(focusNormalSelectors,10),
-   ...captureHome(focusStaticSelectors,2)
-  ];
+ const update=()=>{
   action();
-  positionAtTop();
-  void document.documentElement.offsetHeight;
- }
- const pinHome=(entry)=>{
-  const el=entry.el;
-  if(!el?.isConnected)return null;
-  const props={
-   display:entry.display,position:'fixed',top:entry.rect.top+'px',
-   left:entry.rect.left+'px',width:entry.rect.width+'px',
-   height:entry.rect.height+'px','max-width':'none',margin:'0',
-   'box-sizing':'border-box','pointer-events':'none',
-   'z-index':'2147400000','will-change':'transform,filter,opacity'
-  };
-  const old=Object.keys(props).map(p=>[p,el.style.getPropertyValue(p),
-   el.style.getPropertyPriority(p)]);
-  for(const [p,v] of Object.entries(props))el.style.setProperty(p,v,'important');
-  return ()=>{
-   for(const [p,value,priority] of old){
-    if(value)el.style.setProperty(p,value,priority);
-    else el.style.removeProperty(p);
-   }
-  };
- };
- const pinned=[];
- const homeAnimations=[];
- // À la fermeture, les mêmes cartes récupèrent exactement leurs positions
- // d'avant navigation, indépendamment du scroll fait dans Mon compte/Admin.
- for(const entry of (config._homeMotion||[])){
-  const restore=pinHome(entry);
-  if(!restore)continue;
-  pinned.push(restore);
-  const frames=entry.anchor?
-   (entering?[
-    {offset:0,opacity:1,filter:'blur(0px)'},
-    {offset:.12,opacity:1,filter:'blur(0px)'},
-    {offset:1,opacity:0,filter:'blur(1.8px)'}
-   ]:[
-    {offset:0,opacity:0,filter:'blur(1.8px)'},
-    {offset:.75,opacity:1,filter:'blur(0px)'},
-    {offset:1,opacity:1,filter:'blur(0px)'}
-   ]):
-   (entering?[
-    {offset:0,transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1},
-    {offset:.12,filter:'blur(0px)',opacity:1},
-    {offset:.60,filter:'blur(1.7px)',opacity:1},
-    {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
-   ]:[
-    {transform:'translate3d(0,105dvh,0)',filter:'blur(0px)',opacity:1},
-    {transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1}
-   ]);
-  homeAnimations.push(entry.el.animate(frames,{duration,easing,fill:'both'}));
- }
- // Même progression que les snapshots iu65-rise / iu65-focus-away, mais
- // sur le vrai panneau pour ne pas perdre son contexte CSS à la fermeture.
- const surfaces=[...document.querySelectorAll(config.viewSelectors)]
-  .filter(focusVisible)
-  .filter(el=>!el.classList.contains('iu-page-external-nav'));
- const pageAnimations=surfaces.map(el=>el.animate(
-  entering?[
-   {transform:'translate3d(0,105dvh,0)',filter:'blur(0px)',opacity:1},
-   {transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1}
-  ]:[
-   {offset:0,transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1},
-   {offset:.12,filter:'blur(0px)',opacity:1},
-   {offset:.60,filter:'blur(1.7px)',opacity:1},
-   {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
-  ],{duration,easing,fill:'both'}
- ));
- const animations=[...homeAnimations,...pageAnimations];
- const clearAnimations=()=>{
-  animations.forEach(a=>a.cancel());
-  pinned.forEach(restore=>restore());
- };
- const closeAfterAnimation=()=>{
-  // Réafficher la position antérieure de l'accueil uniquement après que
-  // toutes les cartes ont terminé leur course, sous une surface opaque.
-  const veil=document.createElement('div');
-  veil.className='iu-standalone-exit-veil';
-  veil.setAttribute('aria-hidden','true');
-  veil.style.cssText='position:fixed;inset:0;z-index:2147483000;pointer-events:none;background:#f3f6f7;opacity:1';
-  document.body.appendChild(veil);
-  const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
-  try{action();}finally{clearAnimations();config._homeMotion=null;}
-  if(Number.isFinite(homeY)){
+  updated=true;
+  if(entering){
+   // Fixer la nouvelle page à sa position finale AVANT le snapshot.
+   // L'accueil garde sa position précédente dans homeY pour le retour.
+   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+   document.body.scrollTop=0;
+   window.scrollTo({top:0,left:0,behavior:'instant'});
+   nav=document.querySelector(navSelector);
+   if(nav)nav.style.viewTransitionName='iu-route-nav';
+  }else if(Number.isFinite(homeY)){
+   // La capture de destination correspond à l'accueil à la BONNE
+   // position ; aucun rattrapage de scroll ne sera visible ensuite.
    if(document.scrollingElement)document.scrollingElement.scrollTop=homeY;
    window.scrollTo({top:homeY,left:0,behavior:'instant'});
   }
+ };
+ focusMotionBusy=true;
+ html.classList.add('iu-page-route',entering?'iu-page-enter':'iu-page-exit');
+ // Les snapshots racine gardent le rendu exact de l'accueil et de la page,
+ // images Google, tailles SVG et typographie comprises, même sur iPhone.
+ if(typeof document.startViewTransition==='function'){
+  try{
+   if(!entering){
+    nav=document.querySelector(navSelector);
+    if(nav)nav.style.viewTransitionName='iu-route-nav';
+   }
+   const transition=document.startViewTransition(update);
+   transition.finished.then(cleanup,cleanup);
+   return;
+  }catch(error){
+   if(nav)nav.style.viewTransitionName='';
+   if(!updated)update();
+   cleanup();
+   return;
+  }
+ }
+ // Repli pour navigateurs sans View Transitions : aucune duplication de
+ // DOM ; les cartes existantes gardent leur contexte CSS et leur opacité.
+ // Le mode Concentration reste entièrement indépendant de ce repli.
+ const veil=document.createElement('div');
+ veil.setAttribute('aria-hidden','true');
+ veil.style.cssText='position:fixed;inset:0;background:#f3f6f7;z-index:2147483000;pointer-events:none;opacity:0';
+ if(entering)update();
+ const panels=[...document.querySelectorAll(config.viewSelectors)]
+  .filter(focusVisible).filter(el=>!el.classList.contains('iu-page-external-nav'));
+ const animations=panels.map(el=>el.animate(
+  entering?[
+   {transform:'translate3d(0,105dvh,0)',opacity:1},
+   {transform:'translate3d(0,0,0)',opacity:1}
+  ]:[
+   {transform:'translate3d(0,0,0)',opacity:1},
+   {transform:'translate3d(0,105dvh,0)',opacity:1}
+  ],{duration,easing,fill:'both'}
+ ));
+ Promise.all(animations.map(a=>a.finished.catch(()=>{}))).then(()=>{
+  document.body.appendChild(veil);
+  veil.style.opacity='1';
+  if(!entering)update();
+  animations.forEach(a=>a.cancel());
   requestAnimationFrame(()=>{
-   if(Number.isFinite(homeY)&&Math.abs(window.scrollY-homeY)>2)
-    window.scrollTo({top:homeY,left:0,behavior:'instant'});
    const fade=veil.animate([{opacity:1},{opacity:0}],{
     duration:120,easing:'ease-out',fill:'forwards'
    });
-   fade.finished.catch(()=>{}).then(()=>{
-    fade.cancel();veil.remove();finishPending();
-   });
+   fade.finished.catch(()=>{}).then(()=>{fade.cancel();veil.remove();cleanup();});
   });
- };
- Promise.all(animations.map(a=>a.finished.catch(()=>{}))).then(()=>{
-  if(entering){clearAnimations();finishPending();}
-  else closeAfterAnimation();
  },()=>{
-  if(entering){clearAnimations();finishPending();}
-  else closeAfterAnimation();
+  if(!updated)update();
+  animations.forEach(a=>a.cancel());
+  veil.remove();
+  cleanup();
  });
 }
 
