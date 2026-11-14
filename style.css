@@ -20756,6 +20756,22 @@ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #star
  -webkit-mask-composite:xor!important;
  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
  mask-composite:exclude!important;
- z-index:-1!important;
+ z-index:1!important;
+ pointer-events:none!important;
+}
+/* V37.22 — La bordure turquoise doit être visible au-dessus de la
+   forme dégradée, même avec la composition des masques sur Safari iOS.
+   Un liseré de 2px est dessiné au PREMIER PLAN, sans toucher à la
+   surface gris perle ni aux ombres du bouton v37.17. */
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ box-sizing:border-box!important;
+ border:2px solid #007583!important;
+ border-radius:inherit!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ z-index:2!important;
  pointer-events:none!important;
 }
