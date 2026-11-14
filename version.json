@@ -1,7 +1,7 @@
 {
-  "version": "37.17",
+  "version": "37.18",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1086419,
-  "notes": "Harmonisation visuelle du dialogue de confirmation du planning administrateur : fond blanc/gris, bordure fine, ombre diffuse, icône graphite, bouton de fermeture discret, texte plus lisible et boutons Retour / Confirmer cohérents avec les autres pop-ups monochromes. Focus clavier neutralisé visuellement en gris plutôt qu'en bleu. Animations existantes, annulation/réactivation Supabase et correctif Safari 37.16 inchangés. Cache PWA actualisé."
+  "bytes": 1088674,
+  "notes": "Le bouton « Démarrer un inventaire » conserve sa forme, son dégradé monochrome, son icône et ses réactions tactiles, avec un fin liseré gris bleuté doublé d'un reflet blanc et d'une ombre diffuse discrète. La pastille de notifications « Activer / Activées » passe exactement à 32 px de hauteur, comme la pastille Google « Connecté », sans changement de couleurs ni de comportement. Version des ressources et cache PWA actualisés."
 }
