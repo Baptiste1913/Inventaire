@@ -18264,10 +18264,10 @@ html body.is-admin-mode #planningAdminCard .iu-admin-overview > #iuAdminDebugCat
  box-sizing:border-box!important;
  width:100%!important;
  min-width:0!important;
- margin:8px 0 0!important;
- padding:18px 0 12px!important;
+ margin:18px 0 0!important;
+ padding:0 0 12px!important;
  border:0!important;
- border-top:1px solid #cfd6db!important;
+ border-top:0!important;
  border-radius:0!important;
  background:transparent!important;
  box-shadow:none!important;
