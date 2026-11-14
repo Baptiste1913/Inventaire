@@ -1,7 +1,7 @@
 {
-  "version": "37.19",
+  "version": "37.20",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1088256,
-  "notes": "Retour au bouton « Démarrer un inventaire » de la version 37.17 : suppression du double liseré gris bleuté introduit en 37.18. Son fond, son contour, sa géométrie et ses états tactiles d'origine sont conservés. Seules les ombres du bas sont très légèrement renforcées et un fin reflet blanc est ajouté dans la partie supérieure pour davantage de relief, sans changer la couleur. La pastille Notifications à 32 px de la 37.18 est préservée. Cache PWA actualisé."
+  "bytes": 1088307,
+  "notes": "Essai du bouton Démarrer un inventaire en noir profond avec libellé blanc. Le pictogramme PNG Play est remplacé par le caractère « ▷ » (masqué aux lecteurs d’écran). Les dimensions, le liseré, les ombres et le relief de v37.19, ainsi que les effets au toucher, sont conservés. Le fond reste noir aux états repos, survol, focus et appui. La pastille Notifications à 32 px et les fonctionnalités métier ne changent pas. Cache PWA actualisé."
 }
