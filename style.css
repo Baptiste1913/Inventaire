@@ -18152,3 +18152,105 @@ html body.is-admin-mode #planningAdminCard .iu-admin-overview .site-ops-actions
  box-shadow:0 0 0 3px rgba(42,199,143,.13),0 0 9px rgba(42,199,143,.32)!important;
  animation:none!important;
 }
+
+
+/* V37.00 — Retours de pages : même aspect que « Voir les X sessions ».
+   Leurs dimensions, placements et fonctions de navigation restent inchangés. */
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back,
+html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back{
+ border:1px solid #d8e1e6!important;
+ border-radius:13px!important;
+ background:linear-gradient(155deg,#fff,#f7fafb)!important;
+ color:#303d46!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+ font-family:inherit!important;
+ font-size:12px!important;
+ font-weight:800!important;
+ letter-spacing:0!important;
+ transform:none!important;
+ transition:border-color .2s ease,background .2s ease,box-shadow .2s ease!important;
+}
+@media(hover:hover){
+ html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back:hover:not(:disabled),
+ html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back:hover:not(:disabled){
+  border-color:#cdd8de!important;
+  background:linear-gradient(155deg,#fff,#f4f7f9)!important;
+  box-shadow:inset 0 1px 0 #fff!important;
+  transform:none!important;
+ }
+}
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back:active:not(:disabled),
+html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back:active:not(:disabled){
+ border-color:#cdd8de!important;
+ background:linear-gradient(155deg,#f1f4f6,#f7fafb)!important;
+ box-shadow:inset 0 1px 2px rgba(79,99,112,.09)!important;
+ transform:none!important;
+}
+
+/* Rubrique Déboggage, intégrée au moteur existant des sous-tiroirs.
+   Garder les quatre boutons et leurs voyants statiques de V36.99. */
+html body.is-admin-mode #planningAdminCard .iu-admin-overview > #iuAdminDebugCategory.iu-admin-debug-category{
+ display:block!important;
+ width:100%!important;
+ margin:14px 0 12px!important;
+ min-width:0!important;
+ border:1px solid #e1e5e8!important;
+ border-radius:14px!important;
+ background:linear-gradient(150deg,#fff 0%,#f8f9fa 100%)!important;
+ box-shadow:none!important;
+ overflow:hidden!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview > #iuAdminDebugCategory > summary{
+ min-height:57px!important;
+ padding:12px 14px!important;
+ gap:10px!important;
+ background:transparent!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory > summary .iu-admin-category-title strong{
+ color:#303940!important;
+ font-size:15px!important;
+ font-weight:800!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory > summary .iu-admin-category-title small{
+ color:#6a727b!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory > .iu-admin-category-body{
+ padding:1px 12px 14px!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions{
+ display:flex!important;
+ width:100%!important;
+ margin:8px 0 0!important;
+ gap:0!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions > button{
+ width:100%!important;
+ flex:1 1 100%!important;
+ min-width:0!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions > button::after{
+ content:""!important;
+ display:block!important;
+ flex:0 0 8px!important;
+ width:8px!important;
+ height:8px!important;
+ min-width:8px!important;
+ border:0!important;
+ border-radius:50%!important;
+ background:#a1a7ae!important;
+ box-shadow:0 0 0 3px rgba(150,157,165,.12)!important;
+ opacity:1!important;
+ transform:none!important;
+ transition:none!important;
+ animation:none!important;
+ pointer-events:none!important;
+}
+html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory .site-ops-actions > button[aria-pressed="true"]::after{
+ background:#2ac78f!important;
+ box-shadow:0 0 0 3px rgba(42,199,143,.13),0 0 9px rgba(42,199,143,.32)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-admin-mode #planningAdminCard #iuAdminDebugCategory > summary .iu-admin-category-arrow{
+  transition:none!important;
+ }
+}
