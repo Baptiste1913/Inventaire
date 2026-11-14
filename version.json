@@ -1,7 +1,7 @@
 {
-  "version": "36.81",
+  "version": "36.82",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Restauration des animations d'ouverture/fermeture des pages Mon compte et Administrateur sur les paramètres exacts du mode concentration : translation 105dvh, durée 610 ms, courbe cubic-bezier(.38,0,.62,1), flou progressif à la fermeture. Transitions appliquées aux vraies cartes pour conserver le correctif Safari iPhone des photos et icônes déformées. Bouton Retour fixe, fond opaque, scroll et synchronisation automatique inchangés."
+  "notes": "Animations Mon compte et Administrateur : retour du mouvement croisé complet du mode concentration. Les cartes visibles de l'accueil descendent en même temps que les vraies cartes de la page remontent à l'ouverture ; mouvements inversés à la fermeture (610 ms, 105dvh, même courbe de vitesse et flou progressif). Aucun clonage DOM ni capture WebKit : photos, icônes et styles restent corrects. Boutons Retour fixes, fond opaque et restauration du défilement après fermeture préservés."
 }
