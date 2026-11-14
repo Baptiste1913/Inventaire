@@ -312,36 +312,33 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
     <p id="accountFeedback" class="account-feedback" role="status" aria-live="polite"></p>
   </div>
 </details>
-<section class="inventory-calendar card events-card" id="inventoryCalendar" aria-labelledby="calendarHeading">
+<section class="inventory-calendar card events-card" id="inventoryCalendar" aria-labelledby="eventsMonthHeading">
  <div class="events-static-content">
-  <p id="pushStatus" class="events-push-status" role="status" aria-live="polite"></p>
-  <div class="events-info-box events-next-card">
-   <div class="events-next-heading">
-    <div class="events-next-summary">
-     <span class="events-kicker" id="calendarHeading">PROCHAIN INVENTAIRE</span>
-     <strong id="calendarNextDate">Chargement…</strong>
-    </div>
-    <button type="button" id="pushToggle" class="events-bell" aria-label="Activer les notifications" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="events-bell-label">Activer</span></button>
-   </div>
-   <span class="events-countdown" id="calendarNextCountdown" hidden></span>
-  </div>
   <section class="events-month-preview" aria-labelledby="eventsMonthHeading">
    <div class="events-month-content">
-    <header class="events-month-heading">
-     <span class="section-kicker events-section-kicker">SERVICE U / ÉVÉNEMENT</span>
-     <h3 id="eventsMonthHeading">Événements en novembre</h3>
-     <p class="events-month-subtitle">Liste de tous les événements en cours ou à venir ce mois-ci.</p>
-    </header>
-    <button type="button" id="eventsOpenPage" class="events-access-button iu-account-launch-action primary-btn session-btn" aria-controls="eventsPage"><span>Accéder aux événements</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    <div class="events-home-header">
+     <header class="events-month-heading">
+      <span class="section-kicker events-section-kicker">SERVICE U / ÉVÉNEMENT</span>
+      <h3 id="eventsMonthHeading">Événements en novembre</h3>
+     </header>
+     <button type="button" id="pushToggle" class="events-bell" aria-label="Activer les notifications" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="events-bell-label">Activer</span></button>
+    </div>
+    <p class="events-month-subtitle">Inventaires et opérations 10 % Pouvoir d’achat à venir.</p>
    </div>
   </section>
+  <p id="pushStatus" class="events-push-status" role="status" aria-live="polite"></p>
+  <div class="events-info-box events-next-card">
+   <div class="events-next-heading"><span class="events-kicker" id="calendarHeading">PROCHAIN INVENTAIRE</span><span class="events-countdown" id="calendarNextCountdown" hidden></span></div>
+   <strong id="calendarNextDate">Chargement…</strong>
+  </div>
+  <button type="button" id="eventsOpenPage" class="events-access-button iu-account-launch-action primary-btn session-btn" aria-controls="eventsPage"><span>Accéder aux événements</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
  </div>
 </section>
 <section id="eventsPage" class="card iu-events-page" aria-labelledby="eventsPageHeading" hidden>
  <div class="iu-events-opaque-backdrop" aria-hidden="true"></div>
  <div class="iu-events-page-inner">
   <nav class="iu-page-internal-nav iu-events-page-nav" aria-label="Retour à l’accueil depuis les événements"><button type="button" id="iuEventsReturn" class="iu-page-inline-back" aria-label="Retour à l’accueil"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Retour</span></button></nav>
-  <header class="iu-events-page-heading"><h2 id="eventsPageHeading">Événements</h2><p>Retrouvez les opérations commerciales, leurs dates et votre calendrier.</p></header>
+  <header class="iu-events-page-heading"><h2 id="eventsPageHeading">Événements</h2><p>Inventaires et opérations « 10 % Pouvoir d’achat ».</p></header>
   <section class="iu-events-feature" aria-labelledby="eventsFeatureHeading">
    <div class="iu-events-feature-caption"><span class="section-kicker">À LA UNE</span><span class="iu-events-feature-hint" id="eventsFeatureHint">Prochain événement</span></div>
    <div class="iu-events-feature-main"><div class="iu-events-feature-copy"><h3 id="eventsFeatureHeading">Chargement des événements…</h3><p id="eventsFeaturePeriod"></p></div><span class="iu-events-feature-state" id="eventsFeatureState" hidden>À venir</span></div>
@@ -359,9 +356,10 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
    <div class="iu-events-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div>
    <div id="eventsCalendarGrid" class="iu-events-calendar-grid" role="group" aria-label="Dates des événements"></div>
    <div class="iu-events-calendar-legend">
+    <span><i class="iu-events-legend-inventory" aria-hidden="true"></i>Inventaire</span>
+    <span><i class="iu-events-legend-purchase" aria-hidden="true"></i>10 % Pouvoir d’achat</span>
     <span><i class="iu-events-legend-ring is-today" aria-hidden="true"></i>Aujourd’hui</span>
     <span><i class="iu-events-legend-ring is-selected" aria-hidden="true"></i>Date choisie</span>
-    <span class="iu-events-legend-help">Un trait par événement. Les mêmes couleurs sont reprises dans l’agenda. Touchez une date pour consulter tous ses événements.</span>
    </div>
   </section>
   <section class="iu-events-day-panel" aria-labelledby="eventsSelectedDate"><header class="iu-events-section-heading"><div><span class="section-kicker">DATE SÉLECTIONNÉE</span><h3 id="eventsSelectedDate">Aujourd’hui</h3></div><span class="iu-events-count" id="eventsSelectedCount">0 événement</span></header><div id="eventsSelectedList" class="iu-events-day-list" aria-live="polite"></div></section>
