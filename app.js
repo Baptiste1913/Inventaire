@@ -775,14 +775,13 @@ const iuAdminPageMotion={
  // pendant que le bandeau et la carte avancent comme en concentration.
  surfaceSelectors:'.app > #planningAdminCard > .iu-admin-opaque-backdrop',
  solidDuringMotion:true,
- homeScrollY:()=>iuAdminReturnY
+ // V36.87 : l'accueil est toujours remis en haut sous la transition opaque.
+ homeScrollY:()=>0
 };
-let iuAdminReturnY=0;
 function iuOpenAdminPage(){
  const card=$('planningAdminCard');
  if(!card||card.hidden||card.dataset.adminLoading==='true'||
     document.body.classList.contains('is-admin-mode')||focusMotionBusy)return;
- iuAdminReturnY=window.scrollY;
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-admin-mode');
@@ -799,7 +798,10 @@ function iuCloseAdminPage(immediate=false){
   document.body.classList.remove('is-admin-mode');
   document.documentElement.classList.remove('iu-admin-page-active');
   card.open=false;
-  window.scrollTo({top:iuAdminReturnY,left:0,behavior:'instant'});
+  // Repositionner le document d'accueil sous le masque avant sa révélation.
+  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+  document.body.scrollTop=0;
+  window.scrollTo({top:0,left:0,behavior:'instant'});
  };
  if(!immediate&&focusMotionBusy){
   // Comme pour la session, la sortie attend la fin de l'entrée
@@ -828,13 +830,12 @@ const iuAccountPageMotion={
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
  solidDuringMotion:true,
- homeScrollY:()=>iuAccountReturnY
+ // V36.87 : aucune restauration d'une position de scroll désormais obsolète.
+ homeScrollY:()=>0
 };
-let iuAccountReturnY=0;
 function iuOpenAccountPage(){
  const card=$('accountCard');
  if(!card||document.body.classList.contains('is-account-mode')||focusMotionBusy)return;
- iuAccountReturnY=window.scrollY;
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-account-mode');
@@ -849,7 +850,10 @@ function iuCloseAccountPage(immediate=false){
   document.body.classList.remove('is-account-mode');
   document.documentElement.classList.remove('iu-account-page-active');
   card.open=false;
-  window.scrollTo({top:iuAccountReturnY,left:0,behavior:'instant'});
+  // Même préparation cachée que pour Administrateur, sans saut visible.
+  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+  document.body.scrollTop=0;
+  window.scrollTo({top:0,left:0,behavior:'instant'});
  };
  if(!immediate&&focusMotionBusy){
   focusPendingTask=()=>iuCloseAccountPage();
