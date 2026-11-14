@@ -1,7 +1,7 @@
 {
-  "version": "36.77",
+  "version": "36.78",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Boutons Retour déplacés hors des cartes Mon compte et Administrateur, chacun dans une petite ligne en haut à droite, de taille et style identiques (92 × 34 px). Titre Réglages administrateur conservé dans le haut de la carte, centré et agrandi à 18 px. En mode local le Retour reste accessible au même endroit. Animations de concentration opaques, scroll Safari, synchronisation automatique et état des services préservés."
+  "notes": "Retrait de la rangée « Réglages administrateur » et de son séparateur au-dessus des mises à jour. Boutons Retour des pages Administrateur et Mon compte alignés à gauche, avec une marge plus généreuse sous le bouton. Navigation hors cartes, retour animé opaque, défilement Safari et synchronisation automatique préservés."
 }
