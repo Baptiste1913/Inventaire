@@ -1,7 +1,7 @@
 {
-  "version": "36.80",
+  "version": "36.81",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Correction des ouvertures/fermetures Mon compte et Administrateur depuis un accueil déjà défilé sur Safari iPhone : suppression des clones DOM qui provoquaient les icônes agrandies et le bandeau superposé ; animation directe des véritables cartes, bouton Retour immobile dès la première image, page d'origine et sa position de défilement rétablies uniquement après la sortie avec fond opaque neutre. Moteur de pesée, mode concentration et synchronisation auto inchangés."
+  "notes": "Restauration des animations d'ouverture/fermeture des pages Mon compte et Administrateur sur les paramètres exacts du mode concentration : translation 105dvh, durée 610 ms, courbe cubic-bezier(.38,0,.62,1), flou progressif à la fermeture. Transitions appliquées aux vraies cartes pour conserver le correctif Safari iPhone des photos et icônes déformées. Bouton Retour fixe, fond opaque, scroll et synchronisation automatique inchangés."
 }
