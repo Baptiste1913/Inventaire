@@ -1,7 +1,7 @@
 {
-  "version": "37.18",
+  "version": "37.19",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1088674,
-  "notes": "Le bouton « Démarrer un inventaire » conserve sa forme, son dégradé monochrome, son icône et ses réactions tactiles, avec un fin liseré gris bleuté doublé d'un reflet blanc et d'une ombre diffuse discrète. La pastille de notifications « Activer / Activées » passe exactement à 32 px de hauteur, comme la pastille Google « Connecté », sans changement de couleurs ni de comportement. Version des ressources et cache PWA actualisés."
+  "bytes": 1088256,
+  "notes": "Retour au bouton « Démarrer un inventaire » de la version 37.17 : suppression du double liseré gris bleuté introduit en 37.18. Son fond, son contour, sa géométrie et ses états tactiles d'origine sont conservés. Seules les ombres du bas sont très légèrement renforcées et un fin reflet blanc est ajouté dans la partie supérieure pour davantage de relief, sans changer la couleur. La pastille Notifications à 32 px de la 37.18 est préservée. Cache PWA actualisé."
 }
