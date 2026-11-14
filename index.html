@@ -374,17 +374,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   </details>
  </div>
 </section>
-<dialog id="planningConfirmDialog" class="planning-confirm-dialog" aria-labelledby="planningConfirmTitle" aria-describedby="planningConfirmText">
- <div class="planning-confirm-inner">
-  <div class="planning-confirm-head">
-   <span class="planning-confirm-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M16 3h5v5"/></svg></span>
-   <h3 id="planningConfirmTitle">Confirmer</h3>
-   <button type="button" id="planningConfirmClose" class="planning-confirm-close" aria-label="Fermer la confirmation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg></button>
-  </div>
-  <p id="planningConfirmText"></p>
-  <div class="planning-actions"><button type="button" class="planning-secondary" id="planningConfirmDismiss">Retour</button><button type="button" class="planning-primary" id="planningConfirmAccept">Confirmer</button></div>
- </div>
-</dialog>
+
 <dialog id="eventsInstallDialog" class="events-install-dialog" aria-labelledby="eventsInstallTitle"><div class="events-install-dialog-inner"><div class="events-install-dialog-head"><strong id="eventsInstallTitle">Comment installer Inventaires U pour recevoir les notifications ?</strong><button type="button" id="eventsInstallGuideClose" aria-label="Fermer le tutoriel"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg></button></div><ol><li>Clique sur <span class="events-inline-icon"><img src="tutorial-share.png" alt=""/></span> <strong>Partager</strong> puis sur <strong>En voir plus</strong> et enfin <span class="events-inline-icon"><img src="tutorial-home.png" alt=""/></span> <strong>Sur l’écran d’accueil</strong>.</li><li>Clique sur <strong>Ajouter</strong>, puis ouvre ta nouvelle application <strong>Inventaires U</strong>.</li><li>Dans <strong>Événements</strong>, clique sur la cloche pour autoriser les notifications.</li></ol><p class="events-install-success">Tu seras désormais informé des inventaires et autres événements à venir.</p></div></dialog>
 <div class="focus-transition-surface" id="focusTransitionSurface" aria-hidden="true"></div>
 <section class="focus-toolbar" id="focusToolbar" aria-label="Commandes du mode concentration" hidden>
@@ -442,6 +432,17 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   </div>
 </details><footer><strong class="footer-noncommercial">Utilisation non commerciale uniquement</strong><span class="footer-identity">Baptiste • Super U Saint-Germain</span><span class="footer-original">Inventaires U · Outil indépendant · Données stockées localement</span></footer></main>
 
+<dialog id="planningConfirmDialog" class="planning-confirm-dialog" aria-labelledby="planningConfirmTitle" aria-describedby="planningConfirmText">
+ <div class="planning-confirm-inner">
+  <div class="planning-confirm-head">
+   <span class="planning-confirm-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M16 3h5v5"/></svg></span>
+   <h3 id="planningConfirmTitle">Confirmer</h3>
+   <button type="button" id="planningConfirmClose" class="planning-confirm-close" aria-label="Fermer la confirmation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg></button>
+  </div>
+  <p id="planningConfirmText"></p>
+  <div class="planning-actions"><button type="button" class="planning-secondary" id="planningConfirmDismiss">Retour</button><button type="button" class="planning-primary" id="planningConfirmAccept">Confirmer</button></div>
+ </div>
+</dialog>
 <dialog id="importChoiceDialog" class="import-choice-dialog" aria-labelledby="importChoiceTitle">
  <h2 id="importChoiceTitle">Importer une sauvegarde</h2>
  <p>Choisis comment utiliser le fichier dans ton espace actuel.</p>
