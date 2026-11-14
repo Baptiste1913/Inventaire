@@ -539,6 +539,90 @@ function exitFocusWithoutSnapshot(action,config={}){
  Promise.all(animations.map(anim=>anim.finished.catch(()=>{}))).then(cleanup,cleanup);
  if(!animations.length)cleanup();
 }
+/* V36.80 — Pages Compte/Administration : une navigation SANS CLONAGE.
+   Le cloneNode de la sortie Concentration est adapté aux petites cartes
+   d'inventaire, pas aux panneaux compte/admin : une copie hors de sa carte
+   perd les sélecteurs CSS, grossit les SVG et affiche l'ancien accueil.
+   La page réelle reste montée/opaque jusqu'à la FIN de sa fermeture.
+   Le bouton Retour n'est jamais translaté. */
+function iuAnimateStandalonePage(action,entering,config){
+ const modeClass=config.modeClass;
+ const duration=entering?610:510;
+ const easing=entering?'cubic-bezier(.38,0,.62,1)':'cubic-bezier(.42,0,.82,.4)';
+ const finishPending=()=>{
+  focusMotionBusy=false;
+  const pending=focusPendingTask;
+  focusPendingTask=null;
+  if(pending)requestAnimationFrame(pending);
+ };
+ const positionAtTop=()=>{
+  // Safari PWA peut garder le scroll de l'accueil lors du changement de
+  // hauteur du document. Le cadrage est fixé AVANT la première image.
+  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+  document.body.scrollTop=0;
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+ };
+ focusMotionBusy=true;
+ if(entering){
+  action();
+  positionAtTop();
+  // Forcer la mise en page finale avant de démarrer les animations :
+  // pas de recentrage différé du bouton Retour.
+  void document.documentElement.offsetHeight;
+ } 
+ const surfaces=[...document.querySelectorAll(config.viewSelectors)]
+  .filter(focusVisible)
+  .filter(el=>!el.classList.contains('iu-page-external-nav'));
+ const animations=surfaces.map(el=>el.animate(
+  entering?[
+   {transform:'translate3d(0,22px,0)',filter:'blur(0px)'},
+   {transform:'translate3d(0,0,0)',filter:'blur(0px)'}
+  ]:[
+   {transform:'translate3d(0,0,0)',filter:'blur(0px)'},
+   {transform:'translate3d(0,48px,0)',filter:'blur(2px)'}
+  ],
+  {duration,easing,fill:'both'}
+ ));
+ const clearAnimations=()=>animations.forEach(a=>a.cancel());
+ const closeAfterAnimation=()=>{
+  // Couverture NEUTRE, sans copier de données Google ni d'icônes SVG.
+  // La restauration du scroll de l'accueil a lieu derrière cette surface.
+  const veil=document.createElement('div');
+  veil.className='iu-standalone-exit-veil';
+  veil.setAttribute('aria-hidden','true');
+  veil.style.cssText='position:fixed;inset:0;z-index:2147483000;pointer-events:none;background:#f3f6f7;opacity:1';
+  document.body.appendChild(veil);
+  const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
+  try{action();}finally{clearAnimations();}
+  if(Number.isFinite(homeY)){
+   document.scrollingElement&&(document.scrollingElement.scrollTop=homeY);
+   window.scrollTo({top:homeY,left:0,behavior:'instant'});
+  }
+  requestAnimationFrame(()=>{
+   // Laisser WebKit finir la mise en page au bon scroll derrière le voile.
+   if(Number.isFinite(homeY)&&Math.abs(window.scrollY-homeY)>2)
+    window.scrollTo({top:homeY,left:0,behavior:'instant'});
+   const fade=veil.animate([{opacity:1},{opacity:0}],{
+    duration:180,easing:'ease-out',fill:'forwards'
+   });
+   fade.finished.catch(()=>{}).then(()=>{
+    fade.cancel();veil.remove();finishPending();
+   });
+  });
+ };
+ Promise.all(animations.map(a=>a.finished.catch(()=>{}))).then(()=>{
+  if(entering){clearAnimations();finishPending();}
+  else closeAfterAnimation();
+ },()=>{
+  if(entering){clearAnimations();finishPending();}
+  else closeAfterAnimation();
+ });
+ if(!animations.length){
+  // Aucun élément visible : la fermeture reste fonctionnelle.
+  if(entering)finishPending();
+  else closeAfterAnimation();
+ }
+}
 function changeFocusWithMotion(action,entering,config={}){
  if(focusMotionBusy)return;
  if(focusReducedMotion()){action();return;}
@@ -546,6 +630,12 @@ function changeFocusWithMotion(action,entering,config={}){
  const before=document.body.classList.contains(config.modeClass||'is-focus-mode');
  // La transition n'est utile que si l'action peut changer de mode.
  if((entering&&before)||(!entering&&!before)){action();return;}
+ // Pages séparées : pas de captures View Transition ni de copie
+ // des cartes. Le moteur Concentration conserve son comportement existant.
+ if(config.solidDuringMotion&&typeof Element.prototype.animate==='function'){
+  iuAnimateStandalonePage(action,entering,config);
+  return;
+ }
  // Sortie : les éléments réels préservent le cadrage iPhone.
  if(!entering && typeof Element.prototype.animate==='function'){
   exitFocusWithoutSnapshot(action,config);
@@ -625,7 +715,8 @@ const iuAdminPageMotion={
  // Taguer la surface opaque en vue-transition : elle reste statique
  // pendant que le bandeau et la carte avancent comme en concentration.
  surfaceSelectors:'.app > #planningAdminCard > .iu-admin-opaque-backdrop',
- solidDuringMotion:true
+ solidDuringMotion:true,
+ homeScrollY:()=>iuAdminReturnY
 };
 let iuAdminReturnY=0;
 function iuOpenAdminPage(){
@@ -677,7 +768,8 @@ const iuAccountPageMotion={
  exitSourceSelectors:'.app > #accountCard > .iu-account-external-nav, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
- solidDuringMotion:true
+ solidDuringMotion:true,
+ homeScrollY:()=>iuAccountReturnY
 };
 let iuAccountReturnY=0;
 function iuOpenAccountPage(){
