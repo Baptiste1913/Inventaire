@@ -21113,3 +21113,72 @@ html body .app > section.intro > :is(h2,p){
  position:relative!important;
  z-index:2!important;
 }
+
+
+/* V37.30 — Mascotte pastèque : -35 % par rapport à v37.29,
+   et retour à son ancrage d'origine en bas à droite (v37.28). */
+html body .app > section.intro > img.intro-mascot{
+ width:clamp(150.8px,19.24vw,182px)!important;
+ height:auto!important;
+ right:-24px!important;
+ bottom:-10px!important;
+ transform:rotate(-12deg)!important;
+ transform-origin:bottom right!important;
+}
+@media(max-width:600px){
+ html body .app > section.intro > img.intro-mascot{
+  width:153.4px!important;
+  right:-26px!important;
+  bottom:-12px!important;
+ }
+}
+@media(max-width:380px){
+ html body .app > section.intro > img.intro-mascot{
+  width:143px!important;
+  right:-24px!important;
+  bottom:-10px!important;
+ }
+}
+/* Banderole : même silhouette/teintes, gabarit à 75 % de sa largeur
+   et de sa hauteur initiales (55 x .75 = 41.25 px), aligné à gauche.
+   Laisser les deux couches dégradées dans la boîte, sans ombres. */
+html body .app > section.intro .intro-bottom{
+ align-items:flex-start!important;
+ justify-content:flex-start!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
+ box-sizing:border-box!important;
+ flex:0 0 auto!important;
+ align-self:flex-start!important;
+ width:75%!important;
+ min-width:0!important;
+ max-width:75%!important;
+ height:41.25px!important;
+ min-height:41.25px!important;
+ max-height:41.25px!important;
+ margin-left:0!important;
+ margin-right:auto!important;
+ box-shadow:none!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-gradient,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:is(:hover,:active,:focus,:focus-visible) > .hero-start-gradient{
+ box-shadow:none!important;
+}
+@media(max-width:380px){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible){
+  width:75%!important;
+  max-width:75%!important;
+  height:41.25px!important;
+  min-height:41.25px!important;
+  max-height:41.25px!important;
+  padding-inline:8px!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump #heroActionLabel{
+  font-size:12px!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-action-content{
+  gap:6px!important;
+ }
+}
