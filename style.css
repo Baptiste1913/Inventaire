@@ -18036,3 +18036,59 @@ html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-c
   transition:none!important;
  }
 }
+
+
+/* V36.98 — Le voyant « Application à jour » est à gauche et centré
+   verticalement dans son cadre. Sa pulsation reprend exactement les deux
+   animations du voyant du bandeau « Démarrer un inventaire » (V36.05). */
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ gap:12px!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > div{
+ flex:1 1 auto!important;
+ min-width:0!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > #iuUpdateIndicator.iu-update-indicator{
+ display:block!important;
+ position:relative!important;
+ align-self:center!important;
+ flex:0 0 9px!important;
+ width:9px!important;
+ min-width:9px!important;
+ height:9px!important;
+ min-height:9px!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:50%!important;
+ isolation:isolate!important;
+ overflow:visible!important;
+ transform:none!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > #iuUpdateIndicator.iu-update-indicator[data-state="current"],
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > #iuUpdateIndicator.iu-update-indicator[data-state="ready"]{
+ background:#25aa7b!important;
+ box-shadow:0 0 0 3px rgba(37,170,123,.11)!important;
+ animation:iu-v3562-dot 2.4s ease-in-out infinite!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > #iuUpdateIndicator.iu-update-indicator:is([data-state="current"],[data-state="ready"])::after{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:-7px!important;
+ border:0!important;
+ border-radius:50%!important;
+ background:radial-gradient(circle,rgba(37,170,123,.24),rgba(37,170,123,.09) 45%,transparent 72%)!important;
+ box-shadow:none!important;
+ animation:iu-v3562-ring 2.4s ease-in-out infinite!important;
+ pointer-events:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > #iuUpdateIndicator.iu-update-indicator:is([data-state="current"],[data-state="ready"]),
+ html body.is-admin-mode #planningAdminCard .iu-admin-overview .iu-update-state > #iuUpdateIndicator.iu-update-indicator:is([data-state="current"],[data-state="ready"])::after{
+  animation:none!important;
+ }
+}
