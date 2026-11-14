@@ -17411,3 +17411,129 @@ html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountRet
     transform:none!important;transition:none!important;
   }
 }
+
+
+/* V36.90 — Profil Google aligné et pastilles Connecté harmonisées.
+   La photo démarre au niveau du libellé PROFIL GOOGLE. Le nom et le
+   statut partagent une deuxième ligne, centrée sur la photo. */
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-top{
+  display:grid!important;
+  grid-template-columns:62px minmax(0,1fr)!important;
+  align-items:start!important;
+  column-gap:15px!important;
+  min-height:62px!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo{
+  align-self:start!important;
+  flex-basis:62px!important;
+  width:62px!important;
+  height:62px!important;
+  margin:0!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-main{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  grid-template-areas:"eyebrow eyebrow" "name provider"!important;
+  align-items:center!important;
+  align-self:stretch!important;
+  column-gap:8px!important;
+  row-gap:3px!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:62px!important;
+  overflow:visible!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-eyebrow{
+  grid-area:eyebrow!important;
+  align-self:start!important;
+  margin:0!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard #accountPageProfileName{
+  grid-area:name!important;
+  align-self:center!important;
+  min-width:0!important;
+  margin:0!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-provider{
+  grid-area:provider!important;
+  justify-self:end!important;
+  align-self:center!important;
+  gap:0!important;
+  white-space:nowrap!important;
+}
+
+/* Même pastille, dans le profil Google et sur la carte d'accueil.
+   Le mode local conserve son indicateur monochrome indépendant. */
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-provider,
+html body:not(.is-account-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status.is-connected{
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  min-height:32px!important;
+  height:auto!important;
+  padding:7px 12px!important;
+  border:1px solid #bde2cf!important;
+  border-radius:999px!important;
+  background:linear-gradient(165deg,#e5f7ed 0%,#d9f0e2 100%)!important;
+  color:#146e51!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 1px 3px rgba(35,112,75,.055)!important;
+  font-family:inherit!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  line-height:1.15!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+}
+html body:not(.is-account-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status.is-connected::before,
+html body:not(.is-account-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status.is-connected::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* Réduire la portée des ombres des deux boutons Retour, sans changer
+   leur taille, leur placement ni la chorégraphie d'ouverture/fermeture. */
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back,
+html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back{
+  box-shadow:
+   -2px -2px 5px rgba(255,255,255,.95),
+   -3px -3px 8px rgba(255,255,255,.45),
+    2px 3px 6px rgba(156,173,189,.23),
+    1px 1px 3px rgba(156,173,189,.10),
+    inset 1px 1px 0 rgba(255,255,255,.94)!important;
+}
+@media(hover:hover){
+ html body.is-admin-mode #planningAdminCard .iu-page-internal-nav > :is(#iuAdminReturn,#iuAdminReturnLoading).iu-page-inline-back:hover:not(:disabled),
+ html body.is-account-mode #accountCard .iu-page-internal-nav > :is(#iuAccountReturn,#iuAccountReturnGuest).iu-page-inline-back:hover:not(:disabled){
+  box-shadow:
+   -2px -2px 6px rgba(255,255,255,.96),
+   -4px -4px 9px rgba(255,255,255,.5),
+    3px 4px 8px rgba(156,173,189,.26),
+    1px 2px 3px rgba(156,173,189,.12),
+    inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ }
+}
+@media(max-width:430px){
+ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-top{
+  grid-template-columns:55px minmax(0,1fr)!important;
+  column-gap:10px!important;
+  min-height:55px!important;
+ }
+ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-photo{
+  width:55px!important;
+  height:55px!important;
+  flex-basis:55px!important;
+ }
+ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-main{
+  min-height:55px!important;
+  column-gap:6px!important;
+ }
+ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-provider,
+ html body:not(.is-account-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status.is-connected{
+  min-height:30px!important;
+  padding:6px 10px!important;
+  font-size:10.5px!important;
+ }
+}
