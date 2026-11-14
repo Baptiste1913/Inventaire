@@ -21139,8 +21139,9 @@ html body .app > section.intro > img.intro-mascot{
   bottom:-10px!important;
  }
 }
-/* Banderole : même silhouette/teintes, gabarit à 75 % de sa largeur
-   et de sa hauteur initiales (55 x .75 = 41.25 px), aligné à gauche.
+/* Banderole : silhouette inchangée, largeur réduite de 25 % supplémentaires
+   (75 % x 75 % = 56,25 % de la largeur initiale), alignée à gauche.
+   Hauteur conservée à 41,25 px.
    Laisser les deux couches dégradées dans la boîte, sans ombres. */
 html body .app > section.intro .intro-bottom{
  align-items:flex-start!important;
@@ -21151,9 +21152,9 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  box-sizing:border-box!important;
  flex:0 0 auto!important;
  align-self:flex-start!important;
- width:75%!important;
+ width:56.25%!important;
  min-width:0!important;
- max-width:75%!important;
+ max-width:56.25%!important;
  height:41.25px!important;
  min-height:41.25px!important;
  max-height:41.25px!important;
@@ -21168,17 +21169,38 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 @media(max-width:380px){
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible){
-  width:75%!important;
-  max-width:75%!important;
+  width:56.25%!important;
+  max-width:56.25%!important;
   height:41.25px!important;
   min-height:41.25px!important;
   max-height:41.25px!important;
   padding-inline:8px!important;
  }
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump #heroActionLabel{
-  font-size:12px!important;
+  font-size:clamp(10px,2.9vw,11.5px)!important;
  }
  html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-action-content{
   gap:6px!important;
+ }
+}
+
+
+/* Ajustement des espaces internes sur mobile pour garder le libellé
+   complet sans modifier la hauteur, les couleurs ni la logique. */
+@media(max-width:600px){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:hover,:focus,:active){
+  padding-inline:7px!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-action-content{
+  gap:5px!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump #heroActionLabel{
+  font-size:clamp(10px,2.9vw,12px)!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
+  width:10px!important;
+  height:10px!important;
+  flex-basis:10px!important;
  }
 }
