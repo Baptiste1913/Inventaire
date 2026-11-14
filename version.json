@@ -1,7 +1,7 @@
 {
-  "version": "36.98",
+  "version": "36.99",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 974074,
-  "notes": "Indicateur « Application à jour » repositionné à gauche, parfaitement centré verticalement dans sa carte. Pulsation et halo identiques au voyant du bandeau « Démarrer un inventaire » en réutilisant les animations iu-v3562-dot et iu-v3562-ring, avec respect de la réduction des mouvements. États de mise à jour et fonctionnement PWA inchangés."
+  "bytes": 976424,
+  "notes": "Le voyant Application à jour passe à droite, centré verticalement, avec son animation inchangée. Le gel du contenu est désactivé par défaut à chaque lancement. Quatre petits voyants fixes (gris = désactivé, vert = activé), identiques aux indicateurs de l'état des services, sont ajoutés aux options techniques : effets graphiques, animation JS, optimisation graphique et gel du contenu. Aucun changement aux inventaires ni à la synchronisation."
 }
