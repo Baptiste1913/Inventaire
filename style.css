@@ -20727,51 +20727,118 @@ html body:not(.is-focus-mode):not(.is-events-mode) .app > #inventoryCalendar.eve
  }
 }
 
-/* V37.21 — Bouton de la version 37.17 intégralement restauré.
-   1) contour intérieur de 2 px (#007583), toujours visible au toucher ;
-   2) forme dégradée indépendante, qui dépasse de 2,5 px sur CHAQUE côté.
-   La surface gris perle, le texte graphite, l'icône Play, les dimensions,
-   les ombres et le comportement au toucher de v37.17 sont conservés. */
-html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]){
+/* V37.25 — Une seule silhouette, aux dimensions du bouton « Accéder
+   aux événements » (55 px de haut). Aucun débordement extérieur : le
+   dégradé, le liseré #007583 et la surface gris perle sont réunis
+   dans la même boîte. Les ombres/lumières appartiennent exclusivement
+   à la forme dégradée arrière (::before). Plus aucun masque composité
+   ni de doubles contours au toucher, en particulier sur Safari iPhone. */
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]),
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):is(:hover,:active,:focus-visible){
+ box-sizing:border-box!important;
  position:relative!important;
  isolation:isolate!important;
  overflow:visible!important;
- border:2px solid #007583!important;
+ display:inline-flex!important;
+ width:100%!important;
+ height:55px!important;
+ min-height:55px!important;
+ max-height:55px!important;
+ padding:10px 16px!important;
+ justify-content:center!important;
+ align-items:center!important;
+ gap:10px!important;
+ border:0!important;
+ border-radius:14px!important;
+ background:transparent!important;
+ color:#28343d!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ -webkit-tap-highlight-color:transparent!important;
+ transform:translateY(0)!important;
+ transition:transform .17s cubic-bezier(.22,.61,.36,1)!important;
 }
-html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):is(:hover,:focus-visible,:active){
- border:2px solid #007583!important;
-}
-/* Masque en anneau : le dégradé reste uniquement AUTOUR du bouton,
-   sans recouvrir ni modifier son fond original. Le pseudo-élément
-   n'affecte ni sa taille dans la grille ni les interactions. */
+/* Anneau arrière coloré, du bord gauche au bord droit.
+   Les reflets et la profondeur ne sont appliqués qu'à cette couche. */
 html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::before{
- content:""!important;
- position:absolute!important;
- inset:-2.5px!important;
- box-sizing:border-box!important;
- border-radius:16.5px!important;
- padding:2.5px!important;
- background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
- -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
- -webkit-mask-composite:xor!important;
- mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
- mask-composite:exclude!important;
- z-index:1!important;
- pointer-events:none!important;
-}
-/* V37.22 — La bordure turquoise doit être visible au-dessus de la
-   forme dégradée, même avec la composition des masques sur Safari iOS.
-   Un liseré de 2px est dessiné au PREMIER PLAN, sans toucher à la
-   surface gris perle ni aux ombres du bouton v37.17. */
-html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{
  content:""!important;
  position:absolute!important;
  inset:0!important;
  box-sizing:border-box!important;
- border:2px solid #007583!important;
- border-radius:inherit!important;
- background:transparent!important;
- box-shadow:none!important;
- z-index:2!important;
+ border:0!important;
+ border-radius:14px!important;
+ padding:0!important;
+ background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(91,148,155,.28),
+   1px 2px 4px rgba(72,126,136,.17),
+   inset 0 1px 0 rgba(255,255,255,.48)!important;
+ z-index:0!important;
  pointer-events:none!important;
+ -webkit-mask:none!important;
+ mask:none!important;
+ transition:box-shadow .22s ease!important;
+}
+/* Surface intérieure : retrait 2,5 px, liseré turquoise intégré.
+   Les rayons sont concentriques ; aucune jonction ni masque à recomposer. */
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{
+ content:""!important;
+ position:absolute!important;
+ inset:2.5px!important;
+ box-sizing:border-box!important;
+ border:2px solid #007583!important;
+ border-radius:11.5px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:none!important;
+ z-index:1!important;
+ pointer-events:none!important;
+ -webkit-mask:none!important;
+ mask:none!important;
+ transition:background .22s ease!important;
+}
+/* Texte et icône d'origine placés devant les deux couches. */
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]) > *{
+ position:relative!important;
+ z-index:2!important;
+}
+@media(hover:hover){
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):hover:not(:disabled){
+  transform:translateY(-1px)!important;
+ }
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):hover:not(:disabled)::before{
+  box-shadow:
+   -4px -4px 8px rgba(255,255,255,.98),
+   -7px -7px 14px rgba(255,255,255,.64),
+    5px 6px 13px rgba(91,148,155,.31),
+    2px 3px 5px rgba(72,126,136,.18),
+    inset 0 1px 0 rgba(255,255,255,.5)!important;
+ }
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):hover:not(:disabled)::after{
+  background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
+ }
+}
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):active:not(:disabled){
+ transform:translateY(1px)!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):active:not(:disabled)::before{
+ box-shadow:
+  -2px -2px 5px rgba(255,255,255,.88),
+   2px 3px 7px rgba(91,148,155,.19),
+   inset 0 1px 0 rgba(255,255,255,.32)!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):active:not(:disabled)::after{
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]):focus-visible{
+ outline:2px solid #8d9ca8!important;
+ outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden]),
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::before,
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{
+  transition:none!important;
+ }
 }
