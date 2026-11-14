@@ -18690,3 +18690,103 @@ html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card .events-mont
   margin-bottom:13px!important;
  }
 }
+
+
+/* V37.08 — Libellés Inventaire / Événements en [mois] :
+   même hiérarchie titre/sous-titre, sans tiroir supplémentaire. */
+html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-month-heading{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:4px!important;
+ min-width:0!important;
+ width:100%!important;
+ margin:0 0 16px!important;
+ padding:0!important;
+ background:transparent!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-month-heading > #eventsMonthHeading{
+ display:block!important;
+ margin:0!important;
+ padding:0!important;
+ color:#20252b!important;
+ font-family:inherit!important;
+ font-size:17px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ letter-spacing:-.45px!important;
+ text-transform:none!important;
+}
+html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-month-heading > .events-month-subtitle{
+ display:block!important;
+ margin:0!important;
+ padding:0!important;
+ color:#7c8991!important;
+ font-family:inherit!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
+ line-height:1.45!important;
+ letter-spacing:normal!important;
+}
+
+/* Pour chaque événement (premier et suivants), le titre et les dates
+   constituent une colonne, avec la pastille à droite, centrée en hauteur. */
+html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-unified-list .events-entry{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) max-content!important;
+ grid-template-rows:auto auto!important;
+ grid-template-areas:"title state" "period state"!important;
+ align-items:center!important;
+ justify-items:stretch!important;
+ column-gap:12px!important;
+ row-gap:5px!important;
+ min-width:0!important;
+}
+html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-unified-list .events-entry > strong{
+ grid-area:title!important;
+ grid-column:1!important;
+ grid-row:1!important;
+ display:block!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ overflow-wrap:anywhere!important;
+}
+html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-unified-list .events-entry > .events-period{
+ grid-area:period!important;
+ grid-column:1!important;
+ grid-row:2!important;
+ display:block!important;
+ min-width:0!important;
+ width:100%!important;
+ margin:0!important;
+ overflow-wrap:anywhere!important;
+}
+html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card .events-month-preview .events-unified-list .events-entry > span.events-state{
+ grid-area:state!important;
+ grid-column:2!important;
+ grid-row:1 / span 2!important;
+ justify-self:end!important;
+ align-self:center!important;
+ min-height:30px!important;
+ height:30px!important;
+ padding:5px 10px!important;
+ margin:0!important;
+ white-space:nowrap!important;
+ font-size:10px!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-month-heading{
+  margin-bottom:13px!important;
+ }
+ html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-month-heading > #eventsMonthHeading{
+  font-size:16px!important;
+ }
+ html body:not(.is-focus-mode) #inventoryCalendar .events-month-preview .events-unified-list .events-entry{
+  column-gap:8px!important;
+ }
+ html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card .events-month-preview .events-unified-list .events-entry > span.events-state{
+  padding:5px 8px!important;
+ }
+}
