@@ -1,7 +1,7 @@
 {
-  "version": "37.24",
+  "version": "37.25",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1089390,
-  "notes": "Réduction subtile de la forme dégradée du bouton Démarrer un inventaire : débordement extérieur de 3 à 2,5 px, épaisseur du dégradé de 3 à 2,5 px, rayon ajusté à 16,5 px. Bordure turquoise #007583 de 2 px, couleurs du dégradé et style du bouton d'origine inchangés. Cache PWA actualisé."
+  "bytes": 1092926,
+  "notes": "Le bouton « Démarrer un inventaire » est unifié en une seule silhouette de 55 px de hauteur, comme « Accéder aux événements » : la couronne dégradée #53C0E9 → #64B9AE, le liseré #007583 de 2 px et la surface gris perle s'inscrivent dans la même boîte, sans augmenter les dimensions extérieures. Les ombres et lumières ne sont appliquées qu'à la couronne arrière ; le bouton central ne porte plus de relief propre. Suppression des masques composités et des contours superposés responsables d'artefacts aux coins sur Safari au toucher ; animation d'appui sans réduction d'échelle. Icône Play, textes, actions d'inventaire et pastille Notifications à 32 px conservés. Cache PWA actualisé."
 }
