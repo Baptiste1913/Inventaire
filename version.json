@@ -1,7 +1,7 @@
 {
-  "version": "37.21",
+  "version": "37.22",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1088823,
-  "notes": "Bouton « Démarrer un inventaire » revenu exactement au contenu et à la surface de la version 37.17, avec son icône Play originale. Ajout d'une bordure #007583 de 2 px et d'une forme dégradée horizontale #53C0E9 → #64B9AE, dépassant de 4 px autour de chacun des côtés sans recouvrir le fond gris perle. Les dimensions, les ombres, les interactions de session et la pastille Notifications à 32 px sont conservées. Cache PWA renouvelé."
+  "bytes": 1089478,
+  "notes": "Correction du contour #007583 du bouton Démarrer un inventaire : ajout d'un liseré indépendant de 2 px au premier plan afin qu'il reste visible sur Safari iPhone, sans être masqué par la forme dégradée. La forme extérieure +4 px, le dégradé #53C0E9 vers #64B9AE, le style du bouton 37.17 et la pastille Notifications à 32 px sont conservés. Mise à jour des références et du cache PWA."
 }
