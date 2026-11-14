@@ -1,7 +1,7 @@
 {
-  "version": "37.14",
+  "version": "37.15",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1076823,
-  "notes": "Opérations « 10 % POUVOIR D’ACHAT » en rouge, sur le calendrier, la légende, les pastilles et le compte à rebours. Une seule bande continue par plage hebdomadaire est dessinée dans un calque CSS indépendant placé au-dessus des cases : plus de double trait ni d’interruption au passage sur un jour sélectionné. Les jours des mois voisins ne dessinent pas leur opération dans le mois affiché. Carte principale simplifiée en « PROCHAINE OPÉRATION ». Les inventaires restent verts, la rubrique « Autres événements », Supabase et le fonctionnement hors ligne restent inchangés. Cache PWA renouvelé."
+  "bytes": 1078501,
+  "notes": "Page Événements : le jour actuel adopte un encadrement monochrome graphite avec un petit point gris à halo très discret, animé lentement, et respectant la préférence Réduire les animations. Les statuts « À venir » et « Commence dans X jours » des opérations 10 % retrouvent leur gris d'origine ; le rouge reste pour les opérations 10 % en cours, leurs traits du calendrier et leur légende. Événements, inventaires, autres opérations, navigation et synchronisation Supabase inchangés. Cache PWA actualisé."
 }
