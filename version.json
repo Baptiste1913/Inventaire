@@ -1,7 +1,7 @@
 {
-  "version": "36.87",
+  "version": "36.88",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 819405,
-  "notes": "Ouverture des pages Mon compte et Administrateur : l'accueil est préparé tout en haut. Au retour, la position défilée antérieure n'est plus restaurée ; la page d'accueil est immédiatement replacée à 0 sous le masque opaque avant l'animation de sortie. Animations du mode Concentration, connexion, pesées, synchronisation et protections administrateur inchangées."
+  "bytes": 817928,
+  "notes": "Les boutons Retour des pages Administrateur et Mon compte sont maintenant intégrés à l'intérieur des cartes, en haut à gauche avec une petite marge dessous. Ils sont animés avec leurs cartes sans mouvement indépendant. La page Google, le mode local et le chargement administrateur disposent chacun d'un Retour accessible. Le retour de l'accueil en haut, le mode Concentration, les pesées, la synchronisation et les droits Supabase ne sont pas modifiés."
 }
