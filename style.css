@@ -20542,3 +20542,169 @@ html body.is-events-mode #eventsPage .iu-events-feature-state.is-upcoming{
  color:#176a50!important;
  box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
+
+
+/* V37.17 — Confirmation Administrateur : harmonisation avec les fenêtres
+   Compte et les autres pop-ups monochromes. Conserver le vrai <dialog>
+   hors de .app (correction du blocage Safari de la version 37.16).
+   Ne pas toucher à ses animations ni au traitement de l'annulation. */
+#planningConfirmDialog.planning-confirm-dialog{
+ box-sizing:border-box!important;
+ position:fixed!important;
+ inset:auto 14px calc(16px + env(safe-area-inset-bottom,0px)) 14px!important;
+ margin:0 auto!important;
+ width:min(calc(100vw - 28px),420px)!important;
+ max-width:420px!important;
+ max-height:min(80dvh,560px)!important;
+ padding:0!important;
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+ border:1px solid #dce2e6!important;
+ border-radius:20px!important;
+ background:linear-gradient(155deg,#fff 0%,#fafbfc 62%,#f3f5f7 100%)!important;
+ color:#303b44!important;
+ box-shadow:0 18px 48px rgba(32,43,52,.17),
+            0 3px 12px rgba(32,43,52,.07),
+            inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+#planningConfirmDialog.planning-confirm-dialog::backdrop{
+ background:rgba(29,41,50,.22)!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+#planningConfirmDialog .planning-confirm-inner{
+ display:grid!important;
+ gap:16px!important;
+ box-sizing:border-box!important;
+ padding:20px 19px 20px!important;
+ background:transparent!important;
+ color:#303b44!important;
+}
+#planningConfirmDialog .planning-confirm-head{
+ display:flex!important;
+ align-items:center!important;
+ gap:11px!important;
+ min-width:0!important;
+}
+#planningConfirmDialog .planning-confirm-symbol{
+ display:grid!important;
+ flex:0 0 36px!important;
+ place-items:center!important;
+ width:36px!important;
+ height:36px!important;
+ border:1px solid #dce2e6!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,#f7f9fa,#e9edf0)!important;
+ color:#56626c!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+}
+#planningConfirmDialog .planning-confirm-symbol svg{
+ display:block!important;
+ width:19px!important;
+ height:19px!important;
+ stroke:currentColor!important;
+}
+#planningConfirmDialog #planningConfirmTitle{
+ flex:1 1 auto!important;
+ min-width:0!important;
+ margin:0!important;
+ color:#303b44!important;
+ font-family:inherit!important;
+ font-size:16px!important;
+ font-weight:850!important;
+ line-height:1.35!important;
+ letter-spacing:-.2px!important;
+}
+#planningConfirmDialog #planningConfirmClose{
+ appearance:none!important;
+ -webkit-appearance:none!important;
+ display:grid!important;
+ place-items:center!important;
+ flex:0 0 30px!important;
+ width:30px!important;
+ height:30px!important;
+ margin:0!important;
+ padding:5px!important;
+ border:0!important;
+ border-radius:9px!important;
+ background:transparent!important;
+ color:#6b7882!important;
+ box-shadow:none!important;
+ cursor:pointer!important;
+}
+#planningConfirmDialog #planningConfirmClose svg{
+ width:18px!important;
+ height:18px!important;
+ stroke:currentColor!important;
+}
+#planningConfirmDialog #planningConfirmClose:active{
+ background:#edf0f2!important;
+}
+#planningConfirmDialog #planningConfirmText{
+ margin:0!important;
+ padding:0 1px!important;
+ color:#6a7580!important;
+ font-size:12.5px!important;
+ font-weight:500!important;
+ line-height:1.55!important;
+}
+#planningConfirmDialog .planning-actions{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:9px!important;
+ margin:0!important;
+}
+#planningConfirmDialog .planning-actions > button{
+ appearance:none!important;
+ -webkit-appearance:none!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ min-width:0!important;
+ min-height:46px!important;
+ margin:0!important;
+ padding:10px 11px!important;
+ border-radius:12px!important;
+ font-family:inherit!important;
+ font-size:12px!important;
+ font-weight:800!important;
+ line-height:1.3!important;
+ letter-spacing:0!important;
+ text-align:center!important;
+ white-space:normal!important;
+ cursor:pointer!important;
+ -webkit-tap-highlight-color:transparent!important;
+ transition:background .18s ease,box-shadow .18s ease,transform .16s ease!important;
+}
+#planningConfirmDialog #planningConfirmDismiss.planning-secondary{
+ border:1px solid #d5dce1!important;
+ background:linear-gradient(155deg,#fff,#edf0f2)!important;
+ color:#38454e!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+}
+#planningConfirmDialog #planningConfirmAccept.planning-primary{
+ border:1px solid #414951!important;
+ background:linear-gradient(155deg,#4b545d,#343c44)!important;
+ color:#fff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.14),
+            0 2px 7px rgba(34,46,56,.09)!important;
+}
+#planningConfirmDialog .planning-actions > button:active{
+ transform:scale(.985)!important;
+}
+#planningConfirmDialog :is(#planningConfirmDismiss,#planningConfirmAccept,#planningConfirmClose):focus-visible{
+ outline:2px solid #9aa8b2!important;
+ outline-offset:2px!important;
+}
+#planningConfirmDialog :is(#planningConfirmDismiss,#planningConfirmAccept,#planningConfirmClose):focus:not(:focus-visible){
+ outline:none!important;
+}
+@media(max-width:360px){
+ #planningConfirmDialog .planning-confirm-inner{padding:17px 15px 18px!important;gap:14px!important;}
+ #planningConfirmDialog .planning-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}
+ #planningConfirmDialog .planning-actions > button{padding:9px 7px!important;font-size:11.5px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ #planningConfirmDialog .planning-actions > button{transition:none!important;}
+}
