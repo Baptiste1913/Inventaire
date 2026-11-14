@@ -555,7 +555,7 @@ function changeFocusWithMotion(action,entering,config={}){
  const tagged=new Set();
  const cleanup=()=>{
   for(const el of tagged)el.style.viewTransitionName='';
-  html.classList.remove('iu-focus-slide','iu-focus-entering','iu-focus-exiting');
+  html.classList.remove('iu-focus-slide','iu-focus-entering','iu-focus-exiting','iu-admin-solid-transition');
   document.body.classList.remove('iu-slide-fallback-out','iu-slide-fallback-in');
   focusMotionBusy=false;
   // Un clic sur « Annuler » peut survenir avant la fin de la fermeture.
@@ -570,6 +570,9 @@ function changeFocusWithMotion(action,entering,config={}){
   focusTagViews(entering,'new',tagged,config);
  };
  html.classList.add('iu-focus-slide',entering?'iu-focus-entering':'iu-focus-exiting');
+ // Le mode Admin garde son fond visible dès la première frame, sans
+ // fondu translucide des captures. Le mode Concentration reste inchangé.
+ if(config.solidDuringMotion)html.classList.add('iu-admin-solid-transition');
  focusTagViews(entering,'old',tagged,config);
  if(typeof document.startViewTransition==='function'){
   try{
@@ -584,7 +587,8 @@ function changeFocusWithMotion(action,entering,config={}){
  const incoming=[...document.querySelectorAll(entering?(config.viewSelectors||focusViewSelectors):(config.normalSelectors||focusNormalSelectors))]
   .filter(focusVisible);
  const anims=incoming.map(el=>el.animate(
-  [{transform:'translate3d(0,30px,0)',opacity:.7},{transform:'translate3d(0,0,0)',opacity:1}],
+  [{transform:'translate3d(0,30px,0)',opacity:config.solidDuringMotion?1:.7},
+   {transform:'translate3d(0,0,0)',opacity:1}],
   {duration:420,delay:0,easing:'cubic-bezier(.38,0,.62,1)'}));
  Promise.all(anims.map(a=>a.finished.catch(()=>{}))).then(cleanup,cleanup);
  if(!anims.length)cleanup();
@@ -603,7 +607,10 @@ const iuAdminPageMotion={
  // les deux descendent ensemble à la fermeture avec le même flou.
  exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-page-head, .app > #planningAdminCard > .planning-admin-body',
  normalSelectors:focusNormalSelectors,
- surfaceSelectors:focusSurfaceSelectors
+ // Taguer la surface opaque en vue-transition : elle reste statique
+ // pendant que le bandeau et la carte avancent comme en concentration.
+ surfaceSelectors:'.app > #planningAdminCard > .iu-admin-opaque-backdrop',
+ solidDuringMotion:true
 };
 let iuAdminReturnY=0;
 function iuOpenAdminPage(){
