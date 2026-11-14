@@ -1,7 +1,7 @@
 {
-  "version": "36.97",
+  "version": "36.98",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 971571,
-  "notes": "Harmonise les sept champs Date de l’inventaire, Nom de l’événement, Date de début, Date de fin, Code opération, Tableau à importer et Recherche avec le champ Nom du panier : fond, bordure, arrondis, typographie, relief intérieur, focus et placeholders identiques. Préserve loupe, date Safari, import CSV et validations. Cache PWA actualisé."
+  "bytes": 974074,
+  "notes": "Indicateur « Application à jour » repositionné à gauche, parfaitement centré verticalement dans sa carte. Pulsation et halo identiques au voyant du bandeau « Démarrer un inventaire » en réutilisant les animations iu-v3562-dot et iu-v3562-ring, avec respect de la réduction des mouvements. États de mise à jour et fonctionnement PWA inchangés."
 }
