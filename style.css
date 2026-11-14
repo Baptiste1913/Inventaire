@@ -17226,3 +17226,21 @@ html body.is-admin-mode .app > #planningAdminCard.card > .iu-page-external-nav,
 html body.is-account-mode .app > #accountCard.card > .iu-page-external-nav{
  opacity:1!important;
 }
+
+
+/* V36.78 — Navigation extérieure alignée à gauche et séparée du contenu,
+   sur Mon compte connecté, en mode local et dans Administrateur. */
+html body.is-admin-mode .app > #planningAdminCard.card > .iu-page-external-nav,
+html body.is-account-mode .app > #accountCard.card > .iu-page-external-nav{
+ justify-content:flex-start!important;
+ margin:0 auto 10px!important;
+}
+html body.is-admin-mode #planningAdminCard .iu-page-external-nav > #iuAdminReturn,
+html body.is-account-mode #accountCard .iu-page-external-nav > #iuAccountReturn{
+ margin:0!important;
+}
+/* Supprimer complètement l'ancien en-tête des réglages et son séparateur.
+   La carte commence directement par « Mises à jour ». */
+html body.is-admin-mode #planningAdminCard .iu-admin-inpage-top{
+ display:none!important;
+}
