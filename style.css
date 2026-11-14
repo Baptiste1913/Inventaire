@@ -17306,3 +17306,19 @@ html.iu-page-route.iu-page-exit::view-transition-old(iu-route-nav){
   animation-duration:.01ms!important;
  }
 }
+
+/* Les ancres de l'accueil restent fixes comme en mode Concentration :
+   en-tête U et banderole s'estompent sans glissement vertical. */
+html.iu-page-route::view-transition-group(iu-route-anchor-0),
+html.iu-page-route::view-transition-group(iu-route-anchor-1){
+ animation:none!important;
+ z-index:6!important;
+}
+html.iu-page-route.iu-page-enter::view-transition-old(iu-route-anchor-0),
+html.iu-page-route.iu-page-enter::view-transition-old(iu-route-anchor-1){
+ animation:iu65-anchor-away var(--iu65-duration) linear both!important;
+}
+html.iu-page-route.iu-page-exit::view-transition-new(iu-route-anchor-0),
+html.iu-page-route.iu-page-exit::view-transition-new(iu-route-anchor-1){
+ animation:iu65-anchor-back var(--iu65-duration) linear both!important;
+}
