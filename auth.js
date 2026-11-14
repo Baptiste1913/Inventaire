@@ -482,6 +482,17 @@ $('otherTabLater')?.addEventListener('click',()=>{$('otherTabDialog')?.close();l
 // V36.41 : le splash peut attendre une initialisation auth finie et chauffer
 // les graphiques du compte avant le premier clic, sans bloquer les pesées.
 window.IUPrewarmAccount=()=>{if(user)renderDashboard();return true;};
+/* V36.71 — L'action Actualiser de la page Mon compte réutilise exactement
+   la synchronisation existante, sans nouveau fournisseur ni stockage.
+   En mode local, pas de tentative de connexion Google automatique. */
+window.IURefreshAccount=async()=>{
+ if(!user){render();feedback('Mode local : tes données restent disponibles sur cet appareil.');return false;}
+ if(busy){feedback('Synchronisation déjà en cours.');return false;}
+ renderDashboard();
+ const ok=await reconcile();
+ renderDashboard();
+ return ok;
+};
 window.IUAuthInitialReady=false;
 Promise.resolve().then(init).catch(error=>console.warn('Initialisation compte',error)).finally(()=>{
  window.IUAuthInitialReady=true;
