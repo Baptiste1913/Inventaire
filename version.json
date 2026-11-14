@@ -1,7 +1,7 @@
 {
-  "version": "36.83",
+  "version": "36.84",
   "published": "2026-11-14",
   "assets": 43,
   "bytes": 819245,
-  "notes": "Animations Mon compte / Administrateur entièrement refaites après comparaison des vidéos iPhone : transition native GPU entre deux rendus complets de l'écran plutôt que l'animation de nombreuses cartes et de leur contenu. Mouvement vertical et durée du mode concentration (610 ms, 105dvh, même courbe et flou), banderole et en-tête fixes avec fondu, bouton Retour indépendant. Aucun clonage DOM ni styles déplacés ; restauration du scroll avant la capture d'arrivée, préservation des données Google et du correctif de retour Safari. Repli léger sans View Transitions."
+  "notes": "Correction Safari iPhone des espaces blancs pendant les ouvertures/fermetures de Mon compte et Administrateur. Les instantanés des deux pages ne quittent plus simultanément l'écran : à l'ouverture l'accueil reste fixe et opaque sous la nouvelle page qui remonte, à la fermeture la page redescend devant l'accueil déjà affiché. Durée et courbe du mode concentration préservées, bouton Retour indépendant, anciennes photos/SVG intacts, position de l'accueil restaurée et synchronisation cloud conservée."
 }
