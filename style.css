@@ -21204,3 +21204,121 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
   flex-basis:10px!important;
  }
 }
+
+
+/* V37.32 — Accueil inspiré du principe Klarna (sans copier sa charte).
+   Fond pastel translucide sur blanc ; panneau bas opalin qui chevauche
+   la banderole, avec grandes courbes aux deux coins supérieurs.
+   Les commandes d'inventaire, la pastèque et le statut restent intacts. */
+html body .app > section.intro{
+ position:relative!important;
+ isolation:isolate!important;
+ display:flex!important;
+ flex-direction:column!important;
+ min-height:320px!important;
+ height:auto!important;
+ box-sizing:border-box!important;
+ padding-top:30px!important;
+ padding-bottom:19px!important;
+ overflow:hidden!important;
+ border-radius:0 0 14px 14px!important;
+ background:
+  radial-gradient(ellipse 85% 75% at 7% 4%,rgba(250,171,196,.48) 0%,rgba(249,190,211,.24) 52%,transparent 83%),
+  radial-gradient(ellipse 81% 84% at 96% 24%,rgba(175,181,244,.42) 0%,rgba(197,208,246,.23) 52%,transparent 84%),
+  radial-gradient(ellipse 82% 70% at 42% 90%,rgba(111,204,197,.30) 0%,rgba(160,226,214,.14) 55%,transparent 85%),
+  linear-gradient(135deg,rgba(252,239,244,.70) 0%,rgba(236,241,253,.67) 55%,rgba(220,246,242,.65) 100%),
+  #ffffff!important;
+ background-color:#ffffff!important;
+ box-shadow:none!important;
+}
+html body .app > section.intro::before,
+html body .app > section.intro::after{
+ content:none!important;
+ display:none!important;
+}
+/* Textes foncés pour le nouveau fond pastel, statut toujours actif. */
+html body .app > section.intro > #intro-title{
+ position:relative!important;
+ z-index:5!important;
+ color:#24383f!important;
+ -webkit-text-fill-color:#24383f!important;
+ text-shadow:none!important;
+}
+html body .app > section.intro > p{
+ position:relative!important;
+ z-index:5!important;
+ color:#51646d!important;
+ -webkit-text-fill-color:#51646d!important;
+ text-shadow:none!important;
+}
+/* Panneau clair posé SUR le dégradé comme un feuillet iOS.
+   Élément décoratif uniquement : aucun clic intercepté. */
+html body .app > section.intro > .intro-lower-sheet{
+ position:absolute!important;
+ display:block!important;
+ inset:auto 0 0 0!important;
+ width:100%!important;
+ height:138px!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:36px 36px 0 0!important;
+ background:rgba(250,251,252,.93)!important;
+ -webkit-backdrop-filter:blur(15px) saturate(108%)!important;
+ backdrop-filter:blur(15px) saturate(108%)!important;
+ box-shadow:0 -4px 18px rgba(70,98,115,.07)!important;
+ pointer-events:none!important;
+ z-index:2!important;
+}
+/* L'action repose dans le feuillet ; alignement à gauche conservé.
+   La hauteur et la largeur du bouton de v37.31 restent inchangées. */
+html body .app > section.intro .intro-bottom{
+ position:relative!important;
+ z-index:4!important;
+ flex:0 0 auto!important;
+ margin-top:auto!important;
+ margin-bottom:0!important;
+ padding-top:24px!important;
+ padding-bottom:0!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump{
+ z-index:5!important;
+}
+/* La mascotte passe devant le panneau blanc, sans traverser le texte
+   et sans prendre l'interaction au bouton. */
+html body .app > section.intro > img.intro-mascot{
+ z-index:3!important;
+ pointer-events:none!important;
+}
+/* Petite pastille de session contrastée sur pastel. */
+html body .app > section.intro > #heroStatus.intro-session-state{
+ z-index:6!important;
+}
+@media(max-width:600px){
+ html body .app > section.intro{
+  min-height:312px!important;
+  padding-top:28px!important;
+  padding-bottom:16px!important;
+ }
+ html body .app > section.intro > .intro-lower-sheet{
+  height:132px!important;
+  border-radius:32px 32px 0 0!important;
+ }
+}
+@media(max-width:380px){
+ html body .app > section.intro{
+  min-height:306px!important;
+  padding-top:25px!important;
+  padding-bottom:15px!important;
+ }
+ html body .app > section.intro > .intro-lower-sheet{
+  height:124px!important;
+  border-radius:29px 29px 0 0!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app > section.intro > .intro-lower-sheet{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
