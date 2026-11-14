@@ -92,7 +92,7 @@ function renderPage(){
   const marker=document.createElement('span');marker.className='iu-events-day-marker';
   marker.setAttribute('aria-hidden','true');
   if(matches.some(e=>date(e.start)<=now&&eventEnd(e)>=now))marker.classList.add('is-live');
-  if(matches.length>1){const count=document.createElement('span');count.className='iu-events-day-count';count.textContent=String(matches.length);marker.append(count);}
+  if(matches.length>1){marker.classList.add('is-multi');const count=document.createElement('span');count.className='iu-events-day-count';count.textContent=String(matches.length);marker.append(count);}
   button.append(num,marker);
   button.addEventListener('click',event=>{
    selectedKey=key;
