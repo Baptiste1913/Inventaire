@@ -603,8 +603,8 @@ const iuAdminPageMotion={
  // Deux surfaces distinctes, comme bandeau et pesée du mode Concentration :
  // la page entière ne se comporte plus comme une carte qui se déplie.
  // V36.76 — La seule carte Admin contient maintenant son Retour.
- viewSelectors:'.app > #planningAdminCard > .planning-admin-body',
- exitSourceSelectors:'.app > #planningAdminCard > .planning-admin-body',
+ viewSelectors:'.app > #planningAdminCard > .iu-admin-external-nav, .app > #planningAdminCard > .planning-admin-body',
+ exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-external-nav, .app > #planningAdminCard > .planning-admin-body',
  normalSelectors:focusNormalSelectors,
  // Taguer la surface opaque en vue-transition : elle reste statique
  // pendant que le bandeau et la carte avancent comme en concentration.
@@ -657,8 +657,8 @@ const iuAccountPageMotion={
  // leur surface dans l'animation de concentration, sans fondu transparent.
  // La carte profil (si connecté) porte le Retour ; en mode local, il
  // apparaît dans account-body. Même moteur opaque de concentration.
- viewSelectors:'.app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
- exitSourceSelectors:'.app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
+ viewSelectors:'.app > #accountCard > .iu-account-external-nav, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
+ exitSourceSelectors:'.app > #accountCard > .iu-account-external-nav, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
  solidDuringMotion:true
@@ -1810,7 +1810,6 @@ window.IUSetupFold=setupUnifiedFold;
  // Les deux pages n'ont qu'un Retour. L'actualisation de
  // l'état des services reste dans sa rubrique (#opsRefresh).
  $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage());
- $('iuAccountGuestReturn')?.addEventListener('click',()=>iuCloseAccountPage());
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
