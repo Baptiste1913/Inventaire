@@ -1,7 +1,7 @@
 {
-  "version": "36.89",
+  "version": "36.90",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 822498,
-  "notes": "Boutons Retour Admin et Mon compte harmonisés à 92 × 34 px, avec les mêmes retraits et espacements visibles. Dégradé, relief, typographie, états tactiles et survol identiques au bouton « Accéder aux réglages ». Aucun changement aux transitions, au fonctionnement métier, aux données ou à la synchronisation. Références et cache PWA actualisés."
+  "bytes": 827658,
+  "notes": "Deux boutons Retour aux ombres plus discrètes. Dans Mon compte, photo alignée au libellé PROFIL GOOGLE, nom centré verticalement sur la photo et nouvelle pastille Connecté à droite du nom. La pastille Connecté de l'accueil adopte exactement le même style. Aucune modification des animations, des données, des pesées, de la connexion ou de la synchronisation ; cache PWA renouvelé."
 }
