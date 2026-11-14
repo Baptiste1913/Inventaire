@@ -1,7 +1,7 @@
 {
-  "version": "37.15",
+  "version": "37.16",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1078501,
-  "notes": "Page Événements : le jour actuel adopte un encadrement monochrome graphite avec un petit point gris à halo très discret, animé lentement, et respectant la préférence Réduire les animations. Les statuts « À venir » et « Commence dans X jours » des opérations 10 % retrouvent leur gris d'origine ; le rouge reste pour les opérations 10 % en cours, leurs traits du calendrier et leur légende. Événements, inventaires, autres opérations, navigation et synchronisation Supabase inchangés. Cache PWA actualisé."
+  "bytes": 1080967,
+  "notes": "Administration : correction du blocage de tous les boutons lors d'Annuler/Supprimer une date. Le dialogue de confirmation est maintenant en dehors de .app, qui était masquée en mode Administrateur pendant que Safari gardait un modal actif invisible. Protection supplémentaire dans planning-admin.js (repositionnement défensif et gestion d'erreur de showModal). Tests simulés : ouverture de confirmation, fermeture, changement de statut Supabase et retour des commandes. Événements : légende Aujourd'hui avec contour graphite et point gris, pastille À venir verte, décompte de début toujours gris. Cache PWA renouvelé."
 }
