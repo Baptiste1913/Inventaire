@@ -1,7 +1,7 @@
 {
-  "version": "37.27",
+  "version": "37.28",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 1101836,
-  "notes": "Correction du bouton de la banderole, dont le dégradé et la surface avaient disparu sur Safari iPhone à cause d'anciens pseudo-éléments dotés de largeurs/décalages forcés. Les anciens ::before/::after sont désactivés et remplacés par deux véritables couches HTML indépendantes : couronne dégradée #53C0E9 → #64B9AE portant seule les ombres, surface gris perle avec liseré #007583 de 2 px, gabarit 55 px et icône Play comme dans « Ma session » v37.25. Fond de secours ajouté pour éviter toute transparence. Rendu tactile stable, états Démarrer/Reprendre/In cours et actions d'inventaire préservés. Cache PWA renouvelé."
+  "bytes": 1102694,
+  "notes": "Bouton de la banderole « Fruits et Légumes » élargi à 100 % de la largeur disponible, sans la limite 248 px, afin de s'aligner sur le bouton Démarrer de « Ma session ». Bord inférieur de la banderole rapproché à 8 px. Suppression complète des ombres et reflets du bouton de la banderole, y compris au survol et au toucher ; dégradé #53C0E9 → #64B9AE, liseré #007583, surface gris perle, dimensions verticales 55 px et deux couches stables conservés. Les fonctions démarrer/reprendre, le bouton de Ma session, les données et la pastille Notifications restent inchangés. Cache PWA actualisé."
 }
