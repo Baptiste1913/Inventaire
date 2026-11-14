@@ -654,8 +654,10 @@ window.IUOpenAdminPage=iuOpenAdminPage;
    Le DOM du tableau de bord et de l'authentification n'est pas cloné. */
 const iuAccountPageMotion={
  modeClass:'is-account-mode',
- viewSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .account-body',
- exitSourceSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .account-body',
+ // Bandeau, profil Google (si connecté) et tableau de bord ont chacun
+ // leur surface dans l'animation de concentration, sans fondu transparent.
+ viewSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
+ exitSourceSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
  solidDuringMotion:true
