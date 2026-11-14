@@ -17339,3 +17339,49 @@ html.iu-page-route.iu-page-exit::view-transition-new(iu-route-anchor-0),
 html.iu-page-route.iu-page-exit::view-transition-new(iu-route-anchor-1){
  animation:iu65-anchor-back var(--iu65-duration) linear both!important;
 }
+
+
+/* V36.85 — Compte et Administrateur = mêmes snapshots que Concentration.
+   Le root n'est jamais animé : supprimer la source des bandes blanches.
+   Un fond opaque et fixe porte les groupes de cartes animées au-dessus. */
+html.iu-page-cards::view-transition{
+ background:#f3f6f7!important;
+ overflow:clip!important;
+ isolation:isolate!important;
+}
+html.iu-page-cards::view-transition-old(root),
+html.iu-page-cards::view-transition-new(root){
+ animation:none!important;
+ opacity:0!important;
+}
+html.iu-page-cards::view-transition-group(iu-focus-surface){
+ animation:none!important;
+ z-index:5!important;
+}
+html.iu-page-cards::view-transition-group(iu-focus-0),
+html.iu-page-cards::view-transition-group(iu-focus-1){
+ animation:none!important;
+ z-index:8!important;
+}
+html.iu-page-cards::view-transition-group(iu-page-nav){
+ animation:none!important;
+ z-index:10!important;
+}
+html.iu-page-cards::view-transition-new(iu-page-nav),
+html.iu-page-cards::view-transition-old(iu-page-nav){
+ mix-blend-mode:normal!important;
+ transform-origin:top left!important;
+}
+html.iu-page-cards.iu-focus-entering::view-transition-new(iu-page-nav){
+ animation:iu65-anchor-back var(--iu65-duration) linear both!important;
+}
+html.iu-page-cards.iu-focus-exiting::view-transition-old(iu-page-nav){
+ animation:iu65-anchor-away var(--iu65-duration) linear both!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html.iu-page-cards::view-transition-old(*),
+ html.iu-page-cards::view-transition-new(*){
+  animation-duration:.01ms!important;
+  animation-delay:0ms!important;
+ }
+}
