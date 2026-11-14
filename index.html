@@ -232,6 +232,24 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
       <button id="iuAccountRefresh" type="button" class="focus-pause iu-account-page-refresh"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M5.7 9a7.5 7.5 0 0 1 12.9-2L20 12M4 12l1.4 3a7.5 7.5 0 0 0 13 0"/></svg><span>Actualiser</span></button>
     </div>
   </div>
+  <section class="iu-account-profile-card" id="iuAccountProfileCard" aria-labelledby="accountPageProfileName" hidden>
+    <div class="iu-account-profile-top">
+      <span class="iu-account-profile-photo" aria-hidden="true">
+        <img id="accountPageAvatarImage" alt="" hidden referrerpolicy="no-referrer"/>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 3-6 7-6s6.6 2 7 6"/></svg>
+      </span>
+      <div class="iu-account-profile-main">
+        <span class="iu-account-profile-eyebrow">PROFIL GOOGLE</span>
+        <strong id="accountPageProfileName">Mon compte</strong>
+        <span class="iu-account-profile-provider"><img src="google-logo.png?v=32.0" width="14" height="14" alt="" aria-hidden="true"/> Compte connecté</span>
+      </div>
+    </div>
+    <div class="account-dashboard-identity iu-account-profile-details" aria-label="Informations et sauvegarde du compte">
+      <div class="account-dashboard-identity-row"><span>Adresse e-mail</span><strong id="accountIdentity"></strong></div>
+      <div class="account-dashboard-identity-row account-dashboard-backup-row"><span>Dernière sauvegarde</span><small id="cloudStatusDetail" class="account-dashboard-backup-detail">Vérification en cours…</small></div>
+      <div class="account-dashboard-hidden-state" hidden><span id="cloudStatusMain"></span><span id="cloudStatus" role="status"></span></div>
+    </div>
+  </section>
   <div class="fold-body account-body">
     <div id="accountSignedOut">
       <div class="account-local-intro">
@@ -245,11 +263,6 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
       <div id="cloudConflict" class="account-conflict" hidden><p><strong>Deux sauvegardes différentes détectées.</strong> Tu peux fusionner les inventaires compatibles ou choisir une version. Des copies locales sont conservées avant le changement.</p><button type="button" id="cloudMerge" class="account-provider account-google" hidden>Fusionner les inventaires compatibles</button><button type="button" id="cloudKeepLocal" class="account-provider account-google">Conserver les données de cet appareil</button><button type="button" id="cloudUseRemote" class="account-provider account-google">Récupérer les données du cloud</button></div>
       <section class="account-dashboard" id="accountDashboard" aria-labelledby="dashboardTitle">
         <div class="dashboard-heading"><div class="account-dashboard-heading-copy"><h3 id="dashboardTitle">Tableau de bord</h3><p>Inventaires, performances et sauvegardes.</p></div><span class="dashboard-cloud-pill" id="dashboardCloudPill" role="status">Vérification…</span></div>
-        <div class="account-dashboard-identity" aria-label="Compte et sauvegarde">
-          <div class="account-dashboard-identity-row"><span>Adresse e-mail</span><strong id="accountIdentity"></strong></div>
-          <div class="account-dashboard-identity-row account-dashboard-backup-row"><span>Dernière sauvegarde</span><small id="cloudStatusDetail" class="account-dashboard-backup-detail">Vérification en cours…</small></div>
-          <div class="account-dashboard-hidden-state" hidden><span id="cloudStatusMain"></span><span id="cloudStatus" role="status"></span></div>
-        </div>
         <div class="dashboard-stats">
           <div class="dashboard-stat"><span>Inventaires terminés</span><strong id="dashCompleted">0</strong></div>
           <div class="dashboard-stat"><span>Pesées enregistrées</span><strong id="dashWeighs">0</strong></div>
