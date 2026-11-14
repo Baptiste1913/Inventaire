@@ -21,7 +21,7 @@ const daysBetween=(from,to)=>Math.round((Date.UTC(to.getFullYear(),to.getMonth()
 const eventKey=e=>String(e.id??[e.title,e.start,e.end||e.start].join('|'));
 const statusClass=(e,now)=>eventEnd(e)<now?'is-past':date(e.start)<=now?'is-live':'is-upcoming';
 // V37.12 — Deux seules catégories visibles, sans effacer les données du planning.
-const TYPE_COLORS={inventory:'#2b9a74',purchase:'#6588b3'};
+const TYPE_COLORS={inventory:'#2b9a74',purchase:'#d65050'};
 const powerPurchase=event=>{
  const normalized=String(event.title||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
   .replace(/[\u2018\u2019]/g,"'").toUpperCase();
@@ -95,8 +95,9 @@ function renderPage(){
   const [status,cls]=eventStatus(lead,now);
   $('eventsFeatureHeading').textContent=lead.title;
   $('eventsFeaturePeriod').textContent=datePeriod(lead);
-  $('eventsFeatureHint').textContent=lead.kind==='inventory'?(status==='En cours'?'Inventaire aujourd’hui':'Prochain inventaire'):(status==='En cours'?'Opération 10 % en cours':'Prochaine opération 10 %');
-  leadState.textContent=status;leadState.className='iu-events-feature-state '+cls;leadState.hidden=false;
+  leadState.textContent=status;
+  leadState.className='iu-events-feature-state '+cls+(lead.kind==='purchase'?' is-purchase':' is-inventory');
+  leadState.hidden=false;
   const remaining=daysBetween(now,status==='En cours'?eventEnd(lead):date(lead.start));
   const countdown=$('eventsFeatureCountdown'),message=$('eventsFeatureCountdownText');
   if(countdown&&message){
@@ -104,12 +105,13 @@ function renderPage(){
     ?remaining===0?'Se termine aujourd’hui':remaining===1?'Se termine demain':'Se termine dans '+remaining+' jours'
     :remaining===0?'Commence aujourd’hui':remaining===1?'Commence demain':'Commence dans '+remaining+' jours';
    countdown.classList.toggle('is-live',status==='En cours');
+   countdown.classList.toggle('is-purchase',lead.kind==='purchase');
    countdown.hidden=false;
   }
  }else{
   $('eventsFeatureHeading').textContent='Aucune date à venir';
   $('eventsFeaturePeriod').textContent='Les prochains inventaires et opérations 10 % apparaîtront ici dès leur publication.';
-  $('eventsFeatureHint').textContent='Planning à jour';leadState.hidden=true;
+  leadState.hidden=true;
   const countdown=$('eventsFeatureCountdown');if(countdown)countdown.hidden=true;
  }
  const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth();
@@ -143,6 +145,8 @@ function renderPage(){
   const hiddenCount=Math.max(0,matches.length-visible.length);
   if(key===dayKey(now)){button.classList.add('is-today');button.setAttribute('aria-current','date');}
   if(key===selectedKey)button.classList.add('is-selected');
+  button.style.gridColumn=String(i%7+1);
+  button.style.gridRow=String(Math.floor(i/7)+1);
   button.setAttribute('aria-pressed',String(key===selectedKey));
   button.setAttribute('aria-label',cap(long.format(day))+' · '+countLabel(matches.length)+
    (matches.length?' · '+sorted(matches).slice(0,2).map(e=>e.title).join(', ')+(matches.length>2?' et autres':''):'')+
@@ -151,15 +155,12 @@ function renderPage(){
   const ribbons=document.createElement('span');
   ribbons.className='iu-events-day-ribbons';
   ribbons.setAttribute('aria-hidden','true');
-  for(const event of visible){
+  // L'inventaire garde son point vert. Les périodes 10 % sont dessinées
+  // UNE SEULE FOIS au-dessus de la grille, jamais dans chaque case.
+  for(const event of visible.filter(e=>e.kind==='inventory')){
    const ribbon=document.createElement('span');
-   ribbon.className='iu-events-day-ribbon is-kind-'+event.kind;
+   ribbon.className='iu-events-day-ribbon is-kind-inventory';
    ribbon.style.setProperty('--iu-event-accent',accent(event));
-   if(event.kind==='purchase'){
-    const prev=new Date(y,m,-offset+i,12),next=new Date(y,m,2-offset+i,12);
-    if(i%7!==0&&forDay(prev).some(e=>eventKey(e)===eventKey(event)))ribbon.classList.add('joins-prev');
-    if(i%7!==6&&forDay(next).some(e=>eventKey(e)===eventKey(event)))ribbon.classList.add('joins-next');
-   }
    ribbons.append(ribbon);
   }
   button.append(num,ribbons);
@@ -184,24 +185,28 @@ function renderPage(){
   });
   grid.append(button);
  }
- // Une barre autonome, placée SUR la grille et non sous le fond d'un bouton.
- // Même après avoir sélectionné un jour, la période bleue reste d'un seul
- // tenant : la sélection ne peut plus cacher le raccord entre deux cases.
+ // Un seul tracé rouge par plage continue de jours 10 %.
+ // Les zones sont des éléments IN-FLOW de la grille CSS, superposés aux
+ // dates via grid-column/grid-row : contrairement au positionnement absolu,
+ // Safari calcule correctement la largeur et la ligne lors d'une sélection.
+ // Les dates hors du mois affiché ne dessinent aucune barre.
  const gridStart=new Date(y,m,1-offset,12);
- const gridEnd=new Date(y,m,1-offset+cells-1,12);
- for(const e of events.filter(e=>e.kind==='purchase'&&intersects(e,gridStart,gridEnd))){
-  const begin=Math.max(0,daysBetween(gridStart,date(e.start)));
-  const finish=Math.min(cells-1,daysBetween(gridStart,eventEnd(e)));
-  if(finish<begin)continue;
-  for(let week=Math.floor(begin/7);week<=Math.floor(finish/7);week++){
-   const colStart=Math.max(begin,week*7)-week*7+1;
-   const colEnd=Math.min(finish,week*7+6)-week*7+2;
+ const purchaseDays=Array.from({length:cells},(_,i)=>{
+  const d=new Date(y,m,1-offset+i,12);
+  return d.getMonth()===m&&events.some(e=>e.kind==='purchase'&&intersects(e,d,d));
+ });
+ for(let week=0;week<cells/7;week++){
+  let col=0;
+  while(col<7){
+   if(!purchaseDays[week*7+col]){col++;continue;}
+   const begin=col;
+   while(col<7&&purchaseDays[week*7+col])col++;
    const bar=document.createElement('span');
    bar.className='iu-events-week-bar';
    bar.setAttribute('aria-hidden','true');
-   bar.style.gridColumn=colStart+' / '+colEnd;
+   bar.style.gridColumn=(begin+1)+' / '+(col+1);
    bar.style.gridRow=String(week+1);
-   bar.style.setProperty('--iu-event-accent',accent(e));
+   bar.style.setProperty('--iu-event-accent',TYPE_COLORS.purchase);
    grid.append(bar);
   }
  }
