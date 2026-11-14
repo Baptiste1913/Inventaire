@@ -17769,3 +17769,40 @@ html body.is-account-mode #accountCard #iuAccountProfileCard #accountSyncNow:act
  border-radius:20px!important;
  background:transparent!important;
 }
+
+
+/* V36.94 - Notifications : memes volumes, autre palette pour Activer. */
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell:not(.is-active){
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;width:auto!important;min-width:0!important;height:auto!important;
+ min-height:34px!important;max-height:none!important;gap:7px!important;padding:7px 11px!important;
+ border:1px solid #d6dfe4!important;border-radius:999px!important;
+ background:linear-gradient(145deg,#f8fafb,#e9eef1)!important;color:#535f68!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.90)!important;
+ font-family:inherit!important;font-size:10.5px!important;font-weight:850!important;
+ line-height:1.25!important;letter-spacing:normal!important;opacity:1!important;
+}
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell:not(.is-active) :is(svg,.events-bell-label){
+ color:inherit!important;
+}
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell:not(.is-active) .events-bell-label{
+ display:inline-flex!important;align-items:center!important;gap:7px!important;
+}
+body:not(.is-focus-mode) .app > #inventoryCalendar.events-card #pushToggle.events-bell:not(.is-active) .events-bell-label::after{
+ content:""!important;position:relative!important;display:block!important;
+ width:7px!important;height:7px!important;flex:0 0 7px!important;
+ border-radius:50%!important;background:#9ba6af!important;
+ box-shadow:0 0 0 2px rgba(139,152,164,.13)!important;animation:none!important;
+}
+/* Cloud : bottom spacing equal to top (desktop and iPhone). */
+html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-cloud-panel{
+ padding-bottom:6px!important;
+}
+html body.is-account-mode #accountCard #iuAccountProfileCard #accountSyncNow.iu-account-sync-now{
+ margin-top:8px!important;
+}
+@media(max-width:430px){
+ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-cloud-panel{
+  padding-bottom:4px!important;
+ }
+}
