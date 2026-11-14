@@ -16840,7 +16840,7 @@ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile
  gap:5px!important;
 }
 html body.is-account-mode #accountCard #iuAccountProfileCard #accountPageProfileName{
- font-size:clamp(15px,4.2vw,18px)!important;
+ font-size:16px!important;
  line-height:1.28!important;
 }
 html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-provider{
@@ -16850,7 +16850,7 @@ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile
  border-radius:99px!important;
  background:#f4f6f7!important;
  color:#64737b!important;
- font-size:10px!important;
+ font-size:11.5px!important;
  font-weight:750!important;
 }
 html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-details-heading{
@@ -16866,14 +16866,15 @@ html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile
 html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-details-heading strong{
  color:#2d3740!important;
  font-family:inherit!important;
- font-size:14px!important;
+ font-size:16px!important;
  font-weight:850!important;
+ line-height:1.25!important;
  letter-spacing:-.015em!important;
 }
 html body.is-account-mode #accountCard #iuAccountProfileCard .iu-account-profile-details-heading > span{
  color:#8a969e!important;
- font-size:10.5px!important;
- font-weight:600!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
 }
 html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity.iu-account-profile-details{
  display:grid!important;
@@ -16910,7 +16911,7 @@ html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-
 }
 html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row.iu-account-profile-field > span{
  color:#7f8b93!important;
- font-size:10.5px!important;
+ font-size:11.5px!important;
  font-weight:700!important;
  line-height:1.3!important;
  letter-spacing:.005em!important;
@@ -16921,7 +16922,7 @@ html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-
  width:100%!important;
  min-width:0!important;
  color:#303b44!important;
- font-size:12px!important;
+ font-size:14px!important;
  font-weight:800!important;
  line-height:1.42!important;
  text-align:left!important;
@@ -16960,7 +16961,7 @@ html body.is-account-mode #accountCard #iuAccountProfileCard #accountProfileSync
   gap:7px!important;
  }
  html body.is-account-mode #accountCard #iuAccountProfileCard .account-dashboard-identity-row.iu-account-profile-field > :is(strong,small){
-  font-size:11.5px!important;
+  font-size:14px!important;
  }
 }
 @media(max-width:360px){
