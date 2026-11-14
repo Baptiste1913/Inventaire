@@ -602,10 +602,9 @@ const iuAdminPageMotion={
  modeClass:'is-admin-mode',
  // Deux surfaces distinctes, comme bandeau et pesée du mode Concentration :
  // la page entière ne se comporte plus comme une carte qui se déplie.
- viewSelectors:'.app > #planningAdminCard > .iu-admin-page-head, .app > #planningAdminCard > .planning-admin-body',
- // Même paire de surfaces que le mode Concentration (bandeau + carte) :
- // les deux descendent ensemble à la fermeture avec le même flou.
- exitSourceSelectors:'.app > #planningAdminCard > .iu-admin-page-head, .app > #planningAdminCard > .planning-admin-body',
+ // V36.76 — La seule carte Admin contient maintenant son Retour.
+ viewSelectors:'.app > #planningAdminCard > .planning-admin-body',
+ exitSourceSelectors:'.app > #planningAdminCard > .planning-admin-body',
  normalSelectors:focusNormalSelectors,
  // Taguer la surface opaque en vue-transition : elle reste statique
  // pendant que le bandeau et la carte avancent comme en concentration.
@@ -656,8 +655,10 @@ const iuAccountPageMotion={
  modeClass:'is-account-mode',
  // Bandeau, profil Google (si connecté) et tableau de bord ont chacun
  // leur surface dans l'animation de concentration, sans fondu transparent.
- viewSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
- exitSourceSelectors:'.app > #accountCard > .iu-account-page-head, .app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
+ // La carte profil (si connecté) porte le Retour ; en mode local, il
+ // apparaît dans account-body. Même moteur opaque de concentration.
+ viewSelectors:'.app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
+ exitSourceSelectors:'.app > #accountCard > .iu-account-profile-card:not([hidden]), .app > #accountCard > .account-body',
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
  solidDuringMotion:true
@@ -1809,6 +1810,7 @@ window.IUSetupFold=setupUnifiedFold;
  // Les deux pages n'ont qu'un Retour. L'actualisation de
  // l'état des services reste dans sa rubrique (#opsRefresh).
  $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage());
+ $('iuAccountGuestReturn')?.addEventListener('click',()=>iuCloseAccountPage());
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
