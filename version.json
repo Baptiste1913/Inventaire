@@ -1,7 +1,7 @@
 {
-  "version": "37.06",
+  "version": "37.07",
   "published": "2026-11-14",
   "assets": 43,
-  "bytes": 991847,
-  "notes": "Mon compte / Évolution du rythme : les six temps moyens sont affichés sur une seule ligne au format hh:mm:ss (ex. 00:00:46, 00:02:29, 01:02:34), avec une petite légende « hh:mm:ss » dans le coin supérieur gauche et une typographie monospace compacte adaptée à Safari iPhone. Comparaisons et proportions des barres inchangées, tendance toujours à droite. Cache PWA actualisé."
+  "bytes": 997207,
+  "notes": "Le tiroir « Événements à venir » est supprimé : mois, événement principal (état, titre, période) et bouton « Voir les X autres événements » apparaissent directement dans la carte Événements. Les pastilles En cours et À venir reprennent exactement les couleurs, dimensions, bordures et reliefs des états Activées et Activer des notifications, sans animation. Chargement Supabase et animation des autres événements inchangés ; cache PWA actualisé."
 }
