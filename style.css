@@ -17249,3 +17249,60 @@ html body.is-admin-mode #planningAdminCard .iu-admin-inpage-top{
    et leurs styles pendant la sortie. Le retrait local du !important sur
    transform permet au moteur Web Animations de déplacer doucement les
    cartes, sans toucher au verrou du défilement des pesées. */
+
+
+/* V36.83 — Pages Compte/Administrateur : même chorégraphie visuelle que
+   Concentration, mais sur DEUX instantanés complets du viewport.
+   Safari compose le rendu une seule fois : aucun recalcul des tiroirs,
+   des graphiques, du compte Google ou des grandes cartes par image. */
+html.iu-page-route::view-transition{
+ background:#f3f6f7!important;
+ overflow:hidden!important;
+ isolation:isolate!important;
+}
+html.iu-page-route::view-transition-group(root){
+ animation:none!important;
+ z-index:1!important;
+}
+html.iu-page-route::view-transition-image-pair(root){
+ isolation:isolate!important;
+}
+html.iu-page-route::view-transition-old(root),
+html.iu-page-route::view-transition-new(root){
+ mix-blend-mode:normal!important;
+ transform-origin:top center!important;
+ opacity:1!important;
+}
+html.iu-page-route.iu-page-enter::view-transition-old(root),
+html.iu-page-route.iu-page-exit::view-transition-old(root){
+ animation:iu65-focus-away var(--iu65-duration) var(--iu65-ease) both!important;
+}
+html.iu-page-route.iu-page-enter::view-transition-new(root),
+html.iu-page-route.iu-page-exit::view-transition-new(root){
+ animation:iu65-rise var(--iu65-duration) var(--iu65-ease) both!important;
+}
+/* Le bouton Retour reste à son emplacement final pendant que les
+   captures d'écran défilent. Son rendu est isolé du snapshot racine. */
+html.iu-page-route::view-transition-group(iu-route-nav){
+ animation:none!important;
+ z-index:8!important;
+}
+html.iu-page-route::view-transition-old(iu-route-nav),
+html.iu-page-route::view-transition-new(iu-route-nav){
+ mix-blend-mode:normal!important;
+ transform-origin:top left!important;
+}
+html.iu-page-route.iu-page-enter::view-transition-new(iu-route-nav){
+ animation:iu65-anchor-back var(--iu65-duration) linear both!important;
+}
+html.iu-page-route.iu-page-exit::view-transition-old(iu-route-nav){
+ animation:iu65-anchor-away var(--iu65-duration) linear both!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html.iu-page-route::view-transition-old(root),
+ html.iu-page-route::view-transition-new(root),
+ html.iu-page-route::view-transition-old(iu-route-nav),
+ html.iu-page-route::view-transition-new(iu-route-nav){
+  animation-duration:.01ms!important;
+ }
+}
