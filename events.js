@@ -17,6 +17,11 @@ const eventEnd=e=>date(e.end||e.start);
 const intersects=(e,start,end)=>date(e.start)<=end&&eventEnd(e)>=start;
 const datePeriod=e=>e.start===(e.end||e.start)?cap(short.format(date(e.start))):'Du '+short.format(date(e.start))+' au '+short.format(eventEnd(e));
 const countLabel=n=>n+' événement'+(n>1?'s':'');
+const daysBetween=(from,to)=>Math.round((Date.UTC(to.getFullYear(),to.getMonth(),to.getDate())-Date.UTC(from.getFullYear(),from.getMonth(),from.getDate()))/86400000);
+const eventKey=e=>String(e.id??[e.title,e.start,e.end||e.start].join('|'));
+const isSameEvent=(a,b)=>eventKey(a)===eventKey(b);
+const statusClass=(e,now)=>eventEnd(e)<now?'is-past':date(e.start)<=now?'is-live':'is-upcoming';
+const statusPriority=state=>state==='is-live'?3:state==='is-upcoming'?2:state==='is-past'?1:0;
 const sorted=rows=>[...rows].sort((a,b)=>a.start.localeCompare(b.start)||String(a.title||'').localeCompare(String(b.title||''),'fr'));
 const usable=rows=>(Array.isArray(rows)?rows:[]).filter(e=>e&&typeof e.title==='string'&&Number.isFinite(date(e.start).getTime())&&Number.isFinite(eventEnd(e).getTime())&&eventEnd(e)>=date(e.start));
 let lastRefresh=0,loading=false;
@@ -61,10 +66,20 @@ function renderPage(){
   $('eventsFeaturePeriod').textContent=datePeriod(lead);
   $('eventsFeatureHint').textContent=status==='En cours'?'Événement en cours':'Prochain événement';
   leadState.textContent=status;leadState.className='iu-events-feature-state '+cls;leadState.hidden=false;
+  const remaining=daysBetween(now,status==='En cours'?eventEnd(lead):date(lead.start));
+  const countdown=$('eventsFeatureCountdown'),message=$('eventsFeatureCountdownText');
+  if(countdown&&message){
+   message.textContent=status==='En cours'
+    ?remaining===0?'Se termine aujourd’hui':remaining===1?'Se termine demain':'Se termine dans '+remaining+' jours'
+    :remaining===0?'Commence aujourd’hui':remaining===1?'Commence demain':'Commence dans '+remaining+' jours';
+   countdown.classList.toggle('is-live',status==='En cours');
+   countdown.hidden=false;
+  }
  }else{
   $('eventsFeatureHeading').textContent='Aucun événement à venir';
   $('eventsFeaturePeriod').textContent='Les prochains événements apparaîtront ici dès leur publication.';
   $('eventsFeatureHint').textContent='Planning à jour';leadState.hidden=true;
+  const countdown=$('eventsFeatureCountdown');if(countdown)countdown.hidden=true;
  }
  const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth();
  const first=new Date(y,m,1,12),last=new Date(y,m+1,0,12);
@@ -83,16 +98,44 @@ function renderPage(){
   const button=document.createElement('button');button.type='button';
   button.className='iu-events-calendar-day';
   if(!inMonth)button.classList.add('is-outside');
-  if(matches.length)button.classList.add('has-events');
+  if(matches.length){
+   button.classList.add('has-events','has-period');
+   // Hiérarchie visuelle : l'événement en cours est prioritaire.
+   const best=Math.max(...matches.map(e=>statusPriority(statusClass(e,now))));
+   const state=best===3?'is-live':best===2?'is-upcoming':'is-past';
+   button.classList.add('period-'+state.slice(3));
+   // La bande ne traverse jamais deux événements distincts ou un changement de semaine.
+   if(i%7!==6){
+    const nextDay=new Date(y,m,1-offset+i+1,12);
+    const matchesNext=events.filter(e=>intersects(e,nextDay,nextDay));
+    const linked=matches.some(e=>statusClass(e,now)===state&&
+      matchesNext.some(next=>isSameEvent(e,next)&&statusClass(next,now)===state));
+    if(linked)button.classList.add('is-linked-right');
+   }
+   // Pour qu'une bande qui commence au milieu d'une semaine ait un bout arrondi.
+   if(i%7!==0){
+    const previousDay=new Date(y,m,-offset+i,12);
+    const previous=events.filter(e=>intersects(e,previousDay,previousDay));
+    const joined=matches.some(e=>statusClass(e,now)===state&&
+      previous.some(prev=>isSameEvent(e,prev)&&statusClass(prev,now)===state));
+    if(joined)button.classList.add('is-linked-left');
+   }
+  }
   if(key===dayKey(now)){button.classList.add('is-today');button.setAttribute('aria-current','date');}
   if(key===selectedKey)button.classList.add('is-selected');
   button.setAttribute('aria-pressed',String(key===selectedKey));
-  button.setAttribute('aria-label',cap(long.format(day))+' · '+countLabel(matches.length));
+  button.setAttribute('aria-label',cap(long.format(day))+' · '+countLabel(matches.length)+
+   (matches.length?' · '+(matches.some(e=>statusClass(e,now)==='is-live')?'Événement en cours':matches.some(e=>statusClass(e,now)==='is-upcoming')?'À venir':'Terminés'):'')+
+   (key===dayKey(now)?' · Aujourd’hui':'')+(key===selectedKey?' · Date sélectionnée':''));
   const num=document.createElement('span');num.className='iu-events-day-number';num.textContent=String(day.getDate());
   const marker=document.createElement('span');marker.className='iu-events-day-marker';
   marker.setAttribute('aria-hidden','true');
   if(matches.some(e=>date(e.start)<=now&&eventEnd(e)>=now))marker.classList.add('is-live');
-  if(matches.length>1){marker.classList.add('is-multi');const count=document.createElement('span');count.className='iu-events-day-count';count.textContent=String(matches.length);marker.append(count);}
+  if(matches.length>1){
+   marker.classList.add('is-multi');
+   const count=document.createElement('span');count.className='iu-events-day-count';
+   count.textContent='+'+String(matches.length-1);marker.append(count);
+  }
   button.append(num,marker);
   button.addEventListener('click',event=>{
    selectedKey=key;
