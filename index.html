@@ -325,10 +325,11 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   <section class="events-month-preview" aria-labelledby="eventsMonthHeading">
    <div class="events-month-content">
     <header class="events-month-heading">
+     <span class="section-kicker events-section-kicker">SERVICE U / ÉVÉNEMENT</span>
      <h3 id="eventsMonthHeading">Événements en novembre</h3>
      <p class="events-month-subtitle">Liste de tous les événements en cours ou à venir ce mois-ci.</p>
     </header>
-    <button type="button" id="eventsOpenPage" class="events-access-button" aria-controls="eventsPage"><span>Accéder aux événements</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    <button type="button" id="eventsOpenPage" class="events-access-button iu-account-launch-action primary-btn session-btn" aria-controls="eventsPage"><span>Accéder aux événements</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
    </div>
   </section>
  </div>
@@ -341,6 +342,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   <section class="iu-events-feature" aria-labelledby="eventsFeatureHeading">
    <div class="iu-events-feature-caption"><span class="section-kicker">À LA UNE</span><span class="iu-events-feature-hint" id="eventsFeatureHint">Prochain événement</span></div>
    <div class="iu-events-feature-main"><div class="iu-events-feature-copy"><h3 id="eventsFeatureHeading">Chargement des événements…</h3><p id="eventsFeaturePeriod"></p></div><span class="iu-events-feature-state" id="eventsFeatureState" hidden>À venir</span></div>
+   <div id="eventsFeatureCountdown" class="iu-events-feature-countdown" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="eventsFeatureCountdownText"></span></div>
   </section>
   <section class="iu-events-calendar-panel" aria-labelledby="eventsCalendarTitle">
    <div class="iu-events-calendar-top">
@@ -353,7 +355,14 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
    </div>
    <div class="iu-events-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div>
    <div id="eventsCalendarGrid" class="iu-events-calendar-grid" role="group" aria-label="Dates des événements"></div>
-   <div class="iu-events-calendar-legend"><span><i class="iu-events-legend-dot is-live" aria-hidden="true"></i>En cours</span><span><i class="iu-events-legend-dot" aria-hidden="true"></i>À venir</span><span class="iu-events-legend-help">Touchez une date pour voir ses événements</span></div>
+   <div class="iu-events-calendar-legend">
+    <span><i class="iu-events-legend-period is-live" aria-hidden="true"></i>En cours</span>
+    <span><i class="iu-events-legend-period is-upcoming" aria-hidden="true"></i>À venir</span>
+    <span><i class="iu-events-legend-period is-past" aria-hidden="true"></i>Terminé</span>
+    <span><i class="iu-events-legend-ring is-today" aria-hidden="true"></i>Aujourd’hui</span>
+    <span><i class="iu-events-legend-ring is-selected" aria-hidden="true"></i>Date choisie</span>
+    <span class="iu-events-legend-help">Les bandes relient les journées d’un même événement · Touchez une date pour voir ses événements</span>
+   </div>
   </section>
   <section class="iu-events-day-panel" aria-labelledby="eventsSelectedDate"><header class="iu-events-section-heading"><div><span class="section-kicker">DATE SÉLECTIONNÉE</span><h3 id="eventsSelectedDate">Aujourd’hui</h3></div><span class="iu-events-count" id="eventsSelectedCount">0 événement</span></header><div id="eventsSelectedList" class="iu-events-day-list" aria-live="polite"></div></section>
   <section class="iu-events-agenda-panel" aria-labelledby="eventsAgendaHeading"><header class="iu-events-section-heading"><div><span class="section-kicker">AGENDA</span><h3 id="eventsAgendaHeading">Événements du mois</h3></div><span class="iu-events-count" id="eventsAgendaCount">0 événement</span></header><div id="eventsAgendaList" class="iu-events-agenda-list"></div></section>
