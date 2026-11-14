@@ -1732,14 +1732,8 @@ window.IUSetupFold=setupUnifiedFold;
  bind('details.events-disclosure',':scope > summary',':scope > .events-disclosure-content','is-events-closing');
  bind('#planningAdminCard details.iu-admin-category',':scope > summary',':scope > .iu-admin-category-body','is-admin-closing');
  const adminCard=$('planningAdminCard');
- // L'icône et son fichier sont strictement ceux de « Démarrer un inventaire ».
- // Reprise directe du DOM existant, sans seconde ressource et sans CSS divergent.
- const launch=$('iuAdminLaunch');
- const originalPlayIcon=$('startSession')?.querySelector('.start-play-icon');
- if(launch&&originalPlayIcon&&!launch.querySelector('.start-play-icon')){
-  const icon=originalPlayIcon.cloneNode(true);
-  launch.append(icon);
- }
+ // La flèche d'accès aux réglages est maintenant directement dans
+ // index.html, comme avant v36.69. Ne pas ajouter l'icône de lecture.
  const summary=adminCard?.querySelector(':scope > summary');
  summary?.addEventListener('click',event=>{
   event.preventDefault();
