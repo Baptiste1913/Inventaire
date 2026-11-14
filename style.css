@@ -20844,47 +20844,101 @@ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #star
 }
 
 
-/* V37.26 — Banderole : copie de la silhouette V37.25, aux dimensions du bouton « Accéder
-   aux événements » (55 px de haut). Aucun débordement extérieur : le
-   dégradé, le liseré #007583 et la surface gris perle sont réunis
-   dans la même boîte. Les ombres/lumières appartiennent exclusivement
-   à la forme dégradée arrière (::before). Plus aucun masque composité
-   ni de doubles contours au toucher, en particulier sur Safari iPhone. */
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:hover,:active,:focus-visible){
- box-sizing:border-box!important;
+/* V37.27 — Bouton de banderole fiabilisé pour Safari iPhone.
+   Les anciennes règles ::before/::after de la banderole contenaient
+   width:3px, width:76%, height:21px, transform et blur avec !important.
+   Les deux couches sont désormais de vrais éléments HTML distincts ;
+   elles ne peuvent plus hériter des anciens styles de pseudo-éléments.
+   On retrouve ainsi à l'identique la silhouette de Ma session v37.25. */
+
+/* Même gabarit, même dégradé de secours et même comportement dans
+   TOUS les états (les anciens sélecteurs :is() sont très spécifiques). */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,:active:not(:disabled),:hover:not(:disabled),[aria-disabled="true"],[aria-disabled="false"]){
+ -webkit-appearance:none!important;
+ appearance:none!important;
  position:relative!important;
  isolation:isolate!important;
- overflow:visible!important;
  display:inline-flex!important;
- width:100%!important;
+ flex:0 1 248px!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ width:min(248px,100%)!important;
+ min-width:0!important;
+ max-width:100%!important;
  height:55px!important;
  min-height:55px!important;
  max-height:55px!important;
+ margin:0!important;
  padding:10px 16px!important;
- justify-content:center!important;
- align-items:center!important;
  gap:10px!important;
  border:0!important;
  border-radius:14px!important;
- background:transparent!important;
+ background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
+ background-color:transparent!important;
+ background-image:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
+ background-size:auto!important;
+ background-repeat:no-repeat!important;
  color:#28343d!important;
+ -webkit-text-fill-color:#28343d!important;
  box-shadow:none!important;
  text-shadow:none!important;
- -webkit-tap-highlight-color:transparent!important;
+ overflow:visible!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ filter:none!important;
+ opacity:1!important;
  transform:translateY(0)!important;
+ scale:1!important;
+ outline:none!important;
  transition:transform .17s cubic-bezier(.22,.61,.36,1)!important;
+ -webkit-tap-highlight-color:transparent!important;
 }
-/* Anneau arrière coloré, du bord gauche au bord droit.
-   Les reflets et la profondeur ne sont appliqués qu'à cette couche. */
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden])::before{
- content:""!important;
+/* Supprimer définitivement les vieux halos et repères latéraux. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::before,
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump::after{
+ content:none!important;
+ display:none!important;
+ animation:none!important;
+ box-shadow:none!important;
+}
+/* Les halos du bandeau restent en arrière-plan ; le bouton passe devant. */
+html body .app > section.intro .intro-bottom{
+ position:relative!important;
+ z-index:3!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-layer{
+ content:none!important;
  position:absolute!important;
- inset:0!important;
+ display:block!important;
  box-sizing:border-box!important;
- border:0!important;
- border-radius:14px!important;
+ margin:0!important;
  padding:0!important;
+ min-width:0!important;
+ max-width:none!important;
+ min-height:0!important;
+ max-height:none!important;
+ border:0!important;
+ opacity:1!important;
+ visibility:visible!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ -webkit-mask:none!important;
+ mask:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ transform:none!important;
+ scale:1!important;
+ pointer-events:none!important;
+ transition:box-shadow .22s ease,background .22s ease!important;
+}
+/* Forme dégradée extérieure : même épaisseur, mêmes ombres que v37.25. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-gradient{
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ border-radius:14px!important;
  background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
  box-shadow:
   -3px -3px 7px rgba(255,255,255,.98),
@@ -20893,136 +20947,49 @@ html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroSt
    1px 2px 4px rgba(72,126,136,.17),
    inset 0 1px 0 rgba(255,255,255,.48)!important;
  z-index:0!important;
- pointer-events:none!important;
- -webkit-mask:none!important;
- mask:none!important;
- transition:box-shadow .22s ease!important;
 }
-/* Surface intérieure : retrait 2,5 px, liseré turquoise intégré.
-   Les rayons sont concentriques ; aucune jonction ni masque à recomposer. */
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden])::after{
- content:""!important;
- position:absolute!important;
+/* Centre gris perle avec le liseré turquoise, sans ombre propre. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-surface{
  inset:2.5px!important;
- box-sizing:border-box!important;
+ width:auto!important;
+ height:auto!important;
  border:2px solid #007583!important;
  border-radius:11.5px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  box-shadow:none!important;
  z-index:1!important;
- pointer-events:none!important;
- -webkit-mask:none!important;
- mask:none!important;
- transition:background .22s ease!important;
 }
-/* Texte et icône d'origine placés devant les deux couches. */
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]) > *{
- position:relative!important;
- z-index:2!important;
-}
-@media(hover:hover){
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):hover:not(:disabled){
-  transform:translateY(-1px)!important;
- }
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):hover:not(:disabled)::before{
-  box-shadow:
-   -4px -4px 8px rgba(255,255,255,.98),
-   -7px -7px 14px rgba(255,255,255,.64),
-    5px 6px 13px rgba(91,148,155,.31),
-    2px 3px 5px rgba(72,126,136,.18),
-    inset 0 1px 0 rgba(255,255,255,.5)!important;
- }
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):hover:not(:disabled)::after{
-  background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
- }
-}
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):active:not(:disabled){
- transform:translateY(1px)!important;
-}
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):active:not(:disabled)::before{
- box-shadow:
-  -2px -2px 5px rgba(255,255,255,.88),
-   2px 3px 7px rgba(91,148,155,.19),
-   inset 0 1px 0 rgba(255,255,255,.32)!important;
-}
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):active:not(:disabled)::after{
- background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
-}
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):focus-visible{
- outline:2px solid #8d9ca8!important;
- outline-offset:3px!important;
-}
-@media(prefers-reduced-motion:reduce){
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden])::before,
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden])::after{
-  transition:none!important;
- }
-}
-
-
-/* Les anciennes règles de la banderole utilisaient une image de fond SVG,
-   un bouton capsule de 154 px et désactivaient ses deux pseudo-éléments.
-   Neutraliser ces propriétés sans changer le comportement de l'inventaire. */
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
- -webkit-appearance:none!important;
- appearance:none!important;
- width:min(100%,248px)!important;
- min-width:0!important;
- max-width:100%!important;
- flex:0 1 auto!important;
- margin:0!important;
- background-color:transparent!important;
- background-image:none!important;
- background-size:auto!important;
- background-repeat:no-repeat!important;
- color:#28343d!important;
- -webkit-text-fill-color:#28343d!important;
- opacity:1!important;
- filter:none!important;
- scale:1!important;
- -webkit-backdrop-filter:none!important;
- backdrop-filter:none!important;
-}
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden])::before,
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden])::after{
- display:block!important;
- opacity:1!important;
- visibility:visible!important;
- animation:none!important;
-}
-html body .app > section.intro .intro-bottom{
- position:relative!important;
- z-index:3!important;
-}
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]) > .hero-action-content{
+/* Contenu au premier plan, sans filtres hérités du bouton SVG. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-action-content{
  position:relative!important;
  z-index:2!important;
  display:inline-flex!important;
+ flex-direction:row!important;
  align-items:center!important;
  justify-content:center!important;
- flex-direction:row!important;
+ gap:10px!important;
  width:100%!important;
  max-width:100%!important;
  min-width:0!important;
- gap:10px!important;
  margin:0!important;
  padding:0!important;
  transform:none!important;
+ scale:1!important;
 }
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]) .hero-action-copy{
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy{
  display:inline-flex!important;
+ flex:0 1 auto!important;
  align-items:center!important;
  justify-content:center!important;
- flex:0 1 auto!important;
- min-width:0!important;
  width:auto!important;
+ min-width:0!important;
  margin:0!important;
  padding:0!important;
+ gap:0!important;
  transform:none!important;
+ scale:1!important;
 }
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]) .hero-action-copy > #heroActionLabel{
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-copy > #heroActionLabel{
  color:#28343d!important;
  -webkit-text-fill-color:#28343d!important;
  font-family:inherit!important;
@@ -21033,7 +21000,7 @@ html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroSt
  white-space:nowrap!important;
  text-shadow:none!important;
 }
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]) .hero-action-content > .hero-play-icon{
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-play-icon{
  position:relative!important;
  z-index:2!important;
  display:block!important;
@@ -21043,21 +21010,58 @@ html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroSt
  margin:0!important;
  object-fit:contain!important;
  filter:grayscale(1) brightness(.64)!important;
+ -webkit-filter:grayscale(1) brightness(.64)!important;
  opacity:.94!important;
  transform:none!important;
+ scale:1!important;
 }
-html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):focus-visible{
+/* Appui : déformer la silhouette entière, jamais les couches séparément. */
+@media(hover:hover){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):hover:not(:disabled){
+  transform:translateY(-1px)!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:hover:not(:disabled) > .hero-start-gradient{
+  box-shadow:
+   -4px -4px 8px rgba(255,255,255,.98),
+   -7px -7px 14px rgba(255,255,255,.64),
+    5px 6px 13px rgba(91,148,155,.31),
+    2px 3px 5px rgba(72,126,136,.18),
+    inset 0 1px 0 rgba(255,255,255,.5)!important;
+ }
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:hover:not(:disabled) > .hero-start-surface{
+  background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
+ }
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):active:not(:disabled){
+ transform:translateY(1px)!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:active:not(:disabled) > .hero-start-gradient{
+ box-shadow:
+  -2px -2px 5px rgba(255,255,255,.88),
+   2px 3px 7px rgba(91,148,155,.19),
+   inset 0 1px 0 rgba(255,255,255,.32)!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:active:not(:disabled) > .hero-start-surface{
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+}
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:focus-visible{
  outline:2px solid #8d9ca8!important;
  outline-offset:3px!important;
 }
 @media(max-width:380px){
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
- html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible){
-  width:min(100%,248px)!important;
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]),
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible){
+  width:min(248px,100%)!important;
   min-width:0!important;
   max-width:100%!important;
   height:55px!important;
   min-height:55px!important;
   max-height:55px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump,
+ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump > .hero-start-layer{
+  transition:none!important;
  }
 }
