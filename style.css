@@ -20505,3 +20505,40 @@ html body.is-events-mode #eventsPage #eventsCalendarGrid > .iu-events-calendar-d
   opacity:.85!important;
  }
 }
+
+
+/* V37.16 — légende Aujourd'hui : cadre graphite miniature et point gris.
+   Le témoin de la légende est statique pour ne pas surcharger l'interface ;
+   la date du jour dans la grille conserve son halo animé discret. */
+html body.is-events-mode #eventsPage .iu-events-calendar-legend .iu-events-legend-ring.is-today{
+ display:inline-grid!important;
+ place-items:center!important;
+ box-sizing:border-box!important;
+ flex:0 0 14px!important;
+ width:14px!important;
+ height:14px!important;
+ border:1.5px solid #9da9b2!important;
+ border-radius:4px!important;
+ background:#f4f6f7!important;
+ box-shadow:0 0 0 1px rgba(112,126,139,.08)!important;
+}
+html body.is-events-mode #eventsPage .iu-events-calendar-legend .iu-events-legend-ring.is-today::after{
+ content:""!important;
+ display:block!important;
+ width:4px!important;
+ height:4px!important;
+ border-radius:50%!important;
+ background:#778692!important;
+ box-shadow:0 0 0 1.5px rgba(119,134,146,.12)!important;
+ animation:none!important;
+}
+
+/* Le statut À venir de la carte principale retrouve le vert doux, même
+   pour une opération 10 % ; son délai avant début reste bien monochrome.
+   Le rouge ne s'applique qu'une fois l'opération réellement en cours. */
+html body.is-events-mode #eventsPage .iu-events-feature-state.is-upcoming{
+ border-color:#c7e4d6!important;
+ background:linear-gradient(145deg,#e9f7f0,#d9f0e3)!important;
+ color:#176a50!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
