@@ -546,9 +546,12 @@ function exitFocusWithoutSnapshot(action,config={}){
    La page réelle reste montée/opaque jusqu'à la FIN de sa fermeture.
    Le bouton Retour n'est jamais translaté. */
 function iuAnimateStandalonePage(action,entering,config){
- const modeClass=config.modeClass;
- const duration=entering?610:510;
- const easing=entering?'cubic-bezier(.38,0,.62,1)':'cubic-bezier(.42,0,.82,.4)';
+ // V36.81 — Alignement sur les keyframes du mode Concentration :
+ // iu65-rise / iu65-focus-away, mêmes durée, courbe et déplacement 105dvh.
+ // Aucune capture ni clone : on anime les cartes réellement affichées.
+ const motionVars=getComputedStyle(document.documentElement);
+ const duration=parseFloat(motionVars.getPropertyValue('--iu65-duration'))||610;
+ const easing=motionVars.getPropertyValue('--iu65-ease').trim()||'cubic-bezier(.38,0,.62,1)';
  const finishPending=()=>{
   focusMotionBusy=false;
   const pending=focusPendingTask;
@@ -573,13 +576,18 @@ function iuAnimateStandalonePage(action,entering,config){
  const surfaces=[...document.querySelectorAll(config.viewSelectors)]
   .filter(focusVisible)
   .filter(el=>!el.classList.contains('iu-page-external-nav'));
+ // Le bouton Retour reste volontairement fixe : Safari l'avait
+ // auparavant déplacé au-dessus des autres cartes lors de l'ouverture.
+ // Les cartes suivent exactement le sens et le rythme du mode Session.
  const animations=surfaces.map(el=>el.animate(
   entering?[
-   {transform:'translate3d(0,22px,0)',filter:'blur(0px)'},
-   {transform:'translate3d(0,0,0)',filter:'blur(0px)'}
+   {transform:'translate3d(0,105dvh,0)',filter:'blur(0px)',opacity:1},
+   {transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1}
   ]:[
-   {transform:'translate3d(0,0,0)',filter:'blur(0px)'},
-   {transform:'translate3d(0,48px,0)',filter:'blur(2px)'}
+   {offset:0,transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1},
+   {offset:.12,filter:'blur(0px)',opacity:1},
+   {offset:.60,filter:'blur(1.7px)',opacity:1},
+   {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
   ],
   {duration,easing,fill:'both'}
  ));
@@ -603,7 +611,9 @@ function iuAnimateStandalonePage(action,entering,config){
    if(Number.isFinite(homeY)&&Math.abs(window.scrollY-homeY)>2)
     window.scrollTo({top:homeY,left:0,behavior:'instant'});
    const fade=veil.animate([{opacity:1},{opacity:0}],{
-    duration:180,easing:'ease-out',fill:'forwards'
+    // Brève révélation seulement après le retour au bon scroll :
+    // jamais de copie de profil ni d'ancienne capture déformée.
+    duration:120,easing:'ease-out',fill:'forwards'
    });
    fade.finished.catch(()=>{}).then(()=>{
     fade.cancel();veil.remove();finishPending();
