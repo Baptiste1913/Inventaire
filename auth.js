@@ -246,7 +246,11 @@ function renderDashboard(){
  // données ; seuls les graphiques et les textes secondaires sont différés.
  panel.hidden=!user;
  if(!user){dashboardRenderedKey=null;dashboardWarmupPending=false;return;}
- if(accountCardForDashboard?.classList.contains('iu-fold-animating')){
+ if(accountCardForDashboard?.classList.contains('iu-fold-animating')||
+    (document.body.classList.contains('is-account-mode')&&
+     document.documentElement.classList.contains('iu-focus-slide'))){
+  // La construction des graphiques attend la dernière frame du
+  // changement de page, comme les chargements du volet administrateur.
   scheduleDashboardWarmup();return;
  }
  // Lire les données sans changer de DOM. Garder le contenu prêt même fermé.
