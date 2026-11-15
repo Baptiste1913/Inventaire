@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=38.01")!important;
+  url("./assets/u-aurora.svg?v=38.02")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -26432,6 +26432,43 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 }
 @media(forced-colors:active){
  html body:not(.is-focus-mode):not(.is-admin-mode) main.app > #planningAdminCard.card.planning-admin-card{
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
+ }
+}
+
+/* V38.02 — Une seule définition de surface pour Ma session et Administration.
+   Les deux cartes partagent réellement le même contour, le même dégradé et
+   les mêmes ombres, au lieu de règles proches mais concurrentes. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > #planningAdminCard.card.planning-admin-card,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .session-card.card,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card.session-card{
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:20px!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+/* Les pseudo-éléments d'ornement ne doivent pas ajouter un deuxième
+   arrondi ou une bande blanche dans les coins. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > #planningAdminCard.card.planning-admin-card::before,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > #planningAdminCard.card.planning-admin-card::after,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .session-card.card::before,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .session-card.card::after{
+ content:none!important;
+ display:none!important;
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-admin-mode) main.app > #planningAdminCard.card.planning-admin-card,
+ html body:not(.is-focus-mode):not(.is-admin-mode) main.app > .session-card.card{
   border:1px solid CanvasText!important;
   background:Canvas!important;
   box-shadow:none!important;
