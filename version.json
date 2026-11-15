@@ -1,7 +1,7 @@
 {
-  "version": "38.24",
+  "version": "38.25",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Titre Bienvenue nettement plus grand (23–30 px), graisse 900 avec léger renforcement du trait, espacement resserré et adaptation mobile. Cache PWA renouvelé."
+  "notes": "Titre Bienvenue encore agrandi (29–38 px, mobile étroit 25–29 px), épaisseur renforcée et sous-titre introductif discret assorti aux titres Service U. Cache PWA renouvelé."
 }
