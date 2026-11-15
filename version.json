@@ -1,7 +1,7 @@
 {
-  "version": "37.35",
+  "version": "37.36",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1112890,
-  "notes": "Banderole Fruits et Légumes : déplacement du bouton Démarrer un inventaire dans la zone bleue au niveau indiqué, avec positionnement par le haut (188 px sur grand écran, 182 px sur iPhone et 176 px sur petits écrans) au lieu d'un ancrage en bas du feuillet blanc. Hauteur, largeur, contour dégradé, textes, fonctionnement et espacement avant Administrateur inchangés. Cache PWA renouvelé."
+  "bytes": 1113197,
+  "notes": "Le bouton « Démarrer un inventaire » est désormais placé directement après le titre et le descriptif, dans le flux de la zone dégradée de la banderole, avant le panneau blanc inférieur. Suppression de l'ancrage absolu et des marges automatiques responsables de son déplacement vers le panneau blanc. Couleurs, largeur, hauteur, action de démarrage/reprise, panneau arrondi et espacement avec Administrateur conservés. Cache PWA mis à jour."
 }
