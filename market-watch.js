@@ -1,4 +1,4 @@
-/* V37.64 — Veille de marché : uniquement événements vérifiables et récents.
+/* V37.65 — Veille de marché : uniquement événements vérifiables et récents.
    Les pénuries ne sont jamais inférées d'une variation de prix. */
 (function(){
 'use strict';
@@ -11,13 +11,14 @@ const extra=document.getElementById('iuMarketMore');
 const extraList=document.getElementById('iuMarketMoreItems');
 if(!box||!list||!headline||!pill||!foot||!extra||!extraList)return;
 const DAY=86400000,now=Date.now(),WINDOW=10;
-const cacheKey='iu_market_watch_last_verified_v1';
+const cacheKey='iu_market_watch_last_verified_v2';
 const trustedUrl=(value,type)=>{
  try{
   const url=new URL(value);
   if(url.protocol!=='https:')return null;
   const hosts=type==='recall'?['rappel.conso.gouv.fr']:
    type==='price'?['agridata.ec.europa.eu','rnm.franceagrimer.fr']:
+   type==='water'?['vigieau.gouv.fr','www.vigieau.gouv.fr']:
    ['franceagrimer.fr','www.franceagrimer.fr','agriculture.gouv.fr','www.agriculture.gouv.fr','draaf.grand-est.agriculture.gouv.fr'];
   return hosts.includes(url.hostname)?url.href:null;
  }catch(_){return null;}
@@ -26,7 +27,7 @@ const stamp=x=>{const time=Date.parse(String(x||''));return Number.isFinite(time
 const fresh=(x,days=WINDOW)=>{const t=stamp(x);return Number.isFinite(t)&&t<=now+DAY&&t>=now-days*DAY;};
 const txt=(x,max=110)=>String(x==null?'':x).replace(/\s+/g,' ').trim().slice(0,max);
 const status={
- recalls:false,prices:false,shortages:false
+ recalls:false,prices:false,shortages:false,supply:false,water:false
 };
 const node=(tag,cls,value)=>{
  const el=document.createElement(tag);
@@ -37,24 +38,24 @@ const node=(tag,cls,value)=>{
 const dateFr=value=>{const d=new Date(value);return Number.isFinite(d.getTime())?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';};
 function normalize(items,kind){
  if(!Array.isArray(items))return [];
- return items.filter(x=>x&&typeof x==='object'&&x.type===kind&&fresh(x.date,WINDOW)&&trustedUrl(x.url,kind)&&txt(x.title)).map(x=>{
+ return items.filter(x=>x&&typeof x==='object'&&x.type===kind&&fresh(x.date,kind==='supply'?35:kind==='water'?2:WINDOW)&&trustedUrl(x.url,kind)&&txt(x.title)).map(x=>{
    const url=trustedUrl(x.url,kind);
    const change=Number(x.change);
    if(kind==='price'&&(!Number.isFinite(change)||Math.abs(change)<20))return null;
    return {type:kind,title:txt(x.title,85),desc:txt(x.description,140),date:x.date,
-     url,change:kind==='price'?change:0,id:txt(x.id||x.url,220)};
+     url,change:kind==='price'?change:0,id:txt(x.id||x.url,220),label:txt(x.label,24)};
  }).filter(Boolean);
 }
 function itemView(x){
  const a=node('a','iu-market-item iu-market-item-'+x.type);
  a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';
- const symbol=node('span','iu-market-symbol',x.type==='recall'?'!':x.type==='shortage'?'!':'↗');
+ const symbol=node('span','iu-market-symbol',x.type==='recall'?'!':x.type==='shortage'?'!':x.type==='water'?'◉':x.type==='supply'?'↘':'↗');
  symbol.setAttribute('aria-hidden','true');
  const body=node('span','iu-market-item-copy');
- body.append(node('strong','',x.title),node('small','',x.desc||dateFr(x.date)));
+ body.append(node('strong','',x.title),node('small','',((x.desc||'')+' · '+dateFr(x.date)).replace(/^ · /,'').trim()));
  const chip=node('span','iu-market-chip',
    x.type==='price'?(x.change>0?'+':'')+new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(x.change)+' %':
-   x.type==='recall'?'Rappel':'Pénurie');
+   x.type==='recall'?'Rappel':x.type==='supply'?(x.label||'Offre réduite'):x.type==='water'?'Eau':'Pénurie');
  a.append(symbol,body,chip);
  const sr=node('span','iu-market-sr','Ouvrir la source officielle · '+dateFr(x.date));
  a.append(sr);
@@ -65,9 +66,11 @@ function show(data,available){
  const alerts=[
   ...normalize(data.recalls,'recall'),
   ...normalize(data.shortages,'shortage'),
+  ...normalize(data.supply,'supply'),
+  ...normalize(data.water,'water'),
   ...normalize(data.prices,'price')
  ].sort((a,b)=>{
-  const priority={recall:0,shortage:1,price:2};
+  const priority={recall:0,shortage:1,supply:2,price:3,water:4};
   return priority[a.type]-priority[b.type]||stamp(b.date)-stamp(a.date);
  });
  // Limiter les doublons de fiches, pas les vraies alertes distinctes.
@@ -80,15 +83,21 @@ function show(data,available){
  status.recalls=fresh(recentChecks.recalls,3);
  status.prices=fresh(recentChecks.prices,3);
  status.shortages=fresh(recentChecks.shortages,3);
+ status.supply=fresh(recentChecks.supply,4);
+ status.water=fresh(recentChecks.water,2);
  if(items.length){
    headline.textContent='À surveiller dans le rayon';
    pill.textContent=items.length+' info'+(items.length>1?'s':'');
    pill.classList.add('has-alerts');
-   items.slice(0,2).forEach(x=>list.append(itemView(x)));
-   if(items.length>2){
+   // Montrer la première alerte et une autre catégorie s'il en existe une.
+   const lead=items[0],other=items.find(x=>x.type!==lead.type);
+   const visible=other?[lead,other]:items.slice(0,2);
+   const remaining=items.filter(x=>!visible.includes(x));
+   visible.forEach(x=>list.append(itemView(x)));
+   if(remaining.length){
      extra.hidden=false;
-     extra.querySelector('summary').textContent='Voir '+(items.length-2)+' autre'+(items.length>3?'s':'')+' information'+(items.length>3?'s':'');
-     items.slice(2,10).forEach(x=>extraList.append(itemView(x)));
+     extra.querySelector('summary').textContent='Voir '+remaining.length+' autre'+(remaining.length>1?'s':'')+' information'+(remaining.length>1?'s':'');
+     remaining.slice(0,10).forEach(x=>extraList.append(itemView(x)));
    }
  }else{
    pill.classList.remove('has-alerts');pill.textContent='Veille';
@@ -100,7 +109,9 @@ function show(data,available){
  const caveats=[];
  if(!status.recalls)caveats.push('rappels non actualisés');
  if(!status.prices)caveats.push('cours non actualisés');
- if(!status.shortages)caveats.push('pénuries non surveillées');
+ if(!status.supply)caveats.push('offre non actualisée');
+ if(!status.water)caveats.push('risque sécheresse non actualisé');
+ // Il n'existe pas de flux attestant en temps réel les ruptures des rayons.
  foot.textContent=caveats.length?'Vérification limitée : '+caveats.join(' · '):'Sources officielles vérifiées récemment';
  if(!available&&!items.length)foot.textContent='Connexion nécessaire pour actualiser la veille.';
 }

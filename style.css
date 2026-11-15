@@ -22573,3 +22573,12 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{padding:14px!important}
  .iu-market-bottom{flex-direction:column;gap:7px}
 }
+/* V37.65 — Catégories de veille bien distinctes, lisibles sur verre clair. */
+.iu-market-headline{color:#3e6570!important;opacity:1!important;font-size:11px!important;}
+.iu-market-item-supply .iu-market-symbol{color:#956421;background:rgba(255,235,192,.70)}
+.iu-market-item-supply .iu-market-chip{color:#916326;background:rgba(255,239,208,.80);font-size:9px}
+.iu-market-item-water .iu-market-symbol{color:#236a91;background:rgba(216,237,255,.78)}
+.iu-market-item-water .iu-market-chip{color:#226a91;background:rgba(220,243,255,.86)}
+.iu-market-more:not([open]) #iuMarketMoreItems{display:none}
+.iu-market-links{flex-wrap:wrap;justify-content:flex-end;gap:5px 9px;}
+.iu-market-item-copy small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}

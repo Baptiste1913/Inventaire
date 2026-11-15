@@ -1,7 +1,7 @@
 {
-  "version": "37.64",
+  "version": "37.65",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1172881,
-  "notes": "Nouvelle veille du rayon : rappels RappelConso récents, fortes évolutions de prix vérifiées via l’API européenne quand disponible, pénuries uniquement sur preuve officielle. Collecte automatisée, cache hors ligne, aucune donnée inventée. Banderole compacte avec accès aux sources."
+  "bytes": 1180031,
+  "notes": "Veille de marché enrichie : disponibilités signalées officiellement par FranceAgriMer (distinctes des pénuries), restrictions d'eau VigiEau dans l'Aube, rappels RappelConso conservés, affichage de deux catégories prioritaires et sources datées. Aucune pénurie inventée."
 }

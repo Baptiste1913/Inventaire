@@ -210,6 +210,122 @@ def price_rows():
     alerts.sort(key=lambda row: abs(row["change"]), reverse=True)
     return alerts[:10]
 
+
+# V37.65 — Signaux d'offre des publications publiques et risques hydriques.
+# Une note de marché peut confirmer une offre réduite, jamais une rupture magasin.
+from html.parser import HTMLParser
+
+FRANCEAGRIMER_NOTE = "https://www.franceagrimer.fr/chiffre-et-analyses-economiques/note-de-conjoncture-mensuelle-fruits-legumes-et-pommes-de-terre"
+VIGIEAU_ZONES_AUBE = "https://api.vigieau.beta.gouv.fr/api/zones/departement/10"
+VIGIEAU_SITE = "https://vigieau.gouv.fr/"
+SUPPLY_DAYS = 35
+
+class _ArticleText(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.ignored = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style", "noscript"):
+            self.ignored += 1
+        if not self.ignored and tag in ("p", "div", "h1", "h2", "h3", "h4", "li", "br"):
+            self.parts.append(" ")
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style", "noscript"):
+            self.ignored = max(0, self.ignored - 1)
+        if not self.ignored and tag in ("p", "div", "h1", "h2", "h3", "h4", "li"):
+            self.parts.append(" ")
+
+    def handle_data(self, data):
+        if not self.ignored:
+            self.parts.append(data)
+
+def supply_feed():
+    req = urllib.request.Request(FRANCEAGRIMER_NOTE, headers={
+        "User-Agent": "Mozilla/5.0 (compatible; InventairesU/1.0)",
+        "Accept": "text/html"
+    })
+    with urllib.request.urlopen(req, timeout=15) as response:
+        if response.status != 200:
+            raise ValueError("FranceAgriMer HTTP " + str(response.status))
+        content = response.read(2_000_001)
+        if len(content) > 2_000_000:
+            raise ValueError("Page FranceAgriMer trop longue")
+        markup = content.decode("utf-8", errors="replace")
+    parser = _ArticleText()
+    parser.feed(markup)
+    article = re.sub(r"\s+", " ", " ".join(parser.parts))
+    published = re.search(r"date\s+de\s+publication\s*:\s*(\d{2}/\d{2}/\d{4})", article, re.I)
+    if not published:
+        raise ValueError("Date de publication non identifiable")
+    published_day = day(published.group(1))
+    if not published_day or not recent(published_day.isoformat(), SUPPLY_DAYS):
+        return []
+    heading = re.search(r"points\s+cl[eé]s\s+de\s+la\s+note\s+de\s+conjoncture\s+mensuelle", article, re.I)
+    if not heading:
+        raise ValueError("La section récente 'Points clés' est introuvable")
+    # Ne jamais aller jusqu'aux anciennes éditions ou PDF historiques.
+    summary = article[heading.start():heading.start() + 4100]
+    end = re.search(r"concernant\s+le\s+commerce\s+ext[eé]rieur", summary, re.I)
+    if end:
+        summary = summary[:end.start()]
+    # Expressions précises ; pas d'inférence à partir d'une hausse des cours.
+    rules = (
+        ("Carottes et poireaux",
+         r"disponibilit[eé]s\s+en\s+carottes\s+et\s+en\s+poireaux.{0,95}?inf[eé]rieures",
+         "Disponibilités inférieures aux niveaux habituels · note mensuelle",
+         "Offre réduite"),
+        ("Pommes",
+         r"en\s+pommes?\s+les\s+disponibilit[eé]s\s+restent\s+limit[eé]es",
+         "Disponibilités limitées signalées dans la note mensuelle",
+         "Offre réduite"),
+        ("Noix",
+         r"r[eé]coltes\s+de\s+noix\s+sont\s+p[eé]nalis[eé]es\s+par\s+la\s+canicule\s+et\s+la\s+s[eé]cheresse",
+         "Récoltes pénalisées par la chaleur et la sécheresse",
+         "Récolte affectée"),
+    )
+    results = []
+    for name, phrase, description, label in rules:
+        if re.search(phrase, summary, re.I):
+            results.append({
+                "type": "supply", "id": "franceagrimer:" + published_day.isoformat() + ":" + name.casefold(),
+                "title": name, "description": description,
+                "date": published_day.isoformat(), "url": FRANCEAGRIMER_NOTE,
+                "source": "FranceAgriMer", "label": label
+            })
+    return results
+
+def water_feed():
+    payload = get_json(VIGIEAU_ZONES_AUBE, {}, maximum=3_000_000)
+    if isinstance(payload, dict):
+        payload = payload.get("zones", payload.get("results"))
+    if not isinstance(payload, list):
+        raise ValueError("Structure VigiEau non reconnue")
+    severity = {"crise": 2, "alerte_renforcee": 1}
+    affected = []
+    for zone in payload:
+        if not isinstance(zone, dict):
+            continue
+        dep = str(zone.get("departement") or zone.get("departementCode") or "10")
+        if dep not in ("10", "Aube"):
+            continue
+        level = str(zone.get("niveauGravite") or zone.get("niveau_gravite") or "").lower()
+        if level in severity:
+            affected.append(level)
+    if not affected:
+        return []
+    worst = max(affected, key=lambda level: severity[level])
+    level_text = "crise" if worst == "crise" else "alerte renforcée"
+    return [{
+        "type": "water", "id": "vigieau:aube:" + worst,
+        "title": "Sécheresse · Aube",
+        "description": "Certaines zones en " + level_text + " · risque hydrique, pas une pénurie de produits",
+        "date": TODAY.isoformat(), "url": VIGIEAU_SITE,
+        "source": "VigiEau", "label": "Risque eau"
+    }]
+
 def main():
     existing = {}
     if OUT.exists():
@@ -223,10 +339,13 @@ def main():
         "recalls": existing.get("recalls", []),
         "prices": existing.get("prices", []),
         "shortages": [],
-        "checks": existing.get("checks", {"recalls": None, "prices": None, "shortages": None}),
+        "supply": existing.get("supply", []),
+        "water": existing.get("water", []),
+        "checks": dict(existing.get("checks") or {}),
     }
     ok = 0
-    for name, source in (("recalls", recall_feed), ("prices", price_rows)):
+    for name, source in (("recalls", recall_feed), ("prices", price_rows),
+                         ("supply", supply_feed), ("water", water_feed)):
         try:
             output[name] = source()
             output["checks"][name] = iso_now()
@@ -237,7 +356,8 @@ def main():
     # Les pénuries exigent un constat officiel explicite et daté.
     # Aucun indicateur de prix seul ne permet de déclarer une pénurie.
     output["checks"]["shortages"] = None
-    for name, days in (("recalls", RECALL_DAYS), ("prices", PRICE_DAYS)):
+    for name, days in (("recalls", RECALL_DAYS), ("prices", PRICE_DAYS),
+                       ("supply", SUPPLY_DAYS), ("water", 2)):
         output[name] = [
             item for item in output.get(name, [])
             if isinstance(item, dict) and recent(item.get("date"), days)
