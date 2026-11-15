@@ -1,7 +1,7 @@
 {
-  "version": "37.96",
+  "version": "37.97",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1343959,
-  "notes": "Suppression des contours gris des cartes principales et des encadrés de l'accueil, sans modifier les ombres neumorphiques, les commandes ni les pages dédiées. Cache PWA actualisé."
+  "bytes": 1348668,
+  "notes": "Rayon de 20 px harmonisé avec Nouvelle pesée sur les cartes principales ; correction du bandeau Événement (suppression du cadre interne carré et débordements, adaptation mobile) ; contour et relief neumorphiques de Nouvelle pesée appliqués au bloc Bienvenue en préservant sa transparence. Cache PWA mis à jour."
 }
