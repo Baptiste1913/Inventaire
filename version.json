@@ -1,7 +1,7 @@
 {
-  "version": "38.00",
+  "version": "38.01",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1360832,
-  "notes": "Accueil : en-tête Événement compact avec sur-titre et titre rapprochés comme Ma session, bouton notifications aligné indépendamment à droite. Contours, rayons 20 px et cinq ombres de la carte Inventaire harmonisés sur toutes les cartes principales de l’accueil, y compris Bienvenue sans perdre le verre. Cache PWA actualisé."
+  "bytes": 1362140,
+  "notes": "Accueil : carte Espace administrateur harmonisée exactement avec Ma session : même dégradé intérieur, bord transparent, rayon 20 px et cinq ombres neumorphiques. Neutralisation de l'ancien fond uni de l'administrateur ; autres composants inchangés. Cache PWA actualisé."
 }
