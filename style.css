@@ -21206,10 +21206,9 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
 }
 
 
-/* V37.32 — Accueil inspiré du principe Klarna (sans copier sa charte).
-   Fond pastel translucide sur blanc ; panneau bas opalin qui chevauche
-   la banderole, avec grandes courbes aux deux coins supérieurs.
-   Les commandes d'inventaire, la pastèque et le statut restent intacts. */
+/* V37.33 — Fond bleu U translucide, inspiré de la composition Klarna.
+   Le feuillet clair arrondi reste, la mascotte est masquée temporairement,
+   et le bouton remonte sans modification de ses fonctions. */
 html body .app > section.intro{
  position:relative!important;
  isolation:isolate!important;
@@ -21223,10 +21222,10 @@ html body .app > section.intro{
  overflow:hidden!important;
  border-radius:0 0 14px 14px!important;
  background:
-  radial-gradient(ellipse 85% 75% at 7% 4%,rgba(250,171,196,.48) 0%,rgba(249,190,211,.24) 52%,transparent 83%),
-  radial-gradient(ellipse 81% 84% at 96% 24%,rgba(175,181,244,.42) 0%,rgba(197,208,246,.23) 52%,transparent 84%),
-  radial-gradient(ellipse 82% 70% at 42% 90%,rgba(111,204,197,.30) 0%,rgba(160,226,214,.14) 55%,transparent 85%),
-  linear-gradient(135deg,rgba(252,239,244,.70) 0%,rgba(236,241,253,.67) 55%,rgba(220,246,242,.65) 100%),
+  radial-gradient(ellipse 89% 78% at 4% 4%,rgba(83,192,233,.46) 0%,rgba(83,192,233,.20) 55%,transparent 86%),
+  radial-gradient(ellipse 78% 82% at 98% 22%,rgba(0,117,131,.34) 0%,rgba(19,147,177,.15) 53%,transparent 85%),
+  radial-gradient(ellipse 86% 69% at 47% 97%,rgba(100,185,174,.24) 0%,rgba(154,220,221,.10) 58%,transparent 87%),
+  linear-gradient(135deg,rgba(235,249,255,.77) 0%,rgba(231,245,251,.69) 50%,rgba(233,249,247,.72) 100%),
   #ffffff!important;
  background-color:#ffffff!important;
  box-shadow:none!important;
@@ -21320,5 +21319,28 @@ html body .app > section.intro > #heroStatus.intro-session-state{
  html body .app > section.intro > .intro-lower-sheet{
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
+ }
+}
+
+
+/* V37.33 — Remonter l’action dans le feuillet, tout en gardant sa largeur
+   actuelle et sa hauteur. La marge appartient au conteneur flex :
+   l’ensemble (et non seulement le calque visible) remonte de 32 px. */
+html body .app > section.intro .intro-bottom{
+ margin-bottom:32px!important;
+}
+/* Masquage temporaire : l’élément SVG reste dans le HTML et pourra
+   être réaffiché sans avoir à le restaurer depuis GitHub. */
+html body .app > section.intro > img.intro-mascot{
+ display:none!important;
+}
+@media(max-width:600px){
+ html body .app > section.intro .intro-bottom{
+  margin-bottom:30px!important;
+ }
+}
+@media(max-width:380px){
+ html body .app > section.intro .intro-bottom{
+  margin-bottom:26px!important;
  }
 }
