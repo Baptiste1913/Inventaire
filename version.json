@@ -1,7 +1,7 @@
 {
-  "version": "37.37",
+  "version": "37.38",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1114340,
-  "notes": "Suppression de l'espace blanc inutile sous la banderole dégradée : retrait du panneau inférieur blanc dans le HTML, désactivation de ses styles et suppression de la hauteur minimale fixe. La banderole s'adapte désormais à la hauteur des textes et du bouton Démarrer avec une petite marge inférieure (22 px sur iPhone), puis la carte Administrateur apparaît à 8 px. Bouton, couleurs, synchronisation et fonctions d'inventaire préservés ; cache PWA renouvelé."
+  "bytes": 1114187,
+  "notes": "Ajout d'une touche légèrement plus visible de turquoise #64B9AE dans le dégradé translucide de la banderole Fruits et Légumes, en renforçant légèrement la lumière diffuse de la zone inférieure. Texte, bouton, dimensions, espacement, et logique d'inventaire inchangés. Références et cache PWA actualisés."
 }
