@@ -1,7 +1,7 @@
 {
-  "version": "37.38",
+  "version": "37.39",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1114187,
-  "notes": "Ajout d'une touche légèrement plus visible de turquoise #64B9AE dans le dégradé translucide de la banderole Fruits et Légumes, en renforçant légèrement la lumière diffuse de la zone inférieure. Texte, bouton, dimensions, espacement, et logique d'inventaire inchangés. Références et cache PWA actualisés."
+  "bytes": 1115870,
+  "notes": "Banderole Fruits et Légumes : largeur du bouton Démarrer et de ses contours réduite pour aligner exactement ses bords sur ceux du bouton « Accéder aux réglages » (mêmes retraits de 31 px depuis les bords). Neutralisation des anciennes règles forçant toute la largeur, adaptation aux iPhone. Icône Play remplacée par « → » ; fond gris perle, liseré #007583, dégradé #53C0E9 → #64B9AE, hauteur et logique de démarrage/reprise inchangés. Cache PWA actualisé."
 }
