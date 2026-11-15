@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-11-15T12:10:37+00:00",
+  "generatedAt": "2026-11-15T12:24:52+00:00",
   "recalls": [
     {
       "type": "recall",
@@ -50,9 +50,55 @@
   ],
   "prices": [],
   "shortages": [],
+  "supply": [
+    {
+      "type": "supply",
+      "id": "franceagrimer:2026-11-02:carottes et poireaux",
+      "title": "Carottes et poireaux",
+      "description": "Disponibilités inférieures aux niveaux habituels · note mensuelle",
+      "date": "2026-11-02",
+      "url": "https://www.franceagrimer.fr/chiffre-et-analyses-economiques/note-de-conjoncture-mensuelle-fruits-legumes-et-pommes-de-terre",
+      "source": "FranceAgriMer",
+      "label": "Offre réduite"
+    },
+    {
+      "type": "supply",
+      "id": "franceagrimer:2026-11-02:pommes",
+      "title": "Pommes",
+      "description": "Disponibilités limitées signalées dans la note mensuelle",
+      "date": "2026-11-02",
+      "url": "https://www.franceagrimer.fr/chiffre-et-analyses-economiques/note-de-conjoncture-mensuelle-fruits-legumes-et-pommes-de-terre",
+      "source": "FranceAgriMer",
+      "label": "Offre réduite"
+    },
+    {
+      "type": "supply",
+      "id": "franceagrimer:2026-11-02:noix",
+      "title": "Noix",
+      "description": "Récoltes pénalisées par la chaleur et la sécheresse",
+      "date": "2026-11-02",
+      "url": "https://www.franceagrimer.fr/chiffre-et-analyses-economiques/note-de-conjoncture-mensuelle-fruits-legumes-et-pommes-de-terre",
+      "source": "FranceAgriMer",
+      "label": "Récolte affectée"
+    }
+  ],
+  "water": [
+    {
+      "type": "water",
+      "id": "vigieau:aube:crise",
+      "title": "Sécheresse · Aube",
+      "description": "Certaines zones en crise · risque hydrique, pas une pénurie de produits",
+      "date": "2026-11-15",
+      "url": "https://vigieau.gouv.fr/",
+      "source": "VigiEau",
+      "label": "Risque eau"
+    }
+  ],
   "checks": {
-    "recalls": "2026-11-15T12:10:37+00:00",
+    "recalls": "2026-11-15T12:24:52+00:00",
     "prices": null,
-    "shortages": null
+    "shortages": null,
+    "supply": "2026-11-15T12:24:52+00:00",
+    "water": "2026-11-15T12:24:52+00:00"
   }
 }
