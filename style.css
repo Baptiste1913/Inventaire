@@ -26906,3 +26906,30 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  margin-top:-12px!important;
  padding-bottom:40px!important;
 }
+
+/* V38.15 — Les halos débordent maintenant des côtés et du bas du
+   panneau Bienvenue, sans couper brutalement la diffusion.
+   Le calque reste décoratif, derrière la carte, sans élargir la page. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .iu-home-glow-field{
+ left:-36px!important;
+ right:-36px!important;
+ top:-64px!important;
+ bottom:-125px!important;
+ width:calc(100% + 72px)!important;
+ max-width:none!important;
+ overflow:visible!important;
+ contain:none!important;
+ -webkit-mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,
+  #000 0%,#000 46%,rgba(0,0,0,.85) 65%,
+  rgba(0,0,0,.40) 84%,transparent 100%)!important;
+ mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,
+  #000 0%,#000 46%,rgba(0,0,0,.85) 65%,
+  rgba(0,0,0,.40) 84%,transparent 100%)!important;
+}
+@media(max-width:420px){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .iu-home-glow-field{
+  left:-24px!important;
+  right:-24px!important;
+  width:calc(100% + 48px)!important;
+ }
+}

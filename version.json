@@ -1,7 +1,7 @@
 {
-  "version": "38.14",
+  "version": "38.15",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1393719,
-  "notes": "Accueil : bloc Bienvenue rapproché de l'en-tête de 12 px et espace sous le bloc augmenté de 18 px avant Espace administrateur. Fonds, effets lumineux et fonctions inchangés. Cache PWA renouvelé."
+  "bytes": 1394939,
+  "notes": "Accueil : halo lumineux autorisé à déborder du bloc Bienvenue sur les côtés et en bas, avec masque progressif plus large pour éviter les coupures nettes. Carte, transparence, animations et mise en page conservées. Cache PWA renouvelé."
 }
