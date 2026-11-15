@@ -1,7 +1,7 @@
 {
-  "version": "37.41",
+  "version": "37.42",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1132025,
-  "notes": "Nouvel accueil intelligent en 4 états, alimenté par les données existantes : avant un inventaire (prochaine date issue du planning, dernier nombre de pesées et rythme), inventaire en cours (durée active, pesées et moyenne), en pause (statistiques conservées et reprise), et terminé durant 24 h (résumé et lien vers le bilan). Une action principale adapte son libellé et sa destination : navigation fluide, reprise par la commande existante, ou ouverture du dernier bilan. Aucun chiffre inventé ; état vide prévu si aucune session ou aucune date. Fond bleu/turquoise, bouton, cartes et données préservés, chargement asynchrone de la date suivi sans nouvelle requête. Cache PWA v37.41."
+  "bytes": 1137119,
+  "notes": "Accueil intelligent compacté : hauteur, marges, typographies et petites statistiques resserrées sur iPhone, sans changer le dégradé ni les animations. L'état après une session est simplifié en « Votre dernier bilan » ou « Inventaire prévu réalisé » au lieu de l'ancienne page « Terminé ». Validation réelle des dates du planning : seul un inventaire clôturé avec au moins une pesée enregistrée le jour prévu est marqué « Terminé », et compté comme tel dans l'agenda, y compris après rechargement ou synchronisation du compte. Les dates passées sans bilan ne sont plus considérées comme terminées. Le prochain rendez-vous ignore l'inventaire déjà réalisé. Fin, annulation et suppression de bilan actualisent l'état du planning. Aucun changement du planning partagé Supabase ni des autres fonctions métier. Cache PWA renouvelé."
 }
