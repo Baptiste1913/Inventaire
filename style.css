@@ -23141,49 +23141,78 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  }
 }
 
-/* V37.74 — Halos légèrement remontés, plus larges et plus clairs.
-   Palette rosée, bleue et émeraude préservée. Diffusion très progressive
-   dans le blanc sous le bandeau U, sans calque ni animation supplémentaire. */
+
+/* V37.75 — Halo pastel photographique, verre intérieur plus blanc.
+   Lumière rose/bleue/émeraude largement diffusée, sans démarcation ;
+   arrière-plan statique pour les performances Safari iPhone/PWA. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
  background-image:
-  radial-gradient(ellipse 350px 330px at 10% 350px,
-   rgba(249,58,98,.53) 0%,
-   rgba(249,58,98,.31) 27%,
-   rgba(249,58,98,.13) 55%,
-   rgba(249,58,98,.04) 78%,
-   rgba(249,58,98,.008) 93%,
-   rgba(249,58,98,0) 100%),
-  radial-gradient(ellipse 408px 365px at 49% 373px,
-   rgba(45,166,238,.45) 0%,
-   rgba(45,166,238,.26) 29%,
-   rgba(45,166,238,.105) 58%,
-   rgba(45,166,238,.034) 80%,
-   rgba(45,166,238,.007) 94%,
-   rgba(45,166,238,0) 100%),
-  radial-gradient(ellipse 380px 345px at 89% 358px,
-   rgba(0,149,139,.49) 0%,
-   rgba(0,149,139,.28) 29%,
-   rgba(0,149,139,.11) 57%,
-   rgba(0,149,139,.036) 80%,
-   rgba(0,149,139,.008) 94%,
-   rgba(0,149,139,0) 100%)!important;
- background-repeat:no-repeat!important;
+  radial-gradient(ellipse 435px 395px at 11% 353px,
+    rgba(249,104,147,.36) 0%,
+    rgba(249,104,147,.235) 29%,
+    rgba(249,104,147,.10) 58%,
+    rgba(249,104,147,.027) 83%,
+    rgba(249,104,147,0) 100%),
+  radial-gradient(ellipse 505px 440px at 52% 372px,
+    rgba(93,155,245,.39) 0%,
+    rgba(93,155,245,.25) 31%,
+    rgba(93,155,245,.11) 60%,
+    rgba(93,155,245,.027) 84%,
+    rgba(93,155,245,0) 100%),
+  radial-gradient(ellipse 450px 402px at 90% 355px,
+    rgba(75,184,169,.30) 0%,
+    rgba(75,184,169,.19) 32%,
+    rgba(75,184,169,.085) 62%,
+    rgba(75,184,169,.02) 85%,
+    rgba(75,184,169,0) 100%)!important;
  background-color:#fff!important;
+ background-repeat:no-repeat!important;
 }
 @media(max-width:380px){
  html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
   background-image:
-   radial-gradient(ellipse 308px 298px at 12% 332px,
-    rgba(249,58,98,.52) 0%,rgba(249,58,98,.30) 28%,rgba(249,58,98,.125) 56%,rgba(249,58,98,.038) 79%,rgba(249,58,98,.008) 93%,rgba(249,58,98,0) 100%),
-   radial-gradient(ellipse 350px 326px at 49% 351px,
-    rgba(45,166,238,.44) 0%,rgba(45,166,238,.25) 29%,rgba(45,166,238,.10) 58%,rgba(45,166,238,.032) 80%,rgba(45,166,238,.007) 94%,rgba(45,166,238,0) 100%),
-   radial-gradient(ellipse 325px 305px at 89% 337px,
-    rgba(0,149,139,.47) 0%,rgba(0,149,139,.27) 29%,rgba(0,149,139,.11) 57%,rgba(0,149,139,.034) 80%,rgba(0,149,139,.007) 94%,rgba(0,149,139,0) 100%)!important;
+   radial-gradient(ellipse 370px 350px at 12% 337px,
+    rgba(249,104,147,.35) 0%,rgba(249,104,147,.22) 29%,rgba(249,104,147,.09) 60%,rgba(249,104,147,.023) 84%,rgba(249,104,147,0) 100%),
+   radial-gradient(ellipse 445px 390px at 52% 351px,
+    rgba(93,155,245,.38) 0%,rgba(93,155,245,.23) 32%,rgba(93,155,245,.10) 61%,rgba(93,155,245,.024) 84%,rgba(93,155,245,0) 100%),
+   radial-gradient(ellipse 395px 358px at 89% 338px,
+    rgba(75,184,169,.29) 0%,rgba(75,184,169,.18) 33%,rgba(75,184,169,.075) 61%,rgba(75,184,169,.018) 85%,rgba(75,184,169,0) 100%)!important;
+ }
+}
+/* Le bloc principal contient davantage de blanc, sans opacifier
+   complètement le halo pastel visible derrière la surface de verre. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ background:linear-gradient(135deg,
+   rgba(255,255,255,.82) 0%,
+   rgba(255,255,255,.74) 48%,
+   rgba(255,255,255,.84) 100%)!important;
+ -webkit-backdrop-filter:blur(35px) saturate(105%)!important;
+ backdrop-filter:blur(35px) saturate(105%)!important;
+ border:1px solid rgba(255,255,255,.95)!important;
+ box-shadow:0 12px 32px rgba(66,96,132,.075),0 2px 7px rgba(66,96,132,.035),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+@media(max-width:600px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+  -webkit-backdrop-filter:blur(32px) saturate(105%)!important;
+  backdrop-filter:blur(32px) saturate(105%)!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+  background:rgba(255,255,255,.95)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
  }
 }
 @media(forced-colors:active){
  html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
   background-image:none!important;
   background-color:Canvas!important;
+ }
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+  background:Canvas!important;
+  border-color:CanvasText!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
  }
 }
