@@ -1,4 +1,4 @@
-/* V37.66 — Tableau de bord : approvisionnement France et rappels explicitement U. */
+/* V37.67 — Tableau de bord compact : offre France et rappels fournisseurs/U pertinents. */
 (function(){
 'use strict';
 const byId=id=>document.getElementById(id);
@@ -7,9 +7,9 @@ const ui={
  supplyCount:byId('iuSupplyCount'),supplyPreview:byId('iuSupplyPreview'),
  recallCount:byId('iuRecallCount'),recallPreview:byId('iuRecallPreview'),
  supplyList:byId('iuSupplyList'),recallList:byId('iuRecallList'),
- foot:byId('iuMarketFoot')
+ foot:byId('iuMarketFoot'),details:byId('iuMarketDetails')
 };
-const DAY=86400000,LOCAL='iu_market_dashboard_u_v1';
+const DAY=86400000,LOCAL='iu_market_dashboard_filtered_v2';
 const API='https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/records';
 const text=(v,max=150)=>String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,max);
 const recent=(date,days)=>{
@@ -39,15 +39,34 @@ function isU(distributors){
  ];
  return patterns.some(p=>p.test(value))||value.split(/[,;|¤\n]/).some(v=>v.trim()==='u');
 }
+function competitorMentioned(value){
+ const plain=text(value,1700).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const patterns=[
+  /\bcarrefour\b/,/\b(?:e\.?\s*)?leclerc\b/,/\bauchan\b/,
+  /\blidl\b/,/\baldi\b/,/\bintermarche\b/,/\bnetto\b/,
+  /\bmonoprix\b/,/\bfranprix\b/,/\bcasino\b/,/\bcora\b/,
+  /\b(?:supermarche\s+)?match\b/,/\bpicard\b/,
+  /\bgrand\s+frais\b/,/\bbiocoop\b/,/\bnaturalia\b/,
+  /\b(?:les\s+)?mousquetaires\b/
+ ];
+ return patterns.some(p=>p.test(plain));
+}
+function relevantRecall(distributors,brand){
+ if(competitorMentioned(brand))return false;
+ if(isU(distributors))return true;
+ return !competitorMentioned(distributors);
+}
 function entry(obj,type,days){
  if(!obj||obj.type!==type||!recent(obj.date,days))return null;
  const url=validUrl(obj.url,type),title=text(obj.title,105);
  if(!url||!title)return null;
- if(type==='recall'&&!isU(obj.distributors))return null;
+ if(type==='recall'&&!relevantRecall(obj.distributors,obj.brand))return null;
  const value=Number(obj.change);
  if(type==='price'&&(!Number.isFinite(value)||Math.abs(value)<20))return null;
  return {type,id:text(obj.id||url,220),title,description:text(obj.description,160),
-  date:obj.date,url,label:text(obj.label,35),change:value};
+  date:obj.date,url,label:text(obj.label,35),change:value,
+  scope:type==='recall'?(isU(obj.distributors)?'u':'supplier'):'',
+  packaging:text(obj.packaging,80)};
 }
 function element(tag,cls,content){
  const e=document.createElement(tag);
@@ -60,7 +79,7 @@ function alertLink(x){
  a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';
  const body=element('span','iu-dash-alert-copy');
  body.append(element('strong','',x.title),element('small','',x.description+' · '+frDate(x.date)));
- const tag=x.type==='recall'?'Rappel U':x.type==='price'?
+ const tag=x.type==='recall'?(x.scope==='u'?'U':'Fournisseur'):x.type==='price'?
   (x.change>0?'+':'')+x.change.toLocaleString('fr-FR',{maximumFractionDigits:1})+' %':x.label||'Offre réduite';
  a.append(body,element('span','iu-dash-alert-type',tag));
  a.setAttribute('aria-label',x.title+' · '+tag+' · Source officielle');
@@ -82,7 +101,10 @@ function display(data,connected){
  ].filter(Boolean)).sort((a,b)=>Date.parse(b.date)-Date.parse(a.date));
  const recalls=unique((Array.isArray(data.recalls)?data.recalls:[])
   .map(x=>entry(x,'recall',10)).filter(Boolean))
-  .sort((a,b)=>Date.parse(b.date)-Date.parse(a.date));
+  .sort((a,b)=>{
+   const crate=x=>/\b(caisse|carton|vrac|colis|plateau)\b/i.test(x.packaging)?1:0;
+   return crate(b)-crate(a)||Date.parse(b.date)-Date.parse(a.date);
+  });
  const supplyOK=recent(checks.supply,6)||recent(checks.prices,4);
  const recallOK=recent(checks.recalls,3);
  ui.supplyCount.textContent=supplies.length?String(supplies.length):supplyOK?'0':'—';
@@ -91,7 +113,7 @@ function display(data,connected){
   supplies[0].title+' · '+(supplies[0].label||'variation du marché'):
   supplyOK?'Aucun signal récent relevé':'Données de marché à vérifier';
  ui.recallPreview.textContent=recalls.length?recalls[0].title:
-  recallOK?'Aucun rappel U identifié':'Vérification des distributeurs…';
+  recallOK?'Aucun rappel pertinent identifié':'Vérification des distributeurs…';
  ui.supplyList.replaceChildren();ui.recallList.replaceChildren();
  if(supplies.length)supplies.slice(0,12).forEach(x=>ui.supplyList.append(alertLink(x)));
  else ui.supplyList.append(element('p','iu-dash-empty',
@@ -99,13 +121,16 @@ function display(data,connected){
  if(!recent(checks.prices,4))ui.supplyList.append(element('p','iu-dash-source-note','Cotations de prix indisponibles pour le moment.'));
  if(recalls.length)recalls.slice(0,12).forEach(x=>ui.recallList.append(alertLink(x)));
  else ui.recallList.append(element('p','iu-dash-empty',
-  recallOK?'Aucun rappel mentionnant explicitement les enseignes U dans les fiches récentes vérifiées.':'Recherche de rappels U non actualisée.'));
+  recallOK?'Aucun rappel U ou fournisseur pertinent dans les fiches récentes vérifiées.':'Recherche de rappels non actualisée.'));
  const dates=[checks.supply,checks.recalls].filter(Boolean).map(Date.parse).filter(Number.isFinite);
  const label=dates.length?'Contrôlé le '+frDate(Math.max(...dates)):'Sources officielles';
  const limits=[];
  if(!supplyOK)limits.push('offre à actualiser');
- if(!recallOK)limits.push('rappels U à actualiser');
+ if(!recallOK)limits.push('rappels à actualiser');
  ui.foot.textContent=label+(limits.length?' · '+limits.join(' · '):' · FranceAgriMer et RappelConso');
+ const total=supplies.length+recalls.length;
+ const summary=ui.details&&ui.details.querySelector('summary');
+ if(summary)summary.textContent=total?('Voir '+total+' information'+(total>1?'s':'')+' et les sources'):'Voir les sources et détails';
  if(!connected&&!dates.length)ui.foot.textContent='Connexion nécessaire pour actualiser.';
 }
 function cached(){
@@ -123,13 +148,14 @@ async function fallback(){
  if(!response.ok)throw Error('RappelConso indisponible');
  const json=await response.json();
  if(!Array.isArray(json.results))throw Error('Format inattendu');
- return json.results.filter(x=>x&&recent(x.date_publication,10)&&isU(x.distributeurs))
+ return json.results.filter(x=>x&&recent(x.date_publication,10)&&relevantRecall(x.distributeurs,x.marque_produit))
   .map(x=>({
    type:'recall',id:text(x.numero_fiche||x.rappel_guid||x.id,120),
    title:text(x.libelle||x.modeles_ou_references,105),
    description:text([x.marque_produit,x.risques_encourus||x.motif_rappel].filter(Boolean).join(' · '),160),
    date:x.date_publication,url:validUrl(x.lien_vers_la_fiche_rappel,'recall'),
-   distributors:x.distributeurs,uConfirmed:true
+   distributors:x.distributeurs,brand:x.marque_produit,
+   packaging:x.conditionnements,scope:isU(x.distributeurs)?'u':'supplier'
   })).filter(x=>x.url&&x.id&&x.title);
 }
 let last=0;

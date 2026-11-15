@@ -1,7 +1,7 @@
 {
-  "version": "37.66",
+  "version": "37.67",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1185545,
-  "notes": "Tableau de bord compact avec approvisionnement général et rappels magasins U. Filtrage officiel par distributeurs explicitement U, autres enseignes exclues ; détails repliables, données sourcées, pénuries non inférées et restrictions d’eau locales retirées du tableau."
+  "bytes": 1190843,
+  "notes": "Tableau de bord plus compact : deux indicateurs sous une surface vitrée commune, détails repliables et résumé des alertes. Rappels de colis et fournisseurs acceptés si aucune enseigne concurrente n’est explicitement indiquée ; rappels U conservés, rappels exclusifs Carrefour/Leclerc/Auchan et autres enseignes exclus. Contrôle serveur et client, cache iPhone mis à jour."
 }

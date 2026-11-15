@@ -88,6 +88,36 @@ def is_u_distributor(value):
         part.strip() == "u" for part in re.split(r"[,;|¤\n]", plain))
 
 
+
+def recall_normalize(value):
+    import unicodedata
+    plain = "".join(c for c in unicodedata.normalize("NFKD", str(value or ""))
+                    if not unicodedata.combining(c)).casefold()
+    return re.sub(r"\s+", " ", plain)
+
+
+def competitor_mentioned(value):
+    plain = recall_normalize(value)
+    competitors = (
+        r"\bcarrefour\b", r"\b(?:e\.?\s*)?leclerc\b",
+        r"\bauchan\b", r"\blidl\b", r"\baldi\b",
+        r"\bintermarche\b", r"\bnetto\b", r"\bmonoprix\b",
+        r"\bfranprix\b", r"\bcasino\b", r"\bcora\b",
+        r"\b(?:supermarche\s+)?match\b", r"\bpicard\b",
+        r"\bgrand\s+frais\b", r"\bbiocoop\b",
+        r"\bnaturalia\b", r"\b(?:les\s+)?mousquetaires\b"
+    )
+    return any(re.search(rx, plain) for rx in competitors)
+
+
+def relevant_recall(distributors, brand):
+    if competitor_mentioned(brand):
+        return False
+    if is_u_distributor(distributors):
+        return True
+    return not competitor_mentioned(distributors)
+
+
 def recall_feed():
     rows_all = []
     for offset in (0, 100, 200):
@@ -113,7 +143,8 @@ def recall_feed():
         if clean(row.get("sous_categorie_produit")).casefold() != "fruits et légumes":
             continue
         distributors = clean(row.get("distributeurs"), 1600)
-        if not is_u_distributor(distributors):
+        brand = clean(row.get("marque_produit"), 55)
+        if not relevant_recall(distributors, brand):
             continue
         identity = clean(row.get("numero_fiche") or row.get("rappel_guid") or row.get("id"))
         if not identity or identity in seen:
@@ -124,14 +155,15 @@ def recall_feed():
         title = clean(row.get("libelle") or row.get("modeles_ou_references"), 115)
         if not title:
             continue
-        brand = clean(row.get("marque_produit"), 55)
         reason = clean(row.get("risques_encourus") or row.get("motif_rappel"), 135)
         alerts.append({
             "type": "recall", "id": identity, "title": title,
             "description": (" · ".join(x for x in [brand, reason] if x))[:170],
             "date": day(row["date_publication"]).isoformat(),
             "url": link, "source": "RappelConso",
-            "distributors": distributors, "uConfirmed": True
+            "distributors": distributors, "brand": brand,
+            "packaging": clean(row.get("conditionnements"), 75),
+            "scope": "u" if is_u_distributor(distributors) else "supplier"
         })
         seen.add(identity)
     alerts.sort(key=lambda item: item["date"], reverse=True)
@@ -366,7 +398,7 @@ def main():
     output = {
         "schema": 1,
         "generatedAt": iso_now(),
-        "recalls": [x for x in existing.get("recalls", []) if isinstance(x, dict) and is_u_distributor(x.get("distributors", ""))],
+        "recalls": [x for x in existing.get("recalls", []) if isinstance(x, dict) and relevant_recall(x.get("distributors", ""), x.get("brand", ""))],
         "prices": existing.get("prices", []),
         "shortages": [],
         "supply": existing.get("supply", []),
