@@ -1,7 +1,7 @@
 {
-  "version": "38.20",
+  "version": "38.21",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1399195,
-  "notes": "Accueil : harmonisation explicite des mots Administration, Événement, Calcul, Suivi, Bilans, Paniers et Données avec la teinte adoucie #73818a de Services U, en neutralisant les remplissages de texte éventuels. Cache PWA renouvelé."
+  "bytes": 1399648,
+  "notes": "Correction de la couleur SERVICE U / ÉVÉNEMENT : ciblage du vrai titre dans events-month-preview, auparavant surclassé par une règle CSS plus spécifique. Gris-bleu #73818a harmonisé. Cache PWA renouvelé."
 }

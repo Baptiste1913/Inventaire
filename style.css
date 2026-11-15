@@ -26999,3 +26999,12 @@ html body main.app > .backup-card .fold-heading .section-kicker{
  -webkit-text-fill-color:#73818a!important;
  background-image:none!important;
 }
+
+/* V38.21 — Le libellé SERVICE U / ÉVÉNEMENT appartient au bloc
+   .events-month-preview : le sélecteur précédent visait .events-home-header
+   et ne gagnait pas contre la règle spécifique de V37.10. */
+html body:not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-preview .events-month-heading > .events-section-kicker{
+ color:#73818a!important;
+ -webkit-text-fill-color:#73818a!important;
+ background-image:none!important;
+}
