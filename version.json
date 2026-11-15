@@ -1,7 +1,7 @@
 {
-  "version": "38.26",
+  "version": "38.27",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Accueil : titre en casse naturelle, typographie plus équilibrée, sous-titre chaleureux adapté au rayon Fruits et Légumes ; retrait de la ligne de date d’actualisation. Cache PWA renouvelé."
+  "notes": "Grand titre d’accueil en typographie arrondie expressive, taille responsive 34–48 px. Sous-titre utilisant la même classe de style que le descriptif « Inventaires et opérations 10 % Pouvoir d’achat à venir ». Cache PWA renouvelé."
 }
