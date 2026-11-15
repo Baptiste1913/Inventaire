@@ -1,7 +1,7 @@
 {
-  "version": "38.40",
+  "version": "38.41",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Espaces verticaux réduits au-dessus de la carte Poire Santa Maria (marge sous le sous-titre 15→6 px) et au-dessus du séparateur Vos services (26→12 px, mobile 22→10 px). Cache PWA renouvelé."
+  "notes": "Rapprochement effectif du séparateur « Vos services » du bloc de bienvenue avec une marge supérieure négative de 12 px, y compris sur mobile ; cache PWA renouvelé."
 }
