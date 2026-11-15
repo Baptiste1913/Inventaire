@@ -21882,9 +21882,11 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .i
  position:absolute!important;
  display:block!important;
  box-sizing:border-box!important;
- inset:-20% -18% -20%!important;
- width:auto!important;
- height:auto!important;
+ /* Points de couleur répartis sur toute la largeur et rehaussés :
+    leur intensité diminue naturellement avant le bord inférieur. */
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
  z-index:0!important;
  padding:0!important;
  margin:0!important;
@@ -21892,17 +21894,21 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .i
  border-radius:0!important;
  pointer-events:none!important;
  background:
-  radial-gradient(ellipse 44% 42% at 18% 22%,rgba(83,192,233,.71) 0%,rgba(83,192,233,.39) 39%,transparent 88%),
-  radial-gradient(ellipse 41% 47% at 84% 40%,rgba(100,185,174,.72) 0%,rgba(100,185,174,.36) 45%,transparent 90%),
-  radial-gradient(ellipse 45% 37% at 52% 89%,rgba(0,117,131,.34) 0%,rgba(0,117,131,.14) 49%,transparent 90%),
-  radial-gradient(ellipse 35% 35% at 55% 9%,rgba(157,204,246,.48) 0%,rgba(157,204,246,.18) 46%,transparent 88%)!important;
- opacity:.94!important;
- -webkit-filter:blur(25px) saturate(120%)!important;
- filter:blur(25px) saturate(120%)!important;
+  radial-gradient(ellipse 72% 75% at 8% 9%,rgba(83,192,233,.69) 0%,rgba(83,192,233,.36) 35%,rgba(83,192,233,.11) 64%,transparent 94%),
+  radial-gradient(ellipse 66% 71% at 95% 8%,rgba(100,185,174,.70) 0%,rgba(100,185,174,.35) 37%,rgba(100,185,174,.10) 67%,transparent 94%),
+  radial-gradient(ellipse 66% 64% at 53% 12%,rgba(157,204,246,.49) 0%,rgba(157,204,246,.24) 45%,transparent 93%),
+  radial-gradient(ellipse 62% 67% at 67% 24%,rgba(0,117,131,.24) 0%,rgba(0,117,131,.10) 47%,transparent 91%)!important;
+ opacity:.93!important;
+ -webkit-filter:blur(30px) saturate(116%)!important;
+ filter:blur(30px) saturate(116%)!important;
+ /* Fondu vertical naturel et compatible Safari, plutôt qu'une
+    section colorée brutalement coupée par le bord du bandeau. */
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 42%,rgba(0,0,0,.78) 61%,rgba(0,0,0,.26) 80%,transparent 96%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 42%,rgba(0,0,0,.78) 61%,rgba(0,0,0,.26) 80%,transparent 96%)!important;
+ -webkit-mask-repeat:no-repeat!important;
+ mask-repeat:no-repeat!important;
  transform:none!important;
  animation:none!important;
- -webkit-mask:none!important;
- mask:none!important;
  box-shadow:none!important;
 }
 /* Le titre reste au-dessus des halos, comme l'indicateur de session. */
@@ -22006,8 +22012,8 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .i
   backdrop-filter:blur(18px) saturate(138%)!important;
  }
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-aurora-blobs{
-  -webkit-filter:blur(22px) saturate(115%)!important;
-  filter:blur(22px) saturate(115%)!important;
+  -webkit-filter:blur(25px) saturate(115%)!important;
+  filter:blur(25px) saturate(115%)!important;
  }
 }
 @media(max-width:380px){
