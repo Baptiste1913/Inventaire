@@ -1,7 +1,7 @@
 {
-  "version": "38.36",
+  "version": "38.37",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ajout de 12 px d’espace à gauche des textes des trois cartes de bienvenue, sans modifier les bordures ; correction de la fermeture des balises CSS intégrées. Cache PWA renouvelé."
+  "notes": "Espacement gauche réduit de 12 à 8 px dans les trois cartes de bienvenue, appliqué également aux compteurs 3 et 1 ; cache PWA renouvelé."
 }
