@@ -1,7 +1,7 @@
 {
-  "version": "38.44",
+  "version": "38.45",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ombre extérieure du bloc Bienvenue encore atténuée, opacité de 5,5 % à 2,5 %, contours et autres éléments inchangés. Cache PWA renouvelé."
+  "notes": "Réduction renforcée de l’ombre du bloc Bienvenue : règle ciblant le panneau et son contenu, opacité 0,8 %, portée réduite et neutralisation des filtres d’ombre ; cache PWA renouvelé."
 }
