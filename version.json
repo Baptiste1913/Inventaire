@@ -1,7 +1,7 @@
 {
-  "version": "37.93",
+  "version": "37.94",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1330928,
-  "notes": "Carte d’accueil alignée sur les autres blocs (marges latérales de 13 px, adaptation aux petits écrans). Halos rose, bleu et vert déplacés à l’arrière-plan de la section, plus visibles avec une animation amplifiée et désynchronisée ; reflet blanc légèrement translucide. Séparateur 42 × 3 px placé au bas de l’espace avant Administrateur. Cache PWA actualisé."
+  "bytes": 1337955,
+  "notes": "Accueil Safari : suppression des traits gris sur les cartes sans toucher aux commandes ; fond du panneau plus transparent avec flou de 27 px et sous-cartes légèrement plus translucides. Halos animés plus rapides (10/13/17 s), enfermés dans un calque décoratif pour empêcher le débordement horizontal et l'effet de dézoom. Cache PWA actualisé."
 }
