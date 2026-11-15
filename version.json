@@ -1,7 +1,7 @@
 {
-  "version": "37.54",
+  "version": "37.55",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1158637,
-  "notes": "Reflet blanc rétabli uniquement dans le coin supérieur gauche de toutes les cartes principales de l’accueil, sans contour sur les quatre côtés ni sur les sous-cartes. Banderole Liquid Glass et animations conservées. Cache PWA actualisé."
+  "bytes": 1158032,
+  "notes": "Correction du centre de mise à jour : version réelle du document synchronisée et attente d’administration non bloquante. Reflet blanc sur tout le bord supérieur et gauche des neuf cartes principales de l’accueil. Cache PWA actualisé."
 }

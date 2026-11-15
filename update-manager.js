@@ -108,13 +108,17 @@
      try{
        await waitForLoad();
        updateProgress(2);
-       await waitForAdmin();
+       // L'administration peut être volontairement masquée ou démarrer en retard.
+       // Son absence de signal ne doit pas faire échouer une mise à jour déjà chargée.
+       try{await waitForAdmin();}catch(error){log('admin');}
        if(document.fonts?.ready)await document.fonts.ready;
        // L'ouverture de la nouvelle page prépare son cache hors ligne avant révélation.
        // Deux frames confirment que la disposition a été peinte.
        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
        await waitForQuietAdmin();
        if(payload.target&&payload.target!==VERSION){
+         // Éviter de déclarer l'installation réussie si l'ancien HTML est encore affiché.
+         // Le bouton de vérification reste accessible après fermeture du message.
          throw new Error('version-mismatch');
        }
        if(cancelled)return;

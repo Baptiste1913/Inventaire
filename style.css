@@ -22327,46 +22327,29 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  }
 }
 
-/* V37.54 — Reflet fin, uniquement dans le coin supérieur gauche
-   des cartes principales de l'accueil (pas les sous-cartes ni les autres pages).
-   Le tracé suit le bord extérieur et son arrondi, sans cadre complet. */
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card,
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro .intro-glass-panel{
+/* V37.55 — Reflet périphérique blanc sur les neuf cartes principales
+   de l'accueil : toute la largeur en haut, toute la hauteur à gauche.
+   Aucun effet sur les sous-cartes, les modes dédiés ou les animations. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card{
  position:relative!important;
 }
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card::before,
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro .intro-glass-panel::before{
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card::before{
  content:""!important;
  position:absolute!important;
- inset:0 auto auto 0!important;
- width:112px!important;
- height:72px!important;
+ inset:0!important;
+ width:auto!important;
+ height:auto!important;
  box-sizing:border-box!important;
  border:0!important;
  border-top:1px solid rgba(255,255,255,.94)!important;
  border-left:1px solid rgba(255,255,255,.82)!important;
  border-top-left-radius:inherit!important;
- border-top-right-radius:0!important;
- border-bottom-left-radius:0!important;
- border-bottom-right-radius:0!important;
+ border-top-right-radius:inherit!important;
+ border-bottom-left-radius:inherit!important;
  opacity:1!important;
+ background:none!important;
+ box-shadow:none!important;
  pointer-events:none!important;
  z-index:1!important;
 }
-/* Sur la bannière, conserver le reflet interne Liquid Glass déjà présent :
-   le contour partiel est dessiné séparément avec une ombre inset discrète. */
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro .intro-glass-panel::before{
- inset:0!important;
- width:auto!important;
- height:auto!important;
- border:0!important;
- border-radius:inherit!important;
- background:linear-gradient(125deg,rgba(255,255,255,.32) 0%,rgba(255,255,255,.10) 30%,transparent 62%)!important;
- box-shadow:inset 1px 1px 0 rgba(255,255,255,.38)!important;
-}
-@media(max-width:380px){
- html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card::before{
-  width:101px!important;
-  height:65px!important;
- }
-}
+/* Le bandeau d'accueil conserve son Liquid Glass propre, sans écraser son reflet. */
