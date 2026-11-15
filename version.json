@@ -1,7 +1,7 @@
 {
-  "version": "38.03",
+  "version": "38.04",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1366173,
-  "notes": "Correction du double contour de l'Espace administrateur : suppression du fond opaque et des rayons propres au summary, qui recouvraient le dégradé de la carte parente. Même surface, contour et ombres que Ma session, cache PWA renouvelé."
+  "bytes": 1368591,
+  "notes": "Accueil : Mon compte utilise le même dégradé, bordure blanche, rayon 20 px et ombres que Ma session et Espace administrateur. Fond et coins propres au summary supprimés pour éliminer les doubles contours. Cache PWA renouvelé."
 }
