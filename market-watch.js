@@ -7,45 +7,60 @@ const ui={
  supplyCount:byId('iuSupplyCount'),supplyPreview:byId('iuSupplyPreview'),
  recallCount:byId('iuRecallCount'),recallPreview:byId('iuRecallPreview'),
  supplyList:byId('iuSupplyList'),recallList:byId('iuRecallList'),
- foot:byId('iuMarketFoot'),details:byId('iuMarketDetails'),
+ updated:byId('iuMarketUpdated'),details:byId('iuMarketDetails'),
  listButton:byId('iuDashListButton'),listLabel:byId('iuDashListLabel'),
  drawer:byId('iuMarketDetailsList'),
  featured:byId('iuDashFeature'),featureKicker:byId('iuDashFeatureKicker'),
  featureTitle:byId('iuDashFeatureTitle'),featureSummary:byId('iuDashFeatureSummary')
 };
-/* V37.83 — La veille reste disponible sans monopoliser l'écran d'accueil.
-   L'ouverture/fermeture est réversible et les éléments masqués sont inertes. */
-const homeWatch=byId('iuHomeWatch');
-const homeToggle=byId('iuHomeWatchToggle');
-const homeReveal=byId('iuHomeWatchReveal');
-const homeStatus=byId('iuHomeWatchStatus');
-if(homeWatch&&homeToggle&&homeReveal){
- const setHomeWatchOpen=opened=>{
-  if(!opened&&homeReveal.contains(document.activeElement))homeToggle.focus();
-  homeWatch.classList.toggle('is-open',opened);
-  homeToggle.setAttribute('aria-expanded',String(opened));
-  homeReveal.setAttribute('aria-hidden',String(!opened));
-  if(opened)homeReveal.removeAttribute('inert');
-  else homeReveal.setAttribute('inert','');
- };
- homeToggle.addEventListener('click',()=>setHomeWatchOpen(!homeWatch.classList.contains('is-open')));
- setHomeWatchOpen(false);
-}
+/* V37.85 — La veille est visible par défaut.
+   Le tiroir des détails anime sa hauteur réelle (et non une grille 0fr/1fr
+   contenant une zone défilante), pour une fermeture réversible sur Safari. */
 const drawerReady=ui.details&&ui.listButton&&ui.listLabel&&ui.drawer;
 let listCount=0;
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 function updateListButton(){
  if(!drawerReady)return;
  const opened=ui.details.classList.contains('is-open');
  ui.listLabel.textContent=(opened?'Masquer la liste':'Voir la liste')+(listCount?' ('+listCount+')':'');
  ui.listButton.setAttribute('aria-expanded',String(opened));
- ui.drawer.setAttribute('aria-hidden',String(!opened));
- if(opened)ui.drawer.removeAttribute('inert');
- else ui.drawer.setAttribute('inert','');
 }
 if(drawerReady){
- ui.listButton.addEventListener('click',()=>{
-  ui.details.classList.toggle('is-open');
+ let animationFrame=0;
+ ui.drawer.style.height='0px';
+ ui.drawer.setAttribute('aria-hidden','true');
+ ui.drawer.setAttribute('inert','');
+ const maxHeight=()=>Math.ceil(ui.drawer.scrollHeight);
+ const toggleList=()=>{
+  const opened=!ui.details.classList.contains('is-open');
+  if(animationFrame){cancelAnimationFrame(animationFrame);animationFrame=0;}
+  const current=ui.drawer.getBoundingClientRect().height;
+  ui.drawer.style.height=current+'px';
+  ui.details.classList.toggle('is-open',opened);
   updateListButton();
+  if(opened){
+   ui.drawer.removeAttribute('inert');
+   ui.drawer.setAttribute('aria-hidden','false');
+  }else{
+   if(ui.drawer.contains(document.activeElement))ui.listButton.focus();
+   ui.drawer.setAttribute('inert','');
+   ui.drawer.setAttribute('aria-hidden','true');
+  }
+  if(reduceMotion.matches){
+   ui.drawer.style.height=opened?'auto':'0px';
+   return;
+  }
+  // Une seule mesure après changement d'état, puis une seule écriture
+  // par image. Évite les à-coups liés aux transitions de grilles imbriquées.
+  animationFrame=requestAnimationFrame(()=>{
+   animationFrame=0;
+   ui.drawer.style.height=(opened?maxHeight():0)+'px';
+  });
+ };
+ ui.listButton.addEventListener('click',toggleList);
+ ui.drawer.addEventListener('transitionend',event=>{
+  if(event.target!==ui.drawer||event.propertyName!=='height')return;
+  if(ui.details.classList.contains('is-open'))ui.drawer.style.height='auto';
  });
  updateListButton();
 }
@@ -186,12 +201,6 @@ function display(data,connected){
    ui.featured.setAttribute('aria-label','Consulter les informations officielles FranceAgriMer');
   }
  }
- if(homeStatus){
-  const count=recalls.length;
-  const signals=supplies.length;
-  homeStatus.textContent=count?count+' rappel'+(count>1?'s':''):signals?signals+' signal'+(signals>1?'s':''):'Consulter';
-  homeStatus.classList.toggle('has-recalls',count>0);
- }
  const supplyOK=recent(checks.supply,6)||recent(checks.prices,4);
  const recallOK=recent(checks.recalls,3);
  ui.supplyCount.textContent=supplies.length?String(supplies.length):supplyOK?'0':'—';
@@ -209,15 +218,26 @@ function display(data,connected){
  if(recalls.length)recalls.slice(0,12).forEach(x=>ui.recallList.append(alertLink(x)));
  else ui.recallList.append(element('p','iu-dash-empty',
   recallOK?'Aucun rappel U ou fournisseur pertinent dans les fiches récentes vérifiées.':'Recherche de rappels non actualisée.'));
- const dates=[checks.supply,checks.recalls].filter(Boolean).map(Date.parse).filter(Number.isFinite);
- const label=dates.length?'Contrôlé le '+frDate(Math.max(...dates)):'Sources officielles';
- const limits=[];
- if(!supplyOK)limits.push('offre à actualiser');
- if(!recallOK)limits.push('rappels à actualiser');
- ui.foot.textContent=label+(limits.length?' · '+limits.join(' · '):' · FranceAgriMer et RappelConso');
+ /* Horodatage des données, pas de la simple ouverture de l'application.
+    Date fournie par la veille publiée ou, si disponible, du contrôle le plus
+    récent : ne jamais inventer une heure d'actualisation. */
+ const timestamps=[data.generatedAt,checks.recalls,checks.supply,checks.prices]
+  .map(value=>Date.parse(String(value||''))).filter(Number.isFinite);
+ const latest=timestamps.length?Math.max(...timestamps):NaN;
+ if(ui.updated){
+  if(Number.isFinite(latest)){
+   const date=new Date(latest);
+   const localDate=new Intl.DateTimeFormat('fr-FR',{
+    day:'2-digit',month:'2-digit',year:'numeric',timeZone:'Europe/Paris'
+   }).format(date);
+   const localTime=new Intl.DateTimeFormat('fr-FR',{
+    hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris',hourCycle:'h23'
+   }).format(date);
+   ui.updated.textContent='Données actualisées le '+localDate+' à '+localTime+'.';
+  }else ui.updated.textContent='Date de dernière actualisation indisponible.';
+ }
  listCount=supplies.length+recalls.length;
  updateListButton();
- if(!connected&&!dates.length)ui.foot.textContent='Connexion nécessaire pour actualiser.';
 }
 function cached(){
  try{return JSON.parse(localStorage.getItem(LOCAL)||'null');}catch(_){return null;}

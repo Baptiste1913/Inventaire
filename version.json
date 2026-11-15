@@ -1,7 +1,7 @@
 {
-  "version": "37.84",
+  "version": "37.85",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1266841,
-  "notes": "Accueil fusionné : bienvenue et veille réunies dans un panneau unique plus compact. Suppression des raccourcis Ma session et Événements redondants ; la veille reste intégrée dans le bas du panneau avec un tiroir fluide et les rappels visibles. Couleurs et microanimations existantes conservées, cache PWA actualisé."
+  "bytes": 1269710,
+  "notes": "Veille visible dès l'accueil, suppression de l'ancien en-tête et du pied de page masqués, affichage de la date et de l'heure réelles d'actualisation des données officielles (heure de Paris). Animation de la liste réécrite avec hauteur mesurée pour Safari iPhone, sans double transition de grille. Données et fonctionnalités inchangées."
 }
