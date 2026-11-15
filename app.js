@@ -363,37 +363,24 @@ function heroSetText(id,val){const el=$(id);if(el&&el.textContent!==String(val))
 function renderHeroSummary(){
  const root=document.querySelector('.app > section.intro'),status=$('heroStatus'),text=$('heroStatusText');
  if(!root||!status||!text)return;
- const session=getActiveSession(),last=latestFinishedInventory(),now=Date.now();
- const finishedRecently=!session&&last&&last.endedAt<=now&&now-last.endedAt<86400000;
- const startDay=last?new Date(last.startedAt):null;
- const iso=startDay?[startDay.getFullYear(),String(startDay.getMonth()+1).padStart(2,'0'),String(startDay.getDate()).padStart(2,'0')].join('-'):'';
- const plannedCompleted=Boolean(finishedRecently&&iso&&window.InventairesPlanning?.isPlannedInventoryCompleted?.(iso));
- const state=session?(session.pausedAt?'paused':'running'):finishedRecently?'finished':'before';
+ const session=getActiveSession(),last=latestFinishedInventory();
+ // Sans session active, toujours afficher la prochaine date, même juste après un bilan.
+ const state=session?(session.pausedAt?'paused':'running'):'before';
  const stats=session?activeStats(session):last?activeStats(last):null;
  const count=stats?.count||0,avg=heroTimePerWeigh(stats);
  const raw=$('calendarNextDate')?.textContent?.trim()||'';
  const nextDate=raw&&!/chargement|confirmer/i.test(raw)?raw:'Date à confirmer';
  const countdown=$('calendarNextCountdown');
  const dateCaption=countdown&&!countdown.hidden&&countdown.textContent.trim()?countdown.textContent.trim():'Selon votre planning';
- const lastCaption=last?'Session du '+new Date(last.startedAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'Aucune session terminée';
  let fields;
  if(state==='running')fields=['SUIVI EN TEMPS RÉEL','Inventaire en cours','Votre session est enregistrée automatiquement.',durationLabel(stats.duration),'Durée active','Pesées enregistrées',String(count),'Temps / pesée',avg,'Revenir à ma session','pauseSession','En cours'];
  else if(state==='paused')fields=['SESSION CONSERVÉE','Inventaire en pause','Vos pesées sont conservées. Reprenez quand vous êtes prêt.',durationLabel(stats.duration),'Durée active avant la pause','Pesées enregistrées',String(count),'Temps / pesée',avg,'Reprendre l’inventaire','resumeSession','En pause'];
- else if(state==='finished')fields=[
-  plannedCompleted?'INVENTAIRE PRÉVU VALIDÉ':'BILAN ENREGISTRÉ',
-  plannedCompleted?'Inventaire prévu réalisé':'Votre dernier bilan',
-  plannedCompleted?'Cette session est comptabilisée dans le planning.':'Retrouvez le détail de votre dernière session.',
-  String(count)+' pesée'+(count>1?'s':''),
-  lastCaption,
-  'Durée active',durationLabel(stats.duration),
-  'Temps / pesée',avg,
-  'Voir le bilan','sessionsHistoryList',plannedCompleted?'Réalisé':'Bilan prêt'
- ];
+
  else fields=['PROCHAIN INVENTAIRE',nextDate==='Date à confirmer'?'Prêt pour votre prochain inventaire':'Votre prochain inventaire',last?'Retrouvez votre prochaine date et le résultat de votre dernière session.':'Les informations de vos inventaires apparaîtront ici.',nextDate,dateCaption,'Dernier inventaire',last?String(count)+' pesées':'—','Temps moyen / pesée',last?avg:'—',last?'Consulter le dernier bilan':'Aller à Ma session',last?'sessionsHistoryList':'startSession','Prêt'];
  if(root.dataset.introState!==state)root.dataset.introState=state;
  status.classList.toggle('is-running',state==='running');
  status.classList.toggle('is-paused',state==='paused');
- status.classList.toggle('is-finished',state==='finished');
+ status.classList.remove('is-finished');
  heroSetText('heroStatusText',fields[11]);
  const ids=['introSmartEyebrow','introSmartHeading','introSmartDescription','introSmartPrimary','introSmartPrimaryCaption','introSmartStat1Label','introSmartStat1','introSmartStat2Label','introSmartStat2','heroActionLabel'];
  ids.forEach((id,i)=>heroSetText(id,fields[i]));

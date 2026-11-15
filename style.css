@@ -22100,3 +22100,25 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .i
   background:Canvas!important;
  }
 }
+
+/* V37.46 — En-tête U blanc, carte intelligente sans titre latéral.
+   La pastille d'état conserve sa place sans recouvrir la carte. */
+html body:not(.is-focus-mode) .app > header.header{
+ background:#fff!important;
+ background-image:none!important;
+ background-color:#fff!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+ padding-top:56px!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+  padding-top:52px!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > header.header{
+  background:Canvas!important;
+  background-color:Canvas!important;
+ }
+}
