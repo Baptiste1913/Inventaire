@@ -1,7 +1,7 @@
 {
-  "version": "38.13",
+  "version": "38.14",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1393275,
-  "notes": "Veille du rayon : flou des trois cadres rétabli à 8 px, opacité du dégradé réduite de 25 % par rapport à v38.12 pour mieux laisser passer les lumières. Ombres et autres fonctionnalités inchangées. Cache PWA renouvelé."
+  "bytes": 1393719,
+  "notes": "Accueil : bloc Bienvenue rapproché de l'en-tête de 12 px et espace sous le bloc augmenté de 18 px avant Espace administrateur. Fonds, effets lumineux et fonctions inchangés. Cache PWA renouvelé."
 }

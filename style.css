@@ -26898,3 +26898,11 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   backdrop-filter:none!important;
  }
 }
+
+/* V38.14 — Accueil : rapprocher le bloc Bienvenue de l'en-tête
+   et créer davantage de respiration avant Espace administrateur.
+   Espacements externes uniquement ; contenu, halo et responsive inchangés. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"]{
+ margin-top:-12px!important;
+ padding-bottom:40px!important;
+}
