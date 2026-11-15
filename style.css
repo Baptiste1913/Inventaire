@@ -26789,3 +26789,44 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   box-shadow:none!important;
  }
 }
+
+/* V38.11 — Veille du rayon : ombres et glow réduits de 50 %.
+   Fond dégradé semi-transparent : les lumières de l'aurore restent
+   légèrement perceptibles à travers les trois cartes, sans perte de lisibilité. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashFeature.iu-dash-feature,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-supply,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-recall{
+ background-color:rgba(245,248,250,.78)!important;
+ background-image:linear-gradient(145deg,
+  rgba(255,255,255,.80) 0%,
+  rgba(248,250,251,.80) 34%,
+  rgba(229,235,239,.80) 100%)!important;
+ -webkit-backdrop-filter:blur(8px) saturate(105%)!important;
+ backdrop-filter:blur(8px) saturate(105%)!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.49),
+  -6px -6px 13px rgba(255,255,255,.30),
+   4px 5px 11px rgba(156,173,189,.175),
+   1px 2px 4px rgba(156,173,189,.09),
+   inset 1px 1px 0 rgba(255,255,255,.48)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashFeature.iu-dash-feature,
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-supply,
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-recall{
+  background:#f5f8fa!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashFeature.iu-dash-feature,
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-supply,
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-recall{
+  background:Canvas!important;
+  border:1px solid CanvasText!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}

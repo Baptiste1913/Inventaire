@@ -1,7 +1,7 @@
 {
-  "version": "38.10",
+  "version": "38.11",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1384216,
-  "notes": "Accueil : actualité principale (ex. Poire Santa Maria), Approvisionnement et Rappels produits adoptent le même fond dégradé, contour blanc, coins 20 px et cinq ombres que Ma session. Contenus et liens conservés ; cache PWA renouvelé."
+  "bytes": 1387400,
+  "notes": "Veille du rayon : ombres et reflets des trois cartes atténués de 50 %, dégradé conservé mais rendu légèrement translucide pour laisser filtrer les lumières en arrière-plan ; lisibilité et accessibilité préservées. Cache PWA renouvelé."
 }
