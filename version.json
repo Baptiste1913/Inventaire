@@ -1,7 +1,7 @@
 {
-  "version": "38.23",
+  "version": "38.24",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Titre « Bienvenue dans votre espace » encore agrandi (17–21 px responsive) et graisse maximale 950 ; autres styles et fonctionnalités préservés. Cache PWA renouvelé."
+  "notes": "Titre Bienvenue nettement plus grand (23–30 px), graisse 900 avec léger renforcement du trait, espacement resserré et adaptation mobile. Cache PWA renouvelé."
 }
