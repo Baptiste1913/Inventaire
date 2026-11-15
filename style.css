@@ -26968,3 +26968,18 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
  box-shadow:0 23px 30px -18px rgba(83,105,121,.32)!important;
 }
+
+/* V38.19 — Harmonisation des sous-titres SERVICES U / SERVICE U
+   des neuf cartes d'accueil : teinte gris-bleu unique, moins contrastée.
+   Les titres principaux et les autres libellés ne sont pas modifiés. */
+html body main.app > #planningAdminCard .planning-admin-eyebrow,
+html body main.app > #accountCard .account-header-text > .section-kicker,
+html body main.app > #inventoryCalendar .events-home-header .events-section-kicker,
+html body main.app > .session-card .session-top .section-kicker,
+html body main.app > .calc-card > .card-heading .section-kicker,
+html body main.app > .history-card .fold-heading .section-kicker,
+html body main.app > .sessions-history-card .fold-heading .section-kicker,
+html body main.app > .basket-card .fold-heading .section-kicker,
+html body main.app > .backup-card .fold-heading .section-kicker{
+ color:#73818a!important;
+}
