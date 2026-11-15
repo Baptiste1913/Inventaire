@@ -1,7 +1,7 @@
 {
-  "version": "37.79",
+  "version": "37.80",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1225736,
-  "notes": "Accueil entièrement repensé en mini-tableau de bord : information officielle à la une, deux indicateurs compacts côte à côte, bouton de liste turquoise, séparateur discret, halos Liquid Glass et microanimations légères. Données et navigation conservées ; cache PWA actualisé."
+  "bytes": 1233535,
+  "notes": "Accueil compact (-15 à 20 % visés), halos U adoucis et animés plus lentement ; transition progressive vers un gris clair sans ligne ; cartes harmonisées, espaces du panneau et sources réduits ; profondeur subtile à l'ouverture du tiroir. Fonctions métier préservées."
 }

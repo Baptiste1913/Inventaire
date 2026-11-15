@@ -23149,7 +23149,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
    Les dégradés CSS sous-jacents assurent le repli si le SVG ne charge pas. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
  background-image:
-  url("./assets/u-aurora.svg?v=37.79"),
+  url("./assets/u-aurora.svg?v=37.80"),
   radial-gradient(ellipse 400px 340px at 25% 335px,rgba(83,192,233,.11),rgba(83,192,233,0) 100%),
   radial-gradient(ellipse 420px 360px at 80% 365px,rgba(100,185,174,.11),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 395px 330px at 53% 405px,rgba(0,117,131,.065),rgba(0,117,131,0) 100%)!important;
@@ -23505,4 +23505,173 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
 }
 @media(forced-colors:active){
  .iu-dash .iu-dash-list-button{background:ButtonFace!important;color:ButtonText!important;-webkit-text-fill-color:ButtonText!important;border:1px solid ButtonText!important;}
+}
+
+/* V37.80 — Accueil resserré, verre blanc, transition vers gris clair.
+   S'applique au bandeau par défaut, sans toucher aux sessions/concentration. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+ background-image:
+  url("./assets/u-aurora.svg?v=37.80"),
+  radial-gradient(ellipse 410px 355px at 24% 325px,rgba(69,184,224,.095),transparent 100%),
+  radial-gradient(ellipse 420px 365px at 81% 350px,rgba(101,182,170,.095),transparent 100%),
+  radial-gradient(ellipse 375px 325px at 54% 378px,rgba(6,130,150,.05),transparent 100%),
+  linear-gradient(180deg,#fff 0%,#fdfefe 320px,#f9fafb 580px,#f7f8fa 810px,#f7f8fa 100%)!important;
+ background-size:100% 650px,auto,auto,auto,100% 100%!important;
+ background-position:center top,center top,center top,center top,center top!important;
+ background-repeat:no-repeat!important;
+ background-color:#f7f8fa!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ padding:13px 14px 12px!important;
+ border-radius:24px!important;
+ background:linear-gradient(128deg,rgba(249,255,255,.77),rgba(255,255,255,.72) 49%,rgba(255,251,252,.78))!important;
+ border:1px solid rgba(255,255,255,.96)!important;
+ box-shadow:0 13px 33px rgba(53,109,129,.07),inset 0 1px rgba(255,255,255,.96)!important;
+ -webkit-backdrop-filter:blur(27px) saturate(112%)!important;
+ backdrop-filter:blur(27px) saturate(112%)!important;
+}
+.iu-dash .iu-dash-head{gap:7px!important;}
+.iu-dash .iu-dash-heading{gap:2px!important;}
+.iu-dash .iu-dash-heading h3{
+ font-size:clamp(19px,4.9vw,22px)!important;
+ line-height:1.14!important;
+}
+.iu-dash .iu-market-eyebrow{font-size:9.5px!important;line-height:1.2!important;}
+.iu-dash .iu-dash-tag{
+ font-size:9.5px!important;
+ padding:5px 8px!important;
+ line-height:1.2!important;
+ border-radius:100px!important;
+}
+.iu-dash .iu-dash-feature{
+ margin-top:9px!important;
+ padding:9px 10px!important;
+ min-height:59px!important;
+ gap:9px!important;
+ border-radius:15px!important;
+ border:1px solid rgba(255,255,255,.92)!important;
+ background:rgba(255,255,255,.74)!important;
+ box-shadow:0 3px 12px rgba(35,88,104,.045),inset 0 1px rgba(255,255,255,.94)!important;
+}
+.iu-dash .iu-dash-feature-icon{
+ flex:0 0 31px!important;
+ width:31px!important;
+ height:31px!important;
+ border-radius:10px!important;
+}
+.iu-dash .iu-dash-feature-icon svg{width:19px!important;height:19px!important;}
+.iu-dash .iu-dash-feature-content{gap:1px!important;}
+.iu-dash .iu-dash-feature-kicker{font-size:9.5px!important;line-height:1.2!important;}
+.iu-dash .iu-dash-feature-content strong{
+ font-size:13.5px!important;
+ line-height:1.2!important;
+}
+.iu-dash .iu-dash-feature-summary{
+ font-size:10.5px!important;
+ line-height:1.25!important;
+ -webkit-line-clamp:1!important;
+}
+.iu-dash .iu-dash-feature-arrow{font-size:23px!important;}
+.iu-dash .iu-dash-grid{margin-top:7px!important;gap:8px!important;}
+.iu-dash .iu-dash-panel,.iu-dash .iu-dash-panel-recall{
+ min-height:70px!important;
+ padding:9px 10px!important;
+ gap:0!important;
+ border-radius:15px!important;
+ background:rgba(255,255,255,.90)!important;
+ border:1px solid rgba(255,255,255,.96)!important;
+ box-shadow:0 3px 12px rgba(37,82,98,.045),inset 0 1px rgba(255,255,255,.96)!important;
+}
+.iu-dash .iu-dash-panel-top{gap:6px!important;}
+.iu-dash .iu-dash-panel-icon{width:23px!important;height:23px!important;flex:0 0 23px!important;border-radius:8px!important;}
+.iu-dash .iu-dash-panel-icon svg{width:14px!important;height:14px!important;}
+.iu-dash .iu-dash-panel-top strong{
+ font-size:10.6px!important;
+ line-height:1.23!important;
+ font-weight:750!important;
+}
+.iu-dash .iu-dash-counter{
+ margin:5px 0 0!important;
+ gap:5px!important;
+}
+.iu-dash .iu-dash-counter strong{font-size:22px!important;}
+.iu-dash .iu-dash-counter span{font-size:9.5px!important;}
+.iu-dash .iu-dash-details{margin:7px 0 0!important;}
+.iu-dash .iu-dash-list-button{
+ min-height:38px!important;
+ margin:0!important;
+ padding:8px 11px!important;
+ border-radius:13px!important;
+ font-size:12.5px!important;
+ box-shadow:0 4px 13px rgba(10,112,123,.13),inset 0 1px rgba(255,255,255,.25)!important;
+ transition:background .34s ease,box-shadow .34s ease,border-color .34s ease!important;
+}
+.iu-dash .iu-dash-list-chevron{width:16px!important;height:16px!important;flex-basis:16px!important;}
+.iu-dash .iu-dash-footer{
+ margin-top:5px!important;
+ padding-top:6px!important;
+ gap:6px!important;
+ border-top:1px solid rgba(255,255,255,.5)!important;
+}
+.iu-dash .iu-dash-footer #iuMarketFoot{font-size:9px!important;line-height:1.25!important;}
+.iu-dash .iu-dash-links{gap:8px!important;}
+.iu-dash .iu-dash-links a{font-size:9px!important;line-height:1.25!important;}
+/* Un fin brouillard remplace entièrement l'ancienne ligne lumineuse. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition{
+ width:calc(100% - 52px)!important;
+ height:18px!important;
+ flex-basis:18px!important;
+ margin:-2px auto -6px!important;
+ background:transparent!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition::before{
+ display:none!important;
+ content:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition::after{
+ inset:-8px 6% -13px!important;
+ border-radius:50%!important;
+ background:radial-gradient(ellipse at 50% 38%,rgba(60,171,179,.09),rgba(205,229,231,.055) 45%,transparent 80%)!important;
+ filter:blur(13px)!important;
+}
+/* Langage visuel uniforme sur les cartes d'accueil sans modifier leurs pages ouvertes. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) .app > :is(#planningAdminCard,#accountCard,#inventoryCalendar){
+ border-radius:24px!important;
+ border:1px solid rgba(255,255,255,.80)!important;
+ box-shadow:0 12px 30px rgba(46,77,91,.052),inset 0 1px rgba(255,255,255,.8)!important;
+}
+/* Impression de profondeur lorsque le tiroir se déploie. */
+.iu-dash .iu-dash-drawer > .iu-dash-detail-content{
+ transform:translateY(-4px) scale(.997)!important;
+ transform-origin:top center!important;
+ box-shadow:0 3px 13px rgba(45,90,105,.045),inset 0 1px rgba(255,255,255,.94)!important;
+ transition:transform .40s cubic-bezier(.22,1,.36,1),box-shadow .40s ease!important;
+}
+.iu-dash .iu-dash-details.is-open .iu-dash-drawer > .iu-dash-detail-content{
+ transform:translateY(0) scale(1)!important;
+ box-shadow:0 9px 23px rgba(39,90,110,.09),inset 0 1px rgba(255,255,255,.96)!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{padding:12px!important;}
+ .iu-dash .iu-dash-feature{padding:9px!important;gap:8px!important;}
+ .iu-dash .iu-dash-feature-content strong{font-size:13px!important;}
+ .iu-dash .iu-dash-panel{min-height:69px!important;padding:8px!important;}
+ .iu-dash .iu-dash-panel-top strong{font-size:10px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ .iu-dash .iu-dash-drawer > .iu-dash-detail-content,
+ .iu-dash .iu-dash-list-button{transition:none!important;transform:none!important;}
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+  background:rgba(255,255,255,.97)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+  background-image:none!important;
+  background-color:Canvas!important;
+ }
 }

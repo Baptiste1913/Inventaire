@@ -11,31 +11,31 @@
   </filter>
  </defs>
  <style>
-  /* V37.78 — Mouvement lent et léger des seuls halos, sans JavaScript.
+  /* V37.80 — Mouvement lent et léger des seuls halos, sans JavaScript.
      Le rendu fixe reste disponible sur Safari sans animation CSS SVG. */
-  .iu-blue{animation:iu-drift-blue 25s ease-in-out infinite alternate;}
-  .iu-mint{animation:iu-drift-mint 29s ease-in-out infinite alternate;}
-  .iu-deep{animation:iu-drift-deep 32s ease-in-out infinite alternate;}
-  .iu-red{animation:iu-drift-red 26s ease-in-out infinite alternate;}
+  .iu-blue{animation:iu-drift-blue 37s ease-in-out infinite alternate;}
+  .iu-mint{animation:iu-drift-mint 42s ease-in-out infinite alternate;}
+  .iu-deep{animation:iu-drift-deep 46s ease-in-out infinite alternate;}
+  .iu-red{animation:iu-drift-red 40s ease-in-out infinite alternate;}
   @keyframes iu-drift-blue{
    0%{transform:translate(0,0);}
-   50%{transform:translate(23px,-15px);}
-   100%{transform:translate(-17px,14px);}
+   50%{transform:translate(16px,-11px);}
+   100%{transform:translate(-11px,9px);}
   }
   @keyframes iu-drift-mint{
    0%{transform:translate(0,0);}
-   50%{transform:translate(-23px,14px);}
-   100%{transform:translate(14px,-15px);}
+   50%{transform:translate(-17px,11px);}
+   100%{transform:translate(10px,-10px);}
   }
   @keyframes iu-drift-deep{
    0%{transform:translate(0,0);}
-   50%{transform:translate(17px,20px);}
-   100%{transform:translate(-18px,-13px);}
+   50%{transform:translate(12px,13px);}
+   100%{transform:translate(-12px,-9px);}
   }
   @keyframes iu-drift-red{
    0%{transform:translate(0,0);opacity:.84;}
-   50%{transform:translate(19px,-12px);opacity:1;}
-   100%{transform:translate(-13px,12px);opacity:.82;}
+   50%{transform:translate(14px,-9px);opacity:1;}
+   100%{transform:translate(-10px,9px);opacity:.82;}
   }
   @media (prefers-reduced-motion: reduce){
    .iu-blue,.iu-mint,.iu-deep,.iu-red{animation:none!important;}
