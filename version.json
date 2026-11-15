@@ -1,7 +1,7 @@
 {
-  "version": "37.65",
+  "version": "37.66",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1180031,
-  "notes": "Veille de marché enrichie : disponibilités signalées officiellement par FranceAgriMer (distinctes des pénuries), restrictions d'eau VigiEau dans l'Aube, rappels RappelConso conservés, affichage de deux catégories prioritaires et sources datées. Aucune pénurie inventée."
+  "bytes": 1185545,
+  "notes": "Tableau de bord compact avec approvisionnement général et rappels magasins U. Filtrage officiel par distributeurs explicitement U, autres enseignes exclues ; détails repliables, données sourcées, pénuries non inférées et restrictions d’eau locales retirées du tableau."
 }

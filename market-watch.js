@@ -1,177 +1,159 @@
-/* V37.65 — Veille de marché : uniquement événements vérifiables et récents.
-   Les pénuries ne sont jamais inférées d'une variation de prix. */
+/* V37.66 — Tableau de bord : approvisionnement France et rappels explicitement U. */
 (function(){
 'use strict';
-const box=document.getElementById('iuMarketWidget');
-const list=document.getElementById('iuMarketList');
-const headline=document.getElementById('iuMarketHeadline');
-const pill=document.getElementById('iuMarketBadge');
-const foot=document.getElementById('iuMarketFoot');
-const extra=document.getElementById('iuMarketMore');
-const extraList=document.getElementById('iuMarketMoreItems');
-if(!box||!list||!headline||!pill||!foot||!extra||!extraList)return;
-const DAY=86400000,now=Date.now(),WINDOW=10;
-const cacheKey='iu_market_watch_last_verified_v2';
-const trustedUrl=(value,type)=>{
+const byId=id=>document.getElementById(id);
+if(!byId('iuMarketWidget'))return;
+const ui={
+ supplyCount:byId('iuSupplyCount'),supplyPreview:byId('iuSupplyPreview'),
+ recallCount:byId('iuRecallCount'),recallPreview:byId('iuRecallPreview'),
+ supplyList:byId('iuSupplyList'),recallList:byId('iuRecallList'),
+ foot:byId('iuMarketFoot')
+};
+const DAY=86400000,LOCAL='iu_market_dashboard_u_v1';
+const API='https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/records';
+const text=(v,max=150)=>String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,max);
+const recent=(date,days)=>{
+ const stamp=Date.parse(String(date||'')),now=Date.now();
+ return Number.isFinite(stamp)&&stamp>=now-days*DAY&&stamp<=now+DAY;
+};
+const frDate=v=>{
+ const d=new Date(v);
+ return Number.isFinite(d.getTime())?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
+};
+function validUrl(link,type){
  try{
-  const url=new URL(value);
-  if(url.protocol!=='https:')return null;
+  const u=new URL(link);
   const hosts=type==='recall'?['rappel.conso.gouv.fr']:
-   type==='price'?['agridata.ec.europa.eu','rnm.franceagrimer.fr']:
-   type==='water'?['vigieau.gouv.fr','www.vigieau.gouv.fr']:
-   ['franceagrimer.fr','www.franceagrimer.fr','agriculture.gouv.fr','www.agriculture.gouv.fr','draaf.grand-est.agriculture.gouv.fr'];
-  return hosts.includes(url.hostname)?url.href:null;
+   ['www.franceagrimer.fr','franceagrimer.fr','agridata.ec.europa.eu','rnm.franceagrimer.fr'];
+  return u.protocol==='https:'&&hosts.includes(u.hostname)?u.href:null;
  }catch(_){return null;}
-};
-const stamp=x=>{const time=Date.parse(String(x||''));return Number.isFinite(time)?time:NaN;};
-const fresh=(x,days=WINDOW)=>{const t=stamp(x);return Number.isFinite(t)&&t<=now+DAY&&t>=now-days*DAY;};
-const txt=(x,max=110)=>String(x==null?'':x).replace(/\s+/g,' ').trim().slice(0,max);
-const status={
- recalls:false,prices:false,shortages:false,supply:false,water:false
-};
-const node=(tag,cls,value)=>{
- const el=document.createElement(tag);
- if(cls)el.className=cls;
- if(value!=null)el.textContent=value;
- return el;
-};
-const dateFr=value=>{const d=new Date(value);return Number.isFinite(d.getTime())?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';};
-function normalize(items,kind){
- if(!Array.isArray(items))return [];
- return items.filter(x=>x&&typeof x==='object'&&x.type===kind&&fresh(x.date,kind==='supply'?35:kind==='water'?2:WINDOW)&&trustedUrl(x.url,kind)&&txt(x.title)).map(x=>{
-   const url=trustedUrl(x.url,kind);
-   const change=Number(x.change);
-   if(kind==='price'&&(!Number.isFinite(change)||Math.abs(change)<20))return null;
-   return {type:kind,title:txt(x.title,85),desc:txt(x.description,140),date:x.date,
-     url,change:kind==='price'?change:0,id:txt(x.id||x.url,220),label:txt(x.label,24)};
- }).filter(Boolean);
 }
-function itemView(x){
- const a=node('a','iu-market-item iu-market-item-'+x.type);
+function isU(distributors){
+ const value=text(distributors,1700).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ');
+ const patterns=[
+  /\b(?:super|hyper|systeme|cooperative)\s*[- ]?\s*u\b/,
+  /\bu\s*[- ]?\s*(?:express|drive|enseigne)\b/,
+  /\b(?:magasins?|enseignes?)\s+(?:de\s+|du\s+reseau\s+)?u\b/,
+  /\b(?:reseau|reseaux)\s+(?:des?\s+)?(?:magasins?\s+)?u\b/,
+  /\bmagasins?\s+utile\b/
+ ];
+ return patterns.some(p=>p.test(value))||value.split(/[,;|¤\n]/).some(v=>v.trim()==='u');
+}
+function entry(obj,type,days){
+ if(!obj||obj.type!==type||!recent(obj.date,days))return null;
+ const url=validUrl(obj.url,type),title=text(obj.title,105);
+ if(!url||!title)return null;
+ if(type==='recall'&&!isU(obj.distributors))return null;
+ const value=Number(obj.change);
+ if(type==='price'&&(!Number.isFinite(value)||Math.abs(value)<20))return null;
+ return {type,id:text(obj.id||url,220),title,description:text(obj.description,160),
+  date:obj.date,url,label:text(obj.label,35),change:value};
+}
+function element(tag,cls,content){
+ const e=document.createElement(tag);
+ if(cls)e.className=cls;
+ if(content!=null)e.textContent=content;
+ return e;
+}
+function alertLink(x){
+ const a=element('a','iu-dash-alert iu-dash-alert-'+x.type);
  a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';
- const symbol=node('span','iu-market-symbol',x.type==='recall'?'!':x.type==='shortage'?'!':x.type==='water'?'◉':x.type==='supply'?'↘':'↗');
- symbol.setAttribute('aria-hidden','true');
- const body=node('span','iu-market-item-copy');
- body.append(node('strong','',x.title),node('small','',((x.desc||'')+' · '+dateFr(x.date)).replace(/^ · /,'').trim()));
- const chip=node('span','iu-market-chip',
-   x.type==='price'?(x.change>0?'+':'')+new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(x.change)+' %':
-   x.type==='recall'?'Rappel':x.type==='supply'?(x.label||'Offre réduite'):x.type==='water'?'Eau':'Pénurie');
- a.append(symbol,body,chip);
- const sr=node('span','iu-market-sr','Ouvrir la source officielle · '+dateFr(x.date));
- a.append(sr);
+ const body=element('span','iu-dash-alert-copy');
+ body.append(element('strong','',x.title),element('small','',x.description+' · '+frDate(x.date)));
+ const tag=x.type==='recall'?'Rappel U':x.type==='price'?
+  (x.change>0?'+':'')+x.change.toLocaleString('fr-FR',{maximumFractionDigits:1})+' %':x.label||'Offre réduite';
+ a.append(body,element('span','iu-dash-alert-type',tag));
+ a.setAttribute('aria-label',x.title+' · '+tag+' · Source officielle');
  return a;
 }
-function show(data,available){
- list.replaceChildren();extraList.replaceChildren();extra.hidden=true;
- const alerts=[
-  ...normalize(data.recalls,'recall'),
-  ...normalize(data.shortages,'shortage'),
-  ...normalize(data.supply,'supply'),
-  ...normalize(data.water,'water'),
-  ...normalize(data.prices,'price')
- ].sort((a,b)=>{
-  const priority={recall:0,shortage:1,supply:2,price:3,water:4};
-  return priority[a.type]-priority[b.type]||stamp(b.date)-stamp(a.date);
+function unique(items){
+ const ids=new Set();
+ return items.filter(x=>{
+  const id=x.type+':'+x.id;
+  if(ids.has(id))return false;
+  ids.add(id);return true;
  });
- // Limiter les doublons de fiches, pas les vraies alertes distinctes.
- const seen=new Set();const items=alerts.filter(x=>{
-  const key=x.type+':'+x.id;
-  if(seen.has(key))return false;
-  seen.add(key);return true;
- });
- const recentChecks=(data.checks&&typeof data.checks==='object')?data.checks:{};
- status.recalls=fresh(recentChecks.recalls,3);
- status.prices=fresh(recentChecks.prices,3);
- status.shortages=fresh(recentChecks.shortages,3);
- status.supply=fresh(recentChecks.supply,4);
- status.water=fresh(recentChecks.water,2);
- if(items.length){
-   headline.textContent='À surveiller dans le rayon';
-   pill.textContent=items.length+' info'+(items.length>1?'s':'');
-   pill.classList.add('has-alerts');
-   // Montrer la première alerte et une autre catégorie s'il en existe une.
-   const lead=items[0],other=items.find(x=>x.type!==lead.type);
-   const visible=other?[lead,other]:items.slice(0,2);
-   const remaining=items.filter(x=>!visible.includes(x));
-   visible.forEach(x=>list.append(itemView(x)));
-   if(remaining.length){
-     extra.hidden=false;
-     extra.querySelector('summary').textContent='Voir '+remaining.length+' autre'+(remaining.length>1?'s':'')+' information'+(remaining.length>1?'s':'');
-     remaining.slice(0,10).forEach(x=>extraList.append(itemView(x)));
-   }
- }else{
-   pill.classList.remove('has-alerts');pill.textContent='Veille';
-   headline.textContent='Actualité du rayon';
-   let message='Aucune alerte récente confirmée dans les sources vérifiées.';
-   if(!status.recalls&&!status.prices)message='Aucune donnée récente vérifiable pour le moment.';
-   list.append(node('p','iu-market-empty',message));
- }
- const caveats=[];
- if(!status.recalls)caveats.push('rappels non actualisés');
- if(!status.prices)caveats.push('cours non actualisés');
- if(!status.supply)caveats.push('offre non actualisée');
- if(!status.water)caveats.push('risque sécheresse non actualisé');
- // Il n'existe pas de flux attestant en temps réel les ruptures des rayons.
- foot.textContent=caveats.length?'Vérification limitée : '+caveats.join(' · '):'Sources officielles vérifiées récemment';
- if(!available&&!items.length)foot.textContent='Connexion nécessaire pour actualiser la veille.';
 }
-function loadLocal(){
- try{return JSON.parse(localStorage.getItem(cacheKey)||'null');}catch(_){return null;}
+function display(data,connected){
+ const checks=data.checks&&typeof data.checks==='object'?data.checks:{};
+ const supplies=unique([
+  ...(Array.isArray(data.supply)?data.supply:[]).map(x=>entry(x,'supply',35)),
+  ...(Array.isArray(data.prices)?data.prices:[]).map(x=>entry(x,'price',10))
+ ].filter(Boolean)).sort((a,b)=>Date.parse(b.date)-Date.parse(a.date));
+ const recalls=unique((Array.isArray(data.recalls)?data.recalls:[])
+  .map(x=>entry(x,'recall',10)).filter(Boolean))
+  .sort((a,b)=>Date.parse(b.date)-Date.parse(a.date));
+ const supplyOK=recent(checks.supply,6)||recent(checks.prices,4);
+ const recallOK=recent(checks.recalls,3);
+ ui.supplyCount.textContent=supplies.length?String(supplies.length):supplyOK?'0':'—';
+ ui.recallCount.textContent=recalls.length?String(recalls.length):recallOK?'0':'—';
+ ui.supplyPreview.textContent=supplies.length?
+  supplies[0].title+' · '+(supplies[0].label||'variation du marché'):
+  supplyOK?'Aucun signal récent relevé':'Données de marché à vérifier';
+ ui.recallPreview.textContent=recalls.length?recalls[0].title:
+  recallOK?'Aucun rappel U identifié':'Vérification des distributeurs…';
+ ui.supplyList.replaceChildren();ui.recallList.replaceChildren();
+ if(supplies.length)supplies.slice(0,12).forEach(x=>ui.supplyList.append(alertLink(x)));
+ else ui.supplyList.append(element('p','iu-dash-empty',
+  supplyOK?'Aucun signal récent relevé dans les sources vérifiées.':'Source approvisionnement non actualisée.'));
+ if(!recent(checks.prices,4))ui.supplyList.append(element('p','iu-dash-source-note','Cotations de prix indisponibles pour le moment.'));
+ if(recalls.length)recalls.slice(0,12).forEach(x=>ui.recallList.append(alertLink(x)));
+ else ui.recallList.append(element('p','iu-dash-empty',
+  recallOK?'Aucun rappel mentionnant explicitement les enseignes U dans les fiches récentes vérifiées.':'Recherche de rappels U non actualisée.'));
+ const dates=[checks.supply,checks.recalls].filter(Boolean).map(Date.parse).filter(Number.isFinite);
+ const label=dates.length?'Contrôlé le '+frDate(Math.max(...dates)):'Sources officielles';
+ const limits=[];
+ if(!supplyOK)limits.push('offre à actualiser');
+ if(!recallOK)limits.push('rappels U à actualiser');
+ ui.foot.textContent=label+(limits.length?' · '+limits.join(' · '):' · FranceAgriMer et RappelConso');
+ if(!connected&&!dates.length)ui.foot.textContent='Connexion nécessaire pour actualiser.';
 }
-function saveLocal(data){
- try{localStorage.setItem(cacheKey,JSON.stringify(data));}catch(_){}
+function cached(){
+ try{return JSON.parse(localStorage.getItem(LOCAL)||'null');}catch(_){return null;}
 }
-function liveRecalls(){
- const base='https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/records';
- const url=new URL(base);
+function save(data){
+ try{localStorage.setItem(LOCAL,JSON.stringify(data));}catch(_){}
+}
+async function fallback(){
+ const url=new URL(API);
  url.searchParams.set('where','sous_categorie_produit = "fruits et légumes"');
  url.searchParams.set('order_by','date_publication DESC');
- url.searchParams.set('limit','70');
- return fetch(url.toString(),{cache:'no-store',mode:'cors'}).then(r=>{
-   if(!r.ok)throw new Error('RappelConso '+r.status);
-   return r.json();
- }).then(data=>{
-   if(!Array.isArray(data.results))throw new Error('Format RappelConso inattendu');
-   const seen=new Set(),result=[];
-   for(const row of data.results){
-     if(!row||String(row.sous_categorie_produit||'').toLowerCase()!=='fruits et légumes'||!fresh(row.date_publication))continue;
-     const id=txt(row.numero_fiche||row.rappel_guid||row.id,120);
-     const url=trustedUrl(row.lien_vers_la_fiche_rappel,'recall');
-     const title=txt(row.libelle||row.modeles_ou_references,85);
-     if(!url||!title||!id||seen.has(id))continue;
-     seen.add(id);
-     result.push({type:'recall',id,title,
-       description:txt([row.marque_produit,row.risques_encourus||row.motif_rappel].filter(Boolean).join(' · '),140),
-       date:row.date_publication,url});
-   }
-   return result;
- });
+ url.searchParams.set('limit','100');
+ const response=await fetch(url.toString(),{cache:'no-store',mode:'cors'});
+ if(!response.ok)throw Error('RappelConso indisponible');
+ const json=await response.json();
+ if(!Array.isArray(json.results))throw Error('Format inattendu');
+ return json.results.filter(x=>x&&recent(x.date_publication,10)&&isU(x.distributeurs))
+  .map(x=>({
+   type:'recall',id:text(x.numero_fiche||x.rappel_guid||x.id,120),
+   title:text(x.libelle||x.modeles_ou_references,105),
+   description:text([x.marque_produit,x.risques_encourus||x.motif_rappel].filter(Boolean).join(' · '),160),
+   date:x.date_publication,url:validUrl(x.lien_vers_la_fiche_rappel,'recall'),
+   distributors:x.distributeurs,uConfirmed:true
+  })).filter(x=>x.url&&x.id&&x.title);
 }
-async function load(){
- const local=loadLocal();
- if(local)show(local,false);
+let last=0;
+async function refresh(){
+ if(Date.now()-last<60000)return;
+ last=Date.now();
+ const previous=cached();
+ if(previous)display(previous,false);
  try{
-   const resp=await fetch('./market-watch.json?fresh='+Math.floor(Date.now()/600000),{cache:'no-store'});
-   if(!resp.ok)throw Error('Fichier de veille indisponible');
-   const value=await resp.json();
-   if(!value||value.schema!==1||!Array.isArray(value.recalls)||!Array.isArray(value.prices))throw Error('Structure incorrecte');
-   const merged={...value,checks:value.checks||{}};
-   // Avant la première collecte serveur, essayer l'API publique directement.
-   if(!fresh(merged.checks.recalls,3)){
-     try{
-       merged.recalls=await liveRecalls();
-       merged.checks.recalls=new Date().toISOString();
-     }catch(_){}
-   }
-   show(merged,true);saveLocal(merged);
+  const r=await fetch('./market-watch.json?fresh='+Math.floor(Date.now()/600000),{cache:'no-store'});
+  if(!r.ok)throw Error('veille HTTP '+r.status);
+  const data=await r.json();
+  if(!data||data.schema!==1||!Array.isArray(data.recalls)||!Array.isArray(data.supply))throw Error('Données invalides');
+  data.checks=data.checks||{};
+  if(!recent(data.checks.recalls,3)){
+   try{data.recalls=await fallback();data.checks.recalls=new Date().toISOString();}catch(_){}
+  }
+  display(data,true);save(data);
  }catch(_){
-   if(!local){
-     const data={schema:1,recalls:[],prices:[],shortages:[],checks:{}};
-     try{data.recalls=await liveRecalls();data.checks.recalls=new Date().toISOString();show(data,true);saveLocal(data);}
-     catch(__){show(data,false);}
-   }
+  if(!previous)display({supply:[],prices:[],recalls:[],checks:{}},false);
  }
 }
-load();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-now>20*60*1000)load();});
+refresh();
+document.addEventListener('visibilitychange',()=>{
+ if(!document.hidden&&Date.now()-last>20*60000)refresh();
+});
 })();

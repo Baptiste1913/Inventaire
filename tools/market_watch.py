@@ -68,21 +68,52 @@ def valid_url(value, host):
     except ValueError:
         return False
 
+
+def is_u_distributor(value):
+    """Vérifier une référence explicite au réseau U, jamais « toutes GMS »."""
+    import unicodedata
+    if not isinstance(value, str):
+        return False
+    plain = "".join(c for c in unicodedata.normalize("NFKD", value)
+                    if not unicodedata.combining(c)).casefold()
+    plain = re.sub(r"\s+", " ", plain)
+    patterns = (
+        r"\b(?:super|hyper|systeme|cooperative)\s*[- ]?\s*u\b",
+        r"\bu\s*[- ]?\s*(?:express|drive|enseigne)\b",
+        r"\b(?:magasins?|enseignes?)\s+(?:de\s+|du\s+reseau\s+)?u\b",
+        r"\b(?:reseau|reseaux)\s+(?:des?\s+)?(?:magasins?\s+)?u\b",
+        r"\bmagasins?\s+utile\b"
+    )
+    return any(re.search(expr, plain) for expr in patterns) or any(
+        part.strip() == "u" for part in re.split(r"[,;|¤\n]", plain))
+
+
 def recall_feed():
-    payload = get_json(RECALL_API, {
-        "where": 'sous_categorie_produit = "fruits et légumes"',
-        "order_by": "date_publication DESC",
-        "limit": "70"
-    })
-    rows = payload.get("results")
-    if not isinstance(rows, list):
-        raise ValueError("Structure API rappels non reconnue")
+    rows_all = []
+    for offset in (0, 100, 200):
+        payload = get_json(RECALL_API, {
+            "where": 'sous_categorie_produit = "fruits et légumes"',
+            "order_by": "date_publication DESC",
+            "limit": 100, "offset": offset
+        })
+        rows = payload.get("results")
+        if not isinstance(rows, list):
+            raise ValueError("Structure API rappels non reconnue")
+        rows_all.extend(rows)
+        if len(rows) < 100:
+            break
+        last = day(rows[-1].get("date_publication"))
+        if last and TODAY - last > dt.timedelta(days=RECALL_DAYS):
+            break
     seen = set()
     alerts = []
-    for row in rows:
+    for row in rows_all:
         if not isinstance(row, dict) or not recent(row.get("date_publication"), RECALL_DAYS):
             continue
         if clean(row.get("sous_categorie_produit")).casefold() != "fruits et légumes":
+            continue
+        distributors = clean(row.get("distributeurs"), 1600)
+        if not is_u_distributor(distributors):
             continue
         identity = clean(row.get("numero_fiche") or row.get("rappel_guid") or row.get("id"))
         if not identity or identity in seen:
@@ -96,17 +127,16 @@ def recall_feed():
         brand = clean(row.get("marque_produit"), 55)
         reason = clean(row.get("risques_encourus") or row.get("motif_rappel"), 135)
         alerts.append({
-            "type": "recall",
-            "id": identity,
-            "title": title,
+            "type": "recall", "id": identity, "title": title,
             "description": (" · ".join(x for x in [brand, reason] if x))[:170],
             "date": day(row["date_publication"]).isoformat(),
-            "url": link,
-            "source": "RappelConso"
+            "url": link, "source": "RappelConso",
+            "distributors": distributors, "uConfirmed": True
         })
         seen.add(identity)
     alerts.sort(key=lambda item: item["date"], reverse=True)
     return alerts[:12]
+
 
 def amount(value):
     if isinstance(value, (int, float)) and math.isfinite(value):
@@ -336,16 +366,16 @@ def main():
     output = {
         "schema": 1,
         "generatedAt": iso_now(),
-        "recalls": existing.get("recalls", []),
+        "recalls": [x for x in existing.get("recalls", []) if isinstance(x, dict) and is_u_distributor(x.get("distributors", ""))],
         "prices": existing.get("prices", []),
         "shortages": [],
         "supply": existing.get("supply", []),
-        "water": existing.get("water", []),
+        "water": [],
         "checks": dict(existing.get("checks") or {}),
     }
     ok = 0
     for name, source in (("recalls", recall_feed), ("prices", price_rows),
-                         ("supply", supply_feed), ("water", water_feed)):
+                         ("supply", supply_feed)):
         try:
             output[name] = source()
             output["checks"][name] = iso_now()
@@ -356,8 +386,9 @@ def main():
     # Les pénuries exigent un constat officiel explicite et daté.
     # Aucun indicateur de prix seul ne permet de déclarer une pénurie.
     output["checks"]["shortages"] = None
+    output["checks"].pop("water", None)
     for name, days in (("recalls", RECALL_DAYS), ("prices", PRICE_DAYS),
-                       ("supply", SUPPLY_DAYS), ("water", 2)):
+                       ("supply", SUPPLY_DAYS)):
         output[name] = [
             item for item in output.get(name, [])
             if isinstance(item, dict) and recent(item.get("date"), days)
