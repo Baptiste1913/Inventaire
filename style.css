@@ -21437,3 +21437,59 @@ html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
   margin-top:15px!important;
  }
 }
+
+
+/* V37.39 — Banderole : largeur visuellement identique à « Accéder aux
+   réglages ». Le bouton Administrateur a un retrait de 31 px de chaque
+   côté (marge carte 13 + bordure 1 + padding 17). L'intro a 24 px de
+   padding desktop / 20 px sur iPhone : compléter par 7/11 px.
+   Ce sélecteur neutralise les très anciennes règles :is() qui
+   forçaient encore width:100% au détriment des retouches précédentes. */
+html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,:active:not(:disabled),:hover:not(:disabled),[aria-disabled="true"],[aria-disabled="false"]){
+ box-sizing:border-box!important;
+ flex:0 0 auto!important;
+ align-self:flex-start!important;
+ width:calc(100% - 14px)!important;
+ min-width:0!important;
+ max-width:calc(100% - 14px)!important;
+ margin-left:7px!important;
+ margin-right:7px!important;
+ padding-inline:12px!important;
+}
+@media(max-width:600px){
+ html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,:active:not(:disabled),:hover:not(:disabled),[aria-disabled="true"],[aria-disabled="false"]){
+  width:calc(100% - 22px)!important;
+  max-width:calc(100% - 22px)!important;
+  margin-left:11px!important;
+  margin-right:11px!important;
+ }
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,:active:not(:disabled),:hover:not(:disabled),[aria-disabled="true"],[aria-disabled="false"]){
+  width:calc(100% - 22px)!important;
+  max-width:calc(100% - 22px)!important;
+  margin-left:11px!important;
+  margin-right:11px!important;
+ }
+}
+/* Le dégradé et les deux contours HTML suivent automatiquement le
+   cadre extérieur du bouton : inset:0 et inset:2.5px déjà existants. */
+html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-arrow-icon{
+ display:inline-flex!important;
+ position:relative!important;
+ z-index:2!important;
+ flex:0 0 auto!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:17px!important;
+ height:18px!important;
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:22px!important;
+ font-weight:600!important;
+ line-height:1!important;
+ color:#28343d!important;
+ -webkit-text-fill-color:#28343d!important;
+ letter-spacing:0!important;
+ white-space:nowrap!important;
+ transform:translateY(-1px)!important;
+}
