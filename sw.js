@@ -1,10 +1,10 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v37-38';
+const CACHE = 'inventaires-u-offline-v37-39';
 const CORE = [
-  './', './index.html', './version.json', './admin-categories.js?v=37.38', './technical-log.js?v=33.93', './update-manager.js?v=37.38', './error-journal.js?v=33.93', './site-operations.js?v=37.38', './push.js?v=33.75', './planning-admin.js?v=37.38', './events-data.js?v=33.19', './events.js?v=37.38', './style.css?v=37.38', './app.js?v=37.38',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=37.38', './manifest.webmanifest?v=37.38', './icon.png?v=37.38',
-  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=37.38', './apple-touch-icon.png?v=37.38', './logo-u.png', './favicon-32.png?v=37.38', './favicon-16.png?v=37.38',
-   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=37.38', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=37.38'
+  './', './index.html', './version.json', './admin-categories.js?v=37.39', './technical-log.js?v=33.93', './update-manager.js?v=37.39', './error-journal.js?v=33.93', './site-operations.js?v=37.39', './push.js?v=33.75', './planning-admin.js?v=37.39', './events-data.js?v=33.19', './events.js?v=37.39', './style.css?v=37.39', './app.js?v=37.39',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=37.39', './manifest.webmanifest?v=37.39', './icon.png?v=37.39',
+  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=37.39', './apple-touch-icon.png?v=37.39', './logo-u.png', './favicon-32.png?v=37.39', './favicon-16.png?v=37.39',
+   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=37.39', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=37.39'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -12,9 +12,9 @@ self.addEventListener('install', event => {
     // V35.67 : protéger les fichiers indispensables sans bloquer toute la
     // mise à jour lorsqu'une image ou une ressource secondaire manque.
     // Ne jamais activer un shell incomplet.
-    const required = ['./index.html', './style.css?v=37.38', './app.js?v=37.38',
-      './update-manager.js?v=37.38', './auth-config.js?v=32.0', './idb.js?v=33.0',
-      './auth.js?v=37.38', './icon.png?v=37.38', './assets/u-inventory-button.svg?v=37.38'];
+    const required = ['./index.html', './style.css?v=37.39', './app.js?v=37.39',
+      './update-manager.js?v=37.39', './auth-config.js?v=32.0', './idb.js?v=33.0',
+      './auth.js?v=37.39', './icon.png?v=37.39', './assets/u-inventory-button.svg?v=37.39'];
     await cache.addAll(required);
     const optional = CORE.filter(path => !required.includes(path));
     await Promise.allSettled(optional.map(async path => {
