@@ -353,17 +353,15 @@ function renderHeroSummary(){
  status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
  const count=session?session.entries.length:0;
  text.textContent=!session?'Aucune session':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
- // Le raccourci de la banderole lance directement l'inventaire ;
- // si une session est en pause il propose de la reprendre, jamais d'en créer une deuxième.
+ // La banderole est un raccourci de navigation vers Ma session :
+ // elle ne démarre, ne reprend et n'interrompt jamais un inventaire.
  const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
  if(heroAction&&heroLabel){
-  heroLabel.textContent=session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire';
-  // Éviter le rendu natif :disabled de Safari iOS (bouton blanc).
-  // Le clic est déjà sans effet lorsque la session est en cours.
+  heroLabel.textContent='Aller à Ma session';
   heroAction.disabled=false;
-  heroAction.setAttribute('aria-disabled',String(Boolean(session&&!session.pausedAt)));
-   // Apparence stable, uniquement gérée par CSS.
-  heroAction.setAttribute('aria-label',(session?.pausedAt?'Reprendre l’inventaire':session?'Inventaire en cours':'Démarrer un inventaire')+' — '+text.textContent);
+  heroAction.setAttribute('aria-disabled','false');
+  heroAction.setAttribute('aria-controls',!session?'startSession':session.pausedAt?'resumeSession':'pauseSession');
+  heroAction.setAttribute('aria-label','Aller à Ma session — '+text.textContent);
  }
 }
 // V33.65 — transition verticale par carte : l'accueil descend du bas vers
@@ -2043,19 +2041,23 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
  if(!card)return;
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
-// V34.45 — Le bouton « Inventaire » déclenche le même parcours que les
-// boutons Ma session : animation d'entrée, contrôle des données et
-// persistance inchangés. Aucun défilement ni changement de focus imposé.
+// V37.40 — La banderole guide vers la commande de Ma session.
+// Défilement natif fluide pour Safari iPhone ; aucun démarrage automatique.
+// En session active, viser la commande visible (Pause/Reprendre).
 (function setupHeroSessionAction(){
  const trigger=$('heroStartSession');
  if(!trigger)return;
  trigger.addEventListener('click',()=>{
   const session=getActiveSession();
-  if(session){
-   if(session.pausedAt)$('resumeSession')?.click();
-   return;
-  }
-  $('startSession')?.click();
+  const target=!session?$('startSession'):session.pausedAt?$('resumeSession'):$('pauseSession');
+  const destination=target&&!target.hidden?target:document.querySelector('.session-card');
+  if(!destination)return;
+  const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  destination.scrollIntoView({
+   behavior:reducedMotion?'auto':'smooth',
+   block:'center',
+   inline:'nearest'
+  });
  });
 })();
 
