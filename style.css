@@ -22346,3 +22346,67 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  .session-card,.calc-card,.history-card,.sessions-history-card,
  .basket-card,#backupCard
 )::after{content:none!important;}
+
+/* V37.62 — Widget de statut Liquid Glass : information uniquement.
+   Conserver les éléments originaux dans le DOM pour la logique de session,
+   mais ne pas dupliquer les commandes et statistiques des cartes dédiées. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{
+ padding:20px 21px 19px!important;
+ border-radius:26px!important;
+ min-height:0!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-stats,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-bottom{
+ display:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-feature{
+ margin-top:22px!important;
+ margin-bottom:0!important;
+ gap:5px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-feature > strong{
+ font-size:clamp(23px,6vw,32px)!important;
+ line-height:1.12!important;
+ letter-spacing:-.65px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-feature > span{
+ font-size:12px!important;
+ margin-top:2px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-status-message{
+ display:flex!important;
+ align-items:center!important;
+ gap:9px!important;
+ margin:17px 0 0!important;
+ padding:13px 0 0!important;
+ border-top:1px solid rgba(255,255,255,.72)!important;
+ font-size:12px!important;
+ font-weight:600!important;
+ line-height:1.45!important;
+ color:#567078!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-status-message::before{
+ content:""!important;
+ display:block!important;
+ width:7px!important;
+ height:7px!important;
+ flex:0 0 7px!important;
+ border-radius:50%!important;
+ background:#078a76!important;
+ box-shadow:0 0 0 4px rgba(7,138,118,.10)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="paused"] .intro-status-message::before{
+ background:#d8a955!important;
+ box-shadow:0 0 0 4px rgba(216,169,85,.12)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="running"] .intro-status-message::before{
+ animation:iu-status-pulse 2s ease-in-out infinite!important;
+}
+@keyframes iu-status-pulse{50%{opacity:.45;transform:scale(.82)}}
+@media(prefers-reduced-motion:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-status-message::before{animation:none!important;}
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{padding:17px!important;}
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-feature{margin-top:17px!important;}
+}
