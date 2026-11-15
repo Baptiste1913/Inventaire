@@ -1,7 +1,7 @@
 {
-  "version": "37.56",
+  "version": "37.57",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1158419,
-  "notes": "Correction du filet blanc des cartes Compte, Événements, Inventaire, Calcul et Données : tracé visible sur toute la bordure haute et gauche, ainsi que sur les autres cartes de l’accueil. Pseudo-élément dédié pour éviter les conflits avec les décorations existantes. Cache PWA mis à jour."
+  "bytes": 1157874,
+  "notes": "Correction du filet blanc sur les neuf cartes de l’accueil : bordure réelle supérieure et gauche plutôt qu’un calque décoratif masqué par Safari. Mise à jour du cache PWA et de la version affichée."
 }
