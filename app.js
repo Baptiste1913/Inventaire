@@ -382,7 +382,7 @@ function renderHeroSummary(){
  status.classList.toggle('is-paused',state==='paused');
  status.classList.remove('is-finished');
  heroSetText('heroStatusText',fields[11]);
- const statusMessage=state==='running'?'Inventaire en cours · Vos pesées sont enregistrées automatiquement.':state==='paused'?'Inventaire en pause · Vos pesées sont conservées.':'Tout est prêt pour votre prochain inventaire.';
+ const statusMessage=state==='running'?'Pesées enregistrées automatiquement':state==='paused'?'Pesées conservées · Reprise disponible':nextDate==='Date à confirmer'?'Date à définir dans Événements':'Prochaine échéance dans votre planning';
  heroSetText('introStatusMessage',statusMessage);
  const ids=['introSmartEyebrow','introSmartHeading','introSmartDescription','introSmartPrimary','introSmartPrimaryCaption','introSmartStat1Label','introSmartStat1','introSmartStat2Label','introSmartStat2','heroActionLabel'];
  ids.forEach((id,i)=>heroSetText(id,fields[i]));

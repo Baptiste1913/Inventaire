@@ -1,7 +1,7 @@
 {
-  "version": "37.62",
+  "version": "37.63",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1161231,
-  "notes": "Banderole de statut façon widget iOS : compacte, Liquid Glass préservé, date et statut contextuel, message dynamique en cours/en pause, sans dupliquer les statistiques ni les boutons des cartes dédiées. Cache PWA actualisé."
+  "bytes": 1165635,
+  "notes": "Banderole de statut enrichie mais compacte : date principale, pastille d’état, deux indicateurs rapides en une seule ligne et message contextuel. Liquid Glass et halos U conservés, aucun bouton dupliqué, états en cours et pause préservés. Cache PWA mis à jour."
 }
