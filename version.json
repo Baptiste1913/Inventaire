@@ -1,7 +1,7 @@
 {
-  "version": "37.85",
+  "version": "37.86",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1269710,
-  "notes": "Veille visible dès l'accueil, suppression de l'ancien en-tête et du pied de page masqués, affichage de la date et de l'heure réelles d'actualisation des données officielles (heure de Paris). Animation de la liste réécrite avec hauteur mesurée pour Safari iPhone, sans double transition de grille. Données et fonctionnalités inchangées."
+  "bytes": 1274103,
+  "notes": "Accueil compact : libellé Approvisionnement affiché sur une seule ligne, chiffres des statistiques agrandis et titres plus discrets ; moins d'espace vertical pour le message de bienvenue ; halos bleus/verts légèrement renforcés dans les angles avec centre clair. Fonctions, veille et animations existantes préservées."
 }
