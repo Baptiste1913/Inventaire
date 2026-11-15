@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-11-15T12:24:52+00:00",
+  "generatedAt": "2026-11-15T12:42:21+00:00",
   "recalls": [],
   "prices": [],
   "shortages": [],
@@ -38,14 +38,9 @@
   ],
   "water": [],
   "checks": {
-    "recalls": null,
+    "recalls": "2026-11-15T12:42:21+00:00",
     "prices": null,
     "shortages": null,
-    "supply": "2026-11-15T12:24:52+00:00",
-    "water": null
-  },
-  "scope": {
-    "recalls": "enseignes U explicites",
-    "supply": "France"
+    "supply": "2026-11-15T12:42:21+00:00"
   }
 }
