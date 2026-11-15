@@ -1,7 +1,7 @@
 {
-  "version": "38.41",
+  "version": "38.42",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Rapprochement effectif du séparateur « Vos services » du bloc de bienvenue avec une marge supérieure négative de 12 px, y compris sur mobile ; cache PWA renouvelé."
+  "notes": "Séparateur Vos services plus discret : texte réduit à 10 px (9 px sur mobile), gris plus clair, graisse allégée et traits à opacité réduite ; cache PWA renouvelé."
 }
