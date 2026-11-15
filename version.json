@@ -1,7 +1,7 @@
 {
-  "version": "38.43",
+  "version": "38.44",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ombre extérieure du bloc de bienvenue atténuée à une opacité de 5,5 %, sans modifier les contours ni les cartes intérieures ; cache PWA renouvelé."
+  "notes": "Ombre extérieure du bloc Bienvenue encore atténuée, opacité de 5,5 % à 2,5 %, contours et autres éléments inchangés. Cache PWA renouvelé."
 }
