@@ -1,7 +1,7 @@
 {
-  "version": "38.12",
+  "version": "38.13",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1390402,
-  "notes": "Correction du voile trop blanc sur les trois cartes de veille : transparence augmentée et flou réduit à 2 px pour rendre les halos animés visibles à travers les cadres sur Safari, en conservant les ombres réduites de 50 %. Cache PWA renouvelé."
+  "bytes": 1393275,
+  "notes": "Veille du rayon : flou des trois cadres rétabli à 8 px, opacité du dégradé réduite de 25 % par rapport à v38.12 pour mieux laisser passer les lumières. Ombres et autres fonctionnalités inchangées. Cache PWA renouvelé."
 }
