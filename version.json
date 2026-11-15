@@ -1,7 +1,7 @@
 {
-  "version": "38.32",
+  "version": "38.33",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Titre Bienvenue réduit à 40 px, avec adaptation aux écrans étroits ; autres styles conservés. Cache PWA renouvelé."
+  "notes": "Correction taille titre accueil : 28 px CSS réels sur iPhone et autres écrans, suppression de la règle responsive contradictoire. Police et sous-titre conservés, cache PWA renouvelé."
 }
