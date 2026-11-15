@@ -1,7 +1,7 @@
 {
-  "version": "38.06",
+  "version": "38.07",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1372733,
-  "notes": "Accueil : bloc Nouvelle pesée harmonisé avec Ma session (dégradé, contour blanc, ombres neumorphiques et coins 20 px). Pseudo-éléments extérieurs neutralisés ; champs, calculs et modes dédiés inchangés. Cache PWA renouvelé."
+  "bytes": 1374978,
+  "notes": "Accueil : Historique des pesées harmonisé avec Ma session (dégradé, bordure blanche, cinq ombres, coins 20 px). Suppression du second fond et des pseudo-éléments du summary ; contenu, commandes et historique inchangés. Cache PWA renouvelé."
 }
