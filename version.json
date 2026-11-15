@@ -1,7 +1,7 @@
 {
-  "version": "37.43",
+  "version": "37.44",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1145006,
-  "notes": "Nouvelle banderole Liquid Glass : quatre grands halos diffus statiques dans la palette U (#53C0E9, #64B9AE, #007583, bleu glacier), derrière une carte blanche translucide à bordure lumineuse et flou modéré compatible Safari iPhone. La carte réunit la prochaine date d’inventaire, les statistiques et le bouton contextuel de la version 37.42, avec les états Avant / En cours / Pause / Bilan et uniquement de vraies données existantes ; calculs, planning partagé et actions inchangés. Affichage mobile compact, préférences de transparence/animation respectées. Références et cache PWA actualisés."
+  "bytes": 1145507,
+  "notes": "Banderole Liquid Glass : grands halos de couleurs étendus sur toute la largeur, centres remontés vers le haut pour éviter leur coupe au bas de la banderole. Les halos bleu #53C0E9, turquoise #64B9AE, bleu-vert #007583 et bleu glacier s'atténuent naturellement grâce à un fondu progressif jusqu'à transparence avant le bord inférieur, sans mouvement permanent. Flou mobile ajusté, carte Liquid Glass, états de session, chiffres réels, navigation et données métier inchangés. Cache et références PWA actualisés."
 }
