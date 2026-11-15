@@ -1060,7 +1060,7 @@ function deleteSession(id){
    $('bilanNotice').textContent='Suppression impossible : stockage local indisponible.';
    return;
  }
- renderSessionsHistory();renderBackupSummary();
+ renderSessionsHistory();renderHeroSummary();renderBackupSummary();
  $('bilanNotice').textContent=`Bilan du ${label} supprimé.`;
  offerUndo('Bilan supprimé.',()=>{
    if(sessions.some(s=>s.id===removed.id))return false;
@@ -1068,7 +1068,7 @@ function deleteSession(id){
    const restored=sessions.slice();restored.splice(Math.min(index,restored.length),0,removed);
    sessions=restored;
    if(!persistSessions()){sessions=before;return false;}
-   renderSessionsHistory();renderBackupSummary();
+   renderSessionsHistory();renderHeroSummary();renderBackupSummary();
    $('bilanNotice').textContent=`Bilan du ${label} restauré.`;
    return true;
  });
@@ -1358,7 +1358,7 @@ $('sessionsToggle').addEventListener('click',()=>animateExpandedList('sessionsHi
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
-setInterval(()=>{if(!document.hidden)renderLiveSessionStats(false);},1000);
+setInterval(()=>{if(!document.hidden){renderLiveSessionStats(false);if(getActiveSession()&&!document.body.classList.contains('is-focus-mode'))renderHeroSummary();}},1000);
 
 $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){$('basketFormError').textContent='Indique un nom et une tare valide en kg (ex. 0.554).';return;}$('basketFormError').textContent='';const next=baskets.map(b=>({...b}));if(editingId){const b=next.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else next.push({id:uid(),name,tare});if(commitBaskets(next)){cancelEdit();$('basketFormError').textContent='';}});
 $('basketName').addEventListener('input',()=>{$('basketFormError').textContent='';});
@@ -2066,26 +2066,40 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
  if(!card)return;
  setupUnifiedFold(card,card.querySelector(':scope > summary'),card.querySelector(`:scope > ${bodySelector}`),'is-detail-closing');
 }
-// V37.40 — La banderole guide vers la commande de Ma session.
-// Défilement natif fluide pour Safari iPhone ; aucun démarrage automatique.
-// En session active, viser la commande visible (Pause/Reprendre).
+// V37.41 — Action adaptée à l'état : naviguer, reprendre ou ouvrir un bilan.
 (function setupHeroSessionAction(){
- const trigger=$('heroStartSession');
- if(!trigger)return;
+ const trigger=$('heroStartSession');if(!trigger)return;
+ const scrollTo=target=>{
+  if(!target)return;
+  const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center',inline:'nearest'});
+ };
  trigger.addEventListener('click',()=>{
   const session=getActiveSession();
-  const target=!session?$('startSession'):session.pausedAt?$('resumeSession'):$('pauseSession');
-  const destination=target&&!target.hidden?target:document.querySelector('.session-card');
-  if(!destination)return;
-  const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  destination.scrollIntoView({
-   behavior:reducedMotion?'auto':'smooth',
-   block:'center',
-   inline:'nearest'
-  });
+  if(session?.pausedAt){$('resumeSession')?.click();return;}
+  if(!session&&latestFinishedInventory()){
+   const card=document.querySelector('.sessions-history-card');if(!card)return;
+   const wasOpen=card.open;
+   if(!wasOpen)card.querySelector(':scope > summary')?.click();
+   window.setTimeout(()=>{
+    const latest=card.querySelector('#sessionsHistoryList .v22-session-item');
+    if(latest&&!latest.open)latest.querySelector(':scope > summary')?.click();
+    scrollTo(latest||card);
+   },wasOpen?130:480);
+   return;
+  }
+  const target=session?$('pauseSession'):$('startSession');
+  scrollTo(target&&!target.hidden?target:document.querySelector('.session-card'));
  });
 })();
-
+// Le planning reste le détenteur de la date, même après une mise à jour cloud.
+(function watchHeroPlanningDate(){
+ const date=$('calendarNextDate'),countdown=$('calendarNextCountdown');
+ if(typeof MutationObserver!=='function'||!date)return;
+ const observer=new MutationObserver(()=>{if(!getActiveSession())renderHeroSummary();});
+ observer.observe(date,{subtree:true,characterData:true,childList:true});
+ if(countdown)observer.observe(countdown,{subtree:true,characterData:true,childList:true,attributes:true,attributeFilter:['hidden']});
+})();
 
 // Détection des changements provenant d'un autre onglet.
 let externalDataChanged=false;
