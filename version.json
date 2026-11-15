@@ -1,7 +1,7 @@
 {
-  "version": "38.31",
+  "version": "38.32",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Titre d’accueil sans majuscules forcées, véritable h2 dédié hors du style eyebrow, très grand (34–48 px) et gras 900 ; correction du problème de rendu signalé sur iPhone. Cache PWA renouvelé."
+  "notes": "Titre Bienvenue réduit à 40 px, avec adaptation aux écrans étroits ; autres styles conservés. Cache PWA renouvelé."
 }
