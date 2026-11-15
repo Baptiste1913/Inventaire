@@ -1,7 +1,7 @@
 {
-  "version": "37.71",
+  "version": "37.72",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1204491,
-  "notes": "Tableau de bord : cadres Approvisionnement, Rappels et bouton de liste sur fond blanc opaque ; informations détaillées réunies dans un petit bloc blanc défilable, avec catégories séparées et contraste renforcé. Animation du tiroir, fonctions et filtres conservés."
+  "bytes": 1206453,
+  "notes": "Fond de l’accueil : halos rose, bleu et émeraude plus saturés, nettement plus étendus et diffus avec disparition progressive dans le blanc. Cartes blanches du tableau de bord, typographie et données inchangées. Adaptation petits écrans et cache PWA actualisé."
 }

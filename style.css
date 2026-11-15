@@ -23140,3 +23140,48 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
   max-height:255px!important;
  }
 }
+
+/* V37.72 — Halos de fond plus saturés et plus diffus.
+   Rouge rosé à gauche, bleu lumineux au centre, vert émeraude à droite.
+   Fonds blancs et textes du tableau de bord inchangés ; dégradés statiques
+   pour ne pas surcharger Safari iPhone / PWA. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+ background-image:
+  radial-gradient(ellipse 248px 215px at 10% 188px,
+   rgba(249,58,98,.68) 0%,
+   rgba(249,58,98,.41) 27%,
+   rgba(249,58,98,.19) 53%,
+   rgba(249,58,98,.055) 79%,
+   rgba(249,58,98,0) 100%),
+  radial-gradient(ellipse 284px 245px at 49% 243px,
+   rgba(45,166,238,.56) 0%,
+   rgba(45,166,238,.34) 32%,
+   rgba(45,166,238,.15) 61%,
+   rgba(45,166,238,.045) 82%,
+   rgba(45,166,238,0) 100%),
+  radial-gradient(ellipse 250px 220px at 89% 208px,
+   rgba(0,149,139,.63) 0%,
+   rgba(0,149,139,.35) 31%,
+   rgba(0,149,139,.16) 60%,
+   rgba(0,149,139,.045) 83%,
+   rgba(0,149,139,0) 100%)!important;
+ background-repeat:no-repeat!important;
+ background-color:#fff!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+  background-image:
+   radial-gradient(ellipse 214px 193px at 12% 177px,
+    rgba(249,58,98,.66) 0%,rgba(249,58,98,.40) 28%,rgba(249,58,98,.17) 56%,rgba(249,58,98,.045) 82%,rgba(249,58,98,0) 100%),
+   radial-gradient(ellipse 250px 213px at 49% 224px,
+    rgba(45,166,238,.54) 0%,rgba(45,166,238,.32) 33%,rgba(45,166,238,.14) 62%,rgba(45,166,238,.04) 84%,rgba(45,166,238,0) 100%),
+   radial-gradient(ellipse 219px 198px at 89% 195px,
+    rgba(0,149,139,.60) 0%,rgba(0,149,139,.34) 32%,rgba(0,149,139,.14) 60%,rgba(0,149,139,.04) 83%,rgba(0,149,139,0) 100%)!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+  background-image:none!important;
+  background-color:Canvas!important;
+ }
+}
