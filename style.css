@@ -22042,3 +22042,61 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .i
   transition:none!important;
  }
 }
+
+
+/* V37.45 — Fonds diffus communs au header et à la banderole.
+   Les halos ne sont PLUS peints dans une section découpée :
+   ils sont trois grandes formes radiales directement sur l'accueil.
+   Chaque teinte se fond en alpha 0 bien avant la zone des cartes,
+   sans masque, sans image rectangulaire et sans fin blanche nette.
+   Couleurs : bleu #53C0E9, vert d'eau #64B9AE, teal #007583. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+ background-image:
+  radial-gradient(ellipse 260px 255px at 18% 132px, rgba(83,192,233,.56) 0%,rgba(83,192,233,.32) 37%,rgba(83,192,233,.11) 66%,rgba(83,192,233,0) 100%),
+  radial-gradient(ellipse 260px 245px at 82% 168px, rgba(100,185,174,.55) 0%,rgba(100,185,174,.32) 39%,rgba(100,185,174,.10) 71%,rgba(100,185,174,0) 100%),
+  radial-gradient(ellipse 292px 230px at 50% 320px, rgba(0,117,131,.25) 0%,rgba(0,117,131,.14) 47%,rgba(0,117,131,.045) 75%,rgba(0,117,131,0) 100%)!important;
+ background-repeat:no-repeat!important;
+ background-color:transparent!important;
+}
+/* Le logo U laisse désormais passer exactement le même fond lumineux.
+   Ni aplat blanc, ni bordure opaque à la jonction header / intro. */
+html body:not(.is-focus-mode) .app > header.header{
+ background:none!important;
+ background-image:none!important;
+ background-color:transparent!important;
+ border-bottom:0!important;
+ box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+/* La section d'accueil ne fait plus écran devant les halos communs.
+   Le verre demeure translucide, les coins, les textes et les états
+   du tableau de bord sont conservés. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+ background:none!important;
+ background-image:none!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+ overflow:visible!important;
+}
+/* Le calque à masque vertical de la v37.44 est abandonné au profit
+   des trois formes radiales naturellement transparentes sur main.app. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-aurora-blobs{
+ display:none!important;
+}
+/* Sur petit écran les halos gardent leurs centres hauts :
+   les dégradés s'estompent avant les cartes sans coupure nette. */
+@media(max-width:380px){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+  background-image:
+   radial-gradient(ellipse 240px 225px at 20% 127px,rgba(83,192,233,.55) 0%,rgba(83,192,233,.29) 41%,rgba(83,192,233,0) 100%),
+   radial-gradient(ellipse 237px 220px at 81% 161px,rgba(100,185,174,.56) 0%,rgba(100,185,174,.29) 43%,rgba(100,185,174,0) 100%),
+   radial-gradient(ellipse 250px 214px at 50% 305px,rgba(0,117,131,.25) 0%,rgba(0,117,131,.11) 54%,rgba(0,117,131,0) 100%)!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > header.header,
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+  background:Canvas!important;
+ }
+}
