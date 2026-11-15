@@ -1,7 +1,7 @@
 {
-  "version": "38.34",
+  "version": "38.35",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour à la ligne naturel du titre Bienvenue : suppression du text-wrap balance qui provoquait une coupure prématurée après « dans ». Taille 28 px inchangée. Cache PWA renouvelé."
+  "notes": "Uniformisation de l’épaisseur des bordures des trois cartes d’information du bloc Bienvenue à 1 px, comme le bouton Accéder aux réglages ; cache PWA renouvelé."
 }
