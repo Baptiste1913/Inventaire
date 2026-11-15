@@ -21564,7 +21564,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart{
  max-height:none!important;
  height:auto!important;
  margin-bottom:8px!important;
- padding:24px 24px 22px!important;
+ padding:18px 24px 16px!important;
  overflow:hidden!important;
  border-radius:0 0 14px 14px!important;
 }
@@ -21576,7 +21576,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart > #intro-title{
  z-index:5!important;
  width:auto!important;
  max-width:calc(100% - 132px)!important;
- margin:0 0 16px!important;
+ margin:0 0 10px!important;
  padding:0!important;
  color:#3f6c75!important;
  -webkit-text-fill-color:#3f6c75!important;
@@ -21602,7 +21602,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart > .intro-smart-co
 }
 html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-eyebrow{
  display:block!important;
- margin:0 0 5px!important;
+ margin:0 0 3px!important;
  color:#4c7580!important;
  font-family:inherit!important;
  font-size:10px!important;
@@ -21615,11 +21615,11 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-head
  display:block!important;
  width:100%!important;
  min-width:0!important;
- margin:0 0 6px!important;
+ margin:0 0 4px!important;
  padding:0!important;
  color:#243a42!important;
  font-family:inherit!important;
- font-size:clamp(21px,4.9vw,27px)!important;
+ font-size:clamp(19px,4.4vw,24px)!important;
  font-weight:880!important;
  line-height:1.17!important;
  letter-spacing:-.7px!important;
@@ -21633,8 +21633,8 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-desc
  margin:0!important;
  padding:0!important;
  color:#506b73!important;
- font-size:12.5px!important;
- line-height:1.45!important;
+ font-size:11.5px!important;
+ line-height:1.35!important;
  font-weight:500!important;
 }
 html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-feature{
@@ -21643,7 +21643,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-feat
  align-items:flex-start!important;
  gap:4px!important;
  min-width:0!important;
- margin:15px 0 13px!important;
+ margin:10px 0 9px!important;
  padding:0!important;
 }
 html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-feature > strong{
@@ -21652,7 +21652,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-feat
  min-width:0!important;
  color:#263b43!important;
  font-family:inherit!important;
- font-size:clamp(20px,5.7vw,30px)!important;
+ font-size:clamp(18px,5.1vw,26px)!important;
  font-weight:900!important;
  line-height:1.14!important;
  letter-spacing:-.65px!important;
@@ -21682,8 +21682,8 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-stat
  align-items:flex-start!important;
  gap:5px!important;
  min-width:0!important;
- min-height:70px!important;
- padding:12px 13px!important;
+ min-height:53px!important;
+ padding:8px 11px!important;
  background:rgba(255,255,255,.48)!important;
  border:1px solid rgba(255,255,255,.62)!important;
  border-radius:14px!important;
@@ -21702,7 +21702,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-stat
  width:100%!important;
  color:#253d43!important;
  font-family:inherit!important;
- font-size:clamp(15px,3.8vw,20px)!important;
+ font-size:clamp(14px,3.4vw,18px)!important;
  font-weight:900!important;
  line-height:1.16!important;
  letter-spacing:-.25px!important;
@@ -21715,7 +21715,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-bottom{
  flex:0 0 auto!important;
  align-items:flex-start!important;
  width:100%!important;
- margin:14px 0 0!important;
+ margin:10px 0 0!important;
  padding:0!important;
  z-index:5!important;
 }
@@ -21788,10 +21788,10 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart > #heroStatus.int
 @media(max-width:600px){
  html body:not(.is-focus-mode) .app > section.intro.intro-smart{
   min-height:0!important;
-  padding:22px 20px 21px!important;
+  padding:17px 20px 15px!important;
  }
  html body:not(.is-focus-mode) .app > section.intro.intro-smart > #intro-title{
-  margin-bottom:15px!important;
+  margin-bottom:10px!important;
  }
  html body:not(.is-focus-mode) .app > section.intro.intro-smart > #heroStatus.intro-session-state{
   top:19px!important;right:16px!important;
@@ -21800,17 +21800,17 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart > #heroStatus.int
 @media(max-width:380px){
  html body:not(.is-focus-mode) .app > section.intro.intro-smart{
   min-height:0!important;
-  padding:20px 19px 19px!important;
+  padding:16px 19px 14px!important;
  }
  html body:not(.is-focus-mode) .app > section.intro.intro-smart > #intro-title{
   max-width:calc(100% - 110px)!important;
  }
  html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-stat{
-  min-height:66px!important;
-  padding:10px!important;
+  min-height:50px!important;
+  padding:8px!important;
  }
  html body:not(.is-focus-mode) .app > section.intro.intro-smart .intro-smart-feature > strong{
-  font-size:20px!important;
+  font-size:18px!important;
  }
  html body:not(.is-focus-mode) .app > section.intro.intro-smart > #heroStatus.intro-session-state{
   top:17px!important;right:12px!important;
@@ -21820,4 +21820,26 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart > #heroStatus.int
  html body:not(.is-focus-mode) .app > section.intro.intro-smart > #heroStatus.intro-session-state > .intro-session-dot{
   animation:none!important;
  }
+}
+
+
+/* V37.42 — L'état Bilan reprend la composition compacte de l'accueil.
+   Le calendrier atteste uniquement les sessions réellement effectuées
+   et n'affiche plus « Terminé » pour une date simplement passée. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart[data-intro-state="finished"] .intro-smart-feature{
+ margin-top:8px!important;
+ margin-bottom:9px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart[data-intro-state="finished"] .intro-smart-feature > strong{
+ font-size:clamp(18px,4.6vw,23px)!important;
+}
+html body.is-events-mode #eventsPage .iu-events-list-row > .iu-events-row-state.is-inventory.is-completed{
+ opacity:1!important;
+ border-color:#b5ddce!important;
+ background:linear-gradient(145deg,#e0f4e9,#d2eddd)!important;
+ color:#11634b!important;
+}
+html body.is-events-mode #eventsPage .iu-events-calendar-day.is-inventory-completed .iu-events-day-ribbon.is-kind-inventory{
+ background:#167d61!important;
+ box-shadow:0 0 0 2px rgba(22,125,97,.17)!important;
 }
