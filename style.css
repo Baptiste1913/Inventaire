@@ -22326,26 +22326,3 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
     rgba(0,117,131,.34) 0%,rgba(0,117,131,.16) 35%,rgba(0,117,131,.06) 58%,rgba(0,117,131,0) 100%)!important;
  }
 }
-
-/* V37.58 — Contraste du filet d'angle sur les cartes de l'accueil.
-   Les surfaces très claires de Compte, Événements, Inventaire, Calcul
-   et Données rendaient le filet blanc presque invisible sur iPhone.
-   On conserve les ombres existantes et on ajoute une discrète ligne de
-   contraste externe pour révéler les deux bords blancs. */
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
- #planningAdminCard,#accountCard,#inventoryCalendar,
- .session-card,.calc-card,.history-card,.sessions-history-card,
- .basket-card,#backupCard
-){
- box-sizing:border-box!important;
- border-top:2px solid rgba(255,255,255,1)!important;
- border-left:2px solid rgba(255,255,255,1)!important;
- outline:1px solid rgba(92,116,134,.18)!important;
- outline-offset:0!important;
-}
-/* Ne pas créer de calque ::after sur les cartes details de Safari. */
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
- #planningAdminCard,#accountCard,#inventoryCalendar,
- .session-card,.calc-card,.history-card,.sessions-history-card,
- .basket-card,#backupCard
-)::after{content:none!important;}

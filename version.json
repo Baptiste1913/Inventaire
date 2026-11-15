@@ -1,7 +1,7 @@
 {
-  "version": "37.58",
+  "version": "37.59",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1158038,
-  "notes": "Filet blanc renforcé et rendu visible sur les cartes claires de l’accueil grâce à un léger contraste périphérique, sans modifier les ombres ni les animations. Cache PWA actualisé."
+  "bytes": 1156834,
+  "notes": "Retrait des contours blancs et des lignes de contraste ajoutés sur les cartes de l’accueil ; styles, ombres et animations d’origine conservés. Cache PWA actualisé."
 }
