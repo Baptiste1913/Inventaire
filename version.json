@@ -1,7 +1,7 @@
 {
-  "version": "38.07",
+  "version": "38.08",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1374978,
-  "notes": "Accueil : Historique des pesées harmonisé avec Ma session (dégradé, bordure blanche, cinq ombres, coins 20 px). Suppression du second fond et des pseudo-éléments du summary ; contenu, commandes et historique inchangés. Cache PWA renouvelé."
+  "bytes": 1379522,
+  "notes": "Accueil : Mes inventaires, Mes paniers et Sauvegarde harmonisés avec Ma session (dégradé, contour blanc, cinq ombres et coins 20 px). Fonds/pseudo-éléments des summaries neutralisés, formulaires et données inchangés. Cache PWA renouvelé."
 }
