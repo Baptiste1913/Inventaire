@@ -1,7 +1,7 @@
 {
-  "version": "38.29",
+  "version": "38.30",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Titre d’accueil rapproché du modèle fourni : graisse noire 900, espacement serré, teinte bleu pétrole, ponctuation finale et petite accroche Fruits et légumes avec pastille verte. Sous-titre inchangé. Cache PWA renouvelé."
+  "notes": "Retour au design de la v38.28, titre de bienvenue en très grand (34–52 px), gras 900 et capitales. Cache PWA renouvelé."
 }
