@@ -1,7 +1,7 @@
 {
-  "version": "38.04",
+  "version": "38.05",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1368591,
-  "notes": "Accueil : Mon compte utilise le même dégradé, bordure blanche, rayon 20 px et ombres que Ma session et Espace administrateur. Fond et coins propres au summary supprimés pour éliminer les doubles contours. Cache PWA renouvelé."
+  "bytes": 1371363,
+  "notes": "Accueil : bloc Événements en novembre harmonisé avec Ma session, Administration et Mon compte : même fond dégradé, contour, ombres et coins de 20 px. Suppression des fonds et pseudo-éléments superposés du bandeau ; carte prochain inventaire et bouton conservés. Cache PWA renouvelé."
 }
