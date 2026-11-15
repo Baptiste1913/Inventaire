@@ -26943,3 +26943,21 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  border:1px solid rgba(255,255,255,.94)!important;
  border-radius:20px!important;
 }
+
+/* V38.17 — Bienvenue : moins d'espace au-dessus, plus en dessous.
+   Seule une ombre douce descendante sous le cadre principal reste visible. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"]{
+ margin-top:-20px!important;
+ padding-bottom:54px!important;
+}
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ box-shadow:0 12px 20px -15px rgba(83,105,121,.32)!important;
+}
+/* Les trois informations conservent leurs contours, leur verre et leur
+   flou 8px, mais n'ont plus d'ombre, de glow ou de reflet interne. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashFeature.iu-dash-feature,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-supply,
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash .iu-dash-panel.iu-dash-panel-recall{
+ box-shadow:none!important;
+ filter:none!important;
+}

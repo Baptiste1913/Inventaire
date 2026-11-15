@@ -1,7 +1,7 @@
 {
-  "version": "38.16",
+  "version": "38.17",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1395470,
-  "notes": "Accueil : suppression du glow et des ombres propres au cadre Bienvenue, tout en conservant son contour blanc, ses coins arrondis et son fond translucide. Halos colorés derrière le bloc inchangés. Cache PWA renouvelé."
+  "bytes": 1396988,
+  "notes": "Bienvenue : espace supérieur réduit de 8 px, inférieur augmenté de 14 px, ombre douce uniquement sous le cadre. Suppression des ombres/glow des trois cartes d'information, en conservant leur fond translucide, le flou 8 px et les contours. Cache PWA renouvelé."
 }
