@@ -1,7 +1,7 @@
 {
-  "version": "37.59",
+  "version": "37.60",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1156834,
-  "notes": "Retrait des contours blancs et des lignes de contraste ajoutés sur les cartes de l’accueil ; styles, ombres et animations d’origine conservés. Cache PWA actualisé."
+  "bytes": 1158616,
+  "notes": "Retour du seul reflet blanc dans le coin supérieur gauche de chacune des neuf cartes de l’accueil, sans contours complets ; contraste discret pour le rendre visible sur les cartes claires."
 }
