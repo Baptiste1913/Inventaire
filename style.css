@@ -22327,37 +22327,22 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  }
 }
 
-/* V37.60 — Coin blanc uniquement, sur les neuf cartes de l'accueil.
-   Le trait de contraste très léger suit le même coin, sans encadrer la carte. */
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(#planningAdminCard,#accountCard,#inventoryCalendar,.session-card,.calc-card,.history-card,.sessions-history-card,.basket-card,#backupCard){
- position:relative!important;
-}
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(#planningAdminCard,#accountCard,#inventoryCalendar,.session-card,.calc-card,.history-card,.sessions-history-card,.basket-card,#backupCard)::after{
- content:""!important;
- display:block!important;
- position:absolute!important;
- top:0!important;
- left:0!important;
- right:auto!important;
- bottom:auto!important;
- width:116px!important;
- height:78px!important;
+/* V37.61 — Rétablissement du rendu V37.58 sans ligne de contraste.
+   Les surfaces très claires de Compte, Événements, Inventaire, Calcul
+   et Données utilisent un filet blanc continu sur les bords haut et gauche.
+   La ligne de contraste externe a été retirée à la demande. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
+ #planningAdminCard,#accountCard,#inventoryCalendar,
+ .session-card,.calc-card,.history-card,.sessions-history-card,
+ .basket-card,#backupCard
+){
  box-sizing:border-box!important;
- border:0!important;
- border-top:2px solid #fff!important;
- border-left:2px solid #fff!important;
- border-top-left-radius:inherit!important;
- border-top-right-radius:0!important;
- border-bottom-left-radius:0!important;
- border-bottom-right-radius:0!important;
- background:transparent!important;
- box-shadow:none!important;
- filter:drop-shadow(0 1px 1px rgba(78,104,123,.22))!important;
- opacity:1!important;
- visibility:visible!important;
- pointer-events:none!important;
- z-index:12!important;
+ border-top:2px solid rgba(255,255,255,1)!important;
+ border-left:2px solid rgba(255,255,255,1)!important;
 }
-@media(max-width:380px){
- html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(#planningAdminCard,#accountCard,#inventoryCalendar,.session-card,.calc-card,.history-card,.sessions-history-card,.basket-card,#backupCard)::after{width:102px!important;height:70px!important;}
-}
+/* Ne pas créer de calque ::after sur les cartes details de Safari. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
+ #planningAdminCard,#accountCard,#inventoryCalendar,
+ .session-card,.calc-card,.history-card,.sessions-history-card,
+ .basket-card,#backupCard
+)::after{content:none!important;}

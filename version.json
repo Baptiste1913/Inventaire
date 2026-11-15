@@ -1,7 +1,7 @@
 {
-  "version": "37.60",
+  "version": "37.61",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1158616,
-  "notes": "Retour du seul reflet blanc dans le coin supérieur gauche de chacune des neuf cartes de l’accueil, sans contours complets ; contraste discret pour le rendre visible sur les cartes claires."
+  "bytes": 1157903,
+  "notes": "Retour au rendu des contours blancs de la version 37.58 sur le haut et le côté gauche de chaque carte de l’accueil, sans la ligne de contraste externe. Aucun autre changement fonctionnel."
 }
