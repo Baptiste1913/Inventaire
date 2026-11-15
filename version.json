@@ -1,7 +1,7 @@
 {
-  "version": "38.33",
+  "version": "38.34",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction taille titre accueil : 28 px CSS réels sur iPhone et autres écrans, suppression de la règle responsive contradictoire. Police et sous-titre conservés, cache PWA renouvelé."
+  "notes": "Retour à la ligne naturel du titre Bienvenue : suppression du text-wrap balance qui provoquait une coupure prématurée après « dans ». Taille 28 px inchangée. Cache PWA renouvelé."
 }
