@@ -1,7 +1,7 @@
 {
-  "version": "38.38",
+  "version": "38.39",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Harmonisation typographique du motif du rappel et des libellés signaux / à vérifier avec le sous-titre des événements : taille 13–15 px, graisse 500, gris bleuté et police système. Cache PWA renouvelé."
+  "notes": "Séparateur discret « Vos services » entre accueil et modules, correction de la balise CSS imbriquée qui empêchait les styles des textes secondaires de s’appliquer, marges du sous-titre réduites. Cache PWA renouvelé."
 }
