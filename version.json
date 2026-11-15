@@ -1,7 +1,7 @@
 {
-  "version": "38.02",
+  "version": "38.03",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1364332,
-  "notes": "Accueil : Ma session et Espace administrateur partagent désormais une règle CSS unique pour le dégradé, le contour blanc arrondi 20 px, les cinq ombres et la suppression des pseudo-éléments qui doublent les coins. Fonctionnalités inchangées ; cache PWA actualisé."
+  "bytes": 1366173,
+  "notes": "Correction du double contour de l'Espace administrateur : suppression du fond opaque et des rayons propres au summary, qui recouvraient le dégradé de la carte parente. Même surface, contour et ombres que Ma session, cache PWA renouvelé."
 }
