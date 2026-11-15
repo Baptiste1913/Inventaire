@@ -21346,46 +21346,53 @@ html body .app > section.intro > img.intro-mascot{
 }
 
 
-/* V37.35 — Positionner le bouton dans la zone bleue, suivant le repère
-   demandé sur la capture. Retirer l'ancrage au bas du feuillet.
-   Style, dimensions, actions et alignement gauche inchangés. */
+/* V37.36 — Bouton placé dans le flux des textes de la banderole.
+   Après le titre et la description dans le DOM, avant le panneau blanc.
+   Les anciennes positions absolues et les marges automatiques sont
+   neutralisées sur toutes les tailles d'écran. */
 html body:not(.is-focus-mode) .app > section.intro{
  margin-bottom:8px!important;
 }
 html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
- position:absolute!important;
- top:188px!important;
+ position:relative!important;
+ inset:auto!important;
+ top:auto!important;
+ right:auto!important;
  bottom:auto!important;
- left:24px!important;
- right:24px!important;
- width:auto!important;
+ left:auto!important;
+ flex:0 0 auto!important;
+ align-self:stretch!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ max-width:100%!important;
  height:auto!important;
- max-width:none!important;
- margin:0!important;
+ margin:18px 0 0!important;
  padding:0!important;
  display:flex!important;
  align-items:flex-start!important;
  justify-content:flex-start!important;
- z-index:4!important;
+ z-index:5!important;
 }
 html body:not(.is-focus-mode) .app > #planningAdminCard.card{
  margin-top:0!important;
 }
 @media(max-width:600px){
  html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
-  top:182px!important;
+  position:relative!important;
+  top:auto!important;
+  right:auto!important;
   bottom:auto!important;
-  left:20px!important;
-  right:20px!important;
-  margin:0!important;
+  left:auto!important;
+  width:100%!important;
+  margin:18px 0 0!important;
   padding:0!important;
  }
 }
 @media(max-width:380px){
  html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
-  top:176px!important;
+  position:relative!important;
+  top:auto!important;
   bottom:auto!important;
-  margin:0!important;
-  padding:0!important;
+  margin:15px 0 0!important;
  }
 }
