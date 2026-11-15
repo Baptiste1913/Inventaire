@@ -1,7 +1,7 @@
 {
-  "version": "38.39",
+  "version": "38.40",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Séparateur discret « Vos services » entre accueil et modules, correction de la balise CSS imbriquée qui empêchait les styles des textes secondaires de s’appliquer, marges du sous-titre réduites. Cache PWA renouvelé."
+  "notes": "Espaces verticaux réduits au-dessus de la carte Poire Santa Maria (marge sous le sous-titre 15→6 px) et au-dessus du séparateur Vos services (26→12 px, mobile 22→10 px). Cache PWA renouvelé."
 }
