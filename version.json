@@ -1,7 +1,7 @@
 {
-  "version": "37.34",
+  "version": "37.35",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1113041,
-  "notes": "Banderole d'accueil : bouton Démarrer recentré verticalement dans le feuillet clair grâce à un positionnement stable et adapté à la hauteur du panneau sur iPhone et petits écrans. Suppression des marges cumulées responsables du décalage. Espace extérieur au-dessus de la carte Administrateur réduit à 8 px, sans changer la taille du bouton, le fond bleu translucide, la mascotte masquée ni les fonctions d'inventaire. Cache PWA renouvelé."
+  "bytes": 1112890,
+  "notes": "Banderole Fruits et Légumes : déplacement du bouton Démarrer un inventaire dans la zone bleue au niveau indiqué, avec positionnement par le haut (188 px sur grand écran, 182 px sur iPhone et 176 px sur petits écrans) au lieu d'un ancrage en bas du feuillet blanc. Hauteur, largeur, contour dégradé, textes, fonctionnement et espacement avant Administrateur inchangés. Cache PWA renouvelé."
 }
