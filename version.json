@@ -1,7 +1,7 @@
 {
-  "version": "37.98",
+  "version": "37.99",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1352715,
-  "notes": "Correction ciblée du bloc Événement : suppression des bordures/ombres parasites sur le bandeau, alignement adaptatif du bouton Notifications et prévention des débordements sur mobile. Rayons et autres cartes inchangés. Cache PWA actualisé."
+  "bytes": 1355214,
+  "notes": "Correction de la vraie cause du bloc Événement : suppression du fond rectangulaire de events-static-content, grille stable avec cloche à droite du sur-titre et titre sur la ligne suivante même sur iPhone. Retrait des anciennes surcharges V37.98, sans modifier les notifications, dates ou autres blocs. Cache PWA mis à jour."
 }

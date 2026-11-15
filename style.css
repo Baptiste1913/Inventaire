@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.98")!important;
+  url("./assets/u-aurora.svg?v=37.99")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -26113,87 +26113,159 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
  }
 }
 
-/* V37.98 — Réparation ciblée du bloc Événement.
-   V37.95 réintroduisait une carte neumorphique sur .events-month-preview,
-   en conflit avec l'en-tête sans carte et les styles responsives. */
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content > .events-month-preview,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content > .events-month-preview > .events-month-content,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-heading{
+/* V37.99 — Correction structurelle de l'accueil Événement.
+   1) le fond rectangulaire historique était appliqué à events-static-content
+      avec !important, indépendamment des sous-cartes ;
+   2) le breakpoint 420px imposait flex-basis:100% au titre et rejetait
+      la cloche sous celui-ci. Disposition en grille à deux lignes. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card{
+ border-radius:20px!important;
+ overflow:hidden!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:12px!important;
  box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ background:transparent!important;
+ background-color:transparent!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:inherit!important;
+ box-shadow:none!important;
+ overflow:visible!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content::before,
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content::after{
+ content:none!important;
+ display:none!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content > .events-month-preview,
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-content{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
  min-width:0!important;
  max-width:100%!important;
+ padding:0!important;
+ margin:0!important;
  border:0!important;
- outline:0!important;
+ border-radius:0!important;
  background:transparent!important;
  background-image:none!important;
  box-shadow:none!important;
  filter:none!important;
  overflow:visible!important;
 }
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content > .events-month-preview{
- padding:0!important;
- margin:0!important;
- border-radius:0!important;
-}
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content > .events-month-preview::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content > .events-month-preview::after,
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-preview::before,
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-preview::after,
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-content::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-content::after,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header::after{
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-content::after{
  content:none!important;
  display:none!important;
 }
+/* Cloche sur la première ligne avec le sur-titre ; titre sur la deuxième.
+   display:contents évite que le groupe h3 pousse le bouton hors de la grille. */
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header{
- display:flex!important;
- flex-flow:row wrap!important;
- justify-content:space-between!important;
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:auto auto!important;
  align-items:center!important;
- gap:10px 12px!important;
+ justify-content:stretch!important;
+ column-gap:10px!important;
+ row-gap:7px!important;
  width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
 }
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > .events-month-heading{
- flex:1 1 200px!important;
- width:auto!important;
+ display:contents!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header .events-section-kicker{
+ display:block!important;
+ grid-column:1!important;
+ grid-row:1!important;
+ align-self:center!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
+ overflow-wrap:normal!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header #eventsMonthHeading{
+ display:block!important;
+ grid-column:1 / -1!important;
+ grid-row:2!important;
+ width:100%!important;
  min-width:0!important;
  margin:0!important;
+ padding:0!important;
+ overflow-wrap:break-word!important;
 }
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell{
- position:relative!important;
  display:inline-flex!important;
- flex:0 0 auto!important;
- width:auto!important;
- max-width:100%!important;
- min-width:0!important;
- height:auto!important;
- min-height:35px!important;
+ position:relative!important;
+ grid-column:2!important;
+ grid-row:1!important;
+ justify-self:end!important;
+ align-self:center!important;
+ flex:none!important;
  box-sizing:border-box!important;
+ width:auto!important;
+ min-width:0!important;
+ max-width:none!important;
+ height:32px!important;
+ min-height:32px!important;
+ max-height:32px!important;
+ padding:0 11px!important;
  margin:0!important;
- padding:7px 11px!important;
- justify-content:center!important;
- align-items:center!important;
  gap:7px!important;
  white-space:nowrap!important;
  transform:none!important;
 }
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell svg{
- flex:0 0 auto!important;
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header #pushToggle.events-bell svg,
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header #pushToggle.events-bell .events-bell-label{
+ flex-shrink:0!important;
 }
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-subtitle{
+ width:100%!important;
+ min-width:0!important;
  max-width:100%!important;
+ margin:8px 0 0!important;
  overflow-wrap:break-word!important;
 }
 @media(max-width:420px){
  html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header{
-  align-items:flex-start!important;
+  column-gap:7px!important;
+  row-gap:8px!important;
  }
- html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > .events-month-heading{
-  flex:1 1 100%!important;
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header .events-section-kicker{
+  font-size:clamp(8.5px,2.65vw,10.5px)!important;
+  letter-spacing:.055em!important;
+ }
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header #eventsMonthHeading{
+  font-size:clamp(17px,5.1vw,23px)!important;
  }
  html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell{
-  flex:0 0 auto!important;
-  margin:0!important;
-  max-width:100%!important;
+  max-width:none!important;
+  padding:0 9px!important;
+ }
+}
+@media(max-width:320px){
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header #pushToggle.events-bell{
+  padding:0 7px!important;
+  gap:4px!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content{
+  background:transparent!important;
  }
 }
