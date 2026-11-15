@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.99")!important;
+  url("./assets/u-aurora.svg?v=38.00")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -26267,5 +26267,144 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
 @media(forced-colors:active){
  html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card > .events-static-content{
   background:transparent!important;
+ }
+}
+
+/* V38.00 — Accueil : titres Événement rapprochés et contours identiques
+   à la carte de référence « Ma session / Inventaire ». Ne pas modifier
+   les formulaires, boutons, pages dédiées ni les pop-ups. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
+ .card,.fold-card,#planningAdminCard,#accountCard,#inventoryCalendar,
+ .session-card,.calc-card,.history-card,.sessions-history-card,
+ .basket-card,#backupCard
+),
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ box-sizing:border-box!important;
+ border:1px solid transparent!important;
+ border-radius:20px!important;
+ background-clip:padding-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+/* La surface vitrée de Bienvenue demeure translucide ; les autres cartes
+   utilisent déjà le fond de référence Inventaire de V37.95. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
+ #planningAdminCard,#accountCard,#inventoryCalendar,.session-card,.calc-card,
+ .history-card,.sessions-history-card,.basket-card,#backupCard
+)::after{
+ content:none!important;
+ display:none!important;
+}
+/* La cloche ne doit plus définir la hauteur de la première ligne du titre.
+   En-tête de même densité que SERVICES U / INVENTAIRE + Ma session. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header{
+ display:block!important;
+ position:relative!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > .events-month-heading{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ justify-content:flex-start!important;
+ gap:3px!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header .events-section-kicker{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:0 120px 0 0!important;
+ line-height:1.35!important;
+ align-self:auto!important;
+ grid-column:auto!important;
+ grid-row:auto!important;
+ overflow-wrap:normal!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header #eventsMonthHeading{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ line-height:1.25!important;
+ grid-column:auto!important;
+ grid-row:auto!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell{
+ position:absolute!important;
+ top:0!important;
+ right:0!important;
+ left:auto!important;
+ bottom:auto!important;
+ display:inline-flex!important;
+ width:auto!important;
+ max-width:none!important;
+ min-width:0!important;
+ height:32px!important;
+ min-height:32px!important;
+ max-height:32px!important;
+ margin:0!important;
+ padding:0 11px!important;
+ grid-column:auto!important;
+ grid-row:auto!important;
+ align-self:auto!important;
+ justify-self:auto!important;
+ white-space:nowrap!important;
+ transform:none!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-subtitle{
+ margin:8px 0 0!important;
+}
+@media(max-width:420px){
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > .events-month-heading{
+  gap:3px!important;
+ }
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header .events-section-kicker{
+  padding-right:115px!important;
+  font-size:clamp(8.5px,2.65vw,10.5px)!important;
+ }
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell{
+  padding:0 9px!important;
+  max-width:none!important;
+ }
+}
+@media(max-width:340px){
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header .events-section-kicker{
+  padding-right:104px!important;
+  font-size:8.5px!important;
+ }
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-home-header > #pushToggle.events-bell{
+  padding:0 7px!important;
+  gap:4px!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
+  .card,.fold-card,#planningAdminCard,#accountCard,#inventoryCalendar,
+  .session-card,.calc-card,.history-card,.sessions-history-card,
+  .basket-card,#backupCard
+ ),
+ html body:not(.is-focus-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  border:1px solid CanvasText!important;
+  box-shadow:none!important;
  }
 }

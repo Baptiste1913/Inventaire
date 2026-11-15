@@ -1,7 +1,7 @@
 {
-  "version": "37.99",
+  "version": "38.00",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1355214,
-  "notes": "Correction de la vraie cause du bloc Événement : suppression du fond rectangulaire de events-static-content, grille stable avec cloche à droite du sur-titre et titre sur la ligne suivante même sur iPhone. Retrait des anciennes surcharges V37.98, sans modifier les notifications, dates ou autres blocs. Cache PWA mis à jour."
+  "bytes": 1360832,
+  "notes": "Accueil : en-tête Événement compact avec sur-titre et titre rapprochés comme Ma session, bouton notifications aligné indépendamment à droite. Contours, rayons 20 px et cinq ombres de la carte Inventaire harmonisés sur toutes les cartes principales de l’accueil, y compris Bienvenue sans perdre le verre. Cache PWA actualisé."
 }
