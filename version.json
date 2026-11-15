@@ -1,7 +1,7 @@
 {
-  "version": "37.47",
+  "version": "37.48",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1151690,
-  "notes": "Carte Prochain inventaire épurée : suppression du titre et de sa description, pastille d'état « Prêt » intégrée en haut à droite de la fenêtre Liquid Glass. États en cours et en pause conservés, en-tête U blanc maintenu, cache PWA actualisé."
+  "bytes": 1156706,
+  "notes": "Chevron court pour le bouton de la bannière, suppression du halo lumineux de la seule carte Espace administrateur, verre Liquid Glass plus translucide et flouté avec reflets doux, ajout d’un point rouge diffus en haut à gauche de la bannière. Cache PWA actualisé."
 }
