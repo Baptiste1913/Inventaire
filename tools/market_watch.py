@@ -31,7 +31,7 @@ def get_json(url, params, maximum=6_000_000):
         "Accept": "application/json",
         "User-Agent": "InventairesU-MarketWatch/1.0 (+https://github.com/Baptiste1913/Inventaire)"
     })
-    with urllib.request.urlopen(request, timeout=22) as response:
+    with urllib.request.urlopen(request, timeout=12) as response:
         if response.status != 200:
             raise ValueError("HTTP " + str(response.status))
         blob = response.read(maximum + 1)
@@ -133,8 +133,7 @@ def price_rows():
     }
     # Certains serveurs demandent un filtre produit ; ne pas considérer
     # une erreur HTTP comme une absence de mouvement de prix.
-    attempts = [period] + [dict(period, products=product) for product in
-                            ("Oranges", "Tomatoes", "Apples")]
+    attempts = [dict(period, products="Oranges"), period]
     payload = None
     problems = []
     for params in attempts:
