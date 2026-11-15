@@ -21346,17 +21346,16 @@ html body .app > section.intro > img.intro-mascot{
 }
 
 
-/* V37.34 — Positionnement simple et stable dans le feuillet Klarna.
-   Fin des marges successives sur le conteneur du bouton : celui-ci
-   est centré verticalement dans le panneau inférieur (132 px sur
-   iPhone), sans changer ses dimensions ou son alignement à gauche. */
+/* V37.35 — Positionner le bouton dans la zone bleue, suivant le repère
+   demandé sur la capture. Retirer l'ancrage au bas du feuillet.
+   Style, dimensions, actions et alignement gauche inchangés. */
 html body:not(.is-focus-mode) .app > section.intro{
  margin-bottom:8px!important;
 }
 html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
  position:absolute!important;
- top:auto!important;
- bottom:48px!important; /* (138 - 41.25) / 2 */
+ top:188px!important;
+ bottom:auto!important;
  left:24px!important;
  right:24px!important;
  width:auto!important;
@@ -21374,7 +21373,8 @@ html body:not(.is-focus-mode) .app > #planningAdminCard.card{
 }
 @media(max-width:600px){
  html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
-  bottom:45px!important; /* (132 - 41.25) / 2 */
+  top:182px!important;
+  bottom:auto!important;
   left:20px!important;
   right:20px!important;
   margin:0!important;
@@ -21383,7 +21383,8 @@ html body:not(.is-focus-mode) .app > #planningAdminCard.card{
 }
 @media(max-width:380px){
  html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
-  bottom:41px!important; /* (124 - 41.25) / 2 */
+  top:176px!important;
+  bottom:auto!important;
   margin:0!important;
   padding:0!important;
  }
