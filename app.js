@@ -352,7 +352,7 @@ function heroTimePerWeigh(stats){
  const h=Math.floor(secs/3600),m=Math.floor(secs%3600/60),x=secs%60;
  return (h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0');
 }
-function latestFinishedInventory(){return sessions.filter(s=>Number.isFinite(s.endedAt)).sort((a,b)=>b.endedAt-a.endedAt)[0]||null;}
+function latestFinishedInventory(){let latest=null;for(const s of sessions){if(Number.isFinite(s.endedAt)&&(!latest||s.endedAt>latest.endedAt))latest=s;}return latest;}
 function heroSetText(id,val){const el=$(id);if(el&&el.textContent!==String(val))el.textContent=String(val);}
 function renderHeroSummary(){
  const root=document.querySelector('.app > section.intro'),status=$('heroStatus'),text=$('heroStatusText');
