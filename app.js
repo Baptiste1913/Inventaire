@@ -236,6 +236,12 @@ function activeStats(s){
 function durationLabel(ms){const sec=Math.floor(Math.max(0,ms)/1000),h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h} h ${String(m).padStart(2,'0')} min`:`${m} min ${String(s).padStart(2,'0')} s`;}
 const dateLabel=t=>new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 function persistSessions(){try{safeSetItem(SESSION_KEY,JSON.stringify({sessions,activeId:activeSessionId}));return true;}catch{const el=$('sessionMessage');if(el)el.textContent='⚠️ Espace local insuffisant : exporte tes données pour éviter toute perte.';return false;}}
+// Ne pas reconstruire le calendrier pendant l'animation Concentration
+// ni à chaque pesée : informer le planning seulement lors d'une clôture,
+// restauration ou suppression effective de bilan.
+function notifyInventoryProgressChanged(){
+ window.setTimeout(()=>window.dispatchEvent(new Event('iu-inventory-progress-changed')),250);
+}
 function parseWeight(value){if(entryMode==='kg')return parseKg(value);const s=String(value).trim();return /^\d{1,9}$/.test(s)?Number(s):null;}
 function weightFromGrams(g){return entryMode==='g'?String(g):fmt(g);}
 function issueFor(gross,b){if(gross>maxGrossGrams)return `Poids brut inhabituel (${fmt(gross)} kg). Vérifie la balance.`;
@@ -359,6 +365,9 @@ function renderHeroSummary(){
  if(!root||!status||!text)return;
  const session=getActiveSession(),last=latestFinishedInventory(),now=Date.now();
  const finishedRecently=!session&&last&&last.endedAt<=now&&now-last.endedAt<86400000;
+ const startDay=last?new Date(last.startedAt):null;
+ const iso=startDay?[startDay.getFullYear(),String(startDay.getMonth()+1).padStart(2,'0'),String(startDay.getDate()).padStart(2,'0')].join('-'):'';
+ const plannedCompleted=Boolean(finishedRecently&&iso&&window.InventairesPlanning?.isPlannedInventoryCompleted?.(iso));
  const state=session?(session.pausedAt?'paused':'running'):finishedRecently?'finished':'before';
  const stats=session?activeStats(session):last?activeStats(last):null;
  const count=stats?.count||0,avg=heroTimePerWeigh(stats);
@@ -370,7 +379,16 @@ function renderHeroSummary(){
  let fields;
  if(state==='running')fields=['SUIVI EN TEMPS RÉEL','Inventaire en cours','Votre session est enregistrée automatiquement.',durationLabel(stats.duration),'Durée active','Pesées enregistrées',String(count),'Temps / pesée',avg,'Revenir à ma session','pauseSession','En cours'];
  else if(state==='paused')fields=['SESSION CONSERVÉE','Inventaire en pause','Vos pesées sont conservées. Reprenez quand vous êtes prêt.',durationLabel(stats.duration),'Durée active avant la pause','Pesées enregistrées',String(count),'Temps / pesée',avg,'Reprendre l’inventaire','resumeSession','En pause'];
- else if(state==='finished')fields=['DERNIER INVENTAIRE TERMINÉ','Inventaire terminé','Votre bilan est disponible dans Mes inventaires.',durationLabel(stats.duration),lastCaption,'Pesées réalisées',String(count),'Temps / pesée',avg,'Consulter mon bilan','sessionsHistoryList','Terminé'];
+ else if(state==='finished')fields=[
+  plannedCompleted?'INVENTAIRE PRÉVU VALIDÉ':'BILAN ENREGISTRÉ',
+  plannedCompleted?'Inventaire prévu réalisé':'Votre dernier bilan',
+  plannedCompleted?'Cette session est comptabilisée dans le planning.':'Retrouvez le détail de votre dernière session.',
+  String(count)+' pesée'+(count>1?'s':''),
+  lastCaption,
+  'Durée active',durationLabel(stats.duration),
+  'Temps / pesée',avg,
+  'Voir le bilan','sessionsHistoryList',plannedCompleted?'Réalisé':'Bilan prêt'
+ ];
  else fields=['PROCHAIN INVENTAIRE',nextDate==='Date à confirmer'?'Prêt pour votre prochain inventaire':'Votre prochain inventaire',last?'Retrouvez votre prochaine date et le résultat de votre dernière session.':'Les informations de vos inventaires apparaîtront ici.',nextDate,dateCaption,'Dernier inventaire',last?String(count)+' pesées':'—','Temps moyen / pesée',last?avg:'—',last?'Consulter le dernier bilan':'Aller à Ma session',last?'sessionsHistoryList':'startSession','Prêt'];
  if(root.dataset.introState!==state)root.dataset.introState=state;
  status.classList.toggle('is-running',state==='running');
@@ -1020,11 +1038,12 @@ function finishSession(){
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
   return;
  }
- clearWeigh();renderV22();reviewSessionQuality(session);$('sessionMessage').classList.add('is-complete');{const message=$('sessionMessage');message.replaceChildren();const title=document.createElement('strong');title.className='session-complete-title';title.textContent='Inventaire terminé';const detail=document.createElement('span');detail.className='session-complete-detail';detail.textContent='Retrouve son bilan dans « Mes inventaires ».';const content=document.createElement('span');content.className='session-complete-copy';content.append(title,detail);message.append(content);}
+ clearWeigh();renderV22();reviewSessionQuality(session);notifyInventoryProgressChanged();$('sessionMessage').classList.add('is-complete');{const message=$('sessionMessage');message.replaceChildren();const title=document.createElement('strong');title.className='session-complete-title';title.textContent='Inventaire terminé';const detail=document.createElement('span');detail.className='session-complete-detail';detail.textContent='Retrouve son bilan dans « Mes inventaires ».';const content=document.createElement('span');content.className='session-complete-copy';content.append(title,detail);message.append(content);}
  offerUndo('Inventaire terminé.',()=>{
   if(activeSessionId||!session.endedAt||session.endedAt!==now)return false;
   session.endedAt=null;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=session.id;
   if(!persistSessions()){session.endedAt=now;session.pausedAt=oldPausedAt;session.pausedMs=oldPausedMs;activeSessionId=null;return false;}
+  notifyInventoryProgressChanged();
   // L'animation se rejoue UNIQUEMENT lors de cette restauration via « Annuler ».
   // Garder le DOM normal jusqu'a la capture native pour eviter le saut.
   const restoreView=()=>{
@@ -1060,7 +1079,7 @@ function deleteSession(id){
    $('bilanNotice').textContent='Suppression impossible : stockage local indisponible.';
    return;
  }
- renderSessionsHistory();renderHeroSummary();renderBackupSummary();
+ renderSessionsHistory();renderHeroSummary();renderBackupSummary();notifyInventoryProgressChanged();
  $('bilanNotice').textContent=`Bilan du ${label} supprimé.`;
  offerUndo('Bilan supprimé.',()=>{
    if(sessions.some(s=>s.id===removed.id))return false;
@@ -1068,7 +1087,7 @@ function deleteSession(id){
    const restored=sessions.slice();restored.splice(Math.min(index,restored.length),0,removed);
    sessions=restored;
    if(!persistSessions()){sessions=before;return false;}
-   renderSessionsHistory();renderHeroSummary();renderBackupSummary();
+   renderSessionsHistory();renderHeroSummary();renderBackupSummary();notifyInventoryProgressChanged();
    $('bilanNotice').textContent=`Bilan du ${label} restauré.`;
    return true;
  });
@@ -2093,6 +2112,7 @@ function setupSecondaryDetailsAnimation(card,bodySelector){
  });
 })();
 // Le planning reste le détenteur de la date, même après une mise à jour cloud.
+window.addEventListener('iu-planning-updated',renderHeroSummary);
 (function watchHeroPlanningDate(){
  const date=$('calendarNextDate'),countdown=$('calendarNextCountdown');
  if(typeof MutationObserver!=='function'||!date)return;
