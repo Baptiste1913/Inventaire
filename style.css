@@ -22122,3 +22122,113 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
   background-color:Canvas!important;
  }
 }
+
+/* V37.47 — Statut dans le verre : une seule rangée, parfaitement alignée.
+   Le titre et la description sont masqués uniquement pour l'état par défaut ;
+   la pause et le suivi en cours conservent leurs explications. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+ padding-top:20px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel > .intro-smart-content > .intro-smart-topline{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:8px!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0 0 4px!important;
+ padding:0!important;
+ position:relative!important;
+ z-index:2!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-topline > .intro-smart-eyebrow{
+ flex:1 1 auto!important;
+ min-width:0!important;
+ margin:0!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-topline > #heroStatus.intro-session-state{
+ display:inline-flex!important;
+ position:relative!important;
+ top:auto!important;
+ right:auto!important;
+ bottom:auto!important;
+ left:auto!important;
+ order:2!important;
+ z-index:2!important;
+ flex:0 0 auto!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:6px!important;
+ width:auto!important;
+ min-width:0!important;
+ max-width:44%!important;
+ height:27px!important;
+ min-height:27px!important;
+ max-height:27px!important;
+ margin:0!important;
+ padding:4px 9px!important;
+ border:1px solid rgba(255,255,255,.72)!important;
+ border-radius:999px!important;
+ background:rgba(255,255,255,.47)!important;
+ color:#49666c!important;
+ box-shadow:none!important;
+ pointer-events:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-topline > #heroStatus.intro-session-state > #heroStatusText{
+ display:inline!important;
+ position:static!important;
+ flex:0 1 auto!important;
+ width:auto!important;
+ max-width:none!important;
+ height:auto!important;
+ margin:0!important;
+ padding:0!important;
+ overflow:visible!important;
+ overflow-wrap:normal!important;
+ white-space:nowrap!important;
+ color:#49666c!important;
+ -webkit-text-fill-color:#49666c!important;
+ font-size:10.5px!important;
+ font-weight:750!important;
+ line-height:1.1!important;
+ letter-spacing:0!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-topline > #heroStatus.intro-session-state > .intro-session-dot{
+ display:block!important;
+ position:relative!important;
+ flex:0 0 7px!important;
+ width:7px!important;
+ height:7px!important;
+ margin:0!important;
+ border:0!important;
+ background:#71969c!important;
+ box-shadow:0 0 0 3px rgba(100,155,158,.12)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-topline > #heroStatus.intro-session-state.is-running > .intro-session-dot{
+ background:#20a37b!important;
+ box-shadow:0 0 0 3px rgba(32,163,123,.13)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-topline > #heroStatus.intro-session-state.is-paused > .intro-session-dot{
+ background:#d8a955!important;
+ box-shadow:0 0 0 3px rgba(216,169,85,.14)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .intro-smart-heading,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .intro-smart-description{
+ display:none!important;
+}
+@media(max-width:600px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+  padding-top:18px!important;
+ }
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+  padding-top:16px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-topline > #heroStatus .intro-session-dot{
+  animation:none!important;
+ }
+}

@@ -376,7 +376,7 @@ function renderHeroSummary(){
  if(state==='running')fields=['SUIVI EN TEMPS RÉEL','Inventaire en cours','Votre session est enregistrée automatiquement.',durationLabel(stats.duration),'Durée active','Pesées enregistrées',String(count),'Temps / pesée',avg,'Revenir à ma session','pauseSession','En cours'];
  else if(state==='paused')fields=['SESSION CONSERVÉE','Inventaire en pause','Vos pesées sont conservées. Reprenez quand vous êtes prêt.',durationLabel(stats.duration),'Durée active avant la pause','Pesées enregistrées',String(count),'Temps / pesée',avg,'Reprendre l’inventaire','resumeSession','En pause'];
 
- else fields=['PROCHAIN INVENTAIRE',nextDate==='Date à confirmer'?'Prêt pour votre prochain inventaire':'Votre prochain inventaire',last?'Retrouvez votre prochaine date et le résultat de votre dernière session.':'Les informations de vos inventaires apparaîtront ici.',nextDate,dateCaption,'Dernier inventaire',last?String(count)+' pesées':'—','Temps moyen / pesée',last?avg:'—',last?'Consulter le dernier bilan':'Aller à Ma session',last?'sessionsHistoryList':'startSession','Prêt'];
+ else fields=['PROCHAIN INVENTAIRE','','',nextDate,dateCaption,'Dernier inventaire',last?String(count)+' pesées':'—','Temps moyen / pesée',last?avg:'—',last?'Consulter le dernier bilan':'Aller à Ma session',last?'sessionsHistoryList':'startSession','Prêt'];
  if(root.dataset.introState!==state)root.dataset.introState=state;
  status.classList.toggle('is-running',state==='running');
  status.classList.toggle('is-paused',state==='paused');
