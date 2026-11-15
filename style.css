@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.88")!important;
+  url("./assets/u-aurora.svg?v=37.89")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -25019,6 +25019,182 @@ dialog.iu-market-popup .iu-dash-alert{overflow-wrap:anywhere!important;}
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before,
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{display:none!important;}
  dialog.iu-market-popup.events-install-dialog{
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+}
+
+/* V37.89 — Reproduction du halo de l'ancien accueil :
+   rose en haut à gauche, bleu central, vert d'eau à droite. Les trois
+   halos vivent DERRIÈRE la carte et ne débordent presque pas sur la page. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:visible!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ z-index:0!important;
+ pointer-events:none!important;
+ border-radius:16px!important;
+ background-repeat:no-repeat!important;
+ opacity:1!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before{
+ inset:-12px -13px -15px -13px!important;
+ background:
+  radial-gradient(ellipse 145px 165px at 5% 21%,
+   rgba(243,132,162,.38) 0%,rgba(243,132,162,.21) 34%,rgba(243,132,162,.08) 59%,transparent 93%),
+  radial-gradient(ellipse 176px 190px at 49% 43%,
+   rgba(86,173,236,.32) 0%,rgba(86,173,236,.20) 36%,rgba(86,173,236,.065) 69%,transparent 95%)!important;
+ filter:blur(20px)!important;
+ -webkit-filter:blur(20px)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{
+ inset:-12px -13px -15px -13px!important;
+ background:
+  radial-gradient(ellipse 160px 200px at 96% 51%,
+   rgba(74,181,169,.34) 0%,rgba(74,181,169,.19) 38%,rgba(74,181,169,.06) 72%,transparent 96%),
+  radial-gradient(ellipse 120px 150px at 62% 83%,
+   rgba(96,179,222,.12) 0%,rgba(96,179,222,.065) 51%,transparent 94%)!important;
+ filter:blur(22px)!important;
+ -webkit-filter:blur(22px)!important;
+}
+/* Même arrondi que la carte Administrateur (16 px dans les styles actifs).
+   Le panneau reflète la lumière avec un centre presque blanc. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ position:relative!important;
+ z-index:1!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ border-radius:16px!important;
+ border:1px solid rgba(255,255,255,.95)!important;
+ background:
+  radial-gradient(ellipse 130px 160px at -3% 25%,
+    rgba(240,138,165,.115),rgba(240,138,165,0) 92%),
+  radial-gradient(ellipse 180px 175px at 47% 49%,
+    rgba(95,182,229,.085),rgba(95,182,229,0) 88%),
+  radial-gradient(ellipse 142px 175px at 104% 49%,
+    rgba(89,187,170,.11),rgba(89,187,170,0) 91%),
+  linear-gradient(120deg,rgba(255,255,255,.89),rgba(255,255,255,.91) 53%,rgba(255,255,255,.88))!important;
+ -webkit-backdrop-filter:blur(17px) saturate(108%)!important;
+ backdrop-filter:blur(17px) saturate(108%)!important;
+ box-shadow:0 9px 27px rgba(49,84,105,.065),inset 0 1px 0 rgba(255,255,255,.97)!important;
+}
+.iu-home-welcome-light{
+ display:none!important;
+ animation:none!important;
+}
+/* Les trois informations ont désormais leur propre petit encadré.
+   L'alerte principale se lit d'un coup d'œil, avec son lien externe. */
+.iu-home-watch .iu-dash .iu-dash-feature{
+ display:flex!important;
+ align-items:center!important;
+ margin:15px 0 0!important;
+ min-width:0!important;
+ min-height:0!important;
+ padding:12px 13px!important;
+ gap:8px!important;
+ border:1px solid rgba(255,255,255,.97)!important;
+ border-radius:12px!important;
+ background:rgba(255,255,255,.64)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 2px 9px rgba(65,104,125,.035)!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-content{
+ min-width:0!important;
+ gap:3px!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-content strong{
+ font-size:clamp(16px,4.35vw,18.5px)!important;
+ line-height:1.22!important;
+ color:#30434c!important;
+ font-weight:780!important;
+ letter-spacing:-.28px!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-summary{
+ color:#728890!important;
+ font-size:10.7px!important;
+ line-height:1.35!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-arrow{
+ flex:0 0 27px!important;
+ width:27px!important;
+ min-width:27px!important;
+ height:27px!important;
+ margin:0!important;
+ border:1px solid rgba(210,228,231,.84)!important;
+ border-radius:9px!important;
+ background:rgba(241,248,250,.75)!important;
+}
+/* Deux mini-cartes séparées, fines et lisibles, alignées entre elles. */
+.iu-home-watch .iu-dash .iu-dash-grid{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:9px!important;
+ margin:10px 0 0!important;
+ align-items:stretch!important;
+}
+.iu-home-watch .iu-dash .iu-dash-panel,
+.iu-home-watch .iu-dash .iu-dash-panel-recall{
+ min-width:0!important;
+ min-height:76px!important;
+ padding:11px 12px!important;
+ border:1px solid rgba(255,255,255,.96)!important;
+ border-radius:12px!important;
+ background:rgba(255,255,255,.66)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 2px 9px rgba(65,104,125,.03)!important;
+}
+.iu-home-watch .iu-dash .iu-dash-panel-top strong{
+ font-size:clamp(9px,2.65vw,11px)!important;
+ font-weight:700!important;
+ line-height:1.25!important;
+ color:#67808a!important;
+ letter-spacing:-.1px!important;
+ overflow-wrap:normal!important;
+ word-break:normal!important;
+ white-space:nowrap!important;
+}
+.iu-home-watch .iu-dash .iu-dash-counter strong{
+ font-size:clamp(22px,6vw,27px)!important;
+ font-weight:800!important;
+}
+.iu-home-watch .iu-dash .iu-dash-details{
+ margin:16px 0 0!important;
+}
+.iu-home-watch .iu-dash .iu-market-updated{
+ margin:15px 0 0!important;
+}
+/* Plus petit iPhone : conserver les trois encadrés et éviter les coupes. */
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  border-radius:16px!important;
+ }
+ .iu-home-watch .iu-dash .iu-dash-feature{
+  padding:10px 11px!important;
+  gap:6px!important;
+ }
+ .iu-home-watch .iu-dash .iu-dash-feature-content strong{font-size:16px!important;}
+ .iu-home-watch .iu-dash .iu-dash-grid{gap:7px!important;}
+ .iu-home-watch .iu-dash .iu-dash-panel,
+ .iu-home-watch .iu-dash .iu-dash-panel-recall{padding:9px 8px!important;}
+ .iu-home-watch .iu-dash .iu-dash-panel-top strong{font-size:9px!important;}
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  background:#fff!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before,
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{display:none!important;}
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome,
+ .iu-home-watch .iu-dash .iu-dash-feature,
+ .iu-home-watch .iu-dash .iu-dash-panel,
+ .iu-home-watch .iu-dash .iu-dash-panel-recall{
   background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
  }
 }

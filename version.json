@@ -1,7 +1,7 @@
 {
-  "version": "37.88",
+  "version": "37.89",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1295824,
-  "notes": "Refonte de la veille : suppression des halos de page, lumière douce derrière le panneau avec léger reflet blanc ; alerte principale plus discrète et icône lien externe. La liste s'ouvre désormais dans une fenêtre native en bas d'écran, avec les mêmes animations d'entrée/sortie que le tutoriel des notifications, fermeture croix/fond/retour et liens conservés. Cache PWA actualisé."
+  "bytes": 1303236,
+  "notes": "Accueil plus fidèle à l'ancien visuel : halos rose haut gauche, bleu au centre et turquoise à droite derrière la carte, reflet diffus très léger et centre blanc. Information principale dans son propre petit encadré, deux statistiques assorties ; rayon extérieur de 16 px identique à la carte Administrateur. Pop-up et données officielles inchangées, cache PWA actualisé."
 }
