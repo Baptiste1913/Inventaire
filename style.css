@@ -21493,3 +21493,61 @@ html body .app > section.intro .intro-bottom > button#heroStartSession.intro-jum
  white-space:nowrap!important;
  transform:translateY(-1px)!important;
 }
+
+
+/* V37.40 — Repères utiles, discrets, dans la banderole.
+   La zone introduit les 3 actions disponibles dans l'application
+   sans créer de boutons supplémentaires ni modifier le flux métier. */
+html body:not(.is-focus-mode) .app > section.intro > .intro-capabilities{
+ position:relative!important;
+ z-index:5!important;
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:center!important;
+ gap:7px!important;
+ width:100%!important;
+ margin:13px 0 0!important;
+ padding:0!important;
+}
+html body:not(.is-focus-mode) .app > section.intro > .intro-capabilities > span{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ min-height:23px!important;
+ padding:3px 9px!important;
+ box-sizing:border-box!important;
+ border:1px solid rgba(0,117,131,.16)!important;
+ border-radius:999px!important;
+ background:rgba(255,255,255,.34)!important;
+ color:#395b62!important;
+ font-family:inherit!important;
+ font-size:10.5px!important;
+ font-weight:700!important;
+ line-height:1.1!important;
+ letter-spacing:.01em!important;
+ white-space:nowrap!important;
+}
+/* Le bouton reste un raccourci vers Ma session : l'icône flèche descend
+   et garde la même typographie, sans rebond ni halo distrayant. */
+html body:not(.is-focus-mode) .app > section.intro .intro-bottom > button#heroStartSession.intro-jump .hero-action-content > .hero-arrow-icon{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:17px!important;
+ height:18px!important;
+ flex:0 0 17px!important;
+ font-size:21px!important;
+ font-weight:600!important;
+ line-height:1!important;
+ transform:translateY(-1px)!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro > .intro-capabilities{
+  gap:5px!important;
+  margin-top:11px!important;
+ }
+ html body:not(.is-focus-mode) .app > section.intro > .intro-capabilities > span{
+  padding:3px 7px!important;
+  font-size:10px!important;
+ }
+}
