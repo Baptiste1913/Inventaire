@@ -1,7 +1,7 @@
 {
-  "version": "37.72",
+  "version": "37.73",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1206453,
-  "notes": "Fond de l’accueil : halos rose, bleu et émeraude plus saturés, nettement plus étendus et diffus avec disparition progressive dans le blanc. Cartes blanches du tableau de bord, typographie et données inchangées. Adaptation petits écrans et cache PWA actualisé."
+  "bytes": 1206585,
+  "notes": "Halos du fond rose, bleu et vert descendus sous le bandeau blanc du logo U, plus larges et plus diffus avec fondu radial progressif. Saturation préservée ; cartes, données, interactions et animations inchangées."
 }
