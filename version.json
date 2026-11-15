@@ -1,7 +1,7 @@
 {
-  "version": "38.22",
+  "version": "38.23",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bienvenue dans votre espace : taille augmentée avec clamp responsive 13–16 px, graisse 900 et espacement ajusté. Autres styles et fonctionnalités inchangés. Cache PWA renouvelé."
+  "notes": "Titre « Bienvenue dans votre espace » encore agrandi (17–21 px responsive) et graisse maximale 950 ; autres styles et fonctionnalités préservés. Cache PWA renouvelé."
 }
