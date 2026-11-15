@@ -21396,3 +21396,44 @@ html body:not(.is-focus-mode) .app > #planningAdminCard.card{
   margin:15px 0 0!important;
  }
 }
+
+
+/* V37.37 — Supprimer le feuillet blanc devenu inutile.
+   La banderole dégradée s'ajuste maintenant au titre, à la description
+   et au bouton : plus de grand espace vide avant Administrateur. */
+html body:not(.is-focus-mode) .app > section.intro{
+ display:flex!important;
+ flex-direction:column!important;
+ min-height:0!important;
+ height:auto!important;
+ max-height:none!important;
+ padding-bottom:24px!important;
+ margin-bottom:8px!important;
+ border-radius:0 0 14px 14px!important;
+}
+html body .app > section.intro > .intro-lower-sheet{
+ display:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
+ position:relative!important;
+ flex:0 0 auto!important;
+ margin:18px 0 0!important;
+ padding:0!important;
+}
+@media(max-width:600px){
+ html body:not(.is-focus-mode) .app > section.intro{
+  min-height:0!important;
+  height:auto!important;
+  padding-bottom:22px!important;
+ }
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro{
+  min-height:0!important;
+  height:auto!important;
+  padding-bottom:20px!important;
+ }
+ html body:not(.is-focus-mode) .app > section.intro .intro-bottom{
+  margin-top:15px!important;
+ }
+}
