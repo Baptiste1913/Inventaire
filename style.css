@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.87")!important;
+  url("./assets/u-aurora.svg?v=37.88")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -24836,4 +24836,189 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  .iu-home-watch .iu-dash .iu-dash-panel,
  .iu-home-watch .iu-dash .iu-dash-list-button{background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;}
  .iu-home-welcome-light{display:none!important;}
+}
+
+/* V37.88 — Lumière contenue derrière la carte, reflet discret dans le verre.
+   Suppression des grands halos extérieurs de main.app. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+ background-image:linear-gradient(180deg,#fff 0%,#fafbfc 330px,#f7f8fa 780px,#f7f8fa 100%)!important;
+ background-color:#f7f8fa!important;
+ background-size:100% 100%!important;
+ background-position:center top!important;
+ background-repeat:no-repeat!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:visible!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{
+ content:""!important;
+ position:absolute!important;
+ display:block!important;
+ pointer-events:none!important;
+ z-index:0!important;
+ border-radius:38px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before{
+ inset:5px -9px 6px -9px!important;
+ background:radial-gradient(ellipse 50% 68% at 6% 35%,rgba(231,110,149,.14),transparent 93%),
+            radial-gradient(ellipse 51% 72% at 93% 28%,rgba(75,182,216,.16),transparent 93%)!important;
+ filter:blur(19px)!important;
+ opacity:.75!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{
+ inset:16px -7px -5px -7px!important;
+ background:radial-gradient(ellipse 47% 65% at 92% 76%,rgba(81,176,159,.14),transparent 93%)!important;
+ filter:blur(20px)!important;
+ opacity:.73!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ position:relative!important;z-index:1!important;
+ background:linear-gradient(138deg,rgba(255,255,255,.91) 0%,rgba(255,255,255,.94) 48%,rgba(255,255,255,.88) 100%)!important;
+ border-color:rgba(255,255,255,.95)!important;
+ box-shadow:0 10px 29px rgba(52,86,103,.075),inset 0 1px rgba(255,255,255,.97)!important;
+ -webkit-backdrop-filter:blur(15px) saturate(108%)!important;
+ backdrop-filter:blur(15px) saturate(108%)!important;
+}
+.iu-home-welcome-light{display:none!important;animation:none!important;}
+/* L'alerte reste consultable, mais ne concurrence plus la carte principale. */
+.iu-home-watch .iu-dash .iu-dash-feature{
+ margin:17px 0 0!important;align-items:center!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-content{gap:3px!important;}
+.iu-home-watch .iu-dash .iu-dash-feature-content strong{
+ font-size:clamp(17px,4.7vw,21px)!important;
+ line-height:1.22!important;
+ letter-spacing:-.35px!important;
+ font-weight:760!important;
+ color:#3a515b!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-kicker{
+ font-size:11px!important;font-weight:700!important;
+ color:#66838b!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-summary{
+ font-size:10.7px!important;color:#84949b!important;
+ -webkit-line-clamp:2!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-arrow{
+ flex:0 0 29px!important;min-width:29px!important;
+ width:29px!important;height:29px!important;
+ display:grid!important;place-items:center!important;
+ padding:5px!important;margin:0 0 0 7px!important;
+ box-sizing:border-box!important;
+ color:#4e8491!important;
+ background:rgba(241,248,249,.84)!important;
+ border:1px solid rgba(205,225,230,.74)!important;
+ border-radius:10px!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-arrow svg{
+ display:block!important;width:18px!important;height:18px!important;
+ stroke:currentColor!important;fill:none!important;
+}
+.iu-home-watch .iu-dash .iu-dash-details{margin-top:17px!important;}
+.iu-home-watch .iu-dash .iu-market-updated{margin-top:15px!important;}
+/* Bottom sheet : exactement la même enveloppe, la même entrée et la même
+   sortie que la fenêtre « Tutoriel notifications », avec défilement interne. */
+dialog.iu-market-popup.events-install-dialog{
+ box-sizing:border-box!important;
+ position:fixed!important;
+ inset:auto 14px calc(16px + env(safe-area-inset-bottom,0px)) 14px!important;
+ margin:0 auto!important;
+ width:min(calc(100vw - 28px),420px)!important;
+ max-height:min(80dvh,590px)!important;
+ overflow:hidden!important;
+ border:1px solid #cde4e7!important;
+ border-radius:18px!important;
+ background:linear-gradient(135deg,#fff 0%,#f4fbfb 100%)!important;
+ box-shadow:0 12px 32px rgba(21,76,86,.17),0 2px 7px rgba(26,55,67,.07),inset 0 1px 0 rgba(255,255,255,.9)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ transform-origin:bottom center!important;
+ overscroll-behavior:contain!important;
+}
+dialog.iu-market-popup.events-install-dialog::backdrop{
+ background:rgba(20,40,50,.12)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+dialog.iu-market-popup.events-install-dialog[open]{
+ animation:events-guide-rise .54s cubic-bezier(.22,1,.36,1) both!important;
+}
+dialog.iu-market-popup.events-install-dialog[open].is-leaving{
+ animation:events-guide-drop .44s cubic-bezier(.4,0,.7,.3) both!important;
+ pointer-events:none!important;
+}
+.iu-market-popup .iu-market-popup-inner{
+ box-sizing:border-box!important;
+ max-height:min(80dvh,590px)!important;
+ padding:18px 19px 20px!important;
+ overflow:auto!important;
+ overscroll-behavior:contain!important;
+ -webkit-overflow-scrolling:touch;
+}
+.iu-market-popup .iu-market-popup-head{
+ display:flex!important;align-items:flex-start!important;
+ justify-content:space-between!important;gap:12px!important;
+ margin:0 0 8px!important;
+}
+.iu-market-popup .iu-market-popup-head strong{
+ font-size:16px!important;font-weight:800!important;
+ color:#303e46!important;line-height:1.3!important;
+}
+.iu-market-popup .iu-market-popup-head button{
+ display:grid!important;place-items:center!important;
+ flex:0 0 34px!important;width:34px!important;height:34px!important;
+ margin:-4px -5px 0 0!important;padding:0!important;
+ background:transparent!important;border:0!important;border-radius:50%!important;
+ color:#5a6d76!important;box-shadow:none!important;
+}
+.iu-market-popup .iu-market-popup-head button svg{width:18px!important;height:18px!important;}
+.iu-market-popup .iu-market-popup-hint{
+ margin:0 0 12px!important;font-size:11.5px!important;
+ line-height:1.45!important;color:#7a8d96!important;
+}
+dialog.iu-market-popup.iu-dash .iu-dash-drawer{
+ display:block!important;grid-template-rows:none!important;
+ height:auto!important;opacity:1!important;
+ margin:0!important;max-height:none!important;
+ pointer-events:auto!important;overflow:visible!important;
+ transition:none!important;
+}
+dialog.iu-market-popup.iu-dash .iu-dash-drawer > .iu-dash-detail-content{
+ display:grid!important;gap:12px!important;
+ max-height:none!important;
+ padding:11px 12px!important;
+ border:1px solid #e0e9ec!important;
+ border-radius:13px!important;
+ background:rgba(255,255,255,.85)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.91)!important;
+ overflow:visible!important;
+ transform:none!important;transition:none!important;
+}
+dialog.iu-market-popup.iu-dash .iu-dash-mini-group + .iu-dash-mini-group{
+ border-top:1px solid #e7eef0!important;
+ padding-top:12px!important;
+}
+dialog.iu-market-popup .iu-dash-alert{overflow-wrap:anywhere!important;}
+@media(max-width:380px){
+ .iu-home-watch .iu-dash .iu-dash-feature-content strong{font-size:17px!important;}
+ .iu-home-watch .iu-dash .iu-dash-feature{margin-top:14px!important;}
+ .iu-market-popup .iu-market-popup-inner{padding:15px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ dialog.iu-market-popup.events-install-dialog[open],
+ dialog.iu-market-popup.events-install-dialog[open].is-leaving{animation:none!important;}
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  background:rgba(255,255,255,.99)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before,
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{display:none!important;}
+ dialog.iu-market-popup.events-install-dialog{
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
 }

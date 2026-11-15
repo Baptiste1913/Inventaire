@@ -16,52 +16,44 @@ const ui={
 /* V37.85 — La veille est visible par défaut.
    Le tiroir des détails anime sa hauteur réelle (et non une grille 0fr/1fr
    contenant une zone défilante), pour une fermeture réversible sur Safari. */
-const drawerReady=ui.details&&ui.listButton&&ui.listLabel&&ui.drawer;
+/* V37.88 — Fenêtre native identique au tutoriel des notifications.
+   La liste est hors du bandeau, mais ses données et liens sont inchangés. */
+const dialog=byId('iuMarketDialog'),dialogClose=byId('iuMarketDialogClose');
+const drawerReady=ui.details&&ui.listButton&&ui.listLabel&&ui.drawer&&dialog&&dialogClose;
 let listCount=0;
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+let closingDialog=false,dialogTimer=null;
 function updateListButton(){
  if(!drawerReady)return;
- const opened=ui.details.classList.contains('is-open');
- ui.listLabel.textContent=(opened?'Masquer la liste':'Voir la liste')+(listCount?' ('+listCount+')':'');
- ui.listButton.setAttribute('aria-expanded',String(opened));
+ ui.listLabel.textContent='Voir la liste'+(listCount?' ('+listCount+')':'');
 }
 if(drawerReady){
- let animationFrame=0;
- ui.drawer.style.height='0px';
- ui.drawer.setAttribute('aria-hidden','true');
- ui.drawer.setAttribute('inert','');
- const maxHeight=()=>Math.ceil(ui.drawer.scrollHeight);
- const toggleList=()=>{
-  const opened=!ui.details.classList.contains('is-open');
-  if(animationFrame){cancelAnimationFrame(animationFrame);animationFrame=0;}
-  const current=ui.drawer.getBoundingClientRect().height;
-  ui.drawer.style.height=current+'px';
-  ui.details.classList.toggle('is-open',opened);
-  updateListButton();
-  if(opened){
-   ui.drawer.removeAttribute('inert');
-   ui.drawer.setAttribute('aria-hidden','false');
-  }else{
-   if(ui.drawer.contains(document.activeElement))ui.listButton.focus();
-   ui.drawer.setAttribute('inert','');
-   ui.drawer.setAttribute('aria-hidden','true');
-  }
+ function showMarketDialog(){
+  if(dialog.open||closingDialog)return;
+  clearTimeout(dialogTimer);
+  dialog.classList.remove('is-leaving');
+  dialog.showModal();
+ }
+ function closeMarketDialog(){
+  if(!dialog.open||closingDialog)return;
   if(reduceMotion.matches){
-   ui.drawer.style.height=opened?'auto':'0px';
+   dialog.close();
+   ui.listButton.focus({preventScroll:true});
    return;
   }
-  // Une seule mesure après changement d'état, puis une seule écriture
-  // par image. Évite les à-coups liés aux transitions de grilles imbriquées.
-  animationFrame=requestAnimationFrame(()=>{
-   animationFrame=0;
-   ui.drawer.style.height=(opened?maxHeight():0)+'px';
-  });
- };
- ui.listButton.addEventListener('click',toggleList);
- ui.drawer.addEventListener('transitionend',event=>{
-  if(event.target!==ui.drawer||event.propertyName!=='height')return;
-  if(ui.details.classList.contains('is-open'))ui.drawer.style.height='auto';
- });
+  closingDialog=true;
+  dialog.classList.add('is-leaving');
+  dialogTimer=setTimeout(()=>{
+   dialog.close();
+   dialog.classList.remove('is-leaving');
+   closingDialog=false;
+   ui.listButton.focus({preventScroll:true});
+  },440);
+ }
+ ui.listButton.addEventListener('click',showMarketDialog);
+ dialogClose.addEventListener('click',closeMarketDialog);
+ dialog.addEventListener('cancel',e=>{e.preventDefault();closeMarketDialog();});
+ dialog.addEventListener('click',e=>{if(e.target===dialog)closeMarketDialog();});
  updateListButton();
 }
 const DAY=86400000,LOCAL='iu_market_dashboard_filtered_v2';
