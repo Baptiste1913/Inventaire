@@ -26983,3 +26983,19 @@ html body main.app > .basket-card .fold-heading .section-kicker,
 html body main.app > .backup-card .fold-heading .section-kicker{
  color:#73818a!important;
 }
+
+/* V38.20 — Uniformiser explicitement les intitulés Administration,
+   Événement, Calcul, Suivi, Bilans, Paniers et Données avec SERVICES U.
+   Chaque intitulé est dans le même élément : neutraliser les éventuels
+   remplissages de texte dégradés sans toucher aux grands titres. */
+html body main.app > #planningAdminCard .planning-admin-eyebrow,
+html body main.app > #inventoryCalendar .events-home-header .events-section-kicker,
+html body main.app > .calc-card > .card-heading .section-kicker,
+html body main.app > .history-card .fold-heading .section-kicker,
+html body main.app > .sessions-history-card .fold-heading .section-kicker,
+html body main.app > .basket-card .fold-heading .section-kicker,
+html body main.app > .backup-card .fold-heading .section-kicker{
+ color:#73818a!important;
+ -webkit-text-fill-color:#73818a!important;
+ background-image:none!important;
+}

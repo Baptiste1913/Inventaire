@@ -1,7 +1,7 @@
 {
-  "version": "38.19",
+  "version": "38.20",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1398321,
-  "notes": "Harmonisation des neuf sous-titres « SERVICES U / SERVICE U » des blocs d'accueil : même gris-bleu adouci (#73818a), contraste global réduit. Titres principaux, autres textes et fonctionnalités inchangés. Cache PWA renouvelé."
+  "bytes": 1399195,
+  "notes": "Accueil : harmonisation explicite des mots Administration, Événement, Calcul, Suivi, Bilans, Paniers et Données avec la teinte adoucie #73818a de Services U, en neutralisant les remplissages de texte éventuels. Cache PWA renouvelé."
 }
