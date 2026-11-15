@@ -1,7 +1,7 @@
 {
-  "version": "37.32",
-  "published": "2026-11-14",
+  "version": "37.33",
+  "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1111192,
-  "notes": "Nouvel accueil inspiré de l'agencement Klarna : banderole Fruits et Légumes agrandie (312 px minimum sur iPhone), fond pastel rose/lavande/turquoise fait de dégradés semi-transparents sur un support blanc, titre et description graphite pour améliorer le contraste. Ajout d'un panneau bas blanc opalin, superposé au dégradé et doté de grands arrondis supérieurs, avec une ombre très discrète ; bouton d'inventaire posé au premier plan. Pastèque SVG, statut de session, dimensions du bouton v37.31 (56,25 % × 41,25 px) et actions d'inventaire conservés ; cache PWA renouvelé."
+  "bytes": 1111759,
+  "notes": "Banderole d'accueil : nouvelle palette translucide bleu U (#53C0E9, #007583, turquoise clair) sur fond blanc à la place du pastel rose/lavande, avec feuillet inférieur clair aux grands coins arrondis conservé. Bouton d'inventaire remonté de 32 px (30 px sur iPhone, 26 px sur petits écrans), sans modifier sa taille ni son action. Mascotte pastèque masquée temporairement par CSS, fichier SVG et balisage préservés. Fonctionnalités, données et autres cartes inchangées. Cache PWA renouvelé."
 }
