@@ -1,7 +1,7 @@
 {
-  "version": "37.90",
+  "version": "37.91",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1312724,
-  "notes": "Accueil : en-tête BIENVENUE DANS VOTRE ESPACE sans pastille Sources officielles ; encadrés plus translucides, laissant passer les halos. Rappel principal réduit à produit • date complète et motif de rappel (sans marque répétée), alimenté par les données officielles. Bouton Voir la liste reproduisant les deux couches, dégradé, contours, ombres et états du bouton Démarrer un inventaire. Popup et fonctionnalités conservées."
+  "bytes": 1317989,
+  "notes": "Accueil : séparation arrondie de 20 × 2 px avant Administrateur, date du rappel déplacée sous le nom du produit, icône lien externe noire sans cadre et halos rouge, bleu et vert légèrement renforcés avec intensités animées à des rythmes distincts. Respect de Réduire les animations, cache PWA actualisé."
 }

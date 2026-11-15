@@ -185,8 +185,8 @@ function display(data,connected){
  if(ui.featured&&ui.featureKicker&&ui.featureTitle&&ui.featureSummary){
   if(lead){
    const dateLabel=frLongDate(lead.date);
-   ui.featureKicker.textContent='';
-   ui.featureTitle.textContent=lead.title+(dateLabel?' • '+dateLabel:'');
+   ui.featureTitle.textContent=lead.title;
+   ui.featureKicker.textContent=dateLabel?'• '+dateLabel:'';
    if(lead.type==='recall'){
     // Conserver le motif officiel ; supprimer uniquement la marque redondante
     // affichée avant le séparateur, et sa forme plurielle pour cet intitulé.
