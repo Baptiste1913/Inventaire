@@ -23037,3 +23037,106 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
   padding:9px 12px!important;
  }
 }
+
+/* V37.71 — Tableau de bord blanc et liste compacte dans un seul petit bloc.
+   Le blanc opaque améliore la lecture sans supprimer l'aurore Liquid Glass. */
+.iu-dash .iu-dash-panel,
+.iu-dash .iu-dash-panel-recall{
+ background:#fff!important;
+ background-image:none!important;
+ border:1px solid rgba(255,255,255,.98)!important;
+ box-shadow:0 4px 15px rgba(40,82,100,.075),inset 0 1px 0 #fff!important;
+}
+.iu-dash .iu-dash-panel:first-child{
+ border-right:1px solid rgba(255,255,255,.98)!important;
+}
+.iu-dash .iu-dash-panel-top strong{
+ color:#263c44!important;
+}
+.iu-dash .iu-dash-counter strong{
+ color:#273b43!important;
+}
+.iu-dash .iu-dash-preview{
+ color:#435c66!important;
+}
+.iu-dash .iu-dash-list-button{
+ background:#fff!important;
+ background-image:none!important;
+ border:1px solid rgba(255,255,255,.98)!important;
+ box-shadow:0 3px 12px rgba(40,82,100,.075),inset 0 1px 0 #fff!important;
+}
+.iu-dash .iu-dash-list-button:active{
+ background:#f0f8fb!important;
+}
+.iu-dash .iu-dash-drawer > .iu-dash-detail-content{
+ box-sizing:border-box!important;
+ width:100%!important;
+ max-height:290px!important;
+ padding:12px 13px!important;
+ margin:0!important;
+ gap:0!important;
+ background:#fff!important;
+ border:1px solid rgba(255,255,255,.98)!important;
+ border-radius:15px!important;
+ box-shadow:0 4px 14px rgba(40,82,100,.075),inset 0 1px 0 #fff!important;
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch;
+ overscroll-behavior-y:contain;
+ scrollbar-width:thin;
+ scrollbar-color:#b7d5dc transparent;
+}
+.iu-dash .iu-dash-drawer > .iu-dash-detail-content:focus-visible{
+ outline:2px solid #007583!important;
+ outline-offset:-3px!important;
+}
+.iu-dash .iu-dash-mini-group{
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+}
+.iu-dash .iu-dash-mini-group + .iu-dash-mini-group{
+ margin-top:12px!important;
+ padding-top:13px!important;
+ border-top:1px solid #e5edf0!important;
+}
+.iu-dash .iu-dash-mini-group h4{
+ font-size:12.5px!important;
+ font-weight:750!important;
+ margin:0 0 5px!important;
+ color:#294953!important;
+}
+.iu-dash .iu-dash-alert{
+ padding:9px 1px!important;
+ border-color:#edf2f3!important;
+}
+.iu-dash .iu-dash-alert:last-child{
+ border-bottom:0!important;
+}
+.iu-dash .iu-dash-alert-copy strong{
+ font-size:12.5px!important;
+ line-height:1.32!important;
+}
+.iu-dash .iu-dash-alert-copy small{
+ font-size:11.5px!important;
+ line-height:1.4!important;
+ display:-webkit-box!important;
+ -webkit-box-orient:vertical!important;
+ -webkit-line-clamp:2!important;
+ overflow:hidden!important;
+}
+.iu-dash .iu-dash-caution{
+ margin:8px 0 0!important;
+ padding:9px 10px!important;
+ border-radius:9px!important;
+ background:#f4f8f9!important;
+ color:#526c76!important;
+ font-size:11px!important;
+ line-height:1.4!important;
+}
+@media(max-width:380px){
+ .iu-dash .iu-dash-drawer > .iu-dash-detail-content{
+  padding:10px!important;
+  max-height:255px!important;
+ }
+}

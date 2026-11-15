@@ -1,10 +1,10 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v37-70';
+const CACHE = 'inventaires-u-offline-v37-71';
 const CORE = [
-  './', './index.html', './version.json', './market-watch.js?v=37.70', './market-watch.json', './admin-categories.js?v=37.70', './technical-log.js?v=33.93', './update-manager.js?v=37.70', './error-journal.js?v=33.93', './site-operations.js?v=37.70', './push.js?v=33.75', './planning-admin.js?v=37.70', './events-data.js?v=33.19', './events.js?v=37.70', './style.css?v=37.70', './app.js?v=37.70',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=37.70', './manifest.webmanifest?v=37.70', './icon.png?v=37.70',
-  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=37.70', './apple-touch-icon.png?v=37.70', './logo-u.png', './favicon-32.png?v=37.70', './favicon-16.png?v=37.70',
-   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=37.70', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=37.70'
+  './', './index.html', './version.json', './market-watch.js?v=37.71', './market-watch.json', './admin-categories.js?v=37.71', './technical-log.js?v=33.93', './update-manager.js?v=37.71', './error-journal.js?v=33.93', './site-operations.js?v=37.71', './push.js?v=33.75', './planning-admin.js?v=37.71', './events-data.js?v=33.19', './events.js?v=37.71', './style.css?v=37.71', './app.js?v=37.71',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=37.71', './manifest.webmanifest?v=37.71', './icon.png?v=37.71',
+  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=37.71', './apple-touch-icon.png?v=37.71', './logo-u.png', './favicon-32.png?v=37.71', './favicon-16.png?v=37.71',
+   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=37.71', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=37.71'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -12,9 +12,9 @@ self.addEventListener('install', event => {
     // V35.67 : protéger les fichiers indispensables sans bloquer toute la
     // mise à jour lorsqu'une image ou une ressource secondaire manque.
     // Ne jamais activer un shell incomplet.
-    const required = ['./index.html', './style.css?v=37.70', './app.js?v=37.70',
-      './update-manager.js?v=37.70', './auth-config.js?v=32.0', './idb.js?v=33.0',
-      './auth.js?v=37.70', './icon.png?v=37.70', './assets/u-inventory-button.svg?v=37.70'];
+    const required = ['./index.html', './style.css?v=37.71', './app.js?v=37.71',
+      './update-manager.js?v=37.71', './auth-config.js?v=32.0', './idb.js?v=33.0',
+      './auth.js?v=37.71', './icon.png?v=37.71', './assets/u-inventory-button.svg?v=37.71'];
     await cache.addAll(required);
     const optional = CORE.filter(path => !required.includes(path));
     await Promise.allSettled(optional.map(async path => {

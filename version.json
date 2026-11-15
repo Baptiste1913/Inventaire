@@ -1,7 +1,7 @@
 {
-  "version": "37.70",
+  "version": "37.71",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1201389,
-  "notes": "Tableau de bord : bouton Voir/Masquer la liste, animation fluide symétrique du tiroir et rotation du chevron, meilleure typographie des noms de produits et marques, capitalisation des débuts de phrase. Rappels, sources et fonctions existantes préservés."
+  "bytes": 1204491,
+  "notes": "Tableau de bord : cadres Approvisionnement, Rappels et bouton de liste sur fond blanc opaque ; informations détaillées réunies dans un petit bloc blanc défilable, avec catégories séparées et contraste renforcé. Animation du tiroir, fonctions et filtres conservés."
 }
