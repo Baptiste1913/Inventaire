@@ -345,25 +345,50 @@ function removeGroupEntry(id){return false;}
 function groupSum(g){return 0;}
 // Mise à jour légère du HUD, sans retraitement des historiques.
 function islandDurationLabel(ms){const minutes=Math.floor(Math.max(0,ms)/60000),h=Math.floor(minutes/60),m=minutes%60;return h?`${h} h ${String(m).padStart(2,'0')}`:`${m} min`;}
+// V37.41 — Indicateurs alimentés par les sessions enregistrées.
+function heroTimePerWeigh(stats){
+ if(!stats||!stats.count||!stats.duration)return '—';
+ const secs=Math.max(0,Math.round(stats.duration/1000/stats.count));
+ const h=Math.floor(secs/3600),m=Math.floor(secs%3600/60),x=secs%60;
+ return (h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0');
+}
+function latestFinishedInventory(){return sessions.filter(s=>Number.isFinite(s.endedAt)).sort((a,b)=>b.endedAt-a.endedAt)[0]||null;}
+function heroSetText(id,val){const el=$(id);if(el&&el.textContent!==String(val))el.textContent=String(val);}
 function renderHeroSummary(){
- const status=$('heroStatus'),text=$('heroStatusText');
- if(!status||!text)return;
- const session=getActiveSession();
- status.classList.toggle('is-running',Boolean(session&&!session.pausedAt));
- status.classList.toggle('is-paused',Boolean(session&&session.pausedAt));
- const count=session?session.entries.length:0;
- text.textContent=!session?'Aucune session':`${session.pausedAt?'En pause':'En cours'} · ${count} pesée${count>1?'s':''}`;
- // La banderole est un raccourci de navigation vers Ma session :
- // elle ne démarre, ne reprend et n'interrompt jamais un inventaire.
- const heroAction=$('heroStartSession'),heroLabel=$('heroActionLabel');
- if(heroAction&&heroLabel){
-  heroLabel.textContent='Aller à Ma session';
-  heroAction.disabled=false;
-  heroAction.setAttribute('aria-disabled','false');
-  heroAction.setAttribute('aria-controls',!session?'startSession':session.pausedAt?'resumeSession':'pauseSession');
-  heroAction.setAttribute('aria-label','Aller à Ma session — '+text.textContent);
+ const root=document.querySelector('.app > section.intro'),status=$('heroStatus'),text=$('heroStatusText');
+ if(!root||!status||!text)return;
+ const session=getActiveSession(),last=latestFinishedInventory(),now=Date.now();
+ const finishedRecently=!session&&last&&last.endedAt<=now&&now-last.endedAt<86400000;
+ const state=session?(session.pausedAt?'paused':'running'):finishedRecently?'finished':'before';
+ const stats=session?activeStats(session):last?activeStats(last):null;
+ const count=stats?.count||0,avg=heroTimePerWeigh(stats);
+ const raw=$('calendarNextDate')?.textContent?.trim()||'';
+ const nextDate=raw&&!/chargement|confirmer/i.test(raw)?raw:'Date à confirmer';
+ const countdown=$('calendarNextCountdown');
+ const dateCaption=countdown&&!countdown.hidden&&countdown.textContent.trim()?countdown.textContent.trim():'Selon votre planning';
+ const lastCaption=last?'Session du '+new Date(last.startedAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'Aucune session terminée';
+ let fields;
+ if(state==='running')fields=['SUIVI EN TEMPS RÉEL','Inventaire en cours','Votre session est enregistrée automatiquement.',durationLabel(stats.duration),'Durée active','Pesées enregistrées',String(count),'Temps / pesée',avg,'Revenir à ma session','pauseSession','En cours'];
+ else if(state==='paused')fields=['SESSION CONSERVÉE','Inventaire en pause','Vos pesées sont conservées. Reprenez quand vous êtes prêt.',durationLabel(stats.duration),'Durée active avant la pause','Pesées enregistrées',String(count),'Temps / pesée',avg,'Reprendre l’inventaire','resumeSession','En pause'];
+ else if(state==='finished')fields=['DERNIER INVENTAIRE TERMINÉ','Inventaire terminé','Votre bilan est disponible dans Mes inventaires.',durationLabel(stats.duration),lastCaption,'Pesées réalisées',String(count),'Temps / pesée',avg,'Consulter mon bilan','sessionsHistoryList','Terminé'];
+ else fields=['PROCHAIN INVENTAIRE',nextDate==='Date à confirmer'?'Prêt pour votre prochain inventaire':'Votre prochain inventaire',last?'Retrouvez votre prochaine date et le résultat de votre dernière session.':'Les informations de vos inventaires apparaîtront ici.',nextDate,dateCaption,'Dernier inventaire',last?String(count)+' pesées':'—','Temps moyen / pesée',last?avg:'—',last?'Consulter le dernier bilan':'Aller à Ma session',last?'sessionsHistoryList':'startSession','Prêt'];
+ if(root.dataset.introState!==state)root.dataset.introState=state;
+ status.classList.toggle('is-running',state==='running');
+ status.classList.toggle('is-paused',state==='paused');
+ status.classList.toggle('is-finished',state==='finished');
+ heroSetText('heroStatusText',fields[11]);
+ const ids=['introSmartEyebrow','introSmartHeading','introSmartDescription','introSmartPrimary','introSmartPrimaryCaption','introSmartStat1Label','introSmartStat1','introSmartStat2Label','introSmartStat2','heroActionLabel'];
+ ids.forEach((id,i)=>heroSetText(id,fields[i]));
+ const trigger=$('heroStartSession');
+ if(trigger){
+  if(trigger.disabled)trigger.disabled=false;
+  if(trigger.getAttribute('aria-disabled')!=='false')trigger.setAttribute('aria-disabled','false');
+  if(trigger.getAttribute('aria-controls')!==fields[10])trigger.setAttribute('aria-controls',fields[10]);
+  const label=fields[9]+' — '+fields[11];
+  if(trigger.getAttribute('aria-label')!==label)trigger.setAttribute('aria-label',label);
  }
 }
+
 // V33.65 — transition verticale par carte : l'accueil descend du bas vers
 // le haut pendant que Concentration remonte. La banderole et l'en-tête ne
 // se déplacent pas. Le mouvement inverse accompagne Pause et Terminer.
