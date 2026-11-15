@@ -186,13 +186,13 @@ function display(data,connected){
   if(lead){
    const dateLabel=frLongDate(lead.date);
    ui.featureTitle.textContent=lead.title;
-   ui.featureKicker.textContent=dateLabel?'• '+dateLabel:'';
+   ui.featureKicker.textContent=lead.type==='recall'?'':(dateLabel?'• '+dateLabel:'');
    if(lead.type==='recall'){
-    // Conserver le motif officiel ; supprimer uniquement la marque redondante
-    // affichée avant le séparateur, et sa forme plurielle pour cet intitulé.
+    // Sous-titre : motif officiel complet, puis date du rappel. Aucun
+    // changement artificiel du pluriel « pesticides » dans la source.
     const segments=String(lead.description||'').split(/\s*[·•]\s*/).filter(Boolean);
     const reason=segments.length?segments[segments.length-1]:'Consulter le rappel officiel';
-    ui.featureSummary.textContent=typographie(reason.replace(/\bde pesticides\b/gi,'de pesticide'));
+    ui.featureSummary.textContent=typographie(reason)+(dateLabel?' • '+dateLabel:'');
    }else if(lead.type==='price'){
     ui.featureSummary.textContent=(lead.change>0?'+':'')+
      lead.change.toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';

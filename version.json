@@ -1,7 +1,7 @@
 {
-  "version": "37.91",
+  "version": "37.92",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1317989,
-  "notes": "Accueil : séparation arrondie de 20 × 2 px avant Administrateur, date du rappel déplacée sous le nom du produit, icône lien externe noire sans cadre et halos rouge, bleu et vert légèrement renforcés avec intensités animées à des rythmes distincts. Respect de Réduire les animations, cache PWA actualisé."
+  "bytes": 1322795,
+  "notes": "Accueil : halos rouges, bleus et verts aux pulsations d'intensité plus visibles et désynchronisées ; rappel officiel sous la forme « Dépassement des limites autorisées de pesticides • 9 novembre » (date dynamique) ; séparateur agrandi de 20 × 2 à 42 × 4 px ; en-têtes Bienvenue et Service U / Événement en noir ; retrait des épaisses bordures blanches haut/gauche des cartes d'accueil. Cache PWA actualisé."
 }

@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.91")!important;
+  url("./assets/u-aurora.svg?v=37.92")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -25464,4 +25464,86 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition::before{background:CanvasText!important;}
  .iu-home-watch .iu-dash .iu-dash-feature-arrow,
  .iu-home-watch .iu-dash .iu-dash-feature-arrow svg{color:LinkText!important;stroke:LinkText!important;}
+}
+
+/* V37.92 — Lecture, contraste et finition de l'accueil. */
+/* Séparateur : +22 px en largeur et +2 px en hauteur par rapport à V37.91,
+   centré, extrémités entièrement arrondies. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition::before{
+ width:42px!important;height:4px!important;
+ left:calc(50% - 21px)!important;
+ top:7px!important;
+ border-radius:999px!important;
+}
+/* Supprimer les bandes blanches de 2 px en haut et à gauche des cartes
+   d'accueil (introduites en V37.61), sans retirer leurs bordures ordinaires.
+   Cela s'applique aux neuf familles de cartes de l'accueil. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
+ #planningAdminCard,#accountCard,#inventoryCalendar,
+ .session-card,.calc-card,.history-card,.sessions-history-card,
+ .basket-card,#backupCard,.card
+){
+ border-top:1px solid rgba(219,229,234,.68)!important;
+ border-left:1px solid rgba(219,229,234,.68)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ border:1px solid rgba(220,231,235,.48)!important;
+}
+/* En-têtes demandés en noir. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome-eyebrow,
+html body:not(.is-focus-mode) .app > #inventoryCalendar.events-card .events-section-kicker{
+ color:#15191d!important;
+ -webkit-text-fill-color:#15191d!important;
+}
+/* Les pulsations sont désormais perceptibles : chacune descend vers ~10 %
+   puis revient à 100 %, avec des durées, phases et délais distincts.
+   Les halos restent derrière le verre, sans animation de mise en page. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel > .iu-home-glow-red{
+ background:radial-gradient(ellipse at center,rgba(246,93,137,.36) 0%,rgba(246,93,137,.16) 48%,transparent 90%)!important;
+ animation:iuHomeGlowRedV3792 13s ease-in-out -4s infinite!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel > .iu-home-glow-blue{
+ background:radial-gradient(ellipse at center,rgba(66,163,231,.32) 0%,rgba(66,163,231,.14) 51%,transparent 90%)!important;
+ animation:iuHomeGlowBlueV3792 18s ease-in-out -9s infinite!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel > .iu-home-glow-green{
+ background:radial-gradient(ellipse at center,rgba(52,180,157,.35) 0%,rgba(52,180,157,.15) 49%,transparent 89%)!important;
+ animation:iuHomeGlowGreenV3792 24s ease-in-out -15s infinite!important;
+}
+/* Diminuer l'éclairage fixe, sinon il masque les pulsations des trois halos. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{
+ opacity:.23!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ background:
+ radial-gradient(ellipse 160px 180px at -3% 27%,rgba(239,135,161,.09),transparent 94%),
+ radial-gradient(ellipse 185px 185px at 48% 47%,rgba(98,185,232,.055),transparent 91%),
+ radial-gradient(ellipse 155px 190px at 105% 51%,rgba(85,183,167,.09),transparent 94%),
+ linear-gradient(120deg,rgba(255,255,255,.71),rgba(255,255,255,.79) 54%,rgba(255,255,255,.71))!important;
+}
+@keyframes iuHomeGlowRedV3792{
+ 0%,100%{opacity:1;}39%{opacity:.10;}62%{opacity:.30;}
+}
+@keyframes iuHomeGlowBlueV3792{
+ 0%,100%{opacity:.98;}49%{opacity:.11;}69%{opacity:.36;}
+}
+@keyframes iuHomeGlowGreenV3792{
+ 0%,100%{opacity:1;}32%{opacity:.12;}73%{opacity:.29;}
+}
+@media(prefers-reduced-motion:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel > .iu-home-glow-orb{
+  animation:none!important;opacity:.50!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  background:#fff!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card,
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  border:1px solid CanvasText!important;
+ }
 }
