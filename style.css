@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.86")!important;
+  url("./assets/u-aurora.svg?v=37.87")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -24597,5 +24597,243 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
 }
 @media(forced-colors:active){
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{background:Canvas!important;}
+ .iu-home-welcome-light{display:none!important;}
+}
+
+/* V37.87 — Retour à la composition de l'ancien accueil « Prochain inventaire »,
+   avec les données ACTUELLES de veille : grande information, deux indicateurs
+   et action en bas, halo rose/bleu/vert, centre blanc et surfaces légères.
+   Aucun changement aux sources, aux données d'inventaire ou aux états actifs. */
+
+/* Halo doux : l'identité graphique de l'ancien bandeau sans opacité excessive. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"]{
+ padding:22px 17px 11px!important;
+ background:transparent!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ padding:0!important;
+ border:0!important;
+ box-shadow:none!important;
+ background:transparent!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ display:block!important;position:relative!important;isolation:isolate!important;
+ overflow:hidden!important;
+ padding:25px 21px 19px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:32px!important;
+ background:
+  radial-gradient(ellipse 205px 275px at -17% 19%,rgba(250,170,188,.25),transparent 95%),
+  radial-gradient(ellipse 280px 255px at 112% 35%,rgba(111,218,223,.27),transparent 96%),
+  radial-gradient(ellipse 180px 175px at 52% 97%,rgba(107,194,187,.12),transparent 94%),
+  linear-gradient(125deg,rgba(255,255,255,.93) 3%,rgba(250,254,254,.97) 55%,rgba(255,255,255,.91) 100%)!important;
+ box-shadow:0 13px 32px rgba(49,87,114,.09),inset 0 1px rgba(255,255,255,.96)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome-light{
+ inset:-20px -30px -20px!important;
+ background:
+  radial-gradient(ellipse 43% 64% at 5% 35%,rgba(241,143,170,.19),transparent 89%),
+  radial-gradient(ellipse 58% 65% at 98% 26%,rgba(63,187,220,.19),transparent 90%),
+  radial-gradient(ellipse 53% 66% at 92% 86%,rgba(70,181,160,.14),transparent 93%)!important;
+ opacity:.85!important;
+ filter:blur(21px)!important;
+ -webkit-filter:blur(21px)!important;
+ pointer-events:none!important;
+}
+.iu-home-welcome-content{gap:0!important;}
+.iu-home-welcome-topline{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:9px!important;min-width:0!important;
+}
+.iu-home-welcome-eyebrow{
+ flex:1 1 auto!important;min-width:0!important;
+ display:inline-flex!important;align-items:center!important;gap:7px!important;
+ font-size:10.5px!important;font-weight:800!important;letter-spacing:.085em!important;
+ color:#557b83!important;line-height:1.28!important;
+}
+.iu-home-welcome-dot{
+ width:7px!important;height:7px!important;flex:0 0 7px!important;
+ background:#4bafa8!important;
+ box-shadow:0 0 0 4px rgba(73,175,166,.12)!important;
+}
+.iu-home-source-pill{
+ flex:0 0 auto!important;max-width:123px!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:6px!important;padding:9px 10px!important;
+ border:1px solid rgba(255,255,255,.93)!important;border-radius:999px!important;
+ background:rgba(255,255,255,.66)!important;
+ color:#527982!important;
+ font-size:10px!important;font-weight:750!important;line-height:1.18!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.89)!important;
+ text-align:center!important;
+}
+.iu-home-source-dot{
+ width:7px!important;height:7px!important;flex:0 0 7px!important;
+ border-radius:50%!important;background:#5b9fa3!important;
+ box-shadow:0 0 0 4px rgba(70,151,156,.10)!important;
+}
+.iu-home-a11y-title{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;border:0!important;
+ overflow:hidden!important;clip:rect(0 0 0 0)!important;
+ clip-path:inset(50%)!important;white-space:nowrap!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch{
+ margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-market-widget{
+ padding:0!important;
+}
+.iu-home-watch .iu-dash .iu-dash-head{display:none!important;}
+/* Même hiérarchie que « Mardi 1 décembre 2026 » sur la référence :
+   titre dynamique grand et sous-titre de source en dessous. */
+.iu-home-watch .iu-dash .iu-dash-feature{
+ display:flex!important;position:relative!important;align-items:flex-start!important;
+ margin:24px 0 0!important;padding:0!important;
+ width:100%!important;min-width:0!important;min-height:0!important;
+ gap:0!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;background-image:none!important;
+ box-shadow:none!important;color:#283d45!important;
+ text-decoration:none!important;transform:none!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-icon{display:none!important;}
+.iu-home-watch .iu-dash .iu-dash-feature-content{
+ display:flex!important;flex:1 1 auto!important;flex-direction:column!important;
+ align-items:flex-start!important;gap:5px!important;min-width:0!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-content strong{
+ order:0!important;
+ font-size:clamp(25px,6.6vw,31px)!important;
+ font-weight:850!important;line-height:1.11!important;
+ letter-spacing:-.7px!important;
+ color:#253b45!important;overflow-wrap:break-word!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-kicker{
+ order:1!important;
+ font-size:12.5px!important;font-weight:750!important;line-height:1.25!important;
+ color:#58737d!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-summary{
+ order:2!important;max-width:100%!important;
+ font-size:11.3px!important;line-height:1.3!important;
+ color:#799099!important;display:-webkit-box!important;
+ -webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature-arrow{
+ display:inline-flex!important;align-self:center!important;justify-content:center!important;
+ flex:0 0 22px!important;min-width:22px!important;
+ font-size:26px!important;line-height:1!important;color:#3a8d97!important;
+ margin:4px 0 0 5px!important;
+}
+.iu-home-watch .iu-dash .iu-dash-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:10px!important;margin:21px 0 0!important;
+}
+.iu-home-watch .iu-dash .iu-dash-panel,
+.iu-home-watch .iu-dash .iu-dash-panel-recall{
+ display:flex!important;flex-direction:column!important;justify-content:center!important;
+ min-height:79px!important;gap:7px!important;
+ padding:12px 13px!important;
+ border-radius:22px!important;border:1px solid rgba(255,255,255,.95)!important;
+ background:rgba(255,255,255,.54)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+.iu-home-watch .iu-dash .iu-dash-panel-top{display:flex!important;width:100%!important;min-width:0!important;gap:0!important;}
+.iu-home-watch .iu-dash .iu-dash-panel-icon{display:none!important;}
+.iu-home-watch .iu-dash .iu-dash-panel-top strong{
+ display:block!important;width:100%!important;min-width:0!important;
+ color:#627c85!important;
+ font-size:clamp(9px,2.7vw,12px)!important;
+ font-weight:700!important;line-height:1.26!important;
+ letter-spacing:-.05px!important;
+ overflow-wrap:normal!important;word-break:normal!important;
+ white-space:nowrap!important;
+}
+.iu-home-watch .iu-dash .iu-dash-counter{
+ display:flex!important;flex-flow:row nowrap!important;gap:6px!important;
+ align-items:baseline!important;justify-content:flex-start!important;
+ margin:0!important;padding:0!important;border:0!important;align-self:auto!important;
+}
+.iu-home-watch .iu-dash .iu-dash-counter strong{
+ font-size:clamp(22px,6vw,28px)!important;font-weight:850!important;line-height:1!important;
+ letter-spacing:-.5px!important;color:#2b414a!important;
+}
+.iu-home-watch .iu-dash .iu-dash-counter span{
+ font-size:10px!important;font-weight:600!important;color:#718991!important;
+ line-height:1.25!important;
+}
+.iu-home-watch .iu-dash .iu-dash-preview{display:none!important;}
+/* Le bouton important reprend la bordure turquoise et la surface
+   gris perlé du « Consulter le dernier bilan » de la capture. */
+.iu-home-watch .iu-dash .iu-dash-details{margin:19px 0 0!important;}
+.iu-home-watch .iu-dash .iu-dash-list-button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-height:55px!important;position:relative!important;
+ padding:11px 16px!important;border-radius:18px!important;
+ border:2px solid #168995!important;
+ background:linear-gradient(145deg,#fff,#eef2f5)!important;
+ color:#29333d!important;-webkit-text-fill-color:#29333d!important;
+ box-shadow:0 0 0 4px rgba(83,192,219,.50),inset 0 1px rgba(255,255,255,.92),0 4px 14px rgba(58,112,131,.08)!important;
+ font-size:14px!important;font-weight:750!important;line-height:1.25!important;
+ text-align:center!important;
+ transition:background .28s ease,border-color .28s ease,box-shadow .28s ease!important;
+}
+.iu-home-watch .iu-dash .iu-dash-list-chevron{
+ width:17px!important;height:17px!important;
+ flex:0 0 17px!important;margin-left:8px!important;
+ color:#354b53!important;stroke:#354b53!important;stroke-width:2.2!important;
+}
+.iu-home-watch .iu-dash .iu-dash-details.is-open .iu-dash-drawer{margin-top:14px!important;}
+.iu-home-watch .iu-dash .iu-market-updated{
+ margin:19px 0 0!important;
+ padding:0!important;border:0!important;
+ color:#82959b!important;font-size:10px!important;
+ line-height:1.4!important;text-align:center!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition{
+ height:16px!important;flex-basis:16px!important;margin:0 auto 0!important;
+}
+/* Les halos respirent lentement, le contenu et les compteurs restent fixes. */
+@keyframes iuRetroHalo{
+ 0%,100%{transform:translate3d(0,0,0) scale(1);opacity:.86;}
+ 50%{transform:translate3d(7px,-5px,0) scale(1.025);opacity:1;}
+}
+@media(prefers-reduced-motion:no-preference){
+ .iu-home-welcome-light{animation:iuRetroHalo 30s ease-in-out infinite!important;}
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"]{padding:17px 12px 9px!important;}
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{padding:19px 15px 15px!important;border-radius:27px!important;}
+ .iu-home-welcome-eyebrow{font-size:9.2px!important;letter-spacing:.04em!important;}
+ .iu-home-source-pill{font-size:9px!important;padding:8px!important;max-width:113px!important;}
+ .iu-home-watch .iu-dash .iu-dash-feature{margin-top:20px!important;}
+ .iu-home-watch .iu-dash .iu-dash-feature-content strong{font-size:25px!important;}
+ .iu-home-watch .iu-dash .iu-dash-grid{gap:8px!important;margin-top:17px!important;}
+ .iu-home-watch .iu-dash .iu-dash-panel,
+ .iu-home-watch .iu-dash .iu-dash-panel-recall{min-height:71px!important;padding:9px 10px!important;border-radius:17px!important;}
+ .iu-home-watch .iu-dash .iu-dash-panel-top strong{font-size:9px!important;}
+ .iu-home-watch .iu-dash .iu-dash-details{margin-top:15px!important;}
+ .iu-home-watch .iu-dash .iu-dash-list-button{min-height:51px!important;font-size:13px!important;}
+ .iu-home-watch .iu-dash .iu-market-updated{margin-top:16px!important;font-size:9px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ .iu-home-welcome-light{animation:none!important;}
+ .iu-home-watch .iu-dash .iu-dash-list-button{transition:none!important;}
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{background:#fff!important;}
+ .iu-home-welcome-light{display:none!important;}
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{background:Canvas!important;border:1px solid CanvasText!important;}
+ .iu-home-watch .iu-dash .iu-dash-panel,
+ .iu-home-watch .iu-dash .iu-dash-list-button{background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;}
  .iu-home-welcome-light{display:none!important;}
 }

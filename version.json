@@ -1,7 +1,7 @@
 {
-  "version": "37.86",
+  "version": "37.87",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1274103,
-  "notes": "Accueil compact : libellé Approvisionnement affiché sur une seule ligne, chiffres des statistiques agrandis et titres plus discrets ; moins d'espace vertical pour le message de bienvenue ; halos bleus/verts légèrement renforcés dans les angles avec centre clair. Fonctions, veille et animations existantes préservées."
+  "bytes": 1286880,
+  "notes": "Retour au visuel préféré de l'ancien accueil : grand panneau pastel blanc/rose/cyan, statut sources officielles, alerte principale en grand, deux indicateurs en cartes translucides, bouton à double contour turquoise et horodatage. Les chiffres et alertes sont alimentés par la veille actuelle, les anciens nombres statiques ne sont pas restaurés. Animations subtiles et cache PWA actualisé."
 }
