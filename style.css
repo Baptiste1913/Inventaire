@@ -23141,32 +23141,31 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  }
 }
 
-/* V37.73 — Halos abaissés et diffusion étendue sous l'en-tête U.
-   Les dégradés démarrent sous la bande blanche du logo sans être coupés.
-   Même palette et aplats blancs du tableau de bord conservés.
-   Aucune nouvelle couche ni animation : dégradés radiaux statiques. */
+/* V37.74 — Halos légèrement remontés, plus larges et plus clairs.
+   Palette rosée, bleue et émeraude préservée. Diffusion très progressive
+   dans le blanc sous le bandeau U, sans calque ni animation supplémentaire. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
  background-image:
-  radial-gradient(ellipse 300px 285px at 10% 390px,
-   rgba(249,58,98,.68) 0%,
-   rgba(249,58,98,.43) 24%,
-   rgba(249,58,98,.21) 48%,
-   rgba(249,58,98,.08) 72%,
-   rgba(249,58,98,.025) 88%,
+  radial-gradient(ellipse 350px 330px at 10% 350px,
+   rgba(249,58,98,.53) 0%,
+   rgba(249,58,98,.31) 27%,
+   rgba(249,58,98,.13) 55%,
+   rgba(249,58,98,.04) 78%,
+   rgba(249,58,98,.008) 93%,
    rgba(249,58,98,0) 100%),
-  radial-gradient(ellipse 355px 315px at 49% 415px,
-   rgba(45,166,238,.56) 0%,
-   rgba(45,166,238,.37) 26%,
-   rgba(45,166,238,.18) 51%,
-   rgba(45,166,238,.07) 74%,
-   rgba(45,166,238,.018) 89%,
+  radial-gradient(ellipse 408px 365px at 49% 373px,
+   rgba(45,166,238,.45) 0%,
+   rgba(45,166,238,.26) 29%,
+   rgba(45,166,238,.105) 58%,
+   rgba(45,166,238,.034) 80%,
+   rgba(45,166,238,.007) 94%,
    rgba(45,166,238,0) 100%),
-  radial-gradient(ellipse 325px 295px at 89% 400px,
-   rgba(0,149,139,.63) 0%,
-   rgba(0,149,139,.39) 27%,
-   rgba(0,149,139,.19) 52%,
-   rgba(0,149,139,.07) 75%,
-   rgba(0,149,139,.02) 89%,
+  radial-gradient(ellipse 380px 345px at 89% 358px,
+   rgba(0,149,139,.49) 0%,
+   rgba(0,149,139,.28) 29%,
+   rgba(0,149,139,.11) 57%,
+   rgba(0,149,139,.036) 80%,
+   rgba(0,149,139,.008) 94%,
    rgba(0,149,139,0) 100%)!important;
  background-repeat:no-repeat!important;
  background-color:#fff!important;
@@ -23174,12 +23173,12 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 @media(max-width:380px){
  html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
   background-image:
-   radial-gradient(ellipse 265px 255px at 12% 365px,
-    rgba(249,58,98,.66) 0%,rgba(249,58,98,.41) 27%,rgba(249,58,98,.19) 52%,rgba(249,58,98,.07) 75%,rgba(249,58,98,.018) 90%,rgba(249,58,98,0) 100%),
-   radial-gradient(ellipse 300px 285px at 49% 390px,
-    rgba(45,166,238,.54) 0%,rgba(45,166,238,.35) 27%,rgba(45,166,238,.16) 54%,rgba(45,166,238,.06) 77%,rgba(45,166,238,.018) 90%,rgba(45,166,238,0) 100%),
-   radial-gradient(ellipse 278px 265px at 89% 375px,
-    rgba(0,149,139,.60) 0%,rgba(0,149,139,.36) 28%,rgba(0,149,139,.17) 53%,rgba(0,149,139,.065) 77%,rgba(0,149,139,.018) 90%,rgba(0,149,139,0) 100%)!important;
+   radial-gradient(ellipse 308px 298px at 12% 332px,
+    rgba(249,58,98,.52) 0%,rgba(249,58,98,.30) 28%,rgba(249,58,98,.125) 56%,rgba(249,58,98,.038) 79%,rgba(249,58,98,.008) 93%,rgba(249,58,98,0) 100%),
+   radial-gradient(ellipse 350px 326px at 49% 351px,
+    rgba(45,166,238,.44) 0%,rgba(45,166,238,.25) 29%,rgba(45,166,238,.10) 58%,rgba(45,166,238,.032) 80%,rgba(45,166,238,.007) 94%,rgba(45,166,238,0) 100%),
+   radial-gradient(ellipse 325px 305px at 89% 337px,
+    rgba(0,149,139,.47) 0%,rgba(0,149,139,.27) 29%,rgba(0,149,139,.11) 57%,rgba(0,149,139,.034) 80%,rgba(0,149,139,.007) 94%,rgba(0,149,139,0) 100%)!important;
  }
 }
 @media(forced-colors:active){
