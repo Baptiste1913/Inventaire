@@ -1,7 +1,7 @@
 {
-  "version": "37.95",
+  "version": "37.96",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1343959,
-  "notes": "Cartes de l'application (sauf Bienvenue) harmonisées avec le neumorphisme du bouton « Accéder aux réglages » : mêmes dégradé, bordure et cinq ombres, sans toucher aux commandes. Suppression du séparateur, largeur responsive de l'accueil jusqu'à 960 px sur grands écrans, et halos de fond estompés progressivement aux quatre bords pour éviter les coupures nettes. Cache PWA actualisé."
+  "notes": "Suppression des contours gris des cartes principales et des encadrés de l'accueil, sans modifier les ombres neumorphiques, les commandes ni les pages dédiées. Cache PWA actualisé."
 }
