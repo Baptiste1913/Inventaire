@@ -1,7 +1,7 @@
 {
-  "version": "37.83",
+  "version": "37.84",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1263196,
-  "notes": "Accueil recentré sur l'inventaire : carte de bienvenue Fruits et Légumes, accès directs Ma session et Événements, veille officielle rangée dans un tiroir animé avec compteur de rappels, style U (cyan, vert d’eau et accent rouge) et animations légères respectueuses des réglages iOS. Le moteur de session et les sources de veille restent inchangés."
+  "bytes": 1266841,
+  "notes": "Accueil fusionné : bienvenue et veille réunies dans un panneau unique plus compact. Suppression des raccourcis Ma session et Événements redondants ; la veille reste intégrée dans le bas du panneau avec un tiroir fluide et les rappels visibles. Couleurs et microanimations existantes conservées, cache PWA actualisé."
 }

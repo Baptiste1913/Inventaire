@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.83")!important;
+  url("./assets/u-aurora.svg?v=37.84")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -24307,4 +24307,112 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  .iu-home-welcome,.iu-home-watch{background:Canvas!important;border:1px solid CanvasText!important;}
  .iu-home-welcome-actions a{background:ButtonFace!important;color:ButtonText!important;-webkit-text-fill-color:ButtonText!important;}
  .iu-home-welcome-light{display:none!important;}
+}
+
+/* V37.84 — Bienvenue et veille fusionnées : un seul panneau compact.
+   Les deux raccourcis ont été retirés ; le tiroir officiel, les compteurs,
+   le bouton Voir la liste et toutes les données restent en place. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ gap:0!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ padding:18px 18px 7px!important;
+ border-radius:22px!important;
+ border:1px solid rgba(209,227,230,.84)!important;
+ background:linear-gradient(128deg,#f9fcfd 0%,#f4faf9 50%,#f9fafc 100%)!important;
+ box-shadow:0 9px 24px rgba(40,92,109,.067),inset 0 1px rgba(255,255,255,.94)!important;
+}
+.iu-home-welcome-content h2{
+ margin:8px 0 0!important;
+ max-width:100%!important;
+ font-size:clamp(21px,5.4vw,24px)!important;
+ letter-spacing:-.55px!important;
+ line-height:1.16!important;
+}
+.iu-home-welcome-description{
+ max-width:100%!important;
+ margin:6px 0 0!important;
+ font-size:11.7px!important;
+ line-height:1.4!important;
+ color:#607981!important;
+ -webkit-text-fill-color:#607981!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch{
+ display:block!important;
+ position:relative!important;
+ z-index:3!important;
+ flex:0 0 auto!important;
+ margin-top:13px!important;
+ padding:0!important;
+ width:100%!important;
+ border:0!important;
+ border-top:1px solid rgba(136,184,189,.22)!important;
+ border-radius:0!important;
+ background:transparent!important;
+ background-image:none!important;
+ box-shadow:none!important;
+ overflow:visible!important;
+}
+.iu-home-watch-toggle{
+ min-height:51px!important;
+ gap:8px!important;
+ padding:9px 1px 8px!important;
+ border-radius:0!important;
+ background:transparent!important;
+}
+.iu-home-watch-symbol{
+ width:28px!important;height:28px!important;flex:0 0 28px!important;
+ border-radius:9px!important;
+ background:rgba(205,237,238,.68)!important;
+ color:#1d8290!important;
+}
+.iu-home-watch-symbol svg{width:17px!important;height:17px!important;}
+.iu-home-watch-heading{gap:2px!important;}
+.iu-home-watch-heading strong{font-size:12px!important;line-height:1.25!important;}
+.iu-home-watch-heading small{font-size:10px!important;line-height:1.3!important;}
+.iu-home-watch-status{
+ background:rgba(255,255,255,.7)!important;
+ border-color:rgba(210,231,234,.82)!important;
+ padding:5px 7px!important;
+ font-size:9px!important;
+}
+.iu-home-watch-status.has-recalls{
+ background:rgba(255,239,242,.88)!important;
+ border-color:rgba(238,207,214,.85)!important;
+}
+.iu-home-watch-chevron{
+ width:15px!important;height:15px!important;flex:0 0 15px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-market-widget{
+ padding:2px 0 12px!important;
+}
+.iu-home-watch .iu-dash .iu-dash-feature{margin-top:2px!important;}
+.iu-home-watch .iu-dash .iu-dash-grid{margin-top:7px!important;}
+.iu-home-watch .iu-dash .iu-dash-footer{margin-top:7px!important;}
+/* Déplier dans le même fond, sans nouvelle grande carte ni saut brutal. */
+.iu-home-watch-inner{
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+}
+@media(hover:hover){
+ .iu-home-watch-toggle:hover{background:rgba(255,255,255,.14)!important;}
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  padding:16px 14px 6px!important;
+ }
+ .iu-home-welcome-content h2{font-size:21px!important;}
+ .iu-home-welcome-description{font-size:11.3px!important;}
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch{
+  margin-top:11px!important;
+ }
+ .iu-home-watch-toggle{min-height:49px!important;gap:7px!important;padding:8px 0 7px!important;}
+ .iu-home-watch-heading small{font-size:9.5px!important;}
+ .iu-home-watch-status{max-width:78px!important;padding:4px 6px!important;}
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch{
+  border-top:1px solid CanvasText!important;
+ }
 }
