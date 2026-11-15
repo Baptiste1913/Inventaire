@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="680" viewBox="0 0 680 680" preserveAspectRatio="none" aria-hidden="true">
+ <defs>
+  <radialGradient id="blue"><stop offset="0" stop-color="#53c0e9" stop-opacity=".68"/><stop offset=".35" stop-color="#53c0e9" stop-opacity=".41"/><stop offset=".72" stop-color="#53c0e9" stop-opacity=".13"/><stop offset="1" stop-color="#53c0e9" stop-opacity="0"/></radialGradient>
+  <radialGradient id="deep"><stop offset="0" stop-color="#007583" stop-opacity=".52"/><stop offset=".38" stop-color="#007583" stop-opacity=".27"/><stop offset=".72" stop-color="#007583" stop-opacity=".08"/><stop offset="1" stop-color="#007583" stop-opacity="0"/></radialGradient>
+  <radialGradient id="mint"><stop offset="0" stop-color="#64b9ae" stop-opacity=".65"/><stop offset=".36" stop-color="#64b9ae" stop-opacity=".37"/><stop offset=".75" stop-color="#64b9ae" stop-opacity=".09"/><stop offset="1" stop-color="#64b9ae" stop-opacity="0"/></radialGradient>
+  <radialGradient id="red"><stop offset="0" stop-color="#e21b1b" stop-opacity=".14"/><stop offset=".42" stop-color="#e21b1b" stop-opacity=".055"/><stop offset="1" stop-color="#e21b1b" stop-opacity="0"/></radialGradient>
+  <filter id="warp" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+   <feTurbulence type="fractalNoise" baseFrequency=".010 .014" numOctaves="2" seed="8" result="noise"/>
+   <feDisplacementMap in="SourceGraphic" in2="noise" scale="25" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+   <feGaussianBlur in="displaced" stdDeviation="24"/>
+  </filter>
+ </defs>
+ <g filter="url(#warp)">
+  <ellipse cx="180" cy="315" rx="270" ry="250" fill="url(#blue)"/>
+  <ellipse cx="500" cy="340" rx="270" ry="240" fill="url(#mint)"/>
+  <ellipse cx="365" cy="410" rx="275" ry="260" fill="url(#deep)"/>
+  <ellipse cx="110" cy="455" rx="190" ry="170" fill="url(#red)"/>
+ </g>
+</svg>
