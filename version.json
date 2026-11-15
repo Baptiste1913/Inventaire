@@ -1,7 +1,7 @@
 {
-  "version": "37.97",
+  "version": "37.98",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1348668,
-  "notes": "Rayon de 20 px harmonisé avec Nouvelle pesée sur les cartes principales ; correction du bandeau Événement (suppression du cadre interne carré et débordements, adaptation mobile) ; contour et relief neumorphiques de Nouvelle pesée appliqués au bloc Bienvenue en préservant sa transparence. Cache PWA mis à jour."
+  "bytes": 1352715,
+  "notes": "Correction ciblée du bloc Événement : suppression des bordures/ombres parasites sur le bandeau, alignement adaptatif du bouton Notifications et prévention des débordements sur mobile. Rayons et autres cartes inchangés. Cache PWA actualisé."
 }
