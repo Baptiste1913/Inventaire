@@ -13,6 +13,24 @@ const ui={
  featured:byId('iuDashFeature'),featureKicker:byId('iuDashFeatureKicker'),
  featureTitle:byId('iuDashFeatureTitle'),featureSummary:byId('iuDashFeatureSummary')
 };
+/* V37.83 — La veille reste disponible sans monopoliser l'écran d'accueil.
+   L'ouverture/fermeture est réversible et les éléments masqués sont inertes. */
+const homeWatch=byId('iuHomeWatch');
+const homeToggle=byId('iuHomeWatchToggle');
+const homeReveal=byId('iuHomeWatchReveal');
+const homeStatus=byId('iuHomeWatchStatus');
+if(homeWatch&&homeToggle&&homeReveal){
+ const setHomeWatchOpen=opened=>{
+  if(!opened&&homeReveal.contains(document.activeElement))homeToggle.focus();
+  homeWatch.classList.toggle('is-open',opened);
+  homeToggle.setAttribute('aria-expanded',String(opened));
+  homeReveal.setAttribute('aria-hidden',String(!opened));
+  if(opened)homeReveal.removeAttribute('inert');
+  else homeReveal.setAttribute('inert','');
+ };
+ homeToggle.addEventListener('click',()=>setHomeWatchOpen(!homeWatch.classList.contains('is-open')));
+ setHomeWatchOpen(false);
+}
 const drawerReady=ui.details&&ui.listButton&&ui.listLabel&&ui.drawer;
 let listCount=0;
 function updateListButton(){
@@ -167,6 +185,12 @@ function display(data,connected){
    ui.featured.href='https://www.franceagrimer.fr/chiffre-et-analyses-economiques/note-de-conjoncture-mensuelle-fruits-legumes-et-pommes-de-terre';
    ui.featured.setAttribute('aria-label','Consulter les informations officielles FranceAgriMer');
   }
+ }
+ if(homeStatus){
+  const count=recalls.length;
+  const signals=supplies.length;
+  homeStatus.textContent=count?count+' rappel'+(count>1?'s':''):signals?signals+' signal'+(signals>1?'s':''):'Consulter';
+  homeStatus.classList.toggle('has-recalls',count>0);
  }
  const supplyOK=recent(checks.supply,6)||recent(checks.prices,4);
  const recallOK=recent(checks.recalls,3);

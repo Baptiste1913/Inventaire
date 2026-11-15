@@ -23771,7 +23771,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   radial-gradient(ellipse 285px 235px at 86% 275px,rgba(100,185,174,.09),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 185px 180px at 10% 315px,rgba(226,27,27,.035),rgba(226,27,27,0) 100%),
   linear-gradient(180deg,rgba(249,250,252,.84) 0%,rgba(249,250,252,.89) 45%,#f7f8fa 88%),
-  url("./assets/u-aurora.svg?v=37.82")!important;
+  url("./assets/u-aurora.svg?v=37.83")!important;
  background-size:auto,auto,auto,100% 100%,100% 615px!important;
  background-position:center top,center top,center top,center top,center top!important;
  background-repeat:no-repeat!important;
@@ -24088,4 +24088,223 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   color:ButtonText!important;
   -webkit-text-fill-color:ButtonText!important;
  }
+}
+
+/* V37.83 — Vrai accueil : panneau de bienvenue + accès rapides ;
+   la veille officielle devient un tiroir de second niveau.
+   Visuels repris des cartes, boutons, accents et courbes de l'application. */
+
+/* Pas de second grand rectangle, l'accueil épouse le fond de la PWA. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"]{
+ padding:15px 16px 8px!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ background-image:none!important;
+ box-shadow:none!important;
+ overflow:visible!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ display:flex!important;flex-direction:column!important;gap:11px!important;
+ padding:0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;background-image:none!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ overflow:visible!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::before,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel::after{
+ content:none!important;display:none!important;
+}
+/* Accueil seulement avant une session ; les états En cours/En pause restent originaux. */
+html body .app > section.intro.intro-smart.intro-aurora .iu-home-welcome,
+html body .app > section.intro.intro-smart.intro-aurora .iu-home-watch{display:none!important;}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ position:relative!important;isolation:isolate!important;
+ display:block!important;overflow:hidden!important;box-sizing:border-box!important;
+ width:100%!important;min-height:0!important;padding:21px 19px 18px!important;
+ border:1px solid rgba(212,228,231,.82)!important;border-radius:23px!important;
+ background:linear-gradient(132deg,#f8fcfc 0%,#f1f8f8 50%,#f8fafc 100%)!important;
+ box-shadow:0 10px 27px rgba(40,92,109,.075),inset 0 1px rgba(255,255,255,.92)!important;
+}
+.iu-home-welcome-light{
+ position:absolute;inset:-35px -45px -45px;z-index:0;pointer-events:none;
+ background:
+  radial-gradient(ellipse 63% 78% at 12% 10%,rgba(80,194,230,.24),rgba(80,194,230,0) 78%),
+  radial-gradient(ellipse 58% 76% at 95% 68%,rgba(77,178,158,.22),rgba(77,178,158,0) 84%),
+  radial-gradient(ellipse 39% 48% at 43% 3%,rgba(233,65,83,.065),rgba(233,65,83,0) 95%);
+ transform:translate3d(0,0,0);
+}
+.iu-home-welcome-content{position:relative;z-index:1;display:flex;flex-direction:column;min-width:0;}
+.iu-home-welcome-eyebrow{
+ display:flex;align-items:center;gap:7px;
+ color:#3e8b91;font-family:Arial,Helvetica,sans-serif;
+ font-size:10px;font-weight:800;line-height:1.3;letter-spacing:.09em;
+}
+.iu-home-welcome-dot{
+ width:7px;height:7px;flex:0 0 7px;border-radius:50%;
+ background:#34a58d;box-shadow:0 0 0 3px rgba(52,165,141,.12);
+}
+.iu-home-welcome-content h2{
+ margin:12px 0 0!important;max-width:285px;
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:clamp(22px,6vw,27px)!important;font-weight:850!important;
+ letter-spacing:-.6px!important;line-height:1.14!important;
+ color:#263e45!important;-webkit-text-fill-color:#263e45!important;
+ text-shadow:none!important;
+}
+.iu-home-welcome-description{
+ max-width:315px;margin:9px 0 0!important;
+ font-size:12.5px!important;line-height:1.48!important;
+ font-weight:500!important;color:#607b83!important;
+ -webkit-text-fill-color:#607b83!important;
+}
+.iu-home-welcome-actions{
+ display:flex;flex-wrap:wrap;gap:9px;
+ margin-top:18px;align-items:stretch;
+}
+.iu-home-welcome-actions a{
+ box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ min-height:42px;padding:10px 13px;border-radius:12px;
+ text-decoration:none!important;font-family:Arial,Helvetica,sans-serif;
+ font-size:12px;font-weight:750;line-height:1.2;
+ -webkit-tap-highlight-color:transparent;
+ transition:transform .24s cubic-bezier(.22,1,.36,1),box-shadow .26s ease,background-color .26s ease;
+}
+.iu-home-welcome-actions a svg{
+ display:block;width:16px;height:16px;flex:0 0 16px;
+ fill:none;stroke:currentColor;stroke-width:2;
+ stroke-linecap:round;stroke-linejoin:round;
+}
+.iu-home-welcome-actions a.iu-home-welcome-primary{
+ flex:1 1 160px;color:#fff!important;-webkit-text-fill-color:#fff!important;
+ background:linear-gradient(115deg,#0c939d,#077b88)!important;
+ border:1px solid rgba(0,101,113,.12)!important;
+ box-shadow:0 4px 13px rgba(10,132,142,.17),inset 0 1px rgba(255,255,255,.19)!important;
+}
+.iu-home-welcome-primary > svg:first-child{fill:currentColor!important;stroke:none!important;width:13px!important;height:13px!important;}
+.iu-home-welcome-primary .iu-home-welcome-arrow{margin-left:auto;}
+.iu-home-welcome-actions a.iu-home-welcome-secondary{
+ flex:0 1 auto;color:#41616b!important;-webkit-text-fill-color:#41616b!important;
+ background:rgba(255,255,255,.8)!important;
+ border:1px solid rgba(210,227,232,.9)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.95)!important;
+}
+/* La veille est un raccourci discret. Le tiroir existant reste intact à l'intérieur. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch{
+ display:block!important;position:relative!important;z-index:3!important;
+ box-sizing:border-box!important;width:100%!important;min-width:0!important;
+ padding:0!important;border:1px solid #e1e9ec!important;border-radius:17px!important;
+ background:linear-gradient(150deg,rgba(255,255,255,.94),rgba(249,251,252,.89))!important;
+ box-shadow:0 3px 11px rgba(36,80,94,.04)!important;overflow:hidden!important;
+}
+.iu-home-watch-toggle{
+ width:100%!important;min-width:0!important;min-height:61px!important;
+ box-sizing:border-box;display:flex!important;align-items:center!important;gap:10px!important;
+ padding:11px 12px!important;margin:0!important;text-align:left!important;
+ background:transparent!important;border:0!important;border-radius:0!important;
+ color:#354750!important;font-family:Arial,Helvetica,sans-serif!important;
+ cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.iu-home-watch-symbol{
+ display:grid!important;place-items:center!important;width:33px;height:33px;flex:0 0 33px;
+ border-radius:11px;color:#1c8290;background:#eaf6f7;
+}
+.iu-home-watch-symbol svg{
+ width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
+}
+.iu-home-watch-heading{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0;}
+.iu-home-watch-heading strong{font-size:13px;font-weight:800;line-height:1.2;color:#344750;}
+.iu-home-watch-heading small{font-size:10.5px;font-weight:500;line-height:1.3;color:#829099;}
+.iu-home-watch-status{
+ box-sizing:border-box;flex:0 0 auto;padding:5px 7px;max-width:85px;border-radius:99px;
+ color:#537980;background:#f1f6f7;border:1px solid #e2edef;
+ font-size:9.5px;font-weight:700;line-height:1.2;text-align:center;white-space:nowrap;
+}
+.iu-home-watch-status.has-recalls{
+ color:#a14f56!important;background:#fff0f1!important;border-color:#f1d8db!important;
+}
+.iu-home-watch-chevron{
+ width:16px;height:16px;flex:0 0 16px;fill:none;stroke:#587986;
+ stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+ transform:rotate(0);transition:transform .4s cubic-bezier(.22,1,.36,1);
+}
+.iu-home-watch.is-open .iu-home-watch-chevron{transform:rotate(180deg);}
+.iu-home-watch-reveal{
+ display:grid!important;grid-template-rows:0fr!important;
+ opacity:0!important;margin:0!important;min-height:0!important;
+ pointer-events:none!important;
+ transition:grid-template-rows .43s cubic-bezier(.22,1,.36,1),opacity .31s ease!important;
+}
+.iu-home-watch.is-open .iu-home-watch-reveal{
+ grid-template-rows:1fr!important;opacity:1!important;pointer-events:auto!important;
+}
+.iu-home-watch-inner{min-height:0!important;min-width:0!important;overflow:hidden!important;}
+/* Une ancienne règle cachait la veille hors du premier niveau :
+   autoriser son affichage dans le nouveau tiroir, uniquement à l'accueil. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-market-widget{
+ display:flex!important;flex-direction:column!important;gap:0!important;
+ position:relative!important;min-width:0!important;width:100%!important;
+ padding:2px 12px 12px!important;
+ color:#263c43!important;
+}
+.iu-home-watch .iu-dash .iu-dash-head{display:none!important;}
+.iu-home-watch .iu-dash .iu-dash-feature{margin-top:4px!important;}
+.iu-home-watch .iu-dash .iu-dash-grid{margin-top:8px!important;}
+.iu-home-watch .iu-dash .iu-dash-footer{margin-top:7px!important;}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition{
+ height:10px!important;flex-basis:10px!important;margin:0 auto -3px!important;
+}
+/* Familiar motion: gentle arrival and slight interaction feedback. */
+@keyframes iuWelcomeEnter{
+ from{opacity:0;transform:translate3d(0,9px,0);}
+ to{opacity:1;transform:translate3d(0,0,0);}
+}
+@keyframes iuWelcomeDrift{
+ 0%,100%{transform:translate3d(0,0,0) scale(1);}
+ 50%{transform:translate3d(9px,-5px,0) scale(1.04);}
+}
+@keyframes iuWelcomeDot{
+ 0%,100%{box-shadow:0 0 0 3px rgba(52,165,141,.12);}
+ 50%{box-shadow:0 0 0 5px rgba(52,165,141,.06);}
+}
+@media(prefers-reduced-motion:no-preference){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+  animation:iuWelcomeEnter .53s cubic-bezier(.22,1,.36,1) both!important;
+ }
+ .iu-home-welcome-light{animation:iuWelcomeDrift 24s ease-in-out infinite!important;}
+ .iu-home-welcome-dot{animation:iuWelcomeDot 4s ease-in-out infinite!important;}
+ .iu-home-watch-toggle:active{transform:scale(.995);}
+ .iu-home-welcome-actions a:active{transform:scale(.975)!important;}
+}
+.iu-home-watch-toggle:focus-visible,.iu-home-welcome-actions a:focus-visible{
+ outline:2px solid #0a8590!important;outline-offset:3px!important;
+}
+@media(hover:hover){
+ .iu-home-welcome-actions a.iu-home-welcome-primary:hover{box-shadow:0 6px 16px rgba(10,132,142,.25)!important;}
+ .iu-home-welcome-actions a.iu-home-welcome-secondary:hover{background:#fff!important;}
+ .iu-home-watch-toggle:hover{background:rgba(241,248,249,.65)!important;}
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"]{padding:12px 12px 7px!important;}
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{padding:18px 15px 16px!important;}
+ .iu-home-welcome-content h2{font-size:23px!important;}
+ .iu-home-welcome-description{font-size:12px!important;}
+ .iu-home-welcome-actions{gap:7px!important;}
+ .iu-home-welcome-actions a{font-size:11.5px!important;padding:9px 10px!important;}
+ .iu-home-watch-heading small{font-size:10px!important;}
+ .iu-home-watch-toggle{padding:10px!important;gap:8px!important;}
+ .iu-home-watch-status{font-size:9px!important;max-width:76px!important;padding:5px 6px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ .iu-home-welcome,.iu-home-welcome-light,.iu-home-welcome-dot{animation:none!important;}
+ .iu-home-watch-reveal,.iu-home-watch-chevron,.iu-home-welcome-actions a{transition:none!important;}
+}
+@media(prefers-reduced-transparency:reduce){
+ .iu-home-welcome,.iu-home-watch{background:#f5f8f9!important;}
+}
+@media(forced-colors:active){
+ .iu-home-welcome,.iu-home-watch{background:Canvas!important;border:1px solid CanvasText!important;}
+ .iu-home-welcome-actions a{background:ButtonFace!important;color:ButtonText!important;-webkit-text-fill-color:ButtonText!important;}
+ .iu-home-welcome-light{display:none!important;}
 }

@@ -1,7 +1,7 @@
 {
-  "version": "37.82",
+  "version": "37.83",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1248087,
-  "notes": "Accueil harmonisé avec le tableau de bord Mon compte : titre et sous-titre sobres, cartes blanches/gris clair aux bordures fines, indicateurs compacts, bouton neutre et ombres minimales. Accents bleu/vert/rouge très légers dans les icônes et les halos. Données, sessions et tiroir conservés."
+  "bytes": 1263196,
+  "notes": "Accueil recentré sur l'inventaire : carte de bienvenue Fruits et Légumes, accès directs Ma session et Événements, veille officielle rangée dans un tiroir animé avec compteur de rappels, style U (cyan, vert d’eau et accent rouge) et animations légères respectueuses des réglages iOS. Le moteur de session et les sources de veille restent inchangés."
 }
