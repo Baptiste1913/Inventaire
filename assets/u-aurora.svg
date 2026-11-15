@@ -3,7 +3,7 @@
   <radialGradient id="blue"><stop offset="0" stop-color="#53c0e9" stop-opacity=".68"/><stop offset=".35" stop-color="#53c0e9" stop-opacity=".41"/><stop offset=".72" stop-color="#53c0e9" stop-opacity=".13"/><stop offset="1" stop-color="#53c0e9" stop-opacity="0"/></radialGradient>
   <radialGradient id="deep"><stop offset="0" stop-color="#007583" stop-opacity=".52"/><stop offset=".38" stop-color="#007583" stop-opacity=".27"/><stop offset=".72" stop-color="#007583" stop-opacity=".08"/><stop offset="1" stop-color="#007583" stop-opacity="0"/></radialGradient>
   <radialGradient id="mint"><stop offset="0" stop-color="#64b9ae" stop-opacity=".65"/><stop offset=".36" stop-color="#64b9ae" stop-opacity=".37"/><stop offset=".75" stop-color="#64b9ae" stop-opacity=".09"/><stop offset="1" stop-color="#64b9ae" stop-opacity="0"/></radialGradient>
-  <radialGradient id="red"><stop offset="0" stop-color="#e21b1b" stop-opacity=".25"/><stop offset=".42" stop-color="#e21b1b" stop-opacity=".10"/><stop offset="1" stop-color="#e21b1b" stop-opacity="0"/></radialGradient>
+  <radialGradient id="red"><stop offset="0" stop-color="#e21b1b" stop-opacity=".32"/><stop offset=".42" stop-color="#e21b1b" stop-opacity=".13"/><stop offset="1" stop-color="#e21b1b" stop-opacity="0"/></radialGradient>
   <filter id="warp" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
    <feTurbulence type="fractalNoise" baseFrequency=".010 .014" numOctaves="2" seed="8" result="noise"/>
    <feDisplacementMap in="SourceGraphic" in2="noise" scale="25" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
@@ -11,31 +11,31 @@
   </filter>
  </defs>
  <style>
-  /* V37.77 — Mouvement lent et léger des seuls halos, sans JavaScript.
+  /* V37.78 — Mouvement lent et léger des seuls halos, sans JavaScript.
      Le rendu fixe reste disponible sur Safari sans animation CSS SVG. */
-  .iu-blue{animation:iu-drift-blue 34s ease-in-out infinite alternate;}
-  .iu-mint{animation:iu-drift-mint 39s ease-in-out infinite alternate;}
-  .iu-deep{animation:iu-drift-deep 43s ease-in-out infinite alternate;}
-  .iu-red{animation:iu-drift-red 31s ease-in-out infinite alternate;}
+  .iu-blue{animation:iu-drift-blue 25s ease-in-out infinite alternate;}
+  .iu-mint{animation:iu-drift-mint 29s ease-in-out infinite alternate;}
+  .iu-deep{animation:iu-drift-deep 32s ease-in-out infinite alternate;}
+  .iu-red{animation:iu-drift-red 26s ease-in-out infinite alternate;}
   @keyframes iu-drift-blue{
    0%{transform:translate(0,0);}
-   50%{transform:translate(13px,-8px);}
-   100%{transform:translate(-8px,9px);}
+   50%{transform:translate(23px,-15px);}
+   100%{transform:translate(-17px,14px);}
   }
   @keyframes iu-drift-mint{
    0%{transform:translate(0,0);}
-   50%{transform:translate(-12px,8px);}
-   100%{transform:translate(7px,-8px);}
+   50%{transform:translate(-23px,14px);}
+   100%{transform:translate(14px,-15px);}
   }
   @keyframes iu-drift-deep{
    0%{transform:translate(0,0);}
-   50%{transform:translate(8px,11px);}
-   100%{transform:translate(-10px,-7px);}
+   50%{transform:translate(17px,20px);}
+   100%{transform:translate(-18px,-13px);}
   }
   @keyframes iu-drift-red{
    0%{transform:translate(0,0);opacity:.84;}
-   50%{transform:translate(10px,-6px);opacity:1;}
-   100%{transform:translate(-7px,7px);opacity:.82;}
+   50%{transform:translate(19px,-12px);opacity:1;}
+   100%{transform:translate(-13px,12px);opacity:.82;}
   }
   @media (prefers-reduced-motion: reduce){
    .iu-blue,.iu-mint,.iu-deep,.iu-red{animation:none!important;}
@@ -45,6 +45,6 @@
   <ellipse class="iu-blue" cx="180" cy="315" rx="270" ry="250" fill="url(#blue)"/>
   <ellipse class="iu-mint" cx="500" cy="340" rx="270" ry="240" fill="url(#mint)"/>
   <ellipse class="iu-deep" cx="365" cy="410" rx="275" ry="260" fill="url(#deep)"/>
-  <ellipse class="iu-red" cx="125" cy="405" rx="214" ry="191" fill="url(#red)"/>
+  <ellipse class="iu-red" cx="115" cy="396" rx="226" ry="197" fill="url(#red)"/>
  </g>
 </svg>

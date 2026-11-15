@@ -1,7 +1,7 @@
 {
-  "version": "37.77",
+  "version": "37.78",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1210543,
-  "notes": "Rappel rouge légèrement plus visible dans le halo U et animation discrète des couleurs cyan, bleu pétrole, vert d’eau et rouge par mouvements lents dans le SVG, sans mouvement du texte ni des cartes. Animation désactivée si « Réduire les animations » est activé ; cache PWA actualisé."
+  "bytes": 1216185,
+  "notes": "Halos U légèrement plus animés, rouge subtilement renforcé. Tableau de bord réorganisé : titre recentré sur l’information utile, encadrés plus compacts et alignés, bouton de liste et sources visuellement hiérarchisés. Séparation lumineuse douce entre le bandeau et les autres cartes. Cache PWA actualisé."
 }

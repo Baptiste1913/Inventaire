@@ -23149,7 +23149,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
    Les dégradés CSS sous-jacents assurent le repli si le SVG ne charge pas. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
  background-image:
-  url("./assets/u-aurora.svg?v=37.77"),
+  url("./assets/u-aurora.svg?v=37.78"),
   radial-gradient(ellipse 400px 340px at 25% 335px,rgba(83,192,233,.11),rgba(83,192,233,0) 100%),
   radial-gradient(ellipse 420px 360px at 80% 365px,rgba(100,185,174,.11),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 395px 330px at 53% 405px,rgba(0,117,131,.065),rgba(0,117,131,0) 100%)!important;
@@ -23196,4 +23196,169 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
  }
+}
+
+/* V37.78 — Bandeau d'accueil clarifié et transition douce avec les cartes.
+   Hiérarchie compacte ; aucun impact sur les états actifs, la logique de
+   collecte, le bouton du tiroir ni les surfaces des autres rubriques. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ padding:17px 17px 14px!important;
+ border-radius:27px!important;
+ box-shadow:0 14px 34px rgba(51,103,127,.065),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+.iu-dash .iu-dash-head{
+ gap:12px!important;
+ align-items:center!important;
+}
+.iu-dash .iu-dash-heading{
+ gap:3px!important;
+}
+.iu-dash .iu-market-eyebrow{
+ font-size:10px!important;
+ font-weight:700!important;
+ letter-spacing:.035em!important;
+ color:#5b7980!important;
+}
+.iu-dash .iu-dash-heading h3{
+ font-size:clamp(20px,5.2vw,24px)!important;
+ line-height:1.18!important;
+ font-weight:750!important;
+ letter-spacing:-.35px!important;
+ color:#253c44!important;
+}
+.iu-dash .iu-dash-tag{
+ display:inline-flex!important;
+ gap:6px!important;
+ padding:6px 8px!important;
+ font-size:9.5px!important;
+ line-height:1.2!important;
+ font-weight:600!important;
+ border:1px solid rgba(255,255,255,.87)!important;
+ background:rgba(255,255,255,.57)!important;
+ box-shadow:none!important;
+ max-width:100px!important;
+}
+.iu-dash .iu-dash-grid{
+ gap:8px!important;
+ margin-top:14px!important;
+}
+.iu-dash .iu-dash-panel,
+.iu-dash .iu-dash-panel-recall{
+ grid-template-columns:minmax(0,1fr) 56px!important;
+ column-gap:9px!important;
+ row-gap:3px!important;
+ min-height:77px!important;
+ padding:11px 12px!important;
+ background:rgba(255,255,255,.93)!important;
+ border-radius:15px!important;
+ border:1px solid rgba(255,255,255,.97)!important;
+ box-shadow:0 3px 11px rgba(32,79,100,.052),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+.iu-dash .iu-dash-panel-top{
+ gap:8px!important;
+}
+.iu-dash .iu-dash-panel-icon{
+ flex:0 0 25px!important;
+ width:25px!important;
+ height:25px!important;
+ border-radius:9px!important;
+}
+.iu-dash .iu-dash-panel-icon svg{width:15px!important;height:15px!important}
+.iu-dash .iu-dash-panel-top strong{
+ font-size:12.5px!important;
+ font-weight:700!important;
+ color:#304750!important;
+}
+.iu-dash .iu-dash-counter{
+ gap:3px!important;
+ border-left:1px solid #edf2f2!important;
+}
+.iu-dash .iu-dash-counter strong{
+ font-size:25px!important;
+ font-weight:750!important;
+ color:#273c45!important;
+}
+.iu-dash .iu-dash-counter span{
+ font-size:9.5px!important;
+ font-weight:600!important;
+ line-height:1.2!important;
+ color:#72868a!important;
+}
+.iu-dash .iu-dash-preview{
+ font-size:12px!important;
+ line-height:1.35!important;
+ font-weight:500!important;
+ color:#496772!important;
+ margin:3px 0 0!important;
+}
+.iu-dash .iu-dash-details{
+ margin:9px 0 0!important;
+ border-top:0!important;
+}
+.iu-dash .iu-dash-list-button{
+ margin:0!important;
+ min-height:41px!important;
+ padding:9px 12px!important;
+ border-radius:12px!important;
+ background:rgba(255,255,255,.84)!important;
+ border:1px solid rgba(255,255,255,.96)!important;
+ box-shadow:0 2px 9px rgba(32,79,100,.045)!important;
+ color:#376b76!important;
+ font-size:12.5px!important;
+}
+.iu-dash .iu-dash-footer{
+ margin-top:9px!important;
+ padding-top:9px!important;
+ border-top:1px solid rgba(255,255,255,.72)!important;
+ gap:8px!important;
+}
+.iu-dash .iu-dash-footer #iuMarketFoot{
+ font-size:10px!important;
+ color:#70868a!important;
+ line-height:1.4!important;
+}
+.iu-dash .iu-dash-links a{
+ font-size:10px!important;
+ color:#407d86!important;
+}
+.iu-home-transition{display:none!important;}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition{
+ position:relative!important;
+ display:block!important;
+ pointer-events:none!important;
+ width:calc(100% - 54px)!important;
+ max-width:690px!important;
+ margin:-3px auto -5px!important;
+ height:20px!important;
+ flex:0 0 20px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition::before{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ top:9px!important;
+ left:3%!important;
+ width:94%!important;
+ height:1px!important;
+ background:linear-gradient(90deg,transparent,rgba(82,178,207,.22) 28%,rgba(255,255,255,.94) 51%,rgba(99,180,168,.22) 72%,transparent)!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition::after{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:0 12% 0!important;
+ border-radius:50%!important;
+ background:radial-gradient(ellipse at center,rgba(99,190,196,.075),transparent 72%)!important;
+ filter:blur(7px)!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{padding:14px 13px 12px!important;}
+ .iu-dash .iu-dash-tag{font-size:9px!important;max-width:89px!important;}
+ .iu-dash .iu-dash-grid{gap:7px!important;margin-top:12px!important;}
+ .iu-dash .iu-dash-panel{padding:10px!important;min-height:78px!important;grid-template-columns:minmax(0,1fr) 51px!important;}
+ .iu-dash .iu-dash-panel-top strong{font-size:12px!important;}
+ .iu-dash .iu-dash-preview{font-size:11.5px!important;}
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] + .iu-home-transition{display:none!important;}
 }
