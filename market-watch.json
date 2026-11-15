@@ -1,7 +1,21 @@
 {
   "schema": 1,
-  "generatedAt": "2026-11-15T12:54:28+00:00",
-  "recalls": [],
+  "generatedAt": "2026-11-15T12:56:24+00:00",
+  "recalls": [
+    {
+      "type": "recall",
+      "id": "2026-11-0026",
+      "title": "poire santa maria",
+      "description": "santa maria · dépassement des limites autorisées de pesticides",
+      "date": "2026-11-09",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24006/interne",
+      "source": "RappelConso",
+      "distributors": "prodorplus borny ¤prodorplus longeville les st avold",
+      "brand": "santa maria",
+      "packaging": "caisse",
+      "scope": "supplier"
+    }
+  ],
   "prices": [],
   "shortages": [],
   "supply": [
@@ -38,9 +52,9 @@
   ],
   "water": [],
   "checks": {
-    "recalls": null,
+    "recalls": "2026-11-15T12:56:24+00:00",
     "prices": null,
     "shortages": null,
-    "supply": "2026-11-15T12:54:28+00:00"
+    "supply": "2026-11-15T12:56:24+00:00"
   }
 }
