@@ -1,7 +1,7 @@
 {
-  "version": "38.11",
+  "version": "38.12",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1387400,
-  "notes": "Veille du rayon : ombres et reflets des trois cartes atténués de 50 %, dégradé conservé mais rendu légèrement translucide pour laisser filtrer les lumières en arrière-plan ; lisibilité et accessibilité préservées. Cache PWA renouvelé."
+  "bytes": 1390402,
+  "notes": "Correction du voile trop blanc sur les trois cartes de veille : transparence augmentée et flou réduit à 2 px pour rendre les halos animés visibles à travers les cadres sur Safari, en conservant les ombres réduites de 50 %. Cache PWA renouvelé."
 }
