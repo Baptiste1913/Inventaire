@@ -1,11 +1,57 @@
 {
   "schema": 1,
-  "generatedAt": null,
-  "recalls": [],
+  "generatedAt": "2026-11-15T12:05:12+00:00",
+  "recalls": [
+    {
+      "type": "recall",
+      "id": "2026-11-0060",
+      "title": "champignons morilles sechees",
+      "description": "champibon · autre risque",
+      "date": "2026-11-09",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+      "source": "RappelConso"
+    },
+    {
+      "type": "recall",
+      "id": "2026-11-0026",
+      "title": "poire santa maria",
+      "description": "santa maria · dépassement des limites autorisées de pesticides",
+      "date": "2026-11-09",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24006/interne",
+      "source": "RappelConso"
+    },
+    {
+      "type": "recall",
+      "id": "2026-11-0046",
+      "title": "haricots verts extra-fins bio",
+      "description": "carrefour bio · inertes (verre, métal, plastique, papier, textile…)",
+      "date": "2026-11-06",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24033/interne",
+      "source": "RappelConso"
+    },
+    {
+      "type": "recall",
+      "id": "2026-11-0043",
+      "title": "lime variété : tahiti origine: bresil calibre 48",
+      "description": "itafrut · dépassement des limites autorisées de pesticides",
+      "date": "2026-11-06",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24026/interne",
+      "source": "RappelConso"
+    },
+    {
+      "type": "recall",
+      "id": "2026-11-0035",
+      "title": "champignons morilles sechees",
+      "description": "champibon · autre risque",
+      "date": "2026-11-05",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24016/interne",
+      "source": "RappelConso"
+    }
+  ],
   "prices": [],
   "shortages": [],
   "checks": {
-    "recalls": null,
+    "recalls": "2026-11-15T12:05:12+00:00",
     "prices": null,
     "shortages": null
   }
