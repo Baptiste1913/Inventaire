@@ -1,7 +1,7 @@
 {
-  "version": "37.81",
+  "version": "37.82",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1237236,
-  "notes": "La veille se fond désormais dans le fond de l’accueil : suppression du fond opaque de sa section, du contour et de l’ombre du grand panneau, lumière blanche centrale dégressive, suppression du séparateur artificiel. Les petites cartes restent lisibles ; fonctionnement et animations conservés."
+  "bytes": 1248087,
+  "notes": "Accueil harmonisé avec le tableau de bord Mon compte : titre et sous-titre sobres, cartes blanches/gris clair aux bordures fines, indicateurs compacts, bouton neutre et ombres minimales. Accents bleu/vert/rouge très légers dans les icônes et les halos. Données, sessions et tiroir conservés."
 }
