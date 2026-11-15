@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "generatedAt": null,
+  "recalls": [],
+  "prices": [],
+  "shortages": [],
+  "checks": {
+    "recalls": null,
+    "prices": null,
+    "shortages": null
+  }
+}

@@ -22516,3 +22516,60 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora:not(
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-feature{margin-top:11px!important;}
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-stat + .intro-smart-stat{padding-left:10px!important;}
 }
+
+/* V37.64 — Bandeau de veille F&L. Une vraie alerte uniquement après
+   vérification d'une source, maximum deux lignes visibles. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .iu-market-widget{display:none!important}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
+ padding:17px 18px 15px!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel > .intro-smart-content,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel > .intro-bottom{
+ display:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel > .iu-market-widget{
+ display:flex!important;
+ position:relative!important;
+ z-index:2!important;
+ flex-direction:column!important;
+ width:100%!important;
+ min-width:0!important;
+ gap:0!important;
+ color:#263c43!important;
+}
+.iu-market-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;min-width:0}
+.iu-market-title-group{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.iu-market-eyebrow{font-size:10px;font-weight:800;letter-spacing:.08em;color:#48767d;line-height:1.35}
+.iu-market-title-group h3{font-size:clamp(18px,4.6vw,23px);font-weight:900;line-height:1.12;letter-spacing:-.6px;margin:0;color:#24373e;overflow-wrap:break-word}
+.iu-market-badge{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:27px;max-width:92px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.96);font-size:10px;font-weight:800;color:#456871;box-shadow:0 2px 8px rgba(38,92,110,.035);white-space:nowrap}
+.iu-market-badge.has-alerts{color:#8b3e37;background:rgba(255,244,240,.68)}
+.iu-market-body{display:flex;flex-direction:column;gap:0;min-width:0;margin-top:15px}
+.iu-market-headline{font-size:11px;font-weight:750;letter-spacing:.015em;color:#56747b;margin:0 0 4px}
+.iu-market-list{display:flex;flex-direction:column;min-width:0;width:100%}
+.iu-market-item{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none!important;color:inherit!important;padding:10px 1px;border-bottom:1px solid rgba(255,255,255,.70);-webkit-tap-highlight-color:transparent}
+.iu-market-item:last-child{border-bottom:0}
+.iu-market-symbol{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:10px;color:#bb473b;background:rgba(253,225,219,.77);border:1px solid rgba(255,255,255,.72);font-size:15px;font-weight:900}
+.iu-market-item-price .iu-market-symbol{color:#206b8b;background:rgba(211,238,247,.82)}
+.iu-market-item-shortage .iu-market-symbol{color:#866126;background:rgba(255,236,202,.88)}
+.iu-market-item-copy{display:flex;flex:1;flex-direction:column;min-width:0;gap:3px}
+.iu-market-item-copy strong{font-weight:800;font-size:12px;line-height:1.24;color:#263e44;overflow-wrap:anywhere}
+.iu-market-item-copy small{font-weight:550;font-size:10px;line-height:1.32;color:#627b81;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.iu-market-chip{flex:0 0 auto;max-width:77px;font-size:10px;font-weight:850;color:#a84337;white-space:nowrap;padding:4px 7px;border-radius:99px;background:rgba(255,240,237,.65)}
+.iu-market-item-price .iu-market-chip{color:#146c83;background:rgba(222,243,247,.67)}
+.iu-market-item-shortage .iu-market-chip{color:#836024;background:rgba(255,240,210,.7)}
+.iu-market-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.iu-market-empty{padding:13px 2px 10px;margin:0;color:#58737a;font-size:12px;font-weight:650;line-height:1.45}
+.iu-market-bottom{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;border-top:1px solid rgba(255,255,255,.81);padding-top:10px;margin-top:10px;min-width:0}
+.iu-market-bottom > span{flex:1;min-width:0;color:#6a858b;font-size:9px;font-weight:550;line-height:1.35;overflow-wrap:break-word}
+.iu-market-links{display:flex;gap:9px;flex:0 0 auto;align-items:center}
+.iu-market-links a{font-size:10px;font-weight:800;color:#316e7e!important;text-decoration:none!important}
+.iu-market-links a:focus-visible,.iu-market-item:focus-visible{outline:2px solid #007583;outline-offset:3px}
+.iu-market-more{margin-top:1px}
+.iu-market-more summary{cursor:pointer;padding:9px 0;font-size:11px;font-weight:750;color:#386b75;list-style:none}
+.iu-market-more summary::-webkit-details-marker{display:none}
+.iu-market-more summary::after{content:'⌄';display:inline-block;margin-left:6px;transition:transform .18s ease}
+.iu-market-more[open] summary::after{transform:rotate(180deg)}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{padding:14px!important}
+ .iu-market-bottom{flex-direction:column;gap:7px}
+}

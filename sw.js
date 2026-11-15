@@ -1,10 +1,10 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v37-63';
+const CACHE = 'inventaires-u-offline-v37-64';
 const CORE = [
-  './', './index.html', './version.json', './admin-categories.js?v=37.63', './technical-log.js?v=33.93', './update-manager.js?v=37.63', './error-journal.js?v=33.93', './site-operations.js?v=37.63', './push.js?v=33.75', './planning-admin.js?v=37.63', './events-data.js?v=33.19', './events.js?v=37.63', './style.css?v=37.63', './app.js?v=37.63',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=37.63', './manifest.webmanifest?v=37.63', './icon.png?v=37.63',
-  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=37.63', './apple-touch-icon.png?v=37.63', './logo-u.png', './favicon-32.png?v=37.63', './favicon-16.png?v=37.63',
-   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=37.63', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=37.63'
+  './', './index.html', './version.json', './market-watch.js?v=37.64', './market-watch.json', './admin-categories.js?v=37.64', './technical-log.js?v=33.93', './update-manager.js?v=37.64', './error-journal.js?v=33.93', './site-operations.js?v=37.64', './push.js?v=33.75', './planning-admin.js?v=37.64', './events-data.js?v=33.19', './events.js?v=37.64', './style.css?v=37.64', './app.js?v=37.64',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=37.64', './manifest.webmanifest?v=37.64', './icon.png?v=37.64',
+  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=37.64', './apple-touch-icon.png?v=37.64', './logo-u.png', './favicon-32.png?v=37.64', './favicon-16.png?v=37.64',
+   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=37.64', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=37.64'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -12,9 +12,9 @@ self.addEventListener('install', event => {
     // V35.67 : protéger les fichiers indispensables sans bloquer toute la
     // mise à jour lorsqu'une image ou une ressource secondaire manque.
     // Ne jamais activer un shell incomplet.
-    const required = ['./index.html', './style.css?v=37.63', './app.js?v=37.63',
-      './update-manager.js?v=37.63', './auth-config.js?v=32.0', './idb.js?v=33.0',
-      './auth.js?v=37.63', './icon.png?v=37.63', './assets/u-inventory-button.svg?v=37.63'];
+    const required = ['./index.html', './style.css?v=37.64', './app.js?v=37.64',
+      './update-manager.js?v=37.64', './auth-config.js?v=32.0', './idb.js?v=33.0',
+      './auth.js?v=37.64', './icon.png?v=37.64', './assets/u-inventory-button.svg?v=37.64'];
     await cache.addAll(required);
     const optional = CORE.filter(path => !required.includes(path));
     await Promise.allSettled(optional.map(async path => {
@@ -96,6 +96,19 @@ self.addEventListener('fetch', event => {
   if (url.pathname.endsWith('/version.json')) {
     event.respondWith(fetch(request,{cache:'no-store'}).catch(async()=>
       (await caches.match(request)) || Response.error()));
+    return;
+  }
+  // La veille change sans changement de version du shell : réseau d'abord,
+  // puis dernière copie hors connexion. Ne jamais mettre en cache une erreur.
+  if (url.pathname.endsWith('/market-watch.json')) {
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE);
+      try{
+        const fresh=await fetch(request,{cache:'no-store'});
+        if(fresh.ok){await cache.put('./market-watch.json',fresh.clone());return fresh;}
+        throw Error('veille HTTP '+fresh.status);
+      }catch(_){return (await cache.match('./market-watch.json'))||Response.error();}
+    })());
     return;
   }
   // Static resources are cache-first; query strings must match the precache list.

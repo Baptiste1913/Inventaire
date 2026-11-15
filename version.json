@@ -1,7 +1,7 @@
 {
-  "version": "37.63",
+  "version": "37.64",
   "published": "2026-11-15",
-  "assets": 43,
-  "bytes": 1165635,
-  "notes": "Banderole de statut enrichie mais compacte : date principale, pastille d’état, deux indicateurs rapides en une seule ligne et message contextuel. Liquid Glass et halos U conservés, aucun bouton dupliqué, états en cours et pause préservés. Cache PWA mis à jour."
+  "assets": 46,
+  "bytes": 1172881,
+  "notes": "Nouvelle veille du rayon : rappels RappelConso récents, fortes évolutions de prix vérifiées via l’API européenne quand disponible, pénuries uniquement sur preuve officielle. Collecte automatisée, cache hors ligne, aucune donnée inventée. Banderole compacte avec accès aux sources."
 }
