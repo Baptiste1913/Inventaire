@@ -1,7 +1,7 @@
 {
-  "version": "38.28",
+  "version": "38.29",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction visuelle d’après capture iPhone : suppression de la police arrondie du titre, remplacement par une police système de grand titre sobre ; sous-titre gris bleuté lisible avec taille et poids cohérents avec les sous-titres Événements. Cache PWA renouvelé."
+  "notes": "Titre d’accueil rapproché du modèle fourni : graisse noire 900, espacement serré, teinte bleu pétrole, ponctuation finale et petite accroche Fruits et légumes avec pastille verte. Sous-titre inchangé. Cache PWA renouvelé."
 }
