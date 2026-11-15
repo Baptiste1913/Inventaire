@@ -26961,3 +26961,10 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  box-shadow:none!important;
  filter:none!important;
 }
+
+/* V38.18 — Ombre de Bienvenue plus longue vers le bas, sans intensité
+   supplémentaire : même couleur et alpha que V38.17, décalage/étalement
+   vertical augmentés. Aucune ombre latérale ou supérieure ajoutée. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ box-shadow:0 23px 30px -18px rgba(83,105,121,.32)!important;
+}
