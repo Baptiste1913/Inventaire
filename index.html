@@ -92,8 +92,10 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
 <span class="offline-copy"><strong>Connexion retrouvée</strong><span>Vous êtes de nouveau en ligne.</span></span>
 <button aria-label="Fermer la notification de reconnexion" class="offline-dismiss" id="onlineDismiss" type="button"><svg fill="none" height="17" stroke="currentColor" stroke-linecap="round" stroke-width="2.5" viewBox="0 0 24 24" width="17"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
 </div>
-<section class="intro intro-smart" aria-labelledby="intro-title" data-intro-state="before">
+<section class="intro intro-smart intro-aurora" aria-labelledby="intro-title" data-intro-state="before">
+ <div class="intro-aurora-blobs" aria-hidden="true"></div>
  <h2 id="intro-title">FRUITS ET LÉGUMES</h2>
+ <div class="intro-glass-panel">
  <div class="intro-smart-content">
   <span class="intro-smart-eyebrow" id="introSmartEyebrow">PROCHAIN INVENTAIRE</span>
   <h3 class="intro-smart-heading" id="introSmartHeading">Votre prochain inventaire</h3>
@@ -109,6 +111,7 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
  </div>
  <div class="intro-bottom">
   <button type="button" class="intro-jump" id="heroStartSession" aria-label="Aller à Ma session" aria-controls="startSession"><span class="hero-start-layer hero-start-gradient" aria-hidden="true"></span><span class="hero-start-layer hero-start-surface" aria-hidden="true"></span><span class="hero-action-content"><span class="hero-action-copy"><span id="heroActionLabel">Aller à Ma session</span></span><span class="hero-arrow-icon" aria-hidden="true">↓</span></span></button>
+ </div>
  </div>
  <img class="intro-mascot" src="mascotte-pasteque.svg?v=37.42" alt="" aria-hidden="true" width="230" height="205" decoding="async"/>
  <span class="intro-session-state" id="heroStatus"><span aria-hidden="true" class="intro-session-dot"></span><span id="heroStatusText">Prêt</span></span>
