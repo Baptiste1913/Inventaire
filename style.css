@@ -22302,29 +22302,60 @@ html body:not(.is-admin-mode):not(.is-focus-mode) .app > #planningAdminCard.card
  box-shadow:0 5px 15px rgba(27,45,57,.065)!important;
 }
 
-/* V37.49 — Accueil blanc, avec seulement trois halos compacts et isolés.
-   Rouge en haut à gauche, bleu du logo U au centre, vert émeraude
-   du logo U à droite. Les halos deviennent entièrement transparents
-   avant la fin de la bannière, sans voile de couleur généralisé. */
+/* V37.50 — Trois halos légèrement plus lumineux, sans élargir la couleur sur la page.
+   Rouge en haut à gauche, bleu au centre, vert émeraude à droite ; fond blanc conservé. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
  background-image:
-  radial-gradient(ellipse 96px 92px at 12% 168px,
-   rgba(247,78,96,.42) 0%,rgba(247,78,96,.20) 32%,rgba(247,78,96,.07) 52%,rgba(247,78,96,0) 100%),
-  radial-gradient(ellipse 168px 150px at 49% 230px,
-   rgba(83,192,233,.24) 0%,rgba(83,192,233,.12) 36%,rgba(83,192,233,.04) 58%,rgba(83,192,233,0) 100%),
-  radial-gradient(ellipse 118px 110px at 88% 198px,
-   rgba(0,117,131,.30) 0%,rgba(0,117,131,.14) 34%,rgba(0,117,131,.05) 56%,rgba(0,117,131,0) 100%)!important;
+  radial-gradient(ellipse 102px 96px at 12% 168px,
+   rgba(247,78,96,.50) 0%,rgba(247,78,96,.24) 31%,rgba(247,78,96,.09) 52%,rgba(247,78,96,0) 100%),
+  radial-gradient(ellipse 176px 156px at 49% 230px,
+   rgba(83,192,233,.30) 0%,rgba(83,192,233,.15) 36%,rgba(83,192,233,.05) 58%,rgba(83,192,233,0) 100%),
+  radial-gradient(ellipse 124px 116px at 88% 198px,
+   rgba(0,117,131,.36) 0%,rgba(0,117,131,.17) 34%,rgba(0,117,131,.06) 56%,rgba(0,117,131,0) 100%)!important;
  background-repeat:no-repeat!important;
  background-color:#fff!important;
 }
 @media(max-width:380px){
  html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
   background-image:
-   radial-gradient(ellipse 84px 82px at 13% 158px,
-    rgba(247,78,96,.40) 0%,rgba(247,78,96,.18) 34%,rgba(247,78,96,.06) 54%,rgba(247,78,96,0) 100%),
-   radial-gradient(ellipse 148px 136px at 49% 218px,
-    rgba(83,192,233,.22) 0%,rgba(83,192,233,.11) 38%,rgba(83,192,233,.04) 60%,rgba(83,192,233,0) 100%),
-   radial-gradient(ellipse 108px 100px at 87% 188px,
-    rgba(0,117,131,.28) 0%,rgba(0,117,131,.13) 35%,rgba(0,117,131,.05) 58%,rgba(0,117,131,0) 100%)!important;
+   radial-gradient(ellipse 90px 86px at 13% 158px,
+    rgba(247,78,96,.47) 0%,rgba(247,78,96,.22) 34%,rgba(247,78,96,.08) 54%,rgba(247,78,96,0) 100%),
+   radial-gradient(ellipse 156px 142px at 49% 218px,
+    rgba(83,192,233,.28) 0%,rgba(83,192,233,.14) 38%,rgba(83,192,233,.05) 60%,rgba(83,192,233,0) 100%),
+   radial-gradient(ellipse 114px 104px at 87% 188px,
+    rgba(0,117,131,.34) 0%,rgba(0,117,131,.16) 35%,rgba(0,117,131,.06) 58%,rgba(0,117,131,0) 100%)!important;
+ }
+}
+
+/* V37.50 — Fin reflet d'angle supérieur gauche sur chaque carte de l'accueil.
+   Tracé passif, sans modifier le comportement des tiroirs, le scroll ou les animations. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card{
+ position:relative!important;
+}
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card::before{
+ content:""!important;
+ position:absolute!important;
+ top:12px!important;
+ left:14px!important;
+ width:66px!important;
+ height:28px!important;
+ box-sizing:border-box!important;
+ border:0!important;
+ border-top:1px solid rgba(255,255,255,.90)!important;
+ border-left:1px solid rgba(255,255,255,.72)!important;
+ border-top-left-radius:18px!important;
+ opacity:.95!important;
+ background:none!important;
+ box-shadow:none!important;
+ pointer-events:none!important;
+ z-index:1!important;
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card::before{
+  top:10px!important;
+  left:12px!important;
+  width:58px!important;
+  height:24px!important;
+  border-top-left-radius:16px!important;
  }
 }

@@ -1,7 +1,7 @@
 {
-  "version": "37.49",
+  "version": "37.50",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1156673,
-  "notes": "Bannière sur fond blanc avec trois halos discrets et localisés : rouge plus marqué et compact en haut à gauche, bleu du logo U au centre et vert émeraude du logo U à droite. Suppression du voile intérieur rose-bleu du Liquid Glass, autres fonctionnalités inchangées et cache PWA actualisé."
+  "bytes": 1157773,
+  "notes": "Accueil : fins contours blancs dans le coin supérieur gauche des cartes principales pour un relief discret, sans modifier les animations des tiroirs. Trois halos rouge, bleu et émeraude de la bannière légèrement plus lumineux, fond blanc et Liquid Glass conservés. Cache PWA actualisé."
 }
