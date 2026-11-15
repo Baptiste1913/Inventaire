@@ -21843,3 +21843,196 @@ html body.is-events-mode #eventsPage .iu-events-calendar-day.is-inventory-comple
  background:#167d61!important;
  box-shadow:0 0 0 2px rgba(22,125,97,.17)!important;
 }
+
+
+/* V37.43 — Aurore U et fenêtre Liquid Glass.
+   Quatre halos statiques dans la palette existante : #53C0E9,
+   #64B9AE, #007583 et bleu glacier. Une seule surface floutée
+   derrière une carte blanche translucide (plus fluide sur Safari
+   que plusieurs filtres et animations permanentes).
+   Les états before/running/paused/finished et leurs données sont
+   exclusivement pilotés par le moteur v37.42 d'app.js. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+ position:relative!important;
+ isolation:isolate!important;
+ display:flex!important;
+ flex-direction:column!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ min-height:0!important;
+ height:auto!important;
+ max-height:none!important;
+ margin-bottom:8px!important;
+ padding:20px 20px 19px!important;
+ border-radius:0 0 18px 18px!important;
+ background:#f8fbfc!important;
+ background-image:linear-gradient(160deg,rgba(255,255,255,.96),rgba(241,250,250,.89))!important;
+ background-color:#f8fbfc!important;
+ box-shadow:none!important;
+}
+/* Les anciens halos pseudo-éléments n'existent plus ; la couche
+   dédiée évite tout conflit avec leurs dimensions et masques CSS. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora::before,
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora::after{
+ content:none!important;
+ display:none!important;
+}
+/* Gros nuages flous, visibles autour et à travers la carte. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-aurora-blobs{
+ position:absolute!important;
+ display:block!important;
+ box-sizing:border-box!important;
+ inset:-20% -18% -20%!important;
+ width:auto!important;
+ height:auto!important;
+ z-index:0!important;
+ padding:0!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ pointer-events:none!important;
+ background:
+  radial-gradient(ellipse 44% 42% at 18% 22%,rgba(83,192,233,.71) 0%,rgba(83,192,233,.39) 39%,transparent 88%),
+  radial-gradient(ellipse 41% 47% at 84% 40%,rgba(100,185,174,.72) 0%,rgba(100,185,174,.36) 45%,transparent 90%),
+  radial-gradient(ellipse 45% 37% at 52% 89%,rgba(0,117,131,.34) 0%,rgba(0,117,131,.14) 49%,transparent 90%),
+  radial-gradient(ellipse 35% 35% at 55% 9%,rgba(157,204,246,.48) 0%,rgba(157,204,246,.18) 46%,transparent 88%)!important;
+ opacity:.94!important;
+ -webkit-filter:blur(25px) saturate(120%)!important;
+ filter:blur(25px) saturate(120%)!important;
+ transform:none!important;
+ animation:none!important;
+ -webkit-mask:none!important;
+ mask:none!important;
+ box-shadow:none!important;
+}
+/* Le titre reste au-dessus des halos, comme l'indicateur de session. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > #intro-title{
+ position:relative!important;
+ z-index:5!important;
+ margin:0 0 12px!important;
+ color:#315b65!important;
+ -webkit-text-fill-color:#315b65!important;
+}
+/* Surface réellement translucide. Le fond blanc laisse lire les chiffres
+   sans effacer les points colorés en arrière-plan. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{
+ position:relative!important;
+ z-index:4!important;
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex-direction:column!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:16px!important;
+ overflow:visible!important;
+ border:1px solid rgba(255,255,255,.82)!important;
+ border-radius:24px!important;
+ background:linear-gradient(140deg,rgba(255,255,255,.63) 0%,rgba(255,255,255,.38) 57%,rgba(255,255,255,.56) 100%)!important;
+ -webkit-backdrop-filter:blur(20px) saturate(145%)!important;
+ backdrop-filter:blur(20px) saturate(145%)!important;
+ box-shadow:
+  0 10px 28px rgba(22,88,105,.11),
+  0 2px 5px rgba(42,102,115,.06),
+  inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+/* Discret reflet en haut à gauche, indépendant des interactions. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel::before{
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ border-radius:inherit!important;
+ background:linear-gradient(125deg,rgba(255,255,255,.25),transparent 58%)!important;
+ opacity:1!important;
+ pointer-events:none!important;
+ z-index:0!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel > .intro-smart-content{
+ display:flex!important;
+ position:relative!important;
+ z-index:1!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:0!important;
+ gap:0!important;
+}
+/* Deux mini-statistiques denses, transparentes à leur tour, afin
+   d'éviter l'effet de cartes blanches épaisses dans la carte verre. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .intro-smart-stat{
+ background:rgba(255,255,255,.33)!important;
+ border:1px solid rgba(255,255,255,.64)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.45)!important;
+}
+/* Bouton existant inclus dans la carte, toute sa bordure reste dans
+   le rectangle translucide et ses actions contextuelles sont intactes. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel .intro-bottom{
+ position:relative!important;
+ z-index:2!important;
+ display:flex!important;
+ align-items:stretch!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:12px 0 0!important;
+ padding:0!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel .intro-bottom > button#heroStartSession.intro-jump:not([hidden]):is(:enabled,:disabled,:hover,:active,:focus,:focus-visible,[aria-disabled="true"],[aria-disabled="false"]){
+ align-self:stretch!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
+}
+/* Sans support de la transparence floutée, le contenu reste lisible. */
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{
+  background:rgba(255,255,255,.83)!important;
+ }
+}
+@media(max-width:600px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+  padding:18px 17px 17px!important;
+ }
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{
+  padding:14px!important;
+  border-radius:22px!important;
+  -webkit-backdrop-filter:blur(18px) saturate(138%)!important;
+  backdrop-filter:blur(18px) saturate(138%)!important;
+ }
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-aurora-blobs{
+  -webkit-filter:blur(22px) saturate(115%)!important;
+  filter:blur(22px) saturate(115%)!important;
+ }
+}
+@media(max-width:380px){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+  padding:16px 15px 15px!important;
+ }
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{
+  padding:12px!important;
+  border-radius:20px!important;
+ }
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > #intro-title{
+  margin-bottom:10px!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  background:rgba(255,255,255,.91)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-aurora-blobs,
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora > .intro-glass-panel{
+  animation:none!important;
+  transition:none!important;
+ }
+}
