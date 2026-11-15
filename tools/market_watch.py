@@ -126,11 +126,31 @@ def amount(value):
     return number if math.isfinite(number) and number > 0 else None
 
 def price_rows():
-    payload = get_json(PRICE_API, {
+    period = {
         "memberStateCodes": "FR",
         "beginDate": (TODAY - dt.timedelta(days=31)).strftime("%d/%m/%Y"),
         "endDate": TODAY.strftime("%d/%m/%Y")
-    }, maximum=16_000_000)
+    }
+    # Certains serveurs demandent un filtre produit ; ne pas considérer
+    # une erreur HTTP comme une absence de mouvement de prix.
+    attempts = [period] + [dict(period, products=product) for product in
+                            ("Oranges", "Tomatoes", "Apples")]
+    payload = None
+    problems = []
+    for params in attempts:
+        try:
+            candidate = get_json(PRICE_API, params, maximum=16_000_000)
+            if isinstance(candidate, dict):
+                candidate = candidate.get("results", candidate.get("data", candidate.get("items")))
+            if isinstance(candidate, list) and candidate:
+                payload = candidate
+                print("EU columns: " + ", ".join(sorted(candidate[0].keys())) if isinstance(candidate[0], dict) else "EU list non objet")
+                print("EU sample: " + json.dumps(candidate[0], ensure_ascii=False)[:700])
+                break
+        except Exception as exc:
+            problems.append(str(exc))
+    if payload is None:
+        raise ValueError("Aucune réponse de prix exploitable : " + " | ".join(problems[:4]))
     if isinstance(payload, dict):
         payload = payload.get("results", payload.get("data", payload.get("items")))
     if not isinstance(payload, list):
