@@ -1,7 +1,7 @@
 {
-  "version": "37.33",
+  "version": "37.34",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1111759,
-  "notes": "Banderole d'accueil : nouvelle palette translucide bleu U (#53C0E9, #007583, turquoise clair) sur fond blanc à la place du pastel rose/lavande, avec feuillet inférieur clair aux grands coins arrondis conservé. Bouton d'inventaire remonté de 32 px (30 px sur iPhone, 26 px sur petits écrans), sans modifier sa taille ni son action. Mascotte pastèque masquée temporairement par CSS, fichier SVG et balisage préservés. Fonctionnalités, données et autres cartes inchangées. Cache PWA renouvelé."
+  "bytes": 1113041,
+  "notes": "Banderole d'accueil : bouton Démarrer recentré verticalement dans le feuillet clair grâce à un positionnement stable et adapté à la hauteur du panneau sur iPhone et petits écrans. Suppression des marges cumulées responsables du décalage. Espace extérieur au-dessus de la carte Administrateur réduit à 8 px, sans changer la taille du bouton, le fond bleu translucide, la mascotte masquée ni les fonctions d'inventaire. Cache PWA renouvelé."
 }
