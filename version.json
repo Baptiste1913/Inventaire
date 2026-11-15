@@ -1,7 +1,7 @@
 {
-  "version": "38.37",
+  "version": "38.38",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Espacement gauche réduit de 12 à 8 px dans les trois cartes de bienvenue, appliqué également aux compteurs 3 et 1 ; cache PWA renouvelé."
+  "notes": "Harmonisation typographique du motif du rappel et des libellés signaux / à vérifier avec le sous-titre des événements : taille 13–15 px, graisse 500, gris bleuté et police système. Cache PWA renouvelé."
 }
