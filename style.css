@@ -22327,29 +22327,34 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  }
 }
 
-/* V37.55 — Reflet périphérique blanc sur les neuf cartes principales
-   de l'accueil : toute la largeur en haut, toute la hauteur à gauche.
-   Aucun effet sur les sous-cartes, les modes dédiés ou les animations. */
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card{
+/* V37.56 — Tracé sur les cartes exactes de l'accueil.
+   Un ::after dédié évite les collisions avec les ::before décoratifs
+   utilisés par certaines cartes, et reste au-dessus de leur fond. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(#planningAdminCard,#accountCard,#inventoryCalendar,.session-card,.calc-card,.history-card,.sessions-history-card,.basket-card,#backupCard){
  position:relative!important;
 }
-html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > .card::before{
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(#planningAdminCard,#accountCard,#inventoryCalendar,.session-card,.calc-card,.history-card,.sessions-history-card,.basket-card,#backupCard)::after{
  content:""!important;
+ display:block!important;
  position:absolute!important;
- inset:0!important;
+ top:0!important;
+ right:0!important;
+ bottom:0!important;
+ left:0!important;
  width:auto!important;
  height:auto!important;
  box-sizing:border-box!important;
  border:0!important;
- border-top:1px solid rgba(255,255,255,.94)!important;
- border-left:1px solid rgba(255,255,255,.82)!important;
+ border-top:1px solid rgba(255,255,255,.98)!important;
+ border-left:1px solid rgba(255,255,255,.92)!important;
  border-top-left-radius:inherit!important;
  border-top-right-radius:inherit!important;
  border-bottom-left-radius:inherit!important;
- opacity:1!important;
+ border-bottom-right-radius:inherit!important;
  background:none!important;
  box-shadow:none!important;
+ opacity:1!important;
+ visibility:visible!important;
  pointer-events:none!important;
- z-index:1!important;
+ z-index:10!important;
 }
-/* Le bandeau d'accueil conserve son Liquid Glass propre, sans écraser son reflet. */

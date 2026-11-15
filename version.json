@@ -1,7 +1,7 @@
 {
-  "version": "37.55",
+  "version": "37.56",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1158032,
-  "notes": "Correction du centre de mise à jour : version réelle du document synchronisée et attente d’administration non bloquante. Reflet blanc sur tout le bord supérieur et gauche des neuf cartes principales de l’accueil. Cache PWA actualisé."
+  "bytes": 1158419,
+  "notes": "Correction du filet blanc des cartes Compte, Événements, Inventaire, Calcul et Données : tracé visible sur toute la bordure haute et gauche, ainsi que sur les autres cartes de l’accueil. Pseudo-élément dédié pour éviter les conflits avec les décorations existantes. Cache PWA mis à jour."
 }
