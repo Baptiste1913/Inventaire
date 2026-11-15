@@ -1,7 +1,7 @@
 {
-  "version": "37.89",
+  "version": "37.90",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1303236,
-  "notes": "Accueil plus fidèle à l'ancien visuel : halos rose haut gauche, bleu au centre et turquoise à droite derrière la carte, reflet diffus très léger et centre blanc. Information principale dans son propre petit encadré, deux statistiques assorties ; rayon extérieur de 16 px identique à la carte Administrateur. Pop-up et données officielles inchangées, cache PWA actualisé."
+  "bytes": 1312724,
+  "notes": "Accueil : en-tête BIENVENUE DANS VOTRE ESPACE sans pastille Sources officielles ; encadrés plus translucides, laissant passer les halos. Rappel principal réduit à produit • date complète et motif de rappel (sans marque répétée), alimenté par les données officielles. Bouton Voir la liste reproduisant les deux couches, dégradé, contours, ombres et états du bouton Démarrer un inventaire. Popup et fonctionnalités conservées."
 }

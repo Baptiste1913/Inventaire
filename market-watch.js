@@ -90,6 +90,12 @@ const frDate=v=>{
  const d=new Date(v);
  return Number.isFinite(d.getTime())?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
 };
+// Date complète pour la carte principale : « 9 novembre », sans année.
+const frLongDate=v=>{
+ const d=new Date(v);
+ return Number.isFinite(d.getTime())?
+  new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'Europe/Paris'}).format(d):'';
+};
 function validUrl(link,type){
  try{
   const u=new URL(link);
@@ -178,15 +184,25 @@ function display(data,connected){
  const lead=recalls[0]||supplies[0]||null;
  if(ui.featured&&ui.featureKicker&&ui.featureTitle&&ui.featureSummary){
   if(lead){
-   ui.featureKicker.textContent=lead.type==='recall'?'Rappel à vérifier':lead.type==='price'?'Évolution du marché':'Approvisionnement';
-   ui.featureTitle.textContent=lead.title;
-   ui.featureSummary.textContent=lead.type==='price'?
-    ((lead.change>0?'+':'')+lead.change.toLocaleString('fr-FR',{maximumFractionDigits:1})+' % · '+frDate(lead.date)):
-    (lead.label||lead.description||'Voir la source')+' · '+frDate(lead.date);
+   const dateLabel=frLongDate(lead.date);
+   ui.featureKicker.textContent='';
+   ui.featureTitle.textContent=lead.title+(dateLabel?' • '+dateLabel:'');
+   if(lead.type==='recall'){
+    // Conserver le motif officiel ; supprimer uniquement la marque redondante
+    // affichée avant le séparateur, et sa forme plurielle pour cet intitulé.
+    const segments=String(lead.description||'').split(/\s*[·•]\s*/).filter(Boolean);
+    const reason=segments.length?segments[segments.length-1]:'Consulter le rappel officiel';
+    ui.featureSummary.textContent=typographie(reason.replace(/\bde pesticides\b/gi,'de pesticide'));
+   }else if(lead.type==='price'){
+    ui.featureSummary.textContent=(lead.change>0?'+':'')+
+     lead.change.toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
+   }else{
+    ui.featureSummary.textContent=typographie(lead.description||lead.label||'Voir la source officielle');
+   }
    ui.featured.href=lead.url;
-   ui.featured.setAttribute('aria-label',lead.title+' : consulter la source officielle');
+   ui.featured.setAttribute('aria-label',ui.featureTitle.textContent+' : consulter la source officielle');
   }else{
-   ui.featureKicker.textContent='Veille du rayon';
+   ui.featureKicker.textContent='';
    ui.featureTitle.textContent='Aucune alerte confirmée';
    ui.featureSummary.textContent='Consulte les informations officielles disponibles.';
    ui.featured.href='https://www.franceagrimer.fr/chiffre-et-analyses-economiques/note-de-conjoncture-mensuelle-fruits-legumes-et-pommes-de-terre';
