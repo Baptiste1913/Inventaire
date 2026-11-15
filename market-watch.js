@@ -1,4 +1,4 @@
-/* V37.67 — Tableau de bord compact : offre France et rappels fournisseurs/U pertinents. */
+/* V37.68 — Tableau de bord compact : offre France et rappels fournisseurs/U pertinents. */
 (function(){
 'use strict';
 const byId=id=>document.getElementById(id);
@@ -47,7 +47,7 @@ function competitorMentioned(value){
   /\bmonoprix\b/,/\bfranprix\b/,/\bcasino\b/,/\bcora\b/,
   /\b(?:supermarche\s+)?match\b/,/\bpicard\b/,
   /\bgrand\s+frais\b/,/\bbiocoop\b/,/\bnaturalia\b/,
-  /\b(?:les\s+)?mousquetaires\b/
+  /\b(?:les\s+)?mousquetaires\b/,/\bpromocash\b/,/\bmetro\b/,/\bcostco\b/
  ];
  return patterns.some(p=>p.test(plain));
 }

@@ -1,47 +1,7 @@
 {
   "schema": 1,
   "generatedAt": "2026-11-15T12:54:28+00:00",
-  "recalls": [
-    {
-      "type": "recall",
-      "id": "2026-11-0060",
-      "title": "champignons morilles sechees",
-      "description": "champibon · autre risque",
-      "date": "2026-11-09",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
-      "source": "RappelConso",
-      "distributors": "promocash",
-      "brand": "champibon",
-      "packaging": "400g",
-      "scope": "supplier"
-    },
-    {
-      "type": "recall",
-      "id": "2026-11-0026",
-      "title": "poire santa maria",
-      "description": "santa maria · dépassement des limites autorisées de pesticides",
-      "date": "2026-11-09",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24006/interne",
-      "source": "RappelConso",
-      "distributors": "prodorplus borny ¤prodorplus longeville les st avold",
-      "brand": "santa maria",
-      "packaging": "caisse",
-      "scope": "supplier"
-    },
-    {
-      "type": "recall",
-      "id": "2026-11-0035",
-      "title": "champignons morilles sechees",
-      "description": "champibon · autre risque",
-      "date": "2026-11-05",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24016/interne",
-      "source": "RappelConso",
-      "distributors": "promocash",
-      "brand": "champibon",
-      "packaging": "400g",
-      "scope": "supplier"
-    }
-  ],
+  "recalls": [],
   "prices": [],
   "shortages": [],
   "supply": [
@@ -78,7 +38,7 @@
   ],
   "water": [],
   "checks": {
-    "recalls": "2026-11-15T12:54:28+00:00",
+    "recalls": null,
     "prices": null,
     "shortages": null,
     "supply": "2026-11-15T12:54:28+00:00"

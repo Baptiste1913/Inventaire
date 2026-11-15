@@ -1,7 +1,7 @@
 {
-  "version": "37.67",
+  "version": "37.68",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1190843,
-  "notes": "Tableau de bord plus compact : deux indicateurs sous une surface vitrée commune, détails repliables et résumé des alertes. Rappels de colis et fournisseurs acceptés si aucune enseigne concurrente n’est explicitement indiquée ; rappels U conservés, rappels exclusifs Carrefour/Leclerc/Auchan et autres enseignes exclus. Contrôle serveur et client, cache iPhone mis à jour."
+  "bytes": 1189460,
+  "notes": "Affinage du filtrage des rappels : exclusion des enseignes professionnelles concurrentes Promocash, Metro et Costco, y compris dans les marques ; rappels fournisseurs neutres et U maintenus. Widget tableau de bord compact conservé."
 }

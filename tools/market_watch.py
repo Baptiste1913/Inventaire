@@ -105,7 +105,8 @@ def competitor_mentioned(value):
         r"\bfranprix\b", r"\bcasino\b", r"\bcora\b",
         r"\b(?:supermarche\s+)?match\b", r"\bpicard\b",
         r"\bgrand\s+frais\b", r"\bbiocoop\b",
-        r"\bnaturalia\b", r"\b(?:les\s+)?mousquetaires\b"
+        r"\bnaturalia\b", r"\b(?:les\s+)?mousquetaires\b",
+        r"\bpromocash\b", r"\bmetro\b", r"\bcostco\b"
     )
     return any(re.search(rx, plain) for rx in competitors)
 
