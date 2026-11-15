@@ -1,7 +1,7 @@
 {
-  "version": "38.21",
+  "version": "38.22",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1399648,
-  "notes": "Correction de la couleur SERVICE U / ÉVÉNEMENT : ciblage du vrai titre dans events-month-preview, auparavant surclassé par une règle CSS plus spécifique. Gris-bleu #73818a harmonisé. Cache PWA renouvelé."
+  "bytes": 1400033,
+  "notes": "Bienvenue dans votre espace : taille augmentée avec clamp responsive 13–16 px, graisse 900 et espacement ajusté. Autres styles et fonctionnalités inchangés. Cache PWA renouvelé."
 }
