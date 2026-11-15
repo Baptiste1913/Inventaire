@@ -1,7 +1,7 @@
 {
-  "version": "38.42",
+  "version": "38.43",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Séparateur Vos services plus discret : texte réduit à 10 px (9 px sur mobile), gris plus clair, graisse allégée et traits à opacité réduite ; cache PWA renouvelé."
+  "notes": "Ombre extérieure du bloc de bienvenue atténuée à une opacité de 5,5 %, sans modifier les contours ni les cartes intérieures ; cache PWA renouvelé."
 }
