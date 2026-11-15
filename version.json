@@ -1,7 +1,7 @@
 {
-  "version": "37.52",
+  "version": "37.53",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1157492,
-  "notes": "Le filet blanc des cartes de l’accueil longe désormais tout le bord supérieur jusqu’au coin droit et tout le bord gauche jusqu’en bas, avec les arrondis extérieurs. Liquid Glass, couleurs et animations préservés. Cache PWA actualisé."
+  "bytes": 1157901,
+  "notes": "Filet blanc fin et continu étendu à toutes les cartes de l’application, y compris les cartes secondaires et la fenêtre Liquid Glass. Arrondis, animations, ombres et navigation préservés. Cache PWA actualisé."
 }
