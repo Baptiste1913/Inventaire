@@ -22918,3 +22918,122 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  .iu-dash .iu-dash-counter span{font-size:10px!important;}
  .iu-dash .iu-dash-footer{flex-wrap:wrap!important;}
 }
+
+/* V37.70 — Bouton « Voir la liste » et tiroir synchronisé aux autres panneaux.
+   Animation identique à l'ouverture et à la fermeture, adaptée à Safari PWA. */
+.iu-dash .iu-dash-details{
+ margin:12px 0 0!important;
+ padding:0!important;
+ border-top:1px solid rgba(255,255,255,.83)!important;
+ width:100%!important;
+ min-width:0!important;
+}
+.iu-dash .iu-dash-list-button{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+ width:100%!important;
+ min-height:43px!important;
+ box-sizing:border-box!important;
+ margin:10px 0 0!important;
+ padding:10px 14px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:13px!important;
+ background:linear-gradient(145deg,rgba(239,249,253,.82),rgba(255,255,255,.67))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.89),0 3px 10px rgba(38,92,110,.045)!important;
+ font-family:Arial,Helvetica,sans-serif!important;
+ font-size:13px!important;
+ font-weight:700!important;
+ font-style:normal!important;
+ letter-spacing:0!important;
+ line-height:1.35!important;
+ color:#315d69!important;
+ -webkit-text-fill-color:#315d69!important;
+ text-align:left!important;
+ cursor:pointer!important;
+ -webkit-tap-highlight-color:transparent!important;
+ touch-action:manipulation!important;
+ transition:background .32s ease,box-shadow .32s ease,border-color .32s ease!important;
+}
+.iu-dash .iu-dash-list-button:focus-visible{
+ outline:2px solid #007583!important;
+ outline-offset:3px!important;
+}
+.iu-dash .iu-dash-list-button:active{
+ background:rgba(220,239,247,.88)!important;
+}
+.iu-dash .iu-dash-list-chevron{
+ flex:0 0 17px!important;
+ width:17px!important;
+ height:17px!important;
+ fill:none!important;
+ stroke:currentColor!important;
+ color:#356e7a!important;
+ stroke-width:2.4!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+ transform:rotate(0)!important;
+ transition:transform .38s cubic-bezier(.22,1,.36,1)!important;
+}
+.iu-dash .iu-dash-details.is-open .iu-dash-list-chevron{
+ transform:rotate(180deg)!important;
+}
+.iu-dash .iu-dash-drawer{
+ display:grid!important;
+ grid-template-rows:0fr!important;
+ min-width:0!important;
+ opacity:0!important;
+ margin-top:0!important;
+ overflow:hidden!important;
+ pointer-events:none!important;
+ transition:
+  grid-template-rows .4s cubic-bezier(.22,1,.36,1),
+  opacity .32s ease,
+  margin-top .4s cubic-bezier(.22,1,.36,1)!important;
+}
+.iu-dash .iu-dash-details.is-open .iu-dash-drawer{
+ grid-template-rows:1fr!important;
+ opacity:1!important;
+ margin-top:8px!important;
+ pointer-events:auto!important;
+}
+.iu-dash .iu-dash-drawer > .iu-dash-detail-content{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:14px!important;
+ min-width:0!important;
+ min-height:0!important;
+ overflow:hidden!important;
+ padding:0 2px!important;
+ margin:0!important;
+}
+.iu-dash .iu-dash-drawer > .iu-dash-detail-content > section{
+ min-width:0!important;
+}
+.iu-dash .iu-dash-drawer .iu-dash-alert{
+ transition:background .18s ease!important;
+}
+@media(hover:hover){
+ .iu-dash .iu-dash-list-button:hover{
+  background:rgba(236,249,253,.9)!important;
+  border-color:rgba(224,245,253,.98)!important;
+ }
+ .iu-dash .iu-dash-drawer .iu-dash-alert:hover{
+  background:rgba(255,255,255,.38)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .iu-dash .iu-dash-drawer,
+ .iu-dash .iu-dash-list-button,
+ .iu-dash .iu-dash-list-chevron{
+  transition:none!important;
+ }
+}
+@media(max-width:380px){
+ .iu-dash .iu-dash-list-button{
+  font-size:12.5px!important;
+  min-height:42px!important;
+  padding:9px 12px!important;
+ }
+}

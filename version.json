@@ -1,7 +1,7 @@
 {
-  "version": "37.69",
+  "version": "37.70",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1195836,
-  "notes": "Tableau de bord Fruits et Légumes peaufiné : deux rangées lisibles sur iPhone, police classique homogène, contrastes et tailles de texte renforcés, détails et sources plus faciles à lire. Données et filtres inchangés."
+  "bytes": 1201389,
+  "notes": "Tableau de bord : bouton Voir/Masquer la liste, animation fluide symétrique du tiroir et rotation du chevron, meilleure typographie des noms de produits et marques, capitalisation des débuts de phrase. Rappels, sources et fonctions existantes préservés."
 }
