@@ -43,8 +43,52 @@ let lastRefresh=0,loading=false;
 let latestData=fallback;
 let calendarCursor=new Date(today().getFullYear(),today().getMonth(),1,12);
 let selectedKey=dayKey(today()),firstOpen=true;
+// V37.42 — Un inventaire du planning est « Terminé » uniquement lorsqu'une
+// vraie session de CE compte, commencée le jour prévu, a été clôturée et
+// contient au moins une pesée enregistrée ce jour-là.
+// Aucune écriture dans le planning public partagé (Supabase).
+const SESSIONS_KEY='inventaires-u-sessions-v1';
+let completedInventoryDays=new Set(),activeInventoryDays=new Map();
+function localSessionDay(timestamp){
+ if(!Number.isFinite(timestamp))return '';
+ return dayKey(new Date(timestamp));
+}
+function refreshInventoryProgress(){
+ const completed=new Set(),active=new Map();
+ try{
+  const saved=JSON.parse(localStorage.getItem(SESSIONS_KEY)||'{}');
+  const rows=Array.isArray(saved?.sessions)?saved.sessions:[];
+  for(const s of rows){
+   if(!s||!Number.isFinite(s.startedAt))continue;
+   const plannedDay=localSessionDay(s.startedAt);
+   if(!plannedDay)continue;
+   if(Number.isFinite(s.endedAt)&&s.endedAt>=s.startedAt){
+    const valid=Array.isArray(s.entries)&&s.entries.some(e=>
+     e&&Number.isSafeInteger(e.net)&&e.net>=0&&localSessionDay(e.at)===plannedDay);
+    if(valid)completed.add(plannedDay);
+   }else if(s.id===saved.activeId){
+    active.set(plannedDay,s.pausedAt?'paused':'running');
+   }
+  }
+ }catch(e){console.info('Suivi des inventaires indisponible',e);}
+ completedInventoryDays=completed;activeInventoryDays=active;
+}
+function isPlannedInventoryCompleted(iso){
+ refreshInventoryProgress();
+ return Array.isArray(latestData?.inventories)&&latestData.inventories.includes(iso)
+  &&completedInventoryDays.has(iso);
+}
 function readCache(){try{const o=JSON.parse(localStorage.getItem(CACHE)||'null');return Array.isArray(o?.inventories)&&Array.isArray(o?.events)?o:null;}catch{return null;}}
 function eventStatus(e,now){
+ if(e.kind==='inventory'){
+  if(completedInventoryDays.has(e.start))return ['Terminé','is-completed'];
+  if(date(e.start)<now)return ['Passé','is-past'];
+  if(date(e.start)<=now){
+   const active=activeInventoryDays.get(e.start);
+   return active==='running'?['En cours','is-live']:active==='paused'?['En pause','is-live']:['Prévu aujourd’hui','is-live'];
+  }
+  return ['À venir','is-upcoming'];
+ }
  if(eventEnd(e)<now)return ['Terminé','is-past'];
  if(date(e.start)<=now)return ['En cours','is-live'];
  return ['À venir','is-upcoming'];
@@ -58,7 +102,7 @@ function makeEventRow(e,now,accent){
  const pill=document.createElement('span');
  const [status,cls]=eventStatus(e,now);
  pill.className='iu-events-row-state is-'+e.kind+' '+cls;
- pill.textContent=kindName(e);
+ pill.textContent=e.kind==='inventory'&&status==='Terminé'?'Terminé':kindName(e);
  pill.setAttribute('aria-label',kindName(e)+' · '+status);
  main.append(title,period);row.append(main,pill);return row;
 }
@@ -85,8 +129,9 @@ function makeOtherRow(e,now){
 }
 function renderPage(){
  if(!$('eventsCalendarGrid'))return;
+ refreshInventoryProgress();
  const now=today(),events=calendarItems(latestData);
- const coming=events.filter(e=>eventEnd(e)>=now).sort((a,b)=>{
+ const coming=events.filter(e=>eventEnd(e)>=now&&!(e.kind==='inventory'&&completedInventoryDays.has(e.start))).sort((a,b)=>{
   const activeA=date(a.start)<=now,activeB=date(b.start)<=now;
   return Number(activeB)-Number(activeA)||a.start.localeCompare(b.start)||a.title.localeCompare(b.title,'fr');
  });
@@ -121,8 +166,10 @@ function renderPage(){
  $('eventsCalendarTitle').textContent=cap(fullMonth.format(first));
  const nInventories=monthEvents.filter(e=>e.kind==='inventory').length;
  const nPurchases=monthEvents.length-nInventories;
+ const nCompleted=monthEvents.filter(e=>e.kind==='inventory'&&completedInventoryDays.has(e.start)).length;
  $('eventsCalendarSummary').textContent=nInventories+' inventaire'+(nInventories>1?'s':'')+
-  ' · '+nPurchases+' opération'+(nPurchases>1?'s':'')+' 10 %';
+  ' · '+nPurchases+' opération'+(nPurchases>1?'s':'')+' 10 %'+
+  (nCompleted?' · '+nCompleted+' terminé'+(nCompleted>1?'s':''):'');
  $('eventsAgendaHeading').textContent='Agenda de '+month.format(first);
  $('eventsAgendaCount').textContent=countLabel(monthEvents.length);
  const grid=$('eventsCalendarGrid');grid.replaceChildren();
@@ -141,6 +188,7 @@ function renderPage(){
   button.className='iu-events-calendar-day';
   if(!inMonth)button.classList.add('is-outside');
   if(matches.length)button.classList.add('has-events');
+  if(matches.some(e=>e.kind==='inventory'&&completedInventoryDays.has(e.start)))button.classList.add('is-inventory-completed');
   const visible=forDay(day);
   const hiddenCount=Math.max(0,matches.length-visible.length);
   if(key===dayKey(now)){button.classList.add('is-today');button.setAttribute('aria-current','date');}
@@ -150,7 +198,9 @@ function renderPage(){
   button.setAttribute('aria-pressed',String(key===selectedKey));
   button.setAttribute('aria-label',cap(long.format(day))+' · '+countLabel(matches.length)+
    (matches.length?' · '+sorted(matches).slice(0,2).map(e=>e.title).join(', ')+(matches.length>2?' et autres':''):'')+
-   (key===dayKey(now)?' · Aujourd’hui':'')+(key===selectedKey?' · Date sélectionnée':''));
+   (key===dayKey(now)?' · Aujourd’hui':'')+
+   (completedInventoryDays.has(key)&&matches.some(e=>e.kind==='inventory')?' · Inventaire terminé':'')+
+   (key===selectedKey?' · Date sélectionnée':''));
   const num=document.createElement('span');num.className='iu-events-day-number';num.textContent=String(day.getDate());
   const ribbons=document.createElement('span');
   ribbons.className='iu-events-day-ribbons';
@@ -261,8 +311,9 @@ function changeMonth(direction){
 }
 function render(data){
  latestData=data||fallback;
+ refreshInventoryProgress();
  const now=today();
- const next=(latestData.inventories||[]).map(date).filter(d=>Number.isFinite(d.getTime())).sort((a,b)=>a-b).find(d=>d>=now);
+ const next=(latestData.inventories||[]).map(date).filter(d=>Number.isFinite(d.getTime())).sort((a,b)=>a-b).find(d=>d>=now&&!completedInventoryDays.has(dayKey(d)));
  $('calendarNextDate').textContent=next?cap(long.format(next)):'Date à confirmer';
  const countdown=$('calendarNextCountdown');
  if(countdown){
@@ -275,6 +326,7 @@ function render(data){
  }
  $('eventsMonthHeading').textContent='Événements en '+month.format(now);
  renderPage();
+ window.dispatchEvent(new Event('iu-planning-updated'));
 }
 function rowsToData(rows){return {
  inventories:rows.filter(r=>r.enabled&&r.kind==='inventory').map(r=>r.starts_on),
@@ -300,7 +352,9 @@ $('eventsCalendarToday')?.addEventListener('click',()=>{
  selectedKey=dayKey(now);renderPage();
 });
 render(readCache()||fallback);
-window.InventairesPlanning={refresh,render,renderPage,preparePage};
+window.InventairesPlanning={refresh,render,renderPage,preparePage,isPlannedInventoryCompleted};
+window.dispatchEvent(new Event('iu-planning-updated'));
+window.addEventListener('iu-inventory-progress-changed',()=>render(latestData));
 refresh(true);
 window.addEventListener('online',()=>refresh(true));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
