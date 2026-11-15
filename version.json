@@ -1,7 +1,7 @@
 {
-  "version": "37.50",
+  "version": "37.51",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1157773,
-  "notes": "Accueil : fins contours blancs dans le coin supérieur gauche des cartes principales pour un relief discret, sans modifier les animations des tiroirs. Trois halos rouge, bleu et émeraude de la bannière légèrement plus lumineux, fond blanc et Liquid Glass conservés. Cache PWA actualisé."
+  "bytes": 1157700,
+  "notes": "Correction du reflet blanc des cartes de l’accueil : le filet suit désormais leur véritable bord supérieur gauche et leur arrondi extérieur, au lieu d’être décalé à l’intérieur. Couleurs, Liquid Glass, fonctionnement et animations inchangés. Cache PWA actualisé."
 }
