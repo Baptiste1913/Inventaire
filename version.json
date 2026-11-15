@@ -1,7 +1,7 @@
 {
-  "version": "38.08",
+  "version": "38.09",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1379522,
-  "notes": "Accueil : Mes inventaires, Mes paniers et Sauvegarde harmonisés avec Ma session (dégradé, contour blanc, cinq ombres et coins 20 px). Fonds/pseudo-éléments des summaries neutralisés, formulaires et données inchangés. Cache PWA renouvelé."
+  "bytes": 1380527,
+  "notes": "Accueil : Bienvenue adopte le contour blanc, les coins 20 px et les cinq ombres de Ma session, tout en conservant intégralement son fond translucide coloré, son flou et ses lumières. Cache PWA renouvelé."
 }
