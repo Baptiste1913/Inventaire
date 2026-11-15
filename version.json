@@ -1,7 +1,7 @@
 {
-  "version": "37.40",
+  "version": "37.41",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1118037,
-  "notes": "Banderole d'accueil enrichie : introduction orientée calcul de poids net, suivi des sessions et bilans, avec trois repères discrets « Pesées », « Sessions » et « Bilans ». Le bouton devient « Aller à Ma session » avec l'icône ↓ : il fait défiler doucement la page jusqu'au véritable bouton Démarrer, Reprendre ou Pause selon l'état de la session, sans démarrer ni modifier un inventaire automatiquement. Respect de la réduction des animations sur iOS, dimensions et dégradé conservés. Ressources et cache PWA renouvelés."
+  "bytes": 1132025,
+  "notes": "Nouvel accueil intelligent en 4 états, alimenté par les données existantes : avant un inventaire (prochaine date issue du planning, dernier nombre de pesées et rythme), inventaire en cours (durée active, pesées et moyenne), en pause (statistiques conservées et reprise), et terminé durant 24 h (résumé et lien vers le bilan). Une action principale adapte son libellé et sa destination : navigation fluide, reprise par la commande existante, ou ouverture du dernier bilan. Aucun chiffre inventé ; état vide prévu si aucune session ou aucune date. Fond bleu/turquoise, bouton, cartes et données préservés, chargement asynchrone de la date suivi sans nouvelle requête. Cache PWA v37.41."
 }
