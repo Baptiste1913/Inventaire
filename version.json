@@ -1,7 +1,7 @@
 {
-  "version": "37.44",
+  "version": "37.45",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1145507,
-  "notes": "Banderole Liquid Glass : grands halos de couleurs étendus sur toute la largeur, centres remontés vers le haut pour éviter leur coupe au bas de la banderole. Les halos bleu #53C0E9, turquoise #64B9AE, bleu-vert #007583 et bleu glacier s'atténuent naturellement grâce à un fondu progressif jusqu'à transparence avant le bord inférieur, sans mouvement permanent. Flou mobile ajusté, carte Liquid Glass, états de session, chiffres réels, navigation et données métier inchangés. Cache et références PWA actualisés."
+  "bytes": 1148479,
+  "notes": "Accueil Liquid Glass : suppression du calque de halos découpé dans la banderole. Trois grands points diffus bleu #53C0E9, vert d’eau #64B9AE et bleu-vert #007583 sont désormais dessinés sur le fond commun de la page et se dissipent naturellement, sans masque ni coupure blanche. Fond du header au logo U et de la banderole transparent afin de laisser passer la lumière. Carte Liquid Glass, états intelligents, chiffres réels et fonctions métier inchangés. Mise à jour du cache PWA."
 }
