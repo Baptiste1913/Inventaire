@@ -1,7 +1,7 @@
 {
-  "version": "37.39",
+  "version": "37.40",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1115870,
-  "notes": "Banderole Fruits et Légumes : largeur du bouton Démarrer et de ses contours réduite pour aligner exactement ses bords sur ceux du bouton « Accéder aux réglages » (mêmes retraits de 31 px depuis les bords). Neutralisation des anciennes règles forçant toute la largeur, adaptation aux iPhone. Icône Play remplacée par « → » ; fond gris perle, liseré #007583, dégradé #53C0E9 → #64B9AE, hauteur et logique de démarrage/reprise inchangés. Cache PWA actualisé."
+  "bytes": 1118037,
+  "notes": "Banderole d'accueil enrichie : introduction orientée calcul de poids net, suivi des sessions et bilans, avec trois repères discrets « Pesées », « Sessions » et « Bilans ». Le bouton devient « Aller à Ma session » avec l'icône ↓ : il fait défiler doucement la page jusqu'au véritable bouton Démarrer, Reprendre ou Pause selon l'état de la session, sans démarrer ni modifier un inventaire automatiquement. Respect de la réduction des animations sur iOS, dimensions et dégradé conservés. Ressources et cache PWA renouvelés."
 }
