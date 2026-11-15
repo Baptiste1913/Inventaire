@@ -1,7 +1,7 @@
 {
-  "version": "38.25",
+  "version": "38.26",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Titre Bienvenue encore agrandi (29–38 px, mobile étroit 25–29 px), épaisseur renforcée et sous-titre introductif discret assorti aux titres Service U. Cache PWA renouvelé."
+  "notes": "Accueil : titre en casse naturelle, typographie plus équilibrée, sous-titre chaleureux adapté au rayon Fruits et Légumes ; retrait de la ligne de date d’actualisation. Cache PWA renouvelé."
 }
