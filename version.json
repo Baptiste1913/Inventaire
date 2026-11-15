@@ -1,7 +1,7 @@
 {
-  "version": "38.15",
+  "version": "38.16",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1394939,
-  "notes": "Accueil : halo lumineux autorisé à déborder du bloc Bienvenue sur les côtés et en bas, avec masque progressif plus large pour éviter les coupures nettes. Carte, transparence, animations et mise en page conservées. Cache PWA renouvelé."
+  "bytes": 1395470,
+  "notes": "Accueil : suppression du glow et des ombres propres au cadre Bienvenue, tout en conservant son contour blanc, ses coins arrondis et son fond translucide. Halos colorés derrière le bloc inchangés. Cache PWA renouvelé."
 }

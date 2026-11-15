@@ -26933,3 +26933,13 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   width:calc(100% + 48px)!important;
  }
 }
+
+/* V38.16 — Bienvenue : aucun glow ni ombre sur le cadre lui-même.
+   Conserver son contour blanc, ses coins et son verre translucide.
+   Les halos colorés d'arrière-plan restent indépendants et animés. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ box-shadow:none!important;
+ filter:none!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:20px!important;
+}
