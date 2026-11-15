@@ -22327,23 +22327,25 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
  }
 }
 
-/* V37.57 — Filets directement sur les bordures réelles des neuf cartes.
-   Les pseudo-éléments peuvent être cachés par les animations, les fonds ou
-   le rendu de details sur Safari. La bordure de l'élément reste visible. */
+/* V37.58 — Contraste du filet d'angle sur les cartes de l'accueil.
+   Les surfaces très claires de Compte, Événements, Inventaire, Calcul
+   et Données rendaient le filet blanc presque invisible sur iPhone.
+   On conserve les ombres existantes et on ajoute une discrète ligne de
+   contraste externe pour révéler les deux bords blancs. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
  #planningAdminCard,#accountCard,#inventoryCalendar,
  .session-card,.calc-card,.history-card,.sessions-history-card,
  .basket-card,#backupCard
 ){
  box-sizing:border-box!important;
- border-top:1px solid rgba(255,255,255,.98)!important;
- border-left:1px solid rgba(255,255,255,.92)!important;
+ border-top:2px solid rgba(255,255,255,1)!important;
+ border-left:2px solid rgba(255,255,255,1)!important;
+ outline:1px solid rgba(92,116,134,.18)!important;
+ outline-offset:0!important;
 }
-/* Supprimer l'ancien filet superposé, pour n'avoir qu'un seul tracé. */
+/* Ne pas créer de calque ::after sur les cartes details de Safari. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > :is(
  #planningAdminCard,#accountCard,#inventoryCalendar,
  .session-card,.calc-card,.history-card,.sessions-history-card,
  .basket-card,#backupCard
-)::after{
- content:none!important;
-}
+)::after{content:none!important;}

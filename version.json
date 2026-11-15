@@ -1,7 +1,7 @@
 {
-  "version": "37.57",
+  "version": "37.58",
   "published": "2026-11-15",
   "assets": 43,
-  "bytes": 1157874,
-  "notes": "Correction du filet blanc sur les neuf cartes de l’accueil : bordure réelle supérieure et gauche plutôt qu’un calque décoratif masqué par Safari. Mise à jour du cache PWA et de la version affichée."
+  "bytes": 1158038,
+  "notes": "Filet blanc renforcé et rendu visible sur les cartes claires de l’accueil grâce à un léger contraste périphérique, sans modifier les ombres ni les animations. Cache PWA actualisé."
 }
