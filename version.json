@@ -1,7 +1,7 @@
 {
-  "version": "37.68",
+  "version": "37.69",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1189460,
-  "notes": "Affinage du filtrage des rappels : exclusion des enseignes professionnelles concurrentes Promocash, Metro et Costco, y compris dans les marques ; rappels fournisseurs neutres et U maintenus. Widget tableau de bord compact conservé."
+  "bytes": 1195836,
+  "notes": "Tableau de bord Fruits et Légumes peaufiné : deux rangées lisibles sur iPhone, police classique homogène, contrastes et tailles de texte renforcés, détails et sources plus faciles à lire. Données et filtres inchangés."
 }
