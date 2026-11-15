@@ -1,7 +1,7 @@
 {
-  "version": "37.94",
+  "version": "37.95",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1337955,
-  "notes": "Accueil Safari : suppression des traits gris sur les cartes sans toucher aux commandes ; fond du panneau plus transparent avec flou de 27 px et sous-cartes légèrement plus translucides. Halos animés plus rapides (10/13/17 s), enfermés dans un calque décoratif pour empêcher le débordement horizontal et l'effet de dézoom. Cache PWA actualisé."
+  "bytes": 1343959,
+  "notes": "Cartes de l'application (sauf Bienvenue) harmonisées avec le neumorphisme du bouton « Accéder aux réglages » : mêmes dégradé, bordure et cinq ombres, sans toucher aux commandes. Suppression du séparateur, largeur responsive de l'accueil jusqu'à 960 px sur grands écrans, et halos de fond estompés progressivement aux quatre bords pour éviter les coupures nettes. Cache PWA actualisé."
 }
