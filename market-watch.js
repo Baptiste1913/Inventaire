@@ -1,4 +1,4 @@
-/* V37.70 — Tableau de bord compact : offre France et rappels fournisseurs/U pertinents. */
+/* V37.79 — Tableau de bord compact : offre France et rappels fournisseurs/U pertinents. */
 (function(){
 'use strict';
 const byId=id=>document.getElementById(id);
@@ -9,7 +9,9 @@ const ui={
  supplyList:byId('iuSupplyList'),recallList:byId('iuRecallList'),
  foot:byId('iuMarketFoot'),details:byId('iuMarketDetails'),
  listButton:byId('iuDashListButton'),listLabel:byId('iuDashListLabel'),
- drawer:byId('iuMarketDetailsList')
+ drawer:byId('iuMarketDetailsList'),
+ featured:byId('iuDashFeature'),featureKicker:byId('iuDashFeatureKicker'),
+ featureTitle:byId('iuDashFeatureTitle'),featureSummary:byId('iuDashFeatureSummary')
 };
 const drawerReady=ui.details&&ui.listButton&&ui.listLabel&&ui.drawer;
 let listCount=0;
@@ -148,6 +150,24 @@ function display(data,connected){
    const crate=x=>/\b(caisse|carton|vrac|colis|plateau)\b/i.test(x.packaging)?1:0;
    return crate(b)-crate(a)||Date.parse(b.date)-Date.parse(a.date);
   });
+ const lead=recalls[0]||supplies[0]||null;
+ if(ui.featured&&ui.featureKicker&&ui.featureTitle&&ui.featureSummary){
+  if(lead){
+   ui.featureKicker.textContent=lead.type==='recall'?'Rappel à vérifier':lead.type==='price'?'Évolution du marché':'Approvisionnement';
+   ui.featureTitle.textContent=lead.title;
+   ui.featureSummary.textContent=lead.type==='price'?
+    ((lead.change>0?'+':'')+lead.change.toLocaleString('fr-FR',{maximumFractionDigits:1})+' % · '+frDate(lead.date)):
+    (lead.label||lead.description||'Voir la source')+' · '+frDate(lead.date);
+   ui.featured.href=lead.url;
+   ui.featured.setAttribute('aria-label',lead.title+' : consulter la source officielle');
+  }else{
+   ui.featureKicker.textContent='Veille du rayon';
+   ui.featureTitle.textContent='Aucune alerte confirmée';
+   ui.featureSummary.textContent='Consulte les informations officielles disponibles.';
+   ui.featured.href='https://www.franceagrimer.fr/chiffre-et-analyses-economiques/note-de-conjoncture-mensuelle-fruits-legumes-et-pommes-de-terre';
+   ui.featured.setAttribute('aria-label','Consulter les informations officielles FranceAgriMer');
+  }
+ }
  const supplyOK=recent(checks.supply,6)||recent(checks.prices,4);
  const recallOK=recent(checks.recalls,3);
  ui.supplyCount.textContent=supplies.length?String(supplies.length):supplyOK?'0':'—';

@@ -1,7 +1,7 @@
 {
-  "version": "37.78",
+  "version": "37.79",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1216185,
-  "notes": "Halos U légèrement plus animés, rouge subtilement renforcé. Tableau de bord réorganisé : titre recentré sur l’information utile, encadrés plus compacts et alignés, bouton de liste et sources visuellement hiérarchisés. Séparation lumineuse douce entre le bandeau et les autres cartes. Cache PWA actualisé."
+  "bytes": 1225736,
+  "notes": "Accueil entièrement repensé en mini-tableau de bord : information officielle à la une, deux indicateurs compacts côte à côte, bouton de liste turquoise, séparateur discret, halos Liquid Glass et microanimations légères. Données et navigation conservées ; cache PWA actualisé."
 }
