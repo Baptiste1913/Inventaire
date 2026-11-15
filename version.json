@@ -1,7 +1,7 @@
 {
-  "version": "38.27",
+  "version": "38.28",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Grand titre d’accueil en typographie arrondie expressive, taille responsive 34–48 px. Sous-titre utilisant la même classe de style que le descriptif « Inventaires et opérations 10 % Pouvoir d’achat à venir ». Cache PWA renouvelé."
+  "notes": "Correction visuelle d’après capture iPhone : suppression de la police arrondie du titre, remplacement par une police système de grand titre sobre ; sous-titre gris bleuté lisible avec taille et poids cohérents avec les sous-titres Événements. Cache PWA renouvelé."
 }
