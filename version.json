@@ -1,7 +1,7 @@
 {
-  "version": "37.76",
+  "version": "37.77",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1209260,
-  "notes": "Halo U : cyan #53C0E9, bleu pétrole #007583, vert d’eau #64B9AE et léger rappel rouge, formes organiques déformées subtilement par SVG puis floutées, panneau Liquid Glass légèrement moins opaque. Repli CSS, cache PWA, fonctionnalités conservées."
+  "bytes": 1210543,
+  "notes": "Rappel rouge légèrement plus visible dans le halo U et animation discrète des couleurs cyan, bleu pétrole, vert d’eau et rouge par mouvements lents dans le SVG, sans mouvement du texte ni des cartes. Animation désactivée si « Réduire les animations » est activé ; cache PWA actualisé."
 }

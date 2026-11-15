@@ -23149,7 +23149,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
    Les dégradés CSS sous-jacents assurent le repli si le SVG ne charge pas. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
  background-image:
-  url("./assets/u-aurora.svg?v=37.76"),
+  url("./assets/u-aurora.svg?v=37.77"),
   radial-gradient(ellipse 400px 340px at 25% 335px,rgba(83,192,233,.11),rgba(83,192,233,0) 100%),
   radial-gradient(ellipse 420px 360px at 80% 365px,rgba(100,185,174,.11),rgba(100,185,174,0) 100%),
   radial-gradient(ellipse 395px 330px at 53% 405px,rgba(0,117,131,.065),rgba(0,117,131,0) 100%)!important;
