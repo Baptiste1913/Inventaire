@@ -1,7 +1,7 @@
 {
-  "version": "38.05",
+  "version": "38.06",
   "published": "2026-11-15",
   "assets": 46,
-  "bytes": 1371363,
-  "notes": "Accueil : bloc Événements en novembre harmonisé avec Ma session, Administration et Mon compte : même fond dégradé, contour, ombres et coins de 20 px. Suppression des fonds et pseudo-éléments superposés du bandeau ; carte prochain inventaire et bouton conservés. Cache PWA renouvelé."
+  "bytes": 1372733,
+  "notes": "Accueil : bloc Nouvelle pesée harmonisé avec Ma session (dégradé, contour blanc, ombres neumorphiques et coins 20 px). Pseudo-éléments extérieurs neutralisés ; champs, calculs et modes dédiés inchangés. Cache PWA renouvelé."
 }
