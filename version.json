@@ -1,7 +1,7 @@
 {
-  "version": "38.56",
+  "version": "38.57",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Flou de retour renforcé à 3,5 px et transition d’opacité subtile de 16 % vers 0 sur 620 ms, sans mouvement du bloc Bienvenue ; cache PWA renouvelé."
+  "notes": "Retour depuis les pages Alertes, Administration, Mon compte et Événements à la position exacte de défilement mémorisée avant l’ouverture ; correction sur la frame suivante pour Safari. Flou et animations conservés, cache PWA renouvelé."
 }
