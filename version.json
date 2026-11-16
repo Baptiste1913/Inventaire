@@ -1,7 +1,7 @@
 {
-  "version": "38.45",
+  "version": "38.46",
   "published": "2026-11-15",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Réduction renforcée de l’ombre du bloc Bienvenue : règle ciblant le panneau et son contenu, opacité 0,8 %, portée réduite et neutralisation des filtres d’ombre ; cache PWA renouvelé."
+  "notes": "Séparateur Vos services rapproché de 8 px supplémentaires du bloc Bienvenue. Ombre extérieure atténuée également sur le conteneur principal de la section (0,4 %), avec diffusion et portée réduites ; cache PWA renouvelé."
 }
