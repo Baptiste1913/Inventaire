@@ -29268,81 +29268,26 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
 }
 
 
-/* V39.28 — Retour interactif : aperçu réel, seule zone découverte
-   visible, trajectoire et relief du même langage que le bouton Retour. */
-.iu-edge-swipe-backdrop{
- position:fixed;inset:0;z-index:9990;
- overflow:hidden;pointer-events:none;
- background:#f3f6f7;
- clip-path:inset(0 100% 0 0);
- -webkit-clip-path:inset(0 100% 0 0);
- opacity:0;visibility:hidden;
- contain:layout paint;
-}
-body.iu-edge-swiping .iu-edge-swipe-backdrop{
- visibility:visible;opacity:1;
-}
-.iu-edge-swipe-home{
- position:absolute;inset:0;
- width:100%;height:100%;border:0;
- pointer-events:none;opacity:.88;
- filter:blur(16px);
- transform:translateZ(0);
-}
-.iu-edge-swipe-arrow{
- position:absolute;left:18px;top:50%;
- display:flex;align-items:center;justify-content:center;
- width:45px;height:41px;box-sizing:border-box;
- border:1px solid rgba(255,255,255,.75);
- border-radius:14px;
- background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%);
- box-shadow:-3px -3px 7px rgba(255,255,255,.92),4px 5px 11px rgba(156,173,189,.32),inset 1px 1px 0 rgba(255,255,255,.94);
- color:#566c78;opacity:0;
- transform:translate3d(9px,0,0) scale(.94);
-}
-.iu-edge-swipe-arrow svg{
- width:20px;height:20px;fill:none;
- stroke:currentColor;stroke-width:2.2;
- stroke-linecap:round;stroke-linejoin:round;
-}
-.iu-edge-swipe-seam{
- position:fixed;left:-24px;top:0;bottom:0;
- width:4px;z-index:9991;pointer-events:none;opacity:0;
- background:#f3f6f7;
- border-left:1px solid rgba(214,226,233,.65);
- box-shadow:-8px 0 16px rgba(48,69,84,.14);
-}
-body.iu-edge-swiping #iuSubpageBar,
-body.iu-edge-swiping #planningAdminCard,
-body.iu-edge-swiping #accountCard,
-body.iu-edge-swiping #eventsPage,
-body.iu-edge-swiping #iuAlertsPage{will-change:translate}
-@media(prefers-reduced-motion:reduce){
- .iu-edge-swipe-home{filter:none!important}
- .iu-edge-swipe-arrow,.iu-edge-swipe-seam{transition:none!important}
-}
-@media(forced-colors:active){
- .iu-edge-swipe-arrow{background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important}
- .iu-edge-swipe-seam{background:none!important}
-}
 
-/* V39.29 — Le bord de la page est une tranche rectiligne :
-   plus de coins du panneau qui dépassent pendant son glissement.
-   La flèche v39.28 ne change pas. */
-body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage){
- border-radius:0!important;
+/* V39.30 — Voile opaque doux sans clonage ni animation de l'accueil. */
+.iu-edge-swipe-backdrop{
+ position:fixed;inset:0;z-index:9990;overflow:hidden;pointer-events:none;
+ background:linear-gradient(145deg,#fbfcfd 0%,#f0f5f7 48%,#e6eef1 100%);
+ clip-path:inset(0 100% 0 0);-webkit-clip-path:inset(0 100% 0 0);
+ opacity:0;visibility:hidden;
 }
-body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage),
-body.iu-edge-swiping #iuSubpageBar{
- backface-visibility:hidden;
- -webkit-backface-visibility:hidden;
-}
-body.iu-edge-swiping .iu-edge-swipe-seam{
- width:8px!important;
- border-left:1px solid rgba(204,219,228,.65)!important;
- border-right:0!important;
- background:#f3f6f7!important;
- box-shadow:-7px 0 13px rgba(48,69,84,.12)!important;
-}
-body.iu-edge-swiping{scrollbar-width:none!important}
-body.iu-edge-swiping::-webkit-scrollbar{display:none!important}
+body.iu-edge-swiping .iu-edge-swipe-backdrop{visibility:visible;opacity:1}
+.iu-edge-swipe-glow{position:absolute;left:-100px;top:17%;width:270px;height:320px;
+ background:radial-gradient(ellipse,rgba(111,177,187,.105),rgba(184,205,213,.035) 58%,transparent 77%);
+ pointer-events:none}
+.iu-edge-swipe-arrow{position:absolute;left:18px;top:50%;display:flex;align-items:center;justify-content:center;
+ width:45px;height:41px;box-sizing:border-box;border:1px solid rgba(255,255,255,.75);
+ border-radius:14px;background:linear-gradient(145deg,#fff,#f8fafb 34%,#e5ebef);
+ box-shadow:-3px -3px 7px rgba(255,255,255,.8),3px 4px 9px rgba(156,173,189,.2),inset 1px 1px 0 rgba(255,255,255,.8);
+ color:#566c78;opacity:0;transform:translate3d(7px,0,0)}
+.iu-edge-swipe-arrow svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.iu-edge-swipe-seam{position:fixed;left:0;top:0;bottom:0;width:5px;z-index:9991;pointer-events:none;opacity:0;
+ background:#eef4f6;border-left:1px solid rgba(204,219,228,.6);box-shadow:-6px 0 12px rgba(48,69,84,.12)}
+body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage){border-radius:0!important}
+body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage,#iuSubpageBar){backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:translate}
+@media(forced-colors:active){.iu-edge-swipe-backdrop{background:Canvas!important}.iu-edge-swipe-arrow{background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important}}
