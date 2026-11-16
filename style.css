@@ -29634,3 +29634,64 @@ html body .app > section.calc-card .weigh-preferences-alerts > .calc-alerts-summ
   background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
  }
 }
+
+/* V39.45 — Réglages d'alertes : finitions neumorphiques sobres.
+   Styles strictement limités au tiroir de pesée. */
+html body .app > section.calc-card .weigh-preferences-alerts > .calc-alerts-summary{
+ padding:13px 2px 14px!important;
+ border-bottom-color:rgba(187,202,212,.42)!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .calc-alerts-title > strong{
+ color:#33434e!important;
+ font-weight:800!important;
+ letter-spacing:-.015em!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .calc-alerts-title > small{
+ color:#83909a!important;
+ font-weight:550!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .calc-alerts-chevron{
+ stroke:#778b96!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .calc-alerts-body{
+ padding-top:15px!important;
+ background:transparent!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .calc-alerts-body > label[for="maxGrossLimit"]{
+ color:#516875!important;
+ font-weight:750!important;
+ letter-spacing:-.01em!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts #maxGrossLimit{
+ border:1px solid rgba(205,218,225,.92)!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#f8fafb,#edf2f5)!important;
+ color:#303d46!important;
+ box-shadow:inset 2px 2px 5px rgba(117,139,152,.10),inset -1px -1px 2px rgba(255,255,255,.9)!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts #maxGrossLimit:focus{
+ border-color:#7d9eab!important;
+ box-shadow:0 0 0 3px rgba(104,160,178,.12),inset 1px 1px 3px rgba(117,139,152,.08)!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .duplicate-toggle{
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 38%,#e9eff3 100%)!important;
+ box-shadow:2px 4px 9px rgba(151,169,181,.17),inset 1px 1px 0 rgba(255,255,255,.95)!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .duplicate-toggle strong{
+ color:#394c58!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .duplicate-toggle small,
+html body .app > section.calc-card .weigh-preferences-alerts .alerts-help{
+ color:#7c8b94!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts .duplicate-toggle input[type="checkbox"]{
+ accent-color:#526c78!important;
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card .weigh-preferences-alerts #maxGrossLimit,
+ html body .app > section.calc-card .weigh-preferences-alerts .duplicate-toggle{
+  background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+}
