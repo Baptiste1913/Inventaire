@@ -509,7 +509,7 @@ function iuPreserveExitVisual(source,copy){
  }
 }
 function exitFocusWithoutSnapshot(action,config={}){
- // V38.54 : transitions des pages autonomes sans filtre sur .app,
+ // V38.55 : transitions des pages autonomes sans filtre sur .app,
  // qui provoquait une recomposition des verres floutés dans Safari iOS.
  const standaloneReturn=Boolean(config.solidDuringMotion);
  const duration=610;
@@ -597,7 +597,7 @@ function exitFocusWithoutSnapshot(action,config={}){
   homeBlurSheet.setAttribute('aria-hidden','true');
   document.body.append(homeBlurSheet);
   animate(homeBlurSheet,[
-   {offset:0,opacity:.82},
+   {offset:0,opacity:.9},
    {offset:1,opacity:0}
   ],{duration:510,easing:'ease-out'});
  }else{
@@ -705,7 +705,10 @@ function iuAnimateStandalonePage(action,entering,config){
  focusMotionBusy=true;
  html.classList.add('iu-page-cards','iu-focus-slide',
   entering?'iu-focus-entering':'iu-focus-exiting');
- focusTagViews(entering,'old',tagged,config);
+ // Pages autonomes : l'écran entrant est une surface pleine et opaque.
+ // Ne pas créer d'instantanés des cartes de l'accueil au-dessus du fond.
+ // Cela évite les éléments translucides pendant l'apparition sur Safari.
+ if(!entering)focusTagViews(entering,'old',tagged,config);
 
  if(typeof document.startViewTransition==='function'){
   try{
@@ -959,7 +962,7 @@ function iuCloseEventsPage(immediate=false){
 }
 window.IUOpenEventsPage=iuOpenEventsPage;
 window.IUCloseEventsPage=iuCloseEventsPage;
-/* V38.54 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
+/* V38.55 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
    sans modifier les données de veille ni le comportement hors ligne. */
 const iuAlertsPageMotion={
  modeClass:'is-alerts-mode',
