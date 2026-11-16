@@ -1,7 +1,7 @@
 {
-  "version": "39.04",
+  "version": "39.05",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Page Rappels/Alertes : effets neumorphiques doux identiques aux autres pages sur compteurs, cadres approvisionnement et rappels, fiches cliquables, avertissement, filtres, sélecteur de tri et bouton retour interne. Gradients métiers, dimensions, adaptabilité et animations préservés."
+  "notes": "Page Rappels : tri déplacé à gauche avec marge haute réduite, trait sous le titre et sous-titre supprimé, note de prudence sans encadré et avec le même style typographique que la note d'indisponibilité des cotations."
 }
