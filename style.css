@@ -28673,3 +28673,32 @@ html body.is-events-mode .app > #eventsPage.iu-events-page .iu-events-other-pane
   border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;
  }
 }
+
+/* V39.08 — « Autres événements » : le cadre externe est déjà harmonisé
+   en V39.07 ; donner aussi à son en-tête cliquable le même relief
+   interactif, et aux lignes dépliées le même traitement que l'agenda.
+   Ne pas modifier la taille ni l'ouverture native du details. */
+html body.is-events-mode .app > #eventsPage.iu-events-page #eventsOtherPanel > summary.iu-events-other-summary{
+ background:linear-gradient(145deg,rgba(255,255,255,.78) 0%,rgba(248,250,251,.62) 34%,rgba(229,235,239,.58) 100%)!important;
+ box-shadow:inset 1px 1px 0 rgba(255,255,255,.72),inset 0 -1px 0 rgba(156,173,189,.08)!important;
+ transition:background .22s ease,box-shadow .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body.is-events-mode .app > #eventsPage.iu-events-page #eventsOtherPanel > summary.iu-events-other-summary:active{
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+ box-shadow:inset 1px 1.5px 3px rgba(150,166,181,.12),inset -1px -1px 2.5px rgba(255,255,255,.48)!important;
+}
+html body.is-events-mode .app > #eventsPage.iu-events-page #eventsOtherPanel .iu-events-other-row{
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),-3px -3px 6.5px rgba(255,255,255,.30),2px 2.5px 5.5px rgba(156,173,189,.175),.5px 1px 2px rgba(156,173,189,.09),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-events-mode .app > #eventsPage.iu-events-page #eventsOtherPanel > summary.iu-events-other-summary{transition:none!important}
+}
+@media(forced-colors:active){
+ html body.is-events-mode .app > #eventsPage.iu-events-page #eventsOtherPanel > summary.iu-events-other-summary,
+ html body.is-events-mode .app > #eventsPage.iu-events-page #eventsOtherPanel .iu-events-other-row{
+  background:Canvas!important;box-shadow:none!important;
+ }
+}
