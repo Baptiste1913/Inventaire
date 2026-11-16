@@ -1028,7 +1028,7 @@ const iuAdminPageMotion={
  homeScrollY:()=>iuSavedHomeScrollY
 };
 
-/* V39.26 — Capturer l'accueil REEL avant que la sous-page ne le masque :
+/* V39.27 — Capturer l'accueil REEL avant que la sous-page ne le masque :
    pas de copie de cartes en mode secondaire, ni de vieux contenu. */
 let iuEdgeHomeSnapshot=null;
 function iuEdgePrepareHome(){
@@ -2514,7 +2514,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
 })();
 
 
-/* V39.26 — Retour de bord : véritable aperçu capturé AVANT ouverture,
+/* V39.27 — Retour de bord : véritable aperçu capturé AVANT ouverture,
    aperçu préchargé, masque limité à la zone découverte, animation
    de fin harmonisée avec Retour (courbe .16,.84,.24,1). */
 (function iuInstallEdgeSwipeBack(){
@@ -2526,9 +2526,32 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  };
  const current=()=>Object.entries(pages).find(([mode])=>document.body.classList.contains(mode))?.[1];
  let gesture=null,layer=null,frame=null,arrow=null,seam=null,primeTimer=null;
+ // Le moteur du bouton Retour fait monter les cartes de 14dvh avec
+ // une cascade de 70ms et un easing .18,.82,.24,1. Le reproduire
+ // dans l'aperçu, en pilotant manuellement la progression au doigt.
+ let homeAnimations=[],homeTimeline=720;
+ const updateHome=(progress)=>{
+  const time=Math.max(0,Math.min(1,progress))*homeTimeline;
+  for(const anim of homeAnimations){
+   try{anim.currentTime=time;}catch(_){}
+  }
+ };
+ const finishEase=t=>{
+  let low=0,high=1;
+  for(let i=0;i<12;i++){
+   const u=(low+high)/2,k=1-u;
+   const x=3*.16*k*k*u+3*.24*k*u*u+u*u*u;
+   if(x<t)low=u;else high=u;
+  }
+  const u=(low+high)/2,k=1-u;
+  return 3*.84*k*k*u+3*k*u*u+u*u*u;
+ };
  const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
  function dispose(){
   if(primeTimer!==null){clearTimeout(primeTimer);primeTimer=null;}
+  homeAnimations.forEach(anim=>{try{anim.cancel();}catch(_){}});
+  homeAnimations=[];
+  homeTimeline=720;
   layer?.remove();
   layer=null;frame=null;arrow=null;seam=null;
  }
@@ -2546,9 +2569,42 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   documentPreview.setAttribute('loading','eager');
   documentPreview.setAttribute('inert','');
   documentPreview.addEventListener('load',()=>{
+   if(frame!==documentPreview)return;
    try{
-    documentPreview.contentWindow?.scrollTo(0,home.scrollY);
-    requestAnimationFrame(()=>documentPreview.contentWindow?.scrollTo(0,home.scrollY));
+    const win=documentPreview.contentWindow;
+    win?.scrollTo(0,home.scrollY);
+    requestAnimationFrame(()=>{
+     if(frame!==documentPreview)return;
+     try{win?.scrollTo(0,home.scrollY);}catch(_){}
+     requestAnimationFrame(()=>{
+      if(frame!==documentPreview||reduced())return;
+      try{
+       const doc=documentPreview.contentDocument;
+       const visible=node=>{
+        if(node.hidden)return false;
+        const computed=win.getComputedStyle(node),rect=node.getBoundingClientRect();
+        return computed.display!=='none'&&computed.visibility!=='hidden'&&
+         rect.width>0&&rect.height>0&&rect.bottom>0&&rect.top<win.innerHeight;
+       };
+       const tiles=[...doc.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
+        .filter(visible)
+        .sort((x,y)=>x.getBoundingClientRect().top-y.getBoundingClientRect().top)
+        .slice(0,12);
+       homeAnimations.forEach(anim=>{try{anim.cancel();}catch(_){}});
+       homeAnimations=[];
+       homeTimeline=720+Math.max(0,tiles.length-1)*70;
+       for(const [i,tile] of tiles.entries()){
+        const anim=tile.animate([
+         {transform:'translate3d(0,14dvh,0)',opacity:1},
+         {transform:'translate3d(0,0,0)',opacity:1}
+        ],{duration:720,delay:i*70,easing:'cubic-bezier(.18,.82,.24,1)',fill:'both'});
+        anim.pause();
+        homeAnimations.push(anim);
+       }
+       updateHome(gesture?.active?gesture.distance/Math.max(1,innerWidth):0);
+      }catch(error){console.warn('Animation de retour de l’accueil indisponible',error);}
+     });
+    });
    }catch(_){}
   },{once:true});
   const cue=document.createElement('div');
@@ -2563,7 +2619,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   documentPreview.srcdoc=home.doc;
   layer=surface;frame=documentPreview;arrow=cue;seam=edge;
  }
- function paint(g,x){
+ function paint(g,x,skipHome=false){
   x=Math.max(0,Math.min(Math.max(1,innerWidth),x));
   g.distance=x;
   const p=x/Math.max(1,innerWidth);
@@ -2574,7 +2630,10 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   layer.style.clipPath=clip;
   layer.style.webkitClipPath=clip;
   frame.style.opacity=String(.88+.12*p);
-  frame.style.filter=reduced()?'none':'blur('+((1-p)*7).toFixed(2)+'px)';
+  // Flou initial renforcé : 16px au bord, puis baisse non linéaire
+  // vers zéro quand l'accueil retrouve toute sa place.
+  frame.style.filter=reduced()?'none':'blur('+(16*Math.pow(1-p,1.35)).toFixed(2)+'px)';
+  if(!skipHome)updateHome(p);
   arrow.style.opacity=String(Math.min(.96,Math.max(0,(x-42)/104)));
   arrow.style.transform='translate3d('+((1-p)*9).toFixed(2)+'px,0,0) scale('+(.94+.06*p).toFixed(3)+')';
   seam.style.left=(x-24).toFixed(2)+'px';
@@ -2585,12 +2644,14 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   gesture=null;
   if(g){
    if(g.raf)cancelAnimationFrame(g.raf);
+   if(g.homeRaf)cancelAnimationFrame(g.homeRaf);
    if(g.timer!==null)clearTimeout(g.timer);
    for(const node of g.nodes){
     node.style.removeProperty('translate');
     node.style.removeProperty('transition');
    }
   }
+  updateHome(0);
   document.body.classList.remove('iu-edge-swiping');
   if(layer){
    layer.style.removeProperty('clip-path');
@@ -2617,8 +2678,23 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    arrow.style.transition='opacity '+transition+',transform '+transition;
    seam.style.transition='left '+transition+',opacity '+transition;
    void g.nodes[0].getBoundingClientRect();
-   requestAnimationFrame(()=>{if(gesture===g)paint(g,target);});
-  }else paint(g,target);
+   requestAnimationFrame(()=>{if(gesture===g)paint(g,target,true);});
+  }else paint(g,target,true);
+  // Le retour des cartes suit la même courbe de décélération que
+  // le bandeau et le panneau, même après le relâchement.
+  const from=g.distance/Math.max(1,innerWidth),to=success?1:0;
+  if(duration&&homeAnimations.length){
+   let started=null;
+   const animateHome=now=>{
+    if(gesture!==g)return;
+    if(started===null)started=now;
+    const t=Math.min(1,(now-started)/duration);
+    updateHome(from+(to-from)*finishEase(t));
+    if(t<1)g.homeRaf=requestAnimationFrame(animateHome);
+    else g.homeRaf=0;
+   };
+   g.homeRaf=requestAnimationFrame(animateHome);
+  }else updateHome(to);
   g.timer=setTimeout(()=>{
    if(gesture!==g)return;
    if(success)g.page.close(); // fermeture directe : pas de deuxième animation
@@ -2643,7 +2719,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   if(!layer)return;
   gesture={page,nodes:[panel,bar],x:touch.clientX,y:touch.clientY,
    lastX:touch.clientX,lastTime:performance.now(),velocity:0,
-   distance:0,active:false,settling:false,raf:0,timer:null};
+   distance:0,active:false,settling:false,raf:0,homeRaf:0,timer:null};
  },{passive:true});
  document.addEventListener('touchmove',event=>{
   const g=gesture;
