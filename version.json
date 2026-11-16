@@ -1,7 +1,7 @@
 {
-  "version": "39.05",
+  "version": "39.06",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Page Rappels : tri déplacé à gauche avec marge haute réduite, trait sous le titre et sous-titre supprimé, note de prudence sans encadré et avec le même style typographique que la note d'indisponibilité des cotations."
+  "notes": "Alignement du tri sur le contenu des pastilles Signaux (11px, 8px sur mobile). Avertissement Rappels avec la même graisse 600 et la même marge haute de 9px que la note Cotations."
 }
