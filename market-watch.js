@@ -112,11 +112,14 @@ const frDate=v=>{
  const d=new Date(v);
  return Number.isFinite(d.getTime())?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
 };
-// Date complète pour la carte principale : « 9 novembre », sans année.
+// Date courte dynamique de la carte d'accueil : « 9 nov. », sans année.
 const frLongDate=v=>{
  const d=new Date(v);
- return Number.isFinite(d.getTime())?
-  new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',timeZone:'Europe/Paris'}).format(d):'';
+ if(!Number.isFinite(d.getTime()))return '';
+ const label=new Intl.DateTimeFormat('fr-FR',{
+  day:'numeric',month:'short',timeZone:'Europe/Paris'
+ }).format(d);
+ return label.replace(/\u00a0/g,' ');
 };
 function validUrl(link,type){
  try{
