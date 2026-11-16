@@ -1,7 +1,7 @@
 {
-  "version": "39.31",
+  "version": "39.32",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Transition de retour monochrome gris perle, lumières douces animées rappelant Bienvenue, flèche centrée verticalement sans modifier le geste ni la mémorisation de position."
+  "notes": "Retour exact à la transition v39.30, avec uniquement les couleurs du fond, de la lumière fixe, de la flèche et du séparateur en gris monochrome. Aucun changement fonctionnel."
 }
