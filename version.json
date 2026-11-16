@@ -1,7 +1,7 @@
 {
-  "version": "39.17",
+  "version": "39.18",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Renommage de la rubrique Événement en Planification : libellé SERVICE U / PLANIFICATION, titre mensuel dynamique Planification en [mois], et titre du bandeau supérieur Planification."
+  "notes": "Bandeaux des quatre sous-pages : titres mieux intégrés avec fine barre verticale gris-bleu et discret sous-titre SERVICE U ; sous-titre masqué au défilement lorsque le bandeau passe à 55 px, bouton Retour inchangé."
 }
