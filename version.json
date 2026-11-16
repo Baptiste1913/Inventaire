@@ -1,7 +1,7 @@
 {
-  "version": "38.74",
+  "version": "38.75",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correctif spécifique de la toute première ouverture Alertes/Rappels sur Safari : montage complet hors écran des deux surfaces puis lancement simultané de leur animation 610ms après préparation du layout. Évite le départ anticipé du bandeau, sans toucher à Événements, Mon compte, Réglages, aux données ou au retour instantané. Cache PWA renouvelé."
+  "notes": "Première ouverture Alertes/Rappels et Événements : un animateur unique applique la même translation au bandeau Retour et au panneau durant 610ms. Les éléments sont préparés hors écran avant l'affichage, sans animations CSS ou WAAPI superposées. Bouton Retour interruptible et positions de défilement conservés ; autres pages inchangées. Cache PWA renouvelé."
 }
