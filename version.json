@@ -1,7 +1,7 @@
 {
-  "version": "39.28",
+  "version": "39.29",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour gestuel : flèche réduite et transparence divisée par deux, bord vertical rectiligne aligné aux pixels, bloc Bienvenue animé avec les cartes, passage progressif vers l'accueil réel et restauration de la position de défilement mémorisée."
+  "notes": "Retour tactile fiabilisé : aperçu à la position enregistrée sans défilement iframe, bord vertical plat, animation indépendante des transform CSS, reprise exacte de la pose de Bienvenue et des cartes sur l'accueil réel, flèche préservée."
 }
