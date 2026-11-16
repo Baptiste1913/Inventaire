@@ -29183,3 +29183,85 @@ html body #iuSubpageBar .iu-subpage-heading{
 @media(forced-colors:active){
  html body #iuSubpageBar .iu-subpage-heading{color:CanvasText!important}
 }
+
+/* V39.18 — Intégration des titres au bandeau translucide.
+   Trait vertical discret + micro-libellé SERVICE U au-dessus
+   du titre, sans ajouter de cadre ni toucher au bouton Retour.
+   Le micro-libellé disparaît en mode compact (55px). */
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading{
+ position:relative!important;
+ align-items:center!important;
+ min-width:0!important;
+ padding-left:16px!important;
+ margin-right:10px!important;
+ gap:0!important;
+}
+html body.is-admin-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-admin,
+html body.is-account-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-account,
+html body.is-events-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-events,
+html body.is-alerts-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-alerts{
+ display:flex!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading::before{
+ content:""!important;
+ position:absolute!important;
+ left:2px!important;
+ top:50%!important;
+ width:3px!important;
+ height:28px!important;
+ border-radius:999px!important;
+ background:linear-gradient(180deg,#9cbbc4,#698995)!important;
+ transform:translateY(-50%)!important;
+ opacity:.78!important;
+ box-shadow:0 1px 2px rgba(95,123,135,.09)!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy{
+ display:flex!important;
+ flex-direction:column!important;
+ justify-content:center!important;
+ align-items:flex-start!important;
+ min-width:0!important;
+ gap:2px!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy small{
+ display:block!important;
+ font-size:9px!important;
+ font-weight:750!important;
+ line-height:1.1!important;
+ letter-spacing:.11em!important;
+ color:#81919a!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy strong{
+ display:block!important;
+ font-size:clamp(19px,4.7vw,22px)!important;
+ font-weight:850!important;
+ line-height:1.12!important;
+ letter-spacing:-.45px!important;
+ color:#202126!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+ white-space:nowrap!important;
+ max-width:100%!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading-copy small{
+ display:none!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::before{
+ height:23px!important;
+}
+@media(max-width:380px){
+ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading{
+  padding-left:12px!important;margin-right:5px!important;
+ }
+ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy strong{
+  font-size:19px!important;
+ }
+}
+@media(forced-colors:active){
+ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading::before{
+  background:CanvasText!important;box-shadow:none!important;
+ }
+ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy :is(small,strong){
+  color:CanvasText!important;
+ }
+}
