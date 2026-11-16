@@ -1027,10 +1027,54 @@ const iuAdminPageMotion={
  // V36.87 : l'accueil est toujours remis en haut sous la transition opaque.
  homeScrollY:()=>iuSavedHomeScrollY
 };
+
+/* V39.20 — Historique réel des quatre sous-pages pour le retour natif
+   Safari/PWA. Aucune interception de touchstart/touchmove : iOS garde
+   le contrôle exclusif du geste de bord. */
+const iuNativePageKeys=['admin','account','events','alerts'];
+let iuNativeHistoryApplying=false;
+function iuNativePageFromState(){
+ const state=history.state;
+ return state&&state.iuNativePageV1&&iuNativePageKeys.includes(state.iuNativePageV1)
+  ?state.iuNativePageV1:null;
+}
+function iuNativePushPage(key){
+ if(iuNativeHistoryApplying||!iuNativePageKeys.includes(key))return;
+ if(iuNativePageFromState()===key)return;
+ try{
+  const url=new URL(location.href);
+  url.hash='iu-page-'+key;
+  history.pushState({...((history.state&&typeof history.state==='object')?history.state:{}),iuNativePageV1:key},'',url.href);
+ }catch(error){console.warn('Historique sous-page indisponible',error);}
+}
+function iuNativeReturnPage(){
+ if(iuNativeHistoryApplying||!iuNativePageFromState())return false;
+ history.back();
+ return true;
+}
+window.addEventListener('popstate',()=>{
+ const key=iuNativePageFromState();
+ const current=iuNativePageKeys.find((name)=>document.body.classList.contains('is-'+name+'-mode'))||null;
+ if(current===key)return;
+ iuNativeHistoryApplying=true;
+ try{
+  if(current){
+   ({admin:iuCloseAdminPage,account:iuCloseAccountPage,events:iuCloseEventsPage,alerts:iuCloseAlertsPage})[current]();
+  }
+  if(key){
+   const open=({admin:iuOpenAdminPage,account:iuOpenAccountPage,events:iuOpenEventsPage,alerts:iuOpenAlertsPage})[key];
+   // Les transitions en cours sont gérées par le moteur existant.
+   if(!current)open();
+   else focusPendingTask=()=>{iuNativeHistoryApplying=true;try{open();}finally{iuNativeHistoryApplying=false;}};
+  }
+ }finally{iuNativeHistoryApplying=false;}
+});
+
 function iuOpenAdminPage(){
  const card=$('planningAdminCard');
  if(!card||card.hidden||card.dataset.adminLoading==='true'||
     document.body.classList.contains('is-admin-mode')||focusMotionBusy)return;
+ iuNativePushPage('admin');
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-admin-mode');
@@ -1041,6 +1085,7 @@ function iuOpenAdminPage(){
  },true,iuAdminPageMotion);
 }
 function iuCloseAdminPage(immediate=false){
+ if(!immediate&&iuNativeReturnPage())return;
  const card=$('planningAdminCard');
  if(!card||!document.body.classList.contains('is-admin-mode'))return;
  const exit=()=>{
@@ -1086,6 +1131,7 @@ const iuAccountPageMotion={
 function iuOpenAccountPage(){
  const card=$('accountCard');
  if(!card||document.body.classList.contains('is-account-mode')||focusMotionBusy)return;
+ iuNativePushPage('account');
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-account-mode');
@@ -1094,6 +1140,7 @@ function iuOpenAccountPage(){
  },true,iuAccountPageMotion);
 }
 function iuCloseAccountPage(immediate=false){
+ if(!immediate&&iuNativeReturnPage())return;
  const card=$('accountCard');
  if(!card||!document.body.classList.contains('is-account-mode'))return;
  const exit=()=>{
@@ -1136,6 +1183,7 @@ function iuOpenEventsPage(){
     document.body.classList.contains('is-account-mode')||
     document.body.classList.contains('is-admin-mode'))return;
  window.InventairesPlanning?.preparePage?.();
+ iuNativePushPage('events');
  changeFocusWithMotion(()=>{
   page.hidden=false;
   document.body.classList.add('is-events-mode');
@@ -1144,6 +1192,7 @@ function iuOpenEventsPage(){
  },true,iuEventsPageMotion);
 }
 function iuCloseEventsPage(immediate=false){
+ if(!immediate&&iuNativeReturnPage())return;
  const page=$('eventsPage');
  if(!page||!document.body.classList.contains('is-events-mode'))return;
  const action=()=>{
@@ -1183,6 +1232,7 @@ function iuOpenAlertsPage(){
     document.body.classList.contains('is-admin-mode')||
     document.body.classList.contains('is-account-mode')||
     document.body.classList.contains('is-events-mode'))return;
+ iuNativePushPage('alerts');
  changeFocusWithMotion(()=>{
   page.hidden=false;
   document.body.classList.add('is-alerts-mode');
@@ -1191,6 +1241,7 @@ function iuOpenAlertsPage(){
  },true,iuAlertsPageMotion);
 }
 function iuCloseAlertsPage(immediate=false){
+ if(!immediate&&iuNativeReturnPage())return;
  const page=$('iuAlertsPage');
  if(!page||!document.body.classList.contains('is-alerts-mode'))return;
  const action=()=>{
