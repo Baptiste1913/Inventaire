@@ -1,7 +1,7 @@
 {
-  "version": "39.46",
+  "version": "39.47",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Séparation des réglages de mode et des alertes en deux cartes neumorphiques indépendantes ; alertes toujours repliables. Espacement des lettres du titre Réglages de la pesée réduit."
+  "notes": "Sous-titre du mode de pesée harmonisé avec celui des alertes, suppression du séparateur ouvert, marges resserrées et agencement amélioré. Saisie du seuil identique au champ Mes paniers au repos et au focus."
 }
