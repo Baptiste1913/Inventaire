@@ -1,7 +1,7 @@
 {
-  "version": "39.47",
+  "version": "39.48",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Sous-titre du mode de pesée harmonisé avec celui des alertes, suppression du séparateur ouvert, marges resserrées et agencement amélioré. Saisie du seuil identique au champ Mes paniers au repos et au focus."
+  "notes": "Sélecteur de paniers harmonisé avec les surfaces neumorphiques, bouton Nouvelle pesée avec effet relief et pression, bloc d'information brut/tare assorti, espacements sous résultat et sous bloc informatif légèrement réduits. Fonctionnalités inchangées."
 }
