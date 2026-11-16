@@ -1,7 +1,7 @@
 {
-  "version": "38.93",
+  "version": "38.94",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction effective des pastilles en renforçant la spécificité contre les anciennes règles CSS prioritaires, y compris Google Connecté de l'accueil et du profil, Cloud synchronisé, Activées des événements, compteurs et session. Surface identique au Retour (34px, coins 10px, dégradé 145°, sans glow/ombre), couleurs par état et logo Google préservés."
+  "notes": "Retour aux fonds et couleurs d'origine de toutes les pastilles (suppression des styles V38.91–38.93), avec contour blanc et relief neumorphique à cinq ombres du bouton Accéder aux réglages adapté aux petits formats, coins complètement arrondis et hauteur 32px. Logo Google, statuts et fonctions préservés. Cache PWA actualisé."
 }
