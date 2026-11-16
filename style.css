@@ -27953,3 +27953,42 @@ html body.is-admin-mode .app > #planningAdminCard.card #iuErrorClear:not([hidden
   box-shadow:none!important;
  }
 }
+
+/* V38.87 — Relief admin à 50 % d'intensité et portée réduite.
+   Coins proportionnés aux petits boutons, sans changer leurs dimensions.
+   Conserver les dégradés et la déclinaison rouge d'Effacer. */
+html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]):not(#iuErrorClear){
+ border-radius:clamp(8px,1em,12px)!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card #iuErrorClear:not([hidden]){
+ border-radius:clamp(8px,1em,12px)!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,246,247,.35),
+   2px 2.5px 5.5px rgba(174,125,137,.145),
+   .5px 1px 2px rgba(174,125,137,.085),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]):not(:disabled):not(#iuErrorClear):active{
+ box-shadow:
+  inset 1px 1.5px 3px rgba(150,166,181,.12),
+  inset -1px -1px 2.5px rgba(255,255,255,.48),
+  .5px .5px 1.5px rgba(156,173,189,.06)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card #iuErrorClear:not([hidden]):not(:disabled):active{
+ box-shadow:
+  inset 1px 1.5px 3px rgba(155,79,94,.11),
+  inset -1px -1px 2.5px rgba(255,255,255,.475),
+  .5px .5px 1.5px rgba(174,125,137,.06)!important;
+}
+@media(forced-colors:active){
+ html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]){
+  box-shadow:none!important;
+ }
+}
