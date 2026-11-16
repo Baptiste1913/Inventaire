@@ -28023,3 +28023,69 @@ html body.is-admin-mode .app > #planningAdminCard.card .iu-admin-planning-sectio
   box-shadow:none!important;
  }
 }
+
+/* V38.89 — Page Mon compte : même relief discret que la gestion
+   Administrateur V38.87/V38.88, pour le panneau et les commandes.
+   Les boutons Retour possèdent leur propre style validé : ne pas
+   les remplacer. Les actions destructrices restent rougeâtres. */
+html body.is-account-mode .app > #accountCard.card > .account-body,
+html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard.iu-account-profile-card:not([hidden]){
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body.is-account-mode #accountCard button:not([hidden]):not(.iu-page-inline-back):not(#iuAccountLaunch){
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:clamp(8px,1em,12px)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+ transition:box-shadow .22s ease,background .22s ease,border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body.is-account-mode #accountCard button:not([hidden]):not(.iu-page-inline-back):not(:disabled):not(#iuAccountLaunch):active{
+ border-color:#d1d9df!important;
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+ box-shadow:inset 1px 1.5px 3px rgba(150,166,181,.12),inset -1px -1px 2.5px rgba(255,255,255,.48),.5px .5px 1.5px rgba(156,173,189,.06)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+html body.is-account-mode #accountCard button:is(#accountLogout,#accountResetInventories):not([hidden]){
+ border-color:rgba(255,224,224,.96)!important;
+ background:linear-gradient(145deg,#fff8f8 0%,#fcebed 34%,#edcdd2 100%)!important;
+ color:#9c3544!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,246,247,.35),
+   2px 2.5px 5.5px rgba(174,125,137,.145),
+   .5px 1px 2px rgba(174,125,137,.085),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body.is-account-mode #accountCard button:is(#accountLogout,#accountResetInventories):not([hidden]):not(:disabled):active{
+ border-color:#e2b9c0!important;
+ background:linear-gradient(145deg,#efcfd4,#fff4f5)!important;
+ box-shadow:inset 1px 1.5px 3px rgba(155,79,94,.11),inset -1px -1px 2.5px rgba(255,255,255,.475),.5px .5px 1.5px rgba(174,125,137,.06)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-account-mode #accountCard button:not([hidden]):not(.iu-page-inline-back):not(#iuAccountLaunch){transition:none!important}
+ html body.is-account-mode #accountCard button:not([hidden]):not(.iu-page-inline-back):not(#iuAccountLaunch):active{transform:none!important}
+}
+@media(forced-colors:active){
+ html body.is-account-mode .app > #accountCard.card > .account-body,
+ html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard.iu-account-profile-card:not([hidden]){
+  border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;
+ }
+ html body.is-account-mode #accountCard button:not([hidden]):not(.iu-page-inline-back):not(#iuAccountLaunch){
+  border:1px solid ButtonText!important;background:ButtonFace!important;color:ButtonText!important;box-shadow:none!important;
+ }
+}
