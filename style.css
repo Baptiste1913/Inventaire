@@ -29379,21 +29379,9 @@ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton)
    Le texte et les flèches de navigation restent inchangés. */
 html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > svg.iu-home-action-icon{display:none!important}
 
-/* V39.36 — Même bord turquoise que « Voir la liste » pour les
-   trois boutons de services de l'accueil, sans toucher à leur
-   taille, contenu, fond, navigation ni animation. */
+/* V39.37 — Uniquement le rayon de courbure du bouton Voir la liste. */
 html body:not(.is-admin-mode) .app #iuAdminLaunch.iu-admin-launch-action,
 html body:not(.is-account-mode) .app #iuAccountLaunch.iu-account-launch-action,
 html body:not(.is-events-mode) .app #eventsOpenPage.events-access-button{
- border:2px solid #168995!important;
- box-shadow:
-  0 0 0 4px rgba(83,192,219,.50),
-  inset 0 1px rgba(255,255,255,.92),
-  0 4px 14px rgba(58,112,131,.08)!important;
-}
-@media(forced-colors:active){
- html body .app :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage){
-  border:2px solid ButtonText!important;
-  box-shadow:none!important;
- }
+ border-radius:18px!important;
 }
