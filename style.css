@@ -30150,136 +30150,31 @@ html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge
 }
 
 
-/* V39.53 — Copie des trois couches de « Voir la liste » sur les accès
-   Réglages / Compte / Événements. Dimensions et contenu conservés. */
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
- box-sizing:border-box!important;
+/* V39.54 — Depuis la base v39.52 : effet « Voir la liste » UNIQUEMENT
+   sur la carte de la prochaine date d'inventaire.
+   Aucune modification aux trois boutons de navigation. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box{
  position:relative!important;
- isolation:isolate!important;
- overflow:visible!important;
- border:0!important;
- border-radius:14px!important;
- background:transparent!important;
- background-image:none!important;
- box-shadow:none!important;
- filter:none!important;
- transform:translateY(0);
- transition:transform .17s cubic-bezier(.22,.61,.36,1)!important;
- -webkit-tap-highlight-color:transparent!important;
-}
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action::before,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button::before{
- content:""!important;
- position:absolute!important;
- inset:0!important;
- display:block!important;
  box-sizing:border-box!important;
- border:0!important;
+ border:2.5px solid transparent!important;
  border-radius:14px!important;
- padding:0!important;
- background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
- box-shadow:-3px -3px 7px rgba(255,255,255,.98),
+ background:
+  linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%) padding-box,
+  linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%) border-box!important;
+ background-clip:padding-box,border-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
   -6px -6px 13px rgba(255,255,255,.60),
    4px 5px 11px rgba(91,148,155,.28),
    1px 2px 4px rgba(72,126,136,.17),
    inset 0 1px 0 rgba(255,255,255,.48)!important;
- z-index:0!important;
- pointer-events:none!important;
- -webkit-mask:none!important;mask:none!important;
- transition:box-shadow .22s ease!important;
- opacity:1!important;
- transform:none!important;
 }
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action::after,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action::after,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button::after{
- content:""!important;
- position:absolute!important;
- inset:2.5px!important;
- display:block!important;
- box-sizing:border-box!important;
- border:2px solid #007583!important;
- border-radius:11.5px!important;
- background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
- box-shadow:none!important;
- z-index:1!important;
- pointer-events:none!important;
- -webkit-mask:none!important;mask:none!important;
- transition:background .22s ease!important;
- opacity:1!important;
- transform:none!important;
-}
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action > *,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action > *,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button > *{
- position:relative!important;
- z-index:2!important;
-}
-@media(hover:hover){
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action:hover:not(:disabled),
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action:hover:not(:disabled),
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:hover:not(:disabled){
-  transform:translateY(-1px)!important;
- }
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action:hover:not(:disabled)::before,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action:hover:not(:disabled)::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:hover:not(:disabled)::before{
-  box-shadow:-4px -4px 8px rgba(255,255,255,.98),
-   -7px -7px 14px rgba(255,255,255,.64),
-    5px 6px 13px rgba(91,148,155,.31),
-    2px 3px 5px rgba(72,126,136,.18),
-    inset 0 1px 0 rgba(255,255,255,.5)!important;
- }
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action:hover:not(:disabled)::after,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action:hover:not(:disabled)::after,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:hover:not(:disabled)::after{
-  background:linear-gradient(145deg,#fff 0%,#f7f9fa 32%,#e1e8ed 100%)!important;
- }
-}
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action:active:not(:disabled),
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action:active:not(:disabled),
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:active:not(:disabled){
- transform:translateY(1px)!important;
-}
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action:active:not(:disabled)::before,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action:active:not(:disabled)::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:active:not(:disabled)::before{
- box-shadow:-2px -2px 5px rgba(255,255,255,.88),
-  2px 3px 7px rgba(91,148,155,.19),
-  inset 0 1px 0 rgba(255,255,255,.32)!important;
-}
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action:active:not(:disabled)::after,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action:active:not(:disabled)::after,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:active:not(:disabled)::after{
- background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
-}
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action:focus-visible,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action:focus-visible,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:focus-visible{
- outline:2px solid #8d9ca8!important;outline-offset:3px!important;
-}
-@media(prefers-reduced-motion:reduce){
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button,
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action::before,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button::before,
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action::after,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action::after,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button::after{transition:none!important;}
-}
+/* Les textes et la pastille gardent leur place; aucun pseudo-élément
+   interactif ni animation de bouton sur cette carte informative. */
 @media(forced-colors:active){
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{background:ButtonFace!important;border:1px solid ButtonText!important;}
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action::before,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action::before,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button::before,
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action::after,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action::after,
-html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button::after{display:none!important;}
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box{
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
+ }
 }
