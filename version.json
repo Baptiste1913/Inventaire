@@ -1,7 +1,7 @@
 {
-  "version": "38.99",
+  "version": "39.00",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Écran Mise à jour simplifié : seul le statut actuel sur une ligne au-dessus de la barre de progression, sans compteur d'étape ni pourcentage apparent. Carte de largeur et padding identiques au bloc Chargement (266px, 18/21/20px), logo redimensionné à 58px, transparence et halos maintenus. Détail d'erreur toujours visible en cas d'échec. Cache PWA actualisé."
+  "notes": "Écran de mise à jour : espacement vertical entre statut et barre de progression réduit de 6 à 3 px. Aucun autre changement visuel ou fonctionnel. Cache PWA actualisé."
 }
