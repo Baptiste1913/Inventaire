@@ -29838,3 +29838,86 @@ html body .app > section.calc-card.card #weighSettings .calc-alerts-body > .aler
   outline-offset:2px!important;
  }
 }
+
+/* V39.48 — Commandes de pesée : surfaces neumorphiques cohérentes
+   avec les boutons de l'accueil, sans modifier les valeurs ou les actions. */
+html body .app > section.calc-card.card #basketSelect{
+ border:1px solid rgba(214,224,231,.95)!important;
+ border-radius:14px!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important;
+ color:#303d46!important;
+ box-shadow:
+  -2px -2px 5px rgba(255,255,255,.88),
+   2px 3px 7px rgba(146,166,179,.16),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ transition:border-color .28s ease,box-shadow .28s ease!important;
+}
+html body .app > section.calc-card.card #basketSelect:focus{
+ border-color:#87949d!important;
+ box-shadow:
+   0 0 0 3px rgba(101,115,125,.10),
+   inset 1px 1px 3px rgba(121,140,152,.08)!important;
+ outline:none!important;
+}
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn{
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#425965!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ transition:box-shadow .22s ease,background .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn:active:not(:disabled){
+ background:linear-gradient(145deg,#eff3f6,#e7edf1)!important;
+ box-shadow:
+  inset 2px 3px 6px rgba(150,166,181,.24),
+  inset -2px -2px 5px rgba(255,255,255,.60),
+  1px 1px 3px rgba(156,173,189,.12)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn:focus-visible{
+ outline:2px solid #87949d!important;
+ outline-offset:3px!important;
+}
+html body .app > section.calc-card.card #weighStatus.weigh-status{
+ margin-top:4px!important;
+}
+html body .app > section.calc-card.card .calc-equation{
+ box-sizing:border-box!important;
+ margin-top:8px!important;
+ margin-bottom:-4px!important;
+ padding:10px 9px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app > section.calc-card.card #basketSelect,
+ html body .app > section.calc-card.card #resetBtn.new-weigh-btn{
+  transition:none!important;
+ }
+ html body .app > section.calc-card.card #resetBtn.new-weigh-btn:active:not(:disabled){
+  transform:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card.card :is(#basketSelect,#resetBtn.new-weigh-btn,.calc-equation){
+  border:1px solid ButtonText!important;
+  background:Canvas!important;color:CanvasText!important;box-shadow:none!important;
+ }
+ html body .app > section.calc-card.card #basketSelect:focus{
+  outline:2px solid Highlight!important;outline-offset:2px!important;
+ }
+}
