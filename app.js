@@ -405,7 +405,7 @@ let focusWasActive=false;
 let focusInitialized=false;
 let focusMotionBusy=false;
 let focusPendingTask=null;
-/* V38.57 — Conserver la position exacte de l'accueil lors des navigations
+/* V38.58 — Conserver la position exacte de l'accueil lors des navigations
    vers Admin, Mon compte, Evénements et Alertes. Pas de stockage persistant :
    un rechargement continue de démarrer en haut, comme auparavant. */
 let iuSavedHomeScrollY=0;
@@ -529,7 +529,7 @@ function iuPreserveExitVisual(source,copy){
  }
 }
 function exitFocusWithoutSnapshot(action,config={}){
- // V38.57 : transitions des pages autonomes sans filtre sur .app,
+ // V38.58 : transitions des pages autonomes sans filtre sur .app,
  // qui provoquait une recomposition des verres floutés dans Safari iOS.
  const standaloneReturn=Boolean(config.solidDuringMotion);
  const duration=610;
@@ -634,11 +634,11 @@ function exitFocusWithoutSnapshot(action,config={}){
   animations.push(homeBlur);
  }
  for(const [index,tile] of tiles.entries()){
-  // V36.65 — Le retour de fin d'inventaire commence encore moins bas,
-  // mais part moins bas pour ménager le regard. Ne modifie pas
-  // le masque de sortie ni les interactions du formulaire de pesée.
+  // V38.58 — Retour depuis les pages : les cartes partent moins bas
+  // (14dvh au lieu de 30dvh). Vitesse et délai inchangés.
+  // Le retour de Concentration garde sa trajectoire originale.
   animate(tile,[
-   {transform:'translate3d(0,30dvh,0)',opacity:1},
+   {transform:standaloneReturn?'translate3d(0,14dvh,0)':'translate3d(0,30dvh,0)',opacity:1},
    {transform:'translate3d(0,0,0)',opacity:1}
   ],{
    duration:720,
@@ -983,7 +983,7 @@ function iuCloseEventsPage(immediate=false){
 }
 window.IUOpenEventsPage=iuOpenEventsPage;
 window.IUCloseEventsPage=iuCloseEventsPage;
-/* V38.57 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
+/* V38.58 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
    sans modifier les données de veille ni le comportement hors ligne. */
 const iuAlertsPageMotion={
  modeClass:'is-alerts-mode',
