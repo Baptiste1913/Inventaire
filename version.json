@@ -1,7 +1,7 @@
 {
-  "version": "39.36",
+  "version": "39.37",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Application du contour turquoise et de l'anneau lumineux du bouton Voir la liste aux trois boutons Réglages, Mon compte et Événements/Planification de l'accueil."
+  "notes": "Seul le border-radius des boutons Réglages, Mon compte et Planification passe à 18px comme Voir la liste ; retrait de la bordure turquoise et du halo ajoutés en v39.36."
 }
