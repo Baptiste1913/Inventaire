@@ -1,7 +1,7 @@
 {
-  "version": "38.46",
-  "published": "2026-11-15",
+  "version": "38.47",
+  "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Séparateur Vos services rapproché de 8 px supplémentaires du bloc Bienvenue. Ombre extérieure atténuée également sur le conteneur principal de la section (0,4 %), avec diffusion et portée réduites ; cache PWA renouvelé."
+  "notes": "Opacité de l’ombre CSS du bloc Bienvenue divisée par deux, de 0,4 % à 0,2 %. Cache PWA renouvelé."
 }
