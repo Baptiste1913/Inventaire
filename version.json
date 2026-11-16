@@ -1,7 +1,7 @@
 {
-  "version": "38.63",
+  "version": "38.64",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Barres des cartes Alertes directement intégrées à la bordure gauche de 3px, sans espace et sans débordement ; date de la carte d’accueil abrégée automatiquement (9 nov.) avec fuseau Europe/Paris. Cache PWA renouvelé."
+  "notes": "Barres colorées des cartes Alertes rendues parfaitement droites : traits de 3px à extrémités carrées, indépendants de la bordure arrondie et contenus dans les cadres. Traits des titres inchangés ; cache PWA renouvelé."
 }
