@@ -29291,3 +29291,43 @@ body.iu-edge-swiping .iu-edge-swipe-backdrop{visibility:visible;opacity:1}
 body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage){border-radius:0!important}
 body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage,#iuSubpageBar){backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:translate}
 @media(forced-colors:active){.iu-edge-swipe-backdrop{background:Canvas!important}.iu-edge-swipe-arrow{background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important}}
+
+/* V39.33 — Icônes des quatre actions de l'accueil ancrées à gauche.
+   Le texte reste centré indépendamment, la flèche de navigation
+   reste à droite et les dimensions des boutons sont conservées. */
+html body:not(.is-admin-mode) #iuAdminLaunch,
+html body:not(.is-account-mode) #iuAccountLaunch,
+html body:not(.is-events-mode) #eventsOpenPage,
+html body #iuDashListButton{
+ position:relative!important;
+ padding-left:max(43px,calc(18px + 24px))!important;
+ padding-right:max(43px,calc(18px + 24px))!important;
+}
+html body #iuAdminLaunch > .iu-home-action-icon,
+html body #iuAccountLaunch > .iu-home-action-icon,
+html body #eventsOpenPage > .iu-home-action-icon,
+html body #iuDashListButton > .iu-home-action-icon{
+ position:absolute!important;
+ left:17px!important;
+ top:50%!important;
+ transform:translateY(-50%)!important;
+ display:block!important;
+ width:18px!important;height:18px!important;
+ flex:none!important;margin:0!important;
+ opacity:.82!important;
+ pointer-events:none!important;
+}
+html body #iuAdminLaunch > span,
+html body #iuAccountLaunch > span,
+html body #eventsOpenPage > span,
+html body #iuDashListButton > .iu-dash-list-label{
+ text-align:center!important;
+}
+@media(max-width:380px){
+ html body #iuAdminLaunch > .iu-home-action-icon,
+ html body #iuAccountLaunch > .iu-home-action-icon,
+ html body #eventsOpenPage > .iu-home-action-icon,
+ html body #iuDashListButton > .iu-home-action-icon{
+  left:14px!important;width:16px!important;height:16px!important;
+ }
+}
