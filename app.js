@@ -405,6 +405,26 @@ let focusWasActive=false;
 let focusInitialized=false;
 let focusMotionBusy=false;
 let focusPendingTask=null;
+/* V38.57 — Conserver la position exacte de l'accueil lors des navigations
+   vers Admin, Mon compte, Evénements et Alertes. Pas de stockage persistant :
+   un rechargement continue de démarrer en haut, comme auparavant. */
+let iuSavedHomeScrollY=0;
+function iuRestoreHomeScroll(){
+ const y=Math.max(0,iuSavedHomeScrollY);
+ const scroller=document.scrollingElement||document.documentElement;
+ if(scroller)scroller.scrollTop=y;
+ window.scrollTo({top:y,left:0,behavior:'instant'});
+ // Safari peut appliquer son changement de hauteur de document à la
+ // frame suivante. Corriger seulement une éventuelle position écrêtée,
+ // pendant que l'ancienne page est encore recouverte par le masque.
+ requestAnimationFrame(()=>{
+  if(document.body.classList.contains('is-admin-mode')||
+     document.body.classList.contains('is-account-mode')||
+     document.body.classList.contains('is-events-mode')||
+     document.body.classList.contains('is-alerts-mode'))return;
+  if(Math.abs((window.scrollY||0)-y)>2)window.scrollTo({top:y,left:0,behavior:'instant'});
+ });
+}
 const focusReducedMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const focusStaticSelectors='.app > .header, .app > .intro';
 const focusNormalSelectors='.app > .card, .app > .inventory-calendar, .app > footer';
@@ -509,7 +529,7 @@ function iuPreserveExitVisual(source,copy){
  }
 }
 function exitFocusWithoutSnapshot(action,config={}){
- // V38.56 : transitions des pages autonomes sans filtre sur .app,
+ // V38.57 : transitions des pages autonomes sans filtre sur .app,
  // qui provoquait une recomposition des verres floutés dans Safari iOS.
  const standaloneReturn=Boolean(config.solidDuringMotion);
  const duration=610;
@@ -730,6 +750,12 @@ function iuAnimateStandalonePage(action,entering,config){
 
 function changeFocusWithMotion(action,entering,config={}){
  if(focusMotionBusy)return;
+ // Capturer le défilement AVANT le masquage de l'accueil et le scroll
+ // vers le haut de la page entrante. Ne rien changer au mode Concentration.
+ if(entering&&config.solidDuringMotion){
+  const root=document.scrollingElement||document.documentElement;
+  iuSavedHomeScrollY=Math.max(0,window.scrollY||root?.scrollTop||0);
+ }
  if(focusReducedMotion()){action();return;}
  const html=document.documentElement;
  const before=document.body.classList.contains(config.modeClass||'is-focus-mode');
@@ -829,7 +855,7 @@ const iuAdminPageMotion={
  surfaceSelectors:'.app > #planningAdminCard > .iu-admin-opaque-backdrop',
  solidDuringMotion:true,
  // V36.87 : l'accueil est toujours remis en haut sous la transition opaque.
- homeScrollY:()=>0
+ homeScrollY:()=>iuSavedHomeScrollY
 };
 function iuOpenAdminPage(){
  const card=$('planningAdminCard');
@@ -851,10 +877,8 @@ function iuCloseAdminPage(immediate=false){
   document.body.classList.remove('is-admin-mode');
   document.documentElement.classList.remove('iu-admin-page-active');
   card.open=false;
-  // Repositionner le document d'accueil sous le masque avant sa révélation.
-  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
-  document.body.scrollTop=0;
-  window.scrollTo({top:0,left:0,behavior:'instant'});
+  // Retrouver la position mémorisée avant que le masque ne découvre l'accueil.
+  iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
   // Comme pour la session, la sortie attend la fin de l'entrée
@@ -884,7 +908,7 @@ const iuAccountPageMotion={
  surfaceSelectors:'.app > #accountCard > .iu-account-opaque-backdrop',
  solidDuringMotion:true,
  // V36.87 : aucune restauration d'une position de scroll désormais obsolète.
- homeScrollY:()=>0
+ homeScrollY:()=>iuSavedHomeScrollY
 };
 function iuOpenAccountPage(){
  const card=$('accountCard');
@@ -903,10 +927,8 @@ function iuCloseAccountPage(immediate=false){
   document.body.classList.remove('is-account-mode');
   document.documentElement.classList.remove('iu-account-page-active');
   card.open=false;
-  // Même préparation cachée que pour Administrateur, sans saut visible.
-  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
-  document.body.scrollTop=0;
-  window.scrollTo({top:0,left:0,behavior:'instant'});
+  // Retour à l'endroit où la navigation a commencé.
+  iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
   focusPendingTask=()=>iuCloseAccountPage();
@@ -927,7 +949,7 @@ const iuEventsPageMotion={
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #eventsPage > .iu-events-opaque-backdrop',
  solidDuringMotion:true,
- homeScrollY:()=>0
+ homeScrollY:()=>iuSavedHomeScrollY
 };
 function iuOpenEventsPage(){
  const page=$('eventsPage');
@@ -950,9 +972,7 @@ function iuCloseEventsPage(immediate=false){
   document.body.classList.remove('is-events-mode');
   document.documentElement.classList.remove('iu-events-page-active');
   page.hidden=true;
-  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
-  document.body.scrollTop=0;
-  window.scrollTo({top:0,left:0,behavior:'instant'});
+  iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
   focusPendingTask=()=>iuCloseEventsPage();
@@ -963,7 +983,7 @@ function iuCloseEventsPage(immediate=false){
 }
 window.IUOpenEventsPage=iuOpenEventsPage;
 window.IUCloseEventsPage=iuCloseEventsPage;
-/* V38.56 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
+/* V38.57 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
    sans modifier les données de veille ni le comportement hors ligne. */
 const iuAlertsPageMotion={
  modeClass:'is-alerts-mode',
@@ -972,7 +992,7 @@ const iuAlertsPageMotion={
  normalSelectors:focusNormalSelectors,
  surfaceSelectors:'.app > #iuAlertsPage > .iu-alerts-opaque-backdrop',
  solidDuringMotion:true,
- homeScrollY:()=>0
+ homeScrollY:()=>iuSavedHomeScrollY
 };
 function iuOpenAlertsPage(){
  const page=$('iuAlertsPage');
@@ -994,9 +1014,7 @@ function iuCloseAlertsPage(immediate=false){
   document.body.classList.remove('is-alerts-mode');
   document.documentElement.classList.remove('iu-alerts-page-active');
   page.hidden=true;
-  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
-  document.body.scrollTop=0;
-  window.scrollTo({top:0,left:0,behavior:'instant'});
+  iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
   focusPendingTask=()=>iuCloseAlertsPage();
