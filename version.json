@@ -1,7 +1,7 @@
 {
-  "version": "38.72",
+  "version": "38.73",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Entrée Alertes et Événements : synchronisation exacte du cadre Retour et du panneau avec une animation CSS commune, évitant leur mouvement visuellement dissocié sous Safari. Durée/courbe/distance conservées, bouton Retour immédiatement utilisable, position fixe et réduction au scroll maintenues, Admin/Compte inchangés. Cache PWA renouvelé."
+  "notes": "Correction ciblée de l'animation d'entrée Alertes sur Safari : le bandeau Retour et le panneau utilisent uniquement leur animation CSS commune, sans double animation WAAPI lorsqu'un des deux joueurs n'est pas encore enregistré. Synchronisation de leur déplacement et clic immédiat conservés. Événements, Réglages et Compte inchangés ; cache PWA renouvelé."
 }
