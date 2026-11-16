@@ -29117,3 +29117,47 @@ html body #iuDashListButton > .iu-home-action-icon-warning{
   color:ButtonText!important;opacity:1!important;
  }
 }
+
+/* V39.15 — En-tête des quatre sous-pages : titre à gauche,
+   Retour à droite, sans toucher au bandeau fixe, au compactage
+   70/55 px ni aux animations couplées Safari. */
+html body #iuSubpageBar .iu-subpage-heading{
+ display:none!important;
+ min-width:0!important;
+ flex:1 1 auto!important;
+ padding-left:12px!important;
+ margin-right:10px!important;
+ font-size:clamp(13px,3.5vw,16px)!important;
+ line-height:1.25!important;
+ font-weight:800!important;
+ letter-spacing:.045em!important;
+ color:#3e4a53!important;
+ text-align:left!important;
+ white-space:nowrap!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+}
+html body.is-admin-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-admin,
+html body.is-account-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-account,
+html body.is-events-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-events,
+html body.is-alerts-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-alerts{
+ display:block!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+ justify-content:space-between!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]) > #iuSubpageBack{
+ margin-left:auto!important;
+ flex-shrink:0!important;
+}
+@media(max-width:380px){
+ html body #iuSubpageBar .iu-subpage-heading{
+  padding-left:7px!important;
+  margin-right:6px!important;
+  font-size:13px!important;
+  letter-spacing:.02em!important;
+ }
+}
+@media(forced-colors:active){
+ html body #iuSubpageBar .iu-subpage-heading{color:CanvasText!important}
+}
