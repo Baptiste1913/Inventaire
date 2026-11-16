@@ -27890,3 +27890,66 @@ html body.is-admin-mode .app > #planningAdminCard.card button:not(:disabled):not
   box-shadow:none!important;
  }
 }
+
+/* V38.86 — Vrai alignement visuel sur « Accéder aux réglages » :
+   même contour, rayon 20px, fond 145°, CINQ ombres et pression.
+   Ne pas modifier les dimensions, marges, typographies ni commandes.
+   Effacer reçoit une déclinaison rouge douce et dédiée. */
+html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]):not(#iuErrorClear){
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:20px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ color:#28343d!important;
+ transition:box-shadow .22s ease,background .22s ease,border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card #iuErrorClear:not([hidden]){
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,224,224,.96)!important;
+ border-radius:20px!important;
+ background:linear-gradient(145deg,#fff8f8 0%,#fcebed 34%,#edcdd2 100%)!important;
+ background-clip:border-box!important;
+ color:#9c3544!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,246,247,.70),
+   4px 5px 11px rgba(174,125,137,.29),
+   1px 2px 4px rgba(174,125,137,.17),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ transition:box-shadow .22s ease,background .22s ease,border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]):not(:disabled):not(#iuErrorClear):active{
+ border-color:#d1d9df!important;
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+ box-shadow:inset 2px 3px 6px rgba(150,166,181,.24),inset -2px -2px 5px rgba(255,255,255,.96),1px 1px 3px rgba(156,173,189,.12)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card #iuErrorClear:not([hidden]):not(:disabled):active{
+ border-color:#e2b9c0!important;
+ background:linear-gradient(145deg,#efcfd4,#fff4f5)!important;
+ box-shadow:inset 2px 3px 6px rgba(155,79,94,.22),inset -2px -2px 5px rgba(255,255,255,.95),1px 1px 3px rgba(174,125,137,.12)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]){
+  transition:none!important;
+ }
+ html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]):active{
+  transform:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body.is-admin-mode .app > #planningAdminCard.card button:not([hidden]){
+  border:1px solid ButtonText!important;
+  background:ButtonFace!important;
+  color:ButtonText!important;
+  box-shadow:none!important;
+ }
+}
