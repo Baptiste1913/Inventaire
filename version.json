@@ -1,7 +1,7 @@
 {
-  "version": "38.48",
+  "version": "38.49",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction à la source : ombre réelle du bloc Bienvenue dans style.css (règle V38.18 très spécifique) réduite de 32 % à 16 % d’opacité. Cache PWA renouvelé."
+  "notes": "Ombre réelle du bloc Bienvenue réduite de 30 % supplémentaires : opacité de 16 % à 11,2 %, forme et diffusion conservées. Cache PWA renouvelé."
 }
