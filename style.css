@@ -27736,3 +27736,26 @@ html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
   background:#f7fafb!important;
  }
 }
+
+/* V38.81 — Le bouton Retour garde ses dimensions normales (34px)
+   lorsque le bandeau passe de 70 à 55px. Le centrage vertical
+   est assuré par align-items:center du bandeau, sans animation de
+   taille du bouton. Supprimer uniquement ses ombres/glow. */
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack,
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) > #iuSubpageBack{
+ height:34px!important;
+ padding:0 12px!important;
+ font-size:12px!important;
+ box-shadow:none!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ transition:background-color .18s ease,border-color .18s ease!important;
+ align-self:center!important;
+}
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack svg,
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) > #iuSubpageBack svg{
+ flex:0 0 13px!important;
+ width:13px!important;
+ height:13px!important;
+ transition:none!important;
+}
