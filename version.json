@@ -1,7 +1,7 @@
 {
-  "version": "39.50",
+  "version": "39.51",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Harmonisation neumorphique du bloc Session en cours avec les réglages de pesée : statistiques, commandes et confirmation. Logique métier inchangée."
+  "notes": "Accueil normal pendant la pause; style neumorphique du contrôle de concentration et de la fenêtre Inventaire terminé avec voyant vert animé. Calculs inchangés."
 }

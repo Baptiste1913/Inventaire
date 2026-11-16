@@ -30035,3 +30035,59 @@ html body.is-focus-mode #focusToolbar #focusConfirm > div > button:focus-visible
  html body.is-focus-mode #focusToolbar .focus-actions > button,
  html body.is-focus-mode #focusToolbar #focusConfirm > div > button{transition:none!important;}
 }
+
+
+/* V39.51 — Fin de session et contrôle de concentration :
+   surfaces neumorphiques identiques aux réglages de pesée. */
+html body.is-focus-mode .app > #focusToolbar.focus-toolbar{
+ background-image:radial-gradient(ellipse 72% 72% at 100% 0%,rgba(142,190,205,.14),transparent 86%),linear-gradient(145deg,#fff 0%,#f8fafb 35%,#e6edf1 100%)!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.98),-6px -6px 13px rgba(255,255,255,.58),4px 5px 11px rgba(156,173,189,.31),1px 2px 4px rgba(156,173,189,.16),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body.is-focus-mode #focusToolbar #focusConfirm.focus-confirm{
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 35%,#e7edf1 100%)!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.88),3px 4px 10px rgba(143,161,175,.22),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
+ display:flex!important;position:relative!important;flex-direction:row!important;align-items:center!important;
+ min-height:64px!important;margin:12px 0 4px!important;padding:14px 52px 14px 17px!important;gap:0!important;
+ border:1px solid rgba(255,255,255,.94)!important;border-radius:15px!important;
+ background-color:#f5f8fa!important;
+ background-image:radial-gradient(ellipse 75% 68% at 100% 0%,rgba(142,190,205,.13),transparent 85%),linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#303d47!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.96),-6px -6px 13px rgba(255,255,255,.55),4px 5px 11px rgba(156,173,189,.24),1px 2px 4px rgba(156,173,189,.15),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::before{
+ content:none!important;display:none!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::after{
+ content:""!important;display:block!important;position:absolute!important;
+ top:50%!important;right:19px!important;bottom:auto!important;left:auto!important;
+ width:10px!important;height:10px!important;border:0!important;border-radius:50%!important;
+ background:#25aa7b!important;opacity:1!important;
+ box-shadow:0 0 0 3px rgba(37,170,123,.11),0 0 0 8px rgba(37,170,123,.045)!important;
+ transform:translateY(-50%)!important;animation:iu-v3951-complete-dot 2.4s ease-in-out infinite!important;pointer-events:none!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-copy{
+ flex:1 1 auto!important;min-width:0!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-title{
+ color:#303d47!important;text-shadow:none!important;
+}
+html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session-complete-detail{
+ color:#77848d!important;text-shadow:none!important;
+}
+@keyframes iu-v3951-complete-dot{
+ 0%,100%{opacity:.82;box-shadow:0 0 0 3px rgba(37,170,123,.08),0 0 0 7px rgba(37,170,123,.025);}
+ 50%{opacity:1;box-shadow:0 0 0 5px rgba(37,170,123,.17),0 0 0 11px rgba(37,170,123,.05);}
+}
+@media(prefers-reduced-motion:reduce){
+ html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::after{animation:none!important;}
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty){
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;color:CanvasText!important;
+ }
+ html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage.v22-message.is-complete:not(:empty)::after{
+  background:Highlight!important;box-shadow:none!important;
+ }
+}

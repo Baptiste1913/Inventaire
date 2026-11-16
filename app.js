@@ -365,7 +365,8 @@ function renderHeroSummary(){
  if(!root||!status||!text)return;
  const session=getActiveSession(),last=latestFinishedInventory();
  // Sans session active, toujours afficher la prochaine date, même juste après un bilan.
- const state=session?(session.pausedAt?'paused':'running'):'before';
+ // V39.51 : les sessions en pause conservent l'accueil standard.
+ const state=session&&!session.pausedAt?'running':'before';
  const stats=session?activeStats(session):last?activeStats(last):null;
  const count=stats?.count||0,avg=heroTimePerWeigh(stats);
  const raw=$('calendarNextDate')?.textContent?.trim()||'';
@@ -374,7 +375,6 @@ function renderHeroSummary(){
  const dateCaption=countdown&&!countdown.hidden&&countdown.textContent.trim()?countdown.textContent.trim():'Selon votre planning';
  let fields;
  if(state==='running')fields=['SUIVI EN TEMPS RÉEL','Inventaire en cours','Votre session est enregistrée automatiquement.',durationLabel(stats.duration),'Durée active','Pesées enregistrées',String(count),'Temps / pesée',avg,'Revenir à ma session','pauseSession','En cours'];
- else if(state==='paused')fields=['SESSION CONSERVÉE','Inventaire en pause','Vos pesées sont conservées. Reprenez quand vous êtes prêt.',durationLabel(stats.duration),'Durée active avant la pause','Pesées enregistrées',String(count),'Temps / pesée',avg,'Reprendre l’inventaire','resumeSession','En pause'];
 
  else fields=['PROCHAIN INVENTAIRE','','',nextDate,dateCaption,'Dernier inventaire',last?String(count)+' pesées':'—','Temps moyen / pesée',last?avg:'—',last?'Consulter le dernier bilan':'Aller à Ma session',last?'sessionsHistoryList':'startSession','Prêt'];
  if(root.dataset.introState!==state)root.dataset.introState=state;
