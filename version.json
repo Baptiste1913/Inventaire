@@ -1,7 +1,7 @@
 {
-  "version": "38.49",
+  "version": "38.50",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ombre réelle du bloc Bienvenue réduite de 30 % supplémentaires : opacité de 16 % à 11,2 %, forme et diffusion conservées. Cache PWA renouvelé."
+  "notes": "Ajout de voyants lumineux pulsants discrets dans les cartes Approvisionnement (ambre) et Rappels produits (rouge), activés seulement si le compteur est supérieur à zéro. Respect du mouvement réduit et cache PWA renouvelé."
 }
