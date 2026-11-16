@@ -29325,3 +29325,24 @@ body.iu-edge-swiping #iuAlertsPage{will-change:translate}
  .iu-edge-swipe-arrow{background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important}
  .iu-edge-swipe-seam{background:none!important}
 }
+
+/* V39.29 — Le bord de la page est une tranche rectiligne :
+   plus de coins du panneau qui dépassent pendant son glissement.
+   La flèche v39.28 ne change pas. */
+body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage){
+ border-radius:0!important;
+}
+body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage),
+body.iu-edge-swiping #iuSubpageBar{
+ backface-visibility:hidden;
+ -webkit-backface-visibility:hidden;
+}
+body.iu-edge-swiping .iu-edge-swipe-seam{
+ width:8px!important;
+ border-left:1px solid rgba(204,219,228,.65)!important;
+ border-right:0!important;
+ background:#f3f6f7!important;
+ box-shadow:-7px 0 13px rgba(48,69,84,.12)!important;
+}
+body.iu-edge-swiping{scrollbar-width:none!important}
+body.iu-edge-swiping::-webkit-scrollbar{display:none!important}
