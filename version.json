@@ -1,7 +1,7 @@
 {
-  "version": "39.37",
+  "version": "39.38",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Seul le border-radius des boutons Réglages, Mon compte et Planification passe à 18px comme Voir la liste ; retrait de la bordure turquoise et du halo ajoutés en v39.36."
+  "notes": "Arrondi réel de Voir la liste (14px) appliqué aux boutons Réglages, Mon compte et Événements, y compris dans leurs anciennes règles CSS plus spécifiques. Aucun autre changement visuel."
 }
