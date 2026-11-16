@@ -1,7 +1,7 @@
 {
-  "version": "38.67",
+  "version": "38.68",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bandeau Retour abaissé à 70 px au départ et 55 px après défilement sur les quatre pages, avec espacement des contenus ajusté. Flou, transparence, animation et cache PWA conservés/renouvelés."
+  "notes": "Bandeau Retour plus translucide aux hauteurs 70/55 px, flou verre dépoli dès l'ouverture. Bouton Retour dans un petit cadre blanc translucide à bord fin. Accessibilité et animations conservées ; cache PWA renouvelé."
 }
