@@ -1,7 +1,7 @@
 {
-  "version": "39.14",
+  "version": "39.15",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Option 2 : suppression des mini-pastilles, icônes à gauche du texte avec contraste et espacements harmonisés sur tous les boutons textuels avec pictogrammes, sans déplacer les chevrons ni modifier les commandes icon-only."
+  "notes": "Barre supérieure des pages Administration, Compte, Événement et Marché : titre à gauche et bouton Retour à droite, sans changer les dimensions, le compactage au scroll ou les animations."
 }
