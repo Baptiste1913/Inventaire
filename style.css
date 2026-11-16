@@ -29331,3 +29331,46 @@ html body #iuDashListButton > .iu-dash-list-label{
   left:14px!important;width:16px!important;height:16px!important;
  }
 }
+
+/* V39.34 — Pictogrammes au trait type Lucide, lisibles sur Safari.
+   Remplacer le remplissage des anciennes icônes PNG par un contour
+   homogène, avec une colonne gauche stable et le texte centré. */
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton){
+ position:relative!important;
+ padding-left:46px!important;
+ padding-right:46px!important;
+}
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > svg.iu-home-action-icon{
+ position:absolute!important;
+ left:18px!important;
+ top:50%!important;
+ transform:translateY(-50%)!important;
+ width:21px!important;height:21px!important;
+ min-width:21px!important;max-width:21px!important;
+ flex:0 0 21px!important;
+ display:block!important;
+ margin:0!important;padding:0!important;
+ fill:none!important;
+ stroke:#52616b!important;
+ stroke-width:2.15!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+ opacity:1!important;
+ visibility:visible!important;
+ filter:none!important;
+ pointer-events:none!important;
+}
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > span{
+ text-align:center!important;
+}
+@media(max-width:380px){
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton){
+  padding-left:42px!important;padding-right:42px!important;
+ }
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > svg.iu-home-action-icon{
+  left:14px!important;width:19px!important;height:19px!important;min-width:19px!important;max-width:19px!important;
+ }
+}
+@media(forced-colors:active){
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > svg.iu-home-action-icon{stroke:ButtonText!important}
+}
