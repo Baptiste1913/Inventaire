@@ -1,7 +1,7 @@
 {
-  "version": "39.23",
+  "version": "39.24",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Geste de retour : grande flèche à droite à la place d'Accueil, aperçu des éléments de la page d'accueil apparaissant progressivement avec flou décroissant."
+  "notes": "Retour tactile : aperçu de l'accueil réel dans un document isolé avec les styles normaux, flèche neumorphique assortie au bouton Accéder aux réglages."
 }
