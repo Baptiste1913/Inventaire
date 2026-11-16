@@ -1,7 +1,7 @@
 {
-  "version": "39.25",
+  "version": "39.26",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour tactile amélioré : aperçu fidèle de l'accueil capturé avant la navigation, préchargé, limité à la zone révélée, flou allégé, flèche neumorphique et animation de relâchement harmonisée avec le bouton Retour."
+  "notes": "Geste de retour professionnel : aperçu exact de l'accueil capturé à l'ouverture, flou progressif, ombre de séparation, flèche neumorphique et animation de relâchement alignée au Retour. Correctif de syntaxe et de bandeau appliqué."
 }
