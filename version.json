@@ -1,7 +1,7 @@
 {
-  "version": "39.15",
+  "version": "39.16",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Barre supérieure des pages Administration, Compte, Événement et Marché : titre à gauche et bouton Retour à droite, sans changer les dimensions, le compactage au scroll ou les animations."
+  "notes": "Titres des quatre barres supérieures alignés sur la typographie, le poids et la couleur du titre Espace administrateur de l'accueil, avec une taille légèrement supérieure."
 }
