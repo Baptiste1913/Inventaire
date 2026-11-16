@@ -27399,7 +27399,7 @@ html body.is-alerts-mode #iuAlertsPage .iu-dash-caution{
 }
 
 
-/* V38.65 — Retour permanent partagé entre Administration, Mon compte,
+/* V38.68 — Retour permanent partagé entre Administration, Mon compte,
    Événements et Alertes. Surface à 70px au départ ;
    après 88px de scroll : 55px et verre dépoli comme Bienvenue. */
 html body #iuSubpageBar[hidden],
@@ -27417,21 +27417,22 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #i
  height:70px!important;min-height:0!important;
  margin:0!important;padding:0 8px!important;
  transform:translateX(-50%)!important;
- border:1px solid rgba(208,222,230,.85)!important;
+ border:1px solid rgba(208,222,230,.58)!important;
  border-radius:12px!important;
- background:linear-gradient(150deg,rgba(255,255,255,.98),rgba(248,251,252,.98))!important;
+ background:linear-gradient(150deg,rgba(255,255,255,.70),rgba(248,251,252,.66))!important;
  box-shadow:0 2px 8px rgba(39,69,80,.035)!important;
- -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ -webkit-backdrop-filter:blur(18px) saturate(109%)!important;
+ backdrop-filter:blur(18px) saturate(109%)!important;
  opacity:1!important;
  transition:height .28s ease,border-radius .28s ease,
   background .28s ease,box-shadow .28s ease!important;
 }
 html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
  height:55px!important;border-radius:10px!important;
- border-color:rgba(255,255,255,.75)!important;
+ border-color:rgba(255,255,255,.62)!important;
  background:linear-gradient(122deg,
-  rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,
-  rgba(255,255,255,.54) 100%)!important;
+  rgba(255,255,255,.42) 0%,rgba(255,255,255,.52) 54%,
+  rgba(255,255,255,.42) 100%)!important;
  -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
  backdrop-filter:blur(27px) saturate(109%)!important;
  box-shadow:0 5px 14px rgba(42,76,93,.045)!important;
@@ -27440,17 +27441,27 @@ html body #iuSubpageBar #iuSubpageBack{
  appearance:none!important;-webkit-appearance:none!important;
  display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
  width:auto!important;max-width:none!important;min-width:0!important;
- height:26px!important;min-height:0!important;
- margin:0!important;padding:0 9px!important;gap:5px!important;
- border:0!important;border-radius:8px!important;
- background:transparent!important;box-shadow:none!important;
+ height:34px!important;min-height:0!important;
+ margin:0!important;padding:0 12px!important;gap:6px!important;
+ border:1px solid rgba(191,209,218,.77)!important;border-radius:10px!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(244,248,250,.76))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.93),0 1px 3px rgba(49,78,90,.055)!important;
  color:#34434e!important;font-family:inherit!important;font-size:12px!important;
  font-weight:800!important;line-height:1!important;letter-spacing:0!important;
  cursor:pointer!important;
  transition:font-size .28s ease,height .28s ease,opacity .2s ease!important
 }
 html body #iuSubpageBar[data-compact="true"] #iuSubpageBack{
- height:18px!important;padding:0 7px!important;font-size:10px!important
+ height:28px!important;padding:0 10px!important;font-size:10px!important
+}
+html body #iuSubpageBar #iuSubpageBack:active{
+ background:rgba(232,242,246,.84)!important
+}
+@media(hover:hover){
+ html body #iuSubpageBar #iuSubpageBack:hover{
+  border-color:rgba(151,180,194,.82)!important;
+  background:rgba(255,255,255,.95)!important
+ }
 }
 html body #iuSubpageBar #iuSubpageBack svg{
  display:block!important;flex:0 0 13px!important;width:13px!important;height:13px!important;
@@ -27484,6 +27495,7 @@ html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
  padding-top:max(96px,calc(env(safe-area-inset-top,0px) + 88px))!important
 }
 @media(prefers-reduced-transparency:reduce){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
  html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
   background:#f7fafb!important;
   -webkit-backdrop-filter:none!important;backdrop-filter:none!important
