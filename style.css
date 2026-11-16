@@ -27680,3 +27680,37 @@ html body #iuSubpageBar:not([hidden]) > #iuSubpageBack{
   box-shadow:none!important;
  }
 }
+
+/* V38.79 — Seul le CADRE extérieur Retour redevient translucide.
+   Restaurer le verre dépoli V38.68 sans ombre, tout en conservant
+   le contour blanc V38.77. Le bouton Retour garde intégralement
+   son propre dégradé et ses ombres neumorphiques V38.78. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(150deg,rgba(255,255,255,.70),rgba(248,251,252,.66))!important;
+ box-shadow:none!important;
+ -webkit-backdrop-filter:blur(18px) saturate(109%)!important;
+ backdrop-filter:blur(18px) saturate(109%)!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]:not([hidden]){
+ background:linear-gradient(122deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.52) 54%,rgba(255,255,255,.42) 100%)!important;
+ box-shadow:none!important;
+ -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
+ backdrop-filter:blur(27px) saturate(109%)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+  background:#f7fafb!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
