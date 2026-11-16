@@ -1,7 +1,7 @@
 {
-  "version": "39.26",
+  "version": "39.27",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Geste de retour professionnel : aperçu exact de l'accueil capturé à l'ouverture, flou progressif, ombre de séparation, flèche neumorphique et animation de relâchement alignée au Retour. Correctif de syntaxe et de bandeau appliqué."
+  "notes": "Geste retour : accueil animé comme lors du bouton Retour (cartes montant de 14dvh en cascade de 70 ms), animation liée à la position du doigt et poursuivie au relâchement, flou initial renforcé à 16 px avec réduction progressive."
 }
