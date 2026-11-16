@@ -550,7 +550,7 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.removeAttribute('id');
   clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
   clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
-  // V38.73 — Si la page a été défilée, sa carte dépasse le viewport.
+  // V38.74 — Si la page a été défilée, sa carte dépasse le viewport.
   // Animer directement toute la copie faisait entrer à l'écran les éléments
   // situés AU-DESSUS de la zone visible au fur et à mesure de la descente.
   // La copie reste à ses coordonnées originelles mais est enfermée dans
@@ -720,7 +720,7 @@ function exitFocusWithoutSnapshot(action,config={}){
    Utiliser exactement les groupes iu-normal-N, iu-focus-N et la surface
    opaque iu-focus-surface, déjà éprouvés dans le mode Concentration.
    Aucun clone du DOM, aucune copie des photos ni des SVG. */
-/* V38.73 — Entrée native des pages autonomes.
+/* V38.74 — Entrée native des pages autonomes.
    Le bandeau Retour et la page sont de VRAIS éléments animés ; éviter
    la couche ::view-transition du navigateur qui capturait le bandeau,
    interceptait le premier toucher et retardait les demandes de fermeture. */
@@ -742,7 +742,7 @@ function iuAnimateStandalonePage(action,entering,config){
   focusMotionBusy=false;
   throw error;
  }
- // V38.73 : un conteneur de page court (Alertes/Événements) pouvait
+ // V38.74 : un conteneur de page court (Alertes/Événements) pouvait
  // paraître hors écran sur Safari, car la mise à jour du scrollY liée au
  // changement de page n'était pas encore reflétée dans getBoundingClientRect.
  // Contrôler la visibilité CSS, PAS l'intersection avec le viewport :
@@ -766,7 +766,9 @@ function iuAnimateStandalonePage(action,entering,config){
   if(alertPanel&&alertEndHandler)alertPanel.removeEventListener('animationend',alertEndHandler);
   if(alertFinishTimer!==null)clearTimeout(alertFinishTimer);
   anims.forEach(anim=>anim.cancel());
-  document.body.classList.remove('iu-subpage-entering');
+  // Supprimer les deux états ENSEMBLE : aucune image intermédiaire où
+  // le panneau resterait translaté après la fin de son animation.
+  document.body.classList.remove('iu-alerts-rise-running','iu-subpage-entering');
   if(iuCancelStandaloneEntry===cancelEntry)iuCancelStandaloneEntry=null;
   focusMotionBusy=false;
   window.IUSyncSubpageBar?.();
@@ -776,28 +778,44 @@ function iuAnimateStandalonePage(action,entering,config){
  };
  const cancelEntry=()=>finish();
  iuCancelStandaloneEntry=cancelEntry;
- // V38.73 — Spécifique à Alertes : Safari peut créer le CSSAnimation
+ // V38.74 — Spécifique à Alertes : Safari peut créer le CSSAnimation
  // du bandeau une frame avant celui du panneau. Le contrôle immédiat
  // getAnimations() renvoyait alors un seul joueur et déclenchait le repli
  // WAAPI *sur les deux*, alors que leur animation CSS était déjà en cours.
  // Ce double mouvement désynchronisait visuellement le bandeau.
  // Garder une unique animation CSS pour les deux surfaces : aucun repli
  // JavaScript superposé. Le comportement Événements validé est inchangé.
- if(config.modeClass==='is-alerts-mode'&&bar&&!bar.hidden&&pageSurfaces.length===1){
-  alertPanel=pageSurfaces[0];
-  // Forcer le calcul des deux styles dans la même transaction de rendu.
-  getComputedStyle(bar).animationName;
-  getComputedStyle(alertPanel).animationName;
-  alertEndHandler=event=>{
-   if(event.target===alertPanel&&event.animationName==='iu72-linked-rise')finish();
-  };
-  alertPanel.addEventListener('animationend',alertEndHandler);
-  // Filet de sécurité si WebKit n'émet pas animationend lors d'un
-  // changement de visibilité. Le geste Retour reste interruptible.
-  alertFinishTimer=setTimeout(finish,700);
-  return;
+ if(config.modeClass==='is-alerts-mode'&&bar&&!bar.hidden){
+  // V38.74 — Première ouverture : #iuAlertsPage passe de hidden à visible
+  // dans la même task que la pose de is-alerts-mode. Sur Safari, déclencher
+  // immédiatement l'animation CSS peut faire démarrer le bandeau avant
+  // le panneau. Celui-ci doit avoir une vraie mise en page avant l'animation.
+  alertPanel=$('iuAlertsPage')?.querySelector('.iu-alerts-page-body');
+  if(alertPanel){
+   // Tant que iu-alerts-rise-running n'est pas présent, le bandeau et
+   // le panneau sont TOUS DEUX stationnés 105dvh sous le viewport.
+   // Les mesures forcent WebKit à initialiser leurs styles au premier accès.
+   void bar.offsetHeight;
+   void alertPanel.offsetHeight;
+   alertEndHandler=event=>{
+    if(event.target===alertPanel&&event.animationName==='iu72-linked-rise')finish();
+   };
+   alertPanel.addEventListener('animationend',alertEndHandler);
+   // Deux frames distinctes : la première enregistre l'état initial,
+   // la suivante lance la même keyframe CSS sur les deux éléments.
+   requestAnimationFrame(()=>{
+    if(settled||!document.body.classList.contains('is-alerts-mode'))return;
+    requestAnimationFrame(()=>{
+     if(settled||!document.body.classList.contains('is-alerts-mode'))return;
+     document.body.classList.add('iu-alerts-rise-running');
+    });
+   });
+   // Safari/PWA peut ignorer animationend en cas de sortie anticipée.
+   alertFinishTimer=setTimeout(finish,850);
+   return;
+  }
  }
- // V38.73 — Événements : conserve son synchronisme déjà validé.
+ // V38.74 — Événements : conserve son synchronisme déjà validé.
  const linked= config.modeClass==='is-events-mode';
  if(linked){
   // Lire le style des deux surfaces après le changement de classe pour
