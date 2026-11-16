@@ -27337,9 +27337,15 @@ html body.is-alerts-mode #iuAlertsPage .iu-alerts-supply-group h3::before{
  flex:0 0 4px!important;width:4px!important;
  border-radius:2px!important;background:#d6a05f!important
 }
-html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group h3::before{background:#d58b88!important}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group h3::before{
+ flex:0 0 4px!important;width:4px!important;
+ border-radius:2px!important;background:#d58b88!important
+}
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert{
  position:relative!important;
+ /* Le trait pleine hauteur reste à l'intérieur des coins du cadre,
+    y compris dans Safari iPhone. */
+ overflow:hidden!important;
  border-left-width:1px!important;border-left-style:solid!important;
  transition:background .22s ease,border-color .22s ease!important
 }
@@ -27347,7 +27353,7 @@ html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert{
    Extrémités droites ; seuls les repères du titre Approvisionnement
    disposent d'un arrondi aux extrémités. */
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert::before{
- content:""!important;position:absolute!important;left:0!important;
+ content:""!important;position:absolute!important;left:1px!important;
  top:0!important;bottom:0!important;width:3px!important;
  border-radius:0!important;pointer-events:none!important
 }
