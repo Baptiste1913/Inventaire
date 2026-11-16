@@ -2485,3 +2485,75 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  window.IUSyncSubpageBar=refresh;
  refresh();
 })();
+
+
+/* V39.22 — Retour interactif depuis le bord gauche (PWA et Safari).
+   Pas de navigation dans l'historique du navigateur. */
+(function iuInstallEdgeSwipeBack(){
+ const pages={
+  'is-admin-mode':{selector:'#planningAdminCard',close:()=>iuCloseAdminPage(true)},
+  'is-account-mode':{selector:'#accountCard',close:()=>iuCloseAccountPage(true)},
+  'is-events-mode':{selector:'#eventsPage',close:()=>iuCloseEventsPage(true)},
+  'is-alerts-mode':{selector:'#iuAlertsPage',close:()=>iuCloseAlertsPage(true)}
+ };
+ let gesture=null;
+ const current=()=>Object.entries(pages).find(([mode])=>document.body.classList.contains(mode))?.[1];
+ const clear=()=>{
+  if(!gesture)return;
+  const g=gesture;gesture=null;
+  g.nodes.forEach(node=>{node.style.removeProperty('translate');node.style.removeProperty('transition');});
+  g.backdrop.remove();
+  document.body.classList.remove('iu-edge-swiping');
+ };
+ const move=distance=>{
+  if(!gesture)return;
+  const x=Math.max(0,Math.min(innerWidth,distance));
+  gesture.distance=x;
+  gesture.nodes.forEach(node=>node.style.setProperty('translate',x+'px 0','important'));
+  gesture.backdrop.style.opacity=String(Math.min(1,x/Math.max(1,innerWidth)));
+ };
+ document.addEventListener('touchstart',event=>{
+  if(gesture||focusMotionBusy||event.touches.length!==1||event.defaultPrevented)return;
+  const touch=event.touches[0],page=current();
+  if(!page||touch.clientX>28||touch.clientX<0)return;
+  const el=document.querySelector(page.selector),bar=$('iuSubpageBar');
+  if(!el||!bar||bar.hidden)return;
+  gesture={page,nodes:[el,bar],x:touch.clientX,y:touch.clientY,lastX:touch.clientX,
+   lastTime:performance.now(),velocity:0,distance:0,active:false,backdrop:null};
+ },{passive:true});
+ document.addEventListener('touchmove',event=>{
+  const g=gesture;if(!g)return;
+  if(event.touches.length!==1){clear();return;}
+  const touch=event.touches[0],dx=touch.clientX-g.x,dy=touch.clientY-g.y;
+  if(!g.active){
+   if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){clear();return;}
+   if(dx<9||dx<Math.abs(dy)*1.3)return;
+   g.active=true;
+   const backdrop=document.createElement('div');
+   backdrop.className='iu-edge-swipe-backdrop';
+   backdrop.setAttribute('aria-hidden','true');
+   backdrop.innerHTML='<span>Accueil</span>';
+   document.body.append(backdrop);
+   g.backdrop=backdrop;
+   document.body.classList.add('iu-edge-swiping');
+  }
+  if(event.cancelable)event.preventDefault();
+  const now=performance.now(),dt=Math.max(1,now-g.lastTime);
+  g.velocity=(touch.clientX-g.lastX)/dt;
+  g.lastX=touch.clientX;g.lastTime=now;
+  move(dx);
+ },{passive:false});
+ document.addEventListener('touchend',()=>{
+  const g=gesture;if(!g)return;
+  if(!g.active){clear();return;}
+  const commit=g.distance>innerWidth*.34||(g.distance>65&&g.velocity>.55);
+  const target=commit?innerWidth:0;
+  g.nodes.forEach(node=>node.style.setProperty('transition','translate 230ms cubic-bezier(.2,.75,.25,1)','important'));
+  g.backdrop.style.transition='opacity 230ms ease';
+  move(target);
+  // Fermeture immédiate après l'animation interactive : pas de double transition.
+  setTimeout(()=>{if(gesture!==g)return;if(commit)g.page.close();clear();},245);
+ },{passive:true});
+ document.addEventListener('touchcancel',clear,{passive:true});
+ window.addEventListener('pagehide',clear);
+})();
