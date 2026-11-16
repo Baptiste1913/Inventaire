@@ -27992,3 +27992,34 @@ html body.is-admin-mode .app > #planningAdminCard.card #iuErrorClear:not([hidden
   box-shadow:none!important;
  }
 }
+
+/* V38.88 — Les quatre tiroirs « Gestion des événements » reçoivent
+   le même relief discret (V38.87) que les boutons Administrateur.
+   Appliquer l'effet au cadre details, jamais au summary ni au contenu,
+   pour préserver les animations d'ouverture/fermeture et les tailles. */
+html body.is-admin-mode .app > #planningAdminCard.card .iu-admin-planning-section > details.planning-panel.planning-accordion{
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+ transition:box-shadow .22s ease,border-color .22s ease!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card .iu-admin-planning-section > details.planning-panel.planning-accordion > .planning-panel-summary{
+ background:transparent!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card .iu-admin-planning-section > details.planning-panel.planning-accordion > .planning-panel-summary:active{
+ background:rgba(216,226,232,.24)!important;
+}
+@media(forced-colors:active){
+ html body.is-admin-mode .app > #planningAdminCard.card .iu-admin-planning-section > details.planning-panel.planning-accordion{
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
+ }
+}
