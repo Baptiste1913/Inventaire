@@ -1,7 +1,7 @@
 {
-  "version": "38.58",
+  "version": "38.59",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour à l’accueil depuis les pages : distance initiale de remontée des cartes réduite de 30dvh à 14dvh, avec durées, décalages, flou et restauration du défilement inchangés. Transition Concentration conservée, cache PWA renouvelé."
+  "notes": "Page Alertes enrichie d'accents colorés sobres par catégorie, compteur par rubrique, filtres Toutes/Rappels/Marché et tri par pertinence, date ou nom. Sources, seuils de pertinence, données d'accueil, navigation et PWA conservés ; cache renouvelé."
 }
