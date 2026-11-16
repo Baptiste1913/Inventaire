@@ -1,7 +1,7 @@
 {
-  "version": "38.84",
+  "version": "38.85",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Les boutons Accéder à mon compte et Accéder aux événements reprennent le style exact du bouton Accéder aux réglages V38.83 : contour blanc, rayon 20px, dégradé 145°, cinq ombres neumorphiques et effet de pression. Libellés, dimensions, navigation et animations de pages préservés. Cache PWA actualisé."
+  "notes": "Les boutons actifs de la page Administrateur reçoivent les ombres neumorphiques et l'animation d'enfoncement du bouton Accéder aux réglages, sans changer leurs couleurs, tailles, arrondis, textes ou fonctions. Boutons désactivés et cachés exclus, réduction des animations respectée. Cache PWA actualisé."
 }
