@@ -29268,7 +29268,7 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
 }
 
 
-/* V39.25 — Retour interactif : aperçu réel, seule zone découverte
+/* V39.26 — Retour interactif : aperçu réel, seule zone découverte
    visible, trajectoire et relief du même langage que le bouton Retour. */
 .iu-edge-swipe-backdrop{
  position:fixed;inset:0;z-index:9990;
