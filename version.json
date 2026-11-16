@@ -1,7 +1,7 @@
 {
-  "version": "38.52",
+  "version": "38.53",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Réduction des trois voyants lumineux : 6 px pour Approvisionnement et Rappels produits, 7 px pour Poire Santa Maria. Animations et couleurs conservées, cache PWA renouvelé."
+  "notes": "Nouvelle page Alertes reprenant la navigation plein écran, le bouton Retour, les surfaces et les animations de la page Administrateur. Les listes de veille officielles et le mode hors ligne sont conservés ; Voir la liste ouvre désormais cette page. Cache PWA renouvelé."
 }
