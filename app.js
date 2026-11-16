@@ -550,7 +550,7 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.removeAttribute('id');
   clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
   clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
-  // V38.69 — Si la page a été défilée, sa carte dépasse le viewport.
+  // V38.70 — Si la page a été défilée, sa carte dépasse le viewport.
   // Animer directement toute la copie faisait entrer à l'écran les éléments
   // situés AU-DESSUS de la zone visible au fur et à mesure de la descente.
   // La copie reste à ses coordonnées originelles mais est enfermée dans
@@ -720,60 +720,59 @@ function exitFocusWithoutSnapshot(action,config={}){
    Utiliser exactement les groupes iu-normal-N, iu-focus-N et la surface
    opaque iu-focus-surface, déjà éprouvés dans le mode Concentration.
    Aucun clone du DOM, aucune copie des photos ni des SVG. */
+/* V38.70 — Entrée native des pages autonomes.
+   Le bandeau Retour et la page sont de VRAIS éléments animés ; éviter
+   la couche ::view-transition du navigateur qui capturait le bandeau,
+   interceptait le premier toucher et retardait les demandes de fermeture. */
+let iuCancelStandaloneEntry=null;
 function iuAnimateStandalonePage(action,entering,config){
- const html=document.documentElement;
- const tagged=new Set();
- const homeY=typeof config.homeScrollY==='function'?config.homeScrollY():null;
- let updated=false;
- const cleanup=()=>{
-  for(const el of tagged)el.style.viewTransitionName='';
-  html.classList.remove('iu-page-cards','iu-focus-slide',
-   'iu-focus-entering','iu-focus-exiting');
+ // Cette fonction n'est appelée que pour l'ouverture autonome.
+ // Le moteur de retour vers l'accueil est conservé tel quel.
+ if(!entering){action();return;}
+ focusMotionBusy=true;
+ try{
+  action();
+  // Ne pas attendre le MutationObserver/rAF : le bouton doit exister et
+  // être cliquable dès la première frame de la page entrante.
+  window.IUSyncSubpageBar?.();
+ }catch(error){
+  focusMotionBusy=false;
+  throw error;
+ }
+ const pageSurfaces=[...document.querySelectorAll(config.viewSelectors||focusViewSelectors)]
+  .filter(focusVisible);
+ const bar=$('iuSubpageBar');
+ const parts=bar&&!bar.hidden?[bar,...pageSurfaces]:pageSurfaces;
+ const anims=[];
+ let settled=false;
+ const finish=()=>{
+  if(settled)return;
+  settled=true;
+  anims.forEach(anim=>anim.cancel());
+  if(iuCancelStandaloneEntry===cancelEntry)iuCancelStandaloneEntry=null;
   focusMotionBusy=false;
   const pending=focusPendingTask;
   focusPendingTask=null;
   if(pending)requestAnimationFrame(pending);
  };
- const update=()=>{
-  for(const el of tagged)el.style.viewTransitionName='';
-  action();
-  updated=true;
-  if(entering){
-   // Safari : capturer l'arrivée EN HAUT, sans image déplacée de root.
-   if(document.scrollingElement)document.scrollingElement.scrollTop=0;
-   document.body.scrollTop=0;
-   window.scrollTo({top:0,left:0,behavior:'instant'});
-  }else if(Number.isFinite(homeY)){
-   // Le retour capture l'accueil à sa position mémorisée.
-   if(document.scrollingElement)document.scrollingElement.scrollTop=homeY;
-   window.scrollTo({top:homeY,left:0,behavior:'instant'});
-  }
-  focusTagViews(entering,'new',tagged,config);
-
- };
- focusMotionBusy=true;
- html.classList.add('iu-page-cards','iu-focus-slide',
-  entering?'iu-focus-entering':'iu-focus-exiting');
- // Pages autonomes : l'écran entrant est une surface pleine et opaque.
- // Ne pas créer d'instantanés des cartes de l'accueil au-dessus du fond.
- // Cela évite les éléments translucides pendant l'apparition sur Safari.
- if(!entering)focusTagViews(entering,'old',tagged,config);
-
- if(typeof document.startViewTransition==='function'){
+ const cancelEntry=()=>finish();
+ iuCancelStandaloneEntry=cancelEntry;
+ // Même distance, courbe et durée que iu65-rise ; le bandeau est hors
+ // du parent de la page afin de rester devant elle durant toute l'entrée.
+ const options={duration:610,easing:'cubic-bezier(.16,.84,.24,1)',fill:'both'};
+ for(const el of parts){
   try{
-   const transition=document.startViewTransition(update);
-   transition.finished.then(cleanup,cleanup);
-   return;
+   anims.push(el.animate([
+    {translate:'0 105dvh',opacity:1},
+    {translate:'0 0',opacity:1}
+   ],options));
   }catch(error){
-   if(!updated)update();
-   cleanup();
-   return;
+   // En cas de navigateur ne gérant pas translate, montrer le contenu
+   // immédiatement plutôt que laisser une fenêtre ou un bouton bloqué.
   }
  }
- // Navigateur sans View Transitions : passage immédiat et entièrement
- // opaque. Ne pas réintroduire l'animation de copies de DOM sur Safari.
- if(!updated)update();
- cleanup();
+ if(anims.length)Promise.all(anims.map(anim=>anim.finished.catch(()=>{}))).then(finish,finish);
+ else finish();
 }
 
 function changeFocusWithMotion(action,entering,config={}){
@@ -909,10 +908,13 @@ function iuCloseAdminPage(immediate=false){
   iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
-  // Comme pour la session, la sortie attend la fin de l'entrée
-  // plutôt que couper une transition à mi-mouvement.
-  focusPendingTask=()=>iuCloseAdminPage();
-  return;
+  // Un seul toucher interrompt l'entrée encore en cours, puis lance
+  // immédiatement la sortie, sans attente ni deuxième appui.
+  iuCancelStandaloneEntry?.();
+  if(focusMotionBusy){
+   focusPendingTask=()=>iuCloseAdminPage();
+   return;
+  }
  }
  if(immediate||focusReducedMotion()){exit();return;}
  changeFocusWithMotion(exit,false,iuAdminPageMotion);
@@ -959,8 +961,13 @@ function iuCloseAccountPage(immediate=false){
   iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
-  focusPendingTask=()=>iuCloseAccountPage();
-  return;
+  // Un seul toucher interrompt l'entrée encore en cours, puis lance
+  // immédiatement la sortie, sans attente ni deuxième appui.
+  iuCancelStandaloneEntry?.();
+  if(focusMotionBusy){
+   focusPendingTask=()=>iuCloseAccountPage();
+   return;
+  }
  }
  if(immediate||focusReducedMotion()){exit();return;}
  changeFocusWithMotion(exit,false,iuAccountPageMotion);
@@ -1003,8 +1010,13 @@ function iuCloseEventsPage(immediate=false){
   iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
-  focusPendingTask=()=>iuCloseEventsPage();
-  return;
+  // Un seul toucher interrompt l'entrée encore en cours, puis lance
+  // immédiatement la sortie, sans attente ni deuxième appui.
+  iuCancelStandaloneEntry?.();
+  if(focusMotionBusy){
+   focusPendingTask=()=>iuCloseEventsPage();
+   return;
+  }
  }
  if(immediate||focusReducedMotion()){action();return;}
  changeFocusWithMotion(action,false,iuEventsPageMotion);
@@ -1045,8 +1057,13 @@ function iuCloseAlertsPage(immediate=false){
   iuRestoreHomeScroll();
  };
  if(!immediate&&focusMotionBusy){
-  focusPendingTask=()=>iuCloseAlertsPage();
-  return;
+  // Un seul toucher interrompt l'entrée encore en cours, puis lance
+  // immédiatement la sortie, sans attente ni deuxième appui.
+  iuCancelStandaloneEntry?.();
+  if(focusMotionBusy){
+   focusPendingTask=()=>iuCloseAlertsPage();
+   return;
+  }
  }
  if(immediate||focusReducedMotion()){action();return;}
  changeFocusWithMotion(action,false,iuAlertsPageMotion);
@@ -2314,5 +2331,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  // Les scrolls internes éventuels de Safari sont également observés.
  document.addEventListener('scroll',schedule,true);
  new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
+ // Rafraîchissement synchrone au moment du changement de page.
+ // Sans cela le premier frame d'entrée ne contenait pas le bouton.
+ window.IUSyncSubpageBar=refresh;
  refresh();
 })();
