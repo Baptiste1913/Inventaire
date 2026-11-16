@@ -1028,7 +1028,7 @@ const iuAdminPageMotion={
  homeScrollY:()=>iuSavedHomeScrollY
 };
 
-/* V39.27 — Capturer l'accueil REEL avant que la sous-page ne le masque :
+/* V39.28 — Capturer l'accueil REEL avant que la sous-page ne le masque :
    pas de copie de cartes en mode secondaire, ni de vieux contenu. */
 let iuEdgeHomeSnapshot=null;
 function iuEdgePrepareHome(){
@@ -1042,12 +1042,20 @@ function iuEdgePrepareHome(){
   .map(node=>node.outerHTML).join('');
  const base='<base href="'+escapeAttr(new URL('.',location.href).href)+'">';
  const scrollY=Math.max(0,window.scrollY||document.scrollingElement?.scrollTop||0);
+ // Garder également un repère de carte visible si la hauteur de l'accueil
+ // change durant la consultation de la sous-page.
+ const anchor=[...home.children].find(node=>{
+  if(node.hidden)return false;
+  const r=node.getBoundingClientRect();
+  return r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;
+ })||null;
+ const anchorTop=anchor?.getBoundingClientRect().top??null;
  const doc='<!doctype html><html lang="fr" class="'+escapeAttr(document.documentElement.className)+'">'+
   '<head><meta name="viewport" content="width=device-width,initial-scale=1">'+base+styles+
   '<style>html,body{margin:0!important;overflow:auto!important;scroll-behavior:auto!important}'+
   '::-webkit-scrollbar{display:none}button,a,input,select,textarea{pointer-events:none!important}</style>'+
   '</head><body class="'+escapeAttr(document.body.className)+'">'+copy.outerHTML+'</body></html>';
- iuEdgeHomeSnapshot={doc,scrollY};
+ iuEdgeHomeSnapshot={doc,scrollY,anchor,anchorTop};
  window.dispatchEvent(new Event('iu-edge-home-prepared'));
 }
 
@@ -2514,7 +2522,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
 })();
 
 
-/* V39.27 — Retour de bord : véritable aperçu capturé AVANT ouverture,
+/* V39.28 — Retour de bord : véritable aperçu capturé AVANT ouverture,
    aperçu préchargé, masque limité à la zone découverte, animation
    de fin harmonisée avec Retour (courbe .16,.84,.24,1). */
 (function iuInstallEdgeSwipeBack(){
@@ -2547,6 +2555,36 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   return 3*.84*k*k*u+3*k*u*u+u*u*u;
  };
  const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function restoreHomePosition(snapshot){
+  if(!snapshot)return;
+  const y=Math.max(0,snapshot.scrollY);
+  if(Math.abs(window.scrollY-y)>2)window.scrollTo({top:y,left:0,behavior:'instant'});
+  if(snapshot.anchor?.isConnected&&Number.isFinite(snapshot.anchorTop)){
+   const offset=snapshot.anchor.getBoundingClientRect().top-snapshot.anchorTop;
+   if(Math.abs(offset)>2)window.scrollTo({
+    top:Math.max(0,window.scrollY+offset),left:0,behavior:'instant'
+   });
+  }
+ }
+ function animateLiveHome(){
+  if(reduced()||typeof Element.prototype.animate!=='function')return;
+  const tiles=[...document.querySelectorAll('.app > .intro, .app > .card, .app > .inventory-calendar, .app > footer')]
+   .filter(node=>{
+    if(node.hidden)return false;
+    const st=getComputedStyle(node),r=node.getBoundingClientRect();
+    return st.display!=='none'&&st.visibility!=='hidden'&&r.width>0&&r.height>0&&
+     r.bottom>0&&r.top<innerHeight;
+   })
+   .sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top).slice(0,12);
+  for(const [i,node] of tiles.entries()){
+   const welcome=node.matches('.intro');
+   const anim=node.animate([
+    {transform:welcome?'translate3d(0,7px,0)':'translate3d(0,12px,0)',opacity:welcome?.96:1},
+    {transform:'translate3d(0,0,0)',opacity:1}
+   ],{duration:welcome?390:430,delay:i*38,easing:'cubic-bezier(.18,.82,.24,1)',fill:'both'});
+   anim.finished.then(()=>anim.cancel(),()=>{}); 
+  }
+ }
  function dispose(){
   if(primeTimer!==null){clearTimeout(primeTimer);primeTimer=null;}
   homeAnimations.forEach(anim=>{try{anim.cancel();}catch(_){}});
@@ -2586,7 +2624,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
         return computed.display!=='none'&&computed.visibility!=='hidden'&&
          rect.width>0&&rect.height>0&&rect.bottom>0&&rect.top<win.innerHeight;
        };
-       const tiles=[...doc.querySelectorAll('.app > .card, .app > .inventory-calendar, .app > footer')]
+       const tiles=[...doc.querySelectorAll('.app > .intro, .app > .card, .app > .inventory-calendar, .app > footer')]
         .filter(visible)
         .sort((x,y)=>x.getBoundingClientRect().top-y.getBoundingClientRect().top)
         .slice(0,12);
@@ -2594,10 +2632,11 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
        homeAnimations=[];
        homeTimeline=720+Math.max(0,tiles.length-1)*70;
        for(const [i,tile] of tiles.entries()){
+        const welcome=tile.matches('.intro');
         const anim=tile.animate([
-         {transform:'translate3d(0,14dvh,0)',opacity:1},
+         {transform:welcome?'translate3d(0,10px,0)':'translate3d(0,14dvh,0)',opacity:welcome?.95:1},
          {transform:'translate3d(0,0,0)',opacity:1}
-        ],{duration:720,delay:i*70,easing:'cubic-bezier(.18,.82,.24,1)',fill:'both'});
+        ],{duration:welcome?560:720,delay:i*70,easing:'cubic-bezier(.18,.82,.24,1)',fill:'both'});
         anim.pause();
         homeAnimations.push(anim);
        }
@@ -2620,7 +2659,9 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   layer=surface;frame=documentPreview;arrow=cue;seam=edge;
  }
  function paint(g,x,skipHome=false){
-  x=Math.max(0,Math.min(Math.max(1,innerWidth),x));
+  // Le mouvement suit le doigt mais le bord se cale sur un pixel CSS
+  // entier, évitant les contours flous et les déformations dans WebKit.
+  x=Math.round(Math.max(0,Math.min(Math.max(1,innerWidth),x)));
   g.distance=x;
   const p=x/Math.max(1,innerWidth);
   for(const node of g.nodes)node.style.setProperty('translate',x.toFixed(2)+'px 0','important');
@@ -2634,10 +2675,11 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   // vers zéro quand l'accueil retrouve toute sa place.
   frame.style.filter=reduced()?'none':'blur('+(16*Math.pow(1-p,1.35)).toFixed(2)+'px)';
   if(!skipHome)updateHome(p);
-  arrow.style.opacity=String(Math.min(.96,Math.max(0,(x-42)/104)));
+  // 50 % d'opacité en moins pour l'indicateur, sans modifier le geste.
+  arrow.style.opacity=String(Math.min(.48,Math.max(0,(x-42)/208)));
   arrow.style.transform='translate3d('+((1-p)*9).toFixed(2)+'px,0,0) scale('+(.94+.06*p).toFixed(3)+')';
-  seam.style.left=(x-24).toFixed(2)+'px';
-  seam.style.opacity=String(Math.min(.8,Math.max(0,(x-15)/95)));
+  seam.style.left=(x-4).toFixed(0)+'px';
+  seam.style.opacity=String(Math.min(.85,Math.max(0,(x-8)/55)));
  }
  function restore(){
   const g=gesture;
@@ -2697,9 +2739,35 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   }else updateHome(to);
   g.timer=setTimeout(()=>{
    if(gesture!==g)return;
-   if(success)g.page.close(); // fermeture directe : pas de deuxième animation
-   restore();
-   if(success){dispose();iuEdgeHomeSnapshot=null;}
+   if(!success){restore();return;}
+   // La vraie page d'accueil reprend exactement la position enregistrée
+   // avant l'ouverture ; le calque d'aperçu reste visible pendant le
+   // passage de relais, sans flash blanc ni seconde sortie.
+   const snapshot=iuEdgeHomeSnapshot;
+   if(snapshot)iuSavedHomeScrollY=snapshot.scrollY;
+   document.body.classList.add('iu-home-return-stable');
+   g.page.close();
+   for(const node of g.nodes){
+    node.style.removeProperty('translate');
+    node.style.removeProperty('transition');
+   }
+   requestAnimationFrame(()=>{
+    if(gesture!==g)return;
+    restoreHomePosition(snapshot);
+    animateLiveHome();
+    if(layer){
+     layer.style.transition='opacity 420ms cubic-bezier(.18,.82,.24,1)';
+     layer.style.opacity='0';
+    }
+    if(seam){seam.style.transition='opacity 180ms ease';seam.style.opacity='0';}
+    // Un dernier recalage après la mise en page Safari protège la
+    // position même si le bloc Bienvenue a changé de hauteur.
+    requestAnimationFrame(()=>{if(gesture===g)restoreHomePosition(snapshot);});
+    g.timer=setTimeout(()=>{
+     if(gesture!==g)return;
+     restore();dispose();iuEdgeHomeSnapshot=null;
+    },455);
+   });
   },duration+35);
  }
  window.addEventListener('iu-edge-home-prepared',()=>{
