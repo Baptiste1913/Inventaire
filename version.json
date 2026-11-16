@@ -1,7 +1,7 @@
 {
-  "version": "39.03",
+  "version": "39.04",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Logo de l'écran de mise à jour remonté de 12px, sans modifier le statut immédiatement au-dessus de la barre, ni les dimensions ou les lumières."
+  "notes": "Page Rappels/Alertes : effets neumorphiques doux identiques aux autres pages sur compteurs, cadres approvisionnement et rappels, fiches cliquables, avertissement, filtres, sélecteur de tri et bouton retour interne. Gradients métiers, dimensions, adaptabilité et animations préservés."
 }
