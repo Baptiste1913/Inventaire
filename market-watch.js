@@ -30,6 +30,54 @@ if(drawerReady){
  ui.listButton.addEventListener('click',()=>window.IUOpenAlertsPage?.());
  updateListButton();
 }
+/* V38.59 — Filtres visuels et tri purement local des listes déjà vérifiées.
+   Aucun changement aux critères officiels, à la cache ou à la carte d'accueil. */
+const alertsPage={
+ supplySection:byId('iuAlertsSupplySection'),
+ recallSection:byId('iuAlertsRecallSection'),
+ supplyTotal:byId('iuAlertsSupplyTotal'),
+ recallTotal:byId('iuAlertsRecallTotal'),
+ sort:byId('iuAlertsSort'),
+ filters:[...document.querySelectorAll('#iuAlertsPage [data-iu-alert-filter]')]
+};
+let alertsFilter='all',alertsSort='relevance';
+let alertsLists={supplies:[],recalls:[],supplyOK:false,recallOK:false,priceOK:false};
+function sortedAlerts(items){
+ if(alertsSort==='relevance')return items;
+ const sorted=items.slice();
+ if(alertsSort==='alpha')sorted.sort((a,b)=>a.title.localeCompare(b.title,'fr',{sensitivity:'base'})||Date.parse(b.date)-Date.parse(a.date));
+ else sorted.sort((a,b)=>alertsSort==='oldest'?Date.parse(a.date)-Date.parse(b.date):Date.parse(b.date)-Date.parse(a.date));
+ return sorted;
+}
+function renderAlertLists(){
+ const {supplies,recalls,supplyOK,recallOK,priceOK}=alertsLists;
+ if(alertsPage.supplySection)alertsPage.supplySection.hidden=alertsFilter==='recall';
+ if(alertsPage.recallSection)alertsPage.recallSection.hidden=alertsFilter==='supply';
+ if(alertsPage.supplyTotal)alertsPage.supplyTotal.textContent=supplies.length?String(supplies.length):supplyOK?'0':'—';
+ if(alertsPage.recallTotal)alertsPage.recallTotal.textContent=recalls.length?String(recalls.length):recallOK?'0':'—';
+ ui.supplyList.replaceChildren();
+ ui.recallList.replaceChildren();
+ if(supplies.length)sortedAlerts(supplies).slice(0,12).forEach(x=>ui.supplyList.append(alertLink(x)));
+ else ui.supplyList.append(element('p','iu-dash-empty',
+  supplyOK?'Aucun signal récent relevé dans les sources vérifiées.':'Source approvisionnement non actualisée.'));
+ if(!priceOK)ui.supplyList.append(element('p','iu-dash-source-note','Cotations de prix indisponibles pour le moment.'));
+ if(recalls.length)sortedAlerts(recalls).slice(0,12).forEach(x=>ui.recallList.append(alertLink(x)));
+ else ui.recallList.append(element('p','iu-dash-empty',
+  recallOK?'Aucun rappel U ou fournisseur pertinent dans les fiches récentes vérifiées.':'Recherche de rappels non actualisée.'));
+}
+alertsPage.filters.forEach(button=>button.addEventListener('click',()=>{
+ const choice=button.dataset.iuAlertFilter;
+ if(!['all','recall','supply'].includes(choice))return;
+ alertsFilter=choice;
+ alertsPage.filters.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.iuAlertFilter===choice)));
+ renderAlertLists();
+}));
+alertsPage.sort?.addEventListener('change',()=>{
+ const value=alertsPage.sort.value;
+ if(!['relevance','newest','oldest','alpha'].includes(value))return;
+ alertsSort=value;
+ renderAlertLists();
+});
 const DAY=86400000,LOCAL='iu_market_dashboard_filtered_v2';
 const API='https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/records';
 const text=(v,max=150)=>String(v==null?'':v).replace(/\s+/g,' ').trim().slice(0,max);
@@ -192,14 +240,8 @@ function display(data,connected){
   supplyOK?'Aucun signal récent relevé':'Données de marché à vérifier';
  ui.recallPreview.textContent=recalls.length?recalls[0].title:
   recallOK?'Aucun rappel pertinent identifié':'Vérification des distributeurs…';
- ui.supplyList.replaceChildren();ui.recallList.replaceChildren();
- if(supplies.length)supplies.slice(0,12).forEach(x=>ui.supplyList.append(alertLink(x)));
- else ui.supplyList.append(element('p','iu-dash-empty',
-  supplyOK?'Aucun signal récent relevé dans les sources vérifiées.':'Source approvisionnement non actualisée.'));
- if(!recent(checks.prices,4))ui.supplyList.append(element('p','iu-dash-source-note','Cotations de prix indisponibles pour le moment.'));
- if(recalls.length)recalls.slice(0,12).forEach(x=>ui.recallList.append(alertLink(x)));
- else ui.recallList.append(element('p','iu-dash-empty',
-  recallOK?'Aucun rappel U ou fournisseur pertinent dans les fiches récentes vérifiées.':'Recherche de rappels non actualisée.'));
+ alertsLists={supplies,recalls,supplyOK,recallOK,priceOK:recent(checks.prices,4)};
+ renderAlertLists();
  /* Horodatage des données, pas de la simple ouverture de l'application.
     Date fournie par la veille publiée ou, si disponible, du contrôle le plus
     récent : ne jamais inventer une heure d'actualisation. */
