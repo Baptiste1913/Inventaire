@@ -18,42 +18,16 @@ const ui={
    contenant une zone défilante), pour une fermeture réversible sur Safari. */
 /* V37.88 — Fenêtre native identique au tutoriel des notifications.
    La liste est hors du bandeau, mais ses données et liens sont inchangés. */
-const dialog=byId('iuMarketDialog'),dialogClose=byId('iuMarketDialogClose');
-const drawerReady=ui.details&&ui.listButton&&ui.listLabel&&ui.drawer&&dialog&&dialogClose;
+/* V38.53 — La liste ouvre maintenant une vraie page, comme Administration.
+   Les mêmes listes et les mêmes critères de veille restent utilisés. */
+const drawerReady=ui.details&&ui.listButton&&ui.listLabel&&ui.drawer;
 let listCount=0;
-const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-let closingDialog=false,dialogTimer=null;
 function updateListButton(){
  if(!drawerReady)return;
  ui.listLabel.textContent='Voir la liste'+(listCount?' ('+listCount+')':'');
 }
 if(drawerReady){
- function showMarketDialog(){
-  if(dialog.open||closingDialog)return;
-  clearTimeout(dialogTimer);
-  dialog.classList.remove('is-leaving');
-  dialog.showModal();
- }
- function closeMarketDialog(){
-  if(!dialog.open||closingDialog)return;
-  if(reduceMotion.matches){
-   dialog.close();
-   ui.listButton.focus({preventScroll:true});
-   return;
-  }
-  closingDialog=true;
-  dialog.classList.add('is-leaving');
-  dialogTimer=setTimeout(()=>{
-   dialog.close();
-   dialog.classList.remove('is-leaving');
-   closingDialog=false;
-   ui.listButton.focus({preventScroll:true});
-  },440);
- }
- ui.listButton.addEventListener('click',showMarketDialog);
- dialogClose.addEventListener('click',closeMarketDialog);
- dialog.addEventListener('cancel',e=>{e.preventDefault();closeMarketDialog();});
- dialog.addEventListener('click',e=>{if(e.target===dialog)closeMarketDialog();});
+ ui.listButton.addEventListener('click',()=>window.IUOpenAlertsPage?.());
  updateListButton();
 }
 const DAY=86400000,LOCAL='iu_market_dashboard_filtered_v2';
