@@ -1,7 +1,7 @@
 {
-  "version": "38.77",
+  "version": "38.78",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Le cadre Retour adopte le contour blanc, le dégradé et les cinq ombres exacts du bloc Espace administrateur de l'accueil, en gardant les arrondis et la réactivité du bouton. Marge sous Retour réduite de 4px supplémentaires sur les quatre pages. Animations synchronisées inchangées ; cache PWA renouvelé."
+  "notes": "Style du bloc Espace administrateur repris à l'identique sur le bouton Retour lui-même et sur les quatre panneaux principaux (Réglages, Mon compte, Événements, Alertes) : contour blanc, dégradé 145° et cinq ombres neumorphiques. Dimensions, rayons des panneaux, marge réduite, animations et comportement du Retour préservés. Cache PWA actualisé."
 }
