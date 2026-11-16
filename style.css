@@ -29212,7 +29212,7 @@ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading::before{
  border-radius:999px!important;
  background:linear-gradient(180deg,#9cbbc4,#698995)!important;
  transform:translateY(-50%)!important;
- opacity:.78!important;
+ opacity:.39!important;
  box-shadow:0 1px 2px rgba(95,123,135,.09)!important;
 }
 html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy{
@@ -29230,6 +29230,7 @@ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy small{
  line-height:1.1!important;
  letter-spacing:.11em!important;
  color:#81919a!important;
+ opacity:.5!important;
 }
 html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy strong{
  display:block!important;
