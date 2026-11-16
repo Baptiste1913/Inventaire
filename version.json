@@ -1,7 +1,7 @@
 {
-  "version": "39.11",
+  "version": "39.12",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Pastilles Rappels entièrement visibles sur une ligne avec description adaptative ; icônes utilisateur, réglages et calendrier fournies ajoutées aux trois boutons de l'accueil en SVG autonome."
+  "notes": "Accueil : cloche à la place du calendrier sur Accéder aux événements, pictogramme avertissement sur Voir la liste des rappels, icônes de boutons légèrement plus visibles."
 }
