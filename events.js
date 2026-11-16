@@ -324,7 +324,7 @@ function render(data){
    countdown.hidden=false;
   }
  }
- $('eventsMonthHeading').textContent='Événements en '+month.format(now);
+ $('eventsMonthHeading').textContent='Planification en '+month.format(now);
  renderPage();
  window.dispatchEvent(new Event('iu-planning-updated'));
 }
