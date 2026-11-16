@@ -27235,3 +27235,142 @@ html.iu-page-cards.iu-focus-entering::view-transition-old(*){
 html body:not(.is-focus-mode) #iuDashListButton .iu-dash-list-chevron{
  transform:none!important;
 }
+
+
+/* V38.59 — Page Alertes : accents sémantiques discrets et commandes de tri.
+   Orange = approvisionnement, rouge corail = rappel, bleu = variation de prix ;
+   ces couleurs distinguent les rubriques sans attribuer une gravité au risque. */
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:10px!important;margin:1px 0 0!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-item{
+ display:flex!important;align-items:center!important;gap:8px!important;
+ box-sizing:border-box!important;min-width:0!important;padding:12px 11px!important;
+ border:1px solid #e2e7e9!important;border-radius:13px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.9)!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-supply{
+ background:linear-gradient(125deg,#fff8ee,#fffdf8)!important;
+ border-color:#f1e3cb!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-recall{
+ background:linear-gradient(125deg,#fff3f3,#fffafa)!important;
+ border-color:#efdcdc!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-dot{
+ display:block!important;flex:0 0 7px!important;width:7px!important;height:7px!important;
+ border-radius:50%!important;background:#c58b45!important;
+ box-shadow:0 0 0 3px rgba(197,139,69,.10)!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-recall .iu-alerts-overview-dot{
+ background:#cc7977!important;box-shadow:0 0 0 3px rgba(204,121,119,.11)!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-item strong{
+ font-size:22px!important;line-height:1!important;font-weight:850!important;
+ color:#715533!important;font-variant-numeric:tabular-nums!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-recall strong{color:#925356!important}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-item > span:last-child{
+ min-width:0!important;font-size:11px!important;font-weight:650!important;line-height:1.3!important;
+ color:#7b7772!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-toolbar{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ flex-wrap:wrap!important;gap:10px!important;margin:2px 0 1px!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons{
+ display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+ gap:5px!important;min-width:0!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons button{
+ appearance:none!important;-webkit-appearance:none!important;
+ min-height:35px!important;margin:0!important;padding:7px 11px!important;
+ border:1px solid #dee5e8!important;border-radius:11px!important;
+ background:#f6f8fa!important;color:#687984!important;
+ box-shadow:none!important;font:750 11.5px/1.2 inherit!important;
+ font-family:inherit!important;font-size:11.5px!important;font-weight:750!important;
+ cursor:pointer!important;transition:background .22s ease,border-color .22s ease,color .22s ease!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons button[aria-pressed="true"]{
+ color:#344956!important;background:#eaf2f5!important;border-color:#cbdde5!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.95)!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons button:focus-visible,
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-sort select:focus-visible{
+ outline:2px solid #799cae!important;outline-offset:2px!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-sort{
+ display:flex!important;align-items:center!important;gap:7px!important;
+ color:#7a8892!important;font-size:11px!important;font-weight:700!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-sort select{
+ box-sizing:border-box!important;min-width:0!important;width:auto!important;max-width:165px!important;
+ min-height:35px!important;margin:0!important;padding:7px 25px 7px 10px!important;
+ background-color:#f7f9fa!important;border:1px solid #dfe6e9!important;
+ border-radius:11px!important;box-shadow:none!important;color:#394b55!important;
+ font-family:inherit!important;font-size:11px!important;font-weight:700!important;
+ appearance:auto!important;-webkit-appearance:auto!important;cursor:pointer!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-group[hidden]{display:none!important}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-supply-group{
+ border-color:#eddfc9!important;background:linear-gradient(155deg,#fffefa,#fdfbf7)!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group{
+ border-color:#eddddd!important;background:linear-gradient(155deg,#fffdfd,#fdf9f9)!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-supply-group > header{
+ border-bottom-color:#f0e5d5!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group > header{
+ border-bottom-color:#f0e1e1!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-supply-group h3,
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group h3{
+ display:flex!important;align-items:center!important;gap:9px!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-group h3::before{
+ content:""!important;display:inline-block!important;flex:0 0 5px!important;
+ width:5px!important;height:17px!important;border-radius:5px!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-supply-group h3::before{background:#d6a05f!important}
+html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group h3::before{background:#d58b88!important}
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert{
+ border-left-width:3px!important;border-left-style:solid!important;
+ transition:background .22s ease,border-color .22s ease!important
+}
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-supply{
+ border-left-color:#cfa16a!important;background:linear-gradient(155deg,#fff,#fffcf7)!important
+}
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-price{
+ border-left-color:#78abc1!important;background:linear-gradient(155deg,#fff,#f8fcfe)!important
+}
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-recall{
+ border-left-color:#d18a88!important;background:linear-gradient(155deg,#fff,#fff9f9)!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-dash-alert-supply .iu-dash-alert-type{
+ color:#987345!important;border-color:#f0e2ce!important;background:#fff5e7!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-dash-alert-price .iu-dash-alert-type{
+ color:#44788d!important;border-color:#dbeaf2!important;background:#eff7fb!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-dash-alert-recall .iu-dash-alert-type{
+ color:#a06161!important;border-color:#f0dedf!important;background:#fff0f0!important
+}
+html body.is-alerts-mode #iuAlertsPage .iu-dash-caution{
+ border-color:#f0e2db!important;background:#fff9f5!important;color:#876e60!important
+}
+@media(max-width:430px){
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview{gap:7px!important}
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-item{padding:10px 8px!important;gap:6px!important}
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-item strong{font-size:19px!important}
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-overview-item > span:last-child{font-size:10px!important}
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-toolbar{align-items:stretch!important;gap:9px!important}
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons{flex:1 1 auto!important}
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-sort{margin-left:auto!important}
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons button{padding:7px 9px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons button,
+ html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert{transition:none!important}
+}
