@@ -1,7 +1,7 @@
 {
-  "version": "38.91",
+  "version": "38.92",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Pastilles de statut de l'accueil, Google Connecté, cloud, session, compteurs d'historique/inventaires/paniers et indicateurs d'événements harmonisées : même relief neumorphique discret que l'Administrateur et hauteur de 32px calée sur Google, avec couleurs et états conservés. Cache PWA renouvelé."
+  "notes": "Pastilles harmonisées sur la surface du bouton Retour : dégradé 145°, bord blanc, coins 10px, aucune ombre permanente, hauteur 34px. Couleurs adaptées à Google connecté (vert), cloud en alerte (ambre), mode local (gris), sessions (bleu) et événements (ocre). Sélecteurs renforcés pour remplacer les anciens styles prioritaires, sans modifier les données ni les états."
 }
