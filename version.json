@@ -1,7 +1,7 @@
 {
-  "version": "38.68",
+  "version": "38.69",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bandeau Retour plus translucide aux hauteurs 70/55 px, flou verre dépoli dès l'ouverture. Bouton Retour dans un petit cadre blanc translucide à bord fin. Accessibilité et animations conservées ; cache PWA renouvelé."
+  "notes": "Corrige la sortie animée des pages secondaires après défilement : copie limitée à la zone effectivement visible du viewport, évitant l'apparition d'éléments précédemment hors écran pendant la descente. Durée, flou, bandeau Retour et restauration du scroll d'accueil inchangés. Cache PWA renouvelé."
 }
