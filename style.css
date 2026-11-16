@@ -27397,3 +27397,100 @@ html body.is-alerts-mode #iuAlertsPage .iu-dash-caution{
  html body.is-alerts-mode #iuAlertsPage .iu-alerts-filter-buttons button,
  html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert{transition:none!important}
 }
+
+
+/* V38.65 — Retour permanent partagé entre Administration, Mon compte,
+   Événements et Alertes. Surface et bouton légers à 30px au départ ;
+   après 88px de scroll : 20px et verre dépoli comme Bienvenue. */
+html body #iuSubpageBar[hidden],
+html body:not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode) #iuSubpageBar{
+ display:none!important
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+ position:fixed!important;
+ left:50%!important;
+ top:max(8px,env(safe-area-inset-top,0px))!important;
+ z-index:1900!important;
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;
+ width:calc(100% - 26px)!important;max-width:734px!important;
+ height:30px!important;min-height:0!important;
+ margin:0!important;padding:0 8px!important;
+ transform:translateX(-50%)!important;
+ border:1px solid rgba(208,222,230,.85)!important;
+ border-radius:12px!important;
+ background:linear-gradient(150deg,rgba(255,255,255,.98),rgba(248,251,252,.98))!important;
+ box-shadow:0 2px 8px rgba(39,69,80,.035)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ opacity:1!important;
+ transition:height .28s ease,border-radius .28s ease,
+  background .28s ease,box-shadow .28s ease!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
+ height:20px!important;border-radius:10px!important;
+ border-color:rgba(255,255,255,.75)!important;
+ background:linear-gradient(122deg,
+  rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,
+  rgba(255,255,255,.54) 100%)!important;
+ -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
+ backdrop-filter:blur(27px) saturate(109%)!important;
+ box-shadow:0 5px 14px rgba(42,76,93,.045)!important;
+}
+html body #iuSubpageBar #iuSubpageBack{
+ appearance:none!important;-webkit-appearance:none!important;
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ width:auto!important;max-width:none!important;min-width:0!important;
+ height:26px!important;min-height:0!important;
+ margin:0!important;padding:0 9px!important;gap:5px!important;
+ border:0!important;border-radius:8px!important;
+ background:transparent!important;box-shadow:none!important;
+ color:#34434e!important;font-family:inherit!important;font-size:12px!important;
+ font-weight:800!important;line-height:1!important;letter-spacing:0!important;
+ cursor:pointer!important;
+ transition:font-size .28s ease,height .28s ease,opacity .2s ease!important
+}
+html body #iuSubpageBar[data-compact="true"] #iuSubpageBack{
+ height:18px!important;padding:0 7px!important;font-size:10px!important
+}
+html body #iuSubpageBar #iuSubpageBack svg{
+ display:block!important;flex:0 0 13px!important;width:13px!important;height:13px!important;
+ stroke:currentColor!important;stroke-width:2!important;fill:none!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important;
+ transition:width .28s ease,height .28s ease!important
+}
+html body #iuSubpageBar[data-compact="true"] #iuSubpageBack svg{
+ flex-basis:10px!important;width:10px!important;height:10px!important
+}
+html body #iuSubpageBar #iuSubpageBack:focus-visible{
+ outline:2px solid #5499b0!important;outline-offset:2px!important
+}
+/* Garder la zone de toucher confortable même avec une surface de 20px. */
+html body #iuSubpageBar #iuSubpageBack::after{
+ content:"";position:absolute;left:0;top:50%;
+ width:100px;height:44px;transform:translateY(-50%);
+}
+html body.is-admin-mode #planningAdminCard .iu-page-internal-nav,
+html body.is-account-mode #accountCard .iu-page-internal-nav,
+html body.is-events-mode #eventsPage .iu-page-internal-nav,
+html body.is-alerts-mode #iuAlertsPage .iu-page-internal-nav{
+ display:none!important
+}
+/* Réserver une place en haut pour éviter que la barre fixe recouvre
+   les titres lors de l'ouverture, sans décaler la page pendant le scroll. */
+html body.is-admin-mode .app > #planningAdminCard.card,
+html body.is-account-mode .app > #accountCard.card,
+html body.is-events-mode .app > #eventsPage.card,
+html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
+ padding-top:max(56px,calc(env(safe-area-inset-top,0px) + 48px))!important
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
+  background:#f7fafb!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar,
+ html body #iuSubpageBar #iuSubpageBack,
+ html body #iuSubpageBar #iuSubpageBack svg{transition:none!important}
+}
