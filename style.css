@@ -27330,24 +27330,34 @@ html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group h3{
  display:flex!important;align-items:center!important;gap:9px!important
 }
 html body.is-alerts-mode #iuAlertsPage .iu-alerts-group h3::before{
- content:""!important;display:inline-block!important;flex:0 0 5px!important;
- width:5px!important;height:17px!important;border-radius:5px!important
+ content:""!important;display:inline-block!important;flex:0 0 2px!important;
+ width:2px!important;height:16px!important;border-radius:0!important
 }
 html body.is-alerts-mode #iuAlertsPage .iu-alerts-supply-group h3::before{background:#d6a05f!important}
 html body.is-alerts-mode #iuAlertsPage .iu-alerts-recall-group h3::before{background:#d58b88!important}
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert{
- border-left-width:3px!important;border-left-style:solid!important;
+ position:relative!important;
+ border-left-width:1px!important;border-left-style:solid!important;
  transition:background .22s ease,border-color .22s ease!important
 }
+/* Trait fin, rectiligne et indépendant des coins arrondis de la carte. */
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert::before{
+ content:""!important;position:absolute!important;left:0!important;
+ top:12px!important;bottom:12px!important;width:2px!important;
+ border-radius:0!important;pointer-events:none!important
+}
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-supply{
- border-left-color:#cfa16a!important;background:linear-gradient(155deg,#fff,#fffcf7)!important
+ border-left-color:#dce4e8!important;background:linear-gradient(155deg,#fff,#fffcf7)!important
 }
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-price{
- border-left-color:#78abc1!important;background:linear-gradient(155deg,#fff,#f8fcfe)!important
+ border-left-color:#dce4e8!important;background:linear-gradient(155deg,#fff,#f8fcfe)!important
 }
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-recall{
- border-left-color:#d18a88!important;background:linear-gradient(155deg,#fff,#fff9f9)!important
+ border-left-color:#dce4e8!important;background:linear-gradient(155deg,#fff,#fff9f9)!important
 }
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-supply::before{background:#cfa16a!important}
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-price::before{background:#78abc1!important}
+html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-recall::before{background:#d18a88!important}
 html body.is-alerts-mode #iuAlertsPage .iu-dash-alert-supply .iu-dash-alert-type{
  color:#987345!important;border-color:#f0e2ce!important;background:#fff5e7!important
 }
