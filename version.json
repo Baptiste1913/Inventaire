@@ -1,7 +1,7 @@
 {
-  "version": "38.69",
+  "version": "38.70",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Corrige la sortie animée des pages secondaires après défilement : copie limitée à la zone effectivement visible du viewport, évitant l'apparition d'éléments précédemment hors écran pendant la descente. Durée, flou, bandeau Retour et restauration du scroll d'accueil inchangés. Cache PWA renouvelé."
+  "notes": "Entrée des pages autonomes : bandeau Retour et cartes remontent simultanément depuis le bas, le bandeau restant au premier plan et cliquable. Suppression de la capture View Transition qui bloquait les interactions ; un toucher pendant l'entrée interrompt l'animation et lance immédiatement le retour. Hauteurs, verre dépoli, scroll d'accueil, animation de sortie et mode Concentration préservés. Cache PWA renouvelé."
 }
