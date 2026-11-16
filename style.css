@@ -27788,7 +27788,7 @@ html body #iuSubpageBar:not([hidden]) > #iuSubpageBack:active{
    et cinq ombres). Garder les dimensions et l'effet tactile existant. */
 html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action:not(:active){
  border:1px solid rgba(255,255,255,.94)!important;
- border-radius:20px!important;
+ border-radius:14px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  background-clip:border-box!important;
  box-shadow:
@@ -27799,11 +27799,11 @@ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-s
    inset 1px 1px 0 rgba(255,255,255,.96)!important;
 }
 html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action:active{
- border-radius:20px!important;
+ border-radius:14px!important;
 }
 @media(max-width:430px){
  html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action{
-  border-radius:20px!important;
+  border-radius:14px!important;
  }
 }
 @media(forced-colors:active){
@@ -27821,7 +27821,7 @@ html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:not(:active){
  box-sizing:border-box!important;
  border:1px solid rgba(255,255,255,.94)!important;
- border-radius:20px!important;
+ border-radius:14px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  background-clip:border-box!important;
  box-shadow:
@@ -27833,7 +27833,7 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
 }
 html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary #iuAccountLaunch.iu-account-launch-action:active,
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:active{
- border-radius:20px!important;
+ border-radius:14px!important;
  border-color:#d1d9df!important;
  background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
  box-shadow:inset 2px 3px 6px rgba(150,166,181,.24),inset -2px -2px 5px rgba(255,255,255,.96),1px 1px 3px rgba(156,173,189,.12)!important;
@@ -29379,9 +29379,11 @@ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton)
    Le texte et les flèches de navigation restent inchangés. */
 html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > svg.iu-home-action-icon{display:none!important}
 
-/* V39.37 — Uniquement le rayon de courbure du bouton Voir la liste. */
-html body:not(.is-admin-mode) .app #iuAdminLaunch.iu-admin-launch-action,
-html body:not(.is-account-mode) .app #iuAccountLaunch.iu-account-launch-action,
-html body:not(.is-events-mode) .app #eventsOpenPage.events-access-button{
- border-radius:18px!important;
+/* V39.38 — Rayon réellement visible de « Voir la liste » : 14 px.
+   Corrige les anciennes règles plus spécifiques des trois boutons,
+   sans modifier couleurs, bordures, ombres, tailles ou animations. */
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action,
+html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary #iuAccountLaunch.iu-account-launch-action,
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
+ border-radius:14px!important;
 }
