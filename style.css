@@ -29268,7 +29268,7 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
 }
 
 
-/* V39.27 — Retour interactif : aperçu réel, seule zone découverte
+/* V39.28 — Retour interactif : aperçu réel, seule zone découverte
    visible, trajectoire et relief du même langage que le bouton Retour. */
 .iu-edge-swipe-backdrop{
  position:fixed;inset:0;z-index:9990;
@@ -29292,23 +29292,25 @@ body.iu-edge-swiping .iu-edge-swipe-backdrop{
 .iu-edge-swipe-arrow{
  position:absolute;left:18px;top:50%;
  display:flex;align-items:center;justify-content:center;
- width:59px;height:52px;box-sizing:border-box;
- border:1px solid rgba(255,255,255,.94);
- border-radius:18px;
+ width:45px;height:41px;box-sizing:border-box;
+ border:1px solid rgba(255,255,255,.75);
+ border-radius:14px;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%);
  box-shadow:-3px -3px 7px rgba(255,255,255,.92),4px 5px 11px rgba(156,173,189,.32),inset 1px 1px 0 rgba(255,255,255,.94);
  color:#566c78;opacity:0;
  transform:translate3d(9px,0,0) scale(.94);
 }
 .iu-edge-swipe-arrow svg{
- width:26px;height:26px;fill:none;
- stroke:currentColor;stroke-width:2.35;
+ width:20px;height:20px;fill:none;
+ stroke:currentColor;stroke-width:2.2;
  stroke-linecap:round;stroke-linejoin:round;
 }
 .iu-edge-swipe-seam{
  position:fixed;left:-24px;top:0;bottom:0;
- width:25px;z-index:9991;pointer-events:none;opacity:0;
- background:linear-gradient(to right,transparent,rgba(37,64,78,.12));
+ width:4px;z-index:9991;pointer-events:none;opacity:0;
+ background:#f3f6f7;
+ border-left:1px solid rgba(214,226,233,.65);
+ box-shadow:-8px 0 16px rgba(48,69,84,.14);
 }
 body.iu-edge-swiping #iuSubpageBar,
 body.iu-edge-swiping #planningAdminCard,
