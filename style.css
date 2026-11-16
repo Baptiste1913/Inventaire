@@ -27714,3 +27714,25 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #i
   backdrop-filter:none!important;
  }
 }
+
+/* V38.80 — Cadre extérieur Retour plus transparent, avec un léger
+   espace supplémentaire sous lui. Le bouton intérieur et ses ombres
+   ne sont pas modifiés ; la barre reste sans ombre. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+ background:linear-gradient(150deg,rgba(255,255,255,.52),rgba(248,251,252,.46))!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]:not([hidden]){
+ background:linear-gradient(122deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.38) 54%,rgba(255,255,255,.30) 100%)!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card,
+html body.is-account-mode .app > #accountCard.card,
+html body.is-events-mode .app > #eventsPage.iu-events-page:not([hidden]),
+html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
+ padding-top:max(88px,calc(env(safe-area-inset-top,0px) + 80px))!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]:not([hidden]){
+  background:#f7fafb!important;
+ }
+}
