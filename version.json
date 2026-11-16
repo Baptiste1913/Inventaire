@@ -1,7 +1,7 @@
 {
-  "version": "38.57",
+  "version": "38.58",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour depuis les pages Alertes, Administration, Mon compte et Événements à la position exacte de défilement mémorisée avant l’ouverture ; correction sur la frame suivante pour Safari. Flou et animations conservés, cache PWA renouvelé."
+  "notes": "Retour à l’accueil depuis les pages : distance initiale de remontée des cartes réduite de 30dvh à 14dvh, avec durées, décalages, flou et restauration du défilement inchangés. Transition Concentration conservée, cache PWA renouvelé."
 }
