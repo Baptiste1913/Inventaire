@@ -28180,3 +28180,86 @@ html body:not(.is-focus-mode) :is(
   #eventsFeatureCountdown,#heroStatus
  ){box-shadow:none!important}
 }
+
+/* V38.92 — Pastilles : même surface que le bouton Retour V38.81
+   (dégradé 145°, bord blanc, coins 10px, sans ombre/glow).
+   Variables par état pour conserver un code couleur lisible.
+   Sélecteurs par ID + html body pour dépasser les anciennes
+   règles !important de pastilles. */
+html body :is(
+ #accountSummaryStatus,#dashboardCloudPill,#sessionBadge,
+ #historyCount,#sessionsCount,#basketCount,
+ #calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,
+ #heroStatus
+){
+ --iu-pill-light:#fff;
+ --iu-pill-mid:#f8fafb;
+ --iu-pill-dark:#e5ebef;
+ --iu-pill-ink:#394a52;
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ height:34px!important;
+ min-height:34px!important;
+ max-height:34px!important;
+ padding-top:0!important;
+ padding-bottom:0!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:10px!important;
+ background:linear-gradient(145deg,var(--iu-pill-light) 0%,var(--iu-pill-mid) 34%,var(--iu-pill-dark) 100%)!important;
+ background-color:var(--iu-pill-mid)!important;
+ background-clip:border-box!important;
+ color:var(--iu-pill-ink)!important;
+ box-shadow:none!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ line-height:1.2!important;
+}
+html body #accountSummaryStatus.is-connected,
+html body #dashboardCloudPill.is-synced{
+ --iu-pill-light:#fafffc;
+ --iu-pill-mid:#edf8f1;
+ --iu-pill-dark:#cdebd9;
+ --iu-pill-ink:#146a4d;
+}
+html body #dashboardCloudPill.is-warning{
+ --iu-pill-light:#fffdfa;
+ --iu-pill-mid:#fff2e0;
+ --iu-pill-dark:#f4d9b1;
+ --iu-pill-ink:#895d20;
+}
+html body #accountSummaryStatus:not(.is-connected){
+ --iu-pill-light:#fff;
+ --iu-pill-mid:#f5f7f8;
+ --iu-pill-dark:#e1e7eb;
+ --iu-pill-ink:#535e67;
+}
+html body :is(#sessionBadge,#historyCount,#sessionsCount,#basketCount){
+ --iu-pill-light:#fbfdff;
+ --iu-pill-mid:#f0f6fa;
+ --iu-pill-dark:#d8e7f0;
+ --iu-pill-ink:#395e73;
+}
+html body :is(#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown){
+ --iu-pill-light:#fffdf9;
+ --iu-pill-mid:#faf2e5;
+ --iu-pill-dark:#efdec2;
+ --iu-pill-ink:#795c35;
+}
+html body #heroStatus{
+ --iu-pill-light:#fafffc;
+ --iu-pill-mid:#eef8f1;
+ --iu-pill-dark:#d4eadb;
+ --iu-pill-ink:#37634d;
+}
+html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus)[hidden]{
+ display:none!important;
+}
+@media(forced-colors:active){
+ html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus){
+  border-color:ButtonText!important;
+  background:ButtonFace!important;
+  color:ButtonText!important;
+ }
+}
