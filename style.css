@@ -29567,3 +29567,28 @@ html body .app > section.calc-card .result .copy-btn:disabled{
 }
 
 /* V39.42 — Halos légèrement plus colorés et nettement plus diffus, sans animation. */
+
+/* V39.43 — Réglages de la pesée : même contour, surface et relief
+   que le bouton « Accéder aux événements ».
+   Aucun changement des champs, modes, alertes ni de leurs dimensions. */
+html body .app > section.calc-card.card > .weigh-preferences{
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:14px!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card.card > .weigh-preferences{
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
+ }
+}
