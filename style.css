@@ -27547,9 +27547,19 @@ html body.iu-subpage-entering:is(.is-admin-mode,.is-account-mode,.is-events-mode
  100%{translate:0 0;opacity:1}
 }
 html body.iu-subpage-entering.is-events-mode #iuSubpageBar:not([hidden]),
-html body.iu-subpage-entering.is-events-mode .app > #eventsPage > .iu-events-page-inner,
-html body.iu-subpage-entering.is-alerts-mode #iuSubpageBar:not([hidden]),
-html body.iu-subpage-entering.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body{
+html body.iu-subpage-entering.is-events-mode .app > #eventsPage > .iu-events-page-inner{
+ animation:iu72-linked-rise 610ms cubic-bezier(.16,.84,.24,1) both!important;
+}
+/* V38.74 — Première entrée Alertes en deux phases.
+   Les surfaces sont d'abord composées hors écran, puis lancées
+   simultanément. Ne pas déclencher l'animation pendant que la
+   section hidden est encore en train de devenir affichable. */
+html body.iu-subpage-entering.is-alerts-mode:not(.iu-alerts-rise-running) #iuSubpageBar:not([hidden]),
+html body.iu-subpage-entering.is-alerts-mode:not(.iu-alerts-rise-running) .app > #iuAlertsPage > .iu-alerts-page-body{
+ translate:0 105dvh!important;
+}
+html body.iu-subpage-entering.iu-alerts-rise-running.is-alerts-mode #iuSubpageBar:not([hidden]),
+html body.iu-subpage-entering.iu-alerts-rise-running.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body{
  animation:iu72-linked-rise 610ms cubic-bezier(.16,.84,.24,1) both!important;
 }
 /* Pendant l'entrée, pas de transition secondaire sur le bandeau :
@@ -27562,5 +27572,9 @@ html body.iu-subpage-entering:is(.is-events-mode,.is-alerts-mode) #iuSubpageBar:
  html body.iu-subpage-entering.is-events-mode .app > #eventsPage > .iu-events-page-inner,
  html body.iu-subpage-entering.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body{
   animation:none!important
+ }
+ html body.iu-subpage-entering.is-alerts-mode:not(.iu-alerts-rise-running) #iuSubpageBar:not([hidden]),
+ html body.iu-subpage-entering.is-alerts-mode:not(.iu-alerts-rise-running) .app > #iuAlertsPage > .iu-alerts-page-body{
+  translate:none!important
  }
 }
