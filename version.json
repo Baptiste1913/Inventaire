@@ -1,7 +1,7 @@
 {
-  "version": "39.08",
+  "version": "39.09",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Autres événements : en-tête du tiroir et lignes dépliées harmonisés avec le nouveau design neumorphique, effet d'appui et contraste doux, sans changer dimensions ni comportement."
+  "notes": "Page Rappels harmonisée visuellement avec Événements : panneaux et fiches blanc/gris neutres, mêmes reliefs, arrondis, hiérarchie typographique et espacements, tout en conservant filtres, tri, alertes et accents colorés."
 }
