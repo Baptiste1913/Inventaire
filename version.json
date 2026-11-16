@@ -1,7 +1,7 @@
 {
-  "version": "39.33",
+  "version": "39.34",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Essai des icônes fournies : placement à gauche des boutons Accéder aux réglages, Mon compte, Événements et Rappels, avec libellés centrés et flèches préservées. Aucun changement fonctionnel."
+  "notes": "Icônes des quatre boutons d'accueil redessinées au trait, façon Lucide, plus contrastées et solidement alignées à gauche ; texte et flèches conservés."
 }
