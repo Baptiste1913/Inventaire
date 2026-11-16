@@ -1,7 +1,7 @@
 {
-  "version": "38.71",
+  "version": "38.72",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Répare l'ouverture animée des pages Alertes et Événements : leurs panneaux sont animés même si le scroll d'accueil n'a pas encore été réinitialisé par Safari ; le bandeau Retour reste à 70px pendant son ascension. Corrige la spécificité CSS qui laissait le panneau Événements remonter sous le bandeau (96px d'espace réservé). Animations et retour instantané des quatre pages conservés ; cache PWA renouvelé."
+  "notes": "Entrée Alertes et Événements : synchronisation exacte du cadre Retour et du panneau avec une animation CSS commune, évitant leur mouvement visuellement dissocié sous Safari. Durée/courbe/distance conservées, bouton Retour immédiatement utilisable, position fixe et réduction au scroll maintenues, Admin/Compte inchangés. Cache PWA renouvelé."
 }
