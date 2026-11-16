@@ -1,7 +1,7 @@
 {
-  "version": "39.49",
+  "version": "39.50",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Suppression ombre/glow du bouton Nouvelle pesée, champ de poids d'alerte sur toute la largeur de la carte doublons, coche centrée verticalement avec léger relief et feedback tactile. Calculs inchangés."
+  "notes": "Harmonisation neumorphique du bloc Session en cours avec les réglages de pesée : statistiques, commandes et confirmation. Logique métier inchangée."
 }
