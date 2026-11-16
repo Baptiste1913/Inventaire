@@ -1,7 +1,7 @@
 {
-  "version": "39.01",
+  "version": "39.02",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ajustement strictement limité à la marge entre le texte de statut et la barre de progression de mise à jour : 5px au lieu de 3px. Aucune modification des dimensions du bloc, de la position du logo, de la barre ou des autres styles. Cache PWA actualisé."
+  "notes": "Correction réelle de l'écart entre statut et barre de mise à jour : suppression du gap de grille hérité (9px), de la marge supérieure de 15px et réduction de la marge du statut à 1px. Taille et animations inchangées."
 }
