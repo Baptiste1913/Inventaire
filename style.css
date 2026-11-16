@@ -28296,3 +28296,73 @@ html body #iuUpdateOverlay > .iu-update-screen{
   background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
  }
 }
+
+/* V38.99 — Mise à jour compacte comme le chargement :
+   un seul statut, sur une seule ligne, juste avant la barre.
+   Le titre et le texte explicatif restent accessibles au script,
+   mais ne prennent plus d'espace (sauf erreur où le détail réapparaît).
+   Les mêmes largeur et padding que le splash évitent de grossir la carte. */
+html body #iuUpdateOverlay > .iu-update-screen{
+ width:min(100%,266px)!important;
+ max-width:calc(100vw - 36px)!important;
+ padding:18px 21px 20px!important;
+}
+html body #iuUpdateOverlay .iu-update-logo{
+ width:58px!important;
+ height:58px!important;
+ margin:0 0 2px!important;
+ flex:0 0 58px!important;
+}
+html body #iuUpdateOverlay .iu-update-logo img{
+ width:58px!important;
+ height:58px!important;
+ object-fit:cover!important;
+}
+html body #iuUpdateOverlay #iuUpdateScreenTitle,
+html body #iuUpdateOverlay #iuUpdateScreenText,
+html body #iuUpdateOverlay #iuUpdateStepCount{
+ display:none!important;
+}
+html body #iuUpdateOverlay .iu-update-progress-block{
+ width:min(100%,176px)!important;
+ margin:0 auto!important;
+}
+html body #iuUpdateOverlay .iu-update-progress-meta{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:100%!important;
+ margin:0 0 6px!important;
+ gap:0!important;
+ line-height:14px!important;
+ text-align:center!important;
+}
+html body #iuUpdateOverlay #iuUpdateStep{
+ display:block!important;
+ flex:1 1 100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ font-size:10px!important;
+ font-weight:750!important;
+ line-height:14px!important;
+ text-align:center!important;
+ white-space:nowrap!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+}
+html body #iuUpdateOverlay #iuUpdateProgress.iu-update-progress{
+ width:100%!important;
+ margin:0!important;
+}
+/* Une erreur doit toujours laisser voir son explication et son bouton. */
+html body #iuUpdateOverlay:has(#iuUpdateOverlayDismiss:not([hidden])) #iuUpdateScreenText{
+ display:block!important;
+ font-size:11px!important;
+ line-height:1.4!important;
+ margin:8px 0 10px!important;
+ text-align:center!important;
+}
+@media(forced-colors:active){
+ html body #iuUpdateOverlay #iuUpdateStep{color:CanvasText!important}
+}
