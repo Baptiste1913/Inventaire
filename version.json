@@ -1,7 +1,7 @@
 {
-  "version": "38.66",
+  "version": "38.67",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bandeau fixe Retour agrandi à 100 px de hauteur au départ, puis 70 px après le seuil de défilement, avec marge supérieure des quatre pages adaptée pour ne pas masquer les titres. Flou, opacité et fonctionnement de navigation conservés. Cache PWA renouvelé."
+  "notes": "Bandeau Retour abaissé à 70 px au départ et 55 px après défilement sur les quatre pages, avec espacement des contenus ajusté. Flou, transparence, animation et cache PWA conservés/renouvelés."
 }
