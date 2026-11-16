@@ -27523,3 +27523,16 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #i
   will-change:auto!important
  }
 }
+
+/* V38.71 — Événements : la règle de mise en page initiale
+   #eventsPage.iu-events-page:not([hidden]) était plus spécifique que
+   la règle commune .card de V38.65 : le contenu débutait à ~14px
+   au lieu de réserver 96px et chevauchait le Retour fixe. */
+html body.is-events-mode .app > #eventsPage.iu-events-page:not([hidden]){
+ padding-top:max(96px,calc(env(safe-area-inset-top,0px) + 88px))!important
+}
+/* Les quatre pages démarrent en mode 70px ; ne jamais afficher
+   brièvement le bandeau compact pendant l'animation d'entrée. */
+html body.iu-subpage-entering:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+ height:70px!important
+}
