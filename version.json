@@ -1,7 +1,7 @@
 {
-  "version": "38.95",
+  "version": "38.96",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Rétablissement des pastilles d'origine avec leur taille, coins pleinement arrondis, couleurs, bordures et logo Google ; retrait du contour blanc et des cinq ombres prononcées de V38.94. Ajout d'un reflet intérieur et d'une ombre très discrète pour l'harmonie générale. Cache PWA actualisé."
+  "notes": "Toutes les pastilles compactes (Google connecté accueil et profil, cloud, événements, session, inventaires, paniers, compteurs, états de l'accueil et catégories planification) sont harmonisées à la hauteur Google de 32px. Couleurs, contours arrondis, ombres, logo et largeurs préservés. Cache PWA actualisé."
 }
