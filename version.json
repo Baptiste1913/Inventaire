@@ -1,7 +1,7 @@
 {
-  "version": "38.51",
+  "version": "38.52",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Carte principale Poire Santa Maria : texte décalé à droite et voyant rouge pulsant ajouté sur le bord gauche, centré verticalement ; cache PWA renouvelé."
+  "notes": "Réduction des trois voyants lumineux : 6 px pour Approvisionnement et Rappels produits, 7 px pour Poire Santa Maria. Animations et couleurs conservées, cache PWA renouvelé."
 }
