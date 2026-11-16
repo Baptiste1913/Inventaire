@@ -1,7 +1,7 @@
 {
-  "version": "39.22",
+  "version": "39.23",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Prototype du retour interactif par glissement depuis le bord gauche sur les quatre pages, avec seuil d'annulation, sans modifier l'historique Safari."
+  "notes": "Geste de retour : grande flèche à droite à la place d'Accueil, aperçu des éléments de la page d'accueil apparaissant progressivement avec flou décroissant."
 }
