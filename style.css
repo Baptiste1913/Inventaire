@@ -29266,3 +29266,20 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
   color:CanvasText!important;
  }
 }
+
+/* V39.22 — Surface de retour pendant le geste interactif. */
+.iu-edge-swipe-backdrop{
+ position:fixed;inset:0;z-index:9990;pointer-events:none;
+ display:flex;align-items:center;justify-content:flex-start;
+ padding-left:24px;background:linear-gradient(125deg,#eef3f5,#f9fbfc);
+ opacity:0;
+}
+.iu-edge-swipe-backdrop span{font-size:20px;font-weight:800;color:#647e8b;letter-spacing:-.4px}
+body.iu-edge-swiping #iuSubpageBar{will-change:translate}
+body.iu-edge-swiping #planningAdminCard,
+body.iu-edge-swiping #accountCard,
+body.iu-edge-swiping #eventsPage,
+body.iu-edge-swiping #iuAlertsPage{will-change:translate}
+@media(prefers-reduced-motion:reduce){
+ .iu-edge-swipe-backdrop{transition:none!important}
+}
