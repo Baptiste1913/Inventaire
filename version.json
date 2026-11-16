@@ -1,7 +1,7 @@
 {
-  "version": "38.97",
+  "version": "38.98",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Les blocs d'installation de mise à jour et d'ouverture/chargement PWA adoptent le verre translucide, contour blanc, ombre basse subtile et trois halos animés bleu/rouge/vert du bloc Bienvenue. Largeurs, paddings, hauteurs intrinsèques, logos et progressions préservés. Animations réduites pour accessibilité et cache PWA actualisé."
+  "notes": "Verre véritablement translucide sur les deux cadres de chargement et de mise à jour : suppression du second fond blanc semi-opaque qui se superposait au gradient, opacité du verre réduite et flou ajusté à 6px pour révéler les halos animés. Taille, bordure, ombre, logo et barres de progression préservés."
 }
