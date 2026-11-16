@@ -1,7 +1,7 @@
 {
-  "version": "38.78",
+  "version": "38.79",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Style du bloc Espace administrateur repris à l'identique sur le bouton Retour lui-même et sur les quatre panneaux principaux (Réglages, Mon compte, Événements, Alertes) : contour blanc, dégradé 145° et cinq ombres neumorphiques. Dimensions, rayons des panneaux, marge réduite, animations et comportement du Retour préservés. Cache PWA actualisé."
+  "notes": "Cadre extérieur du Retour de nouveau translucide avec son flou d'origine (18px, 27px compact), contour blanc conservé et ombre supprimée. Le bouton Retour intérieur garde intégralement son style neumorphique et ses ombres. Panneaux, marges et animations inchangés. Cache PWA renouvelé."
 }
