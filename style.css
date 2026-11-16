@@ -29268,7 +29268,7 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
 }
 
 
-/* V39.26 — Retour interactif : aperçu réel, seule zone découverte
+/* V39.27 — Retour interactif : aperçu réel, seule zone découverte
    visible, trajectoire et relief du même langage que le bouton Retour. */
 .iu-edge-swipe-backdrop{
  position:fixed;inset:0;z-index:9990;
@@ -29286,7 +29286,7 @@ body.iu-edge-swiping .iu-edge-swipe-backdrop{
  position:absolute;inset:0;
  width:100%;height:100%;border:0;
  pointer-events:none;opacity:.88;
- filter:blur(7px);
+ filter:blur(16px);
  transform:translateZ(0);
 }
 .iu-edge-swipe-arrow{
