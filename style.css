@@ -27612,3 +27612,34 @@ html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
   border-radius:20px!important;
  }
 }
+
+/* V38.77 — Le cadre Retour reprend EXACTEMENT la surface de la carte
+   Espace administrateur de l'accueil (V38.02/V38.03) : contour blanc,
+   dégradé continu et ombres neumorphiques, sans seconde couche de verre.
+   Le bouton intérieur conserve sa zone de toucher et sa réactivité. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+/* 4px de moins sous Retour, après les 8px déjà retirés en V38.76. */
+html body.is-admin-mode .app > #planningAdminCard.card,
+html body.is-account-mode .app > #accountCard.card,
+html body.is-events-mode .app > #eventsPage.iu-events-page:not([hidden]),
+html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
+ padding-top:max(84px,calc(env(safe-area-inset-top,0px) + 76px))!important;
+}
+@media(forced-colors:active){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+  border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;
+ }
+}
