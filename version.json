@@ -1,7 +1,7 @@
 {
-  "version": "38.53",
+  "version": "38.54",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Nouvelle page Alertes reprenant la navigation plein écran, le bouton Retour, les surfaces et les animations de la page Administrateur. Les listes de veille officielles et le mode hors ligne sont conservés ; Voir la liste ouvre désormais cette page. Cache PWA renouvelé."
+  "notes": "Retour accueil stabilisé : animation d'entrée de Bienvenue neutralisée après navigation, sans retrait des halos. Le flou de retour des pages est désormais un calque léger indépendant, sans filtre sur toute l'application. Cache PWA renouvelé."
 }
