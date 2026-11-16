@@ -29065,3 +29065,55 @@ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage){
   background:ButtonFace!important;border:1px solid ButtonText!important;box-shadow:none!important;
  }
 }
+
+/* V39.14 — Variante 2 : icônes sans pastille, immédiatement à gauche
+   du libellé, avec un contraste lisible mais discret. La même règle
+   s'applique aux boutons texte+icône de toutes les pages ; préserver
+   les chevrons de navigation et les boutons uniquement iconographiques. */
+html body :is(button,[role="button"]):has(> svg):not(:has(> .iu-home-icon-bubble)){
+ column-gap:8px;
+}
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage){
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ column-gap:9px!important;
+}
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) > .iu-home-action-icon{
+ display:inline-block!important;
+ flex:0 0 17px!important;
+ width:17px!important;
+ height:17px!important;
+ color:#65737e!important;
+ opacity:.88!important;
+ margin:0!important;
+}
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) > span:not(.iu-home-icon-bubble){
+ flex:0 1 auto!important;
+ min-width:0!important;
+}
+/* Harmoniser les pictogrammes d'action avec libellé, mais ne pas
+   transformer les croix, flèches et icônes seules en pastilles. */
+html body :is(.iu-page-inline-back,#iuSubpageBack,#focusPause,#focusStop,#pauseSession,#resumeSession,#fullExportBtn,#iuDashListButton) > svg:not(.iu-dash-list-chevron){
+ flex-shrink:0!important;
+ opacity:.86!important;
+}
+html body :is(#focusPause,#focusStop,#pauseSession,#resumeSession,#fullExportBtn) > svg{
+ order:-1!important;
+}
+html body #iuDashListButton > .iu-home-action-icon-warning{
+ opacity:.86!important;
+}
+@media(max-width:380px){
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage){
+  column-gap:7px!important;
+ }
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) > .iu-home-action-icon{
+  flex-basis:15px!important;width:15px!important;height:15px!important;
+ }
+}
+@media(forced-colors:active){
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) > .iu-home-action-icon{
+  color:ButtonText!important;opacity:1!important;
+ }
+}
