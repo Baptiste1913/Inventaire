@@ -1,7 +1,7 @@
 {
-  "version": "38.75",
+  "version": "38.76",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Première ouverture Alertes/Rappels et Événements : un animateur unique applique la même translation au bandeau Retour et au panneau durant 610ms. Les éléments sont préparés hors écran avant l'affichage, sans animations CSS ou WAAPI superposées. Bouton Retour interruptible et positions de défilement conservés ; autres pages inchangées. Cache PWA renouvelé."
+  "notes": "Bandeau Retour : arrondis identiques aux panneaux des pages (21px et 20px sur mobile), y compris en version compacte ; marge sous le bandeau réduite de 8px sur les quatre pages. Animations, hauteurs 70/55px, interactions et fonctionnalités inchangées. Cache PWA renouvelé."
 }
