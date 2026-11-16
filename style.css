@@ -29267,22 +29267,59 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
  }
 }
 
-/* V39.24 — Aperçu isolé du véritable accueil et flèche neumorphique. */
-.iu-edge-swipe-backdrop{position:fixed;inset:0;z-index:9990;pointer-events:none;overflow:hidden;background:#f3f6f7}
-.iu-edge-swipe-home{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;opacity:0;filter:blur(14px)}
-.iu-edge-swipe-arrow{
- position:absolute;top:50%;left:18px;
- display:flex;align-items:center;justify-content:center;
- width:62px;height:62px;border-radius:19px;
- background:linear-gradient(145deg,#fbfdfe,#e9eff3);
- border:1px solid rgba(183,199,207,.65);
- box-shadow:6px 7px 15px rgba(101,125,140,.17),-5px -5px 13px rgba(255,255,255,.92),inset 1px 1px 2px rgba(255,255,255,.85);
- opacity:.25;
+
+/* V39.25 — Retour interactif : aperçu réel, seule zone découverte
+   visible, trajectoire et relief du même langage que le bouton Retour. */
+.iu-edge-swipe-backdrop{
+ position:fixed;inset:0;z-index:9990;
+ overflow:hidden;pointer-events:none;
+ background:#f3f6f7;
+ clip-path:inset(0 100% 0 0);
+ -webkit-clip-path:inset(0 100% 0 0);
+ opacity:0;visibility:hidden;
+ contain:layout paint;
 }
-.iu-edge-swipe-arrow svg{width:32px;height:32px;fill:none;stroke:#657782;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+body.iu-edge-swiping .iu-edge-swipe-backdrop{
+ visibility:visible;opacity:1;
+}
+.iu-edge-swipe-home{
+ position:absolute;inset:0;
+ width:100%;height:100%;border:0;
+ pointer-events:none;opacity:.88;
+ filter:blur(7px);
+ transform:translateZ(0);
+}
+.iu-edge-swipe-arrow{
+ position:absolute;left:18px;top:50%;
+ display:flex;align-items:center;justify-content:center;
+ width:59px;height:52px;box-sizing:border-box;
+ border:1px solid rgba(255,255,255,.94);
+ border-radius:18px;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%);
+ box-shadow:-3px -3px 7px rgba(255,255,255,.92),4px 5px 11px rgba(156,173,189,.32),inset 1px 1px 0 rgba(255,255,255,.94);
+ color:#566c78;opacity:0;
+ transform:translate3d(9px,0,0) scale(.94);
+}
+.iu-edge-swipe-arrow svg{
+ width:26px;height:26px;fill:none;
+ stroke:currentColor;stroke-width:2.35;
+ stroke-linecap:round;stroke-linejoin:round;
+}
+.iu-edge-swipe-seam{
+ position:fixed;left:-24px;top:0;bottom:0;
+ width:25px;z-index:9991;pointer-events:none;opacity:0;
+ background:linear-gradient(to right,transparent,rgba(37,64,78,.12));
+}
 body.iu-edge-swiping #iuSubpageBar,
 body.iu-edge-swiping #planningAdminCard,
 body.iu-edge-swiping #accountCard,
 body.iu-edge-swiping #eventsPage,
 body.iu-edge-swiping #iuAlertsPage{will-change:translate}
-@media(prefers-reduced-motion:reduce){.iu-edge-swipe-home{filter:none!important}}
+@media(prefers-reduced-motion:reduce){
+ .iu-edge-swipe-home{filter:none!important}
+ .iu-edge-swipe-arrow,.iu-edge-swipe-seam{transition:none!important}
+}
+@media(forced-colors:active){
+ .iu-edge-swipe-arrow{background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important}
+ .iu-edge-swipe-seam{background:none!important}
+}
