@@ -29592,3 +29592,45 @@ html body .app > section.calc-card.card > .weigh-preferences{
   box-shadow:none!important;
  }
 }
+
+/* V39.44 — Finitions discrètes du panneau Réglages de la pesée.
+   On conserve le relief de l'accès Événements et tous les contrôles. */
+html body .app > section.calc-card.card > .weigh-preferences{
+ background-image:
+  radial-gradient(ellipse 75% 68% at 100% 0%,rgba(142,190,205,.13),transparent 85%),
+  linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+}
+html body .app > section.calc-card .weigh-preferences-head{
+ gap:4px 10px!important;
+}
+html body .app > section.calc-card .weigh-preferences-title{
+ color:#303d47!important;
+ letter-spacing:.035em!important;
+ font-weight:750!important;
+}
+html body .app > section.calc-card .weigh-preferences-subtitle{
+ color:#77848d!important;
+}
+html body .app > section.calc-card .weigh-preferences-mode{
+ border:1px solid rgba(207,220,228,.82)!important;
+ background:linear-gradient(145deg,#e9eff3,#edf2f5)!important;
+ box-shadow:inset 1px 2px 4px rgba(121,146,162,.11),inset -1px -1px 2px rgba(255,255,255,.85)!important;
+}
+html body .app > section.calc-card .weigh-preferences-mode .mode-slide-thumb{
+ border:1px solid rgba(255,255,255,.96)!important;
+ background:linear-gradient(145deg,#fff,#f4f8fa)!important;
+ box-shadow:0 3px 8px rgba(98,125,144,.15),inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts{
+ border-top-color:rgba(185,201,211,.45)!important;
+}
+html body .app > section.calc-card .weigh-preferences-alerts > .calc-alerts-summary{
+ color:#465b69!important;
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card.card > .weigh-preferences{background:Canvas!important}
+ html body .app > section.calc-card .weigh-preferences-mode,
+ html body .app > section.calc-card .weigh-preferences-mode .mode-slide-thumb{
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+}
