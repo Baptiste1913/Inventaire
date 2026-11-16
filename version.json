@@ -1,7 +1,7 @@
 {
-  "version": "38.80",
+  "version": "38.81",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Cadre extérieur Retour plus translucide (opacité du dégradé réduite, normal et compact) et marge inférieure augmentée de 4px sur les quatre pages. Contour blanc, flou, absence d'ombre extérieure, bouton Retour neumorphique et animations conservés. Cache PWA renouvelé."
+  "notes": "Suppression des ombres et du glow du bouton Retour intérieur. Le bouton conserve sa hauteur 34px, ses espacements, sa typographie et son icône à toutes les positions de défilement ; il se centre verticalement dans le bandeau qui seul se réduit de 70 à 55px. Cadre extérieur translucide, contours et animations de pages inchangés. Cache PWA renouvelé."
 }
