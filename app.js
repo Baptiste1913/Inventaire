@@ -1028,36 +1028,13 @@ const iuAdminPageMotion={
  homeScrollY:()=>iuSavedHomeScrollY
 };
 
-/* V39.28 — Capturer l'accueil REEL avant que la sous-page ne le masque :
-   pas de copie de cartes en mode secondaire, ni de vieux contenu. */
+/* V39.30 : mémorisation légère du défilement de l'accueil, sans iframe. */
 let iuEdgeHomeSnapshot=null;
 function iuEdgePrepareHome(){
- const home=document.querySelector('main.app')||document.querySelector('.app');
- if(!home)return;
- const copy=home.cloneNode(true);
- copy.querySelectorAll('script').forEach(node=>node.remove());
- ['eventsPage','iuAlertsPage'].forEach(id=>copy.querySelector('#'+id)?.remove());
- const escapeAttr=value=>String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
- const styles=[...document.querySelectorAll('link[rel="stylesheet"],style')]
-  .map(node=>node.outerHTML).join('');
- const base='<base href="'+escapeAttr(new URL('.',location.href).href)+'">';
- const scrollY=Math.max(0,window.scrollY||0,document.scrollingElement?.scrollTop||0,
-  document.documentElement?.scrollTop||0,document.body?.scrollTop||0);
- // Garder également un repère de carte visible si la hauteur de l'accueil
- // change durant la consultation de la sous-page.
- const anchor=[...home.children].find(node=>{
-  if(node.hidden)return false;
-  const r=node.getBoundingClientRect();
-  return r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;
- })||null;
- const anchorTop=anchor?.getBoundingClientRect().top??null;
- const doc='<!doctype html><html lang="fr" class="'+escapeAttr(document.documentElement.className)+'">'+
-  '<head><meta name="viewport" content="width=device-width,initial-scale=1">'+base+styles+
-  '<style>html,body{margin:0!important;height:100%!important;overflow:hidden!important;scroll-behavior:auto!important}'+
-  '::-webkit-scrollbar{display:none}button,a,input,select,textarea{pointer-events:none!important}</style>'+
-  '</head><body class="'+escapeAttr(document.body.className)+'">'+copy.outerHTML+'</body></html>';
- iuEdgeHomeSnapshot={doc,scrollY,anchor,anchorTop};
- window.dispatchEvent(new Event('iu-edge-home-prepared'));
+ const scroller=document.scrollingElement||document.documentElement;
+ const y=Math.max(0,window.scrollY||0,scroller?.scrollTop||0,document.body?.scrollTop||0);
+ iuSavedHomeScrollY=y;
+ iuEdgeHomeSnapshot={scrollY:y};
 }
 
 function iuOpenAdminPage(){
@@ -2523,9 +2500,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
 })();
 
 
-/* V39.28 — Retour de bord : véritable aperçu capturé AVANT ouverture,
-   aperçu préchargé, masque limité à la zone découverte, animation
-   de fin harmonisée avec Retour (courbe .16,.84,.24,1). */
+/* V39.30 : geste conservé, retour masqué par un fond opaque stylisé. */
 (function iuInstallEdgeSwipeBack(){
  const pages={
   'is-admin-mode':{selector:'#planningAdminCard',close:()=>iuCloseAdminPage(true)},
@@ -2534,324 +2509,115 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   'is-alerts-mode':{selector:'#iuAlertsPage',close:()=>iuCloseAlertsPage(true)}
  };
  const current=()=>Object.entries(pages).find(([mode])=>document.body.classList.contains(mode))?.[1];
- let gesture=null,layer=null,frame=null,arrow=null,seam=null,primeTimer=null;
- // Le moteur du bouton Retour fait monter les cartes de 14dvh avec
- // une cascade de 70ms et un easing .18,.82,.24,1. Le reproduire
- // dans l'aperçu, en pilotant manuellement la progression au doigt.
- let homeAnimations=[],homeTimeline=720,homeTileRefs=[];
- const updateHome=(progress)=>{
-  // À la fin du geste, conserver une partie du mouvement pour
-  // reprendre exactement sa trajectoire sur l'accueil réel.
-  const time=Math.max(0,Math.min(1,progress))*homeTimeline*.70;
-  for(const anim of homeAnimations){
-   try{anim.currentTime=time;}catch(_){}
-  }
- };
- const finishEase=t=>{
-  let low=0,high=1;
-  for(let i=0;i<12;i++){
-   const u=(low+high)/2,k=1-u;
-   const x=3*.16*k*k*u+3*.24*k*u*u+u*u*u;
-   if(x<t)low=u;else high=u;
-  }
-  const u=(low+high)/2,k=1-u;
-  return 3*.84*k*k*u+3*k*u*u+u*u*u;
- };
  const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- function restoreHomePosition(snapshot){
-  if(!snapshot)return;
-  const y=Math.max(0,snapshot.scrollY);
-  if(Math.abs(window.scrollY-y)>2)window.scrollTo({top:y,left:0,behavior:'instant'});
-  if(snapshot.anchor?.isConnected&&Number.isFinite(snapshot.anchorTop)){
-   const offset=snapshot.anchor.getBoundingClientRect().top-snapshot.anchorTop;
-   if(Math.abs(offset)>2)window.scrollTo({
-    top:Math.max(0,window.scrollY+offset),left:0,behavior:'instant'
-   });
-  }
- }
-
- function captureHomePose(){
-  const win=frame?.contentWindow;
-  if(!win)return [];
-  return homeTileRefs.map(({tile,id,index,welcome})=>{
-   const st=win.getComputedStyle(tile);
-   return {id,index,welcome,translate:st.translate||'none',opacity:st.opacity||'1'};
-  });
- }
- function animateLiveHome(poses){
-  if(reduced()||typeof Element.prototype.animate!=='function')return;
-  const app=document.querySelector('.app');
-  if(!app)return;
-  const children=[...app.children];
-  for(const [i,pose] of poses.entries()){
-   const target=(pose.id&&children.find(el=>el.id===pose.id))||children[pose.index];
-   if(!target||target.hidden)continue;
-   const style=getComputedStyle(target),rect=target.getBoundingClientRect();
-   if(style.display==='none'||rect.width===0||rect.bottom<=0||rect.top>=innerHeight)continue;
-   let origin=pose.translate;
-   if(!origin||origin==='none')origin=pose.welcome?'0 5px':'0 16px';
-   const animation=target.animate([
-    {translate:origin,opacity:pose.opacity},
-    {translate:'0 0',opacity:1}
-   ],{duration:pose.welcome?390:510,delay:i*18,
-       easing:'cubic-bezier(.18,.82,.24,1)',fill:'both'});
-   animation.finished.then(()=>animation.cancel(),()=>{});
-  }
- }
-
- function dispose(){
-  if(primeTimer!==null){clearTimeout(primeTimer);primeTimer=null;}
-  homeAnimations.forEach(anim=>{try{anim.cancel();}catch(_){}});
-  homeAnimations=[];
-  homeTileRefs=[];
-  homeTimeline=720;
-  layer?.remove();
-  layer=null;frame=null;arrow=null;seam=null;
- }
+ let g=null,veil=null,arrow=null,seam=null;
  function prepare(){
-  if(layer||!iuEdgeHomeSnapshot||!current())return;
-  const home=iuEdgeHomeSnapshot;
-  const surface=document.createElement('div');
-  surface.className='iu-edge-swipe-backdrop';
-  surface.setAttribute('aria-hidden','true');
-  const documentPreview=document.createElement('iframe');
-  documentPreview.className='iu-edge-swipe-home';
-  documentPreview.setAttribute('aria-hidden','true');
-  documentPreview.setAttribute('tabindex','-1');
-  documentPreview.setAttribute('sandbox','allow-same-origin');
-  documentPreview.setAttribute('loading','eager');
-  documentPreview.setAttribute('inert','');
-  documentPreview.addEventListener('load',()=>{
-   if(frame!==documentPreview)return;
-   try{
-    const win=documentPreview.contentWindow;
-    // Snapshot figé à la POSITION VERTICALE enregistrée, même si
-    // Safari bloque le scroll d'une iframe srcdoc sandboxée.
-    const lockPreviewPosition=()=>{
-     try{
-      win?.scrollTo(0,0);
-      const root=documentPreview.contentDocument?.querySelector('.app');
-      if(root){
-       root.style.setProperty('position','relative','important');
-       root.style.setProperty('top',(-home.scrollY)+'px','important');
-      }
-     }catch(_){}
-    };
-    lockPreviewPosition();
-    requestAnimationFrame(()=>{
-     if(frame!==documentPreview)return;
-     lockPreviewPosition();
-     requestAnimationFrame(()=>{
-      if(frame!==documentPreview||reduced())return;
-      try{
-       const doc=documentPreview.contentDocument;
-       const visible=node=>{
-        if(node.hidden)return false;
-        const computed=win.getComputedStyle(node),rect=node.getBoundingClientRect();
-        return computed.display!=='none'&&computed.visibility!=='hidden'&&
-         rect.width>0&&rect.height>0&&rect.bottom>0&&rect.top<win.innerHeight;
-       };
-       const tiles=[...doc.querySelectorAll('.app > .intro, .app > .card, .app > .inventory-calendar, .app > footer')]
-        .filter(visible)
-        .sort((x,y)=>x.getBoundingClientRect().top-y.getBoundingClientRect().top)
-        .slice(0,12);
-       homeAnimations.forEach(anim=>{try{anim.cancel();}catch(_){}});
-       homeAnimations=[];
-       homeTileRefs=[];
-       homeTimeline=720+Math.max(0,tiles.length-1)*70;
-       const children=[...doc.querySelector('.app').children];
-       for(const [i,tile] of tiles.entries()){
-        const welcome=tile.matches('.intro');
-        // Utiliser translate plutôt que transform : de nombreuses
-        // cartes imposent transform:none!important, ce qui annulait
-        // silencieusement l'animation précédente sur Safari.
-        const anim=tile.animate([
-         {translate:welcome?'0 10px':'0 14dvh',opacity:welcome?.95:1},
-         {translate:'0 0',opacity:1}
-        ],{duration:welcome?560:720,delay:i*70,easing:'cubic-bezier(.18,.82,.24,1)',fill:'both'});
-        anim.pause();
-        homeAnimations.push(anim);
-        homeTileRefs.push({tile,id:tile.id||'',index:children.indexOf(tile),welcome});
-       }
-       updateHome(gesture?.active?gesture.distance/Math.max(1,innerWidth):0);
-      }catch(error){console.warn('Animation de retour de l’accueil indisponible',error);}
-     });
-    });
-   }catch(_){}
-  },{once:true});
-  const cue=document.createElement('div');
-  cue.className='iu-edge-swipe-arrow';
-  cue.setAttribute('aria-hidden','true');
-  cue.innerHTML='<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>';
-  const edge=document.createElement('div');
-  edge.className='iu-edge-swipe-seam';
-  edge.setAttribute('aria-hidden','true');
-  surface.append(documentPreview,cue);
-  document.body.append(surface,edge);
-  documentPreview.srcdoc=home.doc;
-  layer=surface;frame=documentPreview;arrow=cue;seam=edge;
+  if(veil)return;
+  veil=document.createElement('div');veil.className='iu-edge-swipe-backdrop';
+  veil.setAttribute('aria-hidden','true');
+  veil.innerHTML='<div class="iu-edge-swipe-glow"></div><div class="iu-edge-swipe-arrow">'+
+   '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div>';
+  arrow=veil.querySelector('.iu-edge-swipe-arrow');
+  seam=document.createElement('div');seam.className='iu-edge-swipe-seam';
+  seam.setAttribute('aria-hidden','true');
+  document.body.append(veil,seam);
  }
- function paint(g,x,skipHome=false){
-  // Le mouvement suit le doigt mais le bord se cale sur un pixel CSS
-  // entier, évitant les contours flous et les déformations dans WebKit.
-  x=Math.round(Math.max(0,Math.min(Math.max(1,innerWidth),x)));
-  g.distance=x;
-  const p=x/Math.max(1,innerWidth);
-  for(const node of g.nodes)node.style.setProperty('translate',x.toFixed(2)+'px 0','important');
-  // La prévisualisation ne couvre QUE la partie réellement découverte :
-  // elle ne passe plus au-dessus du panneau ni du bandeau de la page.
-  const clip='inset(0 calc(100% - '+x.toFixed(2)+'px) 0 0)';
-  layer.style.clipPath=clip;
-  layer.style.webkitClipPath=clip;
-  frame.style.opacity=String(.88+.12*p);
-  // Flou initial renforcé : 16px au bord, puis baisse non linéaire
-  // vers zéro quand l'accueil retrouve toute sa place.
-  frame.style.filter=reduced()?'none':'blur('+(16*Math.pow(1-p,1.35)).toFixed(2)+'px)';
-  if(!skipHome)updateHome(p);
-  // 50 % d'opacité en moins pour l'indicateur, sans modifier le geste.
-  arrow.style.opacity=String(Math.min(.48,Math.max(0,(x-42)/208)));
-  arrow.style.transform='translate3d('+((1-p)*9).toFixed(2)+'px,0,0) scale('+(.94+.06*p).toFixed(3)+')';
-  seam.style.left=x.toFixed(0)+'px';
-  seam.style.opacity=String(Math.min(.85,Math.max(0,(x-8)/55)));
+ function draw(target,x){
+  x=Math.round(Math.max(0,Math.min(innerWidth,x)));
+  target.distance=x;
+  target.nodes.forEach(n=>n.style.setProperty('translate',x+'px 0','important'));
+  const mask='inset(0 calc(100% - '+x+'px) 0 0)';
+  veil.style.clipPath=mask;veil.style.webkitClipPath=mask;
+  arrow.style.opacity=String(Math.min(.48,Math.max(0,(x-30)/170)));
+  arrow.style.transform='translate3d('+Math.round(7*(1-x/Math.max(1,innerWidth)))+'px,0,0)';
+  seam.style.left=x+'px';seam.style.opacity=String(Math.min(.75,Math.max(0,(x-12)/65)));
  }
- function restore(){
-  const g=gesture;
-  gesture=null;
-  if(g){
-   if(g.raf)cancelAnimationFrame(g.raf);
-   if(g.homeRaf)cancelAnimationFrame(g.homeRaf);
-   if(g.timer!==null)clearTimeout(g.timer);
-   for(const node of g.nodes){
-    node.style.removeProperty('translate');
-    node.style.removeProperty('transition');
-   }
+ function cleanup(){
+  const old=g;g=null;
+  if(old){
+   if(old.raf)cancelAnimationFrame(old.raf);
+   if(old.timer!==null)clearTimeout(old.timer);
+   old.nodes.forEach(n=>{n.style.removeProperty('translate');n.style.removeProperty('transition');});
   }
-  updateHome(0);
   document.body.classList.remove('iu-edge-swiping');
-  if(layer){
-   layer.style.removeProperty('clip-path');
-   layer.style.removeProperty('-webkit-clip-path');
-   layer.style.removeProperty('transition');
-  }
-  if(frame){frame.style.removeProperty('transition');frame.style.removeProperty('filter');frame.style.removeProperty('opacity');}
-  if(arrow){arrow.style.removeProperty('transition');arrow.style.removeProperty('opacity');arrow.style.removeProperty('transform');}
-  if(seam){seam.style.removeProperty('transition');seam.style.removeProperty('left');seam.style.removeProperty('opacity');}
+  veil?.remove();seam?.remove();veil=null;seam=null;arrow=null;
  }
- function settle(success){
-  const g=gesture;
-  if(!g||g.settling)return;
-  if(!g.active){restore();return;}
-  g.settling=true;
-  if(g.raf){cancelAnimationFrame(g.raf);g.raf=0;paint(g,g.distance);}
-  const target=success?Math.max(1,innerWidth):0;
-  const duration=reduced()?0:Math.round(Math.min(440,Math.max(260,220+Math.abs(target-g.distance)/Math.max(1,innerWidth)*220)));
-  if(duration){
-   const transition=duration+'ms cubic-bezier(.16,.84,.24,1)';
-   for(const node of g.nodes)node.style.setProperty('transition','translate '+transition,'important');
-   layer.style.transition='clip-path '+transition;
-   frame.style.transition='opacity '+transition+',filter '+transition;
-   arrow.style.transition='opacity '+transition+',transform '+transition;
-   seam.style.transition='left '+transition+',opacity '+transition;
-   void g.nodes[0].getBoundingClientRect();
-   requestAnimationFrame(()=>{if(gesture===g)paint(g,target,true);});
-  }else paint(g,target,true);
-  // Le retour des cartes suit la même courbe de décélération que
-  // le bandeau et le panneau, même après le relâchement.
-  const from=g.distance/Math.max(1,innerWidth),to=success?1:0;
-  if(duration&&homeAnimations.length){
-   let started=null;
-   const animateHome=now=>{
-    if(gesture!==g)return;
-    if(started===null)started=now;
-    const t=Math.min(1,(now-started)/duration);
-    updateHome(from+(to-from)*finishEase(t));
-    if(t<1)g.homeRaf=requestAnimationFrame(animateHome);
-    else g.homeRaf=0;
-   };
-   g.homeRaf=requestAnimationFrame(animateHome);
-  }else updateHome(to);
-  g.timer=setTimeout(()=>{
-   if(gesture!==g)return;
-   if(!success){restore();return;}
-   // La vraie page d'accueil reprend exactement la position enregistrée
-   // avant l'ouverture ; le calque d'aperçu reste visible pendant le
-   // passage de relais, sans flash blanc ni seconde sortie.
-   const snapshot=iuEdgeHomeSnapshot;
-   const homePose=captureHomePose();
-   if(snapshot)iuSavedHomeScrollY=snapshot.scrollY;
+ function finish(success){
+  const target=g;if(!target||target.finishing)return;
+  if(!target.active){cleanup();return;}
+  target.finishing=true;
+  if(target.raf){cancelAnimationFrame(target.raf);target.raf=0;}
+  const end=success?innerWidth:0;
+  const ms=reduced()?0:Math.round(190+Math.abs(end-target.distance)/Math.max(1,innerWidth)*140);
+  if(ms){
+   const ease='cubic-bezier(.16,.84,.24,1)';
+   target.nodes.forEach(n=>n.style.setProperty('transition','translate '+ms+'ms '+ease,'important'));
+   veil.style.transition='clip-path '+ms+'ms '+ease;
+   seam.style.transition='left '+ms+'ms '+ease;
+   void target.nodes[0].getBoundingClientRect();
+   requestAnimationFrame(()=>{if(g===target)draw(target,end);});
+  }else draw(target,end);
+  target.timer=setTimeout(()=>{
+   if(g!==target)return;
+   if(!success){cleanup();return;}
+   const saved=iuEdgeHomeSnapshot?.scrollY;
+   if(Number.isFinite(saved))iuSavedHomeScrollY=saved;
    document.body.classList.add('iu-home-return-stable');
-   g.page.close();
-   for(const node of g.nodes){
-    node.style.removeProperty('translate');
-    node.style.removeProperty('transition');
-   }
+   target.page.close();
+   target.nodes.forEach(n=>{n.style.removeProperty('translate');n.style.removeProperty('transition');});
+   // Aucun aperçu n'est affiché : garder le voile devant la vraie page
+   // pendant que Safari restaure la position avant de la dévoiler.
+   veil.style.clipPath='none';veil.style.webkitClipPath='none';
+   seam.style.opacity='0';
+   const align=()=>{
+    const y=Math.max(0,iuSavedHomeScrollY);
+    if(Math.abs(window.scrollY-y)>2)window.scrollTo({top:y,left:0,behavior:'instant'});
+   };
+   align();
    requestAnimationFrame(()=>{
-    if(gesture!==g)return;
-    restoreHomePosition(snapshot);
-    // Le DOM réel reprend la pose exacte des cartes dans l'aperçu :
-    // on continue l'animation au lieu de la relancer depuis zéro.
-    animateLiveHome(homePose);
-    if(layer){
-     layer.style.transition='opacity 290ms cubic-bezier(.18,.82,.24,1)';
-     layer.style.opacity='0';
-    }
-    if(seam){seam.style.transition='opacity 170ms ease';seam.style.opacity='0';}
-    requestAnimationFrame(()=>{if(gesture===g)restoreHomePosition(snapshot);});
-    g.timer=setTimeout(()=>{
-     if(gesture!==g)return;
-     restoreHomePosition(snapshot);
-     restore();dispose();iuEdgeHomeSnapshot=null;
-    },560);
+    if(g!==target)return;
+    align();
+    veil.style.transition='opacity 220ms ease-out';
+    veil.style.opacity='0';
+    target.timer=setTimeout(()=>{
+     if(g!==target)return;
+     align();cleanup();iuEdgeHomeSnapshot=null;
+    },250);
    });
-  },duration+35);
+  },ms+25);
  }
- window.addEventListener('iu-edge-home-prepared',()=>{
-  dispose();
-  primeTimer=setTimeout(()=>{primeTimer=null;if(current()&&!gesture)prepare();},720);
- });
- new MutationObserver(()=>{
-  if(!current()&&!gesture){dispose();iuEdgeHomeSnapshot=null;}
- }).observe(document.body,{attributes:true,attributeFilter:['class']});
  document.addEventListener('touchstart',event=>{
-  if(gesture||focusMotionBusy||event.touches.length!==1||event.defaultPrevented)return;
+  if(g||focusMotionBusy||event.touches.length!==1||event.defaultPrevented)return;
   const touch=event.touches[0],page=current();
-  if(!page||touch.clientX>28||touch.clientX<0)return;
+  if(!page||touch.clientX<0||touch.clientX>28)return;
   const panel=document.querySelector(page.selector),bar=$('iuSubpageBar');
   if(!panel||!bar||bar.hidden)return;
-  prepare();
-  if(!layer)return;
-  gesture={page,nodes:[panel,bar],x:touch.clientX,y:touch.clientY,
-   lastX:touch.clientX,lastTime:performance.now(),velocity:0,
-   distance:0,active:false,settling:false,raf:0,homeRaf:0,timer:null};
+  g={page,nodes:[panel,bar],x:touch.clientX,y:touch.clientY,lastX:touch.clientX,
+   lastTime:performance.now(),velocity:0,distance:0,active:false,finishing:false,raf:0,timer:null};
  },{passive:true});
  document.addEventListener('touchmove',event=>{
-  const g=gesture;
-  if(!g||g.settling)return;
-  if(event.touches.length!==1){settle(false);return;}
-  const touch=event.touches[0],dx=touch.clientX-g.x,dy=touch.clientY-g.y;
-  if(!g.active){
-   if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){restore();return;}
+  const target=g;if(!target||target.finishing)return;
+  if(event.touches.length!==1){finish(false);return;}
+  const t=event.touches[0],dx=t.clientX-target.x,dy=t.clientY-target.y;
+  if(!target.active){
+   if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){cleanup();return;}
    if(dx<9||dx<Math.abs(dy)*1.3)return;
-   g.active=true;
-   document.body.classList.add('iu-edge-swiping');
+   target.active=true;prepare();document.body.classList.add('iu-edge-swiping');
   }
   if(event.cancelable)event.preventDefault();
-  const now=performance.now(),dt=Math.max(1,now-g.lastTime);
-  g.velocity=.4*g.velocity+.6*(touch.clientX-g.lastX)/dt;
-  g.lastX=touch.clientX;g.lastTime=now;
-  g.distance=Math.max(0,Math.min(innerWidth,dx));
-  if(!g.raf)g.raf=requestAnimationFrame(()=>{
-   g.raf=0;
-   if(gesture===g&&!g.settling)paint(g,g.distance);
+  const now=performance.now(),dt=Math.max(1,now-target.lastTime);
+  target.velocity=.4*target.velocity+.6*(t.clientX-target.lastX)/dt;
+  target.lastX=t.clientX;target.lastTime=now;
+  target.distance=Math.max(0,Math.min(innerWidth,dx));
+  if(!target.raf)target.raf=requestAnimationFrame(()=>{
+   target.raf=0;if(g===target&&!target.finishing)draw(target,target.distance);
   });
  },{passive:false});
  document.addEventListener('touchend',()=>{
-  const g=gesture;
-  if(!g)return;
-  if(!g.active){restore();return;}
-  const success=g.distance>innerWidth*.34||(g.distance>65&&g.velocity>.55);
-  settle(success);
+  const target=g;if(!target)return;
+  if(!target.active){cleanup();return;}
+  finish(target.distance>innerWidth*.34||(target.distance>65&&target.velocity>.55));
  },{passive:true});
- document.addEventListener('touchcancel',()=>{if(gesture)settle(false);},{passive:true});
- window.addEventListener('pagehide',()=>{restore();dispose();});
+ document.addEventListener('touchcancel',()=>{if(g)finish(false);},{passive:true});
+ window.addEventListener('pagehide',cleanup);
 })();
