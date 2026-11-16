@@ -1,7 +1,7 @@
 {
-  "version": "38.70",
+  "version": "38.71",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Entrée des pages autonomes : bandeau Retour et cartes remontent simultanément depuis le bas, le bandeau restant au premier plan et cliquable. Suppression de la capture View Transition qui bloquait les interactions ; un toucher pendant l'entrée interrompt l'animation et lance immédiatement le retour. Hauteurs, verre dépoli, scroll d'accueil, animation de sortie et mode Concentration préservés. Cache PWA renouvelé."
+  "notes": "Répare l'ouverture animée des pages Alertes et Événements : leurs panneaux sont animés même si le scroll d'accueil n'a pas encore été réinitialisé par Safari ; le bandeau Retour reste à 70px pendant son ascension. Corrige la spécificité CSS qui laissait le panneau Événements remonter sous le bandeau (96px d'espace réservé). Animations et retour instantané des quatre pages conservés ; cache PWA renouvelé."
 }
