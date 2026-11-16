@@ -1,7 +1,7 @@
 {
-  "version": "38.64",
+  "version": "38.65",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Barres colorées des cartes Alertes rendues parfaitement droites : traits de 3px à extrémités carrées, indépendants de la bordure arrondie et contenus dans les cadres. Traits des titres inchangés ; cache PWA renouvelé."
+  "notes": "Barre supérieure commune fixe avec bouton Retour sur les pages Admin, Mon compte, Événements et Alertes : hauteur 30px à l'ouverture, 20px après 88px de défilement et effet verre dépoli assorti au bloc Bienvenue. Anciens boutons intégrés masqués, cache PWA renouvelé."
 }
