@@ -1,7 +1,7 @@
 {
-  "version": "39.41",
+  "version": "39.42",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Le résultat de pesée adopte le verre translucide, le contour blanc, l'ombre douce et les trois halos du bloc Bienvenue, sans animation des lumières. Chiffres et bouton Copier restent lisibles ; calculs inchangés."
+  "notes": "Résultat de pesée : lumières légèrement plus intenses et flou fortement accru (62 px), sans animation. Calculs et mise en page inchangés."
 }
