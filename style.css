@@ -29458,3 +29458,110 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
   border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;
  }
 }
+
+/* V39.41 — Résultat de pesée : verre de Bienvenue, halos FIXES.
+   Aucun changement de taille, de données ou de comportement.
+   Les couleurs de texte sont adaptées au fond blanc translucide. */
+html body .app > section.calc-card .result{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:20px!important;
+ background:linear-gradient(122deg,
+  rgba(255,255,255,.54) 0%,
+  rgba(255,255,255,.64) 54%,
+  rgba(255,255,255,.54) 100%)!important;
+ background-color:rgba(255,255,255,.58)!important;
+ background-clip:border-box!important;
+ -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
+ backdrop-filter:blur(27px) saturate(109%)!important;
+ box-shadow:0 23px 30px -18px rgba(83,105,121,.112)!important;
+ color:#273740!important;
+}
+/* Même rappel rouge / bleu / vert que les lumières du Bienvenue.
+   Les lumières sont peintes sur un calque fixe ; aucune animation. */
+html body .app > section.calc-card .result::before{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:-28% -20% -30% -20%!important;
+ z-index:0!important;
+ pointer-events:none!important;
+ background:
+  radial-gradient(ellipse 38% 49% at 18% 42%,rgba(244,89,137,.45),transparent 84%),
+  radial-gradient(ellipse 40% 49% at 72% 22%,rgba(83,192,233,.37),transparent 85%),
+  radial-gradient(ellipse 38% 49% at 78% 85%,rgba(52,195,148,.38),transparent 86%)!important;
+ filter:blur(28px)!important;
+ -webkit-filter:blur(28px)!important;
+ opacity:.9!important;
+ animation:none!important;
+ transform:none!important;
+ transition:none!important;
+ will-change:auto!important;
+}
+html body .app > section.calc-card .result::after{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:0!important;
+ z-index:0!important;
+ pointer-events:none!important;
+ background:rgba(255,255,255,.18)!important;
+ opacity:1!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ animation:none!important;
+ transform:none!important;
+ transition:none!important;
+}
+html body .app > section.calc-card .result > :is(.result-heading,.net-line,.result-subtitle){
+ position:relative!important;
+ z-index:1!important;
+}
+html body .app > section.calc-card .result .result-heading > span,
+html body .app > section.calc-card .result .net-line strong{
+ color:#26343c!important;
+ -webkit-text-fill-color:#26343c!important;
+}
+html body .app > section.calc-card .result .net-line span{
+ color:#405360!important;
+}
+html body .app > section.calc-card .result .result-subtitle{
+ color:#73818a!important;
+ -webkit-text-fill-color:#73818a!important;
+}
+/* Le bouton Copier conserve ses dimensions et son rôle ; contraste
+   harmonisé avec la carte vitrée. */
+html body .app > section.calc-card .result .copy-btn{
+ color:#304b57!important;
+ border-color:rgba(255,255,255,.85)!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.89),rgba(238,244,247,.78))!important;
+}
+html body .app > section.calc-card .result .copy-btn:disabled{
+ opacity:.68!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html body .app > section.calc-card .result{
+  background:rgba(255,255,255,.97)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+ html body .app > section.calc-card .result::before{opacity:.22!important}
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card .result{
+  background:Canvas!important;color:CanvasText!important;
+  border:1px solid CanvasText!important;box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+ html body .app > section.calc-card .result::before,
+ html body .app > section.calc-card .result::after{display:none!important}
+ html body .app > section.calc-card .result .result-heading > span,
+ html body .app > section.calc-card .result .net-line strong,
+ html body .app > section.calc-card .result .net-line span,
+ html body .app > section.calc-card .result .result-subtitle{
+  color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;
+ }
+}
