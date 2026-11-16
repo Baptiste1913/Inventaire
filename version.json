@@ -1,7 +1,7 @@
 {
-  "version": "39.34",
+  "version": "39.35",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Icônes des quatre boutons d'accueil redessinées au trait, façon Lucide, plus contrastées et solidement alignées à gauche ; texte et flèches conservés."
+  "notes": "Retrait des quatre icônes des boutons de l'accueil, sans modifier les libellés, les flèches ou les fonctionnalités."
 }
