@@ -29387,3 +29387,40 @@ html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
  border-radius:14px!important;
 }
+
+/* V39.39 — Finitions du bloc Prochain inventaire sur l'accueil. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card{
+ border-radius:14px!important;
+ padding-top:13px!important;
+ padding-bottom:15px!important;
+}
+/* Le titre a la même taille que celui de la carte Administrateur. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-month-heading #eventsMonthHeading{
+ font-size:17px!important;
+ line-height:1.25!important;
+ letter-spacing:-.45px!important;
+}
+/* En-tête et compteur remontés ; date rapprochée sans translation visuelle. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card > .events-next-heading{
+ margin-top:0!important;
+ margin-bottom:5px!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card > #calendarNextDate{
+ margin-top:0!important;
+}
+/* Barre identique au rappel Noix : verticale, ambre, arrondie aux deux extrémités. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card::before{
+ content:""!important;
+ position:absolute!important;
+ left:12px!important;
+ top:50%!important;
+ bottom:auto!important;
+ width:4px!important;
+ height:40px!important;
+ border-radius:999px!important;
+ transform:translateY(-50%)!important;
+ background:#caa46b!important;
+ opacity:1!important;
+ box-shadow:none!important;
+ pointer-events:none!important;
+}
