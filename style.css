@@ -28122,3 +28122,61 @@ html body.is-account-mode .app > #accountCard.card .account-body button:is(#acco
   border:1px solid ButtonText!important;background:ButtonFace!important;color:ButtonText!important;box-shadow:none!important;
  }
 }
+
+/* V38.91 — Pastilles d'état de l'accueil et du tableau de bord :
+   relief discret V38.87, hauteur commune de 32px calée sur la pastille
+   Google « Connecté ». Préserver les couleurs de chaque statut. */
+html body:not(.is-focus-mode) :is(
+ #accountSummaryStatus.account-summary-status,
+ #dashboardCloudPill.dashboard-cloud-pill,
+ #sessionBadge.session-pill,
+ #historyCount.session-pill,
+ #sessionsCount.session-pill,
+ #basketCount.session-pill,
+ #calendarNextCountdown.events-countdown,
+ #eventsFeatureState.iu-events-feature-state,
+ #eventsFeatureCountdown.iu-events-feature-countdown,
+ #heroStatus.intro-session-state
+){
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ min-height:32px!important;
+ height:32px!important;
+ max-height:32px!important;
+ padding-top:0!important;
+ padding-bottom:0!important;
+ border-radius:999px!important;
+ line-height:1.2!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status.is-connected{
+ min-height:32px!important;
+ height:32px!important;
+ max-height:32px!important;
+}
+html body:not(.is-focus-mode) :is(
+ #accountSummaryStatus.account-summary-status,
+ #dashboardCloudPill.dashboard-cloud-pill,
+ #sessionBadge.session-pill,
+ #historyCount.session-pill,
+ #sessionsCount.session-pill,
+ #basketCount.session-pill,
+ #calendarNextCountdown.events-countdown,
+ #eventsFeatureState.iu-events-feature-state,
+ #eventsFeatureCountdown.iu-events-feature-countdown,
+ #heroStatus.intro-session-state
+)[hidden]{display:none!important}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) :is(
+  #accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,
+  #sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,
+  #eventsFeatureCountdown,#heroStatus
+ ){box-shadow:none!important}
+}
