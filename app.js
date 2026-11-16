@@ -550,7 +550,7 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.removeAttribute('id');
   clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
   clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
-  // V38.71 — Si la page a été défilée, sa carte dépasse le viewport.
+  // V38.72 — Si la page a été défilée, sa carte dépasse le viewport.
   // Animer directement toute la copie faisait entrer à l'écran les éléments
   // situés AU-DESSUS de la zone visible au fur et à mesure de la descente.
   // La copie reste à ses coordonnées originelles mais est enfermée dans
@@ -720,7 +720,7 @@ function exitFocusWithoutSnapshot(action,config={}){
    Utiliser exactement les groupes iu-normal-N, iu-focus-N et la surface
    opaque iu-focus-surface, déjà éprouvés dans le mode Concentration.
    Aucun clone du DOM, aucune copie des photos ni des SVG. */
-/* V38.71 — Entrée native des pages autonomes.
+/* V38.72 — Entrée native des pages autonomes.
    Le bandeau Retour et la page sont de VRAIS éléments animés ; éviter
    la couche ::view-transition du navigateur qui capturait le bandeau,
    interceptait le premier toucher et retardait les demandes de fermeture. */
@@ -742,7 +742,7 @@ function iuAnimateStandalonePage(action,entering,config){
   focusMotionBusy=false;
   throw error;
  }
- // V38.71 : un conteneur de page court (Alertes/Événements) pouvait
+ // V38.72 : un conteneur de page court (Alertes/Événements) pouvait
  // paraître hors écran sur Safari, car la mise à jour du scrollY liée au
  // changement de page n'était pas encore reflétée dans getBoundingClientRect.
  // Contrôler la visibilité CSS, PAS l'intersection avec le viewport :
@@ -771,18 +771,34 @@ function iuAnimateStandalonePage(action,entering,config){
  };
  const cancelEntry=()=>finish();
  iuCancelStandaloneEntry=cancelEntry;
- // Même distance, courbe et durée que iu65-rise ; le bandeau est hors
- // du parent de la page afin de rester devant elle durant toute l'entrée.
- const options={duration:610,easing:'cubic-bezier(.16,.84,.24,1)',fill:'both'};
- for(const el of parts){
-  try{
-   anims.push(el.animate([
-    {translate:'0 105dvh',opacity:1},
-    {translate:'0 0',opacity:1}
-   ],options));
-  }catch(error){
-   // En cas de navigateur ne gérant pas translate, montrer le contenu
-   // immédiatement plutôt que laisser une fenêtre ou un bouton bloqué.
+ // V38.72 — Alertes et Événements disposent de deux surfaces sœurs :
+ // une barre FIXE sur body et un panneau DANS le document. Des appels
+ // séparés à el.animate() pouvaient être rendus une frame à part sur Safari,
+ // leur donnant l'air de se détacher l'un de l'autre durant l'ascension.
+ // Une seule activation de keyframes CSS, dans la même mise en page,
+ // fournit exactement le même démarrage et le même avancement aux deux.
+ const linked= config.modeClass==='is-alerts-mode'||config.modeClass==='is-events-mode';
+ if(linked){
+  // Lire le style des deux surfaces après le changement de classe pour
+  // initialiser leurs animations CSS dans la même frame.
+  parts.forEach(el=>getComputedStyle(el).animationName);
+  const linkedAnims=parts.map(el=>
+   [...el.getAnimations({subtree:false})].find(anim=>anim.animationName==='iu72-linked-rise')
+  );
+  if(linkedAnims.every(Boolean))anims.push(...linkedAnims);
+ }
+ if(!anims.length){
+  // Repli WAAPI (et comportement antérieur inchangé pour Admin/Compte).
+  const options={duration:610,easing:'cubic-bezier(.16,.84,.24,1)',fill:'both'};
+  for(const el of parts){
+   try{
+    anims.push(el.animate([
+     {translate:'0 105dvh',opacity:1},
+     {translate:'0 0',opacity:1}
+    ],options));
+   }catch(error){
+    // Sans prise en charge des animations, la page reste utilisable.
+   }
   }
  }
  if(anims.length)Promise.all(anims.map(anim=>anim.finished.catch(()=>{}))).then(finish,finish);
