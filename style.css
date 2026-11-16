@@ -28395,3 +28395,118 @@ html body #iuUpdateOverlay > .iu-update-screen > .iu-update-logo{
  position:relative!important;
  top:-12px!important;
 }
+
+/* V39.04 — Page Rappels/Alertes : relief identique aux cadres et
+   boutons des autres sous-pages (V38.87–89). Le panneau principal
+   et la barre Retour possèdent déjà le grand relief V38.78 :
+   ne pas doubler leurs ombres. Conserver tailles, grilles,
+   code couleur métier, barres verticales et liens externes. */
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+ .iu-alerts-overview-item,
+ .iu-alerts-group,
+ a.iu-dash-alert,
+ .iu-dash-caution
+){
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+/* Teintes douces conservées pour reconnaître le marché et les rappels. */
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-overview-supply{
+ background:linear-gradient(145deg,#fff 0%,#fffbf5 40%,#f1eae0 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-overview-recall{
+ background:linear-gradient(145deg,#fff 0%,#fffafa 40%,#f2e8e9 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-supply-group{
+ background:linear-gradient(145deg,#fff 0%,#fdfbf8 40%,#f0ebe4 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-recall-group{
+ background:linear-gradient(145deg,#fff 0%,#fdfafa 40%,#f0e9e9 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page a.iu-dash-alert-supply{
+ background:linear-gradient(145deg,#fff 0%,#fffcf8 40%,#f0ebe5 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page a.iu-dash-alert-price{
+ background:linear-gradient(145deg,#fff 0%,#f9fcfe 40%,#e8eff3 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page a.iu-dash-alert-recall{
+ background:linear-gradient(145deg,#fff 0%,#fffbfb 40%,#f1e7e9 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page a.iu-dash-alert{
+ border-left-color:#dfe4e8!important;
+ transition:background .22s ease,box-shadow .22s ease,border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-dash-caution{
+ background:linear-gradient(145deg,#fffdfa,#fff9f5 40%,#f5eee9 100%)!important;
+ color:#876e60!important;
+}
+/* Filtres, tri et bouton Retour intérieur : même dégradé et même
+   ombre légère que les commandes d'administration, à taille constante. */
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+ .iu-alerts-filter-buttons > button,
+ .iu-alerts-sort select,
+ .iu-alerts-page-nav > #iuAlertsReturn.iu-page-inline-back
+){
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:clamp(8px,1em,12px)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+ transition:box-shadow .22s ease,background .22s ease,border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-filter-buttons > button[aria-pressed="true"]{
+ color:#344956!important;
+ border-color:rgba(224,239,247,.96)!important;
+ background:linear-gradient(145deg,#fff 0%,#eef5f8 40%,#dae9f0 100%)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+ .iu-alerts-filter-buttons > button:not(:disabled),
+ .iu-alerts-page-nav > #iuAlertsReturn:not(:disabled).iu-page-inline-back,
+ a.iu-dash-alert
+):active,
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-sort select:active{
+ border-color:#d1d9df!important;
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+ box-shadow:
+  inset 1px 1.5px 3px rgba(150,166,181,.12),
+  inset -1px -1px 2.5px rgba(255,255,255,.48),
+  .5px .5px 1.5px rgba(156,173,189,.06)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+/* Les pastilles de type restent compactes et colorées. */
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-dash-alert-type{
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.70),0 1px 3px rgba(105,118,129,.065)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+  .iu-alerts-filter-buttons > button,.iu-alerts-sort select,
+  .iu-alerts-page-nav > #iuAlertsReturn.iu-page-inline-back,a.iu-dash-alert
+ ){transition:none!important;transform:none!important}
+}
+@media(forced-colors:active){
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+  .iu-alerts-overview-item,.iu-alerts-group,a.iu-dash-alert,.iu-dash-caution,
+  .iu-alerts-filter-buttons > button,.iu-alerts-sort select,
+  .iu-alerts-page-nav > #iuAlertsReturn.iu-page-inline-back
+ ){
+  border:1px solid CanvasText!important;background:Canvas!important;
+  box-shadow:none!important;color:CanvasText!important;
+ }
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-dash-alert-type{
+  box-shadow:none!important;
+ }
+}
