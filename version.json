@@ -1,7 +1,7 @@
 {
-  "version": "38.61",
+  "version": "38.62",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Page Alertes : barres colorées des cartes sur toute la hauteur et élargies de 2 à 3px, extrémités droites. Trait d’Approvisionnement général élargi de 2 à 4px avec arrondi haut/bas ; autre titre inchangé. Cache PWA renouvelé."
+  "notes": "Correction des barres verticales des cartes Alertes : désormais recadrées dans les coins arrondis et décalées d’1 px à l’intérieur de leur contour. Barre du titre Rappels produits épaissie de 2 à 4 px avec extrémités arrondies ; cache PWA renouvelé."
 }
