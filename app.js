@@ -550,7 +550,7 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.removeAttribute('id');
   clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
   clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
-  // V38.70 — Si la page a été défilée, sa carte dépasse le viewport.
+  // V38.71 — Si la page a été défilée, sa carte dépasse le viewport.
   // Animer directement toute la copie faisait entrer à l'écran les éléments
   // situés AU-DESSUS de la zone visible au fur et à mesure de la descente.
   // La copie reste à ses coordonnées originelles mais est enfermée dans
@@ -720,7 +720,7 @@ function exitFocusWithoutSnapshot(action,config={}){
    Utiliser exactement les groupes iu-normal-N, iu-focus-N et la surface
    opaque iu-focus-surface, déjà éprouvés dans le mode Concentration.
    Aucun clone du DOM, aucune copie des photos ni des SVG. */
-/* V38.70 — Entrée native des pages autonomes.
+/* V38.71 — Entrée native des pages autonomes.
    Le bandeau Retour et la page sont de VRAIS éléments animés ; éviter
    la couche ::view-transition du navigateur qui capturait le bandeau,
    interceptait le premier toucher et retardait les demandes de fermeture. */
@@ -730,17 +730,29 @@ function iuAnimateStandalonePage(action,entering,config){
  // Le moteur de retour vers l'accueil est conservé tel quel.
  if(!entering){action();return;}
  focusMotionBusy=true;
+ // Éviter que le scroll conservé de l'accueil fasse apparaître le bandeau
+ // directement en mode compact durant les premières images de l'entrée.
+ document.body.classList.add('iu-subpage-entering');
  try{
   action();
-  // Ne pas attendre le MutationObserver/rAF : le bouton doit exister et
-  // être cliquable dès la première frame de la page entrante.
+  // Le bouton est monté immédiatement, avant de commencer à animer la page.
   window.IUSyncSubpageBar?.();
  }catch(error){
+  document.body.classList.remove('iu-subpage-entering');
   focusMotionBusy=false;
   throw error;
  }
+ // V38.71 : un conteneur de page court (Alertes/Événements) pouvait
+ // paraître hors écran sur Safari, car la mise à jour du scrollY liée au
+ // changement de page n'était pas encore reflétée dans getBoundingClientRect.
+ // Contrôler la visibilité CSS, PAS l'intersection avec le viewport :
+ // la page ET le bandeau montent alors à chaque ouverture.
  const pageSurfaces=[...document.querySelectorAll(config.viewSelectors||focusViewSelectors)]
-  .filter(focusVisible);
+  .filter(el=>{
+   if(el.hidden)return false;
+   const computed=getComputedStyle(el);
+   return computed.display!=='none'&&computed.visibility!=='hidden';
+  });
  const bar=$('iuSubpageBar');
  const parts=bar&&!bar.hidden?[bar,...pageSurfaces]:pageSurfaces;
  const anims=[];
@@ -749,8 +761,10 @@ function iuAnimateStandalonePage(action,entering,config){
   if(settled)return;
   settled=true;
   anims.forEach(anim=>anim.cancel());
+  document.body.classList.remove('iu-subpage-entering');
   if(iuCancelStandaloneEntry===cancelEntry)iuCancelStandaloneEntry=null;
   focusMotionBusy=false;
+  window.IUSyncSubpageBar?.();
   const pending=focusPendingTask;
   focusPendingTask=null;
   if(pending)requestAnimationFrame(pending);
@@ -2311,8 +2325,13 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    return;
   }
   bar.hidden=false;
-  // Page naturellement défilable : tenir compte de scrollY et du scroller
-  // du document. Le seuil évite de réduire le bandeau au moindre mouvement.
+  // Pendant l'entrée, garder le bandeau dans son état initial 70px.
+  // Le scroll peut encore indiquer celui de l'accueil pendant une frame
+  // sur Safari et provoquait une contraction à 55px au mauvais moment.
+  if(document.body.classList.contains('iu-subpage-entering')){
+   bar.dataset.compact='false';
+   return;
+  }
   const y=Math.max(window.scrollY||0,document.scrollingElement?.scrollTop||0);
   bar.dataset.compact=y>=88?'true':'false';
  }
