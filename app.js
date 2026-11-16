@@ -2247,3 +2247,44 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   },{passive:false});
   document.addEventListener('touchcancel',()=>{tracking=null;lastTapTime=0;},{passive:true});
 })();
+
+
+/* V38.65 — Barre commune à toutes les pages secondaires.
+   Sortie unique vers les fonctions de navigation existantes ;
+   position fixe au-dessus de la page (pas de parent transformé sur Safari). */
+(function setupSubpageBar(){
+ const bar=$('iuSubpageBar'), back=$('iuSubpageBack');
+ if(!bar||!back)return;
+ const modes=['is-admin-mode','is-account-mode','is-events-mode','is-alerts-mode'];
+ let pending=false;
+ function active(){return modes.some(mode=>document.body.classList.contains(mode));}
+ function refresh(){
+  pending=false;
+  if(!active()){
+   bar.hidden=true;
+   bar.dataset.compact='false';
+   return;
+  }
+  bar.hidden=false;
+  // Page naturellement défilable : tenir compte de scrollY et du scroller
+  // du document. Le seuil évite de réduire le bandeau au moindre mouvement.
+  const y=Math.max(window.scrollY||0,document.scrollingElement?.scrollTop||0);
+  bar.dataset.compact=y>=88?'true':'false';
+ }
+ function schedule(){
+  if(pending)return;
+  pending=true;
+  requestAnimationFrame(refresh);
+ }
+ back.addEventListener('click',()=>{
+  if(document.body.classList.contains('is-admin-mode'))iuCloseAdminPage();
+  else if(document.body.classList.contains('is-account-mode'))iuCloseAccountPage();
+  else if(document.body.classList.contains('is-events-mode'))iuCloseEventsPage();
+  else if(document.body.classList.contains('is-alerts-mode'))iuCloseAlertsPage();
+ });
+ window.addEventListener('scroll',schedule,{passive:true});
+ // Les scrolls internes éventuels de Safari sont également observés.
+ document.addEventListener('scroll',schedule,true);
+ new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
+ refresh();
+})();
