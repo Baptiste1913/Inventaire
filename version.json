@@ -1,7 +1,7 @@
 {
-  "version": "39.39",
+  "version": "39.40",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Accueil Planification : rayon 14px sur Prochain inventaire, titre réduit à 17px, contenu du cadre remonté, barre ambre verticale arrondie comme dans les rappels."
+  "notes": "Suppression de la barre colorée du prochain inventaire, remontée de la date, reproduction exacte du fond/bordure/relief du bouton Accéder aux événements et retrait du sous-titre de Ma session."
 }
