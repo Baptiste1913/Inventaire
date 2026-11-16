@@ -1,7 +1,7 @@
 {
-  "version": "38.82",
+  "version": "38.83",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Le bouton Retour adopte le retour tactile du bouton Accéder aux réglages : enfoncement léger de 1px, échelle .992, dégradé et ombre intérieure momentanée à l'appui, puis relâchement animé. Pas d'ombre permanente ni de changement de taille au défilement ; mode mouvement réduit respecté. Cache PWA renouvelé."
+  "notes": "Le bouton Accéder aux réglages reprend exactement le visuel du cadre Espace administrateur : bordure blanche translucide, rayon 20px, dégradé 145° et cinq ombres neumorphiques. Dimensions, typographie et animation de pression conservées. Cache PWA actualisé."
 }
