@@ -1,7 +1,7 @@
 {
-  "version": "38.86",
+  "version": "38.87",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Tous les boutons de la page Administrateur reçoivent désormais le style complet d'Accéder aux réglages : bordure blanche, dégradé 145°, coins 20px, cinq ombres et animation de pression, sans modifier leur géométrie. Le bouton Effacer adopte une variante rouge pâle avec relief et pression assortis. Cache PWA renouvelé."
+  "notes": "Réduction de moitié de l'intensité et de la portée des ombres/glow des boutons de la page Administrateur, y compris la variante rouge Effacer et l'effet au clic. Coins adaptatifs de 8 à 12px pour les petits boutons, sans modifier leurs dimensions, couleurs ou fonctions. Cache PWA renouvelé."
 }
