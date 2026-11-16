@@ -28388,3 +28388,10 @@ html body #iuUpdateOverlay > .iu-update-screen > .iu-update-progress-block > .iu
 html body #iuUpdateOverlay > .iu-update-screen > .iu-update-progress-block > #iuUpdateProgress{
  margin:0!important;
 }
+
+/* V39.03 — Restaurer la position haute du logo de mise à jour,
+   indépendamment du texte de statut et de sa barre désormais rapprochés. */
+html body #iuUpdateOverlay > .iu-update-screen > .iu-update-logo{
+ position:relative!important;
+ top:-12px!important;
+}
