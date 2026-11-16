@@ -29921,3 +29921,59 @@ html body .app > section.calc-card.card .calc-equation{
   outline:2px solid Highlight!important;outline-offset:2px!important;
  }
 }
+
+/* V39.49 — Ajustements ciblés : aucune ombre ni halo sur Nouvelle
+   pesée, champ d'alerte pleine largeur et coche centrée. */
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn,
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn:is(:hover,:active,:focus,:focus-visible):not(:disabled),
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn:disabled{
+ box-shadow:none!important;
+ filter:none!important;
+ text-shadow:none!important;
+}
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn::before,
+html body .app > section.calc-card.card #resetBtn.new-weigh-btn::after{
+ box-shadow:none!important;
+ filter:none!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > #maxGrossLimit{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:calc(100% - 4px)!important;
+ max-width:none!important;
+ min-width:0!important;
+ margin-left:2px!important;
+ margin-right:2px!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > .duplicate-toggle{
+ align-items:center!important;
+}
+html body .app > section.calc-card.card #weighSettings .duplicate-toggle #confirmDuplicates{
+ align-self:center!important;
+ margin:0!important;
+ flex:0 0 20px!important;
+ border-radius:6px!important;
+ accent-color:#526c78!important;
+ box-shadow:0 2px 5px rgba(70,91,103,.12),0 0 0 1px rgba(255,255,255,.45)!important;
+ transition:box-shadow .2s ease,transform .18s ease!important;
+}
+html body .app > section.calc-card.card #weighSettings .duplicate-toggle #confirmDuplicates:focus-visible{
+ outline:2px solid #718b99!important;
+ outline-offset:3px!important;
+}
+html body .app > section.calc-card.card #weighSettings .duplicate-toggle #confirmDuplicates:active{
+ transform:scale(.94)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app > section.calc-card.card #weighSettings .duplicate-toggle #confirmDuplicates{
+  transition:none!important;
+ }
+ html body .app > section.calc-card.card #weighSettings .duplicate-toggle #confirmDuplicates:active{
+  transform:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card.card #weighSettings .duplicate-toggle #confirmDuplicates{
+  box-shadow:none!important;
+ }
+}
