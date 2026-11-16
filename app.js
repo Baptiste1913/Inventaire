@@ -550,7 +550,7 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.removeAttribute('id');
   clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
   clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
-  // V38.74 — Si la page a été défilée, sa carte dépasse le viewport.
+  // V38.75 — Si la page a été défilée, sa carte dépasse le viewport.
   // Animer directement toute la copie faisait entrer à l'écran les éléments
   // situés AU-DESSUS de la zone visible au fur et à mesure de la descente.
   // La copie reste à ses coordonnées originelles mais est enfermée dans
@@ -720,12 +720,86 @@ function exitFocusWithoutSnapshot(action,config={}){
    Utiliser exactement les groupes iu-normal-N, iu-focus-N et la surface
    opaque iu-focus-surface, déjà éprouvés dans le mode Concentration.
    Aucun clone du DOM, aucune copie des photos ni des SVG. */
-/* V38.74 — Entrée native des pages autonomes.
+/* V38.75 — Entrée native des pages autonomes.
    Le bandeau Retour et la page sont de VRAIS éléments animés ; éviter
    la couche ::view-transition du navigateur qui capturait le bandeau,
    interceptait le premier toucher et retardait les demandes de fermeture. */
 let iuCancelStandaloneEntry=null;
+
+/* V38.75 — Entrée couplée Alertes/Événements : un seul animateur pour les
+   deux surfaces, y compris à leur première apparition sur Safari. */
+function iuAnimateCoupledSubpage(action,config){
+ const bar=$('iuSubpageBar'),panel=document.querySelector(config.viewSelectors);
+ if(!bar||!panel){action();return;}
+ focusMotionBusy=true;
+ const parts=[bar,panel];
+ let frame=0,timer=null,ended=false;
+ // Avant d'enlever hidden, fixer les DEUX éléments en dehors de la vue.
+ const initialY=Math.ceil(Math.max(window.innerHeight||0,document.documentElement.clientHeight||0,600)*1.05);
+ const move=y=>{
+  const value='0 '+Math.max(0,y).toFixed(2)+'px';
+  parts.forEach(el=>el.style.setProperty('translate',value,'important'));
+ };
+ const ease=t=>{
+  // Équivalent calculé de cubic-bezier(.16,.84,.24,1).
+  let low=0,high=1;
+  for(let i=0;i<13;i++){
+   const u=(low+high)/2,k=1-u;
+   const x=3*.16*k*k*u+3*.24*k*u*u+u*u*u;
+   if(x<t)low=u;else high=u;
+  }
+  const u=(low+high)/2,k=1-u;
+  return 3*.84*k*k*u+3*k*u*u+u*u*u;
+ };
+ const finish=()=>{
+  if(ended)return;
+  ended=true;
+  cancelAnimationFrame(frame);
+  if(timer!==null)clearTimeout(timer);
+  move(0);
+  document.body.classList.remove('iu-coupled-rise','iu-subpage-entering','iu-alerts-rise-running');
+  parts.forEach(el=>el.style.removeProperty('translate'));
+  if(iuCancelStandaloneEntry===finish)iuCancelStandaloneEntry=null;
+  focusMotionBusy=false;
+  window.IUSyncSubpageBar?.();
+  const pending=focusPendingTask;focusPendingTask=null;
+  if(pending)requestAnimationFrame(pending);
+ };
+ iuCancelStandaloneEntry=finish;
+ move(initialY);
+ document.body.classList.add('iu-subpage-entering','iu-coupled-rise');
+ try{
+  action();
+  window.IUSyncSubpageBar?.();
+  // Forcer le premier calcul réel des styles après retrait de hidden.
+  void bar.getBoundingClientRect();
+  void panel.getBoundingClientRect();
+ }catch(error){finish();throw error;}
+ // Deux rendus pour initialiser l'état masqué sans départ anticipé.
+ frame=requestAnimationFrame(()=>{
+  if(ended)return;
+  frame=requestAnimationFrame(()=>{
+   if(ended)return;
+   let start=null;
+   const tick=now=>{
+    if(ended)return;
+    if(start===null)start=now;
+    const t=Math.min(1,Math.max(0,(now-start)/610));
+    move(initialY*(1-ease(t)));
+    if(t>=1)finish();
+    else frame=requestAnimationFrame(tick);
+   };
+   frame=requestAnimationFrame(tick);
+  });
+ });
+ // Empêcher un verrouillage d'interface si Safari suspend rAF.
+ timer=setTimeout(finish,1250);
+}
 function iuAnimateStandalonePage(action,entering,config){
+ if(entering&&(config.modeClass==='is-alerts-mode'||config.modeClass==='is-events-mode')){
+  iuAnimateCoupledSubpage(action,config);
+  return;
+ }
  // Cette fonction n'est appelée que pour l'ouverture autonome.
  // Le moteur de retour vers l'accueil est conservé tel quel.
  if(!entering){action();return;}
@@ -742,7 +816,7 @@ function iuAnimateStandalonePage(action,entering,config){
   focusMotionBusy=false;
   throw error;
  }
- // V38.74 : un conteneur de page court (Alertes/Événements) pouvait
+ // V38.75 : un conteneur de page court (Alertes/Événements) pouvait
  // paraître hors écran sur Safari, car la mise à jour du scrollY liée au
  // changement de page n'était pas encore reflétée dans getBoundingClientRect.
  // Contrôler la visibilité CSS, PAS l'intersection avec le viewport :
@@ -778,7 +852,7 @@ function iuAnimateStandalonePage(action,entering,config){
  };
  const cancelEntry=()=>finish();
  iuCancelStandaloneEntry=cancelEntry;
- // V38.74 — Spécifique à Alertes : Safari peut créer le CSSAnimation
+ // V38.75 — Spécifique à Alertes : Safari peut créer le CSSAnimation
  // du bandeau une frame avant celui du panneau. Le contrôle immédiat
  // getAnimations() renvoyait alors un seul joueur et déclenchait le repli
  // WAAPI *sur les deux*, alors que leur animation CSS était déjà en cours.
@@ -786,7 +860,7 @@ function iuAnimateStandalonePage(action,entering,config){
  // Garder une unique animation CSS pour les deux surfaces : aucun repli
  // JavaScript superposé. Le comportement Événements validé est inchangé.
  if(config.modeClass==='is-alerts-mode'&&bar&&!bar.hidden){
-  // V38.74 — Première ouverture : #iuAlertsPage passe de hidden à visible
+  // V38.75 — Première ouverture : #iuAlertsPage passe de hidden à visible
   // dans la même task que la pose de is-alerts-mode. Sur Safari, déclencher
   // immédiatement l'animation CSS peut faire démarrer le bandeau avant
   // le panneau. Celui-ci doit avoir une vraie mise en page avant l'animation.
@@ -815,7 +889,7 @@ function iuAnimateStandalonePage(action,entering,config){
    return;
   }
  }
- // V38.74 — Événements : conserve son synchronisme déjà validé.
+ // V38.75 — Événements : conserve son synchronisme déjà validé.
  const linked= config.modeClass==='is-events-mode';
  if(linked){
   // Lire le style des deux surfaces après le changement de classe pour
