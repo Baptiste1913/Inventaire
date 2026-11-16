@@ -28985,3 +28985,42 @@ html body #eventsOpenPage .iu-home-action-icon{
 @media(max-width:380px){
  html body .iu-home-action-icon{width:13px!important;height:13px!important}
 }
+
+/* V39.12 — Remplacer le calendrier par la cloche fournie,
+   ajouter l'avertissement sur le bouton Rappels de Bienvenue.
+   Traits plus contrastés mais doux sur les cinq icônes. */
+html body .iu-home-action-icon{
+ width:16px!important;
+ height:16px!important;
+ opacity:.92!important;
+ color:#64717b!important;
+}
+html body .iu-home-action-icon-bell,
+html body .iu-home-action-icon-warning{
+ fill:none!important;
+ stroke:currentColor!important;
+ stroke-width:2.35!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+}
+html body #iuDashListButton{
+ column-gap:8px!important;
+}
+html body #iuDashListButton .iu-home-action-icon-warning{
+ display:inline-block!important;
+ flex:0 0 16px!important;
+ width:16px!important;
+ height:16px!important;
+ margin:0!important;
+ opacity:.9!important;
+ pointer-events:none!important;
+}
+@media(max-width:380px){
+ html body .iu-home-action-icon{width:14px!important;height:14px!important}
+ html body #iuDashListButton .iu-home-action-icon-warning{
+  flex-basis:14px!important;width:14px!important;height:14px!important;
+ }
+}
+@media(forced-colors:active){
+ html body .iu-home-action-icon{color:ButtonText!important;opacity:1!important}
+}
