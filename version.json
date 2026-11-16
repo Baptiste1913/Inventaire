@@ -1,7 +1,7 @@
 {
-  "version": "39.45",
+  "version": "39.46",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Rafraîchissement visuel des réglages d'alertes de pesée : titres harmonisés, champ de seuil légèrement en creux, carte doublons neumorphique, teintes et séparateurs adoucis. Aucun changement fonctionnel."
+  "notes": "Séparation des réglages de mode et des alertes en deux cartes neumorphiques indépendantes ; alertes toujours repliables. Espacement des lettres du titre Réglages de la pesée réduit."
 }
