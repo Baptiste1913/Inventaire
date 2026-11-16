@@ -2536,27 +2536,34 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    const backdrop=document.createElement('div');
    backdrop.className='iu-edge-swipe-backdrop';
    backdrop.setAttribute('aria-hidden','true');
-   // Aperçu réel des cartes d'accueil, sans iframe ni requête réseau.
-   const preview=document.createElement('div');
+   // Aperçu fidèle dans un document isolé : styles de l'accueil normal,
+   // sans les règles qui masquent ses cartes en mode sous-page.
+   const preview=document.createElement('iframe');
    preview.className='iu-edge-swipe-home';
+   preview.setAttribute('aria-hidden','true');
+   preview.setAttribute('tabindex','-1');
+   preview.setAttribute('sandbox','allow-same-origin');
    const home=document.querySelector('.app');
-   if(home){
-    const children=[...home.children].filter(node=>
-     !['planningAdminCard','accountCard','eventsPage','iuAlertsPage'].includes(node.id)&&
-     !node.classList.contains('offline-indicator')&&
-     !node.hidden&&node.matches('.header,.intro,.card,.inventory-calendar,.iu-services-divider,footer'));
-    for(const node of children){
-     const clone=node.cloneNode(true);
-     clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-     clone.removeAttribute('id');
-     clone.setAttribute('inert','');
-     preview.append(clone);
-    }
+   const copy=home?.cloneNode(true);
+   if(copy){
+    copy.querySelectorAll('script').forEach(node=>node.remove());
+    ['planningAdminCard','accountCard','eventsPage','iuAlertsPage'].forEach(id=>copy.querySelector('#'+id)?.remove());
+    const links=[...document.querySelectorAll('link[rel="stylesheet"]')]
+     .map(node=>node.outerHTML).join('');
+    const base='<base href="'+location.href.replace(/[^/]*([?#].*)?$/,'')+'">';
+    preview.srcdoc='<!doctype html><html lang="fr"><head><meta name="viewport" content="width=device-width,initial-scale=1">'+base+links+
+     '<style>html,body{margin:0!important;overflow:hidden!important} .app{min-height:100vh!important} button,a,input,select{pointer-events:none!important}</style></head><body>'+copy.outerHTML+'</body></html>';
+    preview.addEventListener('load',()=>{
+     try{preview.contentWindow?.scrollTo(0,Math.max(0,iuSavedHomeScrollY));}catch(_){}
+    },{once:true});
    }
-   preview.style.transform='translateY(-'+Math.max(0,iuSavedHomeScrollY)+'px)';
    const arrow=document.createElement('div');
    arrow.className='iu-edge-swipe-arrow';
-   arrow.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+   const reference=$('iuAdminLaunch');
+   arrow.innerHTML=reference?.innerHTML||'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+   arrow.querySelector('.iu-home-action-icon')?.remove();
+   arrow.querySelector('span')?.remove();
+   arrow.querySelector('svg')?.setAttribute('aria-hidden','true');
    backdrop.append(preview,arrow);
    document.body.append(backdrop);
    g.backdrop=backdrop;g.preview=preview;g.arrow=arrow;
