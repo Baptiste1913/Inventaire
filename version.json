@@ -1,7 +1,7 @@
 {
-  "version": "38.50",
+  "version": "38.51",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ajout de voyants lumineux pulsants discrets dans les cartes Approvisionnement (ambre) et Rappels produits (rouge), activés seulement si le compteur est supérieur à zéro. Respect du mouvement réduit et cache PWA renouvelé."
+  "notes": "Carte principale Poire Santa Maria : texte décalé à droite et voyant rouge pulsant ajouté sur le bord gauche, centré verticalement ; cache PWA renouvelé."
 }
