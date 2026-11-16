@@ -1,7 +1,7 @@
 {
-  "version": "38.90",
+  "version": "38.91",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Les boutons Se déconnecter, Réinitialiser les statistiques et Réinitialiser les inventaires de Mon compte adoptent la même surface rouge en relief que le bouton Effacer de l'Administrateur : dégradé rosé, bordure, cinq ombres réduites, coins adaptatifs et animation au clic. Dimensions et comportements préservés. Cache PWA renouvelé."
+  "notes": "Pastilles de statut de l'accueil, Google Connecté, cloud, session, compteurs d'historique/inventaires/paniers et indicateurs d'événements harmonisées : même relief neumorphique discret que l'Administrateur et hauteur de 32px calée sur Google, avec couleurs et états conservés. Cache PWA renouvelé."
 }
