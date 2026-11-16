@@ -1,7 +1,7 @@
 {
-  "version": "38.96",
+  "version": "38.97",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Toutes les pastilles compactes (Google connecté accueil et profil, cloud, événements, session, inventaires, paniers, compteurs, états de l'accueil et catégories planification) sont harmonisées à la hauteur Google de 32px. Couleurs, contours arrondis, ombres, logo et largeurs préservés. Cache PWA actualisé."
+  "notes": "Les blocs d'installation de mise à jour et d'ouverture/chargement PWA adoptent le verre translucide, contour blanc, ombre basse subtile et trois halos animés bleu/rouge/vert du bloc Bienvenue. Largeurs, paddings, hauteurs intrinsèques, logos et progressions préservés. Animations réduites pour accessibilité et cache PWA actualisé."
 }
