@@ -1,7 +1,7 @@
 {
-  "version": "38.59",
+  "version": "38.60",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Page Alertes enrichie d'accents colorés sobres par catégorie, compteur par rubrique, filtres Toutes/Rappels/Marché et tri par pertinence, date ou nom. Sources, seuils de pertinence, données d'accueil, navigation et PWA conservés ; cache renouvelé."
+  "notes": "Page Alertes : accents de gauche remplacés par des traits fins parfaitement droits de 2 px, sans arrondi, sur les titres et les cartes ; coins et couleurs existants conservés. Cache PWA renouvelé."
 }
