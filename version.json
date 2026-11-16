@@ -1,7 +1,7 @@
 {
-  "version": "39.35",
+  "version": "39.36",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retrait des quatre icônes des boutons de l'accueil, sans modifier les libellés, les flèches ou les fonctionnalités."
+  "notes": "Application du contour turquoise et de l'anneau lumineux du bouton Voir la liste aux trois boutons Réglages, Mon compte et Événements/Planification de l'accueil."
 }
