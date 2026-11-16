@@ -1,7 +1,7 @@
 {
-  "version": "38.98",
+  "version": "38.99",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Verre véritablement translucide sur les deux cadres de chargement et de mise à jour : suppression du second fond blanc semi-opaque qui se superposait au gradient, opacité du verre réduite et flou ajusté à 6px pour révéler les halos animés. Taille, bordure, ombre, logo et barres de progression préservés."
+  "notes": "Écran Mise à jour simplifié : seul le statut actuel sur une ligne au-dessus de la barre de progression, sans compteur d'étape ni pourcentage apparent. Carte de largeur et padding identiques au bloc Chargement (266px, 18/21/20px), logo redimensionné à 58px, transparence et halos maintenus. Détail d'erreur toujours visible en cas d'échec. Cache PWA actualisé."
 }
