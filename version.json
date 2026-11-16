@@ -1,7 +1,7 @@
 {
-  "version": "39.02",
+  "version": "39.03",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction réelle de l'écart entre statut et barre de mise à jour : suppression du gap de grille hérité (9px), de la marge supérieure de 15px et réduction de la marge du statut à 1px. Taille et animations inchangées."
+  "notes": "Logo de l'écran de mise à jour remonté de 12px, sans modifier le statut immédiatement au-dessus de la barre, ni les dimensions ou les lumières."
 }
