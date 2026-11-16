@@ -1,7 +1,7 @@
 {
-  "version": "38.87",
+  "version": "38.88",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Réduction de moitié de l'intensité et de la portée des ombres/glow des boutons de la page Administrateur, y compris la variante rouge Effacer et l'effet au clic. Coins adaptatifs de 8 à 12px pour les petits boutons, sans modifier leurs dimensions, couleurs ou fonctions. Cache PWA renouvelé."
+  "notes": "Les quatre blocs dépliables de Gestion des événements reprennent le neumorphisme discret des boutons administrateur : dégradé blanc-gris, contour blanc, cinq ombres atténuées et coins 12px. Dimensions, contenus et animations de dépliage conservés. Cache PWA renouvelé."
 }
