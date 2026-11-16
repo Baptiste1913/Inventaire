@@ -28560,3 +28560,28 @@ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-recall-g
   border:0!important;background:none!important;box-shadow:none!important;color:CanvasText!important;
  }
 }
+
+/* V39.06 — Alignement Tri sur le contenu des pastilles de signaux :
+   11px de retrait (8px sur petit écran), comme leur padding interne.
+   La note Rappels reproduit la note Cotations : même corps, graisse,
+   interligne et espacement vertical entre éléments de la liste (9px). */
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-toolbar{
+ padding-left:11px!important;
+ box-sizing:border-box!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-recall-group > p.iu-dash-caution{
+ margin:9px 0 0!important;
+ padding:0!important;
+ border:0!important;
+ background:none!important;
+ box-shadow:none!important;
+ color:#788690!important;
+ font-size:12px!important;
+ font-weight:600!important;
+ line-height:1.5!important;
+}
+@media(max-width:430px){
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-toolbar{
+  padding-left:8px!important;
+ }
+}
