@@ -509,7 +509,7 @@ function iuPreserveExitVisual(source,copy){
  }
 }
 function exitFocusWithoutSnapshot(action,config={}){
- // V38.55 : transitions des pages autonomes sans filtre sur .app,
+ // V38.56 : transitions des pages autonomes sans filtre sur .app,
  // qui provoquait une recomposition des verres floutés dans Safari iOS.
  const standaloneReturn=Boolean(config.solidDuringMotion);
  const duration=610;
@@ -597,9 +597,10 @@ function exitFocusWithoutSnapshot(action,config={}){
   homeBlurSheet.setAttribute('aria-hidden','true');
   document.body.append(homeBlurSheet);
   animate(homeBlurSheet,[
-   {offset:0,opacity:.9},
+   {offset:0,opacity:1},
+   {offset:.30,opacity:.88},
    {offset:1,opacity:0}
-  ],{duration:510,easing:'ease-out'});
+  ],{duration:620,easing:'ease-out'});
  }else{
   // Mode Concentration inchangé : son flou historique est conservé.
   app.style.filter='blur(3.2px)';
@@ -962,7 +963,7 @@ function iuCloseEventsPage(immediate=false){
 }
 window.IUOpenEventsPage=iuOpenEventsPage;
 window.IUCloseEventsPage=iuCloseEventsPage;
-/* V38.55 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
+/* V38.56 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
    sans modifier les données de veille ni le comportement hors ligne. */
 const iuAlertsPageMotion={
  modeClass:'is-alerts-mode',
