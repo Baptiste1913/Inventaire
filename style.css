@@ -27346,25 +27346,24 @@ html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert{
  /* Le trait pleine hauteur reste à l'intérieur des coins du cadre,
     y compris dans Safari iPhone. */
  overflow:hidden!important;
- border-left-width:1px!important;border-left-style:solid!important;
+ /* La barre est le bord du cadre lui-même : aucun espace possible. */
+ border-left-width:3px!important;border-left-style:solid!important;
  transition:background .22s ease,border-color .22s ease!important
 }
 /* V38.61 — Trait de chaque alerte sur toute sa hauteur (3px, +1px).
    Extrémités droites ; seuls les repères du titre Approvisionnement
    disposent d'un arrondi aux extrémités. */
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert::before{
- content:""!important;position:absolute!important;left:1px!important;
- top:0!important;bottom:0!important;width:3px!important;
- border-radius:0!important;pointer-events:none!important
+ content:none!important;display:none!important
 }
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-supply{
- border-left-color:#dce4e8!important;background:linear-gradient(155deg,#fff,#fffcf7)!important
+ border-left-color:#cfa16a!important;background:linear-gradient(155deg,#fff,#fffcf7)!important
 }
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-price{
- border-left-color:#dce4e8!important;background:linear-gradient(155deg,#fff,#f8fcfe)!important
+ border-left-color:#78abc1!important;background:linear-gradient(155deg,#fff,#f8fcfe)!important
 }
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-recall{
- border-left-color:#dce4e8!important;background:linear-gradient(155deg,#fff,#fff9f9)!important
+ border-left-color:#d18a88!important;background:linear-gradient(155deg,#fff,#fff9f9)!important
 }
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-supply::before{background:#cfa16a!important}
 html body.is-alerts-mode #iuAlertsPage a.iu-dash-alert-price::before{background:#78abc1!important}
