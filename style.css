@@ -27591,3 +27591,24 @@ html body.iu-coupled-rise.iu-subpage-entering.is-events-mode .app > #eventsPage 
  opacity:1!important;
  will-change:translate!important;
 }
+
+/* V38.76 — Même rayon que les panneaux Alertes / Événements
+   (21px, 20px sur mobile), y compris lorsque Retour est compact.
+   Réduire l'espace entre le bas du bandeau et le début des panneaux
+   de 8px, sans modifier le top fixe ni l'animation d'entrée. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
+ border-radius:21px!important;
+}
+html body.is-admin-mode .app > #planningAdminCard.card,
+html body.is-account-mode .app > #accountCard.card,
+html body.is-events-mode .app > #eventsPage.iu-events-page:not([hidden]),
+html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
+ padding-top:max(88px,calc(env(safe-area-inset-top,0px) + 80px))!important;
+}
+@media(max-width:430px){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
+  border-radius:20px!important;
+ }
+}
