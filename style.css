@@ -29475,8 +29475,8 @@ html body .app > section.calc-card .result{
   rgba(255,255,255,.54) 100%)!important;
  background-color:rgba(255,255,255,.58)!important;
  background-clip:border-box!important;
- -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
- backdrop-filter:blur(27px) saturate(109%)!important;
+ -webkit-backdrop-filter:blur(42px) saturate(113%)!important;
+ backdrop-filter:blur(42px) saturate(113%)!important;
  box-shadow:0 23px 30px -18px rgba(83,105,121,.112)!important;
  color:#273740!important;
 }
@@ -29490,12 +29490,12 @@ html body .app > section.calc-card .result::before{
  z-index:0!important;
  pointer-events:none!important;
  background:
-  radial-gradient(ellipse 38% 49% at 18% 42%,rgba(244,89,137,.45),transparent 84%),
-  radial-gradient(ellipse 40% 49% at 72% 22%,rgba(83,192,233,.37),transparent 85%),
-  radial-gradient(ellipse 38% 49% at 78% 85%,rgba(52,195,148,.38),transparent 86%)!important;
- filter:blur(28px)!important;
- -webkit-filter:blur(28px)!important;
- opacity:.9!important;
+  radial-gradient(ellipse 38% 49% at 18% 42%,rgba(244,89,137,.57),transparent 84%),
+  radial-gradient(ellipse 40% 49% at 72% 22%,rgba(83,192,233,.49),transparent 85%),
+  radial-gradient(ellipse 38% 49% at 78% 85%,rgba(52,195,148,.50),transparent 86%)!important;
+ filter:blur(62px)!important;
+ -webkit-filter:blur(62px)!important;
+ opacity:.96!important;
  animation:none!important;
  transform:none!important;
  transition:none!important;
@@ -29565,3 +29565,5 @@ html body .app > section.calc-card .result .copy-btn:disabled{
   color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;
  }
 }
+
+/* V39.42 — Halos légèrement plus colorés et nettement plus diffus, sans animation. */
