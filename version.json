@@ -1,7 +1,7 @@
 {
-  "version": "38.60",
+  "version": "38.61",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Page Alertes : accents de gauche remplacés par des traits fins parfaitement droits de 2 px, sans arrondi, sur les titres et les cartes ; coins et couleurs existants conservés. Cache PWA renouvelé."
+  "notes": "Page Alertes : barres colorées des cartes sur toute la hauteur et élargies de 2 à 3px, extrémités droites. Trait d’Approvisionnement général élargi de 2 à 4px avec arrondi haut/bas ; autre titre inchangé. Cache PWA renouvelé."
 }
