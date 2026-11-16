@@ -27643,3 +27643,40 @@ html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
   border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;
  }
 }
+
+/* V38.78 — La surface Espace administrateur de l'accueil est reproduite
+   à l'identique sur le BOUTON Retour lui-même et les quatre panneaux
+   de page (pas uniquement sur la barre extérieure).
+   Garder leurs dimensions, espacements, couleurs de texte et animations. */
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack,
+html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body,
+html body.is-account-mode .app > #accountCard.card > .account-body,
+html body.is-events-mode .app > #eventsPage > .iu-events-page-inner,
+html body.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body{
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack{
+ border-radius:10px!important;
+}
+@media(forced-colors:active){
+ html body #iuSubpageBar:not([hidden]) > #iuSubpageBack,
+ html body.is-admin-mode .app > #planningAdminCard.card > .planning-admin-body,
+ html body.is-account-mode .app > #accountCard.card > .account-body,
+ html body.is-events-mode .app > #eventsPage > .iu-events-page-inner,
+ html body.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body{
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
+ }
+}
