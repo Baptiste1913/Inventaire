@@ -1,7 +1,7 @@
 {
-  "version": "39.12",
+  "version": "39.13",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Accueil : cloche à la place du calendrier sur Accéder aux événements, pictogramme avertissement sur Voir la liste des rappels, icônes de boutons légèrement plus visibles."
+  "notes": "Essai option 3 : petites pastilles neumorphiques derrière les icônes réglages, compte et événements de l'accueil, avec centrage et contraste doux, sans toucher aux boutons ni à l'avertissement des rappels."
 }
