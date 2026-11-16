@@ -29748,3 +29748,93 @@ html body .app > section.calc-card.card > details#weighSettings.weigh-preference
   background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
  }
 }
+
+/* V39.47 — Réglages de pesée / alertes : typographie alignée,
+   aucun séparateur et contenu mieux réparti.
+   Le champ d'alerte copie la saisie des paniers (état normal et focus). */
+html body .app > section.calc-card.card .weigh-preferences .weigh-preferences-subtitle{
+ font-family:inherit!important;
+ font-size:10.5px!important;
+ font-weight:550!important;
+ line-height:1.35!important;
+ letter-spacing:normal!important;
+ color:#83909a!important;
+}
+html body .app > section.calc-card.card > .weigh-preferences{
+ margin-bottom:8px!important;
+}
+html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts > summary.calc-alerts-summary{
+ padding-top:11px!important;
+ padding-bottom:11px!important;
+ border-bottom:0!important;
+}
+html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts[open] > summary.calc-alerts-summary{
+ border-bottom:0!important;
+}
+html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts > .calc-alerts-body{
+ padding:6px 2px 12px!important;
+ border-top:0!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > label[for="maxGrossLimit"]{
+ margin:5px 2px 7px!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > #maxGrossLimit{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:min(100%,240px)!important;
+ max-width:100%!important;
+ min-width:0!important;
+ margin:0 2px 12px!important;
+ padding:14px 16px!important;
+ border:1px solid #dce1e5!important;
+ border-radius:13px!important;
+ background:#f8f9fa!important;
+ color:#303b44!important;
+ font-size:16px!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+ outline:none!important;
+ transition:border-color .35s ease,box-shadow .35s ease!important;
+ -webkit-appearance:none;
+ appearance:none;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > #maxGrossLimit:focus{
+ border-color:#87949d!important;
+ background:#f8f9fa!important;
+ box-shadow:0 0 0 3px rgba(101,115,125,.10)!important;
+ outline:none!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > #maxGrossLimit::placeholder{
+ color:#b6c1c7!important;
+ opacity:1!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > .duplicate-toggle{
+ display:flex!important;
+ align-items:flex-start!important;
+ gap:11px!important;
+ margin:0 2px 10px!important;
+ padding:12px!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > .duplicate-toggle > span{
+ min-width:0!important;
+}
+html body .app > section.calc-card.card #weighSettings .calc-alerts-body > .alerts-help{
+ margin:0 2px!important;
+ line-height:1.5!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app > section.calc-card.card #weighSettings #maxGrossLimit{
+  transition:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card.card #weighSettings #maxGrossLimit{
+  border-color:CanvasText!important;
+  background:Canvas!important;
+  color:CanvasText!important;
+  box-shadow:none!important;
+ }
+ html body .app > section.calc-card.card #weighSettings #maxGrossLimit:focus{
+  outline:2px solid Highlight!important;
+  outline-offset:2px!important;
+ }
+}
