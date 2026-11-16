@@ -1,7 +1,7 @@
 {
-  "version": "39.10",
+  "version": "39.11",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Cartes de la page Rappels harmonisées sur les cartes Événements : barre colorée courte centrée et arrondie, retrait identique, pastilles elliptiques pastel et relief préservé."
+  "notes": "Pastilles Rappels entièrement visibles sur une ligne avec description adaptative ; icônes utilisateur, réglages et calendrier fournies ajoutées aux trois boutons de l'accueil en SVG autonome."
 }
