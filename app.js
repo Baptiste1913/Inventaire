@@ -1028,10 +1028,35 @@ const iuAdminPageMotion={
  homeScrollY:()=>iuSavedHomeScrollY
 };
 
+
+/* V39.25 — Capturer l'accueil REEL avant que la sous-page ne le masque :
+   pas de copie de cartes en mode secondaire, ni de vieux contenu. */
+let iuEdgeHomeSnapshot=null;
+function iuEdgePrepareHome(){
+ const home=document.querySelector('main.app')||document.querySelector('.app');
+ if(!home)return;
+ const copy=home.cloneNode(true);
+ copy.querySelectorAll('script').forEach(node=>node.remove());
+ ['eventsPage','iuAlertsPage'].forEach(id=>copy.querySelector('#'+id)?.remove());
+ const escapeAttr=value=>String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+ const styles=[...document.querySelectorAll('link[rel="stylesheet"],style')]
+  .map(node=>node.outerHTML).join('');
+ const base='<base href="'+escapeAttr(new URL('.',location.href).href)+'">';
+ const scrollY=Math.max(0,window.scrollY||document.scrollingElement?.scrollTop||0);
+ const doc='<!doctype html><html lang="fr" class="'+escapeAttr(document.documentElement.className)+'">'+
+  '<head><meta name="viewport" content="width=device-width,initial-scale=1">'+base+styles+
+  '<style>html,body{margin:0!important;overflow:auto!important;scroll-behavior:auto!important}'+
+  '::-webkit-scrollbar{display:none}button,a,input,select,textarea{pointer-events:none!important}</style>'+
+  '</head><body class="'+escapeAttr(document.body.className)+'">'+copy.outerHTML+'</body></html>';
+ iuEdgeHomeSnapshot={doc,scrollY};
+ window.dispatchEvent(new Event('iu-edge-home-prepared'));
+}
+
 function iuOpenAdminPage(){
  const card=$('planningAdminCard');
  if(!card||card.hidden||card.dataset.adminLoading==='true'||
     document.body.classList.contains('is-admin-mode')||focusMotionBusy)return;
+ iuEdgePrepareHome();
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-admin-mode');
@@ -1087,6 +1112,7 @@ const iuAccountPageMotion={
 function iuOpenAccountPage(){
  const card=$('accountCard');
  if(!card||document.body.classList.contains('is-account-mode')||focusMotionBusy)return;
+ iuEdgePrepareHome();
  changeFocusWithMotion(()=>{
   card.open=true;
   document.body.classList.add('is-account-mode');
@@ -1137,6 +1163,7 @@ function iuOpenEventsPage(){
     document.body.classList.contains('is-account-mode')||
     document.body.classList.contains('is-admin-mode'))return;
  window.InventairesPlanning?.preparePage?.();
+ iuEdgePrepareHome();
  changeFocusWithMotion(()=>{
   page.hidden=false;
   document.body.classList.add('is-events-mode');
@@ -1184,6 +1211,7 @@ function iuOpenAlertsPage(){
     document.body.classList.contains('is-admin-mode')||
     document.body.classList.contains('is-account-mode')||
     document.body.classList.contains('is-events-mode'))return;
+ iuEdgePrepareHome();
  changeFocusWithMotion(()=>{
   page.hidden=false;
   document.body.classList.add('is-alerts-mode');
@@ -2446,49 +2474,10 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  if(!bar||!back)return;
  const modes=['is-admin-mode','is-account-mode','is-events-mode','is-alerts-mode'];
  let pending=false;
- function active(){return modes.some(mode=>document.body.classList.contains(mode));}
- function refresh(){
-  pending=false;
-  if(!active()){
-   bar.hidden=true;
-   bar.dataset.compact='false';
-   return;
-  }
-  bar.hidden=false;
-  // Pendant l'entrée, garder le bandeau dans son état initial 70px.
-  // Le scroll peut encore indiquer celui de l'accueil pendant une frame
-  // sur Safari et provoquait une contraction à 55px au mauvais moment.
-  if(document.body.classList.contains('iu-subpage-entering')){
-   bar.dataset.compact='false';
-   return;
-  }
-  const y=Math.max(window.scrollY||0,document.scrollingElement?.scrollTop||0);
-  bar.dataset.compact=y>=88?'true':'false';
- }
- function schedule(){
-  if(pending)return;
-  pending=true;
-  requestAnimationFrame(refresh);
- }
- back.addEventListener('click',()=>{
-  if(document.body.classList.contains('is-admin-mode'))iuCloseAdminPage();
-  else if(document.body.classList.contains('is-account-mode'))iuCloseAccountPage();
-  else if(document.body.classList.contains('is-events-mode'))iuCloseEventsPage();
-  else if(document.body.classList.contains('is-alerts-mode'))iuCloseAlertsPage();
- });
- window.addEventListener('scroll',schedule,{passive:true});
- // Les scrolls internes éventuels de Safari sont également observés.
- document.addEventListener('scroll',schedule,true);
- new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
- // Rafraîchissement synchrone au moment du changement de page.
- // Sans cela le premier frame d'entrée ne contenait pas le bouton.
- window.IUSyncSubpageBar=refresh;
- refresh();
-})();
-
-
-/* V39.22 — Retour interactif depuis le bord gauche (PWA et Safari).
-   Pas de navigation dans l'historique du navigateur. */
+ function active(){return modes.some(mode=>document.body.
+/* V39.25 — Retour de bord : véritable aperçu capturé AVANT ouverture,
+   aperçu préchargé, masque limité à la zone découverte, animation
+   de fin harmonisée avec Retour (courbe .16,.84,.24,1). */
 (function iuInstallEdgeSwipeBack(){
  const pages={
   'is-admin-mode':{selector:'#planningAdminCard',close:()=>iuCloseAdminPage(true)},
@@ -2496,97 +2485,155 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   'is-events-mode':{selector:'#eventsPage',close:()=>iuCloseEventsPage(true)},
   'is-alerts-mode':{selector:'#iuAlertsPage',close:()=>iuCloseAlertsPage(true)}
  };
- let gesture=null;
  const current=()=>Object.entries(pages).find(([mode])=>document.body.classList.contains(mode))?.[1];
- const clear=()=>{
-  if(!gesture)return;
-  const g=gesture;gesture=null;
-  g.nodes.forEach(node=>{node.style.removeProperty('translate');node.style.removeProperty('transition');});
-  g.backdrop.remove();
+ let gesture=null,layer=null,frame=null,arrow=null,seam=null,primeTimer=null;
+ const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function dispose(){
+  if(primeTimer!==null){clearTimeout(primeTimer);primeTimer=null;}
+  layer?.remove();
+  layer=null;frame=null;arrow=null;seam=null;
+ }
+ function prepare(){
+  if(layer||!iuEdgeHomeSnapshot||!current())return;
+  const home=iuEdgeHomeSnapshot;
+  const surface=document.createElement('div');
+  surface.className='iu-edge-swipe-backdrop';
+  surface.setAttribute('aria-hidden','true');
+  const documentPreview=document.createElement('iframe');
+  documentPreview.className='iu-edge-swipe-home';
+  documentPreview.setAttribute('aria-hidden','true');
+  documentPreview.setAttribute('tabindex','-1');
+  documentPreview.setAttribute('sandbox','allow-same-origin');
+  documentPreview.setAttribute('loading','eager');
+  documentPreview.setAttribute('inert','');
+  documentPreview.addEventListener('load',()=>{
+   try{
+    documentPreview.contentWindow?.scrollTo(0,home.scrollY);
+    requestAnimationFrame(()=>documentPreview.contentWindow?.scrollTo(0,home.scrollY));
+   }catch(_){}
+  },{once:true});
+  const cue=document.createElement('div');
+  cue.className='iu-edge-swipe-arrow';
+  cue.setAttribute('aria-hidden','true');
+  cue.innerHTML='<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>';
+  const edge=document.createElement('div');
+  edge.className='iu-edge-swipe-seam';
+  edge.setAttribute('aria-hidden','true');
+  surface.append(documentPreview,cue);
+  document.body.append(surface,edge);
+  documentPreview.srcdoc=home.doc;
+  layer=surface;frame=documentPreview;arrow=cue;seam=edge;
+ }
+ function paint(g,x){
+  x=Math.max(0,Math.min(Math.max(1,innerWidth),x));
+  g.distance=x;
+  const p=x/Math.max(1,innerWidth);
+  for(const node of g.nodes)node.style.setProperty('translate',x.toFixed(2)+'px 0','important');
+  // La prévisualisation ne couvre QUE la partie réellement découverte :
+  // elle ne passe plus au-dessus du panneau ni du bandeau de la page.
+  const clip='inset(0 calc(100% - '+x.toFixed(2)+'px) 0 0)';
+  layer.style.clipPath=clip;
+  layer.style.webkitClipPath=clip;
+  frame.style.opacity=String(.88+.12*p);
+  frame.style.filter=reduced()?'none':'blur('+((1-p)*7).toFixed(2)+'px)';
+  arrow.style.opacity=String(Math.min(.96,Math.max(0,(x-42)/104)));
+  arrow.style.transform='translate3d('+((1-p)*9).toFixed(2)+'px,0,0) scale('+(.94+.06*p).toFixed(3)+')';
+  seam.style.left=(x-24).toFixed(2)+'px';
+  seam.style.opacity=String(Math.min(.8,Math.max(0,(x-15)/95)));
+ }
+ function restore(){
+  const g=gesture;
+  gesture=null;
+  if(g){
+   if(g.raf)cancelAnimationFrame(g.raf);
+   if(g.timer!==null)clearTimeout(g.timer);
+   for(const node of g.nodes){
+    node.style.removeProperty('translate');
+    node.style.removeProperty('transition');
+   }
+  }
   document.body.classList.remove('iu-edge-swiping');
- };
- const move=distance=>{
-  if(!gesture)return;
-  const x=Math.max(0,Math.min(innerWidth,distance));
-  gesture.distance=x;
-  gesture.nodes.forEach(node=>node.style.setProperty('translate',x+'px 0','important'));
-  const progress=Math.min(1,x/Math.max(1,innerWidth));
-  gesture.preview.style.opacity=String(progress);
-  gesture.preview.style.filter='blur('+((1-progress)*14).toFixed(2)+'px)';
-  gesture.arrow.style.opacity=String(Math.min(1,.25+progress*.75));
-  gesture.arrow.style.transform='translateX('+(progress*13).toFixed(1)+'px)';
- };
+  if(layer){
+   layer.style.removeProperty('clip-path');
+   layer.style.removeProperty('-webkit-clip-path');
+   layer.style.removeProperty('transition');
+  }
+  if(frame){frame.style.removeProperty('transition');frame.style.removeProperty('filter');frame.style.removeProperty('opacity');}
+  if(arrow){arrow.style.removeProperty('transition');arrow.style.removeProperty('opacity');arrow.style.removeProperty('transform');}
+  if(seam){seam.style.removeProperty('transition');seam.style.removeProperty('left');seam.style.removeProperty('opacity');}
+ }
+ function settle(success){
+  const g=gesture;
+  if(!g||g.settling)return;
+  if(!g.active){restore();return;}
+  g.settling=true;
+  if(g.raf){cancelAnimationFrame(g.raf);g.raf=0;paint(g,g.distance);}
+  const target=success?Math.max(1,innerWidth):0;
+  const duration=reduced()?0:Math.round(Math.min(440,Math.max(260,220+Math.abs(target-g.distance)/Math.max(1,innerWidth)*220)));
+  if(duration){
+   const transition=duration+'ms cubic-bezier(.16,.84,.24,1)';
+   for(const node of g.nodes)node.style.setProperty('transition','translate '+transition,'important');
+   layer.style.transition='clip-path '+transition;
+   frame.style.transition='opacity '+transition+',filter '+transition;
+   arrow.style.transition='opacity '+transition+',transform '+transition;
+   seam.style.transition='left '+transition+',opacity '+transition;
+   void g.nodes[0].getBoundingClientRect();
+   requestAnimationFrame(()=>{if(gesture===g)paint(g,target);});
+  }else paint(g,target);
+  g.timer=setTimeout(()=>{
+   if(gesture!==g)return;
+   if(success)g.page.close(); // fermeture directe : pas de deuxième animation
+   restore();
+   if(success){dispose();iuEdgeHomeSnapshot=null;}
+  },duration+35);
+ }
+ window.addEventListener('iu-edge-home-prepared',()=>{
+  dispose();
+  primeTimer=setTimeout(()=>{primeTimer=null;if(current()&&!gesture)prepare();},720);
+ });
+ new MutationObserver(()=>{
+  if(!current()&&!gesture){dispose();iuEdgeHomeSnapshot=null;}
+ }).observe(document.body,{attributes:true,attributeFilter:['class']});
  document.addEventListener('touchstart',event=>{
   if(gesture||focusMotionBusy||event.touches.length!==1||event.defaultPrevented)return;
   const touch=event.touches[0],page=current();
   if(!page||touch.clientX>28||touch.clientX<0)return;
-  const el=document.querySelector(page.selector),bar=$('iuSubpageBar');
-  if(!el||!bar||bar.hidden)return;
-  gesture={page,nodes:[el,bar],x:touch.clientX,y:touch.clientY,lastX:touch.clientX,
-   lastTime:performance.now(),velocity:0,distance:0,active:false,backdrop:null};
+  const panel=document.querySelector(page.selector),bar=$('iuSubpageBar');
+  if(!panel||!bar||bar.hidden)return;
+  prepare();
+  if(!layer)return;
+  gesture={page,nodes:[panel,bar],x:touch.clientX,y:touch.clientY,
+   lastX:touch.clientX,lastTime:performance.now(),velocity:0,
+   distance:0,active:false,settling:false,raf:0,timer:null};
  },{passive:true});
  document.addEventListener('touchmove',event=>{
-  const g=gesture;if(!g)return;
-  if(event.touches.length!==1){clear();return;}
+  const g=gesture;
+  if(!g||g.settling)return;
+  if(event.touches.length!==1){settle(false);return;}
   const touch=event.touches[0],dx=touch.clientX-g.x,dy=touch.clientY-g.y;
   if(!g.active){
-   if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){clear();return;}
+   if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){restore();return;}
    if(dx<9||dx<Math.abs(dy)*1.3)return;
    g.active=true;
-   const backdrop=document.createElement('div');
-   backdrop.className='iu-edge-swipe-backdrop';
-   backdrop.setAttribute('aria-hidden','true');
-   // Aperçu fidèle dans un document isolé : styles de l'accueil normal,
-   // sans les règles qui masquent ses cartes en mode sous-page.
-   const preview=document.createElement('iframe');
-   preview.className='iu-edge-swipe-home';
-   preview.setAttribute('aria-hidden','true');
-   preview.setAttribute('tabindex','-1');
-   preview.setAttribute('sandbox','allow-same-origin');
-   const home=document.querySelector('.app');
-   const copy=home?.cloneNode(true);
-   if(copy){
-    copy.querySelectorAll('script').forEach(node=>node.remove());
-    ['planningAdminCard','accountCard','eventsPage','iuAlertsPage'].forEach(id=>copy.querySelector('#'+id)?.remove());
-    const links=[...document.querySelectorAll('link[rel="stylesheet"]')]
-     .map(node=>node.outerHTML).join('');
-    const base='<base href="'+location.href.replace(/[^/]*([?#].*)?$/,'')+'">';
-    preview.srcdoc='<!doctype html><html lang="fr"><head><meta name="viewport" content="width=device-width,initial-scale=1">'+base+links+
-     '<style>html,body{margin:0!important;overflow:hidden!important} .app{min-height:100vh!important} button,a,input,select{pointer-events:none!important}</style></head><body>'+copy.outerHTML+'</body></html>';
-    preview.addEventListener('load',()=>{
-     try{preview.contentWindow?.scrollTo(0,Math.max(0,iuSavedHomeScrollY));}catch(_){}
-    },{once:true});
-   }
-   const arrow=document.createElement('div');
-   arrow.className='iu-edge-swipe-arrow';
-   const reference=$('iuAdminLaunch');
-   arrow.innerHTML=reference?.innerHTML||'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
-   arrow.querySelector('.iu-home-action-icon')?.remove();
-   arrow.querySelector('span')?.remove();
-   arrow.querySelector('svg')?.setAttribute('aria-hidden','true');
-   backdrop.append(preview,arrow);
-   document.body.append(backdrop);
-   g.backdrop=backdrop;g.preview=preview;g.arrow=arrow;
    document.body.classList.add('iu-edge-swiping');
   }
   if(event.cancelable)event.preventDefault();
   const now=performance.now(),dt=Math.max(1,now-g.lastTime);
-  g.velocity=(touch.clientX-g.lastX)/dt;
+  g.velocity=.4*g.velocity+.6*(touch.clientX-g.lastX)/dt;
   g.lastX=touch.clientX;g.lastTime=now;
-  move(dx);
+  g.distance=Math.max(0,Math.min(innerWidth,dx));
+  if(!g.raf)g.raf=requestAnimationFrame(()=>{
+   g.raf=0;
+   if(gesture===g&&!g.settling)paint(g,g.distance);
+  });
  },{passive:false});
  document.addEventListener('touchend',()=>{
-  const g=gesture;if(!g)return;
-  if(!g.active){clear();return;}
-  const commit=g.distance>innerWidth*.34||(g.distance>65&&g.velocity>.55);
-  const target=commit?innerWidth:0;
-  g.nodes.forEach(node=>node.style.setProperty('transition','translate 230ms cubic-bezier(.2,.75,.25,1)','important'));
-  g.preview.style.transition='opacity 230ms ease,filter 230ms ease';
-  g.arrow.style.transition='opacity 230ms ease,transform 230ms ease';
-  move(target);
-  // Fermeture immédiate après l'animation interactive : pas de double transition.
-  setTimeout(()=>{if(gesture!==g)return;if(commit)g.page.close();clear();},245);
+  const g=gesture;
+  if(!g)return;
+  if(!g.active){restore();return;}
+  const success=g.distance>innerWidth*.34||(g.distance>65&&g.velocity>.55);
+  settle(success);
  },{passive:true});
- document.addEventListener('touchcancel',clear,{passive:true});
- window.addEventListener('pagehide',clear);
+ document.addEventListener('touchcancel',()=>{if(gesture)settle(false);},{passive:true});
+ window.addEventListener('pagehide',()=>{restore();dispose();});
 })();
