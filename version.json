@@ -1,7 +1,7 @@
 {
-  "version": "38.54",
+  "version": "38.55",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour accueil stabilisé : animation d'entrée de Bienvenue neutralisée après navigation, sans retrait des halos. Le flou de retour des pages est désormais un calque léger indépendant, sans filtre sur toute l'application. Cache PWA renouvelé."
+  "notes": "Flou léger de retour renforcé de 1,6 à 2,4 px, flèche de Voir la liste dirigée vers le haut et transitions des pages autonomes opaques empêchant les captures de l'accueil de transparaître. Cache PWA renouvelé."
 }
