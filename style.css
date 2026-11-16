@@ -27782,3 +27782,34 @@ html body #iuSubpageBar:not([hidden]) > #iuSubpageBack:active{
   transform:none!important;
  }
 }
+
+/* V38.83 — « Accéder aux réglages » : surface IDENTIQUE au cadre
+   Espace administrateur (contour blanc, rayon 20px, dégradé 145°
+   et cinq ombres). Garder les dimensions et l'effet tactile existant. */
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action:not(:active){
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:20px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action:active{
+ border-radius:20px!important;
+}
+@media(max-width:430px){
+ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action{
+  border-radius:20px!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action{
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
+ }
+}
