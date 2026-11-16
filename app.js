@@ -550,12 +550,38 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.removeAttribute('id');
   clone.querySelectorAll('[id]').forEach(child=>child.removeAttribute('id'));
   clone.querySelectorAll('input,button,select,textarea').forEach(el=>el.setAttribute('tabindex','-1'));
+  // V38.69 — Si la page a été défilée, sa carte dépasse le viewport.
+  // Animer directement toute la copie faisait entrer à l'écran les éléments
+  // situés AU-DESSUS de la zone visible au fur et à mesure de la descente.
+  // La copie reste à ses coordonnées originelles mais est enfermée dans
+  // un cadre à la taille exacte de l'intersection avec le viewport.
+  // On anime ce cadre, jamais le contenu caché à l'extérieur.
+  let cloneHost=layer,clipLeft=0,clipTop=0;
+  if(standaloneReturn){
+   const viewW=Math.max(1,window.innerWidth),viewH=Math.max(1,window.innerHeight);
+   const left=Math.max(0,rect.left),top=Math.max(0,rect.top);
+   const right=Math.min(viewW,rect.right),bottom=Math.min(viewH,rect.bottom);
+   if(right<=left||bottom<=top)continue;
+   clipLeft=left;clipTop=top;
+   const crop=document.createElement('div');
+   crop.className='iu70-exit-visible-crop';
+   crop.style.setProperty('position','absolute','important');
+   crop.style.setProperty('left',left+'px','important');
+   crop.style.setProperty('top',top+'px','important');
+   crop.style.setProperty('width',(right-left)+'px','important');
+   crop.style.setProperty('height',(bottom-top)+'px','important');
+   crop.style.setProperty('overflow','hidden','important');
+   crop.style.setProperty('box-sizing','border-box','important');
+   crop.style.setProperty('pointer-events','none','important');
+   layer.append(crop);
+   cloneHost=crop;
+  }
   clone.style.setProperty('position','absolute','important');
   clone.style.setProperty('display',
    config.preservePageCloneStyles?getComputedStyle(node).display:'block',
    'important');
-  clone.style.setProperty('left',rect.left+'px','important');
-  clone.style.setProperty('top',rect.top+'px','important');
+  clone.style.setProperty('left',(rect.left-clipLeft)+'px','important');
+  clone.style.setProperty('top',(rect.top-clipTop)+'px','important');
   clone.style.setProperty('width',rect.width+'px','important');
   clone.style.setProperty('height',rect.height+'px','important');
   clone.style.setProperty('max-width','none','important');
@@ -568,7 +594,7 @@ function exitFocusWithoutSnapshot(action,config={}){
   clone.style.setProperty('border',computed.border,'important');
   clone.style.setProperty('border-radius',computed.borderRadius,'important');
   clone.style.setProperty('opacity','1','important');
-  layer.append(clone);
+  cloneHost.append(clone);
  }
  // La surface pleine-écran reprend le fond opaque déjà existant.
  const cover=document.createElement('div');
@@ -594,6 +620,8 @@ function exitFocusWithoutSnapshot(action,config={}){
   animations.push(el.animate(frames,{duration,easing,fill:'both',...opts}));
  };
  animate(cover,[{transform:'translate3d(0,0,0)'},{transform:'translate3d(0,105dvh,0)'}]);
+ // Pour une page autonome, les enfants des cadres sont immobiles :
+ // seul le crop visible descend, avec le même flou et le même rythme.
  for(const clone of [...layer.children].filter(el=>el!==cover)){
   animate(clone,[
    {offset:0,transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1},
