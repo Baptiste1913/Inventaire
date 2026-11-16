@@ -931,6 +931,51 @@ function iuCloseEventsPage(immediate=false){
 }
 window.IUOpenEventsPage=iuOpenEventsPage;
 window.IUCloseEventsPage=iuCloseEventsPage;
+/* V38.53 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
+   sans modifier les données de veille ni le comportement hors ligne. */
+const iuAlertsPageMotion={
+ modeClass:'is-alerts-mode',
+ viewSelectors:'.app > #iuAlertsPage > .iu-alerts-page-body',
+ exitSourceSelectors:'.app > #iuAlertsPage > .iu-alerts-page-body',
+ normalSelectors:focusNormalSelectors,
+ surfaceSelectors:'.app > #iuAlertsPage > .iu-alerts-opaque-backdrop',
+ solidDuringMotion:true,
+ homeScrollY:()=>0
+};
+function iuOpenAlertsPage(){
+ const page=$('iuAlertsPage');
+ if(!page||focusMotionBusy||document.body.classList.contains('is-alerts-mode')||
+    document.body.classList.contains('is-admin-mode')||
+    document.body.classList.contains('is-account-mode')||
+    document.body.classList.contains('is-events-mode'))return;
+ changeFocusWithMotion(()=>{
+  page.hidden=false;
+  document.body.classList.add('is-alerts-mode');
+  document.documentElement.classList.add('iu-alerts-page-active');
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+ },true,iuAlertsPageMotion);
+}
+function iuCloseAlertsPage(immediate=false){
+ const page=$('iuAlertsPage');
+ if(!page||!document.body.classList.contains('is-alerts-mode'))return;
+ const action=()=>{
+  document.body.classList.remove('is-alerts-mode');
+  document.documentElement.classList.remove('iu-alerts-page-active');
+  page.hidden=true;
+  if(document.scrollingElement)document.scrollingElement.scrollTop=0;
+  document.body.scrollTop=0;
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+ };
+ if(!immediate&&focusMotionBusy){
+  focusPendingTask=()=>iuCloseAlertsPage();
+  return;
+ }
+ if(immediate||focusReducedMotion()){action();return;}
+ changeFocusWithMotion(action,false,iuAlertsPageMotion);
+}
+window.IUOpenAlertsPage=iuOpenAlertsPage;
+window.IUCloseAlertsPage=iuCloseAlertsPage;
+
 function syncFocusMode(sessionInput,statsInput){
  const session=arguments.length?sessionInput:getActiveSession();
  const active=Boolean(session&&!session.pausedAt);
@@ -2052,6 +2097,7 @@ window.IUSetupFold=setupUnifiedFold;
  $('iuAccountReturn')?.addEventListener('click',()=>iuCloseAccountPage()); $('iuAccountReturnGuest')?.addEventListener('click',()=>iuCloseAccountPage());
  $('eventsOpenPage')?.addEventListener('click',()=>iuOpenEventsPage());
  $('iuEventsReturn')?.addEventListener('click',()=>iuCloseEventsPage());
+ $('iuAlertsReturn')?.addEventListener('click',()=>iuCloseAlertsPage());
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&document.body.classList.contains('is-admin-mode')){
    event.preventDefault();iuCloseAdminPage();
@@ -2059,6 +2105,9 @@ window.IUSetupFold=setupUnifiedFold;
    event.preventDefault();iuCloseAccountPage();
   }else if(event.key==='Escape'&&document.body.classList.contains('is-events-mode')){
    event.preventDefault();iuCloseEventsPage();
+  }
+  else if(event.key==='Escape'&&document.body.classList.contains('is-alerts-mode')){
+   event.preventDefault();iuCloseAlertsPage();
   }
  });
  if(adminCard){
