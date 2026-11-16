@@ -1,7 +1,7 @@
 {
-  "version": "38.73",
+  "version": "38.74",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction ciblée de l'animation d'entrée Alertes sur Safari : le bandeau Retour et le panneau utilisent uniquement leur animation CSS commune, sans double animation WAAPI lorsqu'un des deux joueurs n'est pas encore enregistré. Synchronisation de leur déplacement et clic immédiat conservés. Événements, Réglages et Compte inchangés ; cache PWA renouvelé."
+  "notes": "Correctif spécifique de la toute première ouverture Alertes/Rappels sur Safari : montage complet hors écran des deux surfaces puis lancement simultané de leur animation 610ms après préparation du layout. Évite le départ anticipé du bandeau, sans toucher à Événements, Mon compte, Réglages, aux données ou au retour instantané. Cache PWA renouvelé."
 }
