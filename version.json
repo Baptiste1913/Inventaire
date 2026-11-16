@@ -1,7 +1,7 @@
 {
-  "version": "39.20",
+  "version": "39.21",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Navigation des quatre sous-pages ajoutée à l'historique Safari/PWA via pushState et popstate, pour permettre le geste Retour natif lorsqu'iOS le prend en charge, sans geste tactile personnalisé."
+  "notes": "Retour à la navigation interne fiable des quatre pages après échec du geste natif iOS en PWA et Safari ; suppression des entrées pushState et du traitement popstate ajoutés en v39.20."
 }
