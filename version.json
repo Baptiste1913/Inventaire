@@ -1,7 +1,7 @@
 {
-  "version": "39.52",
+  "version": "39.53",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour de pause/fin d'inventaire à la position précédente, suppression du saut du bloc Bienvenue, style neumorphique de Ma session en pause. Calculs inchangés."
+  "notes": "Effet, contour et interaction du bouton Voir la liste appliqués aux accès Réglages, Mon compte et Événements. Dimensions et navigation inchangées."
 }
