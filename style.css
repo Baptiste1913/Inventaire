@@ -27578,3 +27578,16 @@ html body.iu-subpage-entering:is(.is-events-mode,.is-alerts-mode) #iuSubpageBar:
   translate:none!important
  }
 }
+
+/* V38.75 — Supprimer les animations CSS concurrentes lors des premières
+   entrées Alertes / Événements. La translation inline des deux éléments
+   est pilotée simultanément par iuAnimateCoupledSubpage. */
+html body.iu-coupled-rise.iu-subpage-entering.is-alerts-mode #iuSubpageBar:not([hidden]),
+html body.iu-coupled-rise.iu-subpage-entering.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body,
+html body.iu-coupled-rise.iu-subpage-entering.is-events-mode #iuSubpageBar:not([hidden]),
+html body.iu-coupled-rise.iu-subpage-entering.is-events-mode .app > #eventsPage > .iu-events-page-inner{
+ animation:none!important;
+ transition:none!important;
+ opacity:1!important;
+ will-change:translate!important;
+}
