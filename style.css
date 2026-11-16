@@ -29269,7 +29269,7 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
 
 
 
-/* V39.31 — Voile opaque doux sans clonage ni animation de l'accueil. */
+/* V39.32 — Voile opaque doux sans clonage ni animation de l'accueil. */
 .iu-edge-swipe-backdrop{
  position:fixed;inset:0;z-index:9990;overflow:hidden;pointer-events:none;
  background:linear-gradient(150deg,#fafafa 0%,#f1f1f1 48%,#e9e9e9 100%);
@@ -29277,29 +29277,10 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
  opacity:0;visibility:hidden;
 }
 body.iu-edge-swiping .iu-edge-swipe-backdrop{visibility:visible;opacity:1}
-.iu-edge-swipe-glow{
- position:absolute;inset:-22% -38%;pointer-events:none;
- background:
-  radial-gradient(ellipse 38% 32% at 25% 31%,rgba(255,255,255,.95),transparent 76%),
-  radial-gradient(ellipse 43% 37% at 76% 72%,rgba(154,154,154,.17),transparent 78%),
-  radial-gradient(ellipse 34% 32% at 62% 17%,rgba(255,255,255,.74),transparent 80%);
- filter:blur(34px);
- animation:iuEdgeLightDrift 13s ease-in-out infinite alternate;
-}
-.iu-edge-swipe-glow::after{
- content:"";position:absolute;inset:5% -8%;
- background:radial-gradient(ellipse 34% 29% at 25% 74%,rgba(255,255,255,.80),transparent 82%);
- animation:iuEdgeLightBreath 8s ease-in-out infinite alternate;
-}
-@keyframes iuEdgeLightDrift{
- from{transform:translate3d(-2%,-2%,0) scale(1);opacity:.8}
- to{transform:translate3d(3%,3%,0) scale(1.08);opacity:1}
-}
-@keyframes iuEdgeLightBreath{
- from{opacity:.55;transform:translate3d(0,-3%,0)}
- to{opacity:1;transform:translate3d(3%,3%,0)}
-}
-.iu-edge-swipe-arrow{position:absolute;left:18px;top:calc(50% - 20.5px);display:flex;align-items:center;justify-content:center;
+.iu-edge-swipe-glow{position:absolute;left:-100px;top:17%;width:270px;height:320px;
+ background:radial-gradient(ellipse,rgba(160,160,160,.105),rgba(200,200,200,.035) 58%,transparent 77%);
+ pointer-events:none}
+.iu-edge-swipe-arrow{position:absolute;left:18px;top:50%;display:flex;align-items:center;justify-content:center;
  width:45px;height:41px;box-sizing:border-box;border:1px solid rgba(255,255,255,.75);
  border-radius:14px;background:linear-gradient(145deg,#fff,#f8f8f8 34%,#e8e8e8);
  box-shadow:-3px -3px 7px rgba(255,255,255,.8),3px 4px 9px rgba(145,145,145,.2),inset 1px 1px 0 rgba(255,255,255,.8);
@@ -29310,7 +29291,3 @@ body.iu-edge-swiping .iu-edge-swipe-backdrop{visibility:visible;opacity:1}
 body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage){border-radius:0!important}
 body.iu-edge-swiping :is(#planningAdminCard,#accountCard,#eventsPage,#iuAlertsPage,#iuSubpageBar){backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:translate}
 @media(forced-colors:active){.iu-edge-swipe-backdrop{background:Canvas!important}.iu-edge-swipe-arrow{background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important}}
-
-@media(prefers-reduced-motion:reduce){
- .iu-edge-swipe-glow,.iu-edge-swipe-glow::after{animation:none!important}
-}
