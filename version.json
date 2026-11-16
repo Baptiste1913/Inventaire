@@ -1,7 +1,7 @@
 {
-  "version": "39.29",
+  "version": "39.30",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour tactile fiabilisé : aperçu à la position enregistrée sans défilement iframe, bord vertical plat, animation indépendante des transform CSS, reprise exacte de la pose de Bienvenue et des cartes sur l'accueil réel, flèche préservée."
+  "notes": "Retour gestuel : abandon des copies d'accueil, fond opaque nacré et flèche discrète, restauration du défilement mémorisé avant ouverture."
 }
