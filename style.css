@@ -29695,3 +29695,56 @@ html body .app > section.calc-card .weigh-preferences-alerts .duplicate-toggle i
   background:Canvas!important;color:CanvasText!important;border:1px solid CanvasText!important;box-shadow:none!important;
  }
 }
+
+/* V39.46 — Deux cartes indépendantes : mode de pesée et alertes.
+   Le tiroir d'alertes garde son id, son état et son animation. */
+html body .app > section.calc-card.card > .weigh-preferences{
+ margin-bottom:10px!important;
+ padding-bottom:12px!important;
+}
+html body .app > section.calc-card .weigh-preferences-head{
+ align-items:baseline!important;
+}
+html body .app > section.calc-card .weigh-preferences-title{
+ letter-spacing:0!important;
+ font-weight:800!important;
+}
+html body .app > section.calc-card .weigh-preferences-mode{
+ margin-bottom:0!important;
+}
+html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts{
+ display:block!important;
+ box-sizing:border-box!important;
+ margin:0 0 16px!important;
+ padding:0 12px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+  4px 5px 11px rgba(156,173,189,.35),
+  1px 2px 4px rgba(156,173,189,.18),
+  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ overflow:hidden;
+}
+html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts > summary.calc-alerts-summary{
+ margin:0!important;
+ padding:13px 2px!important;
+ min-height:49px!important;
+ border:0!important;
+}
+html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts[open] > summary.calc-alerts-summary{
+ border-bottom:1px solid rgba(187,202,212,.42)!important;
+}
+html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts > .calc-alerts-body{
+ padding:15px 2px 13px!important;
+}
+@media(max-width:380px){
+ html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts{padding:0 11px!important}
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card.card > details#weighSettings.weigh-preferences-alerts{
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+}
