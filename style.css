@@ -28585,3 +28585,91 @@ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-recall-g
   padding-left:8px!important;
  }
 }
+
+/* V39.07 — Page Calendrier / Événements : harmonisation avec les
+   cadres et commandes des pages Administration, Compte et Rappels.
+   Garder intactes les tailles, couleurs métier, marqueurs, rubans
+   hebdomadaires, états des dates et navigation du calendrier. */
+html body.is-events-mode .app > #eventsPage.iu-events-page :is(
+ .iu-events-feature,
+ .iu-events-calendar-panel,
+ .iu-events-day-panel,
+ .iu-events-agenda-panel,
+ .iu-events-other-panel,
+ .iu-events-list-row
+){
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+/* Les cellules gardent leurs états, événements et repères ; seul
+   leur relief de base adopte le traitement discret commun. */
+html body.is-events-mode .app > #eventsPage.iu-events-page .iu-events-calendar-day:not(.is-selected):not(.is-today):not(.is-outside){
+ border-color:rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:
+  -1px -1px 2.5px rgba(255,255,255,.48),
+   1.5px 2px 3.5px rgba(156,173,189,.16),
+   inset .5px .5px 0 rgba(255,255,255,.5)!important;
+}
+html body.is-events-mode .app > #eventsPage.iu-events-page .iu-events-calendar-day.is-selected{
+ box-shadow:
+  inset 1px 1.5px 3px rgba(150,166,181,.13),
+  inset -1px -1px 2.5px rgba(255,255,255,.48),
+  1px 2px 4px rgba(156,173,189,.12)!important;
+}
+html body.is-events-mode .app > #eventsPage.iu-events-page :is(
+ .iu-events-calendar-controls > button,
+ .iu-events-page-nav > #iuEventsReturn.iu-page-inline-back
+){
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:clamp(8px,1em,12px)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+ transition:box-shadow .22s ease,background .22s ease,border-color .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body.is-events-mode .app > #eventsPage.iu-events-page :is(
+ .iu-events-calendar-controls > button:not(:disabled),
+ .iu-events-page-nav > #iuEventsReturn.iu-page-inline-back:not(:disabled),
+ .iu-events-calendar-day:not(:disabled)
+):active{
+ border-color:#d1d9df!important;
+ box-shadow:inset 1px 1.5px 3px rgba(150,166,181,.12),inset -1px -1px 2.5px rgba(255,255,255,.48),.5px .5px 1.5px rgba(156,173,189,.06)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+html body.is-events-mode .app > #eventsPage.iu-events-page .iu-events-calendar-controls > button:not(:disabled):active{
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+}
+/* Éviter de modifier les calques de rubans et l'animation du tiroir. */
+html body.is-events-mode .app > #eventsPage.iu-events-page .iu-events-other-panel > .iu-events-other-summary{
+ background:transparent!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.is-events-mode .app > #eventsPage.iu-events-page :is(
+  .iu-events-calendar-controls > button,.iu-events-page-nav > #iuEventsReturn.iu-page-inline-back,.iu-events-calendar-day
+ ){transition:none!important;transform:none!important}
+}
+@media(forced-colors:active){
+ html body.is-events-mode .app > #eventsPage.iu-events-page :is(
+  .iu-events-feature,.iu-events-calendar-panel,.iu-events-day-panel,
+  .iu-events-agenda-panel,.iu-events-other-panel,.iu-events-list-row,
+  .iu-events-calendar-controls > button,.iu-events-page-nav > #iuEventsReturn.iu-page-inline-back,
+  .iu-events-calendar-day
+ ){
+  border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;
+ }
+}
