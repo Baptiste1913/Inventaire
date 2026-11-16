@@ -1028,7 +1028,6 @@ const iuAdminPageMotion={
  homeScrollY:()=>iuSavedHomeScrollY
 };
 
-
 /* V39.25 — Capturer l'accueil REEL avant que la sous-page ne le masque :
    pas de copie de cartes en mode secondaire, ni de vieux contenu. */
 let iuEdgeHomeSnapshot=null;
@@ -2474,7 +2473,47 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  if(!bar||!back)return;
  const modes=['is-admin-mode','is-account-mode','is-events-mode','is-alerts-mode'];
  let pending=false;
- function active(){return modes.some(mode=>document.body.
+ function active(){return modes.some(mode=>document.body.classList.contains(mode));}
+ function refresh(){
+  pending=false;
+  if(!active()){
+   bar.hidden=true;
+   bar.dataset.compact='false';
+   return;
+  }
+  bar.hidden=false;
+  // Pendant l'entrée, garder le bandeau dans son état initial 70px.
+  // Le scroll peut encore indiquer celui de l'accueil pendant une frame
+  // sur Safari et provoquait une contraction à 55px au mauvais moment.
+  if(document.body.classList.contains('iu-subpage-entering')){
+   bar.dataset.compact='false';
+   return;
+  }
+  const y=Math.max(window.scrollY||0,document.scrollingElement?.scrollTop||0);
+  bar.dataset.compact=y>=88?'true':'false';
+ }
+ function schedule(){
+  if(pending)return;
+  pending=true;
+  requestAnimationFrame(refresh);
+ }
+ back.addEventListener('click',()=>{
+  if(document.body.classList.contains('is-admin-mode'))iuCloseAdminPage();
+  else if(document.body.classList.contains('is-account-mode'))iuCloseAccountPage();
+  else if(document.body.classList.contains('is-events-mode'))iuCloseEventsPage();
+  else if(document.body.classList.contains('is-alerts-mode'))iuCloseAlertsPage();
+ });
+ window.addEventListener('scroll',schedule,{passive:true});
+ // Les scrolls internes éventuels de Safari sont également observés.
+ document.addEventListener('scroll',schedule,true);
+ new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
+ // Rafraîchissement synchrone au moment du changement de page.
+ // Sans cela le premier frame d'entrée ne contenait pas le bouton.
+ window.IUSyncSubpageBar=refresh;
+ refresh();
+})();
+
+
 /* V39.25 — Retour de bord : véritable aperçu capturé AVANT ouverture,
    aperçu préchargé, masque limité à la zone découverte, animation
    de fin harmonisée avec Retour (courbe .16,.84,.24,1). */
