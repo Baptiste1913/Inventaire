@@ -29374,3 +29374,7 @@ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton)
 @media(forced-colors:active){
  html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > svg.iu-home-action-icon{stroke:ButtonText!important}
 }
+
+/* V39.35 — Les quatre boutons de l'accueil n'ont plus d'icône.
+   Le texte et les flèches de navigation restent inchangés. */
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage,#iuDashListButton) > svg.iu-home-action-icon{display:none!important}
