@@ -27400,8 +27400,8 @@ html body.is-alerts-mode #iuAlertsPage .iu-dash-caution{
 
 
 /* V38.65 — Retour permanent partagé entre Administration, Mon compte,
-   Événements et Alertes. Surface à 100px au départ ;
-   après 88px de scroll : 70px et verre dépoli comme Bienvenue. */
+   Événements et Alertes. Surface à 70px au départ ;
+   après 88px de scroll : 55px et verre dépoli comme Bienvenue. */
 html body #iuSubpageBar[hidden],
 html body:not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode) #iuSubpageBar{
  display:none!important
@@ -27414,7 +27414,7 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #i
  display:flex!important;align-items:center!important;justify-content:flex-start!important;
  box-sizing:border-box!important;
  width:calc(100% - 26px)!important;max-width:734px!important;
- height:100px!important;min-height:0!important;
+ height:70px!important;min-height:0!important;
  margin:0!important;padding:0 8px!important;
  transform:translateX(-50%)!important;
  border:1px solid rgba(208,222,230,.85)!important;
@@ -27427,7 +27427,7 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #i
   background .28s ease,box-shadow .28s ease!important;
 }
 html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
- height:70px!important;border-radius:10px!important;
+ height:55px!important;border-radius:10px!important;
  border-color:rgba(255,255,255,.75)!important;
  background:linear-gradient(122deg,
   rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,
@@ -27481,7 +27481,7 @@ html body.is-admin-mode .app > #planningAdminCard.card,
 html body.is-account-mode .app > #accountCard.card,
 html body.is-events-mode .app > #eventsPage.card,
 html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
- padding-top:max(126px,calc(env(safe-area-inset-top,0px) + 118px))!important
+ padding-top:max(96px,calc(env(safe-area-inset-top,0px) + 88px))!important
 }
 @media(prefers-reduced-transparency:reduce){
  html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]{
