@@ -27206,8 +27206,8 @@ html body > .iu-home-return-blur-sheet{
  z-index:2147479999!important;
  pointer-events:none!important;
  background:rgba(255,255,255,.015)!important;
- -webkit-backdrop-filter:blur(1.6px)!important;
- backdrop-filter:blur(1.6px)!important;
+ -webkit-backdrop-filter:blur(2.4px)!important;
+ backdrop-filter:blur(2.4px)!important;
  will-change:opacity!important;
 }
 @media(prefers-reduced-motion:reduce), (prefers-reduced-transparency:reduce){
@@ -27216,4 +27216,22 @@ html body > .iu-home-return-blur-sheet{
   backdrop-filter:none!important;
   background:rgba(255,255,255,.08)!important;
  }
+}
+
+
+/* V38.55 — Les pages sont des fenêtres entièrement opaques, indépendantes
+   des halos et du contenu de Bienvenue, même pendant une View Transition. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode),
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) .app{
+ background-color:#f3f6f7!important;
+}
+html.iu-page-cards.iu-focus-entering::view-transition{
+ background:#f3f6f7!important;
+}
+html.iu-page-cards.iu-focus-entering::view-transition-old(*){
+ animation:none!important;
+ opacity:0!important;
+}
+html body:not(.is-focus-mode) #iuDashListButton .iu-dash-list-chevron{
+ transform:none!important;
 }
