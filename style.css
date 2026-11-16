@@ -28366,3 +28366,25 @@ html body #iuUpdateOverlay:has(#iuUpdateOverlayDismiss:not([hidden])) #iuUpdateS
 @media(forced-colors:active){
  html body #iuUpdateOverlay #iuUpdateStep{color:CanvasText!important}
 }
+
+/* V39.02 — La distance perçue provenait du gap:9px du conteneur
+   grid (V34.34), pas uniquement de la marge du libellé.
+   Neutraliser les DEUX espacements pour placer le statut
+   immédiatement au-dessus de la piste, sans toucher au reste. */
+html body #iuUpdateOverlay > .iu-update-screen > .iu-update-progress-block{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ row-gap:0!important;
+ column-gap:0!important;
+ gap:0!important;
+ margin:0 auto!important;
+ padding:0!important;
+}
+html body #iuUpdateOverlay > .iu-update-screen > .iu-update-progress-block > .iu-update-progress-meta{
+ margin:0 0 1px!important;
+ padding:0!important;
+ min-height:0!important;
+}
+html body #iuUpdateOverlay > .iu-update-screen > .iu-update-progress-block > #iuUpdateProgress{
+ margin:0!important;
+}
