@@ -1,7 +1,7 @@
 {
-  "version": "39.00",
+  "version": "39.01",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Écran de mise à jour : espacement vertical entre statut et barre de progression réduit de 6 à 3 px. Aucun autre changement visuel ou fonctionnel. Cache PWA actualisé."
+  "notes": "Ajustement strictement limité à la marge entre le texte de statut et la barre de progression de mise à jour : 5px au lieu de 3px. Aucune modification des dimensions du bloc, de la position du logo, de la barre ou des autres styles. Cache PWA actualisé."
 }
