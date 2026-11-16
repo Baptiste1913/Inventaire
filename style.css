@@ -27536,3 +27536,31 @@ html body.is-events-mode .app > #eventsPage.iu-events-page:not([hidden]){
 html body.iu-subpage-entering:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
  height:70px!important
 }
+
+/* V38.72 — Alertes / Événements : Retour et panneau sont un même
+   ensemble VISUEL lors de l'entrée. Les deux enfants gardent leur
+   positionnement distinct (barre fixe pour le scroll), mais une seule
+   activation de keyframes assure une progression strictement synchrone.
+   Les pages Admin/Compte gardent leur animation déjà validée. */
+@keyframes iu72-linked-rise{
+ 0%{translate:0 105dvh;opacity:1}
+ 100%{translate:0 0;opacity:1}
+}
+html body.iu-subpage-entering.is-events-mode #iuSubpageBar:not([hidden]),
+html body.iu-subpage-entering.is-events-mode .app > #eventsPage > .iu-events-page-inner,
+html body.iu-subpage-entering.is-alerts-mode #iuSubpageBar:not([hidden]),
+html body.iu-subpage-entering.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body{
+ animation:iu72-linked-rise 610ms cubic-bezier(.16,.84,.24,1) both!important;
+}
+/* Pendant l'entrée, pas de transition secondaire sur le bandeau :
+   seule la trajectoire commune gère sa position. */
+html body.iu-subpage-entering:is(.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+ transition:none!important
+}
+@media(prefers-reduced-motion:reduce){
+ html body.iu-subpage-entering:is(.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
+ html body.iu-subpage-entering.is-events-mode .app > #eventsPage > .iu-events-page-inner,
+ html body.iu-subpage-entering.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-page-body{
+  animation:none!important
+ }
+}
