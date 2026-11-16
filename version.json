@@ -1,7 +1,7 @@
 {
-  "version": "38.94",
+  "version": "38.95",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour aux fonds et couleurs d'origine de toutes les pastilles (suppression des styles V38.91–38.93), avec contour blanc et relief neumorphique à cinq ombres du bouton Accéder aux réglages adapté aux petits formats, coins complètement arrondis et hauteur 32px. Logo Google, statuts et fonctions préservés. Cache PWA actualisé."
+  "notes": "Rétablissement des pastilles d'origine avec leur taille, coins pleinement arrondis, couleurs, bordures et logo Google ; retrait du contour blanc et des cinq ombres prononcées de V38.94. Ajout d'un reflet intérieur et d'une ombre très discrète pour l'harmonie générale. Cache PWA actualisé."
 }
