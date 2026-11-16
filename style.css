@@ -29161,3 +29161,25 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #i
 @media(forced-colors:active){
  html body #iuSubpageBar .iu-subpage-heading{color:CanvasText!important}
 }
+
+/* V39.16 — Titres de navigation : typographie identique à
+   « Espace administrateur » sur l'accueil, agrandie légèrement.
+   Conserver les quatre titres, leur placement et le bouton Retour. */
+html body #iuSubpageBar .iu-subpage-heading{
+ font-family:inherit!important;
+ font-size:clamp(20px,4.8vw,23px)!important;
+ line-height:1.2!important;
+ font-weight:850!important;
+ letter-spacing:-.45px!important;
+ color:#202126!important;
+ text-transform:none!important;
+}
+@media(max-width:380px){
+ html body #iuSubpageBar .iu-subpage-heading{
+  font-size:20px!important;
+  letter-spacing:-.45px!important;
+ }
+}
+@media(forced-colors:active){
+ html body #iuSubpageBar .iu-subpage-heading{color:CanvasText!important}
+}
