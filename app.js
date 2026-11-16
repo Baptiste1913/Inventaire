@@ -1028,7 +1028,7 @@ const iuAdminPageMotion={
  homeScrollY:()=>iuSavedHomeScrollY
 };
 
-/* V39.25 — Capturer l'accueil REEL avant que la sous-page ne le masque :
+/* V39.26 — Capturer l'accueil REEL avant que la sous-page ne le masque :
    pas de copie de cartes en mode secondaire, ni de vieux contenu. */
 let iuEdgeHomeSnapshot=null;
 function iuEdgePrepareHome(){
@@ -2514,7 +2514,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
 })();
 
 
-/* V39.25 — Retour de bord : véritable aperçu capturé AVANT ouverture,
+/* V39.26 — Retour de bord : véritable aperçu capturé AVANT ouverture,
    aperçu préchargé, masque limité à la zone découverte, animation
    de fin harmonisée avec Retour (courbe .16,.84,.24,1). */
 (function iuInstallEdgeSwipeBack(){
