@@ -1,7 +1,7 @@
 {
-  "version": "38.65",
+  "version": "38.66",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Barre supérieure commune fixe avec bouton Retour sur les pages Admin, Mon compte, Événements et Alertes : hauteur 30px à l'ouverture, 20px après 88px de défilement et effet verre dépoli assorti au bloc Bienvenue. Anciens boutons intégrés masqués, cache PWA renouvelé."
+  "notes": "Bandeau fixe Retour agrandi à 100 px de hauteur au départ, puis 70 px après le seuil de défilement, avec marge supérieure des quatre pages adaptée pour ne pas masquer les titres. Flou, opacité et fonctionnement de navigation conservés. Cache PWA renouvelé."
 }
