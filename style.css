@@ -27506,3 +27506,20 @@ html body.is-alerts-mode .app > #iuAlertsPage:not([hidden]){
  html body #iuSubpageBar #iuSubpageBack,
  html body #iuSubpageBar #iuSubpageBack svg{transition:none!important}
 }
+
+/* V38.70 — Bandeau Retour interactif pendant la remontée autonome. */
+html body #iuSubpageBar #iuSubpageBack{
+ position:relative!important;
+ touch-action:manipulation!important;
+ pointer-events:auto!important;
+ -webkit-tap-highlight-color:transparent
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
+ pointer-events:auto!important;
+ will-change:translate!important
+}
+@media(prefers-reduced-motion:reduce){
+ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar{
+  will-change:auto!important
+ }
+}
