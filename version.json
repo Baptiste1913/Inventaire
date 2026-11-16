@@ -1,7 +1,7 @@
 {
-  "version": "39.42",
+  "version": "39.43",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Résultat de pesée : lumières légèrement plus intenses et flou fortement accru (62 px), sans animation. Calculs et mise en page inchangés."
+  "notes": "Bloc Réglages de la pesée : même fond dégradé, contour blanc, arrondi 14px et relief neumorphique que le bouton Accéder aux événements, sans modifier les commandes."
 }
