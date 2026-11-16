@@ -29024,3 +29024,44 @@ html body #iuDashListButton .iu-home-action-icon-warning{
 @media(forced-colors:active){
  html body .iu-home-action-icon{color:ButtonText!important;opacity:1!important}
 }
+
+/* V39.13 — Essai option 3 : les trois icônes de navigation
+   reposent dans une mini-pastille neutre, douce et légèrement
+   neumorphique. Ne pas toucher au triangle d'alerte ni aux flèches. */
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) .iu-home-icon-bubble{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:0 0 29px!important;
+ width:29px!important;
+ height:29px!important;
+ min-width:29px!important;
+ padding:0!important;
+ border:1px solid rgba(255,255,255,.82)!important;
+ border-radius:10px!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.93),rgba(229,235,239,.82))!important;
+ box-shadow:-1px -1px 2.5px rgba(255,255,255,.66),1.5px 2px 3.5px rgba(150,165,180,.14),inset .5px .5px 0 rgba(255,255,255,.55)!important;
+ pointer-events:none!important;
+}
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) .iu-home-icon-bubble > .iu-home-action-icon{
+ width:16px!important;
+ height:16px!important;
+ color:#586873!important;
+ opacity:.9!important;
+}
+html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage){
+ column-gap:9px!important;
+}
+@media(max-width:380px){
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) .iu-home-icon-bubble{
+  width:26px!important;height:26px!important;min-width:26px!important;flex-basis:26px!important;
+ }
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) .iu-home-icon-bubble > .iu-home-action-icon{
+  width:14px!important;height:14px!important;
+ }
+}
+@media(forced-colors:active){
+ html body :is(#iuAdminLaunch,#iuAccountLaunch,#eventsOpenPage) .iu-home-icon-bubble{
+  background:ButtonFace!important;border:1px solid ButtonText!important;box-shadow:none!important;
+ }
+}
