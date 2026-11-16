@@ -1,7 +1,7 @@
 {
-  "version": "39.38",
+  "version": "39.39",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Arrondi réel de Voir la liste (14px) appliqué aux boutons Réglages, Mon compte et Événements, y compris dans leurs anciennes règles CSS plus spécifiques. Aucun autre changement visuel."
+  "notes": "Accueil Planification : rayon 14px sur Prochain inventaire, titre réduit à 17px, contenu du cadre remonté, barre ambre verticale arrondie comme dans les rappels."
 }
