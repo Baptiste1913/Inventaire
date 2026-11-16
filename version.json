@@ -1,7 +1,7 @@
 {
-  "version": "39.27",
+  "version": "39.28",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Geste retour : accueil animé comme lors du bouton Retour (cartes montant de 14dvh en cascade de 70 ms), animation liée à la position du doigt et poursuivie au relâchement, flou initial renforcé à 16 px avec réduction progressive."
+  "notes": "Retour gestuel : flèche réduite et transparence divisée par deux, bord vertical rectiligne aligné aux pixels, bloc Bienvenue animé avec les cartes, passage progressif vers l'accueil réel et restauration de la position de défilement mémorisée."
 }
