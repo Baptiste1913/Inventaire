@@ -27205,9 +27205,9 @@ html body > .iu-home-return-blur-sheet{
  inset:0!important;
  z-index:2147479999!important;
  pointer-events:none!important;
- background:rgba(255,255,255,.015)!important;
- -webkit-backdrop-filter:blur(2.4px)!important;
- backdrop-filter:blur(2.4px)!important;
+ background:rgba(243,246,247,.16)!important;
+ -webkit-backdrop-filter:blur(3.5px)!important;
+ backdrop-filter:blur(3.5px)!important;
  will-change:opacity!important;
 }
 @media(prefers-reduced-motion:reduce), (prefers-reduced-transparency:reduce){
