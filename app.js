@@ -2510,7 +2510,11 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   const x=Math.max(0,Math.min(innerWidth,distance));
   gesture.distance=x;
   gesture.nodes.forEach(node=>node.style.setProperty('translate',x+'px 0','important'));
-  gesture.backdrop.style.opacity=String(Math.min(1,x/Math.max(1,innerWidth)));
+  const progress=Math.min(1,x/Math.max(1,innerWidth));
+  gesture.preview.style.opacity=String(progress);
+  gesture.preview.style.filter='blur('+((1-progress)*14).toFixed(2)+'px)';
+  gesture.arrow.style.opacity=String(Math.min(1,.25+progress*.75));
+  gesture.arrow.style.transform='translateX('+(progress*13).toFixed(1)+'px)';
  };
  document.addEventListener('touchstart',event=>{
   if(gesture||focusMotionBusy||event.touches.length!==1||event.defaultPrevented)return;
@@ -2532,9 +2536,30 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    const backdrop=document.createElement('div');
    backdrop.className='iu-edge-swipe-backdrop';
    backdrop.setAttribute('aria-hidden','true');
-   backdrop.innerHTML='<span>Accueil</span>';
+   // Aperçu réel des cartes d'accueil, sans iframe ni requête réseau.
+   const preview=document.createElement('div');
+   preview.className='iu-edge-swipe-home';
+   const home=document.querySelector('.app');
+   if(home){
+    const children=[...home.children].filter(node=>
+     !['planningAdminCard','accountCard','eventsPage','iuAlertsPage'].includes(node.id)&&
+     !node.classList.contains('offline-indicator')&&
+     !node.hidden&&node.matches('.header,.intro,.card,.inventory-calendar,.iu-services-divider,footer'));
+    for(const node of children){
+     const clone=node.cloneNode(true);
+     clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+     clone.removeAttribute('id');
+     clone.setAttribute('inert','');
+     preview.append(clone);
+    }
+   }
+   preview.style.transform='translateY(-'+Math.max(0,iuSavedHomeScrollY)+'px)';
+   const arrow=document.createElement('div');
+   arrow.className='iu-edge-swipe-arrow';
+   arrow.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+   backdrop.append(preview,arrow);
    document.body.append(backdrop);
-   g.backdrop=backdrop;
+   g.backdrop=backdrop;g.preview=preview;g.arrow=arrow;
    document.body.classList.add('iu-edge-swiping');
   }
   if(event.cancelable)event.preventDefault();
@@ -2549,7 +2574,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   const commit=g.distance>innerWidth*.34||(g.distance>65&&g.velocity>.55);
   const target=commit?innerWidth:0;
   g.nodes.forEach(node=>node.style.setProperty('transition','translate 230ms cubic-bezier(.2,.75,.25,1)','important'));
-  g.backdrop.style.transition='opacity 230ms ease';
+  g.preview.style.transition='opacity 230ms ease,filter 230ms ease';
+  g.arrow.style.transition='opacity 230ms ease,transform 230ms ease';
   move(target);
   // Fermeture immédiate après l'animation interactive : pas de double transition.
   setTimeout(()=>{if(gesture!==g)return;if(commit)g.page.close();clear();},245);
