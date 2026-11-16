@@ -1,7 +1,7 @@
 {
-  "version": "38.81",
+  "version": "38.82",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Suppression des ombres et du glow du bouton Retour intérieur. Le bouton conserve sa hauteur 34px, ses espacements, sa typographie et son icône à toutes les positions de défilement ; il se centre verticalement dans le bandeau qui seul se réduit de 70 à 55px. Cadre extérieur translucide, contours et animations de pages inchangés. Cache PWA renouvelé."
+  "notes": "Le bouton Retour adopte le retour tactile du bouton Accéder aux réglages : enfoncement léger de 1px, échelle .992, dégradé et ombre intérieure momentanée à l'appui, puis relâchement animé. Pas d'ombre permanente ni de changement de taille au défilement ; mode mouvement réduit respecté. Cache PWA renouvelé."
 }
