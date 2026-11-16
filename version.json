@@ -1,7 +1,7 @@
 {
-  "version": "38.76",
+  "version": "38.77",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bandeau Retour : arrondis identiques aux panneaux des pages (21px et 20px sur mobile), y compris en version compacte ; marge sous le bandeau réduite de 8px sur les quatre pages. Animations, hauteurs 70/55px, interactions et fonctionnalités inchangées. Cache PWA renouvelé."
+  "notes": "Le cadre Retour adopte le contour blanc, le dégradé et les cinq ombres exacts du bloc Espace administrateur de l'accueil, en gardant les arrondis et la réactivité du bouton. Marge sous Retour réduite de 4px supplémentaires sur les quatre pages. Animations synchronisées inchangées ; cache PWA renouvelé."
 }
