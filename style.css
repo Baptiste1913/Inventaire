@@ -28123,152 +28123,11 @@ html body.is-account-mode .app > #accountCard.card .account-body button:is(#acco
  }
 }
 
-/* V38.91 — Pastilles d'état de l'accueil et du tableau de bord :
-   relief discret V38.87, hauteur commune de 32px calée sur la pastille
-   Google « Connecté ». Préserver les couleurs de chaque statut. */
-html body:not(.is-focus-mode) :is(
- #accountSummaryStatus.account-summary-status,
- #dashboardCloudPill.dashboard-cloud-pill,
- #sessionBadge.session-pill,
- #historyCount.session-pill,
- #sessionsCount.session-pill,
- #basketCount.session-pill,
- #calendarNextCountdown.events-countdown,
- #eventsFeatureState.iu-events-feature-state,
- #eventsFeatureCountdown.iu-events-feature-countdown,
- #heroStatus.intro-session-state
-){
- box-sizing:border-box!important;
- display:inline-flex!important;
- align-items:center!important;
- justify-content:center!important;
- min-height:32px!important;
- height:32px!important;
- max-height:32px!important;
- padding-top:0!important;
- padding-bottom:0!important;
- border-radius:999px!important;
- line-height:1.2!important;
- box-shadow:
-  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
-  -3px -3px 6.5px rgba(255,255,255,.30),
-   2px 2.5px 5.5px rgba(156,173,189,.175),
-   .5px 1px 2px rgba(156,173,189,.09),
-   inset .5px .5px 0 rgba(255,255,255,.48)!important;
-}
-html body:not(.is-focus-mode) #accountCard .account-header-end > #accountSummaryStatus.account-summary-status.is-connected{
- min-height:32px!important;
- height:32px!important;
- max-height:32px!important;
-}
-html body:not(.is-focus-mode) :is(
- #accountSummaryStatus.account-summary-status,
- #dashboardCloudPill.dashboard-cloud-pill,
- #sessionBadge.session-pill,
- #historyCount.session-pill,
- #sessionsCount.session-pill,
- #basketCount.session-pill,
- #calendarNextCountdown.events-countdown,
- #eventsFeatureState.iu-events-feature-state,
- #eventsFeatureCountdown.iu-events-feature-countdown,
- #heroStatus.intro-session-state
-)[hidden]{display:none!important}
-@media(forced-colors:active){
- html body:not(.is-focus-mode) :is(
-  #accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,
-  #sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,
-  #eventsFeatureCountdown,#heroStatus
- ){box-shadow:none!important}
-}
 
-/* V38.92 — Pastilles : même surface que le bouton Retour V38.81
-   (dégradé 145°, bord blanc, coins 10px, sans ombre/glow).
-   Variables par état pour conserver un code couleur lisible.
-   Sélecteurs par ID + html body pour dépasser les anciennes
-   règles !important de pastilles. */
-html body :is(
- #accountSummaryStatus,#dashboardCloudPill,#sessionBadge,
- #historyCount,#sessionsCount,#basketCount,
- #calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,
- #heroStatus
-){
- --iu-pill-light:#fff;
- --iu-pill-mid:#f8fafb;
- --iu-pill-dark:#e5ebef;
- --iu-pill-ink:#394a52;
- box-sizing:border-box!important;
- display:inline-flex!important;
- align-items:center!important;
- justify-content:center!important;
- height:34px!important;
- min-height:34px!important;
- max-height:34px!important;
- padding-top:0!important;
- padding-bottom:0!important;
- border:1px solid rgba(255,255,255,.94)!important;
- border-radius:10px!important;
- background:linear-gradient(145deg,var(--iu-pill-light) 0%,var(--iu-pill-mid) 34%,var(--iu-pill-dark) 100%)!important;
- background-color:var(--iu-pill-mid)!important;
- background-clip:border-box!important;
- color:var(--iu-pill-ink)!important;
- box-shadow:none!important;
- filter:none!important;
- -webkit-filter:none!important;
- line-height:1.2!important;
-}
-html body #accountSummaryStatus.is-connected,
-html body #dashboardCloudPill.is-synced{
- --iu-pill-light:#fafffc;
- --iu-pill-mid:#edf8f1;
- --iu-pill-dark:#cdebd9;
- --iu-pill-ink:#146a4d;
-}
-html body #dashboardCloudPill.is-warning{
- --iu-pill-light:#fffdfa;
- --iu-pill-mid:#fff2e0;
- --iu-pill-dark:#f4d9b1;
- --iu-pill-ink:#895d20;
-}
-html body #accountSummaryStatus:not(.is-connected){
- --iu-pill-light:#fff;
- --iu-pill-mid:#f5f7f8;
- --iu-pill-dark:#e1e7eb;
- --iu-pill-ink:#535e67;
-}
-html body :is(#sessionBadge,#historyCount,#sessionsCount,#basketCount){
- --iu-pill-light:#fbfdff;
- --iu-pill-mid:#f0f6fa;
- --iu-pill-dark:#d8e7f0;
- --iu-pill-ink:#395e73;
-}
-html body :is(#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown){
- --iu-pill-light:#fffdf9;
- --iu-pill-mid:#faf2e5;
- --iu-pill-dark:#efdec2;
- --iu-pill-ink:#795c35;
-}
-html body #heroStatus{
- --iu-pill-light:#fafffc;
- --iu-pill-mid:#eef8f1;
- --iu-pill-dark:#d4eadb;
- --iu-pill-ink:#37634d;
-}
-html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus)[hidden]{
- display:none!important;
-}
-@media(forced-colors:active){
- html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus){
-  border-color:ButtonText!important;
-  background:ButtonFace!important;
-  color:ButtonText!important;
- }
-}
-
-/* V38.93 — Correctif vérifié par analyse de spécificité :
-   anciennes règles Compte / Google / Cloud / Événements, avec plusieurs IDs
-   et !important, primaient sur V38.91-92.
-   Les :not(#iuPillUnused...) sont TOUJOURS vrais (ces IDs n'existent
-   pas) et augmentent seulement la priorité des styles de pastille. */
+/* V38.94 — Pastilles : restauration intégrale des fonds/couleurs et
+   des logos d'avant V38.91. Seuls le contour et le relief du bouton
+   « Accéder aux réglages » sont adaptés à leur petite taille :
+   cinq ombres douces, côtés parfaitement arrondis. */
 html body :is(
  #accountSummaryStatus.account-summary-status,
  #dashboardCloudPill.dashboard-cloud-pill,
@@ -28284,80 +28143,42 @@ html body :is(
  .iu-account-profile-provider
 ):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
  box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:999px!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+/* Uniformiser uniquement la hauteur de la pastille, sans altérer
+   les espacements horizontaux, le logo Google ni les couleurs. */
+html body :is(
+ #accountSummaryStatus.account-summary-status,
+ #dashboardCloudPill.dashboard-cloud-pill,
+ #sessionBadge.session-pill,
+ #historyCount.session-pill,
+ #sessionsCount.session-pill,
+ #basketCount.session-pill,
+ #calendarNextCountdown.events-countdown,
+ #eventsFeatureState.iu-events-feature-state,
+ #heroStatus.intro-session-state,
+ #pushToggle.events-bell,
+ .iu-account-profile-provider
+):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
  display:inline-flex!important;
  align-items:center!important;
  justify-content:center!important;
- flex-shrink:0!important;
- min-height:34px!important;
- height:34px!important;
- max-height:34px!important;
+ min-height:32px!important;
+ height:32px!important;
+ max-height:32px!important;
  padding-top:0!important;
  padding-bottom:0!important;
- border:1px solid rgba(255,255,255,.94)!important;
- border-radius:10px!important;
- background:linear-gradient(145deg,var(--iu-pill-light,#fff) 0%,var(--iu-pill-mid,#f8fafb) 34%,var(--iu-pill-dark,#e5ebef) 100%)!important;
- background-clip:border-box!important;
- color:var(--iu-pill-ink,#394a52)!important;
- box-shadow:none!important;
- filter:none!important;
- -webkit-filter:none!important;
- line-height:1.2!important;
 }
-html body :is(
- #accountSummaryStatus.account-summary-status.is-connected,
- .iu-account-profile-provider
-):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- --iu-pill-light:#fafffc;
- --iu-pill-mid:#edf8f1;
- --iu-pill-dark:#cdebd9;
- --iu-pill-ink:#146a4d;
- background-image:url("google-logo.png?v=32.0"),linear-gradient(145deg,var(--iu-pill-light) 0%,var(--iu-pill-mid) 34%,var(--iu-pill-dark) 100%)!important;
- background-repeat:no-repeat,no-repeat!important;
- background-position:12px center,center!important;
- background-size:14px 14px,100% 100%!important;
- padding-left:33px!important;
-}
-html body #pushToggle.events-bell:not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- --iu-pill-light:#fff;
- --iu-pill-mid:#f6f8f9;
- --iu-pill-dark:#e1e7eb;
- --iu-pill-ink:#535e67;
-}
-html body #pushToggle.events-bell[aria-pressed="true"]:not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- --iu-pill-light:#fafffc;
- --iu-pill-mid:#edf8f1;
- --iu-pill-dark:#cdebd9;
- --iu-pill-ink:#146a4d;
-}
-html body #dashboardCloudPill.dashboard-cloud-pill.is-synced:not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- --iu-pill-light:#fafffc;
- --iu-pill-mid:#edf8f1;
- --iu-pill-dark:#cdebd9;
- --iu-pill-ink:#146a4d;
-}
-html body #dashboardCloudPill.dashboard-cloud-pill.is-warning:not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- --iu-pill-light:#fffdfa;
- --iu-pill-mid:#fff2e0;
- --iu-pill-dark:#f4d9b1;
- --iu-pill-ink:#895d20;
-}
-html body :is(#sessionBadge,#historyCount,#sessionsCount,#basketCount):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- --iu-pill-light:#fbfdff;
- --iu-pill-mid:#f0f6fa;
- --iu-pill-dark:#d8e7f0;
- --iu-pill-ink:#395e73;
-}
-html body :is(#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- --iu-pill-light:#fffdf9;
- --iu-pill-mid:#faf2e5;
- --iu-pill-dark:#efdec2;
- --iu-pill-ink:#795c35;
-}
-html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus,#pushToggle)[hidden]:not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- display:none!important;
-}
+html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus,#pushToggle)[hidden]:not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){display:none!important}
 @media(forced-colors:active){
  html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus,#pushToggle,.iu-account-profile-provider):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
-  border-color:ButtonText!important;background:ButtonFace!important;color:ButtonText!important;box-shadow:none!important;
+  box-shadow:none!important;border-color:ButtonText!important
  }
 }
