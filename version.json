@@ -1,7 +1,7 @@
 {
-  "version": "39.54",
+  "version": "39.55",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour intégral aux styles et boutons de v39.52 ; contour dégradé et relief de Voir la liste uniquement sur la carte Prochain inventaire. Aucune modification métier."
+  "notes": "Ajout du liseré intérieur turquoise foncé manquant sur la seule carte Prochain inventaire, pour reproduire le double contour du bouton Voir la liste. Autres boutons et calculs inchangés."
 }

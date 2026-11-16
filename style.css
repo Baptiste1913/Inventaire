@@ -30178,3 +30178,33 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
   box-shadow:none!important;
  }
 }
+
+
+/* V39.55 — Bordure intérieure manquante : exactement le double contour
+   du bouton « Voir la liste », sans transformer la carte en bouton. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box::after{
+ content:""!important;
+ position:absolute!important;
+ display:block!important;
+ inset:0!important;
+ box-sizing:border-box!important;
+ border:2px solid #007583!important;
+ border-radius:11.5px!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ opacity:1!important;
+ transform:none!important;
+ z-index:1!important;
+ pointer-events:none!important;
+ -webkit-mask:none!important;
+ mask:none!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box > *{
+ position:relative!important;
+ z-index:2!important;
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box::after{
+  display:none!important;
+ }
+}
