@@ -1,7 +1,7 @@
 {
-  "version": "38.88",
+  "version": "38.89",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Les quatre blocs dépliables de Gestion des événements reprennent le neumorphisme discret des boutons administrateur : dégradé blanc-gris, contour blanc, cinq ombres atténuées et coins 12px. Dimensions, contenus et animations de dépliage conservés. Cache PWA renouvelé."
+  "notes": "Page Mon compte : relief neumorphique discret V38.87/V38.88 appliqué au panneau (invité et profil Google) et aux boutons, coins adaptatifs 8–12px, dégradé et ombres atténuées, pression au clic. Déconnexion et suppression des inventaires en variante rougeâtre. Boutons Retour, dimensions, logique Google et synchronisation inchangés. Cache PWA renouvelé."
 }
