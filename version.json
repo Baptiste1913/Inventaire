@@ -1,7 +1,7 @@
 {
-  "version": "39.16",
+  "version": "39.17",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Titres des quatre barres supérieures alignés sur la typographie, le poids et la couleur du titre Espace administrateur de l'accueil, avec une taille légèrement supérieure."
+  "notes": "Renommage de la rubrique Événement en Planification : libellé SERVICE U / PLANIFICATION, titre mensuel dynamique Planification en [mois], et titre du bandeau supérieur Planification."
 }
