@@ -509,6 +509,9 @@ function iuPreserveExitVisual(source,copy){
  }
 }
 function exitFocusWithoutSnapshot(action,config={}){
+ // V38.54 : transitions des pages autonomes sans filtre sur .app,
+ // qui provoquait une recomposition des verres floutés dans Safari iOS.
+ const standaloneReturn=Boolean(config.solidDuringMotion);
  const duration=610;
  const easing='cubic-bezier(.16,.84,.24,1)';
  const app=document.querySelector('.app');
@@ -553,8 +556,11 @@ function exitFocusWithoutSnapshot(action,config={}){
  layer.prepend(cover);
  document.body.append(layer);
  focusMotionBusy=true;
- // Le nouvel accueil est mis en page par le navigateur, sans aucune
- // transition de vue qui pourrait le redimensionner horizontalement.
+ // La réapparition du bandeau relançait iuWelcomeEnter (translation 9px),
+ // alors que cette fonction anime déjà tout le retour. Le bloquer AVANT
+ // de démasquer l'accueil évite le saut, même après l'animation de sortie.
+ document.body.classList.add('iu-home-return-stable');
+ // Le nouvel accueil est mis en page sans translation de son bandeau.
  action();
  // Retour en cascade comme à l'ouverture PWA : de haut en bas.
  // La descente du mode Concentration et son flou restent inchangés.
@@ -582,15 +588,30 @@ function exitFocusWithoutSnapshot(action,config={}){
  // Un seul compositing layer pour le bandeau ET les cartes évite les écarts.
  const previousAppFilter=app.style.filter;
  const previousAppWillChange=app.style.willChange;
- app.style.filter='blur(3.2px)';
- app.style.willChange='filter';
- void app.offsetWidth;
- const homeBlur=app.animate([
-  {offset:0,filter:'blur(3.2px)'},
-  {offset:.28,filter:'blur(3.0px)'},
-  {offset:1,filter:'blur(0px)'}
- ],{duration:450,easing:'ease-out',fill:'forwards'});
- animations.push(homeBlur);
+ let homeBlurSheet=null;
+ if(standaloneReturn){
+  // Flou léger sur un calque fixe HORS de .app : le backdrop-filter
+  // ne déplace plus les éléments de Bienvenue ni les halos sur Safari.
+  homeBlurSheet=document.createElement('div');
+  homeBlurSheet.className='iu-home-return-blur-sheet';
+  homeBlurSheet.setAttribute('aria-hidden','true');
+  document.body.append(homeBlurSheet);
+  animate(homeBlurSheet,[
+   {offset:0,opacity:.82},
+   {offset:1,opacity:0}
+  ],{duration:510,easing:'ease-out'});
+ }else{
+  // Mode Concentration inchangé : son flou historique est conservé.
+  app.style.filter='blur(3.2px)';
+  app.style.willChange='filter';
+  void app.offsetWidth;
+  const homeBlur=app.animate([
+   {offset:0,filter:'blur(3.2px)'},
+   {offset:.28,filter:'blur(3.0px)'},
+   {offset:1,filter:'blur(0px)'}
+  ],{duration:450,easing:'ease-out',fill:'forwards'});
+  animations.push(homeBlur);
+ }
  for(const [index,tile] of tiles.entries()){
   // V36.65 — Le retour de fin d'inventaire commence encore moins bas,
   // mais part moins bas pour ménager le regard. Ne modifie pas
@@ -605,6 +626,9 @@ function exitFocusWithoutSnapshot(action,config={}){
   });
  }
  for(const anchor of anchors){
+  // En retour d'une page, Bienvenue reste immobile et entièrement opaque.
+  // Le masque coulissant et le flou externe suffisent à sa révélation.
+  if(standaloneReturn&&anchor.classList.contains('intro'))continue;
   // V33.74 : l'en-tête et la banderole restent visibles dès le début,
   // avec un simple renforcement progressif de l'opacité au lieu d'un
   // passage brutal de 0% à 100%.
@@ -616,8 +640,12 @@ function exitFocusWithoutSnapshot(action,config={}){
  }
  const cleanup=()=>{
   animations.forEach(anim=>anim.cancel());
-  app.style.filter=previousAppFilter;
-  app.style.willChange=previousAppWillChange;
+  if(standaloneReturn){
+   homeBlurSheet?.remove();
+  }else{
+   app.style.filter=previousAppFilter;
+   app.style.willChange=previousAppWillChange;
+  }
   layer.remove();
   focusMotionBusy=false;
   const pending=focusPendingTask;
@@ -931,7 +959,7 @@ function iuCloseEventsPage(immediate=false){
 }
 window.IUOpenEventsPage=iuOpenEventsPage;
 window.IUCloseEventsPage=iuCloseEventsPage;
-/* V38.53 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
+/* V38.54 — Alertes : même moteur opaque d'entrée/sortie que la page Administrateur,
    sans modifier les données de veille ni le comportement hors ligne. */
 const iuAlertsPageMotion={
  modeClass:'is-alerts-mode',
