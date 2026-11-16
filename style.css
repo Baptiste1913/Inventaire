@@ -28702,3 +28702,142 @@ html body.is-events-mode .app > #eventsPage.iu-events-page #eventsOtherPanel .iu
   background:Canvas!important;box-shadow:none!important;
  }
 }
+
+/* V39.09 — Rappels : même langage visuel que la page Événements.
+   Surfaces blanc/gris neutres, mêmes espacements et reliefs pour
+   panneaux et fiches ; les barres latérales gardent leur sémantique
+   marché/rappel, sans teinter toute la surface du cadre. */
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-page-body{
+ gap:11px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading{
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ gap:4px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading h2{
+ font-size:20px!important;
+ font-weight:850!important;
+ color:#29333b!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading p{
+ font-size:11.5px!important;
+ color:#87929a!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+ .iu-alerts-overview-item,
+ .iu-alerts-overview-supply,
+ .iu-alerts-overview-recall,
+ .iu-alerts-group,
+ .iu-alerts-supply-group,
+ .iu-alerts-recall-group,
+ a.iu-dash-alert,
+ a.iu-dash-alert-supply,
+ a.iu-dash-alert-price,
+ a.iu-dash-alert-recall
+){
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:
+  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
+  -3px -3px 6.5px rgba(255,255,255,.30),
+   2px 2.5px 5.5px rgba(156,173,189,.175),
+   .5px 1px 2px rgba(156,173,189,.09),
+   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-overview-item{
+ border-radius:16px!important;
+ padding:12px 11px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group{
+ border-radius:16px!important;
+ padding:15px 14px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-dash-detail-content{
+ gap:11px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group > header{
+ margin:0 0 11px!important;
+ padding:0!important;
+ border:0!important;
+ gap:4px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group h3{
+ font-size:16px!important;
+ font-weight:850!important;
+ color:#303a42!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group > header p{
+ font-size:11px!important;
+ color:#87929a!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page a.iu-dash-alert{
+ border-radius:12px!important;
+ padding:12px 11px!important;
+ gap:12px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page a.iu-dash-alert:active{
+ background:linear-gradient(145deg,#e8edf1,#f7f9fa)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-dash-alert-copy strong{
+ font-size:12.5px!important;
+ font-weight:820!important;
+ color:#303b44!important;
+ line-height:1.35!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-dash-alert-copy small{
+ font-size:11px!important;
+ font-weight:500!important;
+ color:#7f8a92!important;
+ line-height:1.45!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-toolbar{
+ margin:0!important;
+ gap:8px!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+ .iu-alerts-filter-buttons > button,
+ .iu-alerts-sort select
+){
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:10px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#687781!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),-3px -3px 6.5px rgba(255,255,255,.30),2px 2.5px 5.5px rgba(156,173,189,.175),.5px 1px 2px rgba(156,173,189,.09),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-filter-buttons > button[aria-pressed="true"]{
+ color:#344956!important;
+ background:linear-gradient(145deg,#fff,#eef5f8 40%,#dae9f0)!important;
+ border-color:rgba(224,239,247,.96)!important;
+}
+html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-recall-group > p.iu-dash-caution{
+ margin:9px 0 0!important;
+ font-size:12px!important;
+ font-weight:600!important;
+ color:#788690!important;
+ line-height:1.5!important;
+ background:none!important;
+ border:0!important;
+ box-shadow:none!important;
+ padding:0!important;
+}
+@media(max-width:430px){
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group{
+  padding:13px 11px!important;
+ }
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-overview-item{
+  padding:10px 8px!important;
+ }
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page a.iu-dash-alert{
+  padding:11px 10px!important;
+ }
+}
+@media(forced-colors:active){
+ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
+  .iu-alerts-overview-item,.iu-alerts-group,a.iu-dash-alert,
+  .iu-alerts-filter-buttons > button,.iu-alerts-sort select
+ ){
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+}
