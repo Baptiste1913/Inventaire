@@ -27187,3 +27187,33 @@ html body.is-alerts-mode #iuAlertsPage .iu-dash-caution{
 @media(prefers-reduced-motion:reduce){
  html body.is-alerts-mode #iuAlertsPage #iuAlertsReturn{transition:none!important}
 }
+
+/* V38.54 — Retour à l'accueil sans saut du verre de Bienvenue.
+   iuWelcomeEnter translate de 9px au montage après une page masquée :
+   une fois que l'utilisateur a ouvert une page, ne plus rejouer cet
+   effet d'apparition. Les halos et voyants gardent leurs animations. */
+html body.iu-home-return-stable:not(.is-focus-mode) main.app >
+section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
+ animation:none!important;
+ transform:none!important;
+ opacity:1!important;
+}
+/* Flou de retour au-dessus de l'accueil, mais en DEHORS de .app :
+   aucune modification du containing-block des surfaces glassmorphiques. */
+html body > .iu-home-return-blur-sheet{
+ position:fixed!important;
+ inset:0!important;
+ z-index:2147479999!important;
+ pointer-events:none!important;
+ background:rgba(255,255,255,.015)!important;
+ -webkit-backdrop-filter:blur(1.6px)!important;
+ backdrop-filter:blur(1.6px)!important;
+ will-change:opacity!important;
+}
+@media(prefers-reduced-motion:reduce), (prefers-reduced-transparency:reduce){
+ html body > .iu-home-return-blur-sheet{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  background:rgba(255,255,255,.08)!important;
+ }
+}
