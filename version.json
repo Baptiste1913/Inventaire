@@ -1,7 +1,7 @@
 {
-  "version": "39.13",
+  "version": "39.14",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Essai option 3 : petites pastilles neumorphiques derrière les icônes réglages, compte et événements de l'accueil, avec centrage et contraste doux, sans toucher aux boutons ni à l'avertissement des rappels."
+  "notes": "Option 2 : suppression des mini-pastilles, icônes à gauche du texte avec contraste et espacements harmonisés sur tous les boutons textuels avec pictogrammes, sans déplacer les chevrons ni modifier les commandes icon-only."
 }
