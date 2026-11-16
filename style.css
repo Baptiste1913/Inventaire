@@ -29267,19 +29267,31 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading::
  }
 }
 
-/* V39.22 — Surface de retour pendant le geste interactif. */
+/* V39.23 — L'accueil apparaît progressivement sous la page, flou décroissant. */
 .iu-edge-swipe-backdrop{
  position:fixed;inset:0;z-index:9990;pointer-events:none;
- display:flex;align-items:center;justify-content:flex-start;
- padding-left:24px;background:linear-gradient(125deg,#eef3f5,#f9fbfc);
- opacity:0;
+ overflow:hidden;background:#f3f6f7;opacity:1;
 }
-.iu-edge-swipe-backdrop span{font-size:20px;font-weight:800;color:#647e8b;letter-spacing:-.4px}
+.iu-edge-swipe-home{
+ position:absolute;inset:0;overflow:visible;pointer-events:none;
+ display:flex;flex-direction:column;gap:16px;
+ padding:16px max(13px,calc((100vw - 760px)/2)) 36px;
+ box-sizing:border-box;transform-origin:top left;
+ opacity:0;filter:blur(14px);
+}
+.iu-edge-swipe-home > *{flex-shrink:0;max-width:760px;width:100%;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
+.iu-edge-swipe-arrow{
+ position:absolute;top:50%;left:19px;transform:translateX(0);
+ display:flex;align-items:center;justify-content:center;
+ width:54px;height:54px;border-radius:50%;
+ background:rgba(255,255,255,.72);border:1px solid rgba(165,185,195,.38);
+ box-shadow:0 4px 18px rgba(37,67,79,.11);
+ opacity:.25;
+}
+.iu-edge-swipe-arrow svg{width:30px;height:30px;fill:none;stroke:#657782;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 body.iu-edge-swiping #iuSubpageBar{will-change:translate}
 body.iu-edge-swiping #planningAdminCard,
 body.iu-edge-swiping #accountCard,
 body.iu-edge-swiping #eventsPage,
 body.iu-edge-swiping #iuAlertsPage{will-change:translate}
-@media(prefers-reduced-motion:reduce){
- .iu-edge-swipe-backdrop{transition:none!important}
-}
+@media(prefers-reduced-motion:reduce){.iu-edge-swipe-home{filter:none!important}}
