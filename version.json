@@ -1,7 +1,7 @@
 {
-  "version": "38.83",
+  "version": "38.84",
   "published": "2026-11-16",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Le bouton Accéder aux réglages reprend exactement le visuel du cadre Espace administrateur : bordure blanche translucide, rayon 20px, dégradé 145° et cinq ombres neumorphiques. Dimensions, typographie et animation de pression conservées. Cache PWA actualisé."
+  "notes": "Les boutons Accéder à mon compte et Accéder aux événements reprennent le style exact du bouton Accéder aux réglages V38.83 : contour blanc, rayon 20px, dégradé 145°, cinq ombres neumorphiques et effet de pression. Libellés, dimensions, navigation et animations de pages préservés. Cache PWA actualisé."
 }
