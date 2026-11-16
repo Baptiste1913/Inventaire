@@ -28124,10 +28124,10 @@ html body.is-account-mode .app > #accountCard.card .account-body button:is(#acco
 }
 
 
-/* V38.94 — Pastilles : restauration intégrale des fonds/couleurs et
-   des logos d'avant V38.91. Seuls le contour et le relief du bouton
-   « Accéder aux réglages » sont adaptés à leur petite taille :
-   cinq ombres douces, côtés parfaitement arrondis. */
+/* V38.95 — Pastilles anciennes rétablies, retouche minimale.
+   Fonds, couleurs, bordures colorées, tailles, logos Google et coins
+   en pilule sont laissés à leurs règles d'origine (avant V38.91).
+   Uniquement un reflet intérieur et une ombre extérieure très douce. */
 html body :is(
  #accountSummaryStatus.account-summary-status,
  #dashboardCloudPill.dashboard-cloud-pill,
@@ -28142,43 +28142,10 @@ html body :is(
  #pushToggle.events-bell,
  .iu-account-profile-provider
 ):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- box-sizing:border-box!important;
- border:1px solid rgba(255,255,255,.94)!important;
- border-radius:999px!important;
- box-shadow:
-  -1.5px -1.5px 3.5px rgba(255,255,255,.49),
-  -3px -3px 6.5px rgba(255,255,255,.30),
-   2px 2.5px 5.5px rgba(156,173,189,.175),
-   .5px 1px 2px rgba(156,173,189,.09),
-   inset .5px .5px 0 rgba(255,255,255,.48)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.72),
+            0 2px 5px rgba(75,92,106,.075)!important;
 }
-/* Uniformiser uniquement la hauteur de la pastille, sans altérer
-   les espacements horizontaux, le logo Google ni les couleurs. */
-html body :is(
- #accountSummaryStatus.account-summary-status,
- #dashboardCloudPill.dashboard-cloud-pill,
- #sessionBadge.session-pill,
- #historyCount.session-pill,
- #sessionsCount.session-pill,
- #basketCount.session-pill,
- #calendarNextCountdown.events-countdown,
- #eventsFeatureState.iu-events-feature-state,
- #heroStatus.intro-session-state,
- #pushToggle.events-bell,
- .iu-account-profile-provider
-):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
- display:inline-flex!important;
- align-items:center!important;
- justify-content:center!important;
- min-height:32px!important;
- height:32px!important;
- max-height:32px!important;
- padding-top:0!important;
- padding-bottom:0!important;
-}
-html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus,#pushToggle)[hidden]:not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){display:none!important}
+/* Préserver les contrôles masqués et le contraste forcé. */
 @media(forced-colors:active){
- html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus,#pushToggle,.iu-account-profile-provider):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){
-  box-shadow:none!important;border-color:ButtonText!important
- }
+ html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus,#pushToggle,.iu-account-profile-provider):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){box-shadow:none!important}
 }
