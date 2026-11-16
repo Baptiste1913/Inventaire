@@ -28149,3 +28149,53 @@ html body :is(
 @media(forced-colors:active){
  html body :is(#accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,#sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,#eventsFeatureCountdown,#heroStatus,#pushToggle,.iu-account-profile-provider):not(#iuPillUnusedA):not(#iuPillUnusedB):not(#iuPillUnusedC){box-shadow:none!important}
 }
+
+/* V38.96 — Toutes les petites pastilles ont la hauteur de référence
+   Google Connecté (32px). Couleurs, dimensions horizontales,
+   bordures, ombres et extrémités ovales de V38.95 inchangées.
+   Le sélecteur renforcé évite les anciennes règles !important. */
+html body :is(
+ #accountSummaryStatus.account-summary-status,
+ #accountCard .iu-account-profile-provider,
+ #dashboardCloudPill.dashboard-cloud-pill,
+ #sessionBadge.session-pill,
+ #historyCount.session-pill,
+ #sessionsCount.session-pill,
+ #basketCount.session-pill,
+ #calendarNextCountdown.events-countdown,
+ #eventsFeatureState.iu-events-feature-state,
+ #heroStatus.intro-session-state,
+ #pushToggle.events-bell,
+ #inventoryCalendar .events-state,
+ #planningAdminCard .planning-kind
+):not(#iuPillHeightReferenceA):not(#iuPillHeightReferenceB):not(#iuPillHeightReferenceC){
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ height:32px!important;
+ min-height:32px!important;
+ max-height:32px!important;
+ padding-top:0!important;
+ padding-bottom:0!important;
+ border-radius:999px!important;
+ line-height:1.2!important;
+}
+html body #eventsFeatureCountdown.iu-events-feature-countdown:not(#iuPillHeightReferenceA):not(#iuPillHeightReferenceB):not(#iuPillHeightReferenceC){
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ min-height:32px!important;
+ height:32px!important;
+ max-height:32px!important;
+ padding-top:0!important;
+ padding-bottom:0!important;
+ border-radius:999px!important;
+}
+html body :is(
+ #accountSummaryStatus,#dashboardCloudPill,#sessionBadge,#historyCount,
+ #sessionsCount,#basketCount,#calendarNextCountdown,#eventsFeatureState,
+ #eventsFeatureCountdown,#heroStatus,#pushToggle
+)[hidden]:not(#iuPillHeightReferenceA):not(#iuPillHeightReferenceB):not(#iuPillHeightReferenceC){
+ display:none!important;
+}
