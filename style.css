@@ -30091,3 +30091,60 @@ html body:not(.is-focus-mode) .app > .session-card.card #sessionMessage .session
   background:Highlight!important;box-shadow:none!important;
  }
 }
+
+
+/* V39.52 — L'accueil ne rejoue aucune animation d'entrée pendant la
+   sortie du mode Concentration ; les lumières continuent leur mouvement. */
+html body.iu-home-return-stable:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora .iu-home-welcome{
+ animation:none!important;
+ transform:none!important;
+ opacity:1!important;
+}
+html body.iu-home-return-stable:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora{
+ transition:none!important;
+}
+
+/* V39.52 — Ma session en pause : même surface et effets que les
+   panneaux de pesée, sans changer la disposition ni les calculs. */
+html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused){
+ background-color:#f5f8fa!important;
+ background-image:radial-gradient(ellipse 72% 70% at 100% 0%,rgba(142,190,205,.12),transparent 86%),linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.96),4px 5px 11px rgba(156,173,189,.25),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) #sessionLive.session-live{
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) #sessionLive.session-live > div{
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:13px!important;
+ background:linear-gradient(145deg,#fff,#f5f8fa 52%,#e8eef2)!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.82),3px 4px 9px rgba(143,161,175,.19),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) .session-actions :is(#resumeSession,#finishSession){
+ border-radius:13px!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.82),3px 4px 9px rgba(143,161,175,.18),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) .session-actions #resumeSession{
+ border:1px solid rgba(255,255,255,.92)!important;
+ background:linear-gradient(145deg,#fff,#f4f8fa,#e8eef2)!important;
+ color:#414d56!important;
+}
+html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) .session-actions #finishSession{
+ border:1px solid #efd8dd!important;
+ background:linear-gradient(145deg,#fffafa,#fff4f6,#f6e8ed)!important;
+ color:#a84253!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.82),3px 4px 9px rgba(167,110,122,.14),inset 1px 1px 0 rgba(255,255,255,.94)!important;
+}
+html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) .session-actions :is(#resumeSession,#finishSession):active{
+ transform:scale(.975)!important;
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused),
+ html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) #sessionLive.session-live > div,
+ html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge.is-paused) .session-actions :is(#resumeSession,#finishSession){
+  border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;color:CanvasText!important;
+ }
+}

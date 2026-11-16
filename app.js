@@ -405,6 +405,22 @@ let focusWasActive=false;
 let focusInitialized=false;
 let focusMotionBusy=false;
 let focusPendingTask=null;
+/* V39.52 — Position de l'accueil au moment d'entrer en Concentration.
+   Variable distincte des pages Admin/Compte pour éviter les collisions. */
+let iuFocusHomeScrollY=0;
+function iuRestoreFocusHomeScroll(){
+ const y=Math.max(0,iuFocusHomeScrollY);
+ const root=document.scrollingElement||document.documentElement;
+ if(root)root.scrollTop=y;
+ window.scrollTo({top:y,left:0,behavior:'instant'});
+ // Safari peut recalculer la hauteur après la réapparition des cartes.
+ requestAnimationFrame(()=>{
+  if(document.body.classList.contains('is-focus-mode'))return;
+  const limit=Math.max(0,(root?.scrollHeight||0)-window.innerHeight);
+  const target=Math.min(y,limit);
+  if(Math.abs((window.scrollY||0)-target)>2)window.scrollTo({top:target,left:0,behavior:'instant'});
+ });
+}
 /* V38.58 — Conserver la position exacte de l'accueil lors des navigations
    vers Admin, Mon compte, Evénements et Alertes. Pas de stockage persistant :
    un rechargement continue de démarrer en haut, comme auparavant. */
@@ -532,6 +548,7 @@ function exitFocusWithoutSnapshot(action,config={}){
  // V38.58 : transitions des pages autonomes sans filtre sur .app,
  // qui provoquait une recomposition des verres floutés dans Safari iOS.
  const standaloneReturn=Boolean(config.solidDuringMotion);
+ const focusReturn=!standaloneReturn;
  const duration=610;
  const easing='cubic-bezier(.16,.84,.24,1)';
  const app=document.querySelector('.app');
@@ -608,6 +625,9 @@ function exitFocusWithoutSnapshot(action,config={}){
  document.body.classList.add('iu-home-return-stable');
  // Le nouvel accueil est mis en page sans translation de son bandeau.
  action();
+ // Restaurer le défilement sous la surface de sortie, avant la révélation.
+ if(focusReturn&&!document.body.classList.contains('is-focus-mode'))
+  iuRestoreFocusHomeScroll();
  // Retour en cascade comme à l'ouverture PWA : de haut en bas.
  // La descente du mode Concentration et son flou restent inchangés.
  const tiles=[...document.querySelectorAll(config.normalSelectors||focusNormalSelectors)]
@@ -637,9 +657,9 @@ function exitFocusWithoutSnapshot(action,config={}){
  const previousAppFilter=app.style.filter;
  const previousAppWillChange=app.style.willChange;
  let homeBlurSheet=null;
- if(standaloneReturn){
-  // Flou léger sur un calque fixe HORS de .app : le backdrop-filter
-  // ne déplace plus les éléments de Bienvenue ni les halos sur Safari.
+ if(standaloneReturn||focusReturn){
+  // La feuille de flou fixe évite de re-composer le verre de Bienvenue
+  // au passage pause / fin d'inventaire sur Safari iPhone.
   homeBlurSheet=document.createElement('div');
   homeBlurSheet.className='iu-home-return-blur-sheet';
   homeBlurSheet.setAttribute('aria-hidden','true');
@@ -677,7 +697,7 @@ function exitFocusWithoutSnapshot(action,config={}){
  for(const anchor of anchors){
   // En retour d'une page, Bienvenue reste immobile et entièrement opaque.
   // Le masque coulissant et le flou externe suffisent à sa révélation.
-  if(standaloneReturn&&anchor.classList.contains('intro'))continue;
+  if((standaloneReturn||focusReturn)&&anchor.classList.contains('intro'))continue;
   // V33.74 : l'en-tête et la banderole restent visibles dès le début,
   // avec un simple renforcement progressif de l'opacité au lieu d'un
   // passage brutal de 0% à 100%.
@@ -689,7 +709,7 @@ function exitFocusWithoutSnapshot(action,config={}){
  }
  const cleanup=()=>{
   animations.forEach(anim=>anim.cancel());
-  if(standaloneReturn){
+  if(standaloneReturn||focusReturn){
    homeBlurSheet?.remove();
   }else{
    app.style.filter=previousAppFilter;
@@ -1007,8 +1027,24 @@ function changeFocusWithMotion(action,entering,config={}){
  Promise.all(anims.map(a=>a.finished.catch(()=>{}))).then(cleanup,cleanup);
  if(!anims.length)cleanup();
 }
-function animateFocusEntry(action){changeFocusWithMotion(action,true);}
-function animateFocusExit(action){changeFocusWithMotion(action,false);}
+function animateFocusEntry(action){
+ // N'enregistrer le scroll qu'au passage accueil -> concentration ;
+ // pas lors d'un retour Annuler déclenché par une notification.
+ if(!document.body.classList.contains('is-focus-mode')){
+  const root=document.scrollingElement||document.documentElement;
+  iuFocusHomeScrollY=Math.max(0,window.scrollY||root?.scrollTop||0);
+ }
+ changeFocusWithMotion(action,true);
+}
+function animateFocusExit(action){
+ // Également appliqué quand l'utilisateur désactive les animations.
+ if(focusReducedMotion()){
+  action();
+  if(!document.body.classList.contains('is-focus-mode'))iuRestoreFocusHomeScroll();
+  return;
+ }
+ changeFocusWithMotion(action,false);
+}
 /* V36.66 — Vue Administrateur : le même moteur d'entrée/sortie que le
    mode concentration, sans dupliquer le contenu protégé ni ses formulaires.
    Le <details> reste en place pour les scripts administrateur et Supabase. */
