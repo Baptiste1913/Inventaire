@@ -226,6 +226,8 @@ let entryMode=safeGet(MODE_KEY)==='g'?'g':'kg';
 let maxGrossGrams=parseKg(safeGet(LIMIT_KEY)||'20.000')||20000;
 let confirmDuplicates=safeGet(DUPLICATE_CONFIRM_KEY)!=='false';
 let acceptedAnomalyKey='',sessionsExpanded=false;
+// V39.58 — Ordre de consultation des bilans (sans modifier les données).
+let iuInventorySort='recent';
 function getActiveSession(){return sessions.find(s=>s.id===activeSessionId&&!s.endedAt)||null;}
 function activeStats(s){
   const count=s.entries.length, gross=s.entries.reduce((n,e)=>n+e.gross,0),tare=s.entries.reduce((n,e)=>n+e.tare,0),net=gross-tare;
@@ -1421,10 +1423,17 @@ const sessionSummaryObserver=typeof ResizeObserver==='function' ? new ResizeObse
   if(shell) shell.style.setProperty('--session-summary-height',`${entry.target.getBoundingClientRect().height}px`);
  }
 }) : null;
-function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedAt)).sort((a,b)=>b.startedAt-a.startedAt);$('sessionsCount').textContent=`${ended.length} session${ended.length>1?'s':''}`;
+function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedAt)).sort((a,b)=>iuInventorySort==='oldest'?a.startedAt-b.startedAt:b.startedAt-a.startedAt);$('sessionsCount').textContent=`${ended.length} session${ended.length>1?'s':''}`;
  const list=$('sessionsHistoryList');if(sessionSummaryObserver)sessionSummaryObserver.disconnect();list.replaceChildren();$('sessionsToggle').hidden=ended.length<=5;$('sessionsToggle').textContent=sessionsExpanded?'Réduire la liste':`Voir les ${ended.length} sessions`;
  if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune session terminée pour le moment.';list.append(p);return;}
- for(const s of (sessionsExpanded?ended:ended.slice(0,5))){const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');const started=new Date(s.startedAt);const dayTitle=started.toLocaleDateString('fr-FR',{day:'numeric',month:'short',...(started.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})});const timeTitle=started.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});name.textContent=`Inventaire · ${dayTitle} à ${timeTitle}`;const meta=document.createElement('span');const stats=activeStats(s);meta.textContent=stats.count?`${stats.count} pesée${stats.count>1?'s':''} · ${fmt(stats.net)} kg net · ${durationLabel(stats.duration)}`:`Aucune pesée enregistrée · ${durationLabel(stats.duration)}`;sum.append(name,meta);
+ let lastMonth='';
+ for(const s of (sessionsExpanded?ended:ended.slice(0,5))){
+  const month=new Date(s.startedAt).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  if(month!==lastMonth){const divider=document.createElement('div');divider.className='iu-inventory-month';divider.textContent=month.charAt(0).toLocaleUpperCase('fr-FR')+month.slice(1);list.append(divider);lastMonth=month;}
+  const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');const started=new Date(s.startedAt);const dayTitle=started.toLocaleDateString('fr-FR',{day:'numeric',month:'short',...(started.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})});const timeTitle=started.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});name.textContent=`Inventaire · ${dayTitle} à ${timeTitle}`;const meta=document.createElement('span');meta.className='iu-inventory-meta';const stats=activeStats(s);
+  const pieces=stats.count?[`${stats.count} pesée${stats.count>1?'s':''}`,`${fmt(stats.net)} kg net`,durationLabel(stats.duration)]:['Aucune pesée',durationLabel(stats.duration)];
+  for(const [i,textValue] of pieces.entries()){const part=document.createElement('span');part.className='iu-inventory-metric'+(i===0?' is-primary':'');part.textContent=textValue;meta.append(part);}
+  sum.append(name,meta);
   const quickRemove=document.createElement('button');
   quickRemove.type='button';quickRemove.className='quick-delete-session-btn';quickRemove.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/><path d="M10 10v7m4-7v7"/></svg>';
   quickRemove.setAttribute('aria-label',`Supprimer rapidement le bilan du ${dateLabel(s.startedAt)}`);
@@ -1696,6 +1705,7 @@ $('pauseSession').addEventListener('click',pauseSession);
 $('resumeSession').addEventListener('click',()=>animateFocusEntry(resumeSession));
 $('finishSession').addEventListener('click',finishSession);
 $('sessionsToggle').addEventListener('click',()=>animateExpandedList('sessionsHistoryList',()=>{sessionsExpanded=!sessionsExpanded;renderSessionsHistory();}));
+$('iuInventorySort').addEventListener('change',event=>{iuInventorySort=event.target.value==='oldest'?'oldest':'recent';renderSessionsHistory();});
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});

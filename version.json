@@ -1,7 +1,7 @@
 {
-  "version": "39.57",
+  "version": "39.58",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Remplacement effectif du filet blanc par un contour gris bleuté #D2DBE2 sur les trois boutons Accéder aux réglages, Mon compte et Événements, y compris sur les règles :not(:active) prioritaires. Relief et dimensions inchangés."
+  "notes": "Refonte Mes inventaires : tri chronologique réversible, séparateurs par mois, panneaux neumorphiques, statistiques en pastilles et mise en page responsive. Bilans, export, suppression/restauration et calculs conservés."
 }
