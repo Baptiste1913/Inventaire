@@ -1,7 +1,7 @@
 {
-  "version": "39.97",
+  "version": "39.98",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Flèche du bouton Retour légèrement réduite et affinée, sans changer la taille du bouton ni les animations de navigation."
+  "notes": "Flèche du bouton Retour à 30 px (25 px en mode compact), épaisseur réduite à 2,8 px ; bouton et animations inchangés."
 }
