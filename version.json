@@ -1,7 +1,7 @@
 {
-  "version": "40.09",
+  "version": "40.10",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Préchauffage adaptatif après l'accueil : deux petits tiroirs maximum, uniquement en période d'inactivité et avec un budget de travail strict. Mesures en mémoire réutilisées et invalidées si le DOM change. Pas de cache de données, ni prolongation du chargement."
+  "notes": "Accueil : suppression de la trame de points dans le fond de la page, conservation des points dans le bloc Bienvenue avec un contraste renforcé. Autres pages, halos, animations et fonctionnalités inchangés."
 }
