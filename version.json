@@ -1,7 +1,7 @@
 {
-  "version": "40.04",
+  "version": "40.05",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Animation de respiration très légère du squelette complet, sur deux couches compositées ; disposition, chargement hors ligne, données et animations existantes préservés."
+  "notes": "Reflets blancs animés clairement visibles, glissant lentement sur les rectangles du squelette. Suppression de la respiration quasi invisible, sans toucher au DOM, à la logique de chargement ni aux fonctions métier."
 }
