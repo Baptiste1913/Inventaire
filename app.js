@@ -1430,10 +1430,14 @@ function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedA
  for(const s of (sessionsExpanded?ended:ended.slice(0,5))){
   const month=new Date(s.startedAt).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
   if(month!==lastMonth){const divider=document.createElement('div');divider.className='iu-inventory-month';divider.textContent=month.charAt(0).toLocaleUpperCase('fr-FR')+month.slice(1);list.append(divider);lastMonth=month;}
-  const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');const started=new Date(s.startedAt);const dayTitle=started.toLocaleDateString('fr-FR',{day:'numeric',month:'short',...(started.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})});const timeTitle=started.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});name.textContent=`Inventaire · ${dayTitle} à ${timeTitle}`;const meta=document.createElement('span');meta.className='iu-inventory-meta';const stats=activeStats(s);
+  const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');const started=new Date(s.startedAt);const dayTitle=started.toLocaleDateString('fr-FR',{day:'numeric',month:'short',...(started.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})});const timeTitle=started.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});name.textContent=`Inventaire · ${dayTitle} à ${timeTitle}`;
+  const heading=document.createElement('span');heading.className='iu-inventory-title';
+  const eyebrow=document.createElement('span');eyebrow.className='iu-inventory-kicker';eyebrow.textContent='BILAN TERMINÉ';
+  heading.append(eyebrow,name);
+  const meta=document.createElement('span');meta.className='iu-inventory-meta';const stats=activeStats(s);
   const pieces=stats.count?[`${stats.count} pesée${stats.count>1?'s':''}`,`${fmt(stats.net)} kg net`,durationLabel(stats.duration)]:['Aucune pesée',durationLabel(stats.duration)];
   for(const [i,textValue] of pieces.entries()){const part=document.createElement('span');part.className='iu-inventory-metric'+(i===0?' is-primary':'');part.textContent=textValue;meta.append(part);}
-  sum.append(name,meta);
+  sum.append(heading,meta);
   const quickRemove=document.createElement('button');
   quickRemove.type='button';quickRemove.className='quick-delete-session-btn';quickRemove.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/><path d="M10 10v7m4-7v7"/></svg>';
   quickRemove.setAttribute('aria-label',`Supprimer rapidement le bilan du ${dateLabel(s.startedAt)}`);

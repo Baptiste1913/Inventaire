@@ -1,7 +1,7 @@
 {
-  "version": "39.58",
+  "version": "39.59",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Refonte Mes inventaires : tri chronologique réversible, séparateurs par mois, panneaux neumorphiques, statistiques en pastilles et mise en page responsive. Bilans, export, suppression/restauration et calculs conservés."
+  "notes": "Mes inventaires : titres harmonisés avec les cartes Rappels (petit libellé et accent vertical turquoise), séparation entre titre et bilan supprimée. Tri, boutons, données et calculs inchangés."
 }

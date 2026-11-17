@@ -30340,3 +30340,67 @@ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList > .emp
   background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
  }
 }
+
+
+/* V39.59 — Mes inventaires : titres inspirés des cartes Rappels.
+   Un accent vertical discret et aucun trait de rupture au dépliage. */
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item > summary{
+ position:relative!important;
+ padding-left:25px!important;
+ gap:9px!important;
+ border-bottom:0!important;
+ border-bottom-color:transparent!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item > summary::before{
+ content:""!important;
+ position:absolute!important;
+ top:15px!important;
+ bottom:15px!important;
+ left:11px!important;
+ width:3px!important;
+ border-radius:999px!important;
+ background:linear-gradient(180deg,#6abdb9,#449b9b)!important;
+ opacity:.88!important;
+ pointer-events:none!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-title{
+ display:grid!important;align-content:center!important;gap:4px!important;
+ min-width:0!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-kicker{
+ display:block!important;max-width:100%!important;
+ color:#788891!important;
+ font-size:10px!important;font-weight:850!important;letter-spacing:.095em!important;
+ line-height:1.25!important;white-space:normal!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-title > strong{
+ margin:0!important;font-size:14px!important;font-weight:850!important;
+ line-height:1.32!important;color:#28343d!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item > .v22-bilan{
+ border-top:0!important;
+ margin:0 13px!important;
+ padding:3px 0 17px!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item[open] > summary,
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item.is-detail-closing > summary{
+ border-bottom:0!important;
+ border-bottom-color:transparent!important;
+ box-shadow:none!important;
+}
+@media(max-width:420px){
+ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item > summary{
+  padding-left:24px!important;
+ }
+ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item > summary::before{
+  left:10px!important;
+ }
+ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-title > strong{
+  font-size:13.5px!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item > summary::before{
+  background:Highlight!important;
+ }
+}
