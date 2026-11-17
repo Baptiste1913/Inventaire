@@ -1,7 +1,7 @@
 {
-  "version": "40.11",
+  "version": "40.12",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Points du bloc Bienvenue légèrement plus diffus et un peu moins contrastés, sans modifier les autres effets ni les autres pages."
+  "notes": "Vague diagonale discrète dans les points du bloc Bienvenue, progression faible-moyenne-maximale-moyenne-faible, 26 secondes avec intervalle de repos. Motif de base fixe, transparence et animations réduites respectées. Aucune modification métier."
 }

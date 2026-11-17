@@ -30783,3 +30783,58 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
   background:Canvas!important;
  }
 }
+
+
+/* V40.12 — Onde diagonale très douce sur les seuls points de Bienvenue.
+   Deux bandes de points légèrement plus grands : transition progressive
+   faible -> moyenne -> maximale -> moyenne -> faible. Aucun JS par frame. */
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode)
+ main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-welcome-dot-wave{
+ position:absolute;inset:0;z-index:0;
+ overflow:hidden;border-radius:inherit;
+ pointer-events:none;user-select:none;
+ contain:paint;
+}
+html body .iu-welcome-dot-wave > i{
+ position:absolute;inset:0;display:block;pointer-events:none;
+ background-repeat:repeat!important;
+ background-size:28px 28px!important;
+ background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
+ -webkit-mask-size:300% 300%;mask-size:300% 300%;
+ -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ /* Les deux masques se déplacent ensemble, sans bouger la grille. */
+ animation:iuWelcomeDiagonalWave 26s linear infinite;
+}
+html body .iu-welcome-dot-wave > i:first-child{
+ background-image:radial-gradient(circle,
+  rgba(92,121,147,.105) .58px,
+  rgba(92,121,147,.072) 1.13px,
+  rgba(92,121,147,.013) 1.73px,transparent 2.22px)!important;
+ -webkit-mask-image:linear-gradient(135deg,
+  transparent 37%,rgba(0,0,0,.18) 42%,rgba(0,0,0,.66) 47%,
+  rgba(0,0,0,.82) 50%,rgba(0,0,0,.66) 53%,
+  rgba(0,0,0,.18) 58%,transparent 63%);
+ mask-image:linear-gradient(135deg,
+  transparent 37%,rgba(0,0,0,.18) 42%,rgba(0,0,0,.66) 47%,
+  rgba(0,0,0,.82) 50%,rgba(0,0,0,.66) 53%,
+  rgba(0,0,0,.18) 58%,transparent 63%);
+}
+html body .iu-welcome-dot-wave > i:last-child{
+ background-image:radial-gradient(circle,
+  rgba(92,121,147,.110) .68px,
+  rgba(92,121,147,.068) 1.26px,
+  rgba(92,121,147,.010) 1.85px,transparent 2.32px)!important;
+ -webkit-mask-image:linear-gradient(135deg,
+  transparent 45%,rgba(0,0,0,.24) 47.5%,rgba(0,0,0,.72) 50%,
+  rgba(0,0,0,.24) 52.5%,transparent 55%);
+ mask-image:linear-gradient(135deg,
+  transparent 45%,rgba(0,0,0,.24) 47.5%,rgba(0,0,0,.72) 50%,
+  rgba(0,0,0,.24) 52.5%,transparent 55%);
+}
+@keyframes iuWelcomeDiagonalWave{
+ 0%{-webkit-mask-position:0% 0%;mask-position:0% 0%;}
+ 75%,100%{-webkit-mask-position:100% 100%;mask-position:100% 100%;}
+}
+@media(prefers-reduced-motion:reduce),(prefers-reduced-transparency:reduce),(forced-colors:active){
+ html body .iu-welcome-dot-wave{display:none!important;}
+}
