@@ -1,7 +1,7 @@
 {
-  "version": "39.88",
+  "version": "39.89",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock figé pendant le fondu de navigation pour éviter sa remontée ; position finale du bandeau Retour stabilisée lors de la fin des animations."
+  "notes": "Navigation sans double clic ; bandeau Retour et contenu déplacés par le même animateur, sans saut de fin d'entrée. Dock gelé uniquement dans une copie visuelle non interactive."
 }

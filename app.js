@@ -791,41 +791,47 @@ let iuCancelStandaloneEntry=null;
 
 /* V38.75 — Entrée couplée Alertes/Événements : un seul animateur pour les
    deux surfaces, y compris à leur première apparition sur Safari. */
+/* V39.89 — Entrée liée : le bandeau et les surfaces de page restent
+   deux éléments distincts, mais reçoivent exactement la même translation
+   sur chaque frame. Aucun relais CSS/WAAPI en fin de trajectoire. */
 function iuAnimateCoupledSubpage(action,config){
- const bar=$('iuSubpageBar'),panel=document.querySelector(config.viewSelectors);
- if(!bar||!panel){action();return;}
+ const bar=$('iuSubpageBar');
+ if(!bar){action();return;}
  focusMotionBusy=true;
- const parts=[bar,panel];
- bar.style.removeProperty('animation');
- bar.style.removeProperty('translate');
- let frame=0,timer=null,ended=false;
- // Avant d'enlever hidden, fixer les DEUX éléments en dehors de la vue.
+ let frame=0,timer=null,done=false;
  const initialY=Math.ceil(Math.max(window.innerHeight||0,document.documentElement.clientHeight||0,600)*1.05);
+ const panels=[];
+ const nodes=[bar];
+ const styleBefore=new Map();
  const move=y=>{
-  const value='0 '+Math.max(0,y).toFixed(2)+'px';
-  parts.forEach(el=>el.style.setProperty('translate',value,'important'));
+  const translate='0 '+Math.max(0,y).toFixed(2)+'px';
+  nodes.forEach(el=>el.style.setProperty('translate',translate,'important'));
  };
  const ease=t=>{
-  // Équivalent calculé de cubic-bezier(.16,.84,.24,1).
-  let low=0,high=1;
+  let lo=0,hi=1;
   for(let i=0;i<13;i++){
-   const u=(low+high)/2,k=1-u;
+   const u=(lo+hi)/2,k=1-u;
    const x=3*.16*k*k*u+3*.24*k*u*u+u*u*u;
-   if(x<t)low=u;else high=u;
+   if(x<t)lo=u;else hi=u;
   }
-  const u=(low+high)/2,k=1-u;
+  const u=(lo+hi)/2,k=1-u;
   return 3*.84*k*k*u+3*k*u*u+u*u*u;
  };
  const finish=()=>{
-  if(ended)return;
-  ended=true;
+  if(done)return;
+  done=true;
   cancelAnimationFrame(frame);
   if(timer!==null)clearTimeout(timer);
+  // Fixer l'ultime image AVANT d'ôter le mode d'entrée.
   move(0);
-  bar.style.setProperty('animation','none','important');
   document.body.classList.remove('iu-coupled-rise','iu-subpage-entering','iu-alerts-rise-running');
-  parts.forEach(el=>el.style.removeProperty('translate'));
-  bar.style.setProperty('translate','0 0','important');
+  // Le bandeau reste exactement en place après l'entrée. Sa transition
+  // de compactage au vrai scroll redevient disponible.
+  for(const el of nodes){
+   el.style.setProperty('animation','none','important');
+   el.style.setProperty('translate','0 0','important');
+   el.style.removeProperty('transition');
+  }
   if(iuCancelStandaloneEntry===finish)iuCancelStandaloneEntry=null;
   focusMotionBusy=false;
   window.IUSyncSubpageBar?.();
@@ -833,23 +839,36 @@ function iuAnimateCoupledSubpage(action,config){
   if(pending)requestAnimationFrame(pending);
  };
  iuCancelStandaloneEntry=finish;
- move(initialY);
+ // Avant la première frame, empêcher les keyframes CSS spécifiques
+ // de contredire la translation commune sur Safari.
+ bar.style.setProperty('animation','none','important');
+ bar.style.setProperty('transition','none','important');
+ bar.style.setProperty('translate','0 '+initialY+'px','important');
  document.body.classList.add('iu-subpage-entering','iu-coupled-rise');
  try{
   action();
   window.IUSyncSubpageBar?.();
-  // Forcer le premier calcul réel des styles après retrait de hidden.
-  void bar.getBoundingClientRect();
-  void panel.getBoundingClientRect();
+  document.querySelectorAll(config.viewSelectors||'').forEach(el=>{
+   if(el.hidden)return;
+   const st=getComputedStyle(el);
+   if(st.display==='none'||st.visibility==='hidden')return;
+   panels.push(el);
+   el.style.setProperty('animation','none','important');
+   el.style.setProperty('transition','none','important');
+   el.style.setProperty('translate','0 '+initialY+'px','important');
+   nodes.push(el);
+  });
+  // Initialiser le rendu lié en une seule mesure de layout.
+  void bar.offsetHeight;
+  panels.forEach(el=>void el.offsetHeight);
  }catch(error){finish();throw error;}
- // Deux rendus pour initialiser l'état masqué sans départ anticipé.
  frame=requestAnimationFrame(()=>{
-  if(ended)return;
+  if(done)return;
   frame=requestAnimationFrame(()=>{
-   if(ended)return;
+   if(done)return;
    let start=null;
    const tick=now=>{
-    if(ended)return;
+    if(done)return;
     if(start===null)start=now;
     const t=Math.min(1,Math.max(0,(now-start)/610));
     move(initialY*(1-ease(t)));
@@ -859,11 +878,10 @@ function iuAnimateCoupledSubpage(action,config){
    frame=requestAnimationFrame(tick);
   });
  });
- // Empêcher un verrouillage d'interface si Safari suspend rAF.
- timer=setTimeout(finish,1250);
+ timer=setTimeout(finish,1200);
 }
 function iuAnimateStandalonePage(action,entering,config){
- if(entering&&(config.modeClass==='is-alerts-mode'||config.modeClass==='is-events-mode')){
+ if(entering&&config.solidDuringMotion){
   iuAnimateCoupledSubpage(action,config);
   return;
  }
@@ -2829,16 +2847,13 @@ function iuInitQuickDock(){
  window.addEventListener('iu-admin-check-finished',updateAdmin);
  window.addEventListener('iu-admin-initial-ready',updateAdmin);
  updateAdmin();
- // V39.88 : figer la géométrie de la barre pendant son fondu de sortie.
- // Le dock restait dans la recomposition de l'accueil sur Safari et remontait
- // visiblement lorsqu'une sous-page prenait sa place.
- let iuDockFreezeTimer=0;
- let iuDockExitAnimation=null;
- const iuDockFrozenProperties=['position','left','top','right','bottom','width','height','margin','transform','translate','animation','transition','opacity','pointer-events','z-index'];
+ // V39.89 — Snapshot visuel de sortie, sans jamais désactiver les clics.
+ // Le dock réel reste interactif jusqu'au dispatch complet de l'action.
+ let dockSnapshot=null,dockSnapshotTimer=0;
  const iuDockUnfreeze=()=>{
-  clearTimeout(iuDockFreezeTimer);
-  if(iuDockExitAnimation){iuDockExitAnimation.cancel();iuDockExitAnimation=null;}
-  for(const name of iuDockFrozenProperties)dock.style.removeProperty(name);
+  window.clearTimeout(dockSnapshotTimer);
+  dockSnapshot?.remove();
+  dockSnapshot=null;
  };
  dock.addEventListener('click',event=>{
   const button=event.target.closest('.iu-quick-dock-item');
@@ -2847,20 +2862,28 @@ function iuInitQuickDock(){
   iuDockUnfreeze();
   const rect=dock.getBoundingClientRect();
   if(rect.width<1||rect.height<1)return;
-  const lock={
-   position:'fixed',left:rect.left+'px',top:rect.top+'px',
-   right:'auto',bottom:'auto',width:rect.width+'px',height:rect.height+'px',
-   margin:'0',transform:'none',translate:'0 0',animation:'none',
-   transition:'none','pointer-events':'none','z-index':'9999'
+  const clone=dock.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+  clone.setAttribute('aria-hidden','true');
+  clone.querySelectorAll('button').forEach(el=>el.tabIndex=-1);
+  const fixed={
+   position:'fixed',left:rect.left+'px',top:rect.top+'px',right:'auto',
+   bottom:'auto',width:rect.width+'px',height:rect.height+'px',
+   margin:'0',transform:'none',translate:'0 0',
+   animation:'none',transition:'none','pointer-events':'none','z-index':'9999'
   };
-  for(const [name,value] of Object.entries(lock))dock.style.setProperty(name,value,'important');
-  // Garder la barre immobile sous le doigt, puis la masquer par opacité seule.
+  for(const [name,value] of Object.entries(fixed))clone.style.setProperty(name,value,'important');
+  document.body.append(clone);
+  dockSnapshot=clone;
+  // Le clone immobile masque les éventuels déplacements du dock original.
+  // Il est purement décoratif et ne peut pas intercepter le premier clic.
   try{
-   iuDockExitAnimation=dock.animate([{opacity:1},{opacity:0}],{
-    duration:190,easing:'ease-out',fill:'forwards'
+   clone.animate([{opacity:1},{opacity:1,offset:.3},{opacity:0}],{
+    duration:280,easing:'ease-out',fill:'forwards'
    });
-  }catch(error){dock.style.setProperty('opacity','0','important');}
-  iuDockFreezeTimer=setTimeout(iuDockUnfreeze,380);
+  }catch(error){}
+  dockSnapshotTimer=window.setTimeout(iuDockUnfreeze,300);
  },true);
  const updateSession=()=>{
   const active=getActiveSession(),paused=Boolean(active?.pausedAt);
