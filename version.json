@@ -1,7 +1,7 @@
 {
-  "version": "39.73",
+  "version": "39.74",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock accessible depuis toutes les pages : visibilité persistante, bouton Accueil et navigation inter-rubriques via fermeture animée de la vue courante, marge basse de sécurité."
+  "notes": "Réparation critique : restauration de la feuille de style complète v39.71 (perdue lors de la publication v39.72), conservation des ajouts CSS v39.72 et v39.73, actualisation des références et du cache PWA."
 }
