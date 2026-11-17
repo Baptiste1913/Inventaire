@@ -1,7 +1,7 @@
 {
-  "version": "39.76",
+  "version": "39.77",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Flou de retour à l'accueil adouci de 5 à 2,5 px, opacité initiale de 94 %, durée de 0,7 seconde conservée. Aucun autre changement visuel ou fonctionnel."
+  "notes": "Retour pages : barre légèrement plus haute, titres centrés et agrandis sans SERVICE U, bouton circulaire flèche seule à gauche ; flou de retour du dock réduit à 1 px."
 }
