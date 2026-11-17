@@ -1,7 +1,7 @@
 {
-  "version": "39.95",
+  "version": "39.96",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Points du fond et de Bienvenue atténués de 30 % ; animation subtile de fondu et remontée des cartes lorsqu'elles entrent dans l'écran au défilement, sans toucher aux animations de navigation ni aux calculs."
+  "notes": "Retrait de l'animation d'apparition des cartes au défilement. Motif à points atténué de 30 %, animations de navigation et fonctionnalités préservées."
 }
