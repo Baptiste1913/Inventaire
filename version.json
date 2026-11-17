@@ -1,7 +1,7 @@
 {
-  "version": "39.92",
+  "version": "39.93",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ajout d'une trame de petits points gris bleutés, douce et statique, au fond de l'accueil et des pages secondaires. Halos internes, navigation, pesée et fonctionnement hors ligne conservés."
+  "notes": "Trame de points discrète visible dans le bloc Bienvenue et sur le fond des pages Administration, Compte, Événements et Rappels, sans modifier la navigation ni les animations."
 }

@@ -16097,7 +16097,10 @@ html body.is-admin-mode .app > #planningAdminCard > .iu-admin-opaque-backdrop{
  width:100%!important;
  height:100dvh!important;
  min-height:100vh!important;
- background:#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background-size:28px 28px,auto!important;
+ background-position:center top,center top!important;
+ background-repeat:repeat,no-repeat!important;
  opacity:1!important;
  border:0!important;
  border-radius:0!important;
@@ -16460,7 +16463,10 @@ html body.is-account-mode .app > #accountCard > .iu-account-opaque-backdrop{
  position:fixed!important;
  inset:0!important;
  width:100%!important;height:100dvh!important;min-height:100vh!important;
- background:#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background-size:28px 28px,auto!important;
+ background-position:center top,center top!important;
+ background-repeat:repeat,no-repeat!important;
  border:0!important;border-radius:0!important;
  opacity:1!important;
  filter:none!important;
@@ -17106,7 +17112,10 @@ html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard.iu-ac
 html body.is-admin-mode .app > #planningAdminCard > .iu-admin-opaque-backdrop,
 html body.is-account-mode .app > #accountCard > .iu-account-opaque-backdrop{
  display:block!important;
- background:#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background-size:28px 28px,auto!important;
+ background-position:center top,center top!important;
+ background-repeat:repeat,no-repeat!important;
  opacity:1!important;
 }
 /* La carte de connexion remplace la carte de profil chez les invités. */
@@ -18971,7 +18980,10 @@ html body.is-events-mode .app > #eventsPage > .iu-events-opaque-backdrop{
  height:100dvh!important;
  min-height:100vh!important;
  z-index:0!important;
- background:#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background-size:28px 28px,auto!important;
+ background-position:center top,center top!important;
+ background-repeat:repeat,no-repeat!important;
  opacity:1!important;
  pointer-events:none!important;
  border:0!important;
@@ -25812,9 +25824,15 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 }
 html body:not(.is-focus-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
  border:1px solid transparent!important;
- background:linear-gradient(122deg,
-  rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,
-  rgba(255,255,255,.54) 100%)!important;
+ /* Trame très légère à travers le verre, sans retirer les lumières. */
+ background:
+  radial-gradient(circle,rgba(104,136,162,.105) 1px,transparent 1.25px),
+  linear-gradient(122deg,
+   rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,
+   rgba(255,255,255,.54) 100%)!important;
+ background-size:28px 28px,100% 100%!important;
+ background-position:center top,center top!important;
+ background-repeat:repeat,no-repeat!important;
  -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
  backdrop-filter:blur(27px) saturate(109%)!important;
  box-shadow:0 10px 28px rgba(42,76,93,.062)!important;
@@ -27060,7 +27078,10 @@ html body .app > #iuAlertsPage > .iu-alerts-opaque-backdrop{display:none!importa
 html body.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-opaque-backdrop{
  display:block!important;position:fixed!important;inset:0!important;
  width:100%!important;height:100dvh!important;min-height:100vh!important;
- z-index:0!important;background:#f3f6f7!important;opacity:1!important;
+ z-index:0!important;background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background-size:28px 28px,auto!important;
+ background-position:center top,center top!important;
+ background-repeat:repeat,no-repeat!important;opacity:1!important;
  pointer-events:none!important;border:0!important;filter:none!important;
  backdrop-filter:none!important;-webkit-backdrop-filter:none!important
 }
