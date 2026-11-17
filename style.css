@@ -30982,3 +30982,54 @@ html body #iuQuickDock.iu-quick-dock.iu-dock-entering{
  html body #iuQuickDock.iu-quick-dock.iu-dock-entering{animation:none!important;}
  html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon{transition:none!important;}
 }
+
+/* V39.69 — Aucun fond de sélection, icônes noires et Play non déformé. */
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:not(.iu-quick-dock-main),
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:not(.iu-quick-dock-main):hover,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:not(.iu-quick-dock-main):active,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:not(.iu-quick-dock-main).iu-dock-hovered{
+ background:transparent!important;
+ border-color:transparent!important;
+ box-shadow:none!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered{
+ color:#161b20!important;
+ -webkit-text-fill-color:#161b20!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon{
+ color:#101317!important;
+ filter:none!important;
+ transform:none!important;
+ transition:transform .14s ease,color .14s ease!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:active .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered .iu-dock-custom-icon{
+ color:#49535c!important;
+ filter:none!important;
+ transform:scale(1.12)!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickSession .iu-dock-custom-icon{
+ width:21px!important;height:21px!important;flex-basis:21px!important;
+ margin-bottom:0!important;
+ transform:none!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickSession.iu-dock-hovered .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickSession:active .iu-dock-custom-icon{
+ transform:scale(1.12)!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered:not(.iu-quick-dock-main){
+ transform:none!important;
+}
+/* La propriété translate s'anime indépendamment du transform !important du dock. */
+@keyframes iuDockEnterV3969{
+ 0%{opacity:0;translate:0 58px;}
+ 100%{opacity:1;translate:0 0;}
+}
+html body #iuQuickDock.iu-quick-dock.iu-dock-entering{
+ animation:iuDockEnterV3969 .58s cubic-bezier(.2,.82,.23,1) both!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body #iuQuickDock.iu-quick-dock.iu-dock-entering{animation:none!important;translate:none!important;}
+}

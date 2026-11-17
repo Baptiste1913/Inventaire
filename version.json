@@ -1,7 +1,7 @@
 {
-  "version": "39.68",
+  "version": "39.69",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : Play étiré vers le bas sans déplacer son haut, suppression du cadre au glissement, sélection par accentuation neutre des icônes et animation d'arrivée depuis le bas au chargement et au retour à l'accueil."
+  "notes": "Dock : suppression du fond de survol sur les boutons, icônes noires devenant gris foncé au toucher/glissement sans ombre, Play agrandi en proportions naturelles, correction de l'animation d'entrée via translate indépendant du transform fixe."
 }
