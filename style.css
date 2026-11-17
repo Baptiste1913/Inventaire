@@ -31235,3 +31235,74 @@ html body #iuSubpageBar[data-compact="true"] .iu-subpage-heading{
  0%{filter:blur(1px);opacity:.98;}
  100%{filter:blur(0);opacity:1;}
 }
+
+/* V39.78 — Barre de retour : titre réellement centré, aucune barre décorative,
+   marge sous le bandeau et absence de contraction lors de l'entrée. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]:not([hidden]){
+ height:82px!important;
+ min-height:82px!important;
+ padding:0 14px!important;
+ justify-content:center!important;
+ transition:opacity .24s ease,filter .24s ease!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading{
+ position:relative!important;
+ display:none!important;
+ flex:1 1 auto!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0 56px!important;
+ text-align:center!important;
+}
+html body.is-admin-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-admin,
+html body.is-account-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-account,
+html body.is-events-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-events,
+html body.is-alerts-mode #iuSubpageBar:not([hidden]) .iu-subpage-heading-alerts{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading::before,
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading::after{
+ display:none!important;content:none!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;text-align:center!important;gap:0!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy small{display:none!important}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy strong{
+ display:block!important;
+ font-size:clamp(23px,5.7vw,28px)!important;
+ font-weight:900!important;
+ line-height:1.12!important;
+ letter-spacing:-.65px!important;
+ text-align:center!important;
+ color:#20252b!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading-copy strong{
+ font-size:clamp(23px,5.7vw,28px)!important;
+}
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack,
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) > #iuSubpageBack{
+ left:14px!important;top:50%!important;
+ width:47px!important;height:47px!important;min-width:47px!important;max-width:47px!important;
+ padding:0!important;margin:0!important;
+ border-radius:50%!important;
+ border:1px solid rgba(191,210,221,.83)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:inset 1px 1px 0 rgba(255,255,255,.96),2px 3px 6px rgba(148,168,182,.17),-2px -2px 5px rgba(255,255,255,.85)!important;
+ transition:background .2s ease,box-shadow .2s ease,scale .24s cubic-bezier(.2,.8,.2,1)!important;
+}
+html body #iuSubpageBar #iuSubpageBack:active{
+ scale:.94!important;
+ background:linear-gradient(145deg,#eaf0f4,#f8fbfc)!important;
+ box-shadow:inset 2px 2px 5px rgba(143,165,179,.18),inset -2px -2px 4px rgba(255,255,255,.8)!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) .app > :is(#planningAdminCard.card,#accountCard.card,#eventsPage.iu-events-page,#iuAlertsPage):not([hidden]){
+ padding-top:max(114px,calc(env(safe-area-inset-top,0px) + 106px))!important;
+}
+@media(max-width:380px){
+ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading{padding:0 52px!important}
+ html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy strong{font-size:23px!important}
+}
