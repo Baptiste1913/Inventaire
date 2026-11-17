@@ -1,7 +1,7 @@
 {
-  "version": "39.71",
+  "version": "39.72",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : retour par balayage synchronisé avec la progression horizontale de la page, remontée et opacité progressives pendant le geste, sans seconde animation après le retour ; animation normale conservée pour le bouton Retour."
+  "notes": "Ajout de l'icône Accueil entre Événements et Rappels dans la barre, répartition responsive à 5 ou 6 boutons, retour vers le haut de l'accueil et réutilisation des fonctions de sortie animées des pages."
 }

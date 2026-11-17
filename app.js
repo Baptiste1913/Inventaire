@@ -2881,6 +2881,16 @@ function iuInitQuickDock(){
   !document.body.classList.contains('is-events-mode')&&!document.body.classList.contains('is-alerts-mode');
  admin.addEventListener('click',()=>{updateAdmin();if(canNavigate()&&!admin.hidden)iuOpenAdminPage();});
  $('iuQuickEvents')?.addEventListener('click',()=>{if(canNavigate())iuOpenEventsPage();});
+ const homeButton=$('iuQuickHome');
+ homeButton?.addEventListener('click',()=>{
+  // Sur une sous-page, utiliser exactement les sorties animées du bouton Retour.
+  if(document.body.classList.contains('is-admin-mode')){iuCloseAdminPage();return;}
+  if(document.body.classList.contains('is-account-mode')){iuCloseAccountPage();return;}
+  if(document.body.classList.contains('is-events-mode')){iuCloseEventsPage();return;}
+  if(document.body.classList.contains('is-alerts-mode')){iuCloseAlertsPage();return;}
+  if(document.body.classList.contains('is-focus-mode'))return; // Ne pas quitter une pesée sans action explicite.
+  if(!focusMotionBusy)window.scrollTo({top:0,behavior:'smooth'});
+ });
  $('iuQuickAlerts')?.addEventListener('click',()=>{if(canNavigate())iuOpenAlertsPage();});
  $('iuQuickAccount')?.addEventListener('click',()=>{if(canNavigate())iuOpenAccountPage();});
  sessionButton.addEventListener('click',()=>{
