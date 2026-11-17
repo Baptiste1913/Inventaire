@@ -1,7 +1,7 @@
 {
-  "version": "39.55",
-  "published": "2026-11-16",
+  "version": "39.56",
+  "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ajout du liseré intérieur turquoise foncé manquant sur la seule carte Prochain inventaire, pour reproduire le double contour du bouton Voir la liste. Autres boutons et calculs inchangés."
+  "notes": "Contour gris bleuté légèrement plus contrasté (#D5DFE5) uniquement sur les boutons Accéder aux réglages, Accéder à mon compte et Accéder aux événements. Ombres, fonds et dimensions conservés."
 }

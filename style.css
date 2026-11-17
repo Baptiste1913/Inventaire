@@ -30208,3 +30208,19 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
   display:none!important;
  }
 }
+
+
+/* V39.56 — Contraste discret des trois boutons d'accès de l'accueil.
+   Seule la couleur du contour change ; aucun effet ni dimension modifiés. */
+html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action,
+html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action,
+html body:not(.is-events-mode):not(.is-focus-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
+ border-color:#d5dfe5!important;
+}
+@media(forced-colors:active){
+ html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action,
+ html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action,
+ html body:not(.is-events-mode):not(.is-focus-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
+  border-color:ButtonText!important;
+ }
+}
