@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="39.99"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=39.99" rel="manifest"/><link href="apple-touch-icon.png?v=39.99" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=39.99" rel="icon" type="image/png"/><link href="favicon-32.png?v=39.99" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=39.99" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=39.99" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="40.00"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=40.00" rel="manifest"/><link href="apple-touch-icon.png?v=40.00" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=40.00" rel="icon" type="image/png"/><link href="favicon-32.png?v=40.00" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=40.00" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=40.00" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
 html.iu-pwa-starting body{overflow:hidden!important}
 html.iu-pwa-starting #iuPwaSplash{display:flex!important}
 #iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#f7f9fa;align-items:center;justify-content:center;opacity:1;transition:opacity .32s ease;pointer-events:all;padding:24px;box-sizing:border-box}
@@ -81,12 +81,12 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
  object-fit:cover!important;border-radius:14px!important;background:transparent!important
 }
 
-/* V39.99 — Ecran squelette au demarrage PWA. Les placeholders sont
-   decoratifs : le moteur de chargement existant continue sans changement. */
+
+/* V40.00 — Écran squelette miroir de l'accueil réel, et non maquette générique.
+   Classes isolées du DOM fonctionnel : aucun changement au moteur de chargement. */
 html body #iuPwaSplash{
- align-items:flex-start!important;
- justify-content:center!important;
- padding:calc(env(safe-area-inset-top,0px) + 19px) 14px calc(env(safe-area-inset-bottom,0px) + 18px)!important;
+ align-items:stretch!important;justify-content:flex-start!important;
+ padding:calc(env(safe-area-inset-top,0px) + 14px) 14px 0!important;
  overflow:hidden!important;
  background:
   radial-gradient(ellipse 270px 210px at 90% 18%,rgba(92,187,200,.10),transparent 95%),
@@ -94,108 +94,158 @@ html body #iuPwaSplash{
   linear-gradient(180deg,#fcfdfe 0%,#f6f8fa 100%)!important;
 }
 html body #iuPwaSplash .iu-skeleton-shell{
- position:relative!important;
- display:flex!important;
- flex-direction:column!important;
- gap:15px!important;
- box-sizing:border-box!important;
- width:min(100%,720px)!important;
- max-height:100%!important;
- margin:0 auto!important;
- overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;flex:1 1 auto!important;
+ box-sizing:border-box!important;gap:14px!important;
+ width:min(100%,720px)!important;min-width:0!important;
+ max-height:100%!important;margin:0 auto!important;
+ padding:0 0 calc(108px + env(safe-area-inset-bottom,0px))!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch;
+ scrollbar-width:none;
 }
+html body #iuPwaSplash .iu-skeleton-shell::-webkit-scrollbar{display:none}
 html body #iuPwaSplash .iu-skeleton-shape{
- display:block;
- box-sizing:border-box;
- border:0;
- border-radius:999px;
+ display:block;box-sizing:border-box;flex-shrink:0;
+ border:0;border-radius:999px;
  background:linear-gradient(105deg,#e6ebef 10%,#f5f7f9 39%,#e4eaf0 68%)!important;
  background-size:220% 100%!important;
- animation:iuSkeletonPulseV3999 2s ease-in-out infinite!important;
+ animation:iuSkeletonPulseV4000 2s ease-in-out infinite!important;
 }
-@keyframes iuSkeletonPulseV3999{
+@keyframes iuSkeletonPulseV4000{
  0%{background-position:100% 50%}
  100%{background-position:-110% 50%}
 }
 html body #iuPwaSplash .iu-skeleton-header{
- display:flex;align-items:center;gap:13px;
- box-sizing:border-box;padding:5px 4px 7px;
- min-height:62px;
+ display:flex;align-items:center;gap:13px;min-height:77px;
+ box-sizing:border-box;padding:10px 5px 14px;background:rgba(255,255,255,.80);
 }
-html body #iuPwaSplash .iu-skeleton-logo{width:52px;height:52px;flex:0 0 52px;border-radius:15px}
-html body #iuPwaSplash .iu-skeleton-brand{display:flex;flex-direction:column;gap:9px;flex:1;min-width:0}
-html body #iuPwaSplash .iu-skeleton-ready{width:50px;height:22px;flex:0 0 50px}
+html body #iuPwaSplash .iu-skeleton-logo{width:57px;height:57px;flex:0 0 57px;border-radius:15px}
+html body #iuPwaSplash .iu-skeleton-brand,
+html body #iuPwaSplash .iu-skeleton-card-copy,
+html body #iuPwaSplash .iu-skeleton-lines,
+html body #iuPwaSplash .iu-skeleton-welcome-head{
+ display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0;
+}
+html body #iuPwaSplash .iu-skeleton-brand{flex:1;gap:8px}
+html body #iuPwaSplash .iu-skeleton-intro{min-width:0;position:relative}
 html body #iuPwaSplash .iu-skeleton-welcome{
- display:flex;flex-direction:column;gap:14px;
- padding:24px 18px 19px;min-height:268px;
- border:1px solid rgba(220,231,236,.95);border-radius:22px;
- background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(245,250,251,.7));
- box-shadow:0 7px 19px rgba(63,94,111,.055),inset 0 1px rgba(255,255,255,.95);
+ display:flex;flex-direction:column;gap:17px;box-sizing:border-box;
+ padding:24px 19px 20px;border:1px solid rgba(217,230,234,.90);
+ border-radius:26px;background:linear-gradient(135deg,rgba(255,255,255,.75),rgba(244,250,252,.58));
+ box-shadow:0 15px 25px -20px rgba(83,105,121,.16),inset 0 1px rgba(255,255,255,.96);
 }
-html body #iuPwaSplash .iu-skeleton-welcome-head{display:flex;flex-direction:column;gap:12px}
+html body #iuPwaSplash .iu-skeleton-welcome-head{gap:11px}
+html body #iuPwaSplash .iu-skeleton-watch{
+ display:flex;flex-direction:column;gap:12px;min-width:0;
+ padding:14px 12px;border:1px solid rgba(227,235,239,.78);
+ border-radius:19px;background:rgba(255,255,255,.50);
+}
+html body #iuPwaSplash .iu-skeleton-watch-heading,
+html body #iuPwaSplash .iu-skeleton-feature,
+html body #iuPwaSplash .iu-skeleton-card-heading,
+html body #iuPwaSplash .iu-skeleton-calendar-title{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;
+}
+html body #iuPwaSplash .iu-skeleton-watch-heading .iu-skeleton-lines{flex:1;gap:8px}
+html body #iuPwaSplash .iu-skeleton-tag{width:55px;height:23px}
 html body #iuPwaSplash .iu-skeleton-feature{
- display:flex;align-items:center;gap:11px;
- box-sizing:border-box;min-height:67px;padding:13px 14px;
- border:1px solid #e4ebef;border-radius:14px;
- background:rgba(249,251,252,.82);
+ border-radius:16px;border:1px solid #e5ebef;
+ background:rgba(250,252,253,.66);padding:13px 12px;min-height:70px;box-sizing:border-box;
 }
-html body #iuPwaSplash .iu-skeleton-mini-dot{width:9px;height:9px;flex:0 0 9px}
-html body #iuPwaSplash .iu-skeleton-feature-lines{display:flex;flex-direction:column;gap:10px;flex:1}
-html body #iuPwaSplash .iu-skeleton-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+html body #iuPwaSplash .iu-skeleton-feature .iu-skeleton-lines{flex:1;gap:9px}
+html body #iuPwaSplash .iu-skeleton-mini-dot{width:10px;height:10px;flex-basis:10px}
+html body #iuPwaSplash .iu-skeleton-chevron{width:18px;height:18px;flex-basis:18px;border-radius:6px}
+html body #iuPwaSplash .iu-skeleton-info-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;
+}
 html body #iuPwaSplash .iu-skeleton-info{
- display:flex;flex-direction:column;gap:11px;min-width:0;
- padding:14px 11px;min-height:77px;
- border:1px solid #e5ebef;border-radius:13px;background:rgba(250,252,253,.82);
+ display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+ box-sizing:border-box;min-width:0;padding:13px 10px;
+ border:1px solid #e5ebef;border-radius:16px;background:rgba(250,252,253,.66);
 }
+html body #iuPwaSplash .iu-skeleton-small-icon{height:21px;width:21px;border-radius:8px}
+html body #iuPwaSplash .iu-skeleton-watch-button{height:37px;width:100%;border-radius:20px}
 html body #iuPwaSplash .iu-skeleton-section-divider{
- display:flex;justify-content:center;align-items:center;
- min-height:24px;
+ display:flex;align-items:center;justify-content:center;min-height:26px;
 }
-html body #iuPwaSplash .iu-skeleton-service-card{
- display:flex;align-items:center;justify-content:space-between;gap:14px;
- box-sizing:border-box;min-height:112px;padding:19px 18px;
- border:1px solid #e3eaf0;border-radius:19px;
- background:linear-gradient(145deg,#fff,#f2f6f8);
- box-shadow:0 4px 12px rgba(58,81,99,.045);
+html body #iuPwaSplash .iu-skeleton-card{
+ display:flex;box-sizing:border-box;min-width:0;gap:14px;
+ border:1px solid rgba(255,255,255,.94);border-radius:20px;
+ padding:20px 18px;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%);
+ box-shadow:-3px -3px 7px rgba(255,255,255,.95),4px 5px 11px rgba(156,173,189,.19),inset 0 1px rgba(255,255,255,.72);
 }
-html body #iuPwaSplash .iu-skeleton-service-heading{display:flex;flex-direction:column;gap:12px;width:65%}
-html body #iuPwaSplash .iu-skeleton-action{width:42px;height:42px;flex:0 0 42px;border-radius:14px}
+html body #iuPwaSplash .iu-skeleton-admin,
+html body #iuPwaSplash .iu-skeleton-account,
+html body #iuPwaSplash .iu-skeleton-fold{
+ align-items:center;justify-content:space-between;min-height:105px;
+}
+html body #iuPwaSplash .iu-skeleton-card-copy{flex:1;gap:12px}
+html body #iuPwaSplash .iu-skeleton-card-control{width:46px;height:46px;flex-basis:46px;border-radius:17px}
+html body #iuPwaSplash .iu-skeleton-pill{width:70px;height:25px;flex-basis:70px;border-radius:14px}
+html body #iuPwaSplash .iu-skeleton-avatar{width:48px;height:48px;flex-basis:48px;border-radius:50%}
+html body #iuPwaSplash .iu-skeleton-calendar{
+ flex-direction:column;align-items:stretch;gap:13px;
+}
+html body #iuPwaSplash .iu-skeleton-calendar-title .iu-skeleton-card-copy{gap:10px}
+html body #iuPwaSplash .iu-skeleton-calendar-next{
+ display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+ padding:14px 13px;border:1px solid #e5ebef;border-radius:15px;background:rgba(255,255,255,.68);
+}
+html body #iuPwaSplash .iu-skeleton-button{height:44px;border-radius:24px}
+html body #iuPwaSplash .iu-skeleton-session,
+html body #iuPwaSplash .iu-skeleton-calc{
+ flex-direction:column;align-items:stretch;gap:14px;
+}
+html body #iuPwaSplash .iu-skeleton-session > .iu-skeleton-shape,
+html body #iuPwaSplash .iu-skeleton-calc > .iu-skeleton-shape{align-self:flex-start}
+html body #iuPwaSplash .iu-skeleton-calc-modes{
+ display:flex;flex-direction:column;gap:10px;
+ padding:14px;border-radius:16px;background:rgba(255,255,255,.68);
+}
+html body #iuPwaSplash .iu-skeleton-toggle{
+ display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:6px;
+ border-radius:18px;background:rgba(229,235,239,.72);
+}
+html body #iuPwaSplash .iu-skeleton-toggle .iu-skeleton-shape{height:33px;width:100%;border-radius:13px}
+html body #iuPwaSplash .iu-skeleton-field{height:47px;width:100%;border-radius:13px}
+html body #iuPwaSplash .iu-skeleton-weight-row{display:flex;gap:10px;align-items:center}
+html body #iuPwaSplash .iu-skeleton-weight-row .iu-skeleton-field{flex:1;width:auto}
+html body #iuPwaSplash .iu-skeleton-net-result{
+ display:flex;flex-direction:column;gap:12px;
+ border-radius:16px;background:rgba(255,255,255,.73);padding:16px;
+}
+html body #iuPwaSplash .iu-skeleton-fold .iu-skeleton-card-copy{gap:10px}
 html body #iuPwaSplash .iu-skeleton-dock{
- position:absolute;z-index:2;
- bottom:max(10px,env(safe-area-inset-bottom,0px));
- left:50%;transform:translateX(-50%);
- box-sizing:border-box;width:min(540px,calc(100vw - 28px));
- min-height:68px;padding:9px 10px;
- display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;gap:2px;
+ position:absolute;z-index:2;left:50%;bottom:max(10px,env(safe-area-inset-bottom,0px));
+ transform:translateX(-50%);width:min(540px,calc(100vw - 28px));
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+ align-items:center;gap:2px;box-sizing:border-box;min-height:68px;padding:9px 10px;
  border:1px solid rgba(225,235,239,.92);border-radius:25px;
- background:rgba(250,252,253,.9);box-shadow:0 6px 21px rgba(59,92,107,.06);
+ background:rgba(250,252,253,.92);box-shadow:0 6px 21px rgba(59,92,107,.06);
 }
 html body #iuPwaSplash .iu-skeleton-dock > span{display:flex;flex-direction:column;align-items:center;gap:8px}
 html body #iuPwaSplash .iu-skeleton-dock i{width:22px;height:22px;border-radius:7px}
 html body #iuPwaSplash .iu-skeleton-dock b{width:55%;height:8px}
 html body #iuPwaSplash #iuSplashLoader.iu-skeleton-hidden-progress.iu-splash-loader{
  position:absolute!important;width:1px!important;height:1px!important;
- padding:0!important;margin:0!important;opacity:0!important;
- overflow:hidden!important;clip-path:inset(50%)!important;
- pointer-events:none!important;
+ padding:0!important;margin:0!important;opacity:0!important;overflow:hidden!important;
+ clip-path:inset(50%)!important;pointer-events:none!important;
 }
 @media(max-width:380px){
- html body #iuPwaSplash .iu-skeleton-welcome{padding:20px 15px 16px;gap:12px;min-height:247px}
  html body #iuPwaSplash .iu-skeleton-shell{gap:12px!important}
- html body #iuPwaSplash .iu-skeleton-service-card{min-height:100px;padding:16px}
-}
-@media(max-height:720px){
- html body #iuPwaSplash .iu-skeleton-service-card-second{display:none}
+ html body #iuPwaSplash .iu-skeleton-welcome{padding:20px 15px 16px;gap:13px}
+ html body #iuPwaSplash .iu-skeleton-card{padding:16px 14px}
+ html body #iuPwaSplash .iu-skeleton-info-grid{gap:8px}
+ html body #iuPwaSplash .iu-skeleton-watch{padding:11px 9px}
 }
 @media(prefers-reduced-motion:reduce){
  html body #iuPwaSplash .iu-skeleton-shape{animation:none!important;background:#e8edf1!important}
 }
 @media(forced-colors:active){
  html body #iuPwaSplash .iu-skeleton-shape{animation:none!important;background:GrayText!important}
- html body #iuPwaSplash .iu-skeleton-welcome,
- html body #iuPwaSplash .iu-skeleton-service-card{background:Canvas!important;border:1px solid CanvasText!important}
+ html body #iuPwaSplash :is(.iu-skeleton-welcome,.iu-skeleton-card,.iu-skeleton-watch){background:Canvas!important;border:1px solid CanvasText!important}
 }
-
 </style><style id="iu-welcome-title-v3834">.iu-home-welcome .iu-home-welcome-topline{display:block!important;min-width:0!important}.iu-home-welcome #iuHomeWelcomeDisplayTitle{display:block!important;max-width:100%!important;margin:0!important;padding:0!important;color:#293a45!important;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif!important;font-size:28px!important;font-weight:900!important;letter-spacing:-.045em!important;line-height:1.09!important;text-transform:none!important;text-wrap:wrap!important;overflow-wrap:normal!important;word-break:normal!important;-webkit-text-stroke:0!important}.iu-home-welcome .iu-home-welcome-subtitle.events-month-subtitle{display:block!important;margin:9px 0 6px!important;max-width:45ch;font-family:inherit!important;font-size:clamp(13px,2.9vw,15px)!important;font-weight:500!important;line-height:1.5!important;letter-spacing:0!important;color:#73818a!important;opacity:1!important;text-shadow:none!important;-webkit-text-fill-color:#73818a!important}.iu-home-welcome .iu-market-updated{display:none!important}@media(max-width:390px){.iu-home-welcome #iuHomeWelcomeDisplayTitle{font-size:28px!important}}</style><style id="iu-welcome-cards-border-v3837">.iu-home-welcome .iu-dash-feature,.iu-home-welcome .iu-dash-panel{border-width:1px!important;border-style:solid!important;box-sizing:border-box!important}.iu-home-welcome .iu-dash-feature-content{padding-left:8px!important;min-width:0}.iu-home-welcome .iu-dash-panel-top,.iu-home-welcome .iu-dash-preview{padding-left:8px!important;box-sizing:border-box}.iu-home-welcome .iu-dash-panel .iu-dash-counter{padding-left:8px!important;box-sizing:border-box}.iu-home-welcome .iu-dash-panel .iu-dash-counter strong,.iu-home-welcome .iu-dash-panel .iu-dash-counter span{margin-left:0!important}</style><style id="iu-welcome-info-copy-v3839">.iu-home-welcome .iu-dash-feature-summary,.iu-home-welcome .iu-dash-counter span{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important;font-size:clamp(13px,2.9vw,15px)!important;font-weight:500!important;line-height:1.5!important;letter-spacing:0!important;color:#73818a!important;opacity:1!important;text-shadow:none!important;-webkit-text-fill-color:#73818a!important}.iu-home-welcome .iu-dash-counter span{display:inline!important}</style></style><style id="iu-services-divider-v3846">.iu-services-divider{display:flex;align-items:center;gap:16px;max-width:100%;margin:-20px auto 22px;padding:0 26px;color:#a9b2b9;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}.iu-services-divider::before,.iu-services-divider::after{content:"";height:1px;flex:1;min-width:0;background:rgba(118,136,148,.13)}.iu-services-divider span{flex:none}@media(max-width:420px){.iu-services-divider{gap:12px;padding:0 24px;margin:-20px auto 19px;font-size:9px}}</style><style id="iu-welcome-shadow-v3847">.intro.intro-smart.intro-aurora,.intro.intro-smart.intro-aurora .intro-glass-panel,.intro.intro-smart.intro-aurora .iu-home-welcome{box-shadow:0 8px 24px rgba(48,65,76,.002)!important;filter:none!important;-webkit-filter:none!important}</style><style id="iu-welcome-alert-lights-v3852">
 .iu-home-welcome .iu-dash-panel{position:relative!important}
 .iu-home-welcome .iu-dash-panel .iu-alert-signal{position:absolute;right:14px;top:14px;width:6px;height:6px;border-radius:50%;pointer-events:none;opacity:0;transform:scale(.8);transition:opacity .25s ease,transform .25s ease}
@@ -210,46 +260,93 @@ html body #iuPwaSplash #iuSplashLoader.iu-skeleton-hidden-progress.iu-splash-loa
 .iu-home-welcome #iuDashFeature .iu-feature-alert-signal{position:absolute;left:13px;top:50%;width:7px;height:7px;border-radius:50%;transform:translateY(-50%);pointer-events:none;background:#d45f5b;box-shadow:0 0 0 3px rgba(212,95,91,.10),0 0 8px 2px rgba(212,95,91,.25);animation:iuAlertRecallPulse 2.6s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){.iu-home-welcome #iuDashFeature .iu-feature-alert-signal{animation:none!important}}
 </style></head>
-<body><div id="iuUpdateOverlay" role="status" aria-live="polite" aria-label="Installation de la mise à jour" aria-hidden="true"><div class="iu-loader-aurora" aria-hidden="true"><span class="iu-loader-aurora-orb iu-loader-aurora-red"></span><span class="iu-loader-aurora-orb iu-loader-aurora-blue"></span><span class="iu-loader-aurora-orb iu-loader-aurora-green"></span></div><div class="iu-update-screen"><span class="iu-update-logo"><img src="icon.png?v=39.99" width="192" height="192" alt=""/></span><strong id="iuUpdateScreenTitle">Installation de la mise à jour…</strong><p id="iuUpdateScreenText">Préparation de votre nouvelle version.</p><div class="iu-update-progress-block"><div class="iu-update-progress-meta"><span id="iuUpdateStep">Activation de la mise à jour</span><span id="iuUpdateStepCount">Étape 1 sur 4</span></div><div class="iu-update-progress" id="iuUpdateProgress" role="progressbar" aria-label="Étapes de la mise à jour" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span></span></div></div><button type="button" id="iuUpdateOverlayDismiss" hidden>Revenir au site</button></div></div><dialog id="accountResetDialog" class="account-reset-dialog" aria-labelledby="accountResetDialogTitle" aria-describedby="accountResetDialogText"><div class="account-reset-modal"><strong id="accountResetDialogTitle">Confirmer la réinitialisation</strong><p id="accountResetDialogText"></p><div class="account-reset-modal-actions"><button type="button" id="accountResetCancel">Annuler</button><button type="button" id="accountResetConfirm">Confirmer</button></div></div></dialog><div id="iuPwaSplash" role="status" aria-label="Ouverture d’Inventaires U" aria-live="off">
-  <div class="iu-skeleton-shell" aria-hidden="true">
-    <div class="iu-skeleton-header">
-      <span class="iu-skeleton-logo iu-skeleton-shape"></span>
-      <span class="iu-skeleton-brand"><i class="iu-skeleton-shape" style="width:72%;height:13px"></i><i class="iu-skeleton-shape" style="width:96%;height:24px"></i></span>
-      <span class="iu-skeleton-ready iu-skeleton-shape"></span>
-    </div>
-    <section class="iu-skeleton-welcome">
-      <div class="iu-skeleton-welcome-head">
-        <i class="iu-skeleton-shape" style="width:38%;height:11px"></i>
-        <i class="iu-skeleton-shape" style="width:88%;height:29px"></i>
-        <i class="iu-skeleton-shape" style="width:60%;height:12px"></i>
-      </div>
-      <div class="iu-skeleton-feature">
-        <i class="iu-skeleton-shape iu-skeleton-mini-dot"></i>
-        <span class="iu-skeleton-feature-lines"><i class="iu-skeleton-shape" style="width:76%;height:13px"></i><i class="iu-skeleton-shape" style="width:92%;height:10px"></i></span>
-      </div>
-      <div class="iu-skeleton-info-grid">
-        <div class="iu-skeleton-info"><i class="iu-skeleton-shape" style="width:60%;height:11px"></i><i class="iu-skeleton-shape" style="width:84%;height:17px"></i><i class="iu-skeleton-shape" style="width:70%;height:10px"></i></div>
-        <div class="iu-skeleton-info"><i class="iu-skeleton-shape" style="width:65%;height:11px"></i><i class="iu-skeleton-shape" style="width:88%;height:17px"></i><i class="iu-skeleton-shape" style="width:55%;height:10px"></i></div>
-      </div>
-    </section>
-    <div class="iu-skeleton-section-divider"><i class="iu-skeleton-shape" style="width:86px;height:9px"></i></div>
-    <div class="iu-skeleton-service-card">
-      <span class="iu-skeleton-service-heading"><i class="iu-skeleton-shape" style="width:30%;height:10px"></i><i class="iu-skeleton-shape" style="width:72%;height:22px"></i></span>
-      <i class="iu-skeleton-shape iu-skeleton-action"></i>
-    </div>
-    <div class="iu-skeleton-service-card iu-skeleton-service-card-second">
-      <span class="iu-skeleton-service-heading"><i class="iu-skeleton-shape" style="width:35%;height:10px"></i><i class="iu-skeleton-shape" style="width:60%;height:22px"></i></span>
-      <i class="iu-skeleton-shape iu-skeleton-action"></i>
-    </div>
+<body><div id="iuUpdateOverlay" role="status" aria-live="polite" aria-label="Installation de la mise à jour" aria-hidden="true"><div class="iu-loader-aurora" aria-hidden="true"><span class="iu-loader-aurora-orb iu-loader-aurora-red"></span><span class="iu-loader-aurora-orb iu-loader-aurora-blue"></span><span class="iu-loader-aurora-orb iu-loader-aurora-green"></span></div><div class="iu-update-screen"><span class="iu-update-logo"><img src="icon.png?v=40.00" width="192" height="192" alt=""/></span><strong id="iuUpdateScreenTitle">Installation de la mise à jour…</strong><p id="iuUpdateScreenText">Préparation de votre nouvelle version.</p><div class="iu-update-progress-block"><div class="iu-update-progress-meta"><span id="iuUpdateStep">Activation de la mise à jour</span><span id="iuUpdateStepCount">Étape 1 sur 4</span></div><div class="iu-update-progress" id="iuUpdateProgress" role="progressbar" aria-label="Étapes de la mise à jour" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span></span></div></div><button type="button" id="iuUpdateOverlayDismiss" hidden>Revenir au site</button></div></div><dialog id="accountResetDialog" class="account-reset-dialog" aria-labelledby="accountResetDialogTitle" aria-describedby="accountResetDialogText"><div class="account-reset-modal"><strong id="accountResetDialogTitle">Confirmer la réinitialisation</strong><p id="accountResetDialogText"></p><div class="account-reset-modal-actions"><button type="button" id="accountResetCancel">Annuler</button><button type="button" id="accountResetConfirm">Confirmer</button></div></div></dialog>
+<div id="iuPwaSplash" role="status" aria-label="Ouverture d’Inventaires U" aria-live="off">
+ <div class="iu-skeleton-shell" aria-hidden="true">
+  <!-- En-tête réel : logo U et deux lignes d'identité -->
+  <div class="iu-skeleton-header">
+   <i class="iu-skeleton-logo iu-skeleton-shape"></i>
+   <div class="iu-skeleton-brand"><i class="iu-skeleton-shape" style="width:42%;height:10px"></i><i class="iu-skeleton-shape" style="width:83%;height:22px"></i></div>
   </div>
-  <div class="iu-skeleton-dock" aria-hidden="true">
-    <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
-    <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
-    <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
-    <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
-    <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
-  </div>
-  <div class="iu-splash-loader iu-skeleton-hidden-progress" id="iuSplashLoader" role="progressbar" aria-label="Chargement de l’application" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="iu-splash-loader-fill"></span></div>
+  <!-- Même grand bloc d'accueil : bienvenue, veille et deux rubriques du marché -->
+  <section class="iu-skeleton-intro">
+   <div class="iu-skeleton-welcome">
+    <div class="iu-skeleton-welcome-head">
+     <i class="iu-skeleton-shape" style="width:82%;height:29px"></i>
+     <i class="iu-skeleton-shape" style="width:93%;height:11px"></i>
+     <i class="iu-skeleton-shape" style="width:64%;height:11px"></i>
+    </div>
+    <div class="iu-skeleton-watch">
+     <div class="iu-skeleton-watch-heading">
+      <div class="iu-skeleton-lines"><i class="iu-skeleton-shape" style="width:57%;height:19px"></i><i class="iu-skeleton-shape" style="width:85%;height:10px"></i></div>
+      <i class="iu-skeleton-shape iu-skeleton-tag"></i>
+     </div>
+     <div class="iu-skeleton-feature">
+      <i class="iu-skeleton-shape iu-skeleton-mini-dot"></i>
+      <div class="iu-skeleton-lines"><i class="iu-skeleton-shape" style="width:76%;height:15px"></i><i class="iu-skeleton-shape" style="width:95%;height:10px"></i><i class="iu-skeleton-shape" style="width:65%;height:10px"></i></div>
+      <i class="iu-skeleton-shape iu-skeleton-chevron"></i>
+     </div>
+     <div class="iu-skeleton-info-grid">
+      <div class="iu-skeleton-info"><i class="iu-skeleton-shape iu-skeleton-small-icon"></i><i class="iu-skeleton-shape" style="width:88%;height:13px"></i><i class="iu-skeleton-shape" style="width:56%;height:23px"></i><i class="iu-skeleton-shape" style="width:80%;height:9px"></i></div>
+      <div class="iu-skeleton-info"><i class="iu-skeleton-shape iu-skeleton-small-icon"></i><i class="iu-skeleton-shape" style="width:85%;height:13px"></i><i class="iu-skeleton-shape" style="width:49%;height:23px"></i><i class="iu-skeleton-shape" style="width:76%;height:9px"></i></div>
+     </div>
+     <i class="iu-skeleton-shape iu-skeleton-watch-button"></i>
+    </div>
+   </div>
+  </section>
+  <div class="iu-skeleton-section-divider"><i class="iu-skeleton-shape" style="width:82px;height:9px"></i></div>
+  <!-- Les véritables rubriques Services U, dans le même ordre que l'accueil -->
+  <section class="iu-skeleton-card iu-skeleton-admin">
+   <div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:47%;height:9px"></i><i class="iu-skeleton-shape" style="width:83%;height:22px"></i></div>
+   <i class="iu-skeleton-shape iu-skeleton-card-control"></i>
+  </section>
+  <section class="iu-skeleton-card iu-skeleton-account">
+   <i class="iu-skeleton-shape iu-skeleton-avatar"></i>
+   <div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:63%;height:9px"></i><i class="iu-skeleton-shape" style="width:81%;height:22px"></i></div>
+   <i class="iu-skeleton-shape iu-skeleton-pill"></i>
+  </section>
+  <section class="iu-skeleton-card iu-skeleton-calendar">
+   <div class="iu-skeleton-calendar-title">
+    <div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:53%;height:9px"></i><i class="iu-skeleton-shape" style="width:88%;height:21px"></i><i class="iu-skeleton-shape" style="width:95%;height:10px"></i></div>
+    <i class="iu-skeleton-shape iu-skeleton-card-control"></i>
+   </div>
+   <div class="iu-skeleton-calendar-next">
+    <i class="iu-skeleton-shape" style="width:48%;height:9px"></i><i class="iu-skeleton-shape" style="width:72%;height:23px"></i>
+   </div>
+   <i class="iu-skeleton-shape iu-skeleton-button" style="width:100%"></i>
+  </section>
+  <!-- Ma session : statut, aide et véritable zone de commande -->
+  <section class="iu-skeleton-card iu-skeleton-session">
+   <div class="iu-skeleton-card-heading"><div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:55%;height:9px"></i><i class="iu-skeleton-shape" style="width:62%;height:24px"></i></div><i class="iu-skeleton-shape iu-skeleton-pill"></i></div>
+   <i class="iu-skeleton-shape" style="width:94%;height:11px"></i><i class="iu-skeleton-shape" style="width:73%;height:11px"></i>
+   <i class="iu-skeleton-shape iu-skeleton-button" style="width:100%"></i>
+  </section>
+  <!-- Nouvelle pesée : modes, panier, poids brut et résultat net -->
+  <section class="iu-skeleton-card iu-skeleton-calc">
+   <div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:51%;height:9px"></i><i class="iu-skeleton-shape" style="width:72%;height:24px"></i></div>
+   <div class="iu-skeleton-calc-modes"><i class="iu-skeleton-shape" style="width:57%;height:12px"></i><div class="iu-skeleton-toggle"><i class="iu-skeleton-shape"></i><i class="iu-skeleton-shape"></i></div></div>
+   <i class="iu-skeleton-shape" style="width:29%;height:10px"></i>
+   <i class="iu-skeleton-shape iu-skeleton-field"></i>
+   <i class="iu-skeleton-shape" style="width:31%;height:10px"></i>
+   <div class="iu-skeleton-weight-row"><i class="iu-skeleton-shape iu-skeleton-field"></i><i class="iu-skeleton-shape iu-skeleton-card-control"></i></div>
+   <div class="iu-skeleton-net-result"><i class="iu-skeleton-shape" style="width:36%;height:10px"></i><i class="iu-skeleton-shape" style="width:58%;height:28px"></i></div>
+  </section>
+  <!-- Sections repliables réelles : suivi, bilans, paniers et sauvegarde -->
+  <section class="iu-skeleton-card iu-skeleton-fold"><div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:53%;height:9px"></i><i class="iu-skeleton-shape" style="width:81%;height:22px"></i><i class="iu-skeleton-shape" style="width:90%;height:10px"></i></div><i class="iu-skeleton-shape iu-skeleton-pill"></i></section>
+  <section class="iu-skeleton-card iu-skeleton-fold"><div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:52%;height:9px"></i><i class="iu-skeleton-shape" style="width:65%;height:22px"></i><i class="iu-skeleton-shape" style="width:89%;height:10px"></i></div><i class="iu-skeleton-shape iu-skeleton-pill"></i></section>
+  <section class="iu-skeleton-card iu-skeleton-fold"><div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:49%;height:9px"></i><i class="iu-skeleton-shape" style="width:69%;height:22px"></i><i class="iu-skeleton-shape" style="width:86%;height:10px"></i></div><i class="iu-skeleton-shape iu-skeleton-pill"></i></section>
+  <section class="iu-skeleton-card iu-skeleton-fold"><div class="iu-skeleton-card-copy"><i class="iu-skeleton-shape" style="width:45%;height:9px"></i><i class="iu-skeleton-shape" style="width:73%;height:22px"></i><i class="iu-skeleton-shape" style="width:92%;height:10px"></i></div><i class="iu-skeleton-shape iu-skeleton-card-control"></i></section>
+ </div>
+ <!-- Barre d'accès rapide placée comme celle de l'accueil, sans contrôle actif -->
+ <div class="iu-skeleton-dock" aria-hidden="true">
+  <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
+  <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
+  <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
+  <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
+  <span><i class="iu-skeleton-shape"></i><b class="iu-skeleton-shape"></b></span>
+ </div>
+ <!-- Indicateur conservé : les routines de chargement / hors ligne restent intactes -->
+ <div class="iu-splash-loader iu-skeleton-hidden-progress" id="iuSplashLoader" role="progressbar" aria-label="Chargement de l’application" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="iu-splash-loader-fill"></span></div>
 </div><main class="app"><header class="header"><img alt="Logo U" class="logo" src="logo-u.png"/><div class="brand"><span class="kicker">MON ESPACE PERSONNEL</span><h1>UTILITAIRE D’INVENTAIRE</h1></div></header>
 <div aria-atomic="true" aria-live="polite" class="offline-indicator" hidden="" id="offlineIndicator" role="status">
 <span aria-hidden="true" class="offline-symbol"><img alt="" src="wifi-disconnected.svg"/></span>
@@ -351,9 +448,9 @@ html body #iuPwaSplash #iuSplashLoader.iu-skeleton-hidden-progress.iu-splash-loa
   <button type="button" class="intro-jump" id="heroStartSession" aria-label="Aller à Ma session" aria-controls="startSession"><span class="hero-start-layer hero-start-gradient" aria-hidden="true"></span><span class="hero-start-layer hero-start-surface" aria-hidden="true"></span><span class="hero-action-content"><span class="hero-action-copy"><span id="heroActionLabel">Aller à Ma session</span></span><svg class="hero-arrow-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6.5 8.5 10 12l3.5-3.5"/></svg></span></button>
  </div>
  </div>
- <img class="intro-mascot" src="mascotte-pasteque.svg?v=39.99" alt="" aria-hidden="true" width="230" height="205" decoding="async"/>
+ <img class="intro-mascot" src="mascotte-pasteque.svg?v=40.00" alt="" aria-hidden="true" width="230" height="205" decoding="async"/>
 </section>
-<!-- V39.99 : page Alertes, navigation identique aux pages Administration et Evenements. -->
+<!-- V40.00 : page Alertes, navigation identique aux pages Administration et Evenements. -->
 <section id="iuAlertsPage" class="card iu-alerts-page" aria-labelledby="iuAlertsHeading" hidden>
  <div class="iu-alerts-opaque-backdrop" aria-hidden="true"></div>
  <div class="iu-alerts-page-body">
@@ -733,7 +830,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   </div>
 </details><footer><strong class="footer-noncommercial">Utilisation non commerciale uniquement</strong><span class="footer-identity">Baptiste • Super U Saint-Germain</span><span class="footer-original">Inventaires U · Outil indépendant · Données stockées localement</span></footer></main>
 
-<!-- V39.99 — Barre de retour commune, fixe et condensable aux pages secondaires -->
+<!-- V40.00 — Barre de retour commune, fixe et condensable aux pages secondaires -->
 <nav id="iuSubpageBar" class="iu-subpage-bar" aria-label="Navigation de la page" data-compact="false" hidden>
  <span class="iu-subpage-heading iu-subpage-heading-admin"><span class="iu-subpage-heading-copy"><strong>Administration</strong></span></span>
  <span class="iu-subpage-heading iu-subpage-heading-account"><span class="iu-subpage-heading-copy"><strong>Compte</strong></span></span>
@@ -764,8 +861,8 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="market-watch.js?v=39.99"></script><script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=39.99"></script><script defer="" src="app.js?v=39.99"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=39.99"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=39.99"></script><script defer src="site-operations.js?v=39.99"></script><script defer src="update-manager.js?v=39.99"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=39.99"></script><script id="iu-welcome-alert-lights-script-v3850">(function(){function init(){[['iuSupplyCount','.iu-dash-panel-supply'],['iuRecallCount','.iu-dash-panel-recall']].forEach(function(pair){var count=document.getElementById(pair[0]);var panel=document.querySelector('.iu-home-welcome '+pair[1]);if(!count||!panel)return;var light=document.createElement('span');light.className='iu-alert-signal';light.setAttribute('aria-hidden','true');panel.appendChild(light);function update(){var value=(count.textContent||'').trim();var number=value.match(/\d+/);panel.setAttribute('data-iu-alert-active',number&&Number(number[0])>0?'true':'false')}new MutationObserver(update).observe(count,{childList:true,characterData:true,subtree:true});update()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();</script>
-<!-- V39.99 — Accès rapide à l'accueil : mêmes routes existantes, sans dupliquer les vues. -->
+<script defer src="market-watch.js?v=40.00"></script><script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=40.00"></script><script defer="" src="app.js?v=40.00"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=40.00"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=40.00"></script><script defer src="site-operations.js?v=40.00"></script><script defer src="update-manager.js?v=40.00"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=40.00"></script><script id="iu-welcome-alert-lights-script-v3850">(function(){function init(){[['iuSupplyCount','.iu-dash-panel-supply'],['iuRecallCount','.iu-dash-panel-recall']].forEach(function(pair){var count=document.getElementById(pair[0]);var panel=document.querySelector('.iu-home-welcome '+pair[1]);if(!count||!panel)return;var light=document.createElement('span');light.className='iu-alert-signal';light.setAttribute('aria-hidden','true');panel.appendChild(light);function update(){var value=(count.textContent||'').trim();var number=value.match(/\d+/);panel.setAttribute('data-iu-alert-active',number&&Number(number[0])>0?'true':'false')}new MutationObserver(update).observe(count,{childList:true,characterData:true,subtree:true});update()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();</script>
+<!-- V40.00 — Accès rapide à l'accueil : mêmes routes existantes, sans dupliquer les vues. -->
 <nav id="iuQuickDock" class="iu-quick-dock" aria-label="Accès rapide aux services">
  <button type="button" id="iuQuickSession" class="iu-quick-dock-item iu-quick-dock-main" aria-label="Démarrer un inventaire">
   <svg class="iu-dock-custom-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.83,0L3.56,0.33L2.3,1.17L1.55,2.16L1.12,3.28L1.03,4.03L1.03,19.92L1.36,21.42L1.78,22.17L2.3,22.78L3.09,23.39L3.8,23.72L4.83,23.95L5.67,23.95L6.38,23.81L7.27,23.44L21.19,15.38L21.98,14.62L22.5,13.83L22.83,12.84L22.92,11.86L22.73,10.73L22.31,9.8L21.98,9.33L21.05,8.48L7.08,0.42L5.95,0.05Z" fill-rule="nonzero"/></svg><span id="iuQuickSessionLabel">Inventaire</span>
