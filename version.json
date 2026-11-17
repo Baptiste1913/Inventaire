@@ -1,7 +1,7 @@
 {
-  "version": "40.05",
+  "version": "40.06",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Reflets blancs animés clairement visibles, glissant lentement sur les rectangles du squelette. Suppression de la respiration quasi invisible, sans toucher au DOM, à la logique de chargement ni aux fonctions métier."
+  "notes": "Reflets blancs du squelette ralentis à 4,6 secondes, étendus à 42 rectangles au lieu de 10, avec des décalages légers par groupe. Aucun changement du chargement, du contenu ou des fonctionnalités."
 }
