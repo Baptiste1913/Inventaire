@@ -3007,3 +3007,32 @@ function iuInitQuickDock(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iuInitQuickDock,{once:true});
 else iuInitQuickDock();
+
+/* V39.94 — Synchroniser la trame de Bienvenue avec celle du fond.
+   Le décalage est purement visuel, sans listener tactile ni animation. */
+(function iuAlignWelcomeDots(){
+ const app=document.querySelector('main.app');
+ const welcome=document.querySelector('main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome');
+ if(!app||!welcome)return;
+ let frame=0;
+ const update=()=>{
+  frame=0;
+  const a=app.getBoundingClientRect(),w=welcome.getBoundingClientRect();
+  const dx=(a.left+a.width/2)-(w.left+w.width/2);
+  const dy=a.top-w.top;
+  welcome.style.setProperty('--iu-welcome-dot-x',dx.toFixed(2)+'px');
+  welcome.style.setProperty('--iu-welcome-dot-y',dy.toFixed(2)+'px');
+ };
+ const schedule=()=>{
+  if(frame)return;
+  frame=requestAnimationFrame(update);
+ };
+ schedule();
+ window.addEventListener('resize',schedule,{passive:true});
+ window.addEventListener('load',schedule,{once:true});
+ if(typeof ResizeObserver!=='undefined'){
+  const observer=new ResizeObserver(schedule);
+  observer.observe(app);
+  observer.observe(welcome);
+ }
+})();

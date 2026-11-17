@@ -25826,12 +25826,13 @@ html body:not(.is-focus-mode) main.app > section.intro.intro-smart.intro-aurora[
  border:1px solid transparent!important;
  /* Trame très légère à travers le verre, sans retirer les lumières. */
  background:
-  radial-gradient(circle,rgba(104,136,162,.105) 1px,transparent 1.25px),
+  radial-gradient(circle,rgba(104,136,162,.105) .45px,rgba(104,136,162,.07) .9px,rgba(104,136,162,.018) 1.4px,transparent 1.8px),
   linear-gradient(122deg,
    rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,
    rgba(255,255,255,.54) 100%)!important;
  background-size:28px 28px,100% 100%!important;
- background-position:center top,center top!important;
+ /* Offset mesuré depuis main.app : la grille ne redémarre pas dans la carte. */
+ background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
  background-repeat:repeat,no-repeat!important;
  -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
  backdrop-filter:blur(27px) saturate(109%)!important;
@@ -31535,4 +31536,27 @@ html body:not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is
  visibility:visible!important;
  opacity:0!important;
  pointer-events:none!important;
+}
+
+/* V39.94 — Même trame dans toutes les vues, dont la pesée en concentration.
+   Elle reste dans la surface de fond : aucun calque interactif ni animation. */
+html body.is-focus-mode{
+ background-image:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px)!important;
+ background-color:#f3f6f7!important;
+ background-size:28px 28px!important;
+ background-position:center top!important;
+ background-repeat:repeat!important;
+}
+html body.is-focus-mode main.app{
+ background-image:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px)!important;
+ background-color:transparent!important;
+ background-size:28px 28px!important;
+ background-position:center top!important;
+ background-repeat:repeat!important;
+}
+@media(forced-colors:active){
+ html body.is-focus-mode,
+ html body.is-focus-mode main.app{
+  background-image:none!important;
+ }
 }

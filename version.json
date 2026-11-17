@@ -1,7 +1,7 @@
 {
-  "version": "39.93",
+  "version": "39.94",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Trame de points discrète visible dans le bloc Bienvenue et sur le fond des pages Administration, Compte, Événements et Rappels, sans modifier la navigation ni les animations."
+  "notes": "Points du bloc Bienvenue légèrement adoucis et alignés précisément avec la trame de fond. Motif étendu au mode pesée et à toutes les vues, sans toucher aux fonctionnalités."
 }
