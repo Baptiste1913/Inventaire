@@ -29954,10 +29954,10 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::before{
 html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::after{
  content:""!important;
  position:absolute!important;
- inset:2.5px!important;
+ inset:1px!important;
  box-sizing:border-box!important;
- border:2px solid #007583!important;
- border-radius:16.5px!important;
+ border:1px solid #007583!important;
+ border-radius:18px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  box-shadow:none!important;
  z-index:1!important;
@@ -30121,7 +30121,7 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::before{
  border-radius:21px!important;
 }
 html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::after{
- border-radius:18px!important;
+ border-radius:20px!important;
 }
 html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{
  top:5px!important;bottom:5px!important;
