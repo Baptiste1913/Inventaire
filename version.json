@@ -1,7 +1,7 @@
 {
-  "version": "39.67",
+  "version": "39.68",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : glissement Liquid Glass continu au doigt avec rendu requestAnimationFrame et transform GPU, icône Play réduite, icônes descendues et libellés remontés."
+  "notes": "Dock : Play étiré vers le bas sans déplacer son haut, suppression du cadre au glissement, sélection par accentuation neutre des icônes et animation d'arrivée depuis le bas au chargement et au retour à l'accueil."
 }

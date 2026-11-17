@@ -2852,6 +2852,28 @@ function iuInitQuickDock(){
    e.preventDefault();e.stopImmediatePropagation();suppressNativeClick=false;
   }
  },true);
+
+ // Animation de retour à l'accueil, y compris au premier chargement.
+ const subpageClasses=['is-focus-mode','is-admin-mode','is-account-mode','is-events-mode','is-alerts-mode'];
+ const isOnHome=()=>!subpageClasses.some(name=>document.body.classList.contains(name));
+ let lastHome=isOnHome();
+ let entranceTimer=0;
+ const animateDockEntrance=()=>{
+  if(!isOnHome())return;
+  dock.classList.remove('iu-dock-entering');
+  void dock.offsetWidth;
+  dock.classList.add('iu-dock-entering');
+  window.clearTimeout(entranceTimer);
+  entranceTimer=window.setTimeout(()=>dock.classList.remove('iu-dock-entering'),650);
+ };
+ const homeObserver=new MutationObserver(()=>{
+  const nowHome=isOnHome();
+  if(nowHome&&!lastHome)animateDockEntrance();
+  if(!nowHome)dock.classList.remove('iu-dock-entering');
+  lastHome=nowHome;
+ });
+ homeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+ window.requestAnimationFrame(()=>animateDockEntrance());
  const canNavigate=()=>!focusMotionBusy&&!document.body.classList.contains('is-focus-mode')&&
   !document.body.classList.contains('is-admin-mode')&&!document.body.classList.contains('is-account-mode')&&
   !document.body.classList.contains('is-events-mode')&&!document.body.classList.contains('is-alerts-mode');

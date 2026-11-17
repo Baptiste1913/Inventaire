@@ -30941,3 +30941,44 @@ html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{
 html body #iuQuickDock.iu-quick-dock.iu-dock-dragging .iu-dock-liquid-indicator{
  transition:none!important;
 }
+
+/* V39.68 — Pas de cadre au glissement : mise en valeur neutre des icônes. */
+html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator,
+html body #iuQuickDock.iu-quick-dock.iu-dock-dragging .iu-dock-liquid-indicator{
+ display:none!important;opacity:0!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered:not(.iu-quick-dock-main){
+ background:transparent!important;
+ color:#566a76!important;
+ transform:none!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered .iu-dock-custom-icon{
+ filter:brightness(.72) drop-shadow(0 2px 2px rgba(32,43,52,.17))!important;
+ transform:scale(1.14)!important;
+ transition:transform .13s ease,filter .13s ease!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon{
+ transition:transform .13s ease,filter .13s ease!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickSession .iu-dock-custom-icon{
+ width:18px!important;height:18px!important;
+ transform:scaleY(1.22)!important;
+ transform-origin:center top!important;
+ margin-bottom:2px!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickSession.iu-dock-hovered .iu-dock-custom-icon{
+ transform:scaleX(1.1) scaleY(1.32)!important;
+}
+/* Arrivée douce du dock depuis le bas sans déplacer son point d'ancrage. */
+@keyframes iuDockEnterV3968{
+ from{opacity:0;transform:translate3d(-50%,42px,0);}
+ to{opacity:1;transform:translate3d(-50%,0,0);}
+}
+html body #iuQuickDock.iu-quick-dock.iu-dock-entering{
+ animation:iuDockEnterV3968 .52s cubic-bezier(.22,1,.36,1) both!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body #iuQuickDock.iu-quick-dock.iu-dock-entering{animation:none!important;}
+ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon{transition:none!important;}
+}
