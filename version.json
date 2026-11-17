@@ -1,7 +1,7 @@
 {
-  "version": "40.13",
+  "version": "40.14",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Augmentation uniquement de la taille des points pendant la vague diagonale du bloc Bienvenue, sans modifier leur couleur, contraste, vitesse ou taille au repos."
+  "notes": "Vague des points de Bienvenue transformée en parcours diagonal localisé, du coin supérieur gauche au coin inférieur droit, au lieu d'une bande diagonale traversante. Agrandissement progressif, couleurs et durée inchangées."
 }
