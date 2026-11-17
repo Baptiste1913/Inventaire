@@ -30760,6 +30760,7 @@ html body.is-focus-mode main.app{
 }
 
 
+/* V40.11 — Points Bienvenue légèrement adoucis, fond de page inchangé. */
 /* V40.10 — Accueil épuré : points uniquement à travers le verre de Bienvenue.
    Garder les fonds dégradés, les halos, les pages dédiées et leurs motifs. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode) main.app{
@@ -30771,7 +30772,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome{
  /* Points plus lisibles, légèrement diffus, sans modifier le verre. */
  background-image:
-  radial-gradient(circle,rgba(92,121,147,.175) .48px,rgba(92,121,147,.115) .94px,rgba(92,121,147,.026) 1.5px,transparent 1.9px),
+  radial-gradient(circle,rgba(92,121,147,.158) .40px,rgba(92,121,147,.101) .96px,rgba(92,121,147,.030) 1.55px,transparent 2.15px),
   linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important;
  background-size:28px 28px,100% 100%!important;
  background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;

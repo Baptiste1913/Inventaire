@@ -1,7 +1,7 @@
 {
-  "version": "40.10",
+  "version": "40.11",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Accueil : suppression de la trame de points dans le fond de la page, conservation des points dans le bloc Bienvenue avec un contraste renforcé. Autres pages, halos, animations et fonctionnalités inchangés."
+  "notes": "Points du bloc Bienvenue légèrement plus diffus et un peu moins contrastés, sans modifier les autres effets ni les autres pages."
 }
