@@ -214,9 +214,45 @@ function cleanWeigh(x){
   if(!x||typeof x!=='object'||!Number.isSafeInteger(x.net)||!Number.isSafeInteger(x.gross)||!Number.isSafeInteger(x.tare)||x.net<0||x.gross<x.tare||x.tare<0||!Number.isFinite(x.at))return null;
   return {id:typeof x.id==='string'?x.id.slice(0,90):uid(),at:x.at,name:String(x.name||'Panier').slice(0,40),tare:x.tare,gross:x.gross,net:x.net,groupId:String(x.groupId||x.id||uid()).slice(0,90)};
 }
+
+/* V39.60 — Mois de référence explicite, indépendant de la date réelle.
+   Les sessions historiques sans référence restent à classer. */
+const iuMonthNames=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+function iuReferenceValid(value){return typeof value==='string'&&/^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(value);}
+function iuSuggestedReference(date=new Date()){
+ // Suggestion modifiable : tout début de mois peut concerner le mois précédent.
+ const year=date.getFullYear(),month=date.getMonth()-(date.getDate()<=7?1:0);
+ const d=new Date(year,month,1,12);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function iuReferenceLabel(key){if(!iuReferenceValid(key))return 'Non classé';const [y,m]=key.split('-').map(Number);return iuMonthNames[m-1]+' '+y;}
+function iuApplyReference(session,value){
+ if(!session)return false;
+ const old=session.referenceMonth;
+ session.referenceMonth=iuReferenceValid(value)?value:null;
+ if(!persistSessions()){session.referenceMonth=old;return false;}
+ renderSessionsHistory();renderSessionControls();notifyInventoryProgressChanged();
+ return true;
+}
+function iuReferenceSelector(session,extraLabel='Mois de référence'){
+ const label=document.createElement('label');label.className='iu-reference-picker';
+ const text=document.createElement('span');text.textContent=extraLabel;label.append(text);
+ const select=document.createElement('select');select.className='iu-reference-select';
+ select.setAttribute('aria-label',extraLabel);
+ const empty=document.createElement('option');empty.value='';empty.textContent='À classer';select.append(empty);
+ const base=new Date(session.startedAt);const currentYear=new Date().getFullYear();
+ const years=new Set([base.getFullYear()-1,base.getFullYear(),base.getFullYear()+1,currentYear-1,currentYear,currentYear+1]);
+ if(iuReferenceValid(session.referenceMonth))years.add(Number(session.referenceMonth.slice(0,4)));
+ for(const y of [...years].sort((a,b)=>b-a))for(let m=12;m>=1;m--){
+  const option=document.createElement('option');option.value=y+'-'+String(m).padStart(2,'0');option.textContent=iuMonthNames[m-1]+' '+y;select.append(option);
+ }
+ select.value=iuReferenceValid(session.referenceMonth)?session.referenceMonth:'';
+ select.addEventListener('change',()=>iuApplyReference(session,select.value));
+ label.append(select);return label;
+}
+
 function cleanSession(x){
   if(!x||typeof x!=='object'||!Number.isFinite(x.startedAt))return null;
-  return {id:String(x.id||uid()).slice(0,90),startedAt:x.startedAt,endedAt:Number.isFinite(x.endedAt)?x.endedAt:null,pausedAt:Number.isFinite(x.pausedAt)?x.pausedAt:null,pausedMs:Math.max(0,Number(x.pausedMs)||0),entries:Array.isArray(x.entries)?x.entries.map(cleanWeigh).filter(Boolean):[]};
+  return {id:String(x.id||uid()).slice(0,90),startedAt:x.startedAt,referenceMonth:iuReferenceValid(x.referenceMonth)?x.referenceMonth:null,endedAt:Number.isFinite(x.endedAt)?x.endedAt:null,pausedAt:Number.isFinite(x.pausedAt)?x.pausedAt:null,pausedMs:Math.max(0,Number(x.pausedMs)||0),entries:Array.isArray(x.entries)?x.entries.map(cleanWeigh).filter(Boolean):[]};
 }
 const loadedSessions=readJSON(SESSION_KEY,{sessions:[],activeId:null});
 let sessions=(Array.isArray(loadedSessions?.sessions)?loadedSessions.sessions:[]).map(cleanSession).filter(Boolean);
@@ -228,6 +264,7 @@ let confirmDuplicates=safeGet(DUPLICATE_CONFIRM_KEY)!=='false';
 let acceptedAnomalyKey='',sessionsExpanded=false;
 // V39.58 — Ordre de consultation des bilans (sans modifier les données).
 let iuInventorySort='recent';
+let iuArchiveYear=new Date().getFullYear(),iuArchiveMonth='all',iuArchiveUnclassified=true;
 function getActiveSession(){return sessions.find(s=>s.id===activeSessionId&&!s.endedAt)||null;}
 function activeStats(s){
   const count=s.entries.length, gross=s.entries.reduce((n,e)=>n+e.gross,0),tare=s.entries.reduce((n,e)=>n+e.tare,0),net=gross-tare;
@@ -1296,6 +1333,14 @@ function syncFocusMode(sessionInput,statsInput){
 function renderSessionControls(){const s=getActiveSession();$('sessionBadge').textContent=s?(s.pausedAt?'En pause':'En cours'):'Aucune session';$('sessionBadge').classList.toggle('active',Boolean(s&&!s.pausedAt));$('sessionBadge').classList.toggle('is-paused',Boolean(s&&s.pausedAt));$('sessionLive').hidden=!s;
  $('startSession').hidden=Boolean(s);$('pauseSession').hidden=!s||Boolean(s.pausedAt);$('resumeSession').hidden=!s||!s.pausedAt;$('finishSession').hidden=!s;
  $('sessionHelp').textContent=s?(s.pausedAt?'En pause : reprends pour enregistrer tes pesées.':`Début : ${dateLabel(s.startedAt)} · Suivi automatique actif.`):'Démarre une session pour conserver les statistiques de ton inventaire.';
+ const refBox=$('iuActiveReference');
+ if(refBox){
+  refBox.hidden=!s;
+  if(s){const current=refBox.querySelector('select');if(!current||current.dataset.sessionId!==s.id||current.value!==(s.referenceMonth||'')){
+   refBox.replaceChildren(iuReferenceSelector(s,'Mois de référence de cet inventaire'));
+   refBox.querySelector('select').dataset.sessionId=s.id;
+  }}
+ }
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
  renderHeroSummary();
  syncFocusMode();
@@ -1313,7 +1358,7 @@ function renderLiveSessionStats(updateHero=true){
 function startSession(){const review=$('sessionQualityReview');if(review)review.hidden=true;
  if(getActiveSession()||!flushPending())return;
  const before=sessions,prevId=activeSessionId;
- const created={id:uid(),startedAt:Date.now(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};
+ const created={id:uid(),startedAt:Date.now(),referenceMonth:iuSuggestedReference(),endedAt:null,pausedAt:null,pausedMs:0,entries:[]};
  sessions=[created,...sessions];activeSessionId=created.id;
  if(!persistSessions()){sessions=before;activeSessionId=prevId;return;}
  clearWeigh();renderV22();$('sessionMessage').classList.remove('is-complete');$('sessionMessage').textContent='';
@@ -1385,7 +1430,7 @@ function sessionBreakdown(s){const map=new Map();for(const e of s.entries)map.se
 function makeStat(label,value){const box=document.createElement('div');box.className='v22-stat';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;box.append(small,strong);return box;}
 function summaryElement(s){const stats=activeStats(s);const box=document.createElement('div');box.className='v22-bilan';const grid=document.createElement('div');grid.className='v22-stats-grid';
  for(const [label,value] of [['Début',dateLabel(s.startedAt)],['Fin',s.endedAt?dateLabel(s.endedAt):'—'],['Durée active',durationLabel(stats.duration)],['Pesées',String(stats.count)],['Poids brut',`${fmt(stats.gross)} kg`],['Tares cumulées',`${fmt(stats.tare)} kg`],['Poids net',`${fmt(stats.net)} kg`],['Moyenne / pesée',stats.count?`${fmt(stats.average)} kg`:'—'],['Plus petite',stats.count?`${fmt(stats.min)} kg`:'—'],['Plus grande',stats.count?`${fmt(stats.max)} kg`:'—'],['Pesées / heure',stats.duration&&stats.count?((stats.count*3600000)/stats.duration).toFixed(1).replace('.',','):'—']]) grid.append(makeStat(label,value));
- box.append(grid);
+ const refArea=document.createElement('div');refArea.className='iu-bilan-reference';refArea.append(iuReferenceSelector(s,'Mois de référence (modifiable)'));const actual=document.createElement('small');actual.textContent='Réalisé le '+dateLabel(s.startedAt);refArea.append(actual);box.append(refArea,grid);
  const breakdown=sessionBreakdown(s);if(breakdown.length){const h=document.createElement('h4');h.textContent='Types de paniers utilisés';box.append(h);for(const [name,count] of breakdown){const p=document.createElement('p');p.className='v22-stat-line';p.textContent=`${name} : ${count} pesée${count>1?'s':''}`;box.append(p);}}
  const hist=document.createElement('div');hist.className='v22-activity';const title=document.createElement('h4');title.textContent='Activité par demi-heure';hist.append(title);
  const bins=new Map();for(const e of s.entries){const d=new Date(e.at);d.setMinutes(Math.floor(d.getMinutes()/30)*30,0,0);const key=d.getTime();bins.set(key,(bins.get(key)||0)+1);}
@@ -1423,16 +1468,48 @@ const sessionSummaryObserver=typeof ResizeObserver==='function' ? new ResizeObse
   if(shell) shell.style.setProperty('--session-summary-height',`${entry.target.getBoundingClientRect().height}px`);
  }
 }) : null;
-function renderSessionsHistory(){const ended=sessions.filter(s=>Boolean(s.endedAt)).sort((a,b)=>iuInventorySort==='oldest'?a.startedAt-b.startedAt:b.startedAt-a.startedAt);$('sessionsCount').textContent=`${ended.length} session${ended.length>1?'s':''}`;
+function iuUpdateArchiveControls(all){
+ const years=[...new Set(all.filter(s=>iuReferenceValid(s.referenceMonth)).map(s=>Number(s.referenceMonth.slice(0,4))))].sort((a,b)=>b-a);
+ const select=$('iuArchiveYear');if(!select)return;
+ if(!years.length)years.push(new Date().getFullYear());
+ if(!years.includes(iuArchiveYear))iuArchiveYear=years[0];
+ select.replaceChildren();
+ for(const year of years){const option=document.createElement('option');option.value=String(year);option.textContent=String(year);select.append(option);}
+ select.value=String(iuArchiveYear);
+ const misc=all.filter(s=>!iuReferenceValid(s.referenceMonth)).length;
+ const miscButton=$('iuArchiveUnclassified');miscButton.textContent='À classer ('+misc+')';
+ miscButton.setAttribute('aria-pressed',String(iuArchiveUnclassified));
+ const yearsButton=$('iuArchiveByYear');yearsButton.setAttribute('aria-pressed',String(!iuArchiveUnclassified));
+ const grid=$('iuArchiveMonths');grid.hidden=iuArchiveUnclassified;
+ grid.replaceChildren();
+ for(let m=1;m<=12;m++){
+  const key=iuArchiveYear+'-'+String(m).padStart(2,'0');
+  const count=all.filter(s=>s.referenceMonth===key).length;
+  const button=document.createElement('button');button.type='button';button.className='iu-archive-month';
+  button.classList.toggle('is-selected',iuArchiveMonth===key);
+  button.setAttribute('aria-pressed',String(iuArchiveMonth===key));
+  button.textContent=iuMonthNames[m-1].slice(0,3);
+  const number=document.createElement('small');number.textContent=String(count);button.append(number);
+  button.disabled=!count;
+  button.addEventListener('click',()=>{iuArchiveMonth=iuArchiveMonth===key?'all':key;renderSessionsHistory();});
+  grid.append(button);
+ }
+ const showAll=$('iuArchiveAllMonths');showAll.hidden=iuArchiveUnclassified;
+ showAll.setAttribute('aria-pressed',String(iuArchiveMonth==='all'));
+}
+
+function renderSessionsHistory(){const all=sessions.filter(s=>Boolean(s.endedAt));$('sessionsCount').textContent=`${all.length} session${all.length>1?'s':''}`;
+ iuUpdateArchiveControls(all);
+ const ended=all.filter(s=>iuArchiveUnclassified?!iuReferenceValid(s.referenceMonth):(iuReferenceValid(s.referenceMonth)&&s.referenceMonth.startsWith(iuArchiveYear+'-')&&(iuArchiveMonth==='all'||s.referenceMonth===iuArchiveMonth))).sort((a,b)=>iuInventorySort==='oldest'?a.startedAt-b.startedAt:b.startedAt-a.startedAt);
  const list=$('sessionsHistoryList');if(sessionSummaryObserver)sessionSummaryObserver.disconnect();list.replaceChildren();$('sessionsToggle').hidden=ended.length<=5;$('sessionsToggle').textContent=sessionsExpanded?'Réduire la liste':`Voir les ${ended.length} sessions`;
- if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent='Aucune session terminée pour le moment.';list.append(p);return;}
+ if(!ended.length){const p=document.createElement('p');p.className='empty';p.textContent=iuArchiveUnclassified?'Toutes les sessions sont classées.':'Aucun inventaire pour cette période.';list.append(p);return;}
  let lastMonth='';
  for(const s of (sessionsExpanded?ended:ended.slice(0,5))){
-  const month=new Date(s.startedAt).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const month=iuArchiveUnclassified?new Date(s.startedAt).toLocaleDateString('fr-FR',{month:'long',year:'numeric'}):iuReferenceLabel(s.referenceMonth);
   if(month!==lastMonth){const divider=document.createElement('div');divider.className='iu-inventory-month';divider.textContent=month.charAt(0).toLocaleUpperCase('fr-FR')+month.slice(1);list.append(divider);lastMonth=month;}
   const item=document.createElement('details');item.className='v22-session-item';const sum=document.createElement('summary');const name=document.createElement('strong');const started=new Date(s.startedAt);const dayTitle=started.toLocaleDateString('fr-FR',{day:'numeric',month:'short',...(started.getFullYear()!==new Date().getFullYear()?{year:'numeric'}:{})});const timeTitle=started.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});name.textContent=`Inventaire · ${dayTitle} à ${timeTitle}`;
   const heading=document.createElement('span');heading.className='iu-inventory-title';
-  const eyebrow=document.createElement('span');eyebrow.className='iu-inventory-kicker';eyebrow.textContent='BILAN TERMINÉ';
+  const eyebrow=document.createElement('span');eyebrow.className='iu-inventory-kicker';eyebrow.textContent=iuArchiveUnclassified?'À CLASSER · BILAN TERMINÉ':'BILAN · '+iuReferenceLabel(s.referenceMonth).toLocaleUpperCase('fr-FR');
   heading.append(eyebrow,name);
   const meta=document.createElement('span');meta.className='iu-inventory-meta';const stats=activeStats(s);
   const pieces=stats.count?[`${stats.count} pesée${stats.count>1?'s':''}`,`${fmt(stats.net)} kg net`,durationLabel(stats.duration)]:['Aucune pesée',durationLabel(stats.duration)];
@@ -1710,6 +1787,10 @@ $('resumeSession').addEventListener('click',()=>animateFocusEntry(resumeSession)
 $('finishSession').addEventListener('click',finishSession);
 $('sessionsToggle').addEventListener('click',()=>animateExpandedList('sessionsHistoryList',()=>{sessionsExpanded=!sessionsExpanded;renderSessionsHistory();}));
 $('iuInventorySort').addEventListener('change',event=>{iuInventorySort=event.target.value==='oldest'?'oldest':'recent';renderSessionsHistory();});
+$('iuArchiveYear').addEventListener('change',event=>{iuArchiveYear=Number(event.target.value);iuArchiveMonth='all';iuArchiveUnclassified=false;sessionsExpanded=false;renderSessionsHistory();});
+$('iuArchiveUnclassified').addEventListener('click',()=>{iuArchiveUnclassified=true;iuArchiveMonth='all';sessionsExpanded=false;renderSessionsHistory();});
+$('iuArchiveByYear').addEventListener('click',()=>{iuArchiveUnclassified=false;iuArchiveMonth='all';sessionsExpanded=false;renderSessionsHistory();});
+$('iuArchiveAllMonths').addEventListener('click',()=>{iuArchiveMonth='all';renderSessionsHistory();});
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});

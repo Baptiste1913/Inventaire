@@ -30404,3 +30404,77 @@ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-s
   background:Highlight!important;
  }
 }
+
+
+/* V39.60 — Archives annuelles et référence métier explicite */
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-navigator{
+ margin:0 0 15px!important;padding:14px!important;border-radius:16px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 35%,#e7eef2 100%)!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.92),3px 4px 10px rgba(152,169,182,.17),inset 1px 1px 0 rgba(255,255,255,.97)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-switch{
+ display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;margin-bottom:12px!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-switch button,
+html body:not(.is-focus-mode) .sessions-history-card #iuArchiveAllMonths{
+ min-height:40px!important;padding:9px 10px!important;border:1px solid #d5dfe5!important;border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#edf2f5)!important;color:#34434d!important;font-weight:800!important;font-size:12px!important;
+ box-shadow:inset 0 1px 0 #fff!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-switch button[aria-pressed="true"],
+html body:not(.is-focus-mode) .sessions-history-card #iuArchiveAllMonths[aria-pressed="true"]{
+ background:linear-gradient(145deg,#e6f5f4,#d9eded)!important;border-color:#a9d2cf!important;color:#32746d!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-yearrow{
+ display:flex!important;justify-content:space-between!important;align-items:end!important;gap:10px!important;flex-wrap:wrap!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-yearrow label,
+html body .iu-reference-picker{
+ display:grid!important;gap:5px!important;color:#74838d!important;font-size:11px!important;font-weight:800!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-yearrow select,
+html body .iu-reference-select{
+ appearance:auto!important;-webkit-appearance:menulist!important;
+ width:auto!important;min-width:130px!important;max-width:100%!important;min-height:39px!important;
+ padding:8px 10px!important;border:1px solid #d5dfe5!important;border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#f0f4f6)!important;color:#303e47!important;font-size:13px!important;font-weight:750!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-months{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;margin-top:12px!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-months[hidden],
+html body:not(.is-focus-mode) .sessions-history-card #iuArchiveAllMonths[hidden],
+html body .iu-active-reference[hidden]{display:none!important;}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month{
+ display:flex!important;justify-content:space-between!important;align-items:center!important;gap:5px!important;
+ padding:10px 8px!important;min-height:44px!important;border:1px solid #d5dfe5!important;border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#f4f7f9)!important;color:#3c4b55!important;font-size:12px!important;font-weight:800!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month small{font-size:10px!important;font-weight:750!important;color:#668e89!important;}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month.is-selected{border-color:#8dc9c3!important;background:#e5f4f2!important;color:#266d65!important;}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month:disabled{opacity:.45!important;}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-hint{font-size:11px!important;color:#7c8b94!important;line-height:1.45!important;margin:11px 0 0!important;}
+html body .iu-active-reference,
+html body:not(.is-focus-mode) .sessions-history-card .iu-bilan-reference{
+ display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:10px!important;justify-content:space-between!important;
+ padding:12px!important;margin:0 0 13px!important;border:1px solid #dde6ea!important;border-radius:13px!important;
+ background:linear-gradient(145deg,#fff,#f2f6f8)!important;
+}
+html body .iu-active-reference[hidden]{display:none!important;}
+html body:not(.is-focus-mode) .sessions-history-card .iu-bilan-reference small{font-size:11px!important;color:#7a8891!important;}
+html body .iu-reference-select:focus-visible,
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-navigator :is(button,select):focus-visible{
+ outline:2px solid #4d9bae!important;outline-offset:2px!important;
+}
+@media(max-width:390px){
+ html body:not(.is-focus-mode) .sessions-history-card .iu-archive-months{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;}
+ html body:not(.is-focus-mode) .sessions-history-card .iu-archive-navigator{padding:11px!important;}
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .sessions-history-card .iu-archive-navigator,
+ html body .iu-active-reference,
+ html body:not(.is-focus-mode) .sessions-history-card .iu-bilan-reference{
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+}
