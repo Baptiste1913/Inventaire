@@ -22,3 +22,24 @@ html body #iuQuickDock.iu-quick-dock #iuQuickHome .iu-dock-custom-icon{
 html body #iuQuickDock.iu-quick-dock:has(#iuQuickAdmin[hidden]){
  grid-template-columns:repeat(5,minmax(0,1fr))!important;
 }
+
+/* V39.73 — Dock universel, y compris dans les pages autonomes. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode) #iuQuickDock.iu-quick-dock{
+ display:grid!important;
+ visibility:visible!important;
+ opacity:1!important;
+ pointer-events:auto!important;
+ position:fixed!important;
+ z-index:2147483000!important;
+ bottom:calc(env(safe-area-inset-bottom,0px) + 8px)!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode) #iuQuickDock.iu-quick-dock:has(#iuQuickAdmin[hidden]){
+ grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode) #iuQuickDock.iu-quick-dock:not(:has(#iuQuickAdmin[hidden])){
+ grid-template-columns:repeat(6,minmax(0,1fr))!important;
+}
+/* Laisser la fin des sous-pages lisible au-dessus de la navigation fixe. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode){
+ padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)!important;
+}

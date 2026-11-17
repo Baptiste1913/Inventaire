@@ -2879,8 +2879,28 @@ function iuInitQuickDock(){
  const canNavigate=()=>!focusMotionBusy&&!document.body.classList.contains('is-focus-mode')&&
   !document.body.classList.contains('is-admin-mode')&&!document.body.classList.contains('is-account-mode')&&
   !document.body.classList.contains('is-events-mode')&&!document.body.classList.contains('is-alerts-mode');
- admin.addEventListener('click',()=>{updateAdmin();if(canNavigate()&&!admin.hidden)iuOpenAdminPage();});
- $('iuQuickEvents')?.addEventListener('click',()=>{if(canNavigate())iuOpenEventsPage();});
+ admin.addEventListener('click',()=>{updateAdmin();if(!admin.hidden)navigateDock(()=>iuOpenAdminPage());});
+ $('iuQuickEvents')?.addEventListener('click',()=>navigateDock(()=>iuOpenEventsPage()));
+ // La barre reste disponible dans toutes les vues. Un changement de
+ // rubrique ferme d'abord la page courante avec sa transition native.
+ const leaveCurrentPage=()=>{
+  if(document.body.classList.contains('is-admin-mode')){iuCloseAdminPage();return true;}
+  if(document.body.classList.contains('is-account-mode')){iuCloseAccountPage();return true;}
+  if(document.body.classList.contains('is-events-mode')){iuCloseEventsPage();return true;}
+  if(document.body.classList.contains('is-alerts-mode')){iuCloseAlertsPage();return true;}
+  return false;
+ };
+ const navigateDock=action=>{
+  if(focusMotionBusy)return;
+  if(document.body.classList.contains('is-focus-mode'))return;
+  if(!leaveCurrentPage()){action();return;}
+  const until=Date.now()+2000;
+  const wait=()=>{
+   if(isOnHome()&&!focusMotionBusy){action();return;}
+   if(Date.now()<until)window.requestAnimationFrame(wait);
+  };
+  window.requestAnimationFrame(wait);
+ };
  const homeButton=$('iuQuickHome');
  homeButton?.addEventListener('click',()=>{
   // Sur une sous-page, utiliser exactement les sorties animées du bouton Retour.
@@ -2888,13 +2908,19 @@ function iuInitQuickDock(){
   if(document.body.classList.contains('is-account-mode')){iuCloseAccountPage();return;}
   if(document.body.classList.contains('is-events-mode')){iuCloseEventsPage();return;}
   if(document.body.classList.contains('is-alerts-mode')){iuCloseAlertsPage();return;}
-  if(document.body.classList.contains('is-focus-mode'))return; // Ne pas quitter une pesée sans action explicite.
+  if(document.body.classList.contains('is-focus-mode')){
+   // Ne pas interrompre une session : la commande de retour de la vue
+   // de pesée garde la responsabilité de sa transition.
+   const back=$('iuSubpageBack');
+   if(back&&!back.hidden)back.click();
+   return;
+  }
   if(!focusMotionBusy)window.scrollTo({top:0,behavior:'smooth'});
  });
- $('iuQuickAlerts')?.addEventListener('click',()=>{if(canNavigate())iuOpenAlertsPage();});
- $('iuQuickAccount')?.addEventListener('click',()=>{if(canNavigate())iuOpenAccountPage();});
+ $('iuQuickAlerts')?.addEventListener('click',()=>navigateDock(()=>iuOpenAlertsPage()));
+ $('iuQuickAccount')?.addEventListener('click',()=>navigateDock(()=>iuOpenAccountPage()));
  sessionButton.addEventListener('click',()=>{
-  if(!canNavigate())return;
+  if(!canNavigate()){navigateDock(()=>sessionButton.click());return;}
   const active=getActiveSession();
   if(active?.pausedAt)animateFocusEntry(resumeSession);
   else if(!active)animateFocusEntry(startSession);
