@@ -1,7 +1,7 @@
 {
-  "version": "40.18",
+  "version": "40.19",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Points de la vague diagonale Bienvenue : opacité maximale fixée à 8 %, contours plus diffus par dégradés radiaux, sans filtre blur. Animation et points fixes inchangés."
+  "notes": "Opacité maximale des points animés de la vague diagonale Bienvenue abaissée de 8 % à 5 %, flou, taille et vitesse inchangés."
 }

@@ -30785,6 +30785,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 }
 
 
+/* V40.19 — Opacité maximale des points animés réduite à 5 %, sans modifier la diffusion. */
 /* V40.18 — Opacité maximale des points animés à 8 %, diffusion radiale élargie sans filtre blur. */
 /* V40.17 — Points animés plus diffus et légèrement moins opaques, sans filtre blur coûteux. */
 /* V40.16 — Agrandissement des seuls points animés, sans changer les couleurs, le rythme ni les points fixes. */
@@ -30810,9 +30811,9 @@ html body .iu-welcome-dot-wave > i{
 }
 html body .iu-welcome-dot-wave > i:first-child{
  background-image:radial-gradient(circle,
-  rgba(92,121,147,.080) 1.05px,
-  rgba(92,121,147,.048) 2.45px,
-  rgba(92,121,147,.010) 3.75px,transparent 4.65px)!important;
+  rgba(92,121,147,.050) 1.05px,
+  rgba(92,121,147,.030) 2.45px,
+  rgba(92,121,147,.006) 3.75px,transparent 4.65px)!important;
  -webkit-mask-image:repeating-linear-gradient(135deg,
   transparent 0px,transparent 35px,
   rgba(0,0,0,.15) 47px,rgba(0,0,0,.65) 58px,
@@ -30826,9 +30827,9 @@ html body .iu-welcome-dot-wave > i:first-child{
 }
 html body .iu-welcome-dot-wave > i:last-child{
  background-image:radial-gradient(circle,
-  rgba(92,121,147,.080) 1.65px,
-  rgba(92,121,147,.045) 3.50px,
-  rgba(92,121,147,.009) 5.00px,transparent 6.05px)!important;
+  rgba(92,121,147,.050) 1.65px,
+  rgba(92,121,147,.028) 3.50px,
+  rgba(92,121,147,.006) 5.00px,transparent 6.05px)!important;
  -webkit-mask-image:repeating-linear-gradient(135deg,
   transparent 0px,transparent 49px,
   rgba(0,0,0,.24) 58px,rgba(0,0,0,.86) 68px,
