@@ -2647,9 +2647,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   if(veil)return;
   veil=document.createElement('div');veil.className='iu-edge-swipe-backdrop';
   veil.setAttribute('aria-hidden','true');
-  veil.innerHTML='<div class="iu-edge-swipe-glow"></div><div class="iu-edge-swipe-arrow">'+
-   '<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div>';
-  arrow=veil.querySelector('.iu-edge-swipe-arrow');
+  veil.innerHTML='<div class="iu-edge-swipe-glow"></div>';
+  arrow=null;
   seam=document.createElement('div');seam.className='iu-edge-swipe-seam';
   seam.setAttribute('aria-hidden','true');
   document.body.append(veil,seam);
@@ -2661,8 +2660,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   target.nodes.forEach(n=>n.style.setProperty('translate',x+'px 0','important'));
   const mask='inset(0 calc(100% - '+x+'px) 0 0)';
   veil.style.clipPath=mask;veil.style.webkitClipPath=mask;
-  arrow.style.opacity=String(Math.min(.48,Math.max(0,(x-30)/170)));
-  arrow.style.transform='translate3d('+Math.round(7*(1-x/Math.max(1,innerWidth)))+'px,0,0)';
+
+
   seam.style.left=x+'px';seam.style.opacity=String(Math.min(.75,Math.max(0,(x-12)/65)));
  }
  function cleanup(){

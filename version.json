@@ -1,7 +1,7 @@
 {
-  "version": "39.78",
+  "version": "39.79",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Barre Retour : titre centré agrandi et en gras, suppression de SERVICE U et de la barre grise, bouton rond neumorphique avec retour tactile, hauteur stable et espacement avec le contenu des pages."
+  "notes": "Barre Retour légèrement abaissée à 74 px, espace sous le bandeau réduit, titre plus compact et très gras, bouton rond avec contour turquoise du démarrage d'inventaire, flèche flottante supprimée du retour par balayage."
 }
