@@ -2590,19 +2590,25 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  const bar=$('iuSubpageBar'), back=$('iuSubpageBack');
  if(!bar||!back)return;
  const modes=['is-admin-mode','is-account-mode','is-events-mode','is-alerts-mode'];
- let pending=false,wasActive=false,canCompact=false,touchStartY=null;
+ let pending=false,wasActive=false,canCompact=false,touchStartY=null,touchStartX=null;
  function active(){return modes.some(mode=>document.body.classList.contains(mode));}
  // Seul un défilement réel de l'utilisateur permet le compactage.
  document.addEventListener('touchstart',event=>{
   if(!active()||event.touches.length!==1)return;
   touchStartY=event.touches[0].clientY;
+  touchStartX=event.touches[0].clientX;
  },{passive:true});
  document.addEventListener('touchmove',event=>{
   if(!active()||touchStartY===null||event.touches.length!==1)return;
-  if(Math.abs(event.touches[0].clientY-touchStartY)>9){canCompact=true;schedule();}
+  const dy=Math.abs(event.touches[0].clientY-touchStartY);
+  const dx=Math.abs(event.touches[0].clientX-touchStartX);
+  // Ne pas compacter pendant un balayage horizontal ou l'entrée de page.
+  if(dy>12&&dy>dx*1.3&&!document.body.classList.contains('iu-subpage-entering')&&!document.body.classList.contains('iu-edge-swiping')){
+   canCompact=true;schedule();
+  }
  },{passive:true});
- document.addEventListener('touchend',()=>{touchStartY=null;},{passive:true});
- document.addEventListener('touchcancel',()=>{touchStartY=null;},{passive:true});
+ document.addEventListener('touchend',()=>{touchStartY=null;touchStartX=null;},{passive:true});
+ document.addEventListener('touchcancel',()=>{touchStartY=null;touchStartX=null;},{passive:true});
  window.addEventListener('wheel',event=>{
   if(active()&&Math.abs(event.deltaY)>2){canCompact=true;schedule();}
  },{passive:true});
@@ -2615,6 +2621,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    wasActive=false;
    canCompact=false;
    touchStartY=null;
+   touchStartX=null;
    return;
   }
   if(!wasActive){
@@ -2657,10 +2664,10 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
 /* V39.30 : geste conservé, retour masqué par un fond opaque stylisé. */
 (function iuInstallEdgeSwipeBack(){
  const pages={
-  'is-admin-mode':{selector:'#planningAdminCard',close:()=>iuCloseAdminPage(true)},
-  'is-account-mode':{selector:'#accountCard',close:()=>iuCloseAccountPage(true)},
-  'is-events-mode':{selector:'#eventsPage',close:()=>iuCloseEventsPage(true)},
-  'is-alerts-mode':{selector:'#iuAlertsPage',close:()=>iuCloseAlertsPage(true)}
+  'is-admin-mode':{selector:'#planningAdminCard',close:()=>iuCloseAdminPage()},
+  'is-account-mode':{selector:'#accountCard',close:()=>iuCloseAccountPage()},
+  'is-events-mode':{selector:'#eventsPage',close:()=>iuCloseEventsPage()},
+  'is-alerts-mode':{selector:'#iuAlertsPage',close:()=>iuCloseAlertsPage()}
  };
  const current=()=>Object.entries(pages).find(([mode])=>document.body.classList.contains(mode))?.[1];
  const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2702,47 +2709,28 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   if(!target.active){cleanup();return;}
   target.finishing=true;
   if(target.raf){cancelAnimationFrame(target.raf);target.raf=0;}
-  const end=success?innerWidth:0;
-  const ms=reduced()?0:Math.round(190+Math.abs(end-target.distance)/Math.max(1,innerWidth)*140);
+  if(success){
+   // V39.84 : le swipe ne ferme plus la sous-page brutalement.
+   // Restaurer les surfaces avant le rendu suivant puis appeler le MÊME
+   // moteur de sortie que le bouton Retour (copies, descente, flou, dock).
+   const saved=iuEdgeHomeSnapshot?.scrollY;
+   if(Number.isFinite(saved))iuSavedHomeScrollY=saved;
+   cleanup();
+   target.page.close();
+   iuEdgeHomeSnapshot=null;
+   return;
+  }
+  // Geste annulé : revenir en douceur à la position initiale.
+  const ms=reduced()?0:Math.round(190+target.distance/Math.max(1,innerWidth)*140);
   if(ms){
    const ease='cubic-bezier(.16,.84,.24,1)';
    target.nodes.forEach(n=>n.style.setProperty('transition','translate '+ms+'ms '+ease,'important'));
    veil.style.transition='clip-path '+ms+'ms '+ease;
    seam.style.transition='left '+ms+'ms '+ease;
    void target.nodes[0].getBoundingClientRect();
-   requestAnimationFrame(()=>{if(g===target)draw(target,end);});
-  }else draw(target,end);
-  target.timer=setTimeout(()=>{
-   if(g!==target)return;
-   if(!success){cleanup();return;}
-   const saved=iuEdgeHomeSnapshot?.scrollY;
-   if(Number.isFinite(saved))iuSavedHomeScrollY=saved;
-   document.body.classList.add('iu-home-return-stable');
-   target.page.close();
-   // Le bandeau bas commence son fondu sous le voile, comme avec Retour.
-   // Le mode swipe cesse dès que l'accueil est restauré, pas après le fondu.
-   document.body.classList.remove('iu-edge-swiping');
-   target.nodes.forEach(n=>{n.style.removeProperty('translate');n.style.removeProperty('transition');});
-   // Aucun aperçu n'est affiché : garder le voile devant la vraie page
-   // pendant que Safari restaure la position avant de la dévoiler.
-   veil.style.clipPath='none';veil.style.webkitClipPath='none';
-   seam.style.opacity='0';
-   const align=()=>{
-    const y=Math.max(0,iuSavedHomeScrollY);
-    if(Math.abs(window.scrollY-y)>2)window.scrollTo({top:y,left:0,behavior:'instant'});
-   };
-   align();
-   requestAnimationFrame(()=>{
-    if(g!==target)return;
-    align();
-    veil.style.transition='opacity 350ms cubic-bezier(.16,.84,.24,1)';
-    veil.style.opacity='0';
-    target.timer=setTimeout(()=>{
-     if(g!==target)return;
-     align();cleanup();iuEdgeHomeSnapshot=null;
-    },390);
-   });
-  },ms+25);
+   requestAnimationFrame(()=>{if(g===target)draw(target,0);});
+  }else draw(target,0);
+  target.timer=setTimeout(()=>{if(g===target)cleanup();},ms+25);
  }
  document.addEventListener('touchstart',event=>{
   if(g||focusMotionBusy||event.touches.length!==1||event.defaultPrevented)return;

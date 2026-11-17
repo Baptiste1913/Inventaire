@@ -1,7 +1,7 @@
 {
-  "version": "39.83",
+  "version": "39.84",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Finalisation : priorité CSS du fondu de sortie du dock sur les styles d'accueil, afin d'empêcher la compression visible des icônes. Conserve les corrections de retour et d'entrée de 39.82."
+  "notes": "Retour par balayage unifié avec l'animation du bouton Retour ; compactage du bandeau limité aux vrais gestes verticaux pour éviter les sauts."
 }
