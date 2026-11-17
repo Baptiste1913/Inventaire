@@ -16097,7 +16097,7 @@ html body.is-admin-mode .app > #planningAdminCard > .iu-admin-opaque-backdrop{
  width:100%!important;
  height:100dvh!important;
  min-height:100vh!important;
- background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.105) 1px,transparent 1.25px),#f3f6f7!important;
  background-size:28px 28px,auto!important;
  background-position:center top,center top!important;
  background-repeat:repeat,no-repeat!important;
@@ -16463,7 +16463,7 @@ html body.is-account-mode .app > #accountCard > .iu-account-opaque-backdrop{
  position:fixed!important;
  inset:0!important;
  width:100%!important;height:100dvh!important;min-height:100vh!important;
- background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.105) 1px,transparent 1.25px),#f3f6f7!important;
  background-size:28px 28px,auto!important;
  background-position:center top,center top!important;
  background-repeat:repeat,no-repeat!important;
@@ -17112,7 +17112,7 @@ html body.is-account-mode .app > #accountCard.card > #iuAccountProfileCard.iu-ac
 html body.is-admin-mode .app > #planningAdminCard > .iu-admin-opaque-backdrop,
 html body.is-account-mode .app > #accountCard > .iu-account-opaque-backdrop{
  display:block!important;
- background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.105) 1px,transparent 1.25px),#f3f6f7!important;
  background-size:28px 28px,auto!important;
  background-position:center top,center top!important;
  background-repeat:repeat,no-repeat!important;
@@ -18980,7 +18980,7 @@ html body.is-events-mode .app > #eventsPage > .iu-events-opaque-backdrop{
  height:100dvh!important;
  min-height:100vh!important;
  z-index:0!important;
- background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ background:radial-gradient(circle,rgba(111,139,163,.105) 1px,transparent 1.25px),#f3f6f7!important;
  background-size:28px 28px,auto!important;
  background-position:center top,center top!important;
  background-repeat:repeat,no-repeat!important;
@@ -24855,7 +24855,7 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
    toutes les zones tactiles de la PWA. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
  background-image:
-  radial-gradient(circle,rgba(111,139,163,.17) 1px,transparent 1.25px),
+  radial-gradient(circle,rgba(111,139,163,.119) 1px,transparent 1.25px),
   linear-gradient(180deg,#fff 0%,#fafbfc 330px,#f7f8fa 780px,#f7f8fa 100%)!important;
  background-color:#f7f8fa!important;
  background-size:28px 28px,100% 100%!important;
@@ -24866,7 +24866,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
    Aucune décoration sur la vue de pesée en concentration. */
 html body:is(.is-admin-mode,.is-account-mode,.is-events-mode) main.app,
 html body.is-alerts-mode:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
- background-image:radial-gradient(circle,rgba(111,139,163,.13) 1px,transparent 1.25px)!important;
+ background-image:radial-gradient(circle,rgba(111,139,163,.091) 1px,transparent 1.25px)!important;
  background-size:28px 28px!important;
  background-position:center top!important;
  background-repeat:repeat!important;
@@ -25826,7 +25826,7 @@ html body:not(.is-focus-mode) main.app > section.intro.intro-smart.intro-aurora[
  border:1px solid transparent!important;
  /* Trame très légère à travers le verre, sans retirer les lumières. */
  background:
-  radial-gradient(circle,rgba(104,136,162,.105) .45px,rgba(104,136,162,.07) .9px,rgba(104,136,162,.018) 1.4px,transparent 1.8px),
+  radial-gradient(circle,rgba(104,136,162,.0735) .45px,rgba(104,136,162,.049) .9px,rgba(104,136,162,.0126) 1.4px,transparent 1.8px),
   linear-gradient(122deg,
    rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,
    rgba(255,255,255,.54) 100%)!important;
@@ -27079,7 +27079,7 @@ html body .app > #iuAlertsPage > .iu-alerts-opaque-backdrop{display:none!importa
 html body.is-alerts-mode .app > #iuAlertsPage > .iu-alerts-opaque-backdrop{
  display:block!important;position:fixed!important;inset:0!important;
  width:100%!important;height:100dvh!important;min-height:100vh!important;
- z-index:0!important;background:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px),#f3f6f7!important;
+ z-index:0!important;background:radial-gradient(circle,rgba(111,139,163,.105) 1px,transparent 1.25px),#f3f6f7!important;
  background-size:28px 28px,auto!important;
  background-position:center top,center top!important;
  background-repeat:repeat,no-repeat!important;opacity:1!important;
@@ -31541,14 +31541,14 @@ html body:not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is
 /* V39.94 — Même trame dans toutes les vues, dont la pesée en concentration.
    Elle reste dans la surface de fond : aucun calque interactif ni animation. */
 html body.is-focus-mode{
- background-image:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px)!important;
+ background-image:radial-gradient(circle,rgba(111,139,163,.105) 1px,transparent 1.25px)!important;
  background-color:#f3f6f7!important;
  background-size:28px 28px!important;
  background-position:center top!important;
  background-repeat:repeat!important;
 }
 html body.is-focus-mode main.app{
- background-image:radial-gradient(circle,rgba(111,139,163,.15) 1px,transparent 1.25px)!important;
+ background-image:radial-gradient(circle,rgba(111,139,163,.105) 1px,transparent 1.25px)!important;
  background-color:transparent!important;
  background-size:28px 28px!important;
  background-position:center top!important;
