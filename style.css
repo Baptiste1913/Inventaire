@@ -24838,14 +24838,26 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  .iu-home-welcome-light{display:none!important;}
 }
 
-/* V37.88 — Lumière contenue derrière la carte, reflet discret dans le verre.
-   Suppression des grands halos extérieurs de main.app. */
+/* V39.92 — Trame de points intégrée au fond, sans pseudo-éléments
+   superposés ni animation : préserver les halos internes de Bienvenue et
+   toutes les zones tactiles de la PWA. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
- background-image:linear-gradient(180deg,#fff 0%,#fafbfc 330px,#f7f8fa 780px,#f7f8fa 100%)!important;
+ background-image:
+  radial-gradient(circle,rgba(111,139,163,.17) 1px,transparent 1.25px),
+  linear-gradient(180deg,#fff 0%,#fafbfc 330px,#f7f8fa 780px,#f7f8fa 100%)!important;
  background-color:#f7f8fa!important;
- background-size:100% 100%!important;
+ background-size:28px 28px,100% 100%!important;
+ background-position:center top,center top!important;
+ background-repeat:repeat,no-repeat!important;
+}
+/* Pages autonomes : même motif sous les cartes, légèrement atténué.
+   Aucune décoration sur la vue de pesée en concentration. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode) main.app,
+html body.is-alerts-mode:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app{
+ background-image:radial-gradient(circle,rgba(111,139,163,.13) 1px,transparent 1.25px)!important;
+ background-size:28px 28px!important;
  background-position:center top!important;
- background-repeat:no-repeat!important;
+ background-repeat:repeat!important;
 }
 html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] > .intro-glass-panel{
  position:relative!important;

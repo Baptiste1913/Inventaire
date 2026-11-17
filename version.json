@@ -1,7 +1,7 @@
 {
-  "version": "39.91",
+  "version": "39.92",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Corrige le fantôme visuel de la barre pendant l'ouverture des sous-pages : elle reste dans sa grille, mais devient immédiatement non visible. Aucun changement des clics, du bandeau Retour ni des gestes tactiles."
+  "notes": "Ajout d'une trame de petits points gris bleutés, douce et statique, au fond de l'accueil et des pages secondaires. Halos internes, navigation, pesée et fonctionnement hors ligne conservés."
 }
