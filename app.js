@@ -443,6 +443,8 @@ function renderHeroSummary(){
 let focusWasActive=false;
 let focusInitialized=false;
 let focusMotionBusy=false;
+// V39.85 : distance restante du swipe, transmise au moteur de Retour.
+let iuSwipeReturnOffset=0;
 let focusPendingTask=null;
 /* V39.52 — Position de l'accueil au moment d'entrer en Concentration.
    Variable distincte des pages Admin/Compte pour éviter les collisions. */
@@ -587,6 +589,8 @@ function exitFocusWithoutSnapshot(action,config={}){
  // V38.58 : transitions des pages autonomes sans filtre sur .app,
  // qui provoquait une recomposition des verres floutés dans Safari iOS.
  const standaloneReturn=Boolean(config.solidDuringMotion);
+ const swipeExitX=standaloneReturn?Math.max(0,iuSwipeReturnOffset):0;
+ iuSwipeReturnOffset=0;
  const focusReturn=!standaloneReturn;
  const duration=610;
  const easing='cubic-bezier(.16,.84,.24,1)';
@@ -686,7 +690,7 @@ function exitFocusWithoutSnapshot(action,config={}){
    {offset:0,transform:'translate3d(0,0,0)',filter:'blur(0px)',opacity:1},
    {offset:.12,filter:'blur(0px)',opacity:1},
    {offset:.60,filter:'blur(1.7px)',opacity:1},
-   {offset:1,transform:'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
+   {offset:1,transform:swipeExitX?'translate3d('+Math.max(0,window.innerWidth-swipeExitX)+'px,105dvh,0)':'translate3d(0,105dvh,0)',filter:'blur(3.2px)',opacity:1}
   ]);
  }
  // V33.73 : flouter TOUT l'accueil, sous la surface opaque qui descend.
@@ -2710,14 +2714,18 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   target.finishing=true;
   if(target.raf){cancelAnimationFrame(target.raf);target.raf=0;}
   if(success){
-   // V39.84 : le swipe ne ferme plus la sous-page brutalement.
-   // Restaurer les surfaces avant le rendu suivant puis appeler le MÊME
-   // moteur de sortie que le bouton Retour (copies, descente, flou, dock).
+   // V39.85 : la copie de sortie garde sa position horizontale actuelle,
+   // puis glisse jusqu'au bord droit tout en descendant comme le bouton Retour.
+   // La page n'est plus réinitialisée au lâcher : aucune rupture de trajectoire.
    const saved=iuEdgeHomeSnapshot?.scrollY;
    if(Number.isFinite(saved))iuSavedHomeScrollY=saved;
-   cleanup();
-   target.page.close();
-   iuEdgeHomeSnapshot=null;
+   iuSwipeReturnOffset=reduced()?0:target.distance;
+   try{target.page.close();}
+   finally{
+    iuSwipeReturnOffset=0;
+    cleanup();
+    iuEdgeHomeSnapshot=null;
+   }
    return;
   }
   // Geste annulé : revenir en douceur à la position initiale.
@@ -2785,18 +2793,26 @@ function iuInitQuickDock(){
  window.addEventListener('iu-admin-check-finished',updateAdmin);
  window.addEventListener('iu-admin-initial-ready',updateAdmin);
  updateAdmin();
- // Préparer le fondu AVANT que les sous-pages modifient le DOM du dock.
- // Cela masque tout recalcul de colonnes au moment de la navigation.
- let leavingTimer=0;
+ // V39.85 : la barre ne doit jamais s'effacer sur un clic dont la
+ // navigation n'a pas encore eu lieu. Les états de page pilotent seuls
+ // la sortie visuelle, et on stabilise les colonnes pendant ce changement.
+ let dockGeometryTimer=0;
+ const lockDockGeometry=()=>{
+  if(document.body.classList.contains('is-admin-mode')||
+     document.body.classList.contains('is-account-mode')||
+     document.body.classList.contains('is-events-mode')||
+     document.body.classList.contains('is-alerts-mode')||
+     document.body.classList.contains('is-focus-mode'))return;
+  const display=getComputedStyle(dock).display;
+  if(display==='grid'||display==='inline-grid'){
+   dock.style.setProperty('grid-template-columns',getComputedStyle(dock).gridTemplateColumns,'important');
+  }
+  window.clearTimeout(dockGeometryTimer);
+  dockGeometryTimer=window.setTimeout(()=>dock.style.removeProperty('grid-template-columns'),420);
+ };
  dock.addEventListener('click',event=>{
-  const button=event.target.closest('#iuQuickAdmin,#iuQuickEvents,#iuQuickAlerts,#iuQuickAccount,#iuQuickSession');
-  if(!button)return;
-  if(button.id==='iuQuickSession'&&getActiveSession()&&!getActiveSession().pausedAt)return;
-  dock.classList.add('iu-dock-leaving');
-  window.clearTimeout(leavingTimer);
-  leavingTimer=window.setTimeout(()=>{
-   if(isOnHome())dock.classList.remove('iu-dock-leaving');
-  },800);
+  const button=event.target.closest('.iu-quick-dock-item');
+  if(button&&!button.hidden)lockDockGeometry();
  },true);
  const updateSession=()=>{
   const active=getActiveSession(),paused=Boolean(active?.pausedAt);
@@ -2897,13 +2913,17 @@ function iuInitQuickDock(){
  const homeObserver=new MutationObserver(()=>{
   const nowHome=isOnHome();
   if(nowHome&&!lastHome){
-   dock.classList.remove('iu-dock-leaving');
-   dock.classList.remove('iu-dock-entering');
-   dock.classList.add('iu-dock-home-blur');
+   // Déverrouiller les colonnes seulement après retour sur la page d'accueil.
+   dock.classList.remove('iu-dock-leaving','iu-dock-home-blur','iu-dock-entering');
    window.clearTimeout(homeBlurTimer);
-   homeBlurTimer=window.setTimeout(()=>dock.classList.remove('iu-dock-home-blur'),750);
+   window.clearTimeout(dockGeometryTimer);
+   dockGeometryTimer=window.setTimeout(()=>dock.style.removeProperty('grid-template-columns'),220);
+   animateDockEntrance();
   }
-  if(!nowHome)dock.classList.remove('iu-dock-entering');
+  if(!nowHome){
+   dock.classList.remove('iu-dock-leaving','iu-dock-entering','iu-dock-home-blur');
+   window.clearTimeout(homeBlurTimer);
+  }
   lastHome=nowHome;
  });
  homeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});

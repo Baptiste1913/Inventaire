@@ -1,7 +1,7 @@
 {
-  "version": "39.84",
+  "version": "39.85",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour par balayage unifié avec l'animation du bouton Retour ; compactage du bandeau limité aux vrais gestes verticaux pour éviter les sauts."
+  "notes": "Continuité du swipe dans le moteur Retour, suppression du masquage précoce du dock, stabilisation temporaire des colonnes et animation de retour cohérente."
 }
