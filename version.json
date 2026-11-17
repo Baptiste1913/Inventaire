@@ -1,7 +1,7 @@
 {
-  "version": "40.12",
+  "version": "40.13",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Vague diagonale discrète dans les points du bloc Bienvenue, progression faible-moyenne-maximale-moyenne-faible, 26 secondes avec intervalle de repos. Motif de base fixe, transparence et animations réduites respectées. Aucune modification métier."
+  "notes": "Augmentation uniquement de la taille des points pendant la vague diagonale du bloc Bienvenue, sans modifier leur couleur, contraste, vitesse ou taille au repos."
 }

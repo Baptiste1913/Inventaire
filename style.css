@@ -30785,6 +30785,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 }
 
 
+/* V40.13 — Onde plus perceptible : rayon augmenté seulement sur les deux bandes animées, couleurs et cadence inchangées. */
 /* V40.12 — Onde diagonale très douce sur les seuls points de Bienvenue.
    Deux bandes de points légèrement plus grands : transition progressive
    faible -> moyenne -> maximale -> moyenne -> faible. Aucun JS par frame. */
@@ -30807,9 +30808,9 @@ html body .iu-welcome-dot-wave > i{
 }
 html body .iu-welcome-dot-wave > i:first-child{
  background-image:radial-gradient(circle,
-  rgba(92,121,147,.105) .58px,
-  rgba(92,121,147,.072) 1.13px,
-  rgba(92,121,147,.013) 1.73px,transparent 2.22px)!important;
+  rgba(92,121,147,.105) .88px,
+  rgba(92,121,147,.072) 1.62px,
+  rgba(92,121,147,.013) 2.32px,transparent 2.86px)!important;
  -webkit-mask-image:linear-gradient(135deg,
   transparent 37%,rgba(0,0,0,.18) 42%,rgba(0,0,0,.66) 47%,
   rgba(0,0,0,.82) 50%,rgba(0,0,0,.66) 53%,
@@ -30821,9 +30822,9 @@ html body .iu-welcome-dot-wave > i:first-child{
 }
 html body .iu-welcome-dot-wave > i:last-child{
  background-image:radial-gradient(circle,
-  rgba(92,121,147,.110) .68px,
-  rgba(92,121,147,.068) 1.26px,
-  rgba(92,121,147,.010) 1.85px,transparent 2.32px)!important;
+  rgba(92,121,147,.110) 1.18px,
+  rgba(92,121,147,.068) 2.02px,
+  rgba(92,121,147,.010) 2.80px,transparent 3.35px)!important;
  -webkit-mask-image:linear-gradient(135deg,
   transparent 45%,rgba(0,0,0,.24) 47.5%,rgba(0,0,0,.72) 50%,
   rgba(0,0,0,.24) 52.5%,transparent 55%);
