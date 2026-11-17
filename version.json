@@ -1,7 +1,7 @@
 {
-  "version": "40.22",
+  "version": "40.23",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Voir la liste : suppression du liseré turquoise externe et atténuation de la bordure turquoise unique à 1 px ; ombre neutre, dimensions et comportement conservés."
+  "notes": "Correction des véritables contours du bouton Voir la liste : couche interne ::after réduite de 2 à 1 px et retrait de 2,5 à 1 px, sans changer les autres boutons."
 }

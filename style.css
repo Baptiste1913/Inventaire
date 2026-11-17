@@ -24651,10 +24651,10 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
 html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::after{
  content:""!important;
  position:absolute!important;
- inset:2.5px!important;
+ inset:1px!important;
  box-sizing:border-box!important;
- border:2px solid #007583!important;
- border-radius:11.5px!important;
+ border:1px solid #007583!important;
+ border-radius:13px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  box-shadow:none!important;
  z-index:1!important;
