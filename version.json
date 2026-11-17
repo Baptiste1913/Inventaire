@@ -1,7 +1,7 @@
 {
-  "version": "39.82",
+  "version": "39.83",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retour : flèche SVG plus grande et épaissie, animation strictement monochrome ; dock masqué avant recomposition des rubriques ; retour par glissement synchronisé avec le fondu du bouton Retour ; suppression du saut du bandeau en n'activant le mode compact qu'après un vrai défilement utilisateur."
+  "notes": "Finalisation : priorité CSS du fondu de sortie du dock sur les styles d'accueil, afin d'empêcher la compression visible des icônes. Conserve les corrections de retour et d'entrée de 39.82."
 }

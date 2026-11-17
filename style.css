@@ -31494,3 +31494,12 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item{
 html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item svg{
  flex-shrink:0!important;
 }
+
+/* V39.83 — La classe de départ doit gagner sur la règle d'accueil
+   très spécifique, sinon la grille devient visible pendant son recalcul. */
+html body:not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode):not(.is-focus-mode):not(.iu-edge-swiping) #iuQuickDock.iu-quick-dock.iu-dock-leaving{
+ display:grid!important;
+ visibility:visible!important;
+ opacity:0!important;
+ pointer-events:none!important;
+}
