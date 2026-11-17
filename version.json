@@ -1,7 +1,7 @@
 {
-  "version": "39.61",
+  "version": "39.62",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Mes inventaires : fond neumorphique continu du titre aux bilans, fusion des deux panneaux de tri en un seul bloc, harmonisation avec la page Événements; classement et données inchangés."
+  "notes": "Barre d'accès rapide translucide à cinq entrées : Administrateur autorisé par Supabase, Événements, Inventaire, Rappels, Compte. Réutilise les navigations existantes et se masque en plein écran; cache PWA mis à jour."
 }

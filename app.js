@@ -1344,6 +1344,7 @@ function renderSessionControls(){const s=getActiveSession();$('sessionBadge').te
  if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
  renderHeroSummary();
  syncFocusMode();
+ window.IUUpdateQuickDockSession?.();
 }
 // L'horloge met à jour seulement les textes qui ont réellement changé :
 // moins de mutations DOM, donc moins de recalculs sur Safari iPhone.
@@ -2752,3 +2753,50 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  document.addEventListener('touchcancel',()=>{if(g)finish(false);},{passive:true});
  window.addEventListener('pagehide',cleanup);
 })();
+
+
+/* V39.62 — Dock d'accueil : accès réutilisant les fonctions existantes.
+   La gestion du droit Administrateur reste déléguée à Supabase/RLS. */
+function iuInitQuickDock(){
+ const dock=$('iuQuickDock'),admin=$('iuQuickAdmin'),sessionButton=$('iuQuickSession');
+ if(!dock||!admin||!sessionButton)return;
+ const adminCard=$('planningAdminCard');
+ const updateAdmin=()=>{
+  // Ne jamais proposer une entrée admin pendant la vérification des droits.
+  const granted=Boolean(adminCard&&!adminCard.hidden&&adminCard.dataset.adminLoading!=='true');
+  admin.hidden=!granted;
+ };
+ const observer=adminCard?new MutationObserver(updateAdmin):null;
+ observer?.observe(adminCard,{attributes:true,attributeFilter:['hidden','data-admin-loading']});
+ window.addEventListener('iu-admin-check-finished',updateAdmin);
+ window.addEventListener('iu-admin-initial-ready',updateAdmin);
+ updateAdmin();
+ const updateSession=()=>{
+  const active=getActiveSession(),paused=Boolean(active?.pausedAt);
+  sessionButton.setAttribute('aria-label',!active?'Démarrer un inventaire':paused?'Reprendre l’inventaire':'Inventaire en cours');
+  $('iuQuickSessionLabel').textContent=!active?'Inventaire':paused?'Reprendre':'En cours';
+  sessionButton.classList.toggle('is-active-session',Boolean(active));
+ };
+ window.IUUpdateQuickDockSession=updateSession;
+ updateSession();
+ const canNavigate=()=>!focusMotionBusy&&!document.body.classList.contains('is-focus-mode')&&
+  !document.body.classList.contains('is-admin-mode')&&!document.body.classList.contains('is-account-mode')&&
+  !document.body.classList.contains('is-events-mode')&&!document.body.classList.contains('is-alerts-mode');
+ admin.addEventListener('click',()=>{updateAdmin();if(canNavigate()&&!admin.hidden)iuOpenAdminPage();});
+ $('iuQuickEvents')?.addEventListener('click',()=>{if(canNavigate())iuOpenEventsPage();});
+ $('iuQuickAlerts')?.addEventListener('click',()=>{if(canNavigate())iuOpenAlertsPage();});
+ $('iuQuickAccount')?.addEventListener('click',()=>{if(canNavigate())iuOpenAccountPage();});
+ sessionButton.addEventListener('click',()=>{
+  if(!canNavigate())return;
+  const active=getActiveSession();
+  if(active?.pausedAt)animateFocusEntry(resumeSession);
+  else if(!active)animateFocusEntry(startSession);
+  else {
+   // En session active, ne pas créer de doublon ni perdre les pesées.
+   const focus=$('focusToolbar');
+   if(focus)focus.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+ });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iuInitQuickDock,{once:true});
+else iuInitQuickDock();
