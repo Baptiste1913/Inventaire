@@ -30785,3 +30785,54 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered:not(.iu
 @media(prefers-reduced-motion:reduce){
  html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{transition:none!important;}
 }
+
+/* V39.65 — Dock plus léger, icônes de poids optique uniforme.
+   Le verre laisse mieux transparaître la page, à l'image du bouton Retour. */
+html body #iuQuickDock.iu-quick-dock{
+ border:1px solid rgba(255,255,255,.56)!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(218,231,236,.30))!important;
+ -webkit-backdrop-filter:blur(22px) saturate(145%)!important;
+ backdrop-filter:blur(22px) saturate(145%)!important;
+ box-shadow:0 7px 22px rgba(57,79,93,.12),0 2px 6px rgba(66,89,102,.06),inset 0 .5px 0 rgba(255,255,255,.52)!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item{
+ gap:5px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main .iu-dock-custom-icon{
+ display:block!important;
+ width:23px!important;
+ height:23px!important;
+ flex:0 0 23px!important;
+ transform:none!important;
+ transform-origin:center!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickSession .iu-dock-custom-icon{
+ width:22px!important;height:22px!important;flex-basis:22px!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon{
+ width:23px!important;height:23px!important;flex-basis:23px!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon{
+ width:23px!important;height:23px!important;flex-basis:23px!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickAccount .iu-dock-custom-icon{
+ width:22px!important;height:22px!important;flex-basis:22px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::before{
+ box-shadow:-1px -1px 3px rgba(255,255,255,.6),1px 2px 5px rgba(91,148,155,.16),inset 0 .5px 0 rgba(255,255,255,.4)!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::after{
+ background:linear-gradient(145deg,rgba(255,255,255,.91),rgba(234,242,245,.83))!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{
+ border:1px solid rgba(255,255,255,.57)!important;
+ background:linear-gradient(140deg,rgba(255,255,255,.31),rgba(181,214,223,.21))!important;
+ box-shadow:inset 0 .5px 0 rgba(255,255,255,.7),0 3px 10px rgba(70,113,127,.13)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html body #iuQuickDock.iu-quick-dock{
+  background:#eaf1f3!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+}
