@@ -2590,8 +2590,22 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  const bar=$('iuSubpageBar'), back=$('iuSubpageBack');
  if(!bar||!back)return;
  const modes=['is-admin-mode','is-account-mode','is-events-mode','is-alerts-mode'];
- let pending=false,wasActive=false,entryUnlockAt=0,entryTimer=0;
+ let pending=false,wasActive=false,canCompact=false,touchStartY=null;
  function active(){return modes.some(mode=>document.body.classList.contains(mode));}
+ // Seul un défilement réel de l'utilisateur permet le compactage.
+ document.addEventListener('touchstart',event=>{
+  if(!active()||event.touches.length!==1)return;
+  touchStartY=event.touches[0].clientY;
+ },{passive:true});
+ document.addEventListener('touchmove',event=>{
+  if(!active()||touchStartY===null||event.touches.length!==1)return;
+  if(Math.abs(event.touches[0].clientY-touchStartY)>9){canCompact=true;schedule();}
+ },{passive:true});
+ document.addEventListener('touchend',()=>{touchStartY=null;},{passive:true});
+ document.addEventListener('touchcancel',()=>{touchStartY=null;},{passive:true});
+ window.addEventListener('wheel',event=>{
+  if(active()&&Math.abs(event.deltaY)>2){canCompact=true;schedule();}
+ },{passive:true});
  function refresh(){
   pending=false;
   const nowActive=active();
@@ -2599,21 +2613,19 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    bar.hidden=true;
    bar.dataset.compact='false';
    wasActive=false;
-   entryUnlockAt=0;
-   if(entryTimer){clearTimeout(entryTimer);entryTimer=0;}
+   canCompact=false;
+   touchStartY=null;
    return;
   }
   if(!wasActive){
-   entryUnlockAt=performance.now()+780;
    wasActive=true;
-   if(entryTimer)clearTimeout(entryTimer);
-   entryTimer=setTimeout(()=>{entryTimer=0;schedule();},800);
+   canCompact=false;
   }
   bar.hidden=false;
   // Pendant l'entrée, garder le bandeau dans son état initial 70px.
   // Le scroll peut encore indiquer celui de l'accueil pendant une frame
   // sur Safari et provoquait une contraction à 55px au mauvais moment.
-  if(document.body.classList.contains('iu-subpage-entering')||performance.now()<entryUnlockAt){
+  if(document.body.classList.contains('iu-subpage-entering')||!canCompact){
    bar.dataset.compact='false';
    return;
   }
@@ -2723,12 +2735,12 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    requestAnimationFrame(()=>{
     if(g!==target)return;
     align();
-    veil.style.transition='opacity 220ms ease-out';
+    veil.style.transition='opacity 350ms cubic-bezier(.16,.84,.24,1)';
     veil.style.opacity='0';
     target.timer=setTimeout(()=>{
      if(g!==target)return;
      align();cleanup();iuEdgeHomeSnapshot=null;
-    },250);
+    },390);
    });
   },ms+25);
  }
@@ -2785,6 +2797,19 @@ function iuInitQuickDock(){
  window.addEventListener('iu-admin-check-finished',updateAdmin);
  window.addEventListener('iu-admin-initial-ready',updateAdmin);
  updateAdmin();
+ // Préparer le fondu AVANT que les sous-pages modifient le DOM du dock.
+ // Cela masque tout recalcul de colonnes au moment de la navigation.
+ let leavingTimer=0;
+ dock.addEventListener('click',event=>{
+  const button=event.target.closest('#iuQuickAdmin,#iuQuickEvents,#iuQuickAlerts,#iuQuickAccount,#iuQuickSession');
+  if(!button)return;
+  if(button.id==='iuQuickSession'&&getActiveSession()&&!getActiveSession().pausedAt)return;
+  dock.classList.add('iu-dock-leaving');
+  window.clearTimeout(leavingTimer);
+  leavingTimer=window.setTimeout(()=>{
+   if(isOnHome())dock.classList.remove('iu-dock-leaving');
+  },800);
+ },true);
  const updateSession=()=>{
   const active=getActiveSession(),paused=Boolean(active?.pausedAt);
   sessionButton.setAttribute('aria-label',!active?'Démarrer un inventaire':paused?'Reprendre l’inventaire':'Inventaire en cours');
@@ -2884,6 +2909,7 @@ function iuInitQuickDock(){
  const homeObserver=new MutationObserver(()=>{
   const nowHome=isOnHome();
   if(nowHome&&!lastHome){
+   dock.classList.remove('iu-dock-leaving');
    dock.classList.remove('iu-dock-entering');
    dock.classList.add('iu-dock-home-blur');
    window.clearTimeout(homeBlurTimer);

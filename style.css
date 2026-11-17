@@ -31431,3 +31431,66 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) #iuSubpageBack svg{
 @media(prefers-reduced-motion:reduce){
  html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{transition:none!important;}
 }
+
+/* V39.82 — Flèche plus grande par le vrai viewport SVG ET le flex-basis.
+   Les anciennes règles à 13px restaient prioritaires sur le dessin. */
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg,
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack svg{
+ display:block!important;
+ flex:0 0 35px!important;
+ width:35px!important;
+ height:35px!important;
+ max-width:none!important;max-height:none!important;
+ min-width:35px!important;min-height:35px!important;
+ stroke:#303942!important;
+ stroke-width:3.8!important;
+ fill:none!important;
+ opacity:1!important;
+}
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg path{
+ fill:none!important;
+ stroke:currentColor!important;
+ stroke-width:3.8!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) #iuSubpageBack svg{
+ flex-basis:29px!important;
+ width:29px!important;height:29px!important;
+ min-width:29px!important;min-height:29px!important;
+}
+/* Aucun bleu au toucher, ni reflet coloré dans les états Safari. */
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack,
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack:is(:hover,:active,:focus,:focus-visible){
+ color:#303942!important;
+ -webkit-text-fill-color:#303942!important;
+ border:1px solid rgba(170,185,196,.85)!important;
+ background:linear-gradient(145deg,#fff,#e8edf0)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.88),0 2px 6px rgba(75,87,100,.08)!important;
+ outline-color:#697986!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack:active{
+ scale:.95!important;
+ background:linear-gradient(145deg,#e4e9ed,#f9fafb)!important;
+ box-shadow:inset 2px 2px 4px rgba(92,103,113,.14)!important;
+}
+/* L'ancien contour et les pseudo-couches ne peuvent plus colorer le cercle. */
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack::before,
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack::after{
+ content:none!important;display:none!important;
+}
+/* Le dock reste dans une grille stable pendant la transition, puis fade-in. */
+html body #iuQuickDock.iu-quick-dock.iu-dock-leaving{
+ opacity:0!important;
+ visibility:visible!important;
+ pointer-events:none!important;
+ transition:opacity .18s ease!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item{
+ flex-shrink:0!important;
+ min-width:0!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item svg{
+ flex-shrink:0!important;
+}
