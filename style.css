@@ -31377,7 +31377,7 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading-c
 html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuQuickDock.iu-quick-dock,
 html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{
  display:grid!important;
- visibility:visible!important;
+ visibility:hidden!important;
  opacity:0!important;
  pointer-events:none!important;
 }
