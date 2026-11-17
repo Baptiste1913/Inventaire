@@ -31466,32 +31466,32 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) #iuSubpageBack svg{
  html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{transition:none!important;}
 }
 
-/* V39.82 — Flèche plus grande par le vrai viewport SVG ET le flex-basis.
-   Les anciennes règles à 13px restaient prioritaires sur le dessin. */
+/* V39.97 — Flèche Retour légèrement plus fine et un peu plus petite.
+   Préserver la taille du bouton, ses animations et les états compacts. */
 html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg,
 html body #iuSubpageBar:not([hidden]) > #iuSubpageBack svg{
  display:block!important;
- flex:0 0 35px!important;
- width:35px!important;
- height:35px!important;
+ flex:0 0 33px!important;
+ width:33px!important;
+ height:33px!important;
  max-width:none!important;max-height:none!important;
- min-width:35px!important;min-height:35px!important;
+ min-width:33px!important;min-height:33px!important;
  stroke:#303942!important;
- stroke-width:3.8!important;
+ stroke-width:3.2!important;
  fill:none!important;
  opacity:1!important;
 }
 html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg path{
  fill:none!important;
  stroke:currentColor!important;
- stroke-width:3.8!important;
+ stroke-width:3.2!important;
  stroke-linecap:round!important;
  stroke-linejoin:round!important;
 }
 html body #iuSubpageBar[data-compact="true"]:not([hidden]) #iuSubpageBack svg{
- flex-basis:29px!important;
- width:29px!important;height:29px!important;
- min-width:29px!important;min-height:29px!important;
+ flex-basis:27px!important;
+ width:27px!important;height:27px!important;
+ min-width:27px!important;min-height:27px!important;
 }
 /* Aucun bleu au toucher, ni reflet coloré dans les états Safari. */
 html body #iuSubpageBar:not([hidden]) #iuSubpageBack,

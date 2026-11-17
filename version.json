@@ -1,7 +1,7 @@
 {
-  "version": "39.96",
+  "version": "39.97",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Retrait de l'animation d'apparition des cartes au défilement. Motif à points atténué de 30 %, animations de navigation et fonctionnalités préservées."
+  "notes": "Flèche du bouton Retour légèrement réduite et affinée, sans changer la taille du bouton ni les animations de navigation."
 }
