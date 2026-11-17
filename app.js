@@ -2779,6 +2779,55 @@ function iuInitQuickDock(){
  };
  window.IUUpdateQuickDockSession=updateSession;
  updateSession();
+
+ // Glisser le doigt sur la barre pour prévisualiser, puis relâcher pour choisir.
+ // Ne déclenche aucune action avant le relâchement (important pour Démarrer).
+ const glass=document.createElement('span');glass.className='iu-dock-liquid-indicator';
+ glass.setAttribute('aria-hidden','true');dock.prepend(glass);
+ let drag=null,suppressClick=false;
+ const items=()=>[...dock.querySelectorAll('.iu-quick-dock-item:not([hidden])')];
+ const itemAt=(x,y)=>{
+  const rect=dock.getBoundingClientRect();
+  if(x<rect.left-18||x>rect.right+18||y<rect.top-28||y>rect.bottom+28)return null;
+  return items().find(el=>{const r=el.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top-24&&y<=r.bottom+24;})||null;
+ };
+ const highlight=item=>{
+  for(const b of items())b.classList.toggle('iu-dock-hovered',b===item);
+  if(!item){dock.classList.remove('iu-dock-dragging');return;}
+  const r=item.getBoundingClientRect(),base=dock.getBoundingClientRect();
+  glass.style.left=(r.left-base.left)+'px';glass.style.width=r.width+'px';
+  dock.classList.add('iu-dock-dragging');
+ };
+ const clear=()=>{drag=null;dock.classList.remove('iu-dock-dragging');for(const b of items())b.classList.remove('iu-dock-hovered');};
+ dock.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'||e.button!==0||!e.target.closest('.iu-quick-dock-item'))return;
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,active:false,vertical:false};
+ });
+ dock.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.id||drag.vertical)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!drag.active&&Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){drag.vertical=true;return;}
+  if(!drag.active&&Math.abs(dx)>9&&Math.abs(dx)>Math.abs(dy)){
+   drag.active=true;
+   try{dock.setPointerCapture(e.pointerId);}catch(_){}
+  }
+  if(drag.active)highlight(itemAt(e.clientX,e.clientY));
+ });
+ dock.addEventListener('pointerup',e=>{
+  if(!drag||e.pointerId!==drag.id)return;
+  const wasActive=drag.active,selected=wasActive?itemAt(e.clientX,e.clientY):null;
+  if(wasActive){
+   suppressClick=true;
+   // Les clics natifs sont supprimés uniquement après un glissement reconnu.
+   requestAnimationFrame(()=>{if(suppressClick)suppressClick=false;});
+  }
+  clear();
+  if(selected&&!selected.hidden)selected.click();
+ });
+ dock.addEventListener('pointercancel',clear);
+ dock.addEventListener('click',e=>{
+  if(suppressClick&&e.isTrusted){e.preventDefault();e.stopImmediatePropagation();suppressClick=false;}
+ },true);
  const canNavigate=()=>!focusMotionBusy&&!document.body.classList.contains('is-focus-mode')&&
   !document.body.classList.contains('is-admin-mode')&&!document.body.classList.contains('is-account-mode')&&
   !document.body.classList.contains('is-events-mode')&&!document.body.classList.contains('is-alerts-mode');

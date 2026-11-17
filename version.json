@@ -1,7 +1,7 @@
 {
-  "version": "39.63",
+  "version": "39.64",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : Inventaire placé à gauche, Administrateur entre Inventaire et Événements si autorisé, grille adaptative à quatre ou cinq entrées, bouton Inventaire avec double contour bleu-vert et effet neumorphique du bouton Démarrer un inventaire."
+  "notes": "Dock : remplacement des cinq pictogrammes par les silhouettes fournies, barre légèrement abaissée et sélection par glissement tactile avec indicateur Liquid Glass animé, activation au relâchement."
 }

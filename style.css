@@ -30741,3 +30741,47 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main:active{
   background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
  }
 }
+
+/* V39.64 — Icônes fournies par l'utilisateur, verre interactif et barre abaissée. */
+html body #iuQuickDock.iu-quick-dock{
+ bottom:max(3px,calc(env(safe-area-inset-bottom,0px) - 5px))!important;
+ touch-action:pan-y!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-dock-custom-icon{
+ fill:currentColor!important;
+ stroke:none!important;
+ width:22px!important;height:22px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-dock-custom-icon *{
+ fill:currentColor!important;stroke:none!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{
+ position:absolute!important;
+ top:5px!important;bottom:5px!important;
+ left:5px;width:20%;
+ border:1px solid rgba(255,255,255,.87)!important;
+ border-radius:19px!important;
+ background:linear-gradient(140deg,rgba(255,255,255,.48),rgba(181,214,223,.3))!important;
+ -webkit-backdrop-filter:blur(12px) saturate(180%)!important;
+ backdrop-filter:blur(12px) saturate(180%)!important;
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.95),inset 0 -1px 1px rgba(99,149,164,.16),0 3px 13px rgba(70,113,127,.18)!important;
+ opacity:0;pointer-events:none!important;
+ z-index:1!important;
+ transition:left .12s cubic-bezier(.2,.7,.25,1),width .12s ease,opacity .14s ease!important;
+}
+html body #iuQuickDock.iu-quick-dock.iu-dock-dragging .iu-dock-liquid-indicator{
+ opacity:1!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item{
+ z-index:2!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered{
+ color:#176d7c!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered:not(.iu-quick-dock-main){
+ background:transparent!important;
+ transform:scale(1.045)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{transition:none!important;}
+}
