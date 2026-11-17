@@ -1,7 +1,7 @@
 {
-  "version": "40.16",
+  "version": "40.17",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Agrandissement perceptible des points pendant les vagues diagonales parallèles dans Bienvenue ; points fixes, opacité, vitesse et autres pages inchangés."
+  "notes": "Vagues diagonales du bloc Bienvenue : points animés légèrement moins opaques et contours plus diffus. Taille au repos, rythme, navigation et données inchangés."
 }
