@@ -1,7 +1,7 @@
 {
-  "version": "40.06",
+  "version": "40.07",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Reflets blancs du squelette ralentis à 4,6 secondes, étendus à 42 rectangles au lieu de 10, avec des décalages légers par groupe. Aucun changement du chargement, du contenu ou des fonctionnalités."
+  "notes": "Sous-pages : animation Web Animations native de même durée et même courbe, avec moteur JavaScript de repli. Retour tactile : bord mobile animé par transform plutôt que left, sans changer les distances, seuils ou la navigation. CSS et données inchangés."
 }

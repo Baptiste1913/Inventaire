@@ -814,6 +814,7 @@ function iuAnimateCoupledSubpage(action,config){
  if(!bar){action();return;}
  focusMotionBusy=true;
  let frame=0,timer=null,done=false;
+ let nativeAnimations=[];
  const initialY=Math.ceil(Math.max(window.innerHeight||0,document.documentElement.clientHeight||0,600)*1.05);
  const panels=[];
  const nodes=[bar];
@@ -837,6 +838,10 @@ function iuAnimateCoupledSubpage(action,config){
   done=true;
   cancelAnimationFrame(frame);
   if(timer!==null)clearTimeout(timer);
+  // Relâcher tous les joueurs pour éviter des calques persistants.
+  // La position finale est immédiatement verrouillée ci-dessous.
+  for(const anim of nativeAnimations)anim.cancel();
+  nativeAnimations=[];
   // Fixer l'ultime image AVANT d'ôter le mode d'entrée.
   move(0);
   document.body.classList.remove('iu-coupled-rise','iu-subpage-entering','iu-alerts-rise-running');
@@ -877,20 +882,47 @@ function iuAnimateCoupledSubpage(action,config){
   void bar.offsetHeight;
   panels.forEach(el=>void el.offsetHeight);
  }catch(error){finish();throw error;}
+ // V40.07 — Déplacement natif sur les mêmes 610 ms, synchronisé pour
+ // le bandeau et les panneaux. L'ancien mouvement reste disponible en repli.
+ const runFallback=()=>{
+  let start=null;
+  const tick=now=>{
+   if(done)return;
+   if(start===null)start=now;
+   const t=Math.min(1,Math.max(0,(now-start)/610));
+   move(initialY*(1-ease(t)));
+   if(t>=1)finish();
+   else frame=requestAnimationFrame(tick);
+  };
+  frame=requestAnimationFrame(tick);
+ };
  frame=requestAnimationFrame(()=>{
   if(done)return;
   frame=requestAnimationFrame(()=>{
    if(done)return;
-   let start=null;
-   const tick=now=>{
-    if(done)return;
-    if(start===null)start=now;
-    const t=Math.min(1,Math.max(0,(now-start)/610));
-    move(initialY*(1-ease(t)));
-    if(t>=1)finish();
-    else frame=requestAnimationFrame(tick);
-   };
-   frame=requestAnimationFrame(tick);
+   let nativeOK=false;
+   if(nodes.every(el=>typeof el.animate==='function')){
+    try{
+     // Supprimer le stationnement CSS !important des Alertes, tandis
+     // que iu-coupled-rise neutralise leurs keyframes CSS concurrentes.
+     if(document.body.classList.contains('is-alerts-mode'))
+      document.body.classList.add('iu-alerts-rise-running');
+     for(const el of nodes){
+      el.style.removeProperty('translate');
+      nativeAnimations.push(el.animate([
+       {translate:'0 '+initialY+'px'},
+       {translate:'0 0'}
+      ],{duration:610,easing:'cubic-bezier(.16,.84,.24,1)',fill:'both'}));
+     }
+     nativeOK=nativeAnimations.length===nodes.length;
+     if(nativeOK)Promise.all(nativeAnimations.map(anim=>anim.finished)).then(finish,finish);
+    }catch(_){
+     for(const anim of nativeAnimations)anim.cancel();
+     nativeAnimations=[];
+     nodes.forEach(el=>el.style.setProperty('translate','0 '+initialY+'px','important'));
+    }
+   }
+   if(!nativeOK)runFallback();
   });
  });
  timer=setTimeout(finish,1200);
@@ -2737,6 +2769,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   arrow=null;
   seam=document.createElement('div');seam.className='iu-edge-swipe-seam';
   seam.setAttribute('aria-hidden','true');
+  // Calque temporaire uniquement pendant le geste tactile.
+  seam.style.willChange='transform,opacity';
   document.body.append(veil,seam);
  }
  function draw(target,x){
@@ -2748,7 +2782,9 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   veil.style.clipPath=mask;veil.style.webkitClipPath=mask;
 
 
-  seam.style.left=x+'px';seam.style.opacity=String(Math.min(.75,Math.max(0,(x-12)/65)));
+  // Remplacer left, qui exige un calcul de géométrie, par transform.
+  seam.style.transform='translate3d('+x+'px,0,0)';
+  seam.style.opacity=String(Math.min(.75,Math.max(0,(x-12)/65)));
  }
  function cleanup(){
   const old=g;g=null;
@@ -2798,7 +2834,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    if(ms){
     target.nodes.forEach(n=>n.style.setProperty('transition','translate '+ms+'ms '+ease,'important'));
     veil.style.transition='clip-path '+ms+'ms '+ease;
-    seam.style.transition='left '+ms+'ms '+ease;
+    seam.style.transition='transform '+ms+'ms '+ease;
     void target.nodes[0].getBoundingClientRect();
     requestAnimationFrame(()=>{if(g===target)draw(target,innerWidth);});
     target.timer=setTimeout(complete,ms+20);
@@ -2811,7 +2847,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    const ease='cubic-bezier(.16,.84,.24,1)';
    target.nodes.forEach(n=>n.style.setProperty('transition','translate '+ms+'ms '+ease,'important'));
    veil.style.transition='clip-path '+ms+'ms '+ease;
-   seam.style.transition='left '+ms+'ms '+ease;
+   seam.style.transition='transform '+ms+'ms '+ease;
    void target.nodes[0].getBoundingClientRect();
    requestAnimationFrame(()=>{if(g===target)draw(target,0);});
   }else draw(target,0);
