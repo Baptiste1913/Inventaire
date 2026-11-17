@@ -30907,3 +30907,37 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered:not(.iu
  html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{transition:none!important;}
  html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered{transform:none!important;}
 }
+
+/* V39.67 — Glissement continu GPU et grille optiquement équilibrée. */
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item{
+ grid-template-rows:26px 17px!important;
+ row-gap:1px!important;
+ align-content:center!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickSession .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickAccount .iu-dock-custom-icon{
+ width:23px!important;height:23px!important;flex-basis:23px!important;
+ align-self:end!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickSession .iu-dock-custom-icon{
+ width:18px!important;height:18px!important;flex-basis:18px!important;
+ align-self:end!important;margin-bottom:2px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item > span:not(.iu-dock-liquid-indicator){
+ align-self:start!important;
+ height:17px!important;line-height:17px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{
+ left:0!important;
+ transform:translate3d(0,0,0) scaleX(1);
+ transform-origin:center!important;
+ will-change:transform!important;
+ transition:opacity .13s ease!important;
+ pointer-events:none!important;
+}
+html body #iuQuickDock.iu-quick-dock.iu-dock-dragging .iu-dock-liquid-indicator{
+ transition:none!important;
+}

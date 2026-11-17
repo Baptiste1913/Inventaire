@@ -2784,73 +2784,64 @@ function iuInitQuickDock(){
  // Ne déclenche aucune action avant le relâchement (important pour Démarrer).
 
  // Sélection tactile façon iOS : capsule qui suit le doigt, activation au relâchement.
+
+ // Capsule pilotée en coordonnées continues (pas de saut d'un onglet à l'autre).
  const glass=document.createElement('span');
  glass.className='iu-dock-liquid-indicator';
- glass.setAttribute('aria-hidden','true');
- dock.prepend(glass);
- let drag=null;
- let suppressNativeClick=false;
+ glass.setAttribute('aria-hidden','true');dock.prepend(glass);
+ let drag=null,raf=0,suppressNativeClick=false;
  const items=()=>[...dock.querySelectorAll('.iu-quick-dock-item:not([hidden])')];
  const itemAt=(x,y)=>{
   const rect=dock.getBoundingClientRect();
   if(x<rect.left-20||x>rect.right+20||y<rect.top-24||y>rect.bottom+24)return null;
-  const visible=items();
-  return visible.reduce((best,el)=>{
-   const r=el.getBoundingClientRect(),cx=r.left+r.width/2;
-   const distance=Math.abs(x-cx);
+  return items().reduce((best,el)=>{
+   const r=el.getBoundingClientRect(),distance=Math.abs(x-r.left-r.width/2);
    return !best||distance<best.distance?{el,distance}:best;
   },null)?.el||null;
  };
- const moveGlass=(item,x)=>{
-  for(const b of items())b.classList.toggle('iu-dock-hovered',b===item);
-  if(!item){dock.classList.remove('iu-dock-dragging');return;}
-  const r=item.getBoundingClientRect(),base=dock.getBoundingClientRect();
-  const center=r.left+r.width/2-base.left;
-  const offset=typeof x==='number'?Math.max(-11,Math.min(11,(x-(r.left+r.width/2))*.18)):0;
-  glass.style.left=(center+offset)+'px';
-  glass.style.width=r.width+'px';
-  glass.style.setProperty('--iu-liquid-stretch',typeof x==='number'?String(1+Math.min(.10,Math.abs(offset)/110)):'1');
-  dock.classList.add('iu-dock-dragging');
+ const draw=()=>{
+  raf=0;if(!drag||!drag.active)return;
+  const rect=dock.getBoundingClientRect(),selected=itemAt(drag.currentX,drag.currentY);
+  for(const b of items())b.classList.toggle('iu-dock-hovered',b===selected);
+  const width=drag.width;
+  const x=Math.max(width/2+4,Math.min(rect.width-width/2-4,drag.currentX-rect.left));
+  const speed=Math.min(1,Math.abs(drag.currentX-drag.previousX)/35);
+  glass.style.width=width+'px';
+  glass.style.transform='translate3d('+(x-width/2)+'px,0,0) scaleX('+(1+speed*.08)+')';
+  drag.previousX=drag.currentX;
  };
  const clear=()=>{
-  drag=null;
-  dock.classList.remove('iu-dock-dragging');
+  if(raf){cancelAnimationFrame(raf);raf=0;}
+  drag=null;dock.classList.remove('iu-dock-dragging');
   for(const b of items())b.classList.remove('iu-dock-hovered');
  };
  dock.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'||e.button!==0)return;
   const target=e.target.closest('.iu-quick-dock-item:not([hidden])');
   if(!target)return;
-  drag={id:e.pointerId,x:e.clientX,y:e.clientY,active:false,vertical:false,selected:target};
+  const rect=target.getBoundingClientRect();
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,currentX:e.clientX,currentY:e.clientY,previousX:e.clientX,width:rect.width,active:false,vertical:false};
  });
  dock.addEventListener('pointermove',e=>{
   if(!drag||e.pointerId!==drag.id||drag.vertical)return;
   const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-  if(!drag.active&&Math.abs(dy)>11&&Math.abs(dy)>Math.abs(dx)){
-   drag.vertical=true;return;
-  }
-  if(!drag.active&&Math.abs(dx)>7&&Math.abs(dx)>=Math.abs(dy)){
+  if(!drag.active&&Math.abs(dy)>11&&Math.abs(dy)>Math.abs(dx)){drag.vertical=true;return;}
+  if(!drag.active&&Math.abs(dx)>6&&Math.abs(dx)>=Math.abs(dy)){
    drag.active=true;
+   dock.classList.add('iu-dock-dragging');
    try{dock.setPointerCapture(e.pointerId);}catch(_){}
   }
   if(drag.active){
-   drag.selected=itemAt(e.clientX,e.clientY);
-   moveGlass(drag.selected,e.clientX);
+   drag.currentX=e.clientX;drag.currentY=e.clientY;
+   if(!raf)raf=requestAnimationFrame(draw);
   }
  });
  dock.addEventListener('pointerup',e=>{
   if(!drag||e.pointerId!==drag.id)return;
-  const wasActive=drag.active;
-  const selected=wasActive?itemAt(e.clientX,e.clientY):null;
-  if(wasActive){
+  const selected=drag.active?itemAt(e.clientX,e.clientY):null;
+  if(drag.active){
    suppressNativeClick=true;
-   // Empêcher le clic synthétique après pointerup, sans bloquer les clics programmatiques.
-   window.setTimeout(()=>{suppressNativeClick=false;},250);
-   if(selected){
-    moveGlass(selected);
-    glass.classList.add('iu-liquid-settling');
-    window.setTimeout(()=>glass.classList.remove('iu-liquid-settling'),180);
-   }
+   window.setTimeout(()=>{suppressNativeClick=false;},300);
   }
   clear();
   if(selected&&!selected.hidden)selected.click();
