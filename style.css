@@ -31393,3 +31393,41 @@ html body #iuQuickDock.iu-quick-dock.iu-dock-home-blur{
 @media(prefers-reduced-motion:reduce){
  html body #iuSubpageBar:not([hidden]),html body #iuQuickDock.iu-quick-dock{transition:none!important}
 }
+
+/* V39.81 — Retours cohérents, sans apparition du dock pendant le glissement. */
+html body.iu-edge-swiping #iuQuickDock.iu-quick-dock,
+html body.iu-edge-swiping:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuQuickDock.iu-quick-dock{
+ display:grid!important;
+ visibility:visible!important;
+ opacity:0!important;
+ pointer-events:none!important;
+ animation:none!important;
+}
+/* Hauteur d'entrée verrouillée brièvement en JS : pas de contraction
+   liée au scroll hérité de l'accueil pendant l'animation. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) .app > :is(#planningAdminCard.card,#accountCard.card,#eventsPage.iu-events-page,#iuAlertsPage):not([hidden]){
+ padding-top:max(94px,calc(env(safe-area-inset-top,0px) + 86px))!important;
+}
+/* Retour monochrome : contraste neutre et flèche plus lisible. */
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack,
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) > #iuSubpageBack{
+ border:1px solid rgba(179,195,204,.88)!important;
+ background:linear-gradient(145deg,#fff,#f0f4f6)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 2px 6px rgba(62,80,91,.09)!important;
+ color:#313c44!important;
+}
+html body #iuSubpageBar #iuSubpageBack:is(:active,:hover){
+ border-color:rgba(155,174,185,.9)!important;
+ background:linear-gradient(145deg,#e8edf0,#f8fafb)!important;
+ box-shadow:inset 1px 2px 4px rgba(88,104,114,.12),0 1px 3px rgba(62,80,91,.05)!important;
+}
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg{
+ width:31px!important;height:31px!important;
+ color:#303b43!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) #iuSubpageBack svg{
+ width:27px!important;height:27px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{transition:none!important;}
+}

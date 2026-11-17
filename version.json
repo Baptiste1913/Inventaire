@@ -1,7 +1,7 @@
 {
-  "version": "39.80",
+  "version": "39.81",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bandeau Retour compact au scroll (74 à 58 px), bouton réduit et titre recentré, flèche agrandie, contour turquoise retiré. Dock conservé monté et fondu progressivement au retour accueil."
+  "notes": "Correction du retour par swipe : dock invisible pendant le geste puis réapparition synchronisée avec le dévoilement de l'accueil ; stabilisation du bandeau en entrée ; marge sous Retour réduite et flèche agrandie avec effet monochrome."
 }

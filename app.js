@@ -2590,20 +2590,30 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  const bar=$('iuSubpageBar'), back=$('iuSubpageBack');
  if(!bar||!back)return;
  const modes=['is-admin-mode','is-account-mode','is-events-mode','is-alerts-mode'];
- let pending=false;
+ let pending=false,wasActive=false,entryUnlockAt=0,entryTimer=0;
  function active(){return modes.some(mode=>document.body.classList.contains(mode));}
  function refresh(){
   pending=false;
-  if(!active()){
+  const nowActive=active();
+  if(!nowActive){
    bar.hidden=true;
    bar.dataset.compact='false';
+   wasActive=false;
+   entryUnlockAt=0;
+   if(entryTimer){clearTimeout(entryTimer);entryTimer=0;}
    return;
+  }
+  if(!wasActive){
+   entryUnlockAt=performance.now()+780;
+   wasActive=true;
+   if(entryTimer)clearTimeout(entryTimer);
+   entryTimer=setTimeout(()=>{entryTimer=0;schedule();},800);
   }
   bar.hidden=false;
   // Pendant l'entrée, garder le bandeau dans son état initial 70px.
   // Le scroll peut encore indiquer celui de l'accueil pendant une frame
   // sur Safari et provoquait une contraction à 55px au mauvais moment.
-  if(document.body.classList.contains('iu-subpage-entering')){
+  if(document.body.classList.contains('iu-subpage-entering')||performance.now()<entryUnlockAt){
    bar.dataset.compact='false';
    return;
   }
@@ -2697,6 +2707,9 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    if(Number.isFinite(saved))iuSavedHomeScrollY=saved;
    document.body.classList.add('iu-home-return-stable');
    target.page.close();
+   // Le bandeau bas commence son fondu sous le voile, comme avec Retour.
+   // Le mode swipe cesse dès que l'accueil est restauré, pas après le fondu.
+   document.body.classList.remove('iu-edge-swiping');
    target.nodes.forEach(n=>{n.style.removeProperty('translate');n.style.removeProperty('transition');});
    // Aucun aperçu n'est affiché : garder le voile devant la vraie page
    // pendant que Safari restaure la position avant de la dévoiler.
