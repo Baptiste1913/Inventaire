@@ -27531,10 +27531,10 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #i
 html body.is-events-mode .app > #eventsPage.iu-events-page:not([hidden]){
  padding-top:max(96px,calc(env(safe-area-inset-top,0px) + 88px))!important
 }
-/* Les quatre pages démarrent en mode 70px ; ne jamais afficher
-   brièvement le bandeau compact pendant l'animation d'entrée. */
+/* V39.90 — Meme hauteur finale de 74px pendant et apres l'entree :
+   le passage 70px -> 74px provoquait le petit saut de fin sur Safari. */
 html body.iu-subpage-entering:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]){
- height:70px!important
+ height:74px!important
 }
 
 /* V38.72 — Alertes / Événements : Retour et panneau sont un même

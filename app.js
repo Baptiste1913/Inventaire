@@ -2847,44 +2847,8 @@ function iuInitQuickDock(){
  window.addEventListener('iu-admin-check-finished',updateAdmin);
  window.addEventListener('iu-admin-initial-ready',updateAdmin);
  updateAdmin();
- // V39.89 — Snapshot visuel de sortie, sans jamais désactiver les clics.
- // Le dock réel reste interactif jusqu'au dispatch complet de l'action.
- let dockSnapshot=null,dockSnapshotTimer=0;
- const iuDockUnfreeze=()=>{
-  window.clearTimeout(dockSnapshotTimer);
-  dockSnapshot?.remove();
-  dockSnapshot=null;
- };
- dock.addEventListener('click',event=>{
-  const button=event.target.closest('.iu-quick-dock-item');
-  if(!button||button.hidden)return;
-  if(button===sessionButton&&getActiveSession()&&!getActiveSession().pausedAt)return;
-  iuDockUnfreeze();
-  const rect=dock.getBoundingClientRect();
-  if(rect.width<1||rect.height<1)return;
-  const clone=dock.cloneNode(true);
-  clone.removeAttribute('id');
-  clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-  clone.setAttribute('aria-hidden','true');
-  clone.querySelectorAll('button').forEach(el=>el.tabIndex=-1);
-  const fixed={
-   position:'fixed',left:rect.left+'px',top:rect.top+'px',right:'auto',
-   bottom:'auto',width:rect.width+'px',height:rect.height+'px',
-   margin:'0',transform:'none',translate:'0 0',
-   animation:'none',transition:'none','pointer-events':'none','z-index':'9999'
-  };
-  for(const [name,value] of Object.entries(fixed))clone.style.setProperty(name,value,'important');
-  document.body.append(clone);
-  dockSnapshot=clone;
-  // Le clone immobile masque les éventuels déplacements du dock original.
-  // Il est purement décoratif et ne peut pas intercepter le premier clic.
-  try{
-   clone.animate([{opacity:1},{opacity:1,offset:.3},{opacity:0}],{
-    duration:280,easing:'ease-out',fill:'forwards'
-   });
-  }catch(error){}
-  dockSnapshotTimer=window.setTimeout(iuDockUnfreeze,300);
- },true);
+ // V39.90 : conserver le dock reel jusqu'a la navigation sans clone,
+ // ni neutralisation des interactions au premier clic.
  const updateSession=()=>{
   const active=getActiveSession(),paused=Boolean(active?.pausedAt);
   sessionButton.setAttribute('aria-label',!active?'Démarrer un inventaire':paused?'Reprendre l’inventaire':'Inventaire en cours');
@@ -2953,7 +2917,7 @@ function iuInitQuickDock(){
  dock.addEventListener('pointerup',e=>{
   if(!drag||e.pointerId!==drag.id)return;
   const selected=drag.active?itemAt(e.clientX,e.clientY):null;
-  if(drag.active){
+  if(selected&&!selected.hidden){
    suppressNativeClick=true;
    window.setTimeout(()=>{suppressNativeClick=false;},300);
   }
@@ -2987,8 +2951,7 @@ function iuInitQuickDock(){
    // Déverrouiller les colonnes seulement après retour sur la page d'accueil.
    dock.classList.remove('iu-dock-leaving','iu-dock-home-blur','iu-dock-entering');
    window.clearTimeout(homeBlurTimer);
-   iuDockUnfreeze();
-   // Restauration immédiate de la position normale du dock sur l'accueil.
+   // L'accueil restaure directement le dock sans couche temporaire.
   }
   if(!nowHome){
    dock.classList.remove('iu-dock-leaving','iu-dock-entering','iu-dock-home-blur');
@@ -3013,7 +2976,12 @@ function iuInitQuickDock(){
   return false;
  };
  const navigateDock=action=>{
-  if(focusMotionBusy)return;
+  // Le retour precedent peut encore finir sa cascade pendant que
+  // l'accueil est deja visible. Ne jamais perdre ce premier clic.
+  if(focusMotionBusy){
+   if(isOnHome())focusPendingTask=()=>navigateDock(action);
+   return;
+  }
   if(document.body.classList.contains('is-focus-mode'))return;
   if(!leaveCurrentPage()){action();return;}
   const until=Date.now()+2000;

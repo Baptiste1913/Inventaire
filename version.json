@@ -1,7 +1,7 @@
 {
-  "version": "39.89",
+  "version": "39.90",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Navigation sans double clic ; bandeau Retour et contenu déplacés par le même animateur, sans saut de fin d'entrée. Dock gelé uniquement dans une copie visuelle non interactive."
+  "notes": "Suppression du clone de dock responsable d'interactions perturbees, prise en compte du premier clic meme durant la fin du retour, harmonisation de la hauteur du bandeau a 74px pendant l'entree pour supprimer le saut."
 }
