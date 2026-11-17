@@ -2161,7 +2161,8 @@ window.IUSetFoldLightEffects=enabled=>{
  return iuFoldLightEffects;
 };
 window.IUGetFoldLightEffects=()=>iuFoldLightEffects;
-const iuFoldStats={prepared:0,cacheHits:0,cacheMisses:0,liveCacheHits:0,lastWarmupMs:0};
+const iuFoldStats={prepared:0,cacheHits:0,cacheMisses:0,liveCacheHits:0,lastWarmupMs:0,
+ autoPrepared:0,autoSkipped:0};
 // V36.54 — L'échantillonnage rAF produit lui-même du travail par image.
  // Désactivé en usage normal ; activation manuelle dans l'administration.
 let iuFoldFrameDiagnosticsEnabled=false;
@@ -2175,25 +2176,46 @@ window.IUFoldPerformance=()=>({
  frameDiagnosticsEnabled:iuFoldFrameDiagnosticsEnabled,
  recent:IU_FOLD_METRICS.slice(-16).map(item=>({...item}))
 });
-window.IUPrewarmFoldLayouts=async(progress)=>{
+window.IUPrewarmFoldLayouts=async(progress,options={})=>{
  if(iuFoldMeasurementActive)return false;
+ const automatic=options?.automatic===true;
  iuFoldMeasurementActive=true;
  const started=performance.now();
- const cards=[...document.querySelectorAll('details[data-unified-fold="yes"]')]
-  // Les sous-tiroirs heritent de styles contextuels de leur carte parente :
-  // seuls les tiroirs principaux se mesurent de facon fiable dans un clone.
+ let workMs=0;
+ let cards=[...document.querySelectorAll('details[data-unified-fold="yes"]')]
+  // Les sous-tiroirs héritent de styles contextuels difficiles à cloner :
+  // seules les cartes directement sous .app sont mesurables sans risque.
   .filter(card=>card.parentElement?.classList.contains('app')&&!card.hidden);
- // Chaque carte est preparee par etape : ne jamais bloquer toute une frame.
+ if(automatic){
+  // Préchauffage très sélectif : exclure les historiques volumineux et
+  // les formulaires d'administration/compte (données sensibles ou dynamiques).
+  // Ne garder que deux tiroirs fermés et peu chargés au maximum.
+  const preferred=['backupCard','basket-card','history-card','sessions-history-card'];
+  cards=preferred.map(key=>cards.find(card=>card.id===key||card.classList.contains(key)))
+   .filter((card,index,all)=>card&&all.indexOf(card)===index)
+   .filter(card=>!card.open&&!card.closest('[hidden]')&&
+    card.querySelectorAll('*').length<=105)
+   .slice(0,2);
+ }
  const yieldFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+ const canContinue=()=>!document.hidden&&!focusMotionBusy&&
+  !document.documentElement.classList.contains('iu-pwa-starting')&&
+  !document.body.classList.contains('iu-edge-swiping')&&
+  !document.body.classList.contains('is-focus-mode')&&
+  !(window.IUIsHeavyFoldAnimating?.())&&
+  !document.querySelector('.iu-fold-animating');
  let done=0;
  try{
   for(const card of cards){
+   if(automatic&&(!canContinue()||performance.now()-started>110||workMs>26))break;
+   let root=null;
+   const startedCard=performance.now();
    try{
-    // Mesurer dans un conteneur invisible, sans cliquer ni changer l'etat
-    // des <details> existants (ce qui declencherait leurs handlers).
+    // Aucun <details> réel n'est ouvert ou modifié.
     const owner=card.closest('.app');
-    const root=document.createElement('div');
+    root=document.createElement(automatic?'main':'div');
     root.className='app';
+    root.setAttribute('aria-hidden','true');
     root.style.cssText='position:fixed!important;left:-200vw!important;top:0!important;visibility:hidden!important;pointer-events:none!important;transition:none!important;animation:none!important;';
     const width=owner?.getBoundingClientRect().width||document.documentElement.clientWidth;
     root.style.width=width+'px';
@@ -2202,27 +2224,98 @@ window.IUPrewarmFoldLayouts=async(progress)=>{
     clone.style.cssText='height:auto!important;max-height:none!important;animation:none!important;transition:none!important;';
     clone.open=false;
     root.append(clone);document.body.append(root);
-    const closed=clone.getBoundingClientRect().height;
+    const closedRect=clone.getBoundingClientRect();
+    const closed=closedRect.height;
     clone.open=true;
     const expanded=clone.getBoundingClientRect().height;
-    root.remove();
-    if(Number.isFinite(closed)&&Number.isFinite(expanded)&&expanded>=closed&&closed>0){
-     IU_FOLD_CACHE.set(card,{closed,expanded,width:card.getBoundingClientRect().width,viewport:window.innerWidth});
+    // En mode automatique, ne cacher que des mesures dont la largeur réelle
+    // correspond (sinon l'ouverture doit refaire une mesure fiable).
+    const realWidth=card.getBoundingClientRect().width;
+    const matching=!automatic||Math.abs(closedRect.width-realWidth)<1.5;
+    if(matching&&Number.isFinite(closed)&&Number.isFinite(expanded)&&expanded>=closed&&closed>0){
+     IU_FOLD_CACHE.set(card,{closed,expanded,width:realWidth,
+      viewport:window.innerWidth,source:'clone'});
      iuFoldStats.prepared++;
-    }
-   }catch(error){console.debug('Preparation dimension tiroir ignoree',error);}
+     if(automatic)iuFoldStats.autoPrepared++;
+    }else if(automatic)iuFoldStats.autoSkipped++;
+   }catch(error){
+    if(automatic)iuFoldStats.autoSkipped++;
+    console.debug('Preparation dimension tiroir ignoree',error);
+   }finally{
+    root?.remove(); // toujours libérer les nœuds temporaires
+    workMs+=performance.now()-startedCard;
+   }
    done++;
    if(typeof progress==='function')progress(done,cards.length);
-   await yieldFrame();
+   // Le préchauffage automatique relâche le main thread entre deux cartes.
+   if(automatic)await new Promise(resolve=>setTimeout(resolve,400));
+   else await yieldFrame();
   }
-  iuFoldStats.lastWarmupMs=Math.round(performance.now()-started);
-  return true;
+  iuFoldStats.lastWarmupMs=Math.round(automatic?workMs:performance.now()-started);
+  return done>0;
  }finally{iuFoldMeasurementActive=false;}
 };
 window.addEventListener('resize',()=>{
  // Le cache verifie aussi la largeur et le viewport au moment d'utilisation.
  iuFoldStats.prepared=0;
 },{passive:true});
+
+/* V40.09 — Préchauffage adaptatif : uniquement après l'ouverture, en période
+   d'inactivité et jamais sur les données métier. Aucune prolongation du splash.
+   Les calculs préparés restent dans le WeakMap existant et sont invalidés
+   lors d'une modification du contenu ou de la largeur du viewport. */
+(function iuScheduleGentleFoldWarmup(){
+ let lastActivity=performance.now(),attempts=0,finished=false,stopped=false;
+ let timer=0,idle=0;
+ const recordActivity=()=>{lastActivity=performance.now();};
+ for(const type of ['pointerdown','touchstart','keydown','scroll'])
+  document.addEventListener(type,recordActivity,{passive:true,capture:true});
+ const cleanup=()=>{
+  stopped=true;
+  if(timer)clearTimeout(timer);
+  if(idle&&typeof cancelIdleCallback==='function')cancelIdleCallback(idle);
+  for(const type of ['pointerdown','touchstart','keydown','scroll'])
+   document.removeEventListener(type,recordActivity,true);
+ };
+ window.addEventListener('pagehide',cleanup,{once:true});
+ const eligible=()=>{
+  if(document.hidden||focusMotionBusy||iuFoldMeasurementActive)return false;
+  if(performance.now()-lastActivity<1700)return false;
+  if(document.documentElement.classList.contains('iu-pwa-starting'))return false;
+  if(document.body.classList.contains('iu-edge-swiping')||
+     document.body.classList.contains('is-focus-mode')||
+     document.querySelector('.iu-fold-animating'))return false;
+  if(window.IUIsHeavyFoldAnimating?.())return false;
+  if(navigator.connection?.saveData||navigator.deviceMemory&&navigator.deviceMemory<4||
+     navigator.hardwareConcurrency&&navigator.hardwareConcurrency<4)return false;
+  return true;
+ };
+ const tryWarm=deadline=>{
+  idle=0;
+  if(stopped||finished)return;
+  // Ne jamais lancer de clones quand le navigateur n'a pas assez de marge.
+  if(!eligible()||(deadline&&deadline.timeRemaining()<13)){
+   if(++attempts<9)schedule(2000);
+   else cleanup();
+   return;
+  }
+  finished=true; // une seule session de préchauffage, au maximum
+  Promise.resolve(window.IUPrewarmFoldLayouts?.(null,{automatic:true}))
+   .catch(()=>{}).finally(cleanup);
+ };
+ const schedule=delay=>{
+  if(stopped||finished)return;
+  if(timer)clearTimeout(timer);
+  timer=setTimeout(()=>{
+   timer=0;
+   if(stopped||finished)return;
+   if(typeof requestIdleCallback==='function')
+    idle=requestIdleCallback(tryWarm);
+   else tryWarm(null); // Safari sans requestIdleCallback : après repos prolongé
+  },delay);
+ };
+ window.addEventListener('load',()=>schedule(2100),{once:true});
+})();
 
 /* V36.38 — Inspiré de Grafikart : limiter les lectures/écritures forcées.
    Le JavaScript ne réécrit plus height à chaque frame : Web Animations

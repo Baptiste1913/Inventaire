@@ -1,7 +1,7 @@
 {
-  "version": "40.08",
+  "version": "40.09",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Navigation : révélation GPU par deux couches à gradient fixe au lieu du clip-path recalculé, mesures de la barre rapide mises en cache, mutations d'interface redondantes évitées, actualisation visuelle différée pendant les transitions et préférence Réduire la transparence respectée. CSS, moteur natif, stockage et fonctions métier conservés."
+  "notes": "Préchauffage adaptatif après l'accueil : deux petits tiroirs maximum, uniquement en période d'inactivité et avec un budget de travail strict. Mesures en mémoire réutilisées et invalidées si le DOM change. Pas de cache de données, ni prolongation du chargement."
 }
