@@ -1,7 +1,7 @@
 {
-  "version": "40.00",
+  "version": "40.01",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Écran de chargement squelette fidèle aux vraies sections d'accueil (en-tête, Bienvenue/veille, services, compte, calendrier, session, pesée, suivi, paniers, sauvegarde et dock). Moteur de démarrage et données inchangés."
+  "notes": "Optimisations sûres : statistiques de pesées calculées en un seul passage et réutilisées pendant les actualisations, chargement squelette avec une seule animation composite au lieu d'animations sur chaque rectangle. CSS global, calculs, stockage et transitions de navigation préservés."
 }

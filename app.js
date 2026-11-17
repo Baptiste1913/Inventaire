@@ -266,11 +266,26 @@ let acceptedAnomalyKey='',sessionsExpanded=false;
 let iuInventorySort='recent';
 let iuArchiveYear=new Date().getFullYear(),iuArchiveMonth='all',iuArchiveUnclassified=true;
 function getActiveSession(){return sessions.find(s=>s.id===activeSessionId&&!s.endedAt)||null;}
+/* V40.01 — Une seule lecture des pesées par calcul de statistiques.
+   Les opérations restent exactement les mêmes en grammes entiers : aucune
+   modification des formules, arrondis, groupes, durées ou sauvegardes. */
 function activeStats(s){
-  const count=s.entries.length, gross=s.entries.reduce((n,e)=>n+e.gross,0),tare=s.entries.reduce((n,e)=>n+e.tare,0),net=gross-tare;
+  const count=s.entries.length;
+  let gross=0,tare=0,min=Infinity,max=-Infinity;
+  const groupMap=new Map();
+  for(const e of s.entries){
+    gross+=e.gross;
+    tare+=e.tare;
+    min=Math.min(min,e.net);
+    max=Math.max(max,e.net);
+    const id=e.groupId||e.id;
+    groupMap.set(id,(groupMap.get(id)||0)+1);
+  }
+  let multi=0;
+  for(const n of groupMap.values())if(n>1)multi++;
+  const net=gross-tare;
   const duration=Math.max(0,(s.endedAt||Date.now())-s.startedAt-(s.pausedMs||0)-(s.pausedAt?(s.endedAt||Date.now())-s.pausedAt:0));
-  const groupMap=new Map(); for(const e of s.entries){const id=e.groupId||e.id;groupMap.set(id,(groupMap.get(id)||0)+1);}
-  return {count,gross,tare,net,duration,groups:groupMap.size,multi:[...groupMap.values()].filter(n=>n>1).length,min:count?Math.min(...s.entries.map(e=>e.net)):0,max:count?Math.max(...s.entries.map(e=>e.net)):0,average:count?Math.round(net/count):0};
+  return {count,gross,tare,net,duration,groups:groupMap.size,multi,min:count?min:0,max:count?max:0,average:count?Math.round(net/count):0};
 }
 function durationLabel(ms){const sec=Math.floor(Math.max(0,ms)/1000),h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h} h ${String(m).padStart(2,'0')} min`:`${m} min ${String(s).padStart(2,'0')} s`;}
 const dateLabel=t=>new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -399,14 +414,14 @@ function heroTimePerWeigh(stats){
 }
 function latestFinishedInventory(){let latest=null;for(const s of sessions){if(Number.isFinite(s.endedAt)&&(!latest||s.endedAt>latest.endedAt))latest=s;}return latest;}
 function heroSetText(id,val){const el=$(id);if(el&&el.textContent!==String(val))el.textContent=String(val);}
-function renderHeroSummary(){
+function renderHeroSummary(precomputedStats=null){
  const root=document.querySelector('.app > section.intro'),status=$('heroStatus'),text=$('heroStatusText');
  if(!root||!status||!text)return;
  const session=getActiveSession(),last=latestFinishedInventory();
  // Sans session active, toujours afficher la prochaine date, même juste après un bilan.
  // V39.51 : les sessions en pause conservent l'accueil standard.
  const state=session&&!session.pausedAt?'running':'before';
- const stats=session?activeStats(session):last?activeStats(last):null;
+ const stats=session?(precomputedStats||activeStats(session)):last?activeStats(last):null;
  const count=stats?.count||0,avg=heroTimePerWeigh(stats);
  const raw=$('calendarNextDate')?.textContent?.trim()||'';
  const nextDate=raw&&!/chargement|confirmer/i.test(raw)?raw:'Date à confirmer';
@@ -1375,20 +1390,23 @@ function renderSessionControls(){const s=getActiveSession();$('sessionBadge').te
    refBox.querySelector('select').dataset.sessionId=s.id;
   }}
  }
- if(s){const stats=activeStats(s);$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
- renderHeroSummary();
- syncFocusMode();
+ let sessionStats=null;
+ if(s){const stats=activeStats(s);sessionStats=stats;$('sessionDuration').textContent=durationLabel(stats.duration);$('sessionWeighCount').textContent=String(stats.count);$('sessionNet').textContent=`${fmt(stats.net)} kg`;}
+ renderHeroSummary(sessionStats);
+ if(s)syncFocusMode(s,sessionStats);
+ else syncFocusMode();
  window.IUUpdateQuickDockSession?.();
 }
 // L'horloge met à jour seulement les textes qui ont réellement changé :
 // moins de mutations DOM, donc moins de recalculs sur Safari iPhone.
 function renderLiveSessionStats(updateHero=true){
- const session=getActiveSession();if(!session)return;
+ const session=getActiveSession();if(!session)return null;
  const stats=activeStats(session);
  const values=[['sessionDuration',durationLabel(stats.duration)],['sessionWeighCount',String(stats.count)],['sessionNet',`${fmt(stats.net)} kg`]];
  for(const [id,value] of values){const el=$(id);if(el&&el.textContent!==value)el.textContent=value;}
- if(updateHero)renderHeroSummary();
+ if(updateHero)renderHeroSummary(stats);
  syncFocusMode(session,stats);
+ return stats;
 }
 function startSession(){const review=$('sessionQualityReview');if(review)review.hidden=true;
  if(getActiveSession()||!flushPending())return;
@@ -1829,7 +1847,12 @@ $('iuArchiveAllMonths').addEventListener('click',()=>{iuArchiveMonth='all';rende
 $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
-setInterval(()=>{if(!document.hidden){renderLiveSessionStats(false);if(getActiveSession()&&!document.body.classList.contains('is-focus-mode'))renderHeroSummary();}},1000);
+setInterval(()=>{
+ if(document.hidden)return;
+ const liveStats=renderLiveSessionStats(false);
+ if(liveStats&&!document.body.classList.contains('is-focus-mode'))
+  renderHeroSummary(liveStats);
+},1000);
 
 $('basketForm').addEventListener('submit',e=>{e.preventDefault();const name=$('basketName').value.trim(),tare=parseKg($('basketTare').value);if(!name||tare===null){$('basketFormError').textContent='Indique un nom et une tare valide en kg (ex. 0.554).';return;}$('basketFormError').textContent='';const next=baskets.map(b=>({...b}));if(editingId){const b=next.find(x=>x.id===editingId);if(b){b.name=name;b.tare=tare;}}else next.push({id:uid(),name,tare});if(commitBaskets(next)){cancelEdit();$('basketFormError').textContent='';}});
 $('basketName').addEventListener('input',()=>{$('basketFormError').textContent='';});
