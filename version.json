@@ -1,7 +1,7 @@
 {
-  "version": "40.19",
+  "version": "40.20",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Opacité maximale des points animés de la vague diagonale Bienvenue abaissée de 8 % à 5 %, flou, taille et vitesse inchangés."
+  "notes": "Affinement ciblé du double contour turquoise du bouton Voir la liste (bord 2 à 1,5 px, halo extérieur 4 à 2,5 px), sans modifier sa taille, ses animations ou ses interactions."
 }
