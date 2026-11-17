@@ -31337,3 +31337,59 @@ html body .iu-edge-swipe-arrow{display:none!important}
 @media(max-width:380px){
  html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy strong{font-size:21px!important}
 }
+
+/* V39.80 — retour au compactage fluide et suppression du contour turquoise. */
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar:not([hidden]),
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]:not([hidden]){
+ height:74px!important;min-height:0!important;
+ transition:height .32s cubic-bezier(.2,.75,.2,1),opacity .24s ease,filter .24s ease!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuSubpageBar[data-compact="true"]:not([hidden]){
+ height:58px!important;
+}
+html body #iuSubpageBar:not([hidden]) > #iuSubpageBack,
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) > #iuSubpageBack{
+ border:1px solid rgba(188,206,216,.82)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 2px 6px rgba(53,83,99,.08)!important;
+ transition:width .32s cubic-bezier(.2,.75,.2,1),height .32s cubic-bezier(.2,.75,.2,1),left .32s cubic-bezier(.2,.75,.2,1),scale .22s ease,box-shadow .22s ease!important;
+}
+html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg{
+ width:28px!important;height:28px!important;
+ transition:width .32s ease,height .32s ease!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) > #iuSubpageBack{
+ width:38px!important;height:38px!important;min-width:38px!important;max-width:38px!important;
+ left:10px!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) #iuSubpageBack svg{
+ width:24px!important;height:24px!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading{
+ transition:padding .32s cubic-bezier(.2,.75,.2,1)!important;
+}
+html body #iuSubpageBar:not([hidden]) .iu-subpage-heading-copy strong,
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading-copy strong{
+ transition:font-size .32s cubic-bezier(.2,.75,.2,1),transform .32s cubic-bezier(.2,.75,.2,1)!important;
+}
+html body #iuSubpageBar[data-compact="true"]:not([hidden]) .iu-subpage-heading-copy strong{
+ font-size:clamp(18px,4.65vw,22px)!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) #iuQuickDock.iu-quick-dock,
+html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{
+ display:grid!important;
+ visibility:visible!important;
+ opacity:0!important;
+ pointer-events:none!important;
+}
+html body #iuQuickDock.iu-quick-dock{
+ transition:opacity .32s ease!important;
+}
+html body:not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode):not(.is-focus-mode):not(.iu-edge-swiping) #iuQuickDock.iu-quick-dock{
+ display:grid!important;visibility:visible!important;opacity:1!important;
+}
+html body #iuQuickDock.iu-quick-dock.iu-dock-home-blur{
+ animation:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body #iuSubpageBar:not([hidden]),html body #iuQuickDock.iu-quick-dock{transition:none!important}
+}
