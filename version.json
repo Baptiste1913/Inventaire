@@ -1,7 +1,7 @@
 {
-  "version": "39.85",
+  "version": "39.86",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Continuité du swipe dans le moteur Retour, suppression du masquage précoce du dock, stabilisation temporaire des colonnes et animation de retour cohérente."
+  "notes": "Stabilisation finale : dock visible immédiatement au retour, continuité de la trajectoire swipe et verrouillage éphémère des colonnes lors des navigations."
 }

@@ -2918,7 +2918,7 @@ function iuInitQuickDock(){
    window.clearTimeout(homeBlurTimer);
    window.clearTimeout(dockGeometryTimer);
    dockGeometryTimer=window.setTimeout(()=>dock.style.removeProperty('grid-template-columns'),220);
-   animateDockEntrance();
+   // Rester visible sans relancer une animation d'entrée qui masque le dock.
   }
   if(!nowHome){
    dock.classList.remove('iu-dock-leaving','iu-dock-entering','iu-dock-home-blur');
