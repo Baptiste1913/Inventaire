@@ -27787,7 +27787,7 @@ html body #iuSubpageBar:not([hidden]) > #iuSubpageBack:active{
    Espace administrateur (contour blanc, rayon 20px, dégradé 145°
    et cinq ombres). Garder les dimensions et l'effet tactile existant. */
 html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action:not(:active){
- border:1px solid rgba(255,255,255,.94)!important;
+ border:1px solid #d2dbe2!important;
  border-radius:14px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  background-clip:border-box!important;
@@ -27820,7 +27820,7 @@ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-s
 html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary #iuAccountLaunch.iu-account-launch-action:not(:active),
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:not(:active){
  box-sizing:border-box!important;
- border:1px solid rgba(255,255,255,.94)!important;
+ border:1px solid #d2dbe2!important;
  border-radius:14px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  background-clip:border-box!important;
@@ -30210,17 +30210,26 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
 }
 
 
-/* V39.56 — Contraste discret des trois boutons d'accès de l'accueil.
-   Seule la couleur du contour change ; aucun effet ni dimension modifiés. */
-html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action,
-html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action,
-html body:not(.is-events-mode):not(.is-focus-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
- border-color:#d5dfe5!important;
+/* V39.57 — Remplacement réel du filet blanc des trois boutons.
+   Les règles V38.83 / V38.84 portent désormais directement cette bordure,
+   y compris dans leur état :not(:active) plus spécifique.
+   Ne modifier ni la profondeur, ni le fond, ni les dimensions. */
+html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action:not(:active),
+html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary #iuAccountLaunch.iu-account-launch-action:not(:active),
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:not(:active){
+ border-color:#d2dbe2!important;
+}
+@media(hover:hover){
+ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action:hover:not(:active),
+ html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary #iuAccountLaunch.iu-account-launch-action:hover:not(:active),
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button:hover:not(:active){
+  border-color:#c9d4dc!important;
+ }
 }
 @media(forced-colors:active){
- html body:not(.is-admin-mode) .app > #planningAdminCard.card #iuAdminLaunch.iu-admin-launch-action,
- html body:not(.is-account-mode) .app > #accountCard.card #iuAccountLaunch.iu-account-launch-action,
- html body:not(.is-events-mode):not(.is-focus-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
+ html body:not(.is-admin-mode) .app > #planningAdminCard.card > .planning-admin-summary > .planning-admin-trailing #iuAdminLaunch.iu-admin-launch-action,
+ html body:not(.is-account-mode) .app > #accountCard.card > .account-fold-summary #iuAccountLaunch.iu-account-launch-action,
+ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card #eventsOpenPage.events-access-button{
   border-color:ButtonText!important;
  }
 }
