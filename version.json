@@ -1,7 +1,7 @@
 {
-  "version": "39.62",
+  "version": "39.63",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Barre d'accès rapide translucide à cinq entrées : Administrateur autorisé par Supabase, Événements, Inventaire, Rappels, Compte. Réutilise les navigations existantes et se masque en plein écran; cache PWA mis à jour."
+  "notes": "Dock : Inventaire placé à gauche, Administrateur entre Inventaire et Événements si autorisé, grille adaptative à quatre ou cinq entrées, bouton Inventaire avec double contour bleu-vert et effet neumorphique du bouton Démarrer un inventaire."
 }

@@ -30679,3 +30679,65 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:focus-visible{
  html body #iuQuickDock.iu-quick-dock{background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;}
  html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item{color:CanvasText!important;}
 }
+
+/* V39.63 — Inventaire toujours à gauche ; admin seulement si autorisé.
+   Le dock occupe 4 ou 5 colonnes sans laisser de case vide. */
+html body #iuQuickDock.iu-quick-dock:has(#iuQuickAdmin[hidden]){
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:visible!important;
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ color:#28343d!important;
+ -webkit-text-fill-color:#28343d!important;
+ transform:translateY(0)!important;
+ transition:transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::before{
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ box-sizing:border-box!important;
+ border:0!important;
+ border-radius:19px!important;
+ background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
+ box-shadow:-2px -2px 5px rgba(255,255,255,.96),2px 3px 7px rgba(91,148,155,.24),inset 0 1px 0 rgba(255,255,255,.48)!important;
+ z-index:0!important;
+ pointer-events:none!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::after{
+ content:""!important;
+ position:absolute!important;
+ inset:2.5px!important;
+ box-sizing:border-box!important;
+ border:2px solid #007583!important;
+ border-radius:16.5px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:none!important;
+ z-index:1!important;
+ pointer-events:none!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main > *{
+ position:relative!important;
+ z-index:2!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main:active{
+ transform:scale(.94)!important;
+ background:transparent!important;
+}
+@media(hover:hover){
+ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main:hover{
+  background:transparent!important;
+  transform:translateY(-1px)!important;
+ }
+}
+@media(forced-colors:active){
+ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::before,
+ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::after{
+  background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+}
