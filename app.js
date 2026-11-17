@@ -2860,6 +2860,7 @@ function iuInitQuickDock(){
  const isOnHome=()=>!subpageClasses.some(name=>document.body.classList.contains(name));
  let lastHome=isOnHome();
  let entranceTimer=0;
+ let homeBlurTimer=0;
  const animateDockEntrance=()=>{
   if(!isOnHome())return;
   dock.classList.remove('iu-dock-entering');
@@ -2870,7 +2871,12 @@ function iuInitQuickDock(){
  };
  const homeObserver=new MutationObserver(()=>{
   const nowHome=isOnHome();
-  if(nowHome&&!lastHome&&!document.body.classList.contains('iu-edge-swiping'))animateDockEntrance();
+  if(nowHome&&!lastHome){
+   dock.classList.remove('iu-dock-entering');
+   dock.classList.add('iu-dock-home-blur');
+   window.clearTimeout(homeBlurTimer);
+   homeBlurTimer=window.setTimeout(()=>dock.classList.remove('iu-dock-home-blur'),750);
+  }
   if(!nowHome)dock.classList.remove('iu-dock-entering');
   lastHome=nowHome;
  });
@@ -2901,22 +2907,6 @@ function iuInitQuickDock(){
   };
   window.requestAnimationFrame(wait);
  };
- const homeButton=$('iuQuickHome');
- homeButton?.addEventListener('click',()=>{
-  // Sur une sous-page, utiliser exactement les sorties animées du bouton Retour.
-  if(document.body.classList.contains('is-admin-mode')){iuCloseAdminPage();return;}
-  if(document.body.classList.contains('is-account-mode')){iuCloseAccountPage();return;}
-  if(document.body.classList.contains('is-events-mode')){iuCloseEventsPage();return;}
-  if(document.body.classList.contains('is-alerts-mode')){iuCloseAlertsPage();return;}
-  if(document.body.classList.contains('is-focus-mode')){
-   // Ne pas interrompre une session : la commande de retour de la vue
-   // de pesée garde la responsabilité de sa transition.
-   const back=$('iuSubpageBack');
-   if(back&&!back.hidden)back.click();
-   return;
-  }
-  if(!focusMotionBusy)window.scrollTo({top:0,behavior:'smooth'});
- });
  $('iuQuickAlerts')?.addEventListener('click',()=>navigateDock(()=>iuOpenAlertsPage()));
  $('iuQuickAccount')?.addEventListener('click',()=>navigateDock(()=>iuOpenAccountPage()));
  sessionButton.addEventListener('click',()=>{

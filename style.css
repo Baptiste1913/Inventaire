@@ -31144,3 +31144,27 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is
 html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode){
  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)!important;
 }
+
+/* V39.75 — Dock seulement à l'accueil, cinq entrées, flou discret au retour. */
+html body #iuQuickDock.iu-quick-dock{
+ grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+html body #iuQuickDock.iu-quick-dock:has(#iuQuickAdmin[hidden]){
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode) #iuQuickDock.iu-quick-dock{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+html body #iuQuickDock.iu-quick-dock.iu-dock-home-blur{
+ animation:iuDockHomeBlurV3975 .7s ease-out both!important;
+}
+@keyframes iuDockHomeBlurV3975{
+ 0%{filter:blur(5px);opacity:.84;}
+ 100%{filter:blur(0);opacity:1;}
+}
+@media(prefers-reduced-motion:reduce){
+ html body #iuQuickDock.iu-quick-dock.iu-dock-home-blur{animation:none!important;}
+}

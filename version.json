@@ -1,7 +1,7 @@
 {
-  "version": "39.74",
+  "version": "39.75",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Réparation critique : restauration de la feuille de style complète v39.71 (perdue lors de la publication v39.72), conservation des ajouts CSS v39.72 et v39.73, actualisation des références et du cache PWA."
+  "notes": "Dock limité à l'accueil, suppression du bouton Accueil, flou discret au retour d'une sous-page et remontée réservée au démarrage de l'application. Conservation du CSS complet et du cache PWA."
 }
