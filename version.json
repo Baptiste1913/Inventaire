@@ -1,7 +1,7 @@
 {
-  "version": "40.20",
+  "version": "40.21",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Affinement ciblé du double contour turquoise du bouton Voir la liste (bord 2 à 1,5 px, halo extérieur 4 à 2,5 px), sans modifier sa taille, ses animations ou ses interactions."
+  "notes": "Correction ciblée du véritable sélecteur du bouton Voir la liste : contour bleu principal réduit à 1 px et second liseré bleu à 1 px, sans changer les ombres, la surface ni les dimensions."
 }

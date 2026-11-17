@@ -24130,10 +24130,10 @@ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data
  display:flex!important;align-items:center!important;justify-content:center!important;
  width:100%!important;min-height:55px!important;position:relative!important;
  padding:11px 16px!important;border-radius:18px!important;
- border:1.5px solid #168995!important;
+ border:1px solid #168995!important;
  background:linear-gradient(145deg,#fff,#eef2f5)!important;
  color:#29333d!important;-webkit-text-fill-color:#29333d!important;
- box-shadow:0 0 0 2.5px rgba(83,192,219,.50),inset 0 1px rgba(255,255,255,.92),0 4px 14px rgba(58,112,131,.08)!important;
+ box-shadow:0 0 0 1px rgba(83,192,219,.50),inset 0 1px rgba(255,255,255,.92),0 4px 14px rgba(58,112,131,.08)!important;
  font-size:14px!important;font-weight:750!important;line-height:1.25!important;
  text-align:center!important;
  transition:background .28s ease,border-color .28s ease,box-shadow .28s ease!important;
