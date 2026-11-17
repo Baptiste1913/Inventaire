@@ -1,7 +1,7 @@
 {
-  "version": "39.86",
+  "version": "39.87",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Stabilisation finale : dock visible immédiatement au retour, continuité de la trajectoire swipe et verrouillage éphémère des colonnes lors des navigations."
+  "notes": "Slide continu au relachement sans remplacement de page, retrait du verrouillage des colonnes du dock."
 }

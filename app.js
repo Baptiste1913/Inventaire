@@ -2714,18 +2714,42 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   target.finishing=true;
   if(target.raf){cancelAnimationFrame(target.raf);target.raf=0;}
   if(success){
-   // V39.85 : la copie de sortie garde sa position horizontale actuelle,
-   // puis glisse jusqu'au bord droit tout en descendant comme le bouton Retour.
-   // La page n'est plus réinitialisée au lâcher : aucune rupture de trajectoire.
+   // V39.87 : la page suit toujours le doigt apres son relachement.
+   // Terminer la trajectoire reelle, avant de restaurer l'accueil.
    const saved=iuEdgeHomeSnapshot?.scrollY;
    if(Number.isFinite(saved))iuSavedHomeScrollY=saved;
-   iuSwipeReturnOffset=reduced()?0:target.distance;
-   try{target.page.close();}
-   finally{
-    iuSwipeReturnOffset=0;
-    cleanup();
-    iuEdgeHomeSnapshot=null;
-   }
+   const remaining=Math.max(0,innerWidth-target.distance);
+   const ms=reduced()?0:Math.max(170,Math.min(370,Math.round(170+remaining/Math.max(1,innerWidth)*190)));
+   const ease='cubic-bezier(.16,.84,.24,1)';
+   const complete=()=>{
+    if(g!==target)return;
+    target.page.close(true);
+    document.body.classList.add('iu-home-return-stable');
+    const y=Math.max(0,iuSavedHomeScrollY);
+    window.scrollTo({top:y,left:0,behavior:'instant'});
+    target.nodes.forEach(n=>{n.style.removeProperty('translate');n.style.removeProperty('transition');});
+    document.body.classList.remove('iu-edge-swiping');
+    veil.style.clipPath='none';veil.style.webkitClipPath='none';
+    seam.style.opacity='0';
+    requestAnimationFrame(()=>{
+     if(g!==target)return;
+     veil.style.transition='opacity 320ms cubic-bezier(.16,.84,.24,1)';
+     veil.style.opacity='0';
+     target.timer=setTimeout(()=>{
+      if(g!==target)return;
+      cleanup();
+      iuEdgeHomeSnapshot=null;
+     },350);
+    });
+   };
+   if(ms){
+    target.nodes.forEach(n=>n.style.setProperty('transition','translate '+ms+'ms '+ease,'important'));
+    veil.style.transition='clip-path '+ms+'ms '+ease;
+    seam.style.transition='left '+ms+'ms '+ease;
+    void target.nodes[0].getBoundingClientRect();
+    requestAnimationFrame(()=>{if(g===target)draw(target,innerWidth);});
+    target.timer=setTimeout(complete,ms+20);
+   }else{draw(target,innerWidth);complete();}
    return;
   }
   // Geste annulé : revenir en douceur à la position initiale.
@@ -2793,27 +2817,7 @@ function iuInitQuickDock(){
  window.addEventListener('iu-admin-check-finished',updateAdmin);
  window.addEventListener('iu-admin-initial-ready',updateAdmin);
  updateAdmin();
- // V39.85 : la barre ne doit jamais s'effacer sur un clic dont la
- // navigation n'a pas encore eu lieu. Les états de page pilotent seuls
- // la sortie visuelle, et on stabilise les colonnes pendant ce changement.
- let dockGeometryTimer=0;
- const lockDockGeometry=()=>{
-  if(document.body.classList.contains('is-admin-mode')||
-     document.body.classList.contains('is-account-mode')||
-     document.body.classList.contains('is-events-mode')||
-     document.body.classList.contains('is-alerts-mode')||
-     document.body.classList.contains('is-focus-mode'))return;
-  const display=getComputedStyle(dock).display;
-  if(display==='grid'||display==='inline-grid'){
-   dock.style.setProperty('grid-template-columns',getComputedStyle(dock).gridTemplateColumns,'important');
-  }
-  window.clearTimeout(dockGeometryTimer);
-  dockGeometryTimer=window.setTimeout(()=>dock.style.removeProperty('grid-template-columns'),420);
- };
- dock.addEventListener('click',event=>{
-  const button=event.target.closest('.iu-quick-dock-item');
-  if(button&&!button.hidden)lockDockGeometry();
- },true);
+ // V39.87 : pas de grille inline lors des clics, afin d'eviter les sauts Safari.
  const updateSession=()=>{
   const active=getActiveSession(),paused=Boolean(active?.pausedAt);
   sessionButton.setAttribute('aria-label',!active?'Démarrer un inventaire':paused?'Reprendre l’inventaire':'Inventaire en cours');
@@ -2916,9 +2920,7 @@ function iuInitQuickDock(){
    // Déverrouiller les colonnes seulement après retour sur la page d'accueil.
    dock.classList.remove('iu-dock-leaving','iu-dock-home-blur','iu-dock-entering');
    window.clearTimeout(homeBlurTimer);
-   window.clearTimeout(dockGeometryTimer);
-   dockGeometryTimer=window.setTimeout(()=>dock.style.removeProperty('grid-template-columns'),220);
-   // Rester visible sans relancer une animation d'entrée qui masque le dock.
+   // Aucune transformation ou mesure de colonnes au retour.
   }
   if(!nowHome){
    dock.classList.remove('iu-dock-leaving','iu-dock-entering','iu-dock-home-blur');
