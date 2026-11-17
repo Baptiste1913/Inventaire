@@ -1880,7 +1880,9 @@ $('fullExportBtn').addEventListener('click',fullExport);
 $('fullImportInput').addEventListener('change',fullImport);
 $('sessionsCsvBtn').addEventListener('click',()=>{const ended=sessions.filter(s=>Boolean(s.endedAt));if(!ended.length){$('backupStatus').textContent='Aucune session terminée à exporter.';return;}exportCSV(ended,`inventaires-u-sessions-${new Date().toISOString().slice(0,10)}.csv`);$('backupStatus').textContent='CSV des sessions exporté.';});
 setInterval(()=>{
- if(document.hidden)return;
+ // Seul l'affichage périodique attend la fin des transitions, jamais
+ // l'enregistrement, les pesées, les alertes ou la synchronisation.
+ if(document.hidden||focusMotionBusy||document.body.classList.contains('iu-edge-swiping'))return;
  const liveStats=renderLiveSessionStats(false);
  if(liveStats&&!document.body.classList.contains('is-focus-mode'))
   renderHeroSummary(liveStats);
@@ -2760,28 +2762,50 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  };
  const current=()=>Object.entries(pages).find(([mode])=>document.body.classList.contains(mode))?.[1];
  const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- let g=null,veil=null,arrow=null,seam=null;
+ let g=null,veil=null,surface=null,arrow=null,seam=null;
+ // Respecter les réglages d'accessibilité sans altérer l'aspect normal.
+ const simplerVisuals=()=>Boolean(window.matchMedia?.('(prefers-reduced-transparency: reduce)')?.matches||
+   window.matchMedia?.('(forced-colors: active)')?.matches);
  function prepare(){
   if(veil)return;
   veil=document.createElement('div');veil.className='iu-edge-swipe-backdrop';
   veil.setAttribute('aria-hidden','true');
-  veil.innerHTML='<div class="iu-edge-swipe-glow"></div>';
+  // V40.08 : révéler l'écran par deux calques déplacés en sens opposé
+  // au lieu de recalculer un masque clip-path à chaque image.
+  surface=document.createElement('div');
+  surface.className='iu-edge-swipe-surface';
+  surface.style.cssText='position:absolute;inset:0;pointer-events:none;will-change:transform';
+  surface.innerHTML='<div class="iu-edge-swipe-glow"></div>';
+  veil.append(surface);
   arrow=null;
   seam=document.createElement('div');seam.className='iu-edge-swipe-seam';
   seam.setAttribute('aria-hidden','true');
-  // Calque temporaire uniquement pendant le geste tactile.
   seam.style.willChange='transform,opacity';
   document.body.append(veil,seam);
+  // Conserver le dégradé exact de la feuille CSS sans le dupliquer.
+  surface.style.background=getComputedStyle(veil).background;
+  if(simplerVisuals()){
+   surface.style.background='#f4f6f8';
+   surface.firstElementChild.style.display='none';
+  }
+  veil.style.background='transparent';
+  veil.style.clipPath='none';veil.style.webkitClipPath='none';
+  veil.style.willChange='transform,opacity';
+  const width=Math.max(1,window.innerWidth);
+  veil.style.transform='translate3d('+(-width)+'px,0,0)';
+  surface.style.transform='translate3d('+width+'px,0,0)';
  }
  function draw(target,x){
-  x=Math.round(Math.max(0,Math.min(innerWidth,x)));
+  const width=Math.max(1,window.innerWidth);
+  x=Math.round(Math.max(0,Math.min(width,x)));
   target.distance=x;
-  document.body.style.setProperty('--iu-swipe-dock-progress',String(Math.max(0,Math.min(1,x/Math.max(1,innerWidth)))));
+  if(target.lastDrawnX===x)return;
+  target.lastDrawnX=x;
+  document.body.style.setProperty('--iu-swipe-dock-progress',String(Math.max(0,Math.min(1,x/width))));
   target.nodes.forEach(n=>n.style.setProperty('translate',x+'px 0','important'));
-  const mask='inset(0 calc(100% - '+x+'px) 0 0)';
-  veil.style.clipPath=mask;veil.style.webkitClipPath=mask;
-
-
+  // Le fond reste fixe sur l'écran tandis que la fenêtre révèle [0, x].
+  veil.style.transform='translate3d('+(x-width)+'px,0,0)';
+  surface.style.transform='translate3d('+(width-x)+'px,0,0)';
   // Remplacer left, qui exige un calcul de géométrie, par transform.
   seam.style.transform='translate3d('+x+'px,0,0)';
   seam.style.opacity=String(Math.min(.75,Math.max(0,(x-12)/65)));
@@ -2795,7 +2819,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   }
   document.body.classList.remove('iu-edge-swiping');
   document.body.style.removeProperty('--iu-swipe-dock-progress');
-  veil?.remove();seam?.remove();veil=null;seam=null;arrow=null;
+  veil?.remove();seam?.remove();veil=null;surface=null;seam=null;arrow=null;
  }
  function finish(success){
   const target=g;if(!target||target.finishing)return;
@@ -2818,7 +2842,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
     window.scrollTo({top:y,left:0,behavior:'instant'});
     target.nodes.forEach(n=>{n.style.removeProperty('translate');n.style.removeProperty('transition');});
     document.body.classList.remove('iu-edge-swiping');
-    veil.style.clipPath='none';veil.style.webkitClipPath='none';
+    // Maintenir le voile pour le fondu de sortie déjà prévu.
+    veil.style.visibility='visible';veil.style.opacity='1';
     seam.style.opacity='0';
     requestAnimationFrame(()=>{
      if(g!==target)return;
@@ -2833,7 +2858,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    };
    if(ms){
     target.nodes.forEach(n=>n.style.setProperty('transition','translate '+ms+'ms '+ease,'important'));
-    veil.style.transition='clip-path '+ms+'ms '+ease;
+    veil.style.transition='transform '+ms+'ms '+ease;
+   surface.style.transition='transform '+ms+'ms '+ease;
     seam.style.transition='transform '+ms+'ms '+ease;
     void target.nodes[0].getBoundingClientRect();
     requestAnimationFrame(()=>{if(g===target)draw(target,innerWidth);});
@@ -2846,7 +2872,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   if(ms){
    const ease='cubic-bezier(.16,.84,.24,1)';
    target.nodes.forEach(n=>n.style.setProperty('transition','translate '+ms+'ms '+ease,'important'));
-   veil.style.transition='clip-path '+ms+'ms '+ease;
+   veil.style.transition='transform '+ms+'ms '+ease;
+   surface.style.transition='transform '+ms+'ms '+ease;
    seam.style.transition='transform '+ms+'ms '+ease;
    void target.nodes[0].getBoundingClientRect();
    requestAnimationFrame(()=>{if(g===target)draw(target,0);});
@@ -2860,7 +2887,8 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
   const panel=document.querySelector(page.selector),bar=$('iuSubpageBar');
   if(!panel||!bar||bar.hidden)return;
   g={page,nodes:[panel,bar],x:touch.clientX,y:touch.clientY,lastX:touch.clientX,
-   lastTime:performance.now(),velocity:0,distance:0,active:false,finishing:false,raf:0,timer:null};
+   lastTime:performance.now(),velocity:0,distance:0,lastDrawnX:null,
+   active:false,finishing:false,raf:0,timer:null};
  },{passive:true});
  document.addEventListener('touchmove',event=>{
   const target=g;if(!target||target.finishing)return;
@@ -2899,7 +2927,7 @@ function iuInitQuickDock(){
  const updateAdmin=()=>{
   // Ne jamais proposer une entrée admin pendant la vérification des droits.
   const granted=Boolean(adminCard&&!adminCard.hidden&&adminCard.dataset.adminLoading!=='true');
-  admin.hidden=!granted;
+  if(admin.hidden!==!granted)admin.hidden=!granted;
  };
  const observer=adminCard?new MutationObserver(updateAdmin):null;
  observer?.observe(adminCard,{attributes:true,attributeFilter:['hidden','data-admin-loading']});
@@ -2910,9 +2938,13 @@ function iuInitQuickDock(){
  // ni neutralisation des interactions au premier clic.
  const updateSession=()=>{
   const active=getActiveSession(),paused=Boolean(active?.pausedAt);
-  sessionButton.setAttribute('aria-label',!active?'Démarrer un inventaire':paused?'Reprendre l’inventaire':'Inventaire en cours');
-  $('iuQuickSessionLabel').textContent=!active?'Inventaire':paused?'Reprendre':'En cours';
-  sessionButton.classList.toggle('is-active-session',Boolean(active));
+  const aria=!active?'Démarrer un inventaire':paused?'Reprendre l’inventaire':'Inventaire en cours';
+  const label=!active?'Inventaire':paused?'Reprendre':'En cours';
+  if(sessionButton.getAttribute('aria-label')!==aria)sessionButton.setAttribute('aria-label',aria);
+  const labelNode=$('iuQuickSessionLabel');
+  if(labelNode&&labelNode.textContent!==label)labelNode.textContent=label;
+  if(sessionButton.classList.contains('is-active-session')!==Boolean(active))
+   sessionButton.classList.toggle('is-active-session',Boolean(active));
  };
  window.IUUpdateQuickDockSession=updateSession;
  updateSession();
@@ -2928,18 +2960,26 @@ function iuInitQuickDock(){
  glass.setAttribute('aria-hidden','true');dock.prepend(glass);
  let drag=null,raf=0,suppressNativeClick=false;
  const items=()=>[...dock.querySelectorAll('.iu-quick-dock-item:not([hidden])')];
- const itemAt=(x,y)=>{
-  const rect=dock.getBoundingClientRect();
+ const captureDockGeometry=()=>({
+  dock:dock.getBoundingClientRect(),
+  items:items().map(el=>{
+   const rect=el.getBoundingClientRect();
+   return {el,rect,center:rect.left+rect.width/2};
+  })
+ });
+ const itemAt=(x,y,geometry)=>{
+  const rect=geometry?.dock||dock.getBoundingClientRect();
   if(x<rect.left-20||x>rect.right+20||y<rect.top-24||y>rect.bottom+24)return null;
-  return items().reduce((best,el)=>{
-   const r=el.getBoundingClientRect(),distance=Math.abs(x-r.left-r.width/2);
+  const choices=geometry?.items||captureDockGeometry().items;
+  return choices.reduce((best,{el,center})=>{
+   const distance=Math.abs(x-center);
    return !best||distance<best.distance?{el,distance}:best;
   },null)?.el||null;
  };
  const draw=()=>{
   raf=0;if(!drag||!drag.active)return;
-  const rect=dock.getBoundingClientRect(),selected=itemAt(drag.currentX,drag.currentY);
-  for(const b of items())b.classList.toggle('iu-dock-hovered',b===selected);
+  const rect=drag.geometry.dock,selected=itemAt(drag.currentX,drag.currentY,drag.geometry);
+  for(const {el} of drag.geometry.items)el.classList.toggle('iu-dock-hovered',el===selected);
   const width=drag.width;
   const x=Math.max(width/2+4,Math.min(rect.width-width/2-4,drag.currentX-rect.left));
   const speed=Math.min(1,Math.abs(drag.currentX-drag.previousX)/35);
@@ -2956,8 +2996,10 @@ function iuInitQuickDock(){
   if(e.pointerType==='mouse'||e.button!==0)return;
   const target=e.target.closest('.iu-quick-dock-item:not([hidden])');
   if(!target)return;
-  const rect=target.getBoundingClientRect();
-  drag={id:e.pointerId,x:e.clientX,y:e.clientY,currentX:e.clientX,currentY:e.clientY,previousX:e.clientX,width:rect.width,active:false,vertical:false};
+  const geometry=captureDockGeometry();
+  const rect=geometry.items.find(item=>item.el===target)?.rect||target.getBoundingClientRect();
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,currentX:e.clientX,currentY:e.clientY,
+   previousX:e.clientX,width:rect.width,geometry,active:false,vertical:false};
  });
  dock.addEventListener('pointermove',e=>{
   if(!drag||e.pointerId!==drag.id||drag.vertical)return;
@@ -2975,7 +3017,7 @@ function iuInitQuickDock(){
  });
  dock.addEventListener('pointerup',e=>{
   if(!drag||e.pointerId!==drag.id)return;
-  const selected=drag.active?itemAt(e.clientX,e.clientY):null;
+  const selected=drag.active?itemAt(e.clientX,e.clientY,drag.geometry):null;
   if(selected&&!selected.hidden){
    suppressNativeClick=true;
    window.setTimeout(()=>{suppressNativeClick=false;},300);
@@ -3006,6 +3048,7 @@ function iuInitQuickDock(){
  };
  const homeObserver=new MutationObserver(()=>{
   const nowHome=isOnHome();
+  if(nowHome===lastHome)return; // les autres mutations de classes sont sans effet
   if(nowHome&&!lastHome){
    // Déverrouiller les colonnes seulement après retour sur la page d'accueil.
    dock.classList.remove('iu-dock-leaving','iu-dock-home-blur','iu-dock-entering');

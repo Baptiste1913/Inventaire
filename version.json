@@ -1,7 +1,7 @@
 {
-  "version": "40.07",
+  "version": "40.08",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Sous-pages : animation Web Animations native de même durée et même courbe, avec moteur JavaScript de repli. Retour tactile : bord mobile animé par transform plutôt que left, sans changer les distances, seuils ou la navigation. CSS et données inchangés."
+  "notes": "Navigation : révélation GPU par deux couches à gradient fixe au lieu du clip-path recalculé, mesures de la barre rapide mises en cache, mutations d'interface redondantes évitées, actualisation visuelle différée pendant les transitions et préférence Réduire la transparence respectée. CSS, moteur natif, stockage et fonctions métier conservés."
 }
