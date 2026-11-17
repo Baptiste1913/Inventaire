@@ -1,7 +1,7 @@
 {
-  "version": "40.02",
+  "version": "40.03",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Audit CSS conservateur : 939 déclarations identiques et antérieures à une définition équivalente retirées, puis 146 blocs devenus vides supprimés. Contrôles automatiques : propriétés finales inchangées, sélecteurs et commentaires conservés. Aucun changement métier ni d'animation."
+  "notes": "Squelette de chargement réaligné sur le véritable accueil iPhone : titre sur deux lignes, sous-titre, unique alerte, deux encarts, bouton et carte Administrateur avec icône et action. Retour du shimmer sur un nombre limité de rectangles, sans toucher au moteur de chargement ni aux données."
 }
