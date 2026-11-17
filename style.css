@@ -31078,3 +31078,24 @@ html body #iuQuickDock.iu-quick-dock.iu-dock-entering{
 @media(prefers-reduced-motion:reduce){
  html body #iuQuickDock.iu-quick-dock.iu-dock-entering{animation:none!important;translate:none!important;}
 }
+
+/* V39.71 — Retour par glissement : le dock suit la page dès le geste.
+   Le retour classique conserve son animation de remontée. */
+html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{
+ visibility:visible!important;
+ pointer-events:none!important;
+ opacity:clamp(0,calc((var(--iu-swipe-dock-progress,0) - .12) * 1.5),1)!important;
+ translate:0 calc((1 - var(--iu-swipe-dock-progress,0)) * 86px)!important;
+ transition:none!important;
+ animation:none!important;
+}
+html body.iu-edge-swiping:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode) #iuQuickDock.iu-quick-dock{
+ visibility:visible!important;
+ opacity:clamp(0,calc((var(--iu-swipe-dock-progress,0) - .12) * 1.5),1)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{
+  translate:0 0!important;
+  opacity:1!important;
+ }
+}

@@ -2657,6 +2657,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
  function draw(target,x){
   x=Math.round(Math.max(0,Math.min(innerWidth,x)));
   target.distance=x;
+  document.body.style.setProperty('--iu-swipe-dock-progress',String(Math.max(0,Math.min(1,x/Math.max(1,innerWidth)))));
   target.nodes.forEach(n=>n.style.setProperty('translate',x+'px 0','important'));
   const mask='inset(0 calc(100% - '+x+'px) 0 0)';
   veil.style.clipPath=mask;veil.style.webkitClipPath=mask;
@@ -2672,6 +2673,7 @@ function safeSetItem(key,value){if(externalDataChanged)throw Error('Autre onglet
    old.nodes.forEach(n=>{n.style.removeProperty('translate');n.style.removeProperty('transition');});
   }
   document.body.classList.remove('iu-edge-swiping');
+  document.body.style.removeProperty('--iu-swipe-dock-progress');
   veil?.remove();seam?.remove();veil=null;seam=null;arrow=null;
  }
  function finish(success){
@@ -2868,7 +2870,7 @@ function iuInitQuickDock(){
  };
  const homeObserver=new MutationObserver(()=>{
   const nowHome=isOnHome();
-  if(nowHome&&!lastHome)animateDockEntrance();
+  if(nowHome&&!lastHome&&!document.body.classList.contains('iu-edge-swiping'))animateDockEntrance();
   if(!nowHome)dock.classList.remove('iu-dock-entering');
   lastHome=nowHome;
  });

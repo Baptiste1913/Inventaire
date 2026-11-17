@@ -1,7 +1,7 @@
 {
-  "version": "39.70",
+  "version": "39.71",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : icônes légèrement réduites, gris graphite au repos et noir au toucher/glissement ; animation de remontée prolongée à 1,1 s avec distance plus visible et ralentissement doux."
+  "notes": "Dock : retour par balayage synchronisé avec la progression horizontale de la page, remontée et opacité progressives pendant le geste, sans seconde animation après le retour ; animation normale conservée pour le bouton Retour."
 }
