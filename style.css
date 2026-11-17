@@ -30785,6 +30785,7 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 }
 
 
+/* V40.16 — Agrandissement des seuls points animés, sans changer les couleurs, le rythme ni les points fixes. */
 /* V40.15 — Ondes parallèles en diagonale, comme le schéma :
    les points d'une même diagonale (/) grossissent ensemble, puis
    les diagonales suivantes, du haut gauche vers le bas droit.
@@ -30807,9 +30808,9 @@ html body .iu-welcome-dot-wave > i{
 }
 html body .iu-welcome-dot-wave > i:first-child{
  background-image:radial-gradient(circle,
-  rgba(92,121,147,.105) .88px,
-  rgba(92,121,147,.072) 1.62px,
-  rgba(92,121,147,.013) 2.32px,transparent 2.86px)!important;
+  rgba(92,121,147,.105) 1.35px,
+  rgba(92,121,147,.072) 2.25px,
+  rgba(92,121,147,.013) 3.10px,transparent 3.70px)!important;
  -webkit-mask-image:repeating-linear-gradient(135deg,
   transparent 0px,transparent 35px,
   rgba(0,0,0,.15) 47px,rgba(0,0,0,.65) 58px,
@@ -30823,9 +30824,9 @@ html body .iu-welcome-dot-wave > i:first-child{
 }
 html body .iu-welcome-dot-wave > i:last-child{
  background-image:radial-gradient(circle,
-  rgba(92,121,147,.110) 1.18px,
-  rgba(92,121,147,.068) 2.02px,
-  rgba(92,121,147,.010) 2.80px,transparent 3.35px)!important;
+  rgba(92,121,147,.110) 2.05px,
+  rgba(92,121,147,.068) 3.15px,
+  rgba(92,121,147,.010) 4.15px,transparent 4.85px)!important;
  -webkit-mask-image:repeating-linear-gradient(135deg,
   transparent 0px,transparent 49px,
   rgba(0,0,0,.24) 58px,rgba(0,0,0,.86) 68px,

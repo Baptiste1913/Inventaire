@@ -1,7 +1,7 @@
 {
-  "version": "40.15",
+  "version": "40.16",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Animation des points de Bienvenue par lignes diagonales parallèles successives, avec deux niveaux d'agrandissement et répétition continue, sans couleurs ni JavaScript par image."
+  "notes": "Agrandissement perceptible des points pendant les vagues diagonales parallèles dans Bienvenue ; points fixes, opacité, vitesse et autres pages inchangés."
 }
