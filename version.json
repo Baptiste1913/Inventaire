@@ -1,7 +1,7 @@
 {
-  "version": "39.87",
+  "version": "39.88",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Slide continu au relachement sans remplacement de page, retrait du verrouillage des colonnes du dock."
+  "notes": "Dock figé pendant le fondu de navigation pour éviter sa remontée ; position finale du bandeau Retour stabilisée lors de la fin des animations."
 }

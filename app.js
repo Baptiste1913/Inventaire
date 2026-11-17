@@ -796,6 +796,8 @@ function iuAnimateCoupledSubpage(action,config){
  if(!bar||!panel){action();return;}
  focusMotionBusy=true;
  const parts=[bar,panel];
+ bar.style.removeProperty('animation');
+ bar.style.removeProperty('translate');
  let frame=0,timer=null,ended=false;
  // Avant d'enlever hidden, fixer les DEUX éléments en dehors de la vue.
  const initialY=Math.ceil(Math.max(window.innerHeight||0,document.documentElement.clientHeight||0,600)*1.05);
@@ -820,8 +822,10 @@ function iuAnimateCoupledSubpage(action,config){
   cancelAnimationFrame(frame);
   if(timer!==null)clearTimeout(timer);
   move(0);
+  bar.style.setProperty('animation','none','important');
   document.body.classList.remove('iu-coupled-rise','iu-subpage-entering','iu-alerts-rise-running');
   parts.forEach(el=>el.style.removeProperty('translate'));
+  bar.style.setProperty('translate','0 0','important');
   if(iuCancelStandaloneEntry===finish)iuCancelStandaloneEntry=null;
   focusMotionBusy=false;
   window.IUSyncSubpageBar?.();
@@ -870,6 +874,10 @@ function iuAnimateStandalonePage(action,entering,config){
  // Éviter que le scroll conservé de l'accueil fasse apparaître le bandeau
  // directement en mode compact durant les premières images de l'entrée.
  document.body.classList.add('iu-subpage-entering');
+ const enteringBar=$('iuSubpageBar');
+ // V39.88 : ôter l'ancien verrou de fin d'entrée avant la nouvelle ouverture.
+ enteringBar?.style.removeProperty('animation');
+ enteringBar?.style.removeProperty('translate');
  try{
   action();
   // Le bouton est monté immédiatement, avant de commencer à animer la page.
@@ -903,8 +911,12 @@ function iuAnimateStandalonePage(action,entering,config){
   if(alertPanel&&alertEndHandler)alertPanel.removeEventListener('animationend',alertEndHandler);
   if(alertFinishTimer!==null)clearTimeout(alertFinishTimer);
   anims.forEach(anim=>anim.cancel());
-  // Supprimer les deux états ENSEMBLE : aucune image intermédiaire où
-  // le panneau resterait translaté après la fin de son animation.
+  // Verrouiller la position finale du bandeau avant la fin de l'animation.
+  // Safari recalculait sinon sa translation à la disparition de la classe.
+  if(bar&&!bar.hidden){
+   bar.style.setProperty('animation','none','important');
+   bar.style.setProperty('translate','0 0','important');
+  }
   document.body.classList.remove('iu-alerts-rise-running','iu-subpage-entering');
   if(iuCancelStandaloneEntry===cancelEntry)iuCancelStandaloneEntry=null;
   focusMotionBusy=false;
@@ -2817,7 +2829,39 @@ function iuInitQuickDock(){
  window.addEventListener('iu-admin-check-finished',updateAdmin);
  window.addEventListener('iu-admin-initial-ready',updateAdmin);
  updateAdmin();
- // V39.87 : pas de grille inline lors des clics, afin d'eviter les sauts Safari.
+ // V39.88 : figer la géométrie de la barre pendant son fondu de sortie.
+ // Le dock restait dans la recomposition de l'accueil sur Safari et remontait
+ // visiblement lorsqu'une sous-page prenait sa place.
+ let iuDockFreezeTimer=0;
+ let iuDockExitAnimation=null;
+ const iuDockFrozenProperties=['position','left','top','right','bottom','width','height','margin','transform','translate','animation','transition','opacity','pointer-events','z-index'];
+ const iuDockUnfreeze=()=>{
+  clearTimeout(iuDockFreezeTimer);
+  if(iuDockExitAnimation){iuDockExitAnimation.cancel();iuDockExitAnimation=null;}
+  for(const name of iuDockFrozenProperties)dock.style.removeProperty(name);
+ };
+ dock.addEventListener('click',event=>{
+  const button=event.target.closest('.iu-quick-dock-item');
+  if(!button||button.hidden)return;
+  if(button===sessionButton&&getActiveSession()&&!getActiveSession().pausedAt)return;
+  iuDockUnfreeze();
+  const rect=dock.getBoundingClientRect();
+  if(rect.width<1||rect.height<1)return;
+  const lock={
+   position:'fixed',left:rect.left+'px',top:rect.top+'px',
+   right:'auto',bottom:'auto',width:rect.width+'px',height:rect.height+'px',
+   margin:'0',transform:'none',translate:'0 0',animation:'none',
+   transition:'none','pointer-events':'none','z-index':'9999'
+  };
+  for(const [name,value] of Object.entries(lock))dock.style.setProperty(name,value,'important');
+  // Garder la barre immobile sous le doigt, puis la masquer par opacité seule.
+  try{
+   iuDockExitAnimation=dock.animate([{opacity:1},{opacity:0}],{
+    duration:190,easing:'ease-out',fill:'forwards'
+   });
+  }catch(error){dock.style.setProperty('opacity','0','important');}
+  iuDockFreezeTimer=setTimeout(iuDockUnfreeze,380);
+ },true);
  const updateSession=()=>{
   const active=getActiveSession(),paused=Boolean(active?.pausedAt);
   sessionButton.setAttribute('aria-label',!active?'Démarrer un inventaire':paused?'Reprendre l’inventaire':'Inventaire en cours');
@@ -2920,7 +2964,8 @@ function iuInitQuickDock(){
    // Déverrouiller les colonnes seulement après retour sur la page d'accueil.
    dock.classList.remove('iu-dock-leaving','iu-dock-home-blur','iu-dock-entering');
    window.clearTimeout(homeBlurTimer);
-   // Aucune transformation ou mesure de colonnes au retour.
+   iuDockUnfreeze();
+   // Restauration immédiate de la position normale du dock sur l'accueil.
   }
   if(!nowHome){
    dock.classList.remove('iu-dock-leaving','iu-dock-entering','iu-dock-home-blur');
