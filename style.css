@@ -30785,10 +30785,10 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 }
 
 
-/* V40.14 — Onde de points sur une trajectoire diagonale, et non une
-   bande oblique traversant toute la carte. Le point de tête se déplace
-   du coin supérieur gauche au coin inférieur droit, avec deux niveaux
-   d'agrandissement derrière lui. La grille et les couleurs restent fixes. */
+/* V40.15 — Ondes parallèles en diagonale, comme le schéma :
+   les points d'une même diagonale (/) grossissent ensemble, puis
+   les diagonales suivantes, du haut gauche vers le bas droit.
+   Deux couches de tailles différentes, sans couleur ni JS par image. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode)
  main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-welcome-dot-wave{
  position:absolute;inset:0;z-index:0;
@@ -30800,37 +30800,44 @@ html body .iu-welcome-dot-wave > i{
  background-repeat:repeat!important;
  background-size:28px 28px!important;
  background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
- -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
- /* Un petit halo circulaire, pas une ligne diagonale couvrant la carte. */
- -webkit-mask-size:82px 82px;mask-size:82px 82px;
- animation:iuWelcomeDiagonalStep 26s linear infinite;
+ -webkit-mask-repeat:repeat;mask-repeat:repeat;
+ /* Une période de 168px le long de la normale aux diagonales. */
+ -webkit-mask-size:auto;mask-size:auto;
+ animation:iuWelcomeDiagonalLines 18s linear infinite;
 }
 html body .iu-welcome-dot-wave > i:first-child{
  background-image:radial-gradient(circle,
   rgba(92,121,147,.105) .88px,
   rgba(92,121,147,.072) 1.62px,
   rgba(92,121,147,.013) 2.32px,transparent 2.86px)!important;
- -webkit-mask-image:radial-gradient(circle at center,
-  #000 0%,rgba(0,0,0,.76) 23%,rgba(0,0,0,.28) 46%,transparent 70%);
- mask-image:radial-gradient(circle at center,
-  #000 0%,rgba(0,0,0,.76) 23%,rgba(0,0,0,.28) 46%,transparent 70%);
+ -webkit-mask-image:repeating-linear-gradient(135deg,
+  transparent 0px,transparent 35px,
+  rgba(0,0,0,.15) 47px,rgba(0,0,0,.65) 58px,
+  rgba(0,0,0,.85) 68px,rgba(0,0,0,.65) 78px,
+  rgba(0,0,0,.15) 89px,transparent 101px,transparent 168px);
+ mask-image:repeating-linear-gradient(135deg,
+  transparent 0px,transparent 35px,
+  rgba(0,0,0,.15) 47px,rgba(0,0,0,.65) 58px,
+  rgba(0,0,0,.85) 68px,rgba(0,0,0,.65) 78px,
+  rgba(0,0,0,.15) 89px,transparent 101px,transparent 168px);
 }
 html body .iu-welcome-dot-wave > i:last-child{
  background-image:radial-gradient(circle,
   rgba(92,121,147,.110) 1.18px,
   rgba(92,121,147,.068) 2.02px,
   rgba(92,121,147,.010) 2.80px,transparent 3.35px)!important;
- -webkit-mask-size:43px 43px;mask-size:43px 43px;
- -webkit-mask-image:radial-gradient(circle at center,
-  #000 0%,rgba(0,0,0,.84) 30%,rgba(0,0,0,.26) 65%,transparent 88%);
- mask-image:radial-gradient(circle at center,
-  #000 0%,rgba(0,0,0,.84) 30%,rgba(0,0,0,.26) 65%,transparent 88%);
+ -webkit-mask-image:repeating-linear-gradient(135deg,
+  transparent 0px,transparent 49px,
+  rgba(0,0,0,.24) 58px,rgba(0,0,0,.86) 68px,
+  rgba(0,0,0,.24) 78px,transparent 87px,transparent 168px);
+ mask-image:repeating-linear-gradient(135deg,
+  transparent 0px,transparent 49px,
+  rgba(0,0,0,.24) 58px,rgba(0,0,0,.86) 68px,
+  rgba(0,0,0,.24) 78px,transparent 87px,transparent 168px);
 }
-@keyframes iuWelcomeDiagonalStep{
- 0%{-webkit-mask-position:0% 0%;mask-position:0% 0%;opacity:0;}
- 4%{opacity:1;}
- 70%{-webkit-mask-position:100% 100%;mask-position:100% 100%;opacity:1;}
- 76%,100%{-webkit-mask-position:100% 100%;mask-position:100% 100%;opacity:0;}
+@keyframes iuWelcomeDiagonalLines{
+ from{-webkit-mask-position:0px 0px;mask-position:0px 0px;}
+ to{-webkit-mask-position:118.794px 118.794px;mask-position:118.794px 118.794px;}
 }
 @media(prefers-reduced-motion:reduce),(prefers-reduced-transparency:reduce),(forced-colors:active){
  html body .iu-welcome-dot-wave{display:none!important;}

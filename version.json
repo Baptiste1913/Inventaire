@@ -1,7 +1,7 @@
 {
-  "version": "40.14",
+  "version": "40.15",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Vague des points de Bienvenue transformée en parcours diagonal localisé, du coin supérieur gauche au coin inférieur droit, au lieu d'une bande diagonale traversante. Agrandissement progressif, couleurs et durée inchangées."
+  "notes": "Animation des points de Bienvenue par lignes diagonales parallèles successives, avec deux niveaux d'agrandissement et répétition continue, sans couleurs ni JavaScript par image."
 }
