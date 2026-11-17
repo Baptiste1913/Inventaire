@@ -1,7 +1,7 @@
 {
-  "version": "39.69",
+  "version": "39.70",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : suppression du fond de survol sur les boutons, icônes noires devenant gris foncé au toucher/glissement sans ombre, Play agrandi en proportions naturelles, correction de l'animation d'entrée via translate indépendant du transform fixe."
+  "notes": "Dock : icônes légèrement réduites, gris graphite au repos et noir au toucher/glissement ; animation de remontée prolongée à 1,1 s avec distance plus visible et ralentissement doux."
 }

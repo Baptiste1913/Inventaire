@@ -2864,7 +2864,7 @@ function iuInitQuickDock(){
   void dock.offsetWidth;
   dock.classList.add('iu-dock-entering');
   window.clearTimeout(entranceTimer);
-  entranceTimer=window.setTimeout(()=>dock.classList.remove('iu-dock-entering'),650);
+  entranceTimer=window.setTimeout(()=>dock.classList.remove('iu-dock-entering'),1250);
  };
  const homeObserver=new MutationObserver(()=>{
   const nowHome=isOnHome();
