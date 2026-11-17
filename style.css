@@ -31466,7 +31466,7 @@ html body #iuSubpageBar[data-compact="true"]:not([hidden]) #iuSubpageBack svg{
  html body.iu-edge-swiping #iuQuickDock.iu-quick-dock{transition:none!important;}
 }
 
-/* V39.98 — Flèche Retour ajustée à 30px / 25px et trait à 2.8px.
+/* V39.99 — Flèche Retour conservée à 30px / 25px, trait à 2.6px.
    Préserver la taille du bouton, ses animations et les états compacts. */
 html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg,
 html body #iuSubpageBar:not([hidden]) > #iuSubpageBack svg{
@@ -31477,14 +31477,14 @@ html body #iuSubpageBar:not([hidden]) > #iuSubpageBack svg{
  max-width:none!important;max-height:none!important;
  min-width:30px!important;min-height:30px!important;
  stroke:#303942!important;
- stroke-width:2.8!important;
+ stroke-width:2.6!important;
  fill:none!important;
  opacity:1!important;
 }
 html body #iuSubpageBar:not([hidden]) #iuSubpageBack svg path{
  fill:none!important;
  stroke:currentColor!important;
- stroke-width:2.8!important;
+ stroke-width:2.6!important;
  stroke-linecap:round!important;
  stroke-linejoin:round!important;
 }

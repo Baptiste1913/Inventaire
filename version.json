@@ -1,7 +1,7 @@
 {
-  "version": "39.98",
+  "version": "39.99",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Flèche du bouton Retour à 30 px (25 px en mode compact), épaisseur réduite à 2,8 px ; bouton et animations inchangés."
+  "notes": "Flèche Retour affinée à 2,6 px. Écran de démarrage PWA remplacé par un squelette léger inspiré de la structure de l'accueil, sans changer la logique de préparation hors ligne ou le gestionnaire de mises à jour."
 }
