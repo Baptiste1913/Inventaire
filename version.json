@@ -1,7 +1,7 @@
 {
-  "version": "40.17",
+  "version": "40.18",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Vagues diagonales du bloc Bienvenue : points animés légèrement moins opaques et contours plus diffus. Taille au repos, rythme, navigation et données inchangés."
+  "notes": "Points de la vague diagonale Bienvenue : opacité maximale fixée à 8 %, contours plus diffus par dégradés radiaux, sans filtre blur. Animation et points fixes inchangés."
 }
