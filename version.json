@@ -1,7 +1,7 @@
 {
-  "version": "40.21",
+  "version": "40.22",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction ciblée du véritable sélecteur du bouton Voir la liste : contour bleu principal réduit à 1 px et second liseré bleu à 1 px, sans changer les ombres, la surface ni les dimensions."
+  "notes": "Voir la liste : suppression du liseré turquoise externe et atténuation de la bordure turquoise unique à 1 px ; ombre neutre, dimensions et comportement conservés."
 }
