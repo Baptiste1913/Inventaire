@@ -1,7 +1,7 @@
 {
-  "version": "39.65",
+  "version": "39.66",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : harmonisation optique de la taille des cinq icônes, bord blanc affiné et transparence accrue pour retrouver le verre discret du bouton Retour. Interactions tactiles inchangées."
+  "notes": "Dock iOS : capsule de sélection translucide avec mouvement et étirement léger, icônes harmonisées à 23 px sur la taille Compte, textes alignés, verre et arrondis affinés."
 }

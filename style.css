@@ -30836,3 +30836,74 @@ html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{
   -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
  }
 }
+
+/* V39.66 — Dock façon iOS : icônes et libellés alignés, capsule fluide. */
+html body #iuQuickDock.iu-quick-dock{
+ min-height:70px!important;
+ border-radius:28px!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.52),rgba(221,234,239,.34))!important;
+ border:1px solid rgba(255,255,255,.57)!important;
+ -webkit-backdrop-filter:blur(27px) saturate(155%)!important;
+ backdrop-filter:blur(27px) saturate(155%)!important;
+ box-shadow:0 7px 24px rgba(65,87,103,.12),inset 0 1px 0 rgba(255,255,255,.63)!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item{
+ display:grid!important;
+ grid-template-rows:29px 16px!important;
+ align-content:center!important;
+ justify-items:center!important;
+ row-gap:5px!important;
+ min-height:60px!important;
+ padding:6px 1px!important;
+ border-radius:21px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickSession .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickAccount .iu-dock-custom-icon{
+ width:23px!important;height:23px!important;
+ flex:none!important;
+ align-self:center!important;
+ justify-self:center!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item > span:not(.iu-dock-liquid-indicator){
+ display:block!important;
+ align-self:center!important;
+ justify-self:center!important;
+ height:16px!important;
+ line-height:16px!important;
+ margin:0!important;
+ font-size:10px!important;
+ font-weight:750!important;
+ letter-spacing:-.12px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::before{
+ border-radius:21px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-main::after{
+ border-radius:18px!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{
+ top:5px!important;bottom:5px!important;
+ left:50%;width:20%;
+ transform:translateX(-50%) scaleX(var(--iu-liquid-stretch,1))!important;
+ transform-origin:center!important;
+ border-radius:23px!important;
+ border:1px solid rgba(255,255,255,.72)!important;
+ background:linear-gradient(135deg,rgba(255,255,255,.51),rgba(204,225,232,.31))!important;
+ -webkit-backdrop-filter:blur(16px) saturate(180%)!important;
+ backdrop-filter:blur(16px) saturate(180%)!important;
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.9),inset 0 -1px 1px rgba(100,152,166,.13),0 3px 13px rgba(71,113,126,.14)!important;
+ transition:left .095s cubic-bezier(.22,.7,.25,1),width .11s ease,transform .11s ease,opacity .16s ease!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered:not(.iu-quick-dock-main){
+ transform:scale(1.025)!important;
+}
+@media(max-width:370px){
+ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item > span:not(.iu-dock-liquid-indicator){font-size:9px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ html body #iuQuickDock.iu-quick-dock .iu-dock-liquid-indicator{transition:none!important;}
+ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered{transform:none!important;}
+}
