@@ -1,7 +1,7 @@
 {
-  "version": "40.03",
+  "version": "40.04",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Squelette de chargement réaligné sur le véritable accueil iPhone : titre sur deux lignes, sous-titre, unique alerte, deux encarts, bouton et carte Administrateur avec icône et action. Retour du shimmer sur un nombre limité de rectangles, sans toucher au moteur de chargement ni aux données."
+  "notes": "Animation de respiration très légère du squelette complet, sur deux couches compositées ; disposition, chargement hors ligne, données et animations existantes préservés."
 }
