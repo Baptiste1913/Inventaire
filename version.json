@@ -1,7 +1,7 @@
 {
-  "version": "40.59",
+  "version": "40.60",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire Étiquettes : lecture OCR avec recadrage tactile iPhone, seconde passe sur le nom, validation JavaScript et exclusion des faux noms; pesées intactes."
+  "notes": "Laboratoire Étiquettes : lecture de poids en direct via caméra iPhone, recadrage central, OCR local en boucle avec 2 lectures concordantes et arrêt automatique, aucune photo ni pesée sauvegardée."
 }

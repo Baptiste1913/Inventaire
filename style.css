@@ -31520,3 +31520,25 @@ html body .app #iuLabelLabSection.iu-label-lab-section{
 #iuLabelLab .iu-label-lab-crop-toggle{width:100%;min-height:39px;margin-top:9px;border-radius:10px;font-size:11.5px;font-weight:750;}
 #iuLabelLab #iuLabelCropHelp{margin:7px 0 0;color:#6b7c87;line-height:1.45;font-size:11px;text-align:left;}
 #iuLabelLab .iu-label-lab-crop-box[hidden]{display:none!important;}
+
+
+/* V40.60 — pesée en direct, test isolé dans Administration. */
+#iuLiveWeightLab.iu-live-weight-lab{display:grid;gap:11px;border:1px solid #dbe4e9;border-radius:13px;padding:13px;background:linear-gradient(145deg,#fff,#f6f9fb 48%,#e8eef2);min-width:0}
+#iuLiveWeightLab .iu-live-weight-head{display:grid;gap:4px}
+#iuLiveWeightLab .iu-live-weight-head strong{font-size:15px;font-weight:850;color:#303c46}
+#iuLiveWeightLab .iu-live-weight-head small{font-size:11px;color:#75838c}
+#iuLiveWeightLab .iu-live-weight-actions{display:flex;gap:8px;flex-wrap:wrap}
+#iuLiveWeightLab .iu-live-weight-actions button{flex:1 1 120px;min-height:43px;border-radius:11px;font-size:12px;font-weight:800}
+#iuLiveWeightLab .iu-live-weight-view{position:relative;width:100%;height:240px;border-radius:12px;overflow:hidden;background:#1c252d}
+#iuLiveWeightLab #iuLiveWeightVideo{display:block;width:100%;height:100%;object-fit:cover}
+#iuLiveWeightLab .iu-live-weight-guide{position:absolute;pointer-events:none;box-sizing:border-box;left:12%;width:76%;top:39%;height:22%;border:2px solid rgba(255,255,255,.98);border-radius:8px;box-shadow:0 0 0 999px rgba(4,9,12,.2),inset 0 0 0 1px rgba(22,57,72,.7)}
+#iuLiveWeightLab .iu-live-weight-guide span{position:absolute;top:-25px;left:0;font-size:11px;font-weight:750;color:#fff;text-shadow:0 1px 3px #000;padding:3px 5px}
+#iuLiveWeightLab .iu-live-weight-status{font-size:11.5px;line-height:1.45;color:#536873;margin:0}
+#iuLiveWeightLab .iu-live-weight-status.is-error{color:#9c3544}
+#iuLiveWeightLab .iu-live-weight-reading{display:grid;gap:6px;border:1px solid #cbdde6;background:linear-gradient(145deg,#fff,#edf4f8);border-radius:12px;padding:14px;text-align:center}
+#iuLiveWeightLab .iu-live-weight-reading>span{font-size:11px;color:#687d88}
+#iuLiveWeightLab .iu-live-weight-reading strong{font-size:27px;font-weight:850;letter-spacing:-.5px;font-variant-numeric:tabular-nums;color:#263c49}
+#iuLiveWeightLab .iu-live-weight-reading small{font-size:10.5px;color:#758892}
+#iuLiveWeightLab .iu-live-weight-note{font-size:10.5px;line-height:1.5;color:#74818a;margin:0}
+#iuLiveWeightLab [hidden]{display:none!important}
+@media(max-width:380px){#iuLiveWeightLab .iu-live-weight-view{height:200px}}
