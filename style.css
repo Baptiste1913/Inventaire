@@ -30882,12 +30882,18 @@ html body #iuQuickDock.iu-quick-dock :is(#iuQuickSession,#iuQuickAdmin,#iuQuickE
  transform:scale(1.12)!important;
 }
 
-/* V40.30 — Marché : agrandir le dessin sans changer la boîte d'alignement du dock. */
-html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon{
+/* V40.31 — Une boîte commune et des limites visibles normalisées pour les cinq icônes. */
+html body #iuQuickDock.iu-quick-dock :is(#iuQuickSession,#iuQuickAdmin,#iuQuickEvents,#iuQuickAlerts,#iuQuickAccount) .iu-dock-custom-icon{
  width:22px!important;height:22px!important;flex:0 0 22px!important;
+ box-sizing:border-box!important;
+ align-self:end!important;justify-self:center!important;
+ margin:0!important;padding:0!important;
  overflow:visible!important;
 }
-html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon > path{
- transform:translate(256px,256px) scale(1.3) translate(-256px,-256px);
+/* Le calendrier a une silhouette plus haute visuellement : 1 px de retrait en haut et en bas,
+   avec un léger abaissement pour égaliser les limites perçues. */
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon > path{
+ transform:translate(0px,24px) scale(1,0.955);
  transform-origin:center;
 }
+
