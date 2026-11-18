@@ -1,7 +1,7 @@
 {
-  "version": "40.63",
+  "version": "40.64",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Scanner poids : vérifications sur images successives sans conserver d'ancienne lecture, cadre de capture optimisé, OCR réutilisé, reprise immédiate sans redémarrer la caméra, résultat figé tant qu'il n'est pas confirmé/ignoré. Conversion net/brut et sauvegarde inchangées."
+  "notes": "Catalogue DIGI : import JSON/CSV local des PLU et produits, scanner EAN facultatif, reconnaissance des préfixes banane/courgette vérifiés, apprentissage d'associations EAN↔PLU et consultation des produits. Aucune estimation de poids non vérifiée ni modification des pesées."
 }
