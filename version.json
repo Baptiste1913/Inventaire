@@ -1,7 +1,7 @@
 {
-  "version": "40.45",
+  "version": "40.46",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Refonte visuelle de Mes inventaires inspirée de Marché : tri et filtres réorganisés, cartes neumorphiques légères, hiérarchie typographique cohérente, archives et bilans en monochrome. Calculs, commandes et stockage inchangés."
+  "notes": "Bilans individuels dépliés : statistiques, mois de référence, graphiques, boutons CSV/JSON/suppression et corbeille harmonisés au style neumorphique monochrome. Fonctionnement et données inchangés."
 }
