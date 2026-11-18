@@ -1,7 +1,7 @@
 {
-  "version": "40.41",
+  "version": "40.42",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Harmonisation des en-têtes de contenu Planning et Marché avec Administration : titres 16 px, sous-titres 11,5 px, graisses et interlignes cohérents. Bandeaux Retour, contenus, calendrier et fonctionnalités inchangés."
+  "notes": "Correction de priorité CSS dans Marché : titre Alertes du rayon de 20 à 16 px et sous-titre harmonisé avec Administration. Planning et autres éléments inchangés."
 }

@@ -27986,13 +27986,18 @@ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-page-hea
  gap:4px!important;
 }
 html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading h2{
- font-size:20px!important;
+ font-size:16px!important;
  font-weight:850!important;
- color:#29333b!important;
+ line-height:1.25!important;
+ letter-spacing:-.25px!important;
+ color:#272f36!important;
 }
 html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading p{
  font-size:11.5px!important;
- color:#87929a!important;
+ font-weight:500!important;
+ line-height:1.45!important;
+ letter-spacing:0!important;
+ color:#7c8991!important;
 }
 html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page :is(
  .iu-alerts-overview-item,
