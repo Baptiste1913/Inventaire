@@ -1,7 +1,7 @@
 {
-  "version": "40.25",
+  "version": "40.26",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Remplacement des quatre pictogrammes du dock par des tracés vectoriels fidèles aux images fournies : Play, Réglages, Calendrier et Étiquette ; icône Compte conservée. Navigation, tailles CSS et animations préservées."
+  "notes": "Dock : icônes uniformisées à 22 px, proportions préservées ; tous les pictogrammes deviennent noirs au passage du doigt et conservent le léger agrandissement. Navigation inchangée."
 }

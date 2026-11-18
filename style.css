@@ -30846,3 +30846,30 @@ html body .iu-welcome-dot-wave > i:last-child{
 @media(prefers-reduced-motion:reduce),(prefers-reduced-transparency:reduce),(forced-colors:active){
  html body .iu-welcome-dot-wave{display:none!important;}
 }
+
+/* V40.26 — Harmonisation optique du dock et teinte noire sur tous les boutons survolés au doigt. */
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickSession .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickAdmin .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickAccount .iu-dock-custom-icon{
+ width:22px!important;height:22px!important;flex:0 0 22px!important;
+ transform-origin:center center!important;
+ color:#56636d!important;fill:currentColor!important;
+ transition:transform .14s ease,color .14s ease!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:active .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickSession.iu-dock-hovered .iu-dock-custom-icon,
+html body #iuQuickDock.iu-quick-dock #iuQuickSession:active .iu-dock-custom-icon{
+ color:#080a0c!important;fill:currentColor!important;
+ transform:scale(1.12)!important;
+}
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item.iu-dock-hovered,
+html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:active{
+ color:#080a0c!important;-webkit-text-fill-color:#080a0c!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon{transition:none!important;}
+}
