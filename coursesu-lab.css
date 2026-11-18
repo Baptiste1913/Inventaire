@@ -1,5 +1,5 @@
 
-/* Inventaires U v40.67 : laboratoire Courses U isolé en Administration */
+/* Inventaires U v40.68 : laboratoire Courses U isolé en Administration */
 .iu-courses-body{display:grid;gap:12px;min-width:0}
 .iu-courses-note,.iu-courses-explain{font-size:11px;line-height:1.55;color:#718391;margin:0}
 .iu-courses-summary{border:1px solid #dbe7ed;padding:11px;border-radius:11px;background:white;color:#496170;font-size:12px;line-height:1.45}
@@ -20,3 +20,11 @@
 .iu-courses-inline input{flex:1;width:100%}
 #iuCoursesResult{font-size:12px;color:#3d5967;line-height:1.55;margin:0}
 .iu-courses-pilot [hidden]{display:none!important}
+
+/* Contrôles accessibles sur Safari iPhone : pas de label déclenchant un input masqué */
+.iu-courses-main-btn{display:block;width:100%;text-align:center;cursor:pointer;min-height:48px;color:#214d62;background:linear-gradient(145deg,#fff,#e5f1f6)}
+.iu-courses-optional-import{border-top:1px solid #e3edf1;padding-top:10px;color:#697f8c;font-size:11px}
+.iu-courses-optional-import summary{cursor:pointer;list-style:none;display:flex;align-items:center;min-height:35px;font-weight:700}
+.iu-courses-optional-import summary::after{content:'⌄';margin-left:auto}
+.iu-courses-optional-import[open] summary::after{content:'⌃'}
+.iu-courses-optional-import input{display:block;margin-top:8px;max-width:100%;font-size:12px}

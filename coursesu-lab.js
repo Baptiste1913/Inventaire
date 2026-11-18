@@ -1,4 +1,4 @@
-/* Inventaires U v40.67 - prototype prix Courses U, strictement local */
+/* Inventaires U v40.68 - prototype prix Courses U, strictement local */
 (()=>{
  'use strict';
  const target=document.querySelector('.iu-error-panel');
@@ -7,7 +7,9 @@
  root.id='iuCoursesPilot';root.className='iu-ean-admin-section iu-courses-pilot';
  root.innerHTML='<header class="iu-admin-planning-header"><div><h3>Essai tarifs Courses U</h3><p>10 références · prix au kilo et décodage EAN, sans modifier les pesées.</p></div></header>'+
  '<div class="iu-courses-body"><p class="iu-courses-note">Prototype : les prix ne sont pas récupérés automatiquement. Vérifie la correspondance du produit et le prix au kilo sur le Drive du magasin avant de l’utiliser.</p>'+
- '<label class="iu-ean-import-button" for="iuCoursesFile">Importer le fichier de test (10 références, JSON)</label><input type="file" id="iuCoursesFile" accept=".json,application/json" hidden>'+
+ '<button type="button" class="iu-courses-btn iu-courses-main-btn" id="iuCoursesLoadLocal">Utiliser mon catalogue DIGI</button>'+
+ '<p id="iuCoursesLoadStatus" class="iu-courses-note" role="status" aria-live="polite">Appuie ici pour charger automatiquement 10 références depuis ton catalogue DIGI déjà importé sur cet appareil.</p>'+
+ '<details class="iu-courses-optional-import"><summary>Importer un JSON d’essai (facultatif)</summary><input type="file" id="iuCoursesFile" accept=".json,application/json"></details>'+
  '<p id="iuCoursesSummary" class="iu-courses-summary" role="status">Charge le fichier de test pour commencer.</p><div id="iuCoursesList" class="iu-courses-list"></div>'+
  '<form id="iuCoursesForm" class="iu-courses-form" hidden><label for="iuCoursesEAN">Tester un code-barres DIGI</label>'+
  '<div class="iu-courses-inline"><input id="iuCoursesEAN" type="text" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="2824059003151" required><button type="submit">Estimer le poids</button></div>'+
@@ -82,6 +84,64 @@
    prices=stored.prices&&typeof stored.prices==='object'&&!Array.isArray(stored.prices)?stored.prices:{};render()}
   catch(_){items=[];prices={}}
  }
+
+ // V40.68 : plus de fichier JSON de test à récupérer. Reprendre le catalogue DIGI
+ // déjà présent sur cet appareil ; ne jamais importer ni publier son contenu sur GitHub.
+ function loadFromDIGI(){
+  const info=$('iuCoursesLoadStatus');
+  let raw=null;
+  try{raw=JSON.parse(localStorage.getItem('iu-plu-catalogue-local-v1')||'null')}
+  catch(_){info.textContent='Impossible de lire le catalogue DIGI local.';return}
+  let candidates=[];
+  if(Array.isArray(raw?.articles)){
+   const seen=new Set();
+   raw.articles.forEach(rec=>{
+    const plu=String(rec?.plu??rec?.PLU??'').trim();
+    const name=String(rec?.libelle??rec?.name??rec?.['Libellé']??'').trim();
+    const prefix=String(rec?.eanPrefix??rec?.ean_prefix??rec?.Gencod??'').trim();
+    const eanPrefix=/^\d{13}$/.test(prefix)&&prefix.endsWith('000000')?prefix.slice(0,7):prefix;
+    if(!/^\d{1,8}$/.test(plu)||!/^(?:02|2\d)\d{5}$/.test(eanPrefix)||!name||seen.has(eanPrefix))return;
+    seen.add(eanPrefix);
+    candidates.push({plu,eanPrefix,name,active:rec.actif===true||rec.actif==='Oui'});
+   });
+  }
+  let usingExamples=false;
+  if(!candidates.length){
+   usingExamples=true;
+   candidates=[
+    {plu:'916',eanPrefix:'2824059',name:'Banane Cavendish',active:true},
+    {plu:'8325',eanPrefix:'0205655',name:'Courgette',active:true},
+    {plu:'9694',eanPrefix:'2412955',name:'Clémentine à feuilles',active:true}
+   ];
+  }
+  const priority=['916','8325','9694','5706','2215'];
+  candidates.sort((a,b)=>{
+   const pa=priority.indexOf(a.plu),pb=priority.indexOf(b.plu);
+   if((pa>=0)!==(pb>=0))return pa>=0?-1:1;
+   if(pa>=0&&pb>=0)return pa-pb;
+   if(a.active!==b.active)return a.active?-1:1;
+   return a.name.localeCompare(b.name,'fr');
+  });
+  const chosen=candidates.slice(0,10);
+  // Retenir les tarifs déjà vérifiés lorsque la même référence revient.
+  const nextPrices={};
+  chosen.forEach(x=>{
+   if(prices[x.plu]?.eanPrefix===x.eanPrefix)nextPrices[x.plu]=prices[x.plu];
+  });
+  items=validate({type:'inventaires-u-coursesu-pilot',schemaVersion:1,items:chosen});
+  prices=nextPrices;store=fallback;
+  if(!save())return;
+  render();
+  info.textContent=usingExamples?
+   'Catalogue DIGI non trouvé sur cet appareil : 3 articles exemples chargés. Pour disposer des 10 articles de ton propre catalogue, importe d’abord ton catalogue DIGI dans la rubrique précédente.':
+   chosen.length+' articles chargés directement depuis ton catalogue DIGI local. Aucun fichier supplémentaire nécessaire.';
+  $('iuCoursesPilot').scrollIntoView({behavior:'smooth',block:'start'});
+ }
+ $('iuCoursesLoadLocal').addEventListener('click',()=>{
+  try{loadFromDIGI()}
+  catch(e){$('iuCoursesLoadStatus').textContent='Chargement impossible : '+String(e?.message||'erreur inconnue').slice(0,100)}
+ });
+
  $('iuCoursesFile').addEventListener('change',async event=>{
   const file=event.target.files?.[0];event.target.value='';
   if(!file)return;
