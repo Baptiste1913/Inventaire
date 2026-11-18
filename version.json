@@ -1,7 +1,7 @@
 {
-  "version": "40.35",
+  "version": "40.36",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Cadre Prochain inventaire : rapprochement des contours en dégradé bleu-vert et turquoise (inset 1 px au lieu de 2 px), arrondis harmonisés avec le bouton Démarrer un inventaire."
+  "notes": "Cadre Prochain inventaire : double contour en deux pseudo-éléments superposés comme Démarrer un inventaire ; extérieur dégradé, intérieur turquoise de 1 px directement adjacent, sans fond border-box séparateur."
 }
