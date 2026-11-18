@@ -30882,7 +30882,12 @@ html body #iuQuickDock.iu-quick-dock :is(#iuQuickSession,#iuQuickAdmin,#iuQuickE
  transform:scale(1.12)!important;
 }
 
-/* V40.29 — Correction : ajustement optique du pictogramme Marché uniquement. */
+/* V40.30 — Marché : agrandir le dessin sans changer la boîte d'alignement du dock. */
 html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon{
- width:25px!important;height:25px!important;flex:0 0 25px!important;
+ width:22px!important;height:22px!important;flex:0 0 22px!important;
+ overflow:visible!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon > path{
+ transform:translate(256px,256px) scale(1.3) translate(-256px,-256px);
+ transform-origin:center;
 }

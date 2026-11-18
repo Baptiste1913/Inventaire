@@ -1,7 +1,7 @@
 {
-  "version": "40.29",
+  "version": "40.30",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction de l’ajustement optique : Planning retrouve 22 px, Marché passe à 25 px. Autres icônes et animations inchangées."
+  "notes": "Marché : agrandissement optique du tracé SVG de 30 % dans une boîte de 22 px, afin d'aligner le haut et le bas des pictogrammes sans déplacer les textes ni les boutons."
 }
