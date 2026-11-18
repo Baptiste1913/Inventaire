@@ -1,7 +1,7 @@
 {
-  "version": "40.57",
+  "version": "40.58",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire OCR : correction des séparateurs manquants, avertissements visibles après reconnaissance ou réanalyse et validation stricte du code-barres. Pesées et historiques inchangés."
+  "notes": "Laboratoire Étiquettes : outil de recadrage tactile sur iPhone, deuxième lecture ciblée du nom sur l'étiquette et filtre contre les fragments parasites. Photo traitée localement, sans modifier les pesées."
 }

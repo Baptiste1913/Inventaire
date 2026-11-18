@@ -31510,3 +31510,13 @@ html body .app #iuLabelLabSection.iu-label-lab-section{
 #iuLabelLab [hidden]{display:none!important;}
 @media(max-width:380px){#iuLabelLab .iu-label-lab-actions,#iuLabelLab .iu-label-lab-facts{grid-template-columns:1fr;}}
 @media(prefers-reduced-motion:reduce){#iuLabelLab > summary svg{transition:none;}}
+
+
+/* V40.58 — recadrage manuel de l'étiquette avant OCR, optimisé iPhone */
+#iuLabelLab .iu-label-lab-stage{position:relative;width:100%;min-width:0;line-height:0;touch-action:auto;user-select:none;-webkit-user-select:none;}
+#iuLabelLab .iu-label-lab-stage.is-selecting{touch-action:none;cursor:crosshair;}
+#iuLabelLab .iu-label-lab-stage img{pointer-events:none;}
+#iuLabelLab .iu-label-lab-crop-box{position:absolute;pointer-events:none;border:2px solid #263d4b;border-radius:4px;background:rgba(56,132,167,.13);box-shadow:0 0 0 9999px rgba(0,0,0,.18);box-sizing:border-box;}
+#iuLabelLab .iu-label-lab-crop-toggle{width:100%;min-height:39px;margin-top:9px;border-radius:10px;font-size:11.5px;font-weight:750;}
+#iuLabelLab #iuLabelCropHelp{margin:7px 0 0;color:#6b7c87;line-height:1.45;font-size:11px;text-align:left;}
+#iuLabelLab .iu-label-lab-crop-box[hidden]{display:none!important;}
