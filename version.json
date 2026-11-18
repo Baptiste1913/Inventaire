@@ -1,7 +1,7 @@
 {
-  "version": "40.47",
+  "version": "40.48",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bouton Supprimer ce bilan : mêmes dégradé rose doux, texte rouge, bordure, relief et effet pressé que Effacer dans Administration. Fonction de suppression inchangée."
+  "notes": "Bilans individuels : surfaces des statistiques, mois de référence, sélecteur et boutons d'export réaccordés au dégradé blanc légèrement bleuté et aux ombres bleu-gris de l'application. Texte monochrome et bouton Supprimer ce bilan rose inchangés."
 }
