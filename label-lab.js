@@ -1,4 +1,4 @@
-/* Inventaires U v40.56 — Laboratoire OCR étiquettes, sans modification des inventaires. */
+/* Inventaires U v40.57 — Laboratoire OCR étiquettes, sans modification des inventaires. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -144,15 +144,15 @@
    if(token!==generation)return;
    const text=String(response?.data?.text||'').trim();
    textArea.value=text;
-   showParsed(text);
    statusText(text?'Lecture terminée. Vérifie les valeurs proposées, puis corrige le texte si nécessaire.':'Aucun texte reconnu. Reprends la photo de plus près et avec davantage de lumière.',!text);
+   if(text)showParsed(text);
   }catch(error){
    if(token!==generation)return;
    statusText('Lecture impossible : '+(navigator.onLine?'réessaie avec une autre photo ou vérifie le chargement du moteur.':'connexion nécessaire pour télécharger le moteur au premier essai.'),true);
   }finally{reading=false;readBtn.disabled=!selectedFile;}
  }
  readBtn.addEventListener('click',()=>{void read();});
- $('iuLabelReanalyse').addEventListener('click',()=>{showParsed(textArea.value);statusText('Extraction mise à jour à partir du texte corrigé.');});
+ $('iuLabelReanalyse').addEventListener('click',()=>{statusText('Extraction mise à jour à partir du texte corrigé.');showParsed(textArea.value);});
  function clearPhoto(){
   generation++;selectedFile=null;readBtn.disabled=true;result.hidden=true;textArea.value='';
   previewWrap.hidden=true;preview.removeAttribute('src');

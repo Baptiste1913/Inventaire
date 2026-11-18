@@ -1,7 +1,7 @@
 {
-  "version": "40.56",
+  "version": "40.57",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire Étiquettes : décodage prudent des textes OCR DIGI (0276 kg → 0,276 kg à vérifier, 093 €/kg → 0,93 €/kg à vérifier), exclusion du prix au kilo comme total, code EAN seulement si contrôle valide. Aucune pesée modifiée."
+  "notes": "Laboratoire OCR : correction des séparateurs manquants, avertissements visibles après reconnaissance ou réanalyse et validation stricte du code-barres. Pesées et historiques inchangés."
 }
