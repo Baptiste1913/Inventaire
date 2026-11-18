@@ -1,4 +1,4 @@
-/* Inventaires U v40.54 — Laboratoire OCR étiquettes, sans modification des inventaires. */
+/* Inventaires U v40.55 — Laboratoire OCR étiquettes, sans modification des inventaires. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -125,7 +125,7 @@
    const Tesseract=await loadTesseract();
    if(token!==generation)return;
    if(!worker){
-    worker=await Tesseract.createWorker('fra+eng',1,{
+    worker=await Tesseract.createWorker(['fra','eng'],1,{
      logger:event=>{
       if(token!==generation||!event?.status)return;
       if(event.status==='recognizing text'&&Number.isFinite(event.progress))

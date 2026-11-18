@@ -1,7 +1,7 @@
 {
-  "version": "40.54",
+  "version": "40.55",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire Étiquettes DIGI : prise de photo iPhone ou choix d'image, OCR français/anglais local et extraction expérimentale du nom, poids, prix et PLU avec correction du texte. Aucune modification des pesées."
+  "notes": "Lecture d'étiquettes DIGI : OCR local français et anglais avec chargement multilingue conforme à Tesseract.js v5. Laboratoire isolé, photo et résultats non enregistrés."
 }
