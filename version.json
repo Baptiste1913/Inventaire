@@ -1,7 +1,7 @@
 {
-  "version": "40.43",
+  "version": "40.44",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Page Marché : titres de rubriques Approvisionnement général et Rappels produits réduits de 16 à 15 px pour rétablir la hiérarchie avec Alertes du rayon (16 px). Sous-titres et fonctionnement inchangés."
+  "notes": "Planning : réduction de 16 à 15 px des titres des rubriques Calendrier, Date sélectionnée, Agenda et Planning complet. Titre de page 16 px conservé, contenus et calendrier inchangés."
 }
