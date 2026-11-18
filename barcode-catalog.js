@@ -1,4 +1,4 @@
-/* Inventaires U v40.64 — catalogue PLU DIGI local et identification expérimentale EAN. */
+/* Inventaires U v40.65 — catalogue PLU DIGI local et identification expérimentale EAN. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -6,7 +6,8 @@
  if(!panel||!modal)return;
  const keyCatalog='iu-plu-catalogue-local-v1',keyLinks='iu-ean-prefix-links-local-v1';
  const known={ '2824059':{plu:'916',name:'BANANE CAVENDISH'},
-               '0205655':{plu:'8325',name:'COURGETTE'} };
+               '0205655':{plu:'8325',name:'COURGETTE'},
+               '2412955':{plu:'9694',name:'CLEMENTINE A FEUILLES'} };
  const readStorage=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch(_){return null}};
  const catalog=new Map();
  const storedLinks=readStorage(keyLinks);
@@ -36,7 +37,7 @@
  function updateCount(){
   const active=Array.from(catalog.values()).filter(item=>item.active).length;
   $s('iuEanCatalogCount',imported?catalog.size+' références PLU disponibles':'Catalogue non importé');
-  $s('iuEanCatalogActive',imported?active+' sur les claviers au moment de l’export · '+Object.keys(learned).length+' association(s) ajoutée(s) localement':'2 correspondances vérifiées sur étiquettes disponibles pour essai.');
+  $s('iuEanCatalogActive',imported?active+' sur les claviers au moment de l’export · '+Object.keys(learned).length+' association(s) ajoutée(s) localement':'3 correspondances vérifiées sur étiquettes disponibles pour essai.');
  }
  const initial=readStorage(keyCatalog);
  if(initial&&Array.isArray(initial.articles)){
