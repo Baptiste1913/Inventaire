@@ -31051,3 +31051,182 @@ html body.is-alerts-mode #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading p{
  letter-spacing:0!important;
  color:#7c8991!important;
 }
+
+
+/* V40.45 — Mes inventaires : les mêmes cartes, commandes et hiérarchie que Marché,
+   en monochrome. Styles limités à cette section, sans altérer les filtres et bilans. */
+html body:not(.is-focus-mode) main.app > details.sessions-history-card.card.fold-card{
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),-3px -3px 6.5px rgba(255,255,255,.30),2px 2.5px 5.5px rgba(156,173,189,.175),.5px 1px 2px rgba(156,173,189,.09),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card > .fold-summary .fold-heading .fold-label{
+ margin:0!important;font-size:16px!important;font-weight:850!important;
+ line-height:1.25!important;letter-spacing:-.25px!important;color:#272f36!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card > .fold-summary .history-heading-subtitle{
+ font-size:11.5px!important;line-height:1.45!important;font-weight:500!important;
+ letter-spacing:0!important;color:#7c8991!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card > .fold-summary #sessionsCount{
+ border-color:#dce2e6!important;background:linear-gradient(145deg,#fff,#edf0f2)!important;
+ color:#58646d!important;box-shadow:0 2px 6px rgba(104,116,126,.12)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel{
+ margin:4px 0 16px!important;padding:14px!important;
+ border:1px solid rgba(255,255,255,.94)!important;border-radius:16px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),-3px -3px 6.5px rgba(255,255,255,.30),2px 2.5px 5.5px rgba(156,173,189,.175),.5px 1px 2px rgba(156,173,189,.09),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel > .iu-inventory-toolbar{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ grid-template-areas:"title title" "sort filters"!important;
+ column-gap:12px!important;row-gap:12px!important;
+ align-items:end!important;justify-content:stretch!important;
+ margin:0 0 13px!important;padding:0!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-toolbar-heading{
+ grid-area:title!important;display:grid!important;gap:4px!important;min-width:0!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-toolbar-heading strong{
+ font-size:15px!important;line-height:1.3!important;font-weight:850!important;
+ letter-spacing:-.25px!important;color:#303a42!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-toolbar-heading small{
+ font-size:11px!important;line-height:1.45!important;font-weight:500!important;color:#87929a!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-sort-label{
+ grid-area:sort!important;display:flex!important;flex-flow:row nowrap!important;
+ align-items:center!important;justify-content:flex-start!important;
+ gap:8px!important;margin:0!important;min-width:0!important;
+ font-size:11.5px!important;font-weight:700!important;color:#79858d!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #iuInventorySort{
+ width:auto!important;min-width:0!important;max-width:100%!important;
+ min-height:38px!important;flex:0 1 auto!important;
+ border-radius:10px!important;border:1px solid rgba(255,255,255,.94)!important;
+ padding:8px 10px!important;font-size:11.5px!important;font-weight:750!important;
+ color:#3c4750!important;background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),2px 2.5px 5.5px rgba(156,173,189,.175),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel .iu-archive-switch{
+ grid-area:filters!important;display:flex!important;justify-content:flex-end!important;
+ align-items:stretch!important;gap:8px!important;margin:0!important;min-width:0!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel .iu-archive-switch button,
+html body:not(.is-focus-mode) .sessions-history-card #iuArchiveAllMonths{
+ min-height:38px!important;padding:8px 10px!important;
+ border:1px solid rgba(255,255,255,.94)!important;border-radius:10px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#687781!important;font-size:11.5px!important;font-weight:750!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),2px 2.5px 5.5px rgba(156,173,189,.175),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-switch button[aria-pressed="true"],
+html body:not(.is-focus-mode) .sessions-history-card #iuArchiveAllMonths[aria-pressed="true"]{
+ border-color:#c7d0d6!important;
+ background:linear-gradient(145deg,#f5f7f8,#e3e8eb)!important;color:#28343d!important;
+ box-shadow:inset 0 1px 3px rgba(110,125,138,.14),0 1px 2px rgba(137,151,164,.10)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel > .iu-archive-navigator{
+ display:grid!important;gap:10px!important;
+ margin:0!important;padding:12px 0 0!important;
+ border:0!important;border-top:1px solid #e3e8ec!important;
+ background:transparent!important;box-shadow:none!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-yearrow{
+ align-items:center!important;gap:9px!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-yearrow label{
+ display:flex!important;align-items:center!important;gap:9px!important;
+ color:#79858d!important;font-size:11.5px!important;font-weight:700!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #iuArchiveYear{
+ min-width:105px!important;min-height:38px!important;max-width:100%!important;
+ font-size:12px!important;color:#3c4750!important;border-radius:10px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),2px 2.5px 5.5px rgba(156,173,189,.175)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-months{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:8px!important;margin:0!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month{
+ min-width:0!important;min-height:40px!important;
+ padding:9px 8px!important;border-radius:10px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#4b5861!important;font-size:11.5px!important;font-weight:750!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),2px 2.5px 5.5px rgba(156,173,189,.175),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month small{
+ color:#77838d!important;font-size:10px!important;font-weight:750!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month.is-selected{
+ border-color:#bdc8cf!important;
+ background:linear-gradient(145deg,#f4f6f7,#e1e7eb)!important;color:#28343d!important;
+ box-shadow:inset 0 1px 3px rgba(110,125,138,.15)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card .iu-archive-hint{
+ margin:0!important;font-size:11px!important;line-height:1.5!important;
+ color:#82909a!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList > .v30-session-shell{
+ border:1px solid rgba(255,255,255,.94)!important;border-radius:16px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),-3px -3px 6.5px rgba(255,255,255,.30),2px 2.5px 5.5px rgba(156,173,189,.175),.5px 1px 2px rgba(156,173,189,.09),inset .5px .5px 0 rgba(255,255,255,.48)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-session-item > summary::before{
+ background:#89949d!important;opacity:1!important;border-radius:2px!important;width:3px!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-title > strong{
+ font-size:13.5px!important;font-weight:800!important;line-height:1.35!important;color:#303a42!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-kicker{
+ color:#87929a!important;font-size:10px!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-metric,
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-inventory-metric.is-primary{
+ border:1px solid #dee5e9!important;border-radius:999px!important;
+ background:linear-gradient(145deg,#fff,#eef2f4)!important;
+ color:#5b6871!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-stat,
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-bilan-reference{
+ background:linear-gradient(145deg,#fff,#f0f3f5)!important;
+ border:1px solid #dee5e9!important;color:#303a42!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-bar-fill{
+ background:linear-gradient(90deg,#a1aab1,#626e77)!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .iu-reference-select{
+ border:1px solid #d3dbe0!important;background:linear-gradient(145deg,#fff,#eef2f4)!important;
+ color:#303a42!important;
+}
+html body:not(.is-focus-mode) .sessions-history-card :is(button,select):focus-visible{
+ outline:2px solid #65747f!important;outline-offset:2px!important;
+}
+@media(max-width:560px){
+ html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel > .iu-inventory-toolbar{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-areas:"title" "sort" "filters"!important;
+  row-gap:10px!important;
+ }
+ html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel .iu-archive-switch{
+  justify-content:flex-start!important;flex-wrap:wrap!important;
+ }
+ html body:not(.is-focus-mode) .sessions-history-card .iu-archive-yearrow{
+  flex-wrap:wrap!important;justify-content:space-between!important;
+ }
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-panel,
+ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList > .v30-session-shell{
+  border:1px solid CanvasText!important;background:Canvas!important;box-shadow:none!important;
+ }
+ html body:not(.is-focus-mode) .sessions-history-card .iu-archive-month.is-selected,
+ html body:not(.is-focus-mode) .sessions-history-card .iu-archive-switch button[aria-pressed="true"]{
+  border:2px solid Highlight!important;background:Canvas!important;color:CanvasText!important;
+ }
+}
