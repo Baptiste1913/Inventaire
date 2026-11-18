@@ -30898,12 +30898,16 @@ html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon > path{
 }
 
 
-/* V40.33 — Carte prochaine date : retirer le liseré doublé ; un seul filet fin comme le bouton de démarrage. */
+/* V40.34 — Carte prochaine date : deux filets fins indépendants, extérieur en dégradé et intérieur turquoise. */
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box{
- border:1px solid #007583!important;
- background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
- background-clip:padding-box!important;
+ border:1px solid transparent!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%) padding-box,linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%) border-box!important;
+ background-clip:padding-box,border-box!important;
 }
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box::after{
- content:none!important;display:none!important;
+ content:""!important;display:block!important;
+ inset:2px!important;
+ border:1px solid #007583!important;
+ border-radius:11px!important;
+ background:transparent!important;
 }

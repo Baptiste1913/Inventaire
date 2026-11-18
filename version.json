@@ -1,7 +1,7 @@
 {
-  "version": "40.33",
+  "version": "40.34",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction visuelle du cadre Prochain inventaire : suppression du double liseré turquoise, conservation d’un contour fin de 1 px et du relief. Bouton Démarrer un inventaire inchangé."
+  "notes": "Cadre Prochain inventaire : rétablissement du second liseré en dégradé bleu-vert (extérieur 1 px), avec filet intérieur turquoise 1 px séparé de 1 px. Relief et contenu inchangés."
 }
