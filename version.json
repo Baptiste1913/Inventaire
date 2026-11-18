@@ -1,7 +1,7 @@
 {
-  "version": "40.38",
+  "version": "40.39",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Voir la liste et Démarrer un inventaire : normalisation du double contour, dégradé extérieur bleu-vert complet et filet turquoise intérieur 1 px, avec reset des géométries CSS héritées ; tailles et animations conservées."
+  "notes": "Voir la liste et Démarrer un inventaire : dégradé de contour bleu-vert légèrement plus soutenu (#269ebc → #349b8c), épaisseurs, relief et animations inchangés. Cadre Prochain inventaire conservé."
 }

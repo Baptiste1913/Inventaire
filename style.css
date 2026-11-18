@@ -30990,6 +30990,7 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
  transform:none!important;
 }
 
+/* V40.39 — Dégradé des deux boutons plus soutenu (ancien bleu #53c0e9 et vert #64b9ae), sans changer les autres cadres. */
 /* V40.38 — Même neutralisation des anciennes géométries de pseudo-éléments
    sur Voir la liste et Démarrer un inventaire que sur le cadre de date. */
 html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::before,
@@ -30999,7 +31000,7 @@ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #star
  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
  box-sizing:border-box!important;margin:0!important;padding:0!important;
  transform:none!important;border:0!important;border-radius:14px!important;
- background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
+ background:linear-gradient(90deg,#269ebc 0%,#349b8c 100%)!important;
  opacity:1!important;z-index:0!important;pointer-events:none!important;
  -webkit-mask:none!important;mask:none!important;
 }
