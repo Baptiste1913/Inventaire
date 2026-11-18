@@ -1,7 +1,7 @@
 {
-  "version": "40.40",
+  "version": "40.41",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Renommage de Planification en Planning dans le titre de page et sur l’accueil (SERVICE U / PLANNING, Planning de [mois]), avec élision française automatique et sans modification du calendrier."
+  "notes": "Harmonisation des en-têtes de contenu Planning et Marché avec Administration : titres 16 px, sous-titres 11,5 px, graisses et interlignes cohérents. Bandeaux Retour, contenus, calendrier et fonctionnalités inchangés."
 }

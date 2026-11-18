@@ -31019,3 +31019,29 @@ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #star
  html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::before,html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::after,
  html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::before,html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{display:none!important;}
 }
+
+
+/* V40.41 — Titres et sous-titres des pages Planning et Marché :
+   même typographie que les rubriques de la page Administration.
+   Les bandeaux Retour, les données des cartes et les sous-sections restent intacts. */
+html body.is-events-mode #eventsPage.iu-events-page .iu-events-page-heading h2,
+html body.is-alerts-mode #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading h2{
+ margin:0!important;
+ font-family:inherit!important;
+ font-size:16px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ letter-spacing:-.25px!important;
+ color:#272f36!important;
+}
+html body.is-events-mode #eventsPage.iu-events-page .iu-events-page-heading p,
+html body.is-alerts-mode #iuAlertsPage.iu-alerts-page .iu-alerts-page-heading p{
+ display:block!important;
+ margin:4px 0 0!important;
+ font-family:inherit!important;
+ font-size:11.5px!important;
+ font-weight:500!important;
+ line-height:1.45!important;
+ letter-spacing:0!important;
+ color:#7c8991!important;
+}
