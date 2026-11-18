@@ -1,7 +1,7 @@
 {
-  "version": "40.31",
+  "version": "40.32",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Alignement des icônes du dock : boîte commune de 22 px, normalisation de l’espace vide dans l’icône Marché et correction optique verticale de Planning. Animations et libellés conservés."
+  "notes": "Harmonisation des contours turquoise fins : Démarrer un inventaire et cadre Prochain inventaire alignés sur Voir la liste et Inventaire du dock (filets 1 px). Dimensions et animations inchangées."
 }

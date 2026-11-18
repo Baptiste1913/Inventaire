@@ -20304,10 +20304,10 @@ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #star
 html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{
  content:""!important;
  position:absolute!important;
- inset:2.5px!important;
+ inset:1px!important;
  box-sizing:border-box!important;
- border:2px solid #007583!important;
- border-radius:11.5px!important;
+ border:1px solid #007583!important;
+ border-radius:13px!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  box-shadow:none!important;
  z-index:1!important;
@@ -29401,7 +29401,7 @@ html body:not(.is-focus-mode) .app > section.session-card.card:has(#sessionBadge
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box{
  position:relative!important;
  box-sizing:border-box!important;
- border:2.5px solid transparent!important;
+ border:1px solid transparent!important;
  border-radius:14px!important;
  background:
   linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%) padding-box,
@@ -29431,10 +29431,10 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
  content:""!important;
  position:absolute!important;
  display:block!important;
- inset:0!important;
+ inset:1px!important;
  box-sizing:border-box!important;
- border:2px solid #007583!important;
- border-radius:11.5px!important;
+ border:1px solid #007583!important;
+ border-radius:13px!important;
  background:transparent!important;
  box-shadow:none!important;
  opacity:1!important;
