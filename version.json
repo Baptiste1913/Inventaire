@@ -1,7 +1,7 @@
 {
-  "version": "40.49",
+  "version": "40.50",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Icône Planning de la barre inférieure agrandie et décalée pour aligner son corps rectangulaire avec les autres icônes, en laissant dépasser les deux ergots supérieurs."
+  "notes": "Icône Planning du dock : taille conservée à 24,5 px, ajustement vertical de 2,5 px vers le bas pour aligner la base de la silhouette avec les autres icônes."
 }

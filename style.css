@@ -31395,7 +31395,7 @@ html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon{
  height:24.5px!important;
  flex:0 0 24.5px!important;
  position:relative!important;
- top:-2.5px!important;
+ top:0px!important;
 }
 html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon > path{
  transform:none!important;
