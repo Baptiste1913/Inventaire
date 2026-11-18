@@ -30897,3 +30897,13 @@ html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon > path{
  transform-origin:center;
 }
 
+
+/* V40.33 — Carte prochaine date : retirer le liseré doublé ; un seul filet fin comme le bouton de démarrage. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box{
+ border:1px solid #007583!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:padding-box!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box::after{
+ content:none!important;display:none!important;
+}

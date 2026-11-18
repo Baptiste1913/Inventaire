@@ -1,7 +1,7 @@
 {
-  "version": "40.32",
+  "version": "40.33",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Harmonisation des contours turquoise fins : Démarrer un inventaire et cadre Prochain inventaire alignés sur Voir la liste et Inventaire du dock (filets 1 px). Dimensions et animations inchangées."
+  "notes": "Correction visuelle du cadre Prochain inventaire : suppression du double liseré turquoise, conservation d’un contour fin de 1 px et du relief. Bouton Démarrer un inventaire inchangé."
 }
