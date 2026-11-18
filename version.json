@@ -1,7 +1,7 @@
 {
-  "version": "40.60",
+  "version": "40.61",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire Étiquettes : lecture de poids en direct via caméra iPhone, recadrage central, OCR local en boucle avec 2 lectures concordantes et arrêt automatique, aucune photo ni pesée sauvegardée."
+  "notes": "Scanner de poids optionnel intégré à Nouvelle pesée, caméra en direct, analyse ciblée, confirmation manuelle avant transfert dans le champ; saisie classique conservée."
 }
