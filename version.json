@@ -1,7 +1,7 @@
 {
-  "version": "40.51",
+  "version": "40.52",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire Scanner isolé dans Administration : caméra iPhone pour EAN/UPC, saisie manuelle, recherche Open Food Facts (nom, quantité emballage, marque, catégorie, origine, labels, image). Aucune écriture dans les pesées."
+  "notes": "Laboratoire Scanner EAN : correctif de validation des codes EAN/UPC 8, 12, 13 et 14 chiffres. Module de test isolé accessible depuis Administrateur."
 }

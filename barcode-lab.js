@@ -1,4 +1,4 @@
-/* Inventaires U v40.51 — Essai de scan code-barres, isolé des données métier. */
+/* Inventaires U v40.52 — Essai de scan code-barres, isolé des données métier. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -9,7 +9,7 @@
  const form=$('iuBarcodeForm'),input=$('iuBarcodeInput');
  let scanner=null,loadingLibrary=null,starting=false,busy=false,requestId=0,controller=null;
  let cameraActive=false,stopping=null;
- const valid=code=>/^\\d{8}$|^\\d{12,14}$/.test(code);
+ const valid=code=>/^[0-9]{8}$|^[0-9]{12,14}$/.test(code);
  const setStatus=(message,error=false)=>{status.textContent=message;status.classList.toggle('is-error',error);};
  const readable=(text,max=180)=>String(text||'').trim().slice(0,max)||'Non renseigné';
  function loadScanner(){
