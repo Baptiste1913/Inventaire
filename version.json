@@ -3,5 +3,5 @@
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correction de spécificité CSS pour que les cinq icônes du dock deviennent noires au toucher ou pendant le glissement, sans changer leurs tailles ni la navigation."
+  "notes": "Barre de navigation : Événements renommé Planning et Rappels renommé Marché (libellés et accessibilité uniquement). Icônes et navigation inchangées."
 }
