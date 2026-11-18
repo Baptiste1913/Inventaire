@@ -31589,3 +31589,10 @@ body.iu-weigh-scan-open{overflow:hidden!important}
 .iu-weigh-scan-secondary{background:#fff;border:1px solid #d5e0e6;color:#384d59}
 @media(max-height:650px){.iu-weigh-scan-header{padding-top:calc(env(safe-area-inset-top) + 7px);padding-bottom:7px}.iu-weigh-scan-bottom{padding-top:9px}}
 @media(prefers-reduced-motion:reduce){.iu-weigh-scan-overlay *{animation:none!important;transition:none!important}}
+
+
+/* V40.63 — retour visuel discret du scanner pendant la reconnaissance */
+.iu-weigh-scan-overlay[data-state="result"] .iu-weigh-scan-guide{border-color:#c9f1e4;box-shadow:0 0 0 999px rgba(4,10,15,.20),0 0 0 3px rgba(86,204,157,.24)}
+.iu-weigh-scan-overlay[data-state="loading"] .iu-weigh-scan-guide{border-color:#cedde5}
+.iu-weigh-scan-overlay[data-state="result"] .iu-weigh-scan-camera video{filter:none}
+.iu-weigh-scan-proposal .iu-weigh-scan-secondary{min-height:43px}

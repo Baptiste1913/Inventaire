@@ -1,7 +1,7 @@
 {
-  "version": "40.62",
+  "version": "40.63",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Refonte scanner : caméra plein écran, zone OCR resserrée, vérifications croisée normal/contraste, réutilisation du moteur et de la caméra, et conversion explicite du poids net en brut avec tare du panier avant insertion."
+  "notes": "Scanner poids : vérifications sur images successives sans conserver d'ancienne lecture, cadre de capture optimisé, OCR réutilisé, reprise immédiate sans redémarrer la caméra, résultat figé tant qu'il n'est pas confirmé/ignoré. Conversion net/brut et sauvegarde inchangées."
 }
