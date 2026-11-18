@@ -1,7 +1,7 @@
 {
-  "version": "40.61",
+  "version": "40.62",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Scanner de poids optionnel intégré à Nouvelle pesée, caméra en direct, analyse ciblée, confirmation manuelle avant transfert dans le champ; saisie classique conservée."
+  "notes": "Refonte scanner : caméra plein écran, zone OCR resserrée, vérifications croisée normal/contraste, réutilisation du moteur et de la caméra, et conversion explicite du poids net en brut avec tare du panier avant insertion."
 }

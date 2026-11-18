@@ -259,6 +259,13 @@ let sessions=(Array.isArray(loadedSessions?.sessions)?loadedSessions.sessions:[]
 let activeSessionId=typeof loadedSessions?.activeId==='string'&&sessions.some(s=>s.id===loadedSessions.activeId&&!s.endedAt)?loadedSessions.activeId:null;
 let activeGroup=null,lastGroup=null;
 let entryMode=safeGet(MODE_KEY)==='g'?'g':'kg';
+/* V40.62 — lecture du contexte de tare, sans modifier la logique métier.
+   Une étiquette contient un poids NET, pas le brut attendu par le calcul. */
+window.IUWeighScanContext=()=>{
+ const basket=baskets.find(x=>x.id===document.getElementById('basketSelect')?.value);
+ if(!basket||!Number.isFinite(basket.tare)||basket.tare<0)return null;
+ return {tareGrams:basket.tare,basketName:basket.name,entryMode};
+};
 let maxGrossGrams=parseKg(safeGet(LIMIT_KEY)||'20.000')||20000;
 let confirmDuplicates=safeGet(DUPLICATE_CONFIRM_KEY)!=='false';
 let acceptedAnomalyKey='',sessionsExpanded=false;

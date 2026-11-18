@@ -31558,3 +31558,34 @@ html body .app #iuLabelLabSection.iu-label-lab-section{
 .iu-weigh-scan-result{display:grid;gap:9px;text-align:center;padding:12px;border:1px solid #cddfe8;border-radius:12px;background:#f5fafc}
 .iu-weigh-scan-result span{font-size:11px;color:#6c7c85}
 .iu-weigh-scan-result strong{font-size:27px;color:#243f4d;font-weight:850;font-variant-numeric:tabular-nums}
+
+
+/* V40.62 — Scanner net plein écran et contrôles tactile/sûreté */
+.iu-weigh-scan-option{margin:10px 0 6px;}
+.iu-weigh-scan-overlay[hidden],.iu-weigh-scan-proposal[hidden],.iu-weigh-scan-controls [hidden]{display:none!important}
+body.iu-weigh-scan-open{overflow:hidden!important}
+.iu-weigh-scan-overlay{position:fixed;inset:0;z-index:2147483000;background:#101920;display:flex;justify-content:center;align-items:center;color:#fff;overscroll-behavior:contain}
+.iu-weigh-scan-shell{display:flex;flex-direction:column;width:100%;max-width:620px;height:100%;height:100dvh;min-height:0;background:#101920}
+.iu-weigh-scan-header{display:flex;gap:15px;align-items:center;flex:none;padding:calc(env(safe-area-inset-top) + 12px) 18px 13px;background:#182630;min-height:52px;}
+.iu-weigh-scan-close{display:grid;place-items:center;flex:none;border:1px solid #526573;background:#263844;color:white;width:42px;height:42px;border-radius:50%;font-size:18px;}
+.iu-weigh-scan-header>div{display:grid;gap:4px}
+.iu-weigh-scan-header strong{font-size:17px;line-height:1.2;font-weight:850;color:#fff}
+.iu-weigh-scan-header small{font-size:11px;color:#b4c4ce}
+.iu-weigh-scan-camera{position:relative;flex:1 1 auto;min-height:160px;overflow:hidden;background:#101920}
+.iu-weigh-scan-camera video{display:block;width:100%;height:100%;object-fit:cover;}
+.iu-weigh-scan-guide{position:absolute;pointer-events:none;left:24%;top:42.5%;width:52%;height:15%;border:2px solid #fff;border-radius:9px;box-sizing:border-box;box-shadow:0 0 0 999px rgba(4,10,15,.24),0 0 9px rgba(255,255,255,.28)}
+.iu-weigh-scan-guide span{position:absolute;top:-31px;left:50%;transform:translateX(-50%);width:max-content;max-width:280px;font-weight:760;font-size:11.5px;background:rgba(15,30,39,.85);color:white;padding:5px 8px;border-radius:6px}
+.iu-weigh-scan-bottom{flex:none;background:#f4f8fa;color:#293b48;padding:14px 17px calc(env(safe-area-inset-bottom) + 15px);min-width:0;max-height:45%;overflow:auto}
+.iu-weigh-scan-status{font-size:12px;min-height:24px;line-height:1.45;margin:0 0 8px;color:#405b68}
+.iu-weigh-scan-status.is-error{color:#a13449}
+.iu-weigh-scan-controls p{margin:0;color:#7e8d97;line-height:1.45;font-size:10.5px}
+.iu-weigh-scan-proposal{display:grid;gap:10px;min-width:0;text-align:center}
+.iu-weigh-scan-proposal small{color:#697e8a;font-size:11px}
+.iu-weigh-scan-proposal>strong{font-size:34px;font-weight:850;font-variant-numeric:tabular-nums;color:#283e4d;letter-spacing:-.5px}
+.iu-weigh-scan-conversion{margin:0;padding:10px 11px;border-radius:10px;border:1px solid #d8e4eb;background:#fff;color:#526773;font-size:11.5px;line-height:1.5}
+.iu-weigh-scan-primary,.iu-weigh-scan-secondary{min-height:48px;width:100%;border-radius:12px;font-size:13px;font-weight:800}
+.iu-weigh-scan-primary{background:#2a5269;border:1px solid #2a5269;color:#fff}
+.iu-weigh-scan-primary:disabled{opacity:.4}
+.iu-weigh-scan-secondary{background:#fff;border:1px solid #d5e0e6;color:#384d59}
+@media(max-height:650px){.iu-weigh-scan-header{padding-top:calc(env(safe-area-inset-top) + 7px);padding-bottom:7px}.iu-weigh-scan-bottom{padding-top:9px}}
+@media(prefers-reduced-motion:reduce){.iu-weigh-scan-overlay *{animation:none!important;transition:none!important}}
