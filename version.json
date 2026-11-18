@@ -1,7 +1,7 @@
 {
-  "version": "40.34",
+  "version": "40.35",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Cadre Prochain inventaire : rétablissement du second liseré en dégradé bleu-vert (extérieur 1 px), avec filet intérieur turquoise 1 px séparé de 1 px. Relief et contenu inchangés."
+  "notes": "Cadre Prochain inventaire : rapprochement des contours en dégradé bleu-vert et turquoise (inset 1 px au lieu de 2 px), arrondis harmonisés avec le bouton Démarrer un inventaire."
 }

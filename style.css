@@ -30898,7 +30898,7 @@ html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon > path{
 }
 
 
-/* V40.34 — Carte prochaine date : deux filets fins indépendants, extérieur en dégradé et intérieur turquoise. */
+/* V40.35 — Carte prochaine date : supprimer l'espacement entre les deux filets, comme sur Démarrer un inventaire. */
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box{
  border:1px solid transparent!important;
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%) padding-box,linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%) border-box!important;
@@ -30906,8 +30906,8 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
 }
 html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box::after{
  content:""!important;display:block!important;
- inset:2px!important;
+ inset:1px!important;
  border:1px solid #007583!important;
- border-radius:11px!important;
+ border-radius:13px!important;
  background:transparent!important;
 }
