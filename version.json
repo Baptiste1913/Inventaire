@@ -1,7 +1,7 @@
 {
-  "version": "40.50",
+  "version": "40.51",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Icône Planning du dock : taille conservée à 24,5 px, ajustement vertical de 2,5 px vers le bas pour aligner la base de la silhouette avec les autres icônes."
+  "notes": "Laboratoire Scanner isolé dans Administration : caméra iPhone pour EAN/UPC, saisie manuelle, recherche Open Food Facts (nom, quantité emballage, marque, catégorie, origine, labels, image). Aucune écriture dans les pesées."
 }

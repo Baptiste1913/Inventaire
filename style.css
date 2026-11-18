@@ -31400,3 +31400,63 @@ html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon{
 html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon > path{
  transform:none!important;
 }
+
+
+/* V40.51 — Laboratoire de lecture EAN isolé dans Administration */
+html body .app #iuBarcodeLabSection.iu-barcode-lab-section{
+ min-width:0;padding:16px;border:1px solid rgba(255,255,255,.93);border-radius:16px;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 35%,#e5ebef 100%);
+ box-shadow:-2px -2px 5px rgba(255,255,255,.6),2px 3px 7px rgba(145,163,178,.17),inset .5px .5px 0 rgba(255,255,255,.6);
+}
+#iuBarcodeLabSection .iu-admin-planning-header{margin:0 0 12px!important;padding:0!important;}
+#iuBarcodeLabSection .iu-admin-planning-header h3{margin:0;font-size:16px;font-weight:850;letter-spacing:-.25px;color:#303a42;}
+#iuBarcodeLabSection .iu-admin-planning-header p{margin:4px 0 0;font-size:11.5px;color:#7c8991;line-height:1.45;}
+#iuBarcodeLab.iu-barcode-lab{overflow:hidden;border:1px solid #e0e7eb;border-radius:12px;background:rgba(255,255,255,.65);}
+#iuBarcodeLab > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:13px;list-style:none;-webkit-tap-highlight-color:transparent;}
+#iuBarcodeLab > summary::-webkit-details-marker{display:none;}
+#iuBarcodeLab .iu-barcode-lab-summary{display:grid;gap:3px;min-width:0;}
+#iuBarcodeLab .iu-barcode-lab-summary strong{font-size:13px;font-weight:800;color:#36424b;}
+#iuBarcodeLab .iu-barcode-lab-summary small{font-size:11px;font-weight:500;color:#7c8991;}
+#iuBarcodeLab > summary svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;flex:none;transition:transform .22s ease;color:#6f7e89;}
+#iuBarcodeLab[open] > summary svg{transform:rotate(180deg);}
+#iuBarcodeLab .iu-barcode-lab-body{display:grid;gap:13px;padding:0 13px 15px;min-width:0;}
+#iuBarcodeLab .iu-barcode-lab-note,#iuBarcodeLab .iu-barcode-lab-privacy,#iuBarcodeLab .iu-barcode-lab-disclaimer{
+ font-size:11px;line-height:1.55;color:#6f7e89;margin:0;
+}
+#iuBarcodeLab .iu-barcode-lab-actions{display:flex;gap:8px;flex-wrap:wrap;}
+#iuBarcodeLab .iu-barcode-lab-actions button,#iuBarcodeLab .iu-barcode-lab-form button{
+ flex:1 1 140px;min-height:42px;border-radius:11px;font-size:12px;font-weight:800;
+}
+#iuBarcodeLab .iu-barcode-lab-form{display:grid;gap:8px;min-width:0;}
+#iuBarcodeLab .iu-barcode-lab-form label{font-size:11.5px;font-weight:700;color:#53616c;}
+#iuBarcodeLab .iu-barcode-lab-form > div{display:flex;gap:8px;flex-wrap:wrap;min-width:0;}
+#iuBarcodeLab #iuBarcodeInput{
+ min-height:42px;min-width:0;flex:2 1 150px;padding:9px 12px;
+ border:1px solid #d6e0e6;border-radius:11px;background:#fff;
+ color:#303a42;font-size:16px;font-weight:650;font-variant-numeric:tabular-nums;
+}
+#iuBarcodeLab .iu-barcode-lab-camera-wrap{border:1px solid #d8e2e9;border-radius:12px;padding:8px;background:#f6f9fb;min-width:0;overflow:hidden;}
+#iuBarcodeLab #iuBarcodeCamera{width:100%;min-width:0;overflow:hidden;}
+#iuBarcodeLab #iuBarcodeCamera video{max-width:100%;border-radius:8px;}
+#iuBarcodeLab .iu-barcode-lab-camera-wrap p{margin:7px 3px 1px;font-size:11px;color:#758590;text-align:center;}
+#iuBarcodeLab .iu-barcode-lab-status{margin:0;min-height:18px;font-size:11.5px;color:#506773;line-height:1.45;}
+#iuBarcodeLab .iu-barcode-lab-status.is-error{color:#9c3544;}
+#iuBarcodeLab .iu-barcode-lab-result{
+ display:grid;gap:12px;min-width:0;padding:13px;border:1px solid rgba(255,255,255,.94);border-radius:12px;
+ background:linear-gradient(145deg,#fff,#f8fafb 34%,#e5ebef);
+ box-shadow:-1px -1px 3px rgba(255,255,255,.5),2px 2.5px 5px rgba(145,163,178,.15);
+}
+#iuBarcodeLab .iu-barcode-lab-result-head{display:flex;align-items:center;gap:12px;min-width:0;}
+#iuBarcodeLab #iuBarcodeImage{width:74px;height:74px;object-fit:contain;border-radius:9px;background:white;flex:none;}
+#iuBarcodeLab .iu-barcode-lab-result-head > div{min-width:0;}
+#iuBarcodeLab #iuBarcodeSource{display:block;color:#7e8b94;font-size:10px;}
+#iuBarcodeLab #iuBarcodeName{margin:4px 0;font-size:15px;font-weight:850;color:#303a42;overflow-wrap:anywhere;}
+#iuBarcodeLab #iuBarcodeBrand{margin:0;font-size:11px;color:#78858e;}
+#iuBarcodeLab .iu-barcode-lab-facts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:0;}
+#iuBarcodeLab .iu-barcode-lab-facts > div{min-width:0;padding:10px;border:1px solid #e2e8ec;border-radius:10px;background:rgba(255,255,255,.8);}
+#iuBarcodeLab .iu-barcode-lab-facts dt{font-size:10px;color:#7c8991;margin-bottom:5px;}
+#iuBarcodeLab .iu-barcode-lab-facts dd{font-size:12px;font-weight:750;color:#34414a;margin:0;overflow-wrap:anywhere;}
+#iuBarcodeLab #iuBarcodeLink{font-size:11px;font-weight:750;color:#3b606f;text-decoration:underline;text-underline-offset:3px;}
+#iuBarcodeLab [hidden]{display:none!important;}
+@media(max-width:380px){#iuBarcodeLab .iu-barcode-lab-facts{grid-template-columns:minmax(0,1fr);}}
+@media(prefers-reduced-motion:reduce){#iuBarcodeLab > summary svg{transition:none;}}
