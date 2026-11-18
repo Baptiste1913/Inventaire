@@ -28038,8 +28038,9 @@ html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group > 
  gap:4px!important;
 }
 html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group h3{
- font-size:16px!important;
+ font-size:15px!important;
  font-weight:850!important;
+ line-height:1.3!important;
  color:#303a42!important;
 }
 html body.is-alerts-mode .app > #iuAlertsPage.iu-alerts-page .iu-alerts-group > header p{
