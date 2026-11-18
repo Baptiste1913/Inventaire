@@ -31386,3 +31386,17 @@ html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-b
 @media(forced-colors:active){
  html body:not(.is-focus-mode) .sessions-history-card #sessionsHistoryList .v22-bilan > button.delete-session-btn{border:1px solid ButtonText!important;background:ButtonFace!important;color:ButtonText!important;box-shadow:none!important;}
 }
+
+
+/* V40.49 — Planning : aligner le rectangle du calendrier (et non ses ergots)
+   sur les silhouettes des autres icônes. La boîte du dock reste inchangée. */
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon{
+ width:24.5px!important;
+ height:24.5px!important;
+ flex:0 0 24.5px!important;
+ position:relative!important;
+ top:-2.5px!important;
+}
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon > path{
+ transform:none!important;
+}
