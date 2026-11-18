@@ -1,0 +1,15 @@
+
+/* v40.69 - flux tarifaire autorisé, sans extraction automatique du site Courses U */
+.iu-courses-feed{display:grid;gap:10px;min-width:0;padding:14px;border:1px solid #dae5eb;border-radius:12px;background:linear-gradient(150deg,#fff,#eef5f8)}
+.iu-courses-feed h3{font-size:14px;font-weight:840;color:#385362;margin:0}
+.iu-courses-feed p{font-size:11px;line-height:1.55;color:#607a89;margin:0}
+.iu-courses-feed>label:not(.iu-courses-feed-check){font-size:12px;font-weight:750;color:#4c6878}
+.iu-courses-feed>input{min-width:0;width:100%;box-sizing:border-box;min-height:43px;padding:10px;border:1px solid #d4e2e8;border-radius:9px;background:#fff;font-size:12px;color:#345261}
+.iu-courses-feed-check{display:flex;gap:8px;align-items:start;color:#566f7d;font-size:11px;line-height:1.55}
+.iu-courses-feed-check input{flex:none;width:17px;height:17px;accent-color:#426f83;margin:0}
+.iu-courses-feed-actions{display:flex;gap:8px;flex-wrap:wrap}
+.iu-courses-feed-actions button{flex:1;min-width:125px;min-height:43px;padding:8px;border:1px solid #d6e3ea;border-radius:9px;background:linear-gradient(140deg,#fff,#e9f3f7);color:#385869;font-weight:800;font-size:12px}
+.iu-courses-feed-actions button:disabled{opacity:.5}
+.iu-courses-feed details{font-size:11px;color:#57717f}
+.iu-courses-feed details summary{cursor:pointer;font-weight:700}
+.iu-courses-feed pre{white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #e1eaf0;border-radius:8px;background:#fff;padding:8px;font-size:10px;line-height:1.55}

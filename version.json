@@ -1,7 +1,7 @@
 {
-  "version": "40.68",
+  "version": "40.69",
   "published": "2026-11-18",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Correctif Safari et UX du laboratoire Courses U : bouton direct pour récupérer dix produits du catalogue DIGI déjà stocké localement, ou trois exemples sans catalogue. Aucun fichier JSON d’essai obligatoire ; messages de résultat explicites. Tarifs toujours vérifiés manuellement."
+  "notes": "Préparation à la mise à jour automatique par flux tarifaire explicitement autorisé. Contrôle strict €/kg même si vente à la pièce, PLU+EAN et magasin exacts, dates <24h, variation >20 % bloquée, historique local et cache Safari. Pas de scraping ni de source Courses U active tant qu'aucun flux autorisé n'est disponible."
 }

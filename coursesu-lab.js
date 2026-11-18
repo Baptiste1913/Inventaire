@@ -1,4 +1,4 @@
-/* Inventaires U v40.68 - prototype prix Courses U, strictement local */
+/* Inventaires U v40.69 - prototype prix Courses U, strictement local */
 (()=>{
  'use strict';
  const target=document.querySelector('.iu-error-panel');
@@ -45,7 +45,7 @@
  }
  function updateSummary(){
   const count=items.filter(a=>prices[a.plu]?.eanPrefix===a.eanPrefix&&prices[a.plu]?.confirmed).length;
-  $('iuCoursesSummary').textContent=items.length+' articles · '+count+' tarif(s) vérifié(s) manuellement · 0 prix récupéré automatiquement.';
+  $('iuCoursesSummary').textContent=items.length+' articles · '+count+' tarif(s) disponibles · '+items.reduce((n,a)=>n+(prices[a.plu]?.origin==='authorized-feed'?1:0),0)+' depuis un flux autorisé.';
  }
  function render(){
   const host=$('iuCoursesList');host.replaceChildren();
@@ -67,11 +67,13 @@
    checklabel.append(checkbox,node('span','','Même article et tarif du bon magasin vérifiés'));
    box.append(checklabel);
    const button=node('button','iu-courses-btn','Enregistrer ce tarif');button.type='button';
-   const feedback=node('p','iu-courses-feedback',saved?.checkedAt?'Vérifié le '+new Date(saved.checkedAt).toLocaleString('fr-FR'):'Pas encore vérifié.');
+   const feedback=node('p','iu-courses-feedback',saved?.checkedAt?(saved.origin==='authorized-feed'?'Flux autorisé du ':'Vérifié manuellement le ')+new Date(saved.checkedAt).toLocaleString('fr-FR'):'Pas encore vérifié.');
    button.addEventListener('click',()=>{
     const cents=parsePrice(input.value);
     if(cents===null||!checkbox.checked){feedback.textContent='Vérifie le prix au kilo et coche la confirmation de correspondance.';return}
-    prices[article.plu]={eanPrefix:article.eanPrefix,price:(cents/100).toFixed(2),confirmed:true,checkedAt:Date.now()};
+    const previous=prices[article.plu],history=Array.isArray(previous?.history)?previous.history.slice(-9):[];
+    if(previous?.price&&previous.price!==(cents/100).toFixed(2))history.push({price:previous.price,checkedAt:previous.checkedAt,origin:previous.origin||'manual'});
+    prices[article.plu]={eanPrefix:article.eanPrefix,price:(cents/100).toFixed(2),confirmed:true,checkedAt:Date.now(),origin:'manual',history:history.slice(-10)};
     if(save()){feedback.textContent='Tarif enregistré sur cet appareil : '+euro(cents/100)+'/kg.';updateSummary()}
    });
    box.append(button,feedback);host.append(box);
@@ -142,6 +144,11 @@
   catch(e){$('iuCoursesLoadStatus').textContent='Chargement impossible : '+String(e?.message||'erreur inconnue').slice(0,100)}
  });
 
+ window.addEventListener('iu-coursesu-prices-updated',()=>{
+  const fresh=load();
+  if(!fresh||!Array.isArray(fresh.items)||!fresh.prices||typeof fresh.prices!=='object')return;
+  prices=fresh.prices;render();
+ });
  $('iuCoursesFile').addEventListener('change',async event=>{
   const file=event.target.files?.[0];event.target.value='';
   if(!file)return;
