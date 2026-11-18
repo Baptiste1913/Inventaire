@@ -30964,3 +30964,28 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
   display:none!important;
  }
 }
+
+/* V40.37 — Corriger la rémanence de V39.39 sur ::before :
+   left:12px, top:50%, width:4px, height:40px et translateY
+   empêchaient le dégradé de couvrir tout le cadre. */
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box::before{
+ top:0!important;
+ right:0!important;
+ bottom:0!important;
+ left:0!important;
+ width:100%!important;
+ height:100%!important;
+ min-width:0!important;
+ min-height:0!important;
+ transform:none!important;
+ border-radius:14px!important;
+}
+html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar.events-card .events-next-card.events-info-box::after{
+ top:1px!important;
+ right:1px!important;
+ bottom:1px!important;
+ left:1px!important;
+ width:auto!important;
+ height:auto!important;
+ transform:none!important;
+}

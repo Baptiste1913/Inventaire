@@ -1,7 +1,7 @@
 {
-  "version": "40.36",
+  "version": "40.37",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Cadre Prochain inventaire : double contour en deux pseudo-éléments superposés comme Démarrer un inventaire ; extérieur dégradé, intérieur turquoise de 1 px directement adjacent, sans fond border-box séparateur."
+  "notes": "Prochain inventaire : suppression des anciennes dimensions et translations de la barre ::before qui empêchaient le contour dégradé de couvrir le cadre. Deux filets accolés sur les quatre côtés."
 }
