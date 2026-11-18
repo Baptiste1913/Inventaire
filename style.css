@@ -30989,3 +30989,32 @@ html body:not(.is-focus-mode):not(.is-events-mode) main.app > #inventoryCalendar
  height:auto!important;
  transform:none!important;
 }
+
+/* V40.38 — Même neutralisation des anciennes géométries de pseudo-éléments
+   sur Voir la liste et Démarrer un inventaire que sur le cadre de date. */
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::before,
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::before{
+ content:""!important;display:block!important;position:absolute!important;
+ top:0!important;right:0!important;bottom:0!important;left:0!important;
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ box-sizing:border-box!important;margin:0!important;padding:0!important;
+ transform:none!important;border:0!important;border-radius:14px!important;
+ background:linear-gradient(90deg,#53c0e9 0%,#64b9ae 100%)!important;
+ opacity:1!important;z-index:0!important;pointer-events:none!important;
+ -webkit-mask:none!important;mask:none!important;
+}
+html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::after,
+html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{
+ content:""!important;display:block!important;position:absolute!important;
+ top:1px!important;right:1px!important;bottom:1px!important;left:1px!important;
+ width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;
+ box-sizing:border-box!important;margin:0!important;padding:0!important;
+ transform:none!important;border:1px solid #007583!important;border-radius:13px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ opacity:1!important;z-index:1!important;pointer-events:none!important;
+ -webkit-mask:none!important;mask:none!important;
+}
+@media(forced-colors:active){
+ html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::before,html body:not(.is-focus-mode) .app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-watch .iu-dash #iuDashListButton::after,
+ html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::before,html body:not(.is-focus-mode) .app > .session-card.card .session-actions > #startSession.primary-btn.session-btn:not([hidden])::after{display:none!important;}
+}

@@ -1,7 +1,7 @@
 {
-  "version": "40.37",
+  "version": "40.38",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Prochain inventaire : suppression des anciennes dimensions et translations de la barre ::before qui empêchaient le contour dégradé de couvrir le cadre. Deux filets accolés sur les quatre côtés."
+  "notes": "Voir la liste et Démarrer un inventaire : normalisation du double contour, dégradé extérieur bleu-vert complet et filet turquoise intérieur 1 px, avec reset des géométries CSS héritées ; tailles et animations conservées."
 }
