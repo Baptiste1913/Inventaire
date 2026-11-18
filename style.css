@@ -30881,3 +30881,8 @@ html body #iuQuickDock.iu-quick-dock :is(#iuQuickSession,#iuQuickAdmin,#iuQuickE
  fill:currentColor!important;
  transform:scale(1.12)!important;
 }
+
+/* V40.28 — Ajustement optique du pictogramme Planning uniquement. */
+html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon{
+ width:25px!important;height:25px!important;flex:0 0 25px!important;
+}

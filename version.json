@@ -1,7 +1,7 @@
 {
-  "version": "40.27",
+  "version": "40.28",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Barre de navigation : Événements renommé Planning et Rappels renommé Marché (libellés et accessibilité uniquement). Icônes et navigation inchangées."
+  "notes": "Ajustement optique du calendrier Planning de 22 à 25 px pour harmoniser sa taille perçue avec les autres icônes du dock, sans modifier le bouton, le texte ni les animations."
 }
