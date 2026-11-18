@@ -1,7 +1,7 @@
 {
-  "version": "40.53",
+  "version": "40.54",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Scanner laboratoire : distingue les codes internes commençant par 2 (dont 28), vérifie le chiffre de contrôle, précise les erreurs HTTP/réseau et propose un code témoin. Aucun enregistrement de pesée."
+  "notes": "Laboratoire Étiquettes DIGI : prise de photo iPhone ou choix d'image, OCR français/anglais local et extraction expérimentale du nom, poids, prix et PLU avec correction du texte. Aucune modification des pesées."
 }

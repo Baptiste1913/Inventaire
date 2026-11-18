@@ -31465,3 +31465,48 @@ html body .app #iuBarcodeLabSection.iu-barcode-lab-section{
 #iuBarcodeLab #iuBarcodeCodeInfo{display:block;padding:10px 12px;border-left:3px solid #909fa9;border-radius:8px;background:rgba(226,233,238,.45);color:#53616b;font-size:11px;line-height:1.5;}
 #iuBarcodeLab #iuBarcodeSample{min-height:42px;border-radius:11px;font-size:12px;font-weight:750;}
 #iuBarcodeLab [hidden]{display:none!important;}
+
+
+/* V40.54 — Laboratoire OCR DIGI en administration, palette identique à Marché */
+html body .app #iuLabelLabSection.iu-label-lab-section{
+ min-width:0;padding:16px;border:1px solid rgba(255,255,255,.94);border-radius:16px;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%);
+ box-shadow:-1.5px -1.5px 3.5px rgba(255,255,255,.49),-3px -3px 6.5px rgba(255,255,255,.30),2px 2.5px 5.5px rgba(156,173,189,.175),.5px 1px 2px rgba(156,173,189,.09),inset .5px .5px 0 rgba(255,255,255,.48);
+}
+#iuLabelLabSection .iu-admin-planning-header{padding:0!important;margin:0 0 13px!important;}
+#iuLabelLabSection .iu-admin-planning-header h3{font-size:16px!important;font-weight:850!important;letter-spacing:-.25px!important;color:#272f36!important;margin:0!important;}
+#iuLabelLabSection .iu-admin-planning-header p{font-size:11.5px!important;line-height:1.45!important;color:#7c8991!important;margin:4px 0 0!important;}
+#iuLabelLab.iu-label-lab{border:1px solid #e0e7eb;border-radius:12px;background:rgba(255,255,255,.7);overflow:hidden;}
+#iuLabelLab > summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:13px;list-style:none;-webkit-tap-highlight-color:transparent;}
+#iuLabelLab > summary::-webkit-details-marker{display:none;}
+#iuLabelLab .iu-label-lab-summary{display:grid;gap:3px;min-width:0;}
+#iuLabelLab .iu-label-lab-summary strong{font-size:13px;font-weight:800;color:#36424b;}
+#iuLabelLab .iu-label-lab-summary small{font-size:11px;font-weight:500;color:#7c8991;}
+#iuLabelLab > summary svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;flex:none;transition:transform .22s ease;color:#6f7e89;}
+#iuLabelLab[open] > summary svg{transform:rotate(180deg);}
+#iuLabelLab .iu-label-lab-body{display:grid;gap:13px;padding:0 13px 16px;min-width:0;}
+#iuLabelLab .iu-label-lab-help,#iuLabelLab .iu-label-lab-footer,#iuLabelLab .iu-label-lab-warning{margin:0;font-size:11px;line-height:1.55;color:#71808a;}
+#iuLabelLab .iu-label-lab-warning{border-left:3px solid #a3afb8;padding:8px 10px;background:rgba(231,237,241,.65);border-radius:7px;}
+#iuLabelLab .iu-label-lab-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+#iuLabelLab .iu-label-lab-pick{display:flex;align-items:center;justify-content:center;gap:6px;min-height:43px;text-align:center;padding:8px;font-size:12px;font-weight:800;cursor:pointer;border-radius:11px;}
+#iuLabelLab .iu-label-lab-pick svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.8;fill:none;flex:none;}
+#iuLabelLab #iuLabelRead,#iuLabelLab #iuLabelReanalyse{min-height:43px;width:100%;border-radius:11px;font-size:12px;font-weight:800;}
+#iuLabelLab #iuLabelRead:disabled{opacity:.45;cursor:default;}
+#iuLabelLab .iu-label-lab-preview{border:1px solid #dce5eb;border-radius:12px;padding:9px;background:#f7fafb;}
+#iuLabelLab .iu-label-lab-preview img{display:block;width:100%;max-height:400px;object-fit:contain;border-radius:8px;}
+#iuLabelLab .iu-label-lab-preview p{font-size:10px;text-align:center;color:#7c8991;margin:7px 0 0;}
+#iuLabelLab .iu-label-lab-status{font-size:11.5px;line-height:1.5;color:#486572;margin:0;min-height:18px;}
+#iuLabelLab .iu-label-lab-status.is-error{color:#9c3544;}
+#iuLabelLab .iu-label-lab-result{min-width:0;display:grid;gap:12px;border:1px solid #e1e7eb;border-radius:13px;background:linear-gradient(145deg,#fff,#f8fafb 34%,#e5ebef);padding:13px;}
+#iuLabelLab .iu-label-lab-result-heading{display:grid;gap:2px;}
+#iuLabelLab .iu-label-lab-result-heading strong{font-size:15px;font-weight:850;color:#303a42;}
+#iuLabelLab .iu-label-lab-result-heading small{font-size:11px;color:#87929a;}
+#iuLabelLab .iu-label-lab-facts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+#iuLabelLab .iu-label-lab-facts > div{min-width:0;padding:10px;border:1px solid #dfe6eb;border-radius:11px;background:rgba(255,255,255,.83);}
+#iuLabelLab .iu-label-lab-facts dt{margin:0 0 5px;font-size:10px;color:#7c8991;}
+#iuLabelLab .iu-label-lab-facts dd{margin:0;font-size:12px;font-weight:800;color:#303a42;overflow-wrap:anywhere;}
+#iuLabelLab .iu-label-lab-editor-label{font-size:11.5px;font-weight:750;color:#586772;}
+#iuLabelLab #iuLabelText{box-sizing:border-box;resize:vertical;width:100%;min-height:145px;padding:11px;font-size:12px;line-height:1.5;color:#303a42;border:1px solid #d8e1e7;border-radius:10px;background:#fff;}
+#iuLabelLab [hidden]{display:none!important;}
+@media(max-width:380px){#iuLabelLab .iu-label-lab-actions,#iuLabelLab .iu-label-lab-facts{grid-template-columns:1fr;}}
+@media(prefers-reduced-motion:reduce){#iuLabelLab > summary svg{transition:none;}}
