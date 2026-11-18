@@ -1,7 +1,7 @@
 {
-  "version": "40.46",
+  "version": "40.47",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Bilans individuels dépliés : statistiques, mois de référence, graphiques, boutons CSV/JSON/suppression et corbeille harmonisés au style neumorphique monochrome. Fonctionnement et données inchangés."
+  "notes": "Bouton Supprimer ce bilan : mêmes dégradé rose doux, texte rouge, bordure, relief et effet pressé que Effacer dans Administration. Fonction de suppression inchangée."
 }
