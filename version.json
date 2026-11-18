@@ -1,7 +1,7 @@
 {
-  "version": "40.55",
+  "version": "40.56",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Lecture d'étiquettes DIGI : OCR local français et anglais avec chargement multilingue conforme à Tesseract.js v5. Laboratoire isolé, photo et résultats non enregistrés."
+  "notes": "Laboratoire Étiquettes : décodage prudent des textes OCR DIGI (0276 kg → 0,276 kg à vérifier, 093 €/kg → 0,93 €/kg à vérifier), exclusion du prix au kilo comme total, code EAN seulement si contrôle valide. Aucune pesée modifiée."
 }

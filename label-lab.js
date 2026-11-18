@@ -1,4 +1,4 @@
-/* Inventaires U v40.55 — Laboratoire OCR étiquettes, sans modification des inventaires. */
+/* Inventaires U v40.56 — Laboratoire OCR étiquettes, sans modification des inventaires. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -10,67 +10,73 @@
  let selectedFile=null,previewUrl=null,loadPromise=null,worker=null,reading=false,generation=0;
  const statusText=(message,error=false)=>{status.textContent=message;status.classList.toggle('is-error',error);};
  const normalized=s=>String(s||'').replace(/[\u00a0\u202f]/g,' ').replace(/[’‘]/g,"'").replace(/[€]/g,'€');
- const priceNumber=v=>v.replace(/\s/g,'').replace(/[,.]/g,'.');
- const amount=(str,unit)=>str?priceNumber(str)+' '+unit:'Non détecté';
- function findMoney(lines,keywords){
-  for(let i=0;i<lines.length;i++){
-   if(!keywords.test(lines[i]))continue;
-   const group=lines.slice(i,i+3).join(' ');
-   const matches=[...group.matchAll(/([0-9]{1,3}(?:[\s.,][0-9]{1,3})?)\s*(?:€|E|EUR)/gi)];
-   if(matches.length)return matches[0][1];
-   const between=group.match(/(?:payer|total|unitaire|kilo|kg)[^0-9]{0,25}([0-9]+[,.][0-9]{1,2})/i);
-   if(between)return between[1];
-  }
-  return '';
- }
+
+ const formatted=(v,unit)=>v?v+' '+unit:'Non détecté';
+ // Les étiquettes DIGI peuvent perdre leurs virgules à la reconnaissance OCR.
+ // Une valeur corrigée reste marquée pour vérification humaine.
  function parseLabel(value){
-  const raw=normalized(value);
-  const lines=raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const raw=String(value||'').replace(/[\u00a0\u202f]/g,' ').replace(/[’‘]/g,"'");
+  const lines=raw.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+  const text=lines.join(' ');
   const candidates=lines.filter(line=>{
-   const letters=(line.match(/[A-ZÀ-Ÿ]/gi)||[]).length;
-   return letters>=5&&line.length<65&&
-    !/(super\s*u|saint.germain|st\s*germain|prix|poids|emball|kilo|date|payer|euros?|\bkg\b|\bplu\b)/i.test(line);
+   const alpha=(line.match(/[A-ZÀ-Ÿ]/gi)||[]).length;
+   return alpha>=5 && line.length<65
+    && !/^\d{4,5}\s*(?:ST|SAINT)\b/i.test(line)
+    && !/(?:super\s*u|saint.germain|st\s*germain|prix|poids|emball|kilo|date|payer|euros?|\bkg\b|\bplu\b|€|\d{2}[.\/]\d{2})/i.test(line)
+    && /^[\p{L}0-9\s'’\-.,]+$/u.test(line);
   });
-  let name=candidates.find(s=>s===s.toUpperCase()&&/[A-ZÀ-Ÿ]{3}/.test(s))||candidates[0]||'';
-  if(name)name=name.replace(/[^\p{L}0-9\s'’-]/gu,' ').replace(/\s+/g,' ').trim();
-  let weight='';
-  const all=lines.join(' ');
-  const weightMatch=all.match(/poids\s*(?:n[eé]t|net)?[^0-9]{0,35}([0-9]{1,3}[,.][0-9]{2,3})\s*(?:k\s*g|kg)?/i);
-  if(weightMatch)weight=weightMatch[1];
-  if(!weight){
-   const kg=[...all.matchAll(/([0-9]{1,3}[,.][0-9]{2,3})\s*k\s*g/gi)];
-   if(kg.length)weight=kg[kg.length-1][1];
+  const name=(candidates.find(line=>line===line.toUpperCase())||candidates[0]||'')
+   .replace(/[^\p{L}0-9\s'’-]/gu,' ').replace(/\s+/g,' ').trim();
+  let weight='',weightNeedsReview=false;
+  const kgMatch=text.match(/(?<![\d.,])([0-9]{1,3}[,.][0-9]{2,3}|0[0-9]{3})\s*k\s*g\b/i);
+  if(kgMatch){
+   const token=kgMatch[1];
+   if(/^0[0-9]{3}$/.test(token)){weight='0,'+token.slice(1);weightNeedsReview=true;}
+   else weight=token.replace('.',',');
   }
-  let unitPrice='';
-  const unitMatch=all.match(/(?:prix\s*unitaire|prix\s*au\s*kilo|prix\s*\/\s*kg)[^0-9]{0,30}([0-9]{1,3}[,.][0-9]{1,2})/i);
-  if(unitMatch)unitPrice=unitMatch[1];
+  const pricePerKg=text.match(/(?<![\d.,])([0-9]{1,3}[,.][0-9]{1,2}|0[0-9]{2})\s*(?:€|EUR|E)\s*\/\s*k\s*g\b/i);
+  let unitPrice='',unitPriceNeedsReview=false;
+  if(pricePerKg){
+   const token=pricePerKg[1];
+   if(/^0[0-9]{2}$/.test(token)){unitPrice='0,'+token.slice(1);unitPriceNeedsReview=true;}
+   else unitPrice=token.replace('.',',');
+  }
   if(!unitPrice){
-   const kgEuro=all.match(/([0-9]{1,3}[,.][0-9]{1,2})\s*(?:€|E|EUR)\s*\/\s*k\s*g/i);
-   if(kgEuro)unitPrice=kgEuro[1];
+   const match=text.match(/(?:prix\s*unitaire|prix\s*au\s*kilo|prix\s*\/\s*kg)[^0-9]{0,25}([0-9]{1,3}[,.][0-9]{1,2})/i);
+   if(match)unitPrice=match[1].replace('.',',');
   }
   let total='';
-  const totalMatch=all.match(/(?:prix\s*[aà]\s*payer|montant|total)[^0-9]{0,34}([0-9]{1,3}[,.][0-9]{1,2})\s*(?:€|E|EUR)?/i);
-  if(totalMatch)total=totalMatch[1];
+  const totalMatch=text.match(/(?:prix\s*[aà]\s*payer|montant(?:\s*total)?|total\s*[àa]\s*payer)[^0-9]{0,25}([0-9]{1,3}[,.][0-9]{1,2})\s*(?:€|EUR)?/i);
+  if(totalMatch)total=totalMatch[1].replace('.',',');
   if(!total){
-   const euros=[...all.matchAll(/([0-9]{1,3}[,.][0-9]{1,2})\s*(?:€|EUR)/gi)];
-   if(euros.length)total=euros[euros.length-1][1];
+   // Ne jamais prendre le tarif €/kg pour le prix total.
+   const prices=[...text.matchAll(/(?<![\d.,])([0-9]{1,3}[,.][0-9]{1,2})\s*(?:€|EUR)(?!\s*\/\s*k\s*g)/gi)];
+   if(prices.length===1)total=prices[0][1].replace('.',',');
   }
-  let plu='';
-  const pluMatch=all.match(/\bPLU\s*[:#-]?\s*([0-9]{2,6})\b/i);
-  if(pluMatch)plu=pluMatch[1];
-  const eanMatch=all.replace(/[\s-]/g,'').match(/(?:^|\D)([0-9]{13})(?:\D|$)/);
-  const code=eanMatch?eanMatch[1]:'';
-  return {name,weight,unitPrice,total,plu,code};
+  const pluMatch=text.match(/\bPLU\s*[:#-]?\s*([0-9]{2,6})\b/i);
+  const plu=pluMatch?pluMatch[1]:'';
+  // Un code EAN mal reconnu ne doit pas être reconstruit arbitrairement.
+  const checkEAN=code=>{
+   if(!/^\d{13}$/.test(code))return false;
+   let sum=0;
+   for(let i=0;i<12;i++)sum+=Number(code[i])*(i%2===0?1:3);
+   return (10-sum%10)%10===Number(code[12]);
+  };
+  const codeCandidates=(text.match(/(?<!\d)\d{13}(?!\d)/g)||[]).filter(checkEAN);
+  const code=codeCandidates.length===1?codeCandidates[0]:'';
+  return {name,weight,weightNeedsReview,unitPrice,unitPriceNeedsReview,total,plu,code};
  }
  function showParsed(value){
   const p=parseLabel(value);
   $('iuLabelProduct').textContent=p.name||'Non détecté';
-  $('iuLabelWeight').textContent=amount(p.weight,'kg');
-  $('iuLabelUnitPrice').textContent=amount(p.unitPrice,'€/kg');
-  $('iuLabelTotalPrice').textContent=amount(p.total,'€');
+  $('iuLabelWeight').textContent=formatted(p.weight,'kg')+(p.weightNeedsReview?' · à vérifier':'');
+  $('iuLabelUnitPrice').textContent=formatted(p.unitPrice,'€/kg')+(p.unitPriceNeedsReview?' · à vérifier':'');
+  $('iuLabelTotalPrice').textContent=formatted(p.total,'€');
   $('iuLabelPlu').textContent=p.plu||'Non détecté';
   $('iuLabelCode').textContent=p.code||'Non détecté';
   result.hidden=false;
+  if(p.weightNeedsReview||p.unitPriceNeedsReview)
+   statusText('Séparateurs manquants dans certains chiffres : valeurs proposées à vérifier sur l’étiquette.');
  }
  function loadTesseract(){
   if(window.Tesseract?.createWorker)return Promise.resolve(window.Tesseract);
