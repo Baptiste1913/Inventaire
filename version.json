@@ -1,7 +1,7 @@
 {
-  "version": "40.65",
-  "published": "2026-11-17",
+  "version": "40.66",
+  "published": "2026-11-18",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Catalogue DIGI : préfixe EAN 2412955 associé au PLU 9694 (Clémentine à feuilles), confirmé par étiquette. Trois produits de référence reconnus sans saisie, sans prétendre décoder le poids exact."
+  "notes": "Reconnaissance automatique des préfixes EAN de balance présents dans le fichier DIGI importé localement (756 préfixes uniques du nouvel export), recherche PLU, signalement des conflits et reprise des associations existantes. Aucun prix ni catalogue interne publié, aucun poids calculé depuis un prix."
 }

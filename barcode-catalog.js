@@ -1,4 +1,4 @@
-/* Inventaires U v40.65 — catalogue PLU DIGI local et identification expérimentale EAN. */
+/* Inventaires U v40.66 — catalogue PLU DIGI local et identification expérimentale EAN. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -10,6 +10,8 @@
                '2412955':{plu:'9694',name:'CLEMENTINE A FEUILLES'} };
  const readStorage=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch(_){return null}};
  const catalog=new Map();
+ // Préfixes EAN issus du catalogue DIGI importé, séparés des associations apprises.
+ const eanIndex=new Map(),ambiguousPrefixes=new Set();
  const storedLinks=readStorage(keyLinks);
  const learned=storedLinks&&typeof storedLinks==='object'&&!Array.isArray(storedLinks)?storedLinks:{};
  const $s=(id,txt)=>{$(id).textContent=txt;};
@@ -22,7 +24,11 @@
   if(!/^[0-9]{1,8}$/.test(plu)||!name||name.length>145)return null;
   const status=item.actif??item.sur_clavier_actuel??item['Sur clavier actuel'];
   const active=status===true||status==='Oui'||status==='oui';
-  return {plu,name,active,clavier:String(item.clavier??item.Clavier??'').slice(0,50)};
+  const rawEAN=String(item.eanPrefix??item.ean_prefix??item['Préfixe EAN']??item.Gencod??item.gencod??'').trim();
+  const eanPrefix=/^\d{7}$/.test(rawEAN)?rawEAN:
+   (/^\d{13}$/.test(rawEAN)&&rawEAN.endsWith('000000')?rawEAN.slice(0,7):'');
+  const validPrefix=/^(?:02|2\d)\d{5}$/.test(eanPrefix)?eanPrefix:'';
+  return {plu,name,active,clavier:String(item.clavier??item.Clavier??'').slice(0,50),eanPrefix:validPrefix};
  };
  const fillCatalog=items=>{
   if(!Array.isArray(items)||items.length>10000)throw Error('Liste d’articles invalide ou trop volumineuse.');
@@ -32,12 +38,25 @@
   return records;
  };
  function populate(records){
-  catalog.clear();records.forEach((item,key)=>catalog.set(key,item));imported=true;updateCount();
+  catalog.clear();eanIndex.clear();ambiguousPrefixes.clear();
+  const groups=new Map();
+  records.forEach((item,key)=>{
+   catalog.set(key,item);
+   if(item.eanPrefix){
+    if(!groups.has(item.eanPrefix))groups.set(item.eanPrefix,new Set());
+    groups.get(item.eanPrefix).add(item.plu);
+   }
+  });
+  groups.forEach((pluList,prefix)=>{
+   if(pluList.size===1)eanIndex.set(prefix,Array.from(pluList)[0]);
+   else ambiguousPrefixes.add(prefix);
+  });
+  imported=true;updateCount();
  }
  function updateCount(){
   const active=Array.from(catalog.values()).filter(item=>item.active).length;
   $s('iuEanCatalogCount',imported?catalog.size+' références PLU disponibles':'Catalogue non importé');
-  $s('iuEanCatalogActive',imported?active+' sur les claviers au moment de l’export · '+Object.keys(learned).length+' association(s) ajoutée(s) localement':'3 correspondances vérifiées sur étiquettes disponibles pour essai.');
+  $s('iuEanCatalogActive',imported?active+' sur les claviers lors de l’export · '+eanIndex.size+' préfixes EAN importés · '+Object.keys(learned).length+' association(s) ajoutée(s) localement':'3 correspondances vérifiées sur étiquettes disponibles pour essai.');
  }
  const initial=readStorage(keyCatalog);
  if(initial&&Array.isArray(initial.articles)){
@@ -67,18 +86,18 @@
    const text=await file.text();
    const items=file.name.toLowerCase().endsWith('.csv')?parseCSV(text):(JSON.parse(text).articles??JSON.parse(text));
    const records=fillCatalog(items);
-   const serializable=Array.from(records.values()).map(item=>({plu:item.plu,libelle:item.name,actif:item.active,clavier:item.clavier}));
+   const serializable=Array.from(records.values()).map(item=>({plu:item.plu,libelle:item.name,actif:item.active,clavier:item.clavier,eanPrefix:item.eanPrefix}));
    // Les données sont conservées dans une clé distincte de tous les inventaires.
    localStorage.setItem(keyCatalog,JSON.stringify({articles:serializable}));
    populate(records);
-   $s('iuEanCatalogStatus','Import réussi : '+records.size+' PLU disponibles hors ligne sur cet appareil.');
+   $s('iuEanCatalogStatus','Import réussi : '+records.size+' PLU, '+eanIndex.size+' préfixes EAN reconnus hors ligne sur cet appareil.'+(ambiguousPrefixes.size?' '+ambiguousPrefixes.size+' préfixe(s) ambigus non associés automatiquement.':''));
    renderSearch('iuEanCatalogSearch','iuEanCatalogMatches',false);
   }catch(error){$s('iuEanCatalogStatus','Import impossible. Sélectionne le fichier JSON ou CSV consolidé : '+String(error.message||'').slice(0,100))}
  });
  function entries(query){
   const q=String(query||'').toLocaleLowerCase('fr').trim();
   if(!q||!imported)return [];
-  const all=Array.from(catalog.values()).filter(item=>item.plu.includes(q)||item.name.toLocaleLowerCase('fr').includes(q));
+  const all=Array.from(catalog.values()).filter(item=>item.plu.includes(q)||item.name.toLocaleLowerCase('fr').includes(q)||(item.eanPrefix&&item.eanPrefix.includes(q)));
   all.sort((a,b)=>Number(b.plu===q)-Number(a.plu===q)||Number(b.active)-Number(a.active)||a.name.localeCompare(b.name,'fr'));
   return all.slice(0,7);
  }
@@ -87,14 +106,14 @@
   const matches=entries($(inputId).value);
   if(!matches.length){
    if($(inputId).value.trim()&&imported)container.textContent='Aucune référence trouvée.';
-   else if($(inputId).value.trim()&&!imported)container.textContent='Importe le catalogue pour rechercher les 851 PLU.';
+   else if($(inputId).value.trim()&&!imported)container.textContent='Importe le catalogue pour rechercher les références DIGI.';
    return;
   }
   matches.forEach(item=>{
    const btn=document.createElement('button');btn.type='button';
    const name=document.createElement('strong'),detail=document.createElement('small');
    name.textContent=item.name;
-   detail.textContent='PLU '+item.plu+(item.active?' · Clavier actif lors de l’export':' · Autre référence');
+   detail.textContent='PLU '+item.plu+(item.eanPrefix?' · EAN '+item.eanPrefix:'')+(item.active?' · Clavier lors de l’export':'');
    btn.append(name,detail);
    btn.addEventListener('click',()=>{
     if(canLink){associate(item);}
@@ -120,14 +139,31 @@
   return code;
  }
  function lookup(code){
-  selectedCode=code;currentPrefix=code.length===13&&/^0?2/.test(code)?code.slice(0,7):'';
-  const association=currentPrefix?(typeof learned[currentPrefix]==='string'?learned[currentPrefix]:known[currentPrefix]?.plu):null;
-  const matched=association?catalog.get(association)||((known[currentPrefix]?.plu===association)?{plu:association,name:known[currentPrefix].name,active:false}:null):null;
+  selectedCode=code;
+  currentPrefix=code.length===13&&/^0?2/.test(code)?code.slice(0,7):'';
+  const manual=currentPrefix&&typeof learned[currentPrefix]==='string'?learned[currentPrefix]:null;
+  const importedPLU=currentPrefix?eanIndex.get(currentPrefix):null;
+  const examplePLU=currentPrefix?known[currentPrefix]?.plu:null;
+  // Une association manuelle explicite prime, puis le référentiel DIGI, puis les exemples.
+  // Un conflit avec l'import est signalé plutôt que masqué.
+  const association=manual||importedPLU||examplePLU||null;
+  const fallback=known[currentPrefix];
+  const matched=association?catalog.get(association)||
+   ((fallback?.plu===association)?{plu:association,name:fallback.name,active:false}:null):null;
+  const conflict=!!(manual&&importedPLU&&manual!==importedPLU);
+  const ambiguous=!!(currentPrefix&&ambiguousPrefixes.has(currentPrefix)&&!manual);
+  let origin=matched?
+   (manual?'Association enregistrée sur cet appareil':
+    importedPLU?'Correspondance automatique depuis l’export DIGI':
+    'Correspondance vérifiée sur une étiquette'):
+   (ambiguous?'Préfixe partagé par plusieurs PLU : association manuelle nécessaire.':
+    'Aucune correspondance EAN → PLU trouvée dans le catalogue actuel.');
+  if(conflict)origin+=' Attention : cette association est différente de l’export DIGI.';
   $s('iuEanResultCode',code);
   $s('iuEanResultPrefix',currentPrefix||'Non applicable');
   $s('iuEanResultPLU',matched?'PLU '+matched.plu:'Non identifié');
   $s('iuEanResultTitle',matched?matched.name:'Produit non identifié');
-  $s('iuEanMatchOrigin',matched?(Object.prototype.hasOwnProperty.call(learned,currentPrefix)?'Correspondance enregistrée sur cet appareil':'Correspondance vérifiée sur tes étiquettes'):'Aucune correspondance entre ce préfixe EAN et un PLU disponible.');
+  $s('iuEanMatchOrigin',origin);
   $s('iuEanResultWeight','Non disponible dans ce code de manière fiable');
   $('iuEanResult').hidden=false;
   $('iuEanLearn').hidden=!currentPrefix||!imported;
@@ -136,7 +172,9 @@
   $('iuEanOpenWeight').hidden=!modalFromCalc;
   $('iuEanInput').value=code;
   const summary=matched?matched.name+' (PLU '+matched.plu+'). ':'';
-  status.textContent='Code-barres valide. '+summary+'Le poids exact nécessite toujours la lecture de l’étiquette.';
+  status.textContent='Code-barres valide. '+summary+
+   'Le poids exact nécessite toujours la lecture de l’étiquette.'+
+   (conflict?' Attention : vérifie l’association manuelle.':'');
  }
  const status=$('iuEanStatus');
  function handleCode(raw){
@@ -148,7 +186,7 @@
  function associate(item){
   if(!currentPrefix)return;
   if(!imported)return;
-  const existing=learned[currentPrefix]||known[currentPrefix]?.plu;
+  const existing=learned[currentPrefix]||eanIndex.get(currentPrefix)||known[currentPrefix]?.plu;
   if(existing&&existing!==item.plu&&!confirm('Ce préfixe correspond déjà au PLU '+existing+'. Remplacer cette association ?'))return;
   learned[currentPrefix]=item.plu;
   try{localStorage.setItem(keyLinks,JSON.stringify(learned))}
