@@ -1,7 +1,7 @@
 {
-  "version": "40.24",
+  "version": "40.25",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Affinage des contours turquoise du bouton Inventaire du dock : anneau extérieur de 2,5 à 1 px, bordure intérieure de 2 à 1 px, rayons ajustés. Dimensions, icône et animations inchangées."
+  "notes": "Remplacement des quatre pictogrammes du dock par des tracés vectoriels fidèles aux images fournies : Play, Réglages, Calendrier et Étiquette ; icône Compte conservée. Navigation, tailles CSS et animations préservées."
 }
