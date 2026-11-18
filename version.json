@@ -1,7 +1,7 @@
 {
-  "version": "40.28",
+  "version": "40.29",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Ajustement optique du calendrier Planning de 22 à 25 px pour harmoniser sa taille perçue avec les autres icônes du dock, sans modifier le bouton, le texte ni les animations."
+  "notes": "Correction de l’ajustement optique : Planning retrouve 22 px, Marché passe à 25 px. Autres icônes et animations inchangées."
 }

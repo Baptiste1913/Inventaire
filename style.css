@@ -30882,7 +30882,7 @@ html body #iuQuickDock.iu-quick-dock :is(#iuQuickSession,#iuQuickAdmin,#iuQuickE
  transform:scale(1.12)!important;
 }
 
-/* V40.28 — Ajustement optique du pictogramme Planning uniquement. */
-html body #iuQuickDock.iu-quick-dock #iuQuickEvents .iu-dock-custom-icon{
+/* V40.29 — Correction : ajustement optique du pictogramme Marché uniquement. */
+html body #iuQuickDock.iu-quick-dock #iuQuickAlerts .iu-dock-custom-icon{
  width:25px!important;height:25px!important;flex:0 0 25px!important;
 }
