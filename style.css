@@ -31460,3 +31460,8 @@ html body .app #iuBarcodeLabSection.iu-barcode-lab-section{
 #iuBarcodeLab [hidden]{display:none!important;}
 @media(max-width:380px){#iuBarcodeLab .iu-barcode-lab-facts{grid-template-columns:minmax(0,1fr);}}
 @media(prefers-reduced-motion:reduce){#iuBarcodeLab > summary svg{transition:none;}}
+
+/* V40.53 — scanner : état d'identification des codes internes, essai témoin */
+#iuBarcodeLab #iuBarcodeCodeInfo{display:block;padding:10px 12px;border-left:3px solid #909fa9;border-radius:8px;background:rgba(226,233,238,.45);color:#53616b;font-size:11px;line-height:1.5;}
+#iuBarcodeLab #iuBarcodeSample{min-height:42px;border-radius:11px;font-size:12px;font-weight:750;}
+#iuBarcodeLab [hidden]{display:none!important;}

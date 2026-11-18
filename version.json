@@ -1,7 +1,7 @@
 {
-  "version": "40.52",
+  "version": "40.53",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire Scanner EAN : correctif de validation des codes EAN/UPC 8, 12, 13 et 14 chiffres. Module de test isolé accessible depuis Administrateur."
+  "notes": "Scanner laboratoire : distingue les codes internes commençant par 2 (dont 28), vérifie le chiffre de contrôle, précise les erreurs HTTP/réseau et propose un code témoin. Aucun enregistrement de pesée."
 }

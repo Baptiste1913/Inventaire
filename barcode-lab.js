@@ -1,4 +1,4 @@
-/* Inventaires U v40.52 — Essai de scan code-barres, isolé des données métier. */
+/* Inventaires U v40.53 — Essai de scan code-barres, isolé des données métier. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -12,6 +12,25 @@
  const valid=code=>/^[0-9]{8}$|^[0-9]{12,14}$/.test(code);
  const setStatus=(message,error=false)=>{status.textContent=message;status.classList.toggle('is-error',error);};
  const readable=(text,max=180)=>String(text||'').trim().slice(0,max)||'Non renseigné';
+ const codeInfo=$('iuBarcodeCodeInfo');
+ const checksumValid=code=>{
+  if(!/^[0-9]{8}$|^[0-9]{12,14}$/.test(code))return false;
+  const n=code.length;
+  const sum=Array.from(code.slice(0,-1)).reduce((total,digit,index)=>{
+   const right=(n-2)-index;return total+Number(digit)*(right%2===0?3:1);
+  },0);
+  return (10-sum%10)%10===Number(code[n-1]);
+ };
+ function explainCode(code){
+  const internal=code.length===13&&/^2[0-9]/.test(code);
+  codeInfo.hidden=false;
+  codeInfo.textContent=(internal
+    ?'Code commençant par '+code.slice(0,2)+' : famille généralement réservée aux usages internes / mesures variables. Le nom du produit, le prix ou le poids éventuel dépendent du format de l’enseigne et ne peuvent pas être déduits avec certitude.'
+    :'Code produit standard : les informations sont accessibles uniquement si elles figurent dans la base consultée.')
+    +(checksumValid(code)?' Chiffre de contrôle : valide.':' Attention : chiffre de contrôle EAN/UPC non valide.');
+  const link=$('iuBarcodeLink');link.href='https://world.openfoodfacts.org/product/'+encodeURIComponent(code);link.hidden=false;
+  return internal;
+ }
  function loadScanner(){
   if(window.Html5Qrcode)return Promise.resolve(window.Html5Qrcode);
   if(loadingLibrary)return loadingLibrary;
@@ -45,15 +64,16 @@
   const seq=++requestId;
   controller=new AbortController();
   input.value=clean;result.hidden=true;
-  setStatus('Recherche du produit dans Open Food Facts…');
+  const internal=explainCode(clean);
+  setStatus(internal?'Code de type interne détecté. Essai de recherche dans Open Food Facts…':'Recherche du produit dans Open Food Facts…');
   try{
    const endpoint='https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(clean)+'.json?fields=code,product_name,product_name_fr,generic_name,brands,quantity,product_quantity,product_quantity_unit,categories,origins,labels,packaging,image_front_small_url,image_url,countries';
    const response=await fetch(endpoint,{mode:'cors',cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
    if(seq!==requestId)return;
-   if(!response.ok)throw Error('La base de données a répondu avec le code '+response.status+'.');
+   if(!response.ok){const error=new Error('Réponse HTTP '+response.status);error.httpStatus=response.status;throw error;}
    const data=await response.json();
    if(seq!==requestId)return;
-   if(data.status!==1||!data.product){setStatus('Code '+clean+' lu, mais aucun produit trouvé dans Open Food Facts. Les codes internes de magasin sont souvent absents.',true);return;}
+   if(data.status!==1||!data.product){setStatus('Recherche effectuée : aucun produit référencé pour '+clean+'. '+(internal?'Ce résultat est fréquent pour les codes internes du magasin.':'Il peut manquer dans la base collaborative.'),true);return;}
    const p=data.product;
    $('iuBarcodeName').textContent=readable(p.product_name_fr||p.product_name||p.generic_name||'Nom non renseigné');
    $('iuBarcodeBrand').textContent=readable(p.brands,140);
@@ -79,7 +99,10 @@
    setStatus('Produit trouvé. Informations fournies par Open Food Facts, à vérifier sur l’étiquette.');
   }catch(error){
    if(seq!==requestId||error.name==='AbortError')return;
-   setStatus('Recherche impossible : '+(navigator.onLine?'connexion ou service indisponible.':'connexion Internet absente.')+' Le code '+clean+' reste disponible pour un nouvel essai.',true);
+   const reason=error.httpStatus
+    ?(error.httpStatus===429?'Open Food Facts limite momentanément les requêtes (HTTP 429).':error.httpStatus===403?'Accès refusé par Open Food Facts (HTTP 403).':'Open Food Facts a répondu HTTP '+error.httpStatus+'.')
+    :!navigator.onLine?'L’appareil est hors ligne.':'Le navigateur ne parvient pas à accéder à Open Food Facts (réseau, blocage du navigateur ou service indisponible).';
+   setStatus(reason+' Le numéro '+clean+' reste lisible, mais les données du produit ne sont pas confirmées.',true);
   }finally{if(seq===requestId)controller=null;}
  }
  async function startCamera(){
@@ -110,6 +133,7 @@
    await stopCamera();
   }finally{starting=false;startBtn.disabled=false;}
  }
+ $('iuBarcodeSample').addEventListener('click',()=>{void stopCamera();void lookup('3017620422003');});
  startBtn.addEventListener('click',()=>{void startCamera();});
  stopBtn.addEventListener('click',()=>{void stopCamera();setStatus('Caméra arrêtée.');});
  form.addEventListener('submit',event=>{
