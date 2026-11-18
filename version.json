@@ -1,7 +1,7 @@
 {
-  "version": "40.66",
+  "version": "40.67",
   "published": "2026-11-18",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Reconnaissance automatique des préfixes EAN de balance présents dans le fichier DIGI importé localement (756 préfixes uniques du nouvel export), recherche PLU, signalement des conflits et reprise des associations existantes. Aucun prix ni catalogue interne publié, aucun poids calculé depuis un prix."
+  "notes": "Essai Courses U isolé en Administration : import privé de dix références, vérification manuelle du bon produit et du tarif €/kg sur le Drive, comparaison Ulis et estimation de poids à partir d’un EAN avec avertissement de fraîcheur. Aucune extraction automatique des prix ni modification des inventaires."
 }
