@@ -1,7 +1,7 @@
 {
-  "version": "40.58",
+  "version": "40.59",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Laboratoire Étiquettes : outil de recadrage tactile sur iPhone, deuxième lecture ciblée du nom sur l'étiquette et filtre contre les fragments parasites. Photo traitée localement, sans modifier les pesées."
+  "notes": "Laboratoire Étiquettes : lecture OCR avec recadrage tactile iPhone, seconde passe sur le nom, validation JavaScript et exclusion des faux noms; pesées intactes."
 }

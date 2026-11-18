@@ -1,4 +1,4 @@
-/* Inventaires U v40.58 — Laboratoire OCR étiquettes, sans modification des inventaires. */
+/* Inventaires U v40.59 — Laboratoire OCR étiquettes, sans modification des inventaires. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -251,8 +251,7 @@
     const titleReply=await worker.recognize(upper);
     if(token!==generation)return;
     const title=productNameFromTop(titleReply?.data?.text);
-    if(title)text=title+'
-'+text;
+    if(title)text=title+'\n'+text;
    }
    textArea.value=text;
    statusText(text?'Lecture terminée. Vérifie les valeurs proposées, puis corrige le texte si nécessaire.':'Aucun texte reconnu. Reprends la photo de plus près et avec davantage de lumière.',!text);
