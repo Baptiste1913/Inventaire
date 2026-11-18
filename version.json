@@ -1,7 +1,7 @@
 {
-  "version": "40.26",
+  "version": "40.27",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Dock : icônes uniformisées à 22 px, proportions préservées ; tous les pictogrammes deviennent noirs au passage du doigt et conservent le léger agrandissement. Navigation inchangée."
+  "notes": "Correction de spécificité CSS pour que les cinq icônes du dock deviennent noires au toucher ou pendant le glissement, sans changer leurs tailles ni la navigation."
 }

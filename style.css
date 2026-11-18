@@ -30873,3 +30873,11 @@ html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item:active{
 @media(prefers-reduced-motion:reduce){
  html body #iuQuickDock.iu-quick-dock .iu-quick-dock-item .iu-dock-custom-icon{transition:none!important;}
 }
+
+/* V40.27 — Correction de spécificité : les règles par ID de V40.26 empêchaient
+   la teinte noire de gagner pour Admin, Événements, Rappels et Compte. */
+html body #iuQuickDock.iu-quick-dock :is(#iuQuickSession,#iuQuickAdmin,#iuQuickEvents,#iuQuickAlerts,#iuQuickAccount):is(.iu-dock-hovered,:active) .iu-dock-custom-icon{
+ color:#080a0c!important;
+ fill:currentColor!important;
+ transform:scale(1.12)!important;
+}
