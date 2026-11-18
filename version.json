@@ -1,7 +1,7 @@
 {
-  "version": "40.39",
+  "version": "40.40",
   "published": "2026-11-17",
   "assets": 46,
   "bytes": 1400033,
-  "notes": "Voir la liste et Démarrer un inventaire : dégradé de contour bleu-vert légèrement plus soutenu (#269ebc → #349b8c), épaisseurs, relief et animations inchangés. Cadre Prochain inventaire conservé."
+  "notes": "Renommage de Planification en Planning dans le titre de page et sur l’accueil (SERVICE U / PLANNING, Planning de [mois]), avec élision française automatique et sans modification du calendrier."
 }
