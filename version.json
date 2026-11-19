@@ -1,6 +1,6 @@
 {
-  "version": "40.74",
+  "version": "40.75",
   "published": "2026-11-19",
   "assets": 50,
-  "notes": "Scanner IA de poids plus tolérant aux mouvements et à la distance : lecture élargie sur le champ caméra complet, définition élevée, plusieurs cadrages et rejet des résultats contradictoires. Mode laboratoire sans pesée enregistrée."
+  "notes": "Lecture du poids d’étiquette plus rapide : une détection plausible préremplit la pesée classique, avec correction libre et validation humaine avant enregistrement. Aucune pesée OCR sauvegardée automatiquement."
 }
