@@ -1,4 +1,4 @@
-/* Inventaires U v40.63 — Scanner continu sécurisé : caméra/worker réutilisés et confirmations sur images successives. */
+/* Inventaires U v40.75 — lecture OCR rapide ; préremplissage sans sauvegarde avant validation humaine. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -20,9 +20,10 @@
   const s=String(text||'').replace(/[\u00a0\u202f]/g,' ')
    .replace(/[oO]/g,'0').replace(/[lI]/g,'1')
    .replace(/(\d)\s*[,.;:]\s*(\d)/g,'$1,$2').replace(/\s+/g,' ').trim();
-  // Le total et le prix au kilo ne sont jamais admis comme poids.
-  if(/[€$]/.test(s)||/\/\s*k\s*g/i.test(s))return null;
-  const matches=[...s.matchAll(/(?:^|[^\d])(\d{1,2}[,.]\d{3}|0\d{3})\s*k\s*g\b/gi)];
+  // Même si le cadrage contient un prix ou une date, seule une valeur
+  // de trois décimales immédiatement suivie de « kg » est retenue.
+  // Ne jamais confondre les unités €/kg avec le poids net.
+  const matches=[...s.matchAll(/(?:^|[^\d.,€$\/])(\d{1,2}[,.]\d{3}|0\d{3})\s*k\s*g\b/gi)];
   if(matches.length!==1)return null;
   const token=matches[0][1];
   const grams=/^0\d{3}$/.test(token)?Number(token.slice(1)):
@@ -68,8 +69,8 @@
   const fit=Math.max(cw/vw,ch/vh),ox=(vw*fit-cw)/2,oy=(vh*fit-ch)/2;
   const x=cw*.23,y=ch*.42,w=cw*.54,h=ch*.16;
   const canvas=document.createElement('canvas');
-  canvas.width=600;
-  canvas.height=Math.max(92,Math.round(canvas.width*h/w));
+  canvas.width=720;
+  canvas.height=Math.max(110,Math.round(canvas.width*h/w));
   const ctx=canvas.getContext('2d',{willReadFrequently:true});
   if(!ctx)return null;
   ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -101,35 +102,28 @@
   apply.disabled=!Number.isSafeInteger(gross)||gross>999999||gross<=0;
  }
  function showProposal(grams){
+  // La reconnaissance complète la pesée ordinaire sans écran de
+  // confirmation supplémentaire. Le champ reste modifiable et une
+  // validation explicite est nécessaire avant sauvegarde.
+  if(typeof window.IUWeighScanDraft==='function'&&window.IUWeighScanDraft(grams)===true){
+   close();
+   return;
+  }
+  // Repli : conserver le bouton manuel si l'écran de pesée n'est pas prêt.
   proposalGrams=grams;value.textContent=format(grams);
   scanning=false;overlay.dataset.state='result';
   refreshConversion();proposal.hidden=false;retry.hidden=true;
-  say('Poids proposé. Vérifie les trois décimales sur l’étiquette avant de confirmer.');
+  say('Poids proposé. Vérifie les chiffres avant de l’utiliser dans la pesée.');
   if(navigator.vibrate)try{navigator.vibrate(30);}catch(_){}
  }
- function evaluateObservation(grams,confidence,variant){
-  if(grams===null||confidence<57){
-   resetObservations();return false;
-  }
-  const now=Date.now();
-  observations=observations.filter(o=>now-o.time<2300);
-  if(lastCandidate!==grams||observations.some(o=>o.grams!==grams)){
-   lastCandidate=grams;observations=[];
-  }
-  observations.push({grams,confidence,variant,time:now});
-  if(observations.length>5)observations.shift();
-  const hasPlain=observations.some(o=>o.variant===0);
-  const hasEnhanced=observations.some(o=>o.variant===1);
-  const strong=observations.length>=2&&observations.every(o=>o.confidence>=82);
-  // Deux images nettement reconnues suffisent ; sinon, troisième contrôle.
-  const countNeeded=strong?2:3;
-  const stable=observations.length>=countNeeded&&hasPlain&&hasEnhanced;
-  if(stable){
-   showProposal(grams);return true;
-  }
-  say('Poids possible : '+format(grams)+' · vérification '+Math.min(observations.length,countNeeded)+'/'+countNeeded+'…');
-  return false;
+ function evaluateObservation(grams,confidence){
+  // Une seule lecture crédible suffit pour PROPOSER une valeur, jamais
+  // pour l'enregistrer. La correction et la validation restent humaines.
+  if(grams===null||confidence<54)return false;
+  showProposal(grams);
+  return true;
  }
+
  async function scan(id){
   while(scanning&&id===session&&!overlay.hidden&&!document.hidden){
    const variant=nextVariant;nextVariant=(nextVariant+1)%2;
@@ -140,8 +134,8 @@
      if(!scanning||id!==session)return;
      const confidence=Number(data?.data?.confidence)||0;
      const grams=extractWeight(data?.data?.text);
-     if(evaluateObservation(grams,confidence,variant))return;
-     if(grams===null||confidence<57)say('Cadre uniquement le poids net et « kg ». Éloigne le prix et la date.');
+     if(evaluateObservation(grams,confidence))return;
+     if(grams===null||confidence<54)say('Cadre le poids net et « kg » : la valeur détectée sera proposée à vérifier.');
     }
    }catch(_){
     if(id===session&&scanning){resetObservations();say('Lecture difficile. Stabilise l’étiquette et rapproche-la.');}
