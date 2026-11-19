@@ -1,6 +1,6 @@
 {
-  "version": "40.80",
+  "version": "40.81",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Sélecteur des paniers compact avec bouton de lecture du poids à droite : icône seule accessible, alignement responsive. Caméra affichée sous la ligne, sans modifier la sauvegarde ni l'OCR."
+  "notes": "Le bouton scanner à droite des paniers reprend le style de Nouvelle pesée, avec une icône plus épaisse. Disposition et fonctionnement de la caméra inchangés."
 }
