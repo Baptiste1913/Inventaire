@@ -1,0 +1,28 @@
+name: Test scanner IA poids DIGI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'fast-weight-core.js'
+      - 'fast-weight-lab.js'
+      - 'fast-weight-lab.css'
+      - 'tools/test-fast-weight-core.cjs'
+      - '.github/workflows/test-fast-weight.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier la syntaxe des modules
+        run: |
+          node --check fast-weight-core.js
+          node --check fast-weight-lab.js
+      - name: Vérifier le décodage, les votes et les assets
+        run: node tools/test-fast-weight-core.cjs
