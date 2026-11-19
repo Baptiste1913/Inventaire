@@ -1,6 +1,6 @@
 {
-  "version": "40.84",
+  "version": "40.85",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Option flash dans la fenêtre caméra pour éclairer les étiquettes. Bouton discret dans l'aperçu, affiché uniquement si le navigateur et la caméra prennent en charge la torche. Extinction automatique à la fermeture."
+  "notes": "Caméra légèrement moins haute (184 px, 160 px sur petit écran), consigne « Vise le poids imprimé en kg » supprimée du lecteur et des messages répétés. Les erreurs et confirmations restent affichées."
 }
