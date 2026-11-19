@@ -54,7 +54,7 @@ assert.match(app,/netGrams=gross-b\.tare/,'La pesée classique soustrait la tare
 assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sauvegarde pas silencieusement');
 assert.match(scanner,/anchor\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner se trouve dans la carte de pesée');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
-assert.match(style,/\.iu-weigh-scan-inline\.iu-weigh-scan-overlay\[hidden\]/,'La mini fenêtre se ferme proprement');
+assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
 assert.match(html,/weigh-scan-inline\.css\?v=40\.76/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
 console.log('Tests de pesée : étiquette = brut, net = brut - tare, préremplissage sans sauvegarde, mini fenêtre = OK');
