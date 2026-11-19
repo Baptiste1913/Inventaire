@@ -834,3 +834,33 @@
  width:17px !important;
  height:17px !important;
 }
+
+/* v40.91 — commandes plus discrètes et mieux plaquées au coin,
+   titre noir, espace titre/caméra resserré. */
+.iu-weigh-scan-inline .iu-weigh-scan-caption {
+ color:#1e2931 !important;
+ margin:0 4px 0 !important;
+ font-weight:690 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-shell {
+ gap:2px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header {
+ inset:5px auto auto 5px !important;
+ gap:5px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-close,
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-torch {
+ flex:0 0 32px !important;
+ width:32px !important;
+ height:32px !important;
+ min-width:32px !important;
+ min-height:32px !important;
+ max-width:32px !important;
+ max-height:32px !important;
+ border-radius:11px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header svg {
+ width:15px !important;
+ height:15px !important;
+}

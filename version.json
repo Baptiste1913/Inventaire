@@ -1,6 +1,6 @@
 {
-  "version": "40.90",
+  "version": "40.91",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Titre discret au-dessus de la caméra pour viser le poids net ; boutons fermer et flash réduits de 42 à 36 px, icônes affinées, espacements ajustés."
+  "notes": "Boutons scanner de 32 px et positionnés à 5 px des bords, titre noir rapproché. Reprise du même flux vidéo après retour iPhone ; réautorisation demandée seulement si le navigateur a coupé la piste et après action explicite."
 }

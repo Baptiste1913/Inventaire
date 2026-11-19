@@ -1,4 +1,4 @@
-/* Inventaires U v40.89 — scanner intégré, retour d'arrière-plan sans fermeture, caméra relancée au besoin. */
+/* Inventaires U v40.91 — conserver le flux caméra au retour iOS, éviter les requêtes inutiles. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -282,7 +282,10 @@
  }
  async function startCamera(){
   if(starting||scanning||overlay.hidden||document.hidden)return;
-  if(stream&&worker){resumeScan();return;}
+  // Une piste encore active est réutilisée : pas de nouvelle permission.
+  // Une piste définitivement terminée ne peut pas être réactivée.
+  const existingTrack=stream?.getVideoTracks?.()[0];
+  if(stream&&(!existingTrack||existingTrack.readyState!=='live'))stopTracks();
   if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
    say('Caméra indisponible : vérifie les autorisations iPhone et HTTPS.',true);
    retry.hidden=false;return;
@@ -299,9 +302,18 @@
    const enginePromiseLocal=engine();
    const source=await cameraPromise;
    if(overlay.hidden||id!==session){if(source!==stream)source.getTracks().forEach(t=>t.stop());return;}
+   const isNewStream=stream!==source;
    stream=source;
-   video.srcObject=source;
-   requestContinuousFocus(source);
+   if(video.srcObject!==source)video.srcObject=source;
+   if(isNewStream){
+    requestContinuousFocus(source);
+    source.getVideoTracks?.()[0]?.addEventListener('ended',()=>{
+     if(stream!==source||overlay.hidden||document.hidden)return;
+     session++;scanning=false;
+     retry.hidden=false;overlay.dataset.state='error';
+     say('Caméra interrompue. Appuie sur « Relancer la caméra ».',true);
+    },{once:true});
+   }
    if(video.paused)await video.play();
    refreshTorchAvailability();
    await enginePromiseLocal;
@@ -309,10 +321,16 @@
    starting=false;resumeScan();
   }catch(error){
    if(id!==session)return;
-   stopTracks();starting=false;overlay.dataset.state='error';retry.hidden=false;
-   say(error?.name==='NotAllowedError'
-    ?'Caméra refusée. Autorise-la dans Safari.'
-    :'Scanner indisponible. Vérifie la connexion initiale et les autorisations.',true);
+   // Si l'autoplay échoue mais que la piste est encore valide, conserver
+   // cette autorisation et laisser l'utilisateur relancer la lecture.
+   const live=stream?.getVideoTracks?.()[0]?.readyState==='live';
+   if(!live)stopTracks();
+   starting=false;overlay.dataset.state='error';retry.hidden=false;
+   say(live
+    ?'Caméra en pause. Appuie sur « Relancer la caméra ».'
+    :error?.name==='NotAllowedError'
+     ?'Accès caméra refusé. Vérifie l’autorisation de ce site dans Safari.'
+     :'Scanner indisponible. Vérifie la caméra et les autorisations.',true);
   }finally{if(id===session)starting=false;}
  }
  trigger.addEventListener('click',()=>{
@@ -354,19 +372,28 @@
   close();
  });
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.hidden)close();});
- // iOS peut suspendre ou interrompre la piste vidéo en arrière-plan.
- // Conserver la zone scanner ouverte ; libérer le matériel puis redémarrer
- // automatiquement à la prochaine apparition de l'application.
+ // iOS suspend lui-même la vidéo en arrière-plan. Ne pas appeler
+ // MediaStreamTrack.stop() ici : cela imposait un nouvel getUserMedia()
+ // et pouvait provoquer une demande d'autorisation à chaque retour.
  function suspendForBackground(){
   if(overlay.hidden)return;
   session++;scanning=false;starting=false;
-  stopTracks();resetObservations();
-  overlay.dataset.state='suspended';
+  resetObservations();overlay.dataset.state='suspended';
   say('');
+  try{video.pause();}catch(_){}
  }
  function resumeAfterBackground(){
-  if(overlay.hidden||document.hidden||gross.getClientRects().length===0)return;
-  void startCamera();
+  if(overlay.hidden||document.hidden||gross.getClientRects().length===0||starting||scanning)return;
+  const track=stream?.getVideoTracks?.()[0];
+  if(track?.readyState==='live'){
+   // Reprendre la piste existante, sans nouvel appel à getUserMedia.
+   void startCamera();
+  }else{
+   // Si iOS a définitivement coupé la piste, garder le scanner visible
+   // et ne pas déclencher de nouvelle permission sans action explicite.
+   retry.hidden=false;overlay.dataset.state='error';
+   say('La caméra a été interrompue. Appuie sur « Relancer la caméra ».',true);
+  }
  }
  document.addEventListener('visibilitychange',()=>{
   if(document.hidden)suspendForBackground();
