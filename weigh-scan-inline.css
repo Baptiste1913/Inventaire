@@ -1,4 +1,4 @@
-/* Inventaires U v40.77 — lecteur compact : caméra active entre pesées. */
+/* Inventaires U v40.78 — lecteur compact : caméra active entre pesées. */
 /* Les règles sont limitées à la vue intégrée pour préserver les autres fenêtres. */
 .iu-weigh-scan-overlay.iu-weigh-scan-inline {
   position:relative !important;
@@ -180,3 +180,100 @@
 .iu-weigh-scan-inline #iuWeighScanApply[hidden] { display:none !important; }
 .iu-weigh-scan-inline #iuWeighScanAgain:disabled { opacity:.55 !important; cursor:default !important; }
 .iu-weigh-scan-inline #iuWeighScanAgain:not(:disabled) { opacity:1 !important; }
+
+/* v40.78 — espace pesée resserré : saisie juste au-dessus du résultat. */
+.calc-card .iu-weigh-entry{
+ display:flex !important;
+ flex-direction:column !important;
+ gap:6px !important;
+ width:100% !important;
+ margin:13px 0 9px !important;
+ padding:0 !important;
+}
+.calc-card .iu-weigh-entry label[for="grossWeight"]{
+ margin:0 !important;
+ line-height:1.35 !important;
+}
+.calc-card .iu-weigh-entry .weight-row{
+ margin:0 !important;
+}
+.calc-card #inputHint,
+.calc-card .iu-result-compact #resultHint{display:none !important;}
+.calc-card #weighStatus:empty{display:none !important;}
+.calc-card .iu-result-compact{
+ margin:0 !important;
+ padding:16px 17px 17px !important;
+ box-sizing:border-box !important;
+ overflow:hidden !important;
+}
+.calc-card .iu-result-compact .iu-result-weights{
+ display:flex !important;
+ align-items:center !important;
+ justify-content:flex-start !important;
+ gap:22px !important;
+ margin:0 0 13px !important;
+ padding:0 0 11px !important;
+ border-bottom:1px solid rgba(70,105,118,.13) !important;
+ font-size:12px !important;
+ line-height:1.5 !important;
+ color:#667882 !important;
+}
+.calc-card .iu-result-compact .iu-result-weights span{
+ display:flex !important;
+ align-items:baseline !important;
+ flex-wrap:wrap !important;
+ gap:5px !important;
+ min-width:0 !important;
+}
+.calc-card .iu-result-compact .iu-result-weights strong{
+ font-size:14px !important;
+ font-weight:760 !important;
+ letter-spacing:-.02em !important;
+ color:#31454f !important;
+ font-variant-numeric:tabular-nums !important;
+ white-space:nowrap !important;
+}
+.calc-card .iu-result-compact .result-heading{
+ margin-bottom:6px !important;
+}
+.calc-card .iu-result-compact .net-line{
+ margin:0 !important;
+}
+.calc-card .iu-result-compact #netDisplay{
+ font-variant-numeric:tabular-nums !important;
+}
+.calc-card .iu-result-compact .iu-result-confirm{
+ margin:13px 0 0 !important;
+}
+.calc-card .iu-result-compact .iu-result-confirm[hidden]{
+ display:none !important;
+}
+.calc-card .iu-result-compact #iuScannedDraftConfirm{
+ display:block !important;
+ box-sizing:border-box !important;
+ width:100% !important;
+ border:1px solid rgba(66,107,119,.22) !important;
+ border-radius:15px !important;
+ padding:11px 15px !important;
+ background:rgba(255,255,255,.75) !important;
+ color:#29434e !important;
+ font-size:13px !important;
+ font-weight:700 !important;
+ line-height:1.4 !important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.8) !important;
+ cursor:pointer !important;
+}
+.calc-card .iu-result-compact #iuScannedDraftConfirm:active{
+ transform:scale(.99);
+}
+@media(max-width:375px){
+ .calc-card .iu-result-compact{
+  padding:14px !important;
+ }
+ .calc-card .iu-result-compact .iu-result-weights{
+  gap:12px !important;
+ }
+ .calc-card .iu-result-compact .iu-result-weights strong{
+  font-size:13px !important;
+ }
+}
