@@ -1,6 +1,6 @@
 {
-  "version": "40.89",
+  "version": "40.90",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Commandes de fermeture et flash empilées dans la caméra, boutons assortis à Nouvelle pesée, marges réduites. Scanner conservé au retour dans l'app avec reprise automatique du flux après suspension iOS."
+  "notes": "Titre discret au-dessus de la caméra pour viser le poids net ; boutons fermer et flash réduits de 42 à 36 px, icônes affinées, espacements ajustés."
 }
