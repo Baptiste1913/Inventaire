@@ -874,105 +874,30 @@
 .iu-weigh-scan-inline .iu-weigh-scan-shell {
  gap:0 !important;
 }
-
-
-/* v41.01 — Refonte totale de l'animation :
-   Fils lumineux CONTINUS qui se croisent, pas de tirets, pas de contour
-   multicolore tournant. Cœur blanc intense, bleu/émeraude et rouge
-   discret. Les deux reflets se déplacent à contre-courant sur les fils.
-   Le centre du cadrage et toute la vidéo restent 100 % transparents. */
-.iu-weigh-scan-inline .iu-weigh-scan-caption {
- font-weight:550 !important;
- line-height:1.08 !important;
- margin:0 4px -5px !important;
+/* v41.02 : faisceaux lumineux inspirés de la vidéo AmazingUI.
+   Canvas ne dessine que sur le contour ; l'intérieur reste transparent. */
+.iu-weigh-scan-inline .iu-weigh-scan-caption{
+ font-weight:550!important;line-height:1.08!important;margin:0 4px -5px!important;
 }
-.iu-weigh-scan-inline .iu-weigh-scan-shell {
- gap:0 !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
- background:none !important;
- background-color:transparent !important;
- border:1px solid rgba(31,118,148,.46) !important;
- border-radius:9px !important;
- box-shadow:none !important;
- isolation:isolate !important;
+.iu-weigh-scan-inline .iu-weigh-scan-shell{gap:0!important;}
+.iu-weigh-scan-inline .iu-weigh-scan-guide{
+ position:absolute!important;overflow:visible!important;
+ border:1px solid rgba(23,115,151,.65)!important;border-radius:9px!important;
+ background:none!important;background-color:transparent!important;
+ box-shadow:none!important;isolation:isolate!important;pointer-events:none!important;
 }
 .iu-weigh-scan-inline .iu-weigh-scan-guide::before,
-.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
- content:none !important;
- display:none !important;
- animation:none !important;
+.iu-weigh-scan-inline .iu-weigh-scan-guide::after{
+ display:none!important;content:none!important;animation:none!important;
 }
-.iu-weigh-scan-inline .iu-light-ribbons {
- position:absolute !important;
- inset:-2px !important;
- display:block !important;
- width:calc(100% + 4px) !important;
- height:calc(100% + 4px) !important;
- overflow:visible !important;
- pointer-events:none !important;
- z-index:1 !important;
+.iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light{
+ position:absolute!important;inset:-6px!important;
+ display:block!important;width:calc(100% + 12px)!important;
+ height:calc(100% + 12px)!important;max-width:none!important;
+ max-height:none!important;z-index:1!important;
+ padding:0!important;margin:0!important;background:transparent!important;
+ pointer-events:none!important;
 }
-.iu-weigh-scan-inline .iu-light-thread,
-.iu-weigh-scan-inline .iu-light-flare {
- fill:none !important;
- stroke-linecap:round !important;
- stroke-linejoin:round !important;
- vector-effect:non-scaling-stroke !important;
-}
-.iu-weigh-scan-inline .iu-light-thread-blue {
- stroke-width:.9px !important;
- opacity:.87 !important;
- filter:drop-shadow(0 0 1.1px rgba(56,135,244,.65)) !important;
-}
-.iu-weigh-scan-inline .iu-light-thread-green {
- stroke-width:.85px !important;
- opacity:.82 !important;
- filter:drop-shadow(0 0 1px rgba(36,196,161,.58)) !important;
-}
-.iu-weigh-scan-inline .iu-light-thread-hair {
- stroke-width:.45px !important;
- opacity:.45 !important;
-}
-.iu-weigh-scan-inline .iu-light-flare {
- stroke-width:1.25px !important;
- stroke-dasharray:12 88 !important;
- stroke-dashoffset:0;
- opacity:.8 !important;
- filter:drop-shadow(0 0 1.7px rgba(219,244,255,.88)) !important;
- animation:none !important;
-}
-.iu-weigh-scan-inline .iu-light-flare-green {
- stroke-width:1px !important;
- stroke-dasharray:9 91 !important;
- opacity:.65 !important;
- filter:drop-shadow(0 0 1.4px rgba(133,244,211,.77)) !important;
-}
-@keyframes iu-light-flare-forward {
- from { stroke-dashoffset:0; }
- to { stroke-dashoffset:-100; }
-}
-@keyframes iu-light-flare-reverse {
- from { stroke-dashoffset:0; }
- to { stroke-dashoffset:100; }
-}
-@keyframes iu-light-ribbon-breathe {
- 0%,100% { opacity:.8; }
- 50% { opacity:1; }
-}
-.iu-weigh-scan-inline[data-state="scanning"] .iu-light-flare-blue {
- animation:iu-light-flare-forward 6.9s linear infinite !important;
-}
-.iu-weigh-scan-inline[data-state="scanning"] .iu-light-flare-green {
- animation:iu-light-flare-reverse 9.3s linear infinite !important;
-}
-.iu-weigh-scan-inline[data-state="scanning"] .iu-light-thread-blue,
-.iu-weigh-scan-inline[data-state="scanning"] .iu-light-thread-green {
- animation:iu-light-ribbon-breathe 4.8s ease-in-out infinite !important;
-}
-@media (prefers-reduced-motion:reduce) {
- .iu-weigh-scan-inline .iu-light-thread,
- .iu-weigh-scan-inline .iu-light-flare {
-  animation:none !important;
- }
+@media(prefers-reduced-motion:reduce){
+ .iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light{opacity:.72!important;}
 }
