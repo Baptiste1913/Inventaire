@@ -52,10 +52,10 @@ res=simulate(0,100);
 assert.equal(res.accepted,false,'Un poids nul est refusé');
 assert.match(app,/netGrams=gross-b\.tare/,'La pesée classique soustrait la tare');
 assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sauvegarde pas silencieusement');
-assert.match(scanner,/anchor\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner se trouve dans la carte de pesée');
+assert.match(scanner,/\(row\|\|anchor\)\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner reste sous la ligne panier + bouton');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
 assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.79/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.80/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
 
 // Calcul réel de l'application pour 142g - 554g = -412g.
@@ -204,9 +204,18 @@ assert.match(style,/#weighStatus\.v22-message\.is-complete/,
  'Espacer le bandeau de succès');
 assert.match(style,/linear-gradient\(148deg,#f9fbfd/,
  'Accorder la carte caméra au style bleu-gris de l’application');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.79/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.80/);
 assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/);
 assert.match(scanner,/if\(stream&&worker\)\{resumeScan\(\);return;\}/,
  'Réutiliser le flux et le moteur déjà ouverts');
 
-console.log('Tests scanner v40.79 : sauvegarde Nouvelle pesée, échecs de stockage, avertissements, statut et design : OK');
+assert.match(html,/class="iu-basket-scan-row"/,'Panier et scanner sur une ligne');
+assert.match(html,/class="iu-basket-select-wrap"><select id="basketSelect"/);
+assert.match(html,/id="iuWeighScanToggle"[^>]*aria-label="Scanner le poids de l’étiquette"/);
+const scannerButton=html.match(/<button id="iuWeighScanToggle"[\s\S]*?<\/button>/)?.[0]||'';
+assert.ok(scannerButton.includes('<svg'),'Bouton accessible par icône');
+assert.doesNotMatch(scannerButton,/<span>/,'Le scanner ne doit plus avoir de texte visible');
+assert.match(style,/\.calc-card \.iu-basket-scan-row\s*\{/);
+assert.match(style,/\.calc-card \.iu-basket-select-wrap #basketSelect\s*\{/);
+assert.match(style,/\.calc-card \.iu-basket-scan-row \.iu-weigh-scan-option #iuWeighScanToggle\s*\{/);
+console.log('Tests scanner v40.80 : sauvegarde Nouvelle pesée, échecs de stockage, avertissements, statut et design : OK');
