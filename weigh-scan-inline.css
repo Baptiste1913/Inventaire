@@ -427,3 +427,20 @@
   height:56px !important;
  }
 }
+
+/* v40.81 : bouton scanner calqué sur « Nouvelle pesée ».
+   Sa classe new-weigh-btn reprend la base du thème ; l'icône est plus épaisse. */
+.calc-card .iu-basket-scan-row #iuWeighScanToggle.new-weigh-btn {
+ appearance:none !important;
+ background:linear-gradient(145deg,#f9fbfc,#e8eff4) !important;
+ border:1px solid rgba(255,255,255,.85) !important;
+ color:#465e6b !important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.93),3px 4px 10px rgba(98,126,144,.10) !important;
+ font-size:inherit !important;
+}
+.calc-card .iu-basket-scan-row #iuWeighScanToggle.new-weigh-btn svg {
+ stroke-width:2.8 !important;
+}
+.calc-card .iu-basket-scan-row #iuWeighScanToggle.new-weigh-btn:active {
+ transform:scale(.97);
+}
