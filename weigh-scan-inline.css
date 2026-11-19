@@ -939,3 +939,10 @@
  opacity:1 !important;
  will-change:auto !important;
 }
+
+/* v41.06 — atténuer de 30 % tous les repères d'étiquette dessinés
+   dans la caméra (pointillés, zones, textes simulés et code-barres).
+   Le viseur lumineux du poids est indépendant et reste inchangé. */
+.iu-weigh-scan-inline .iu-weigh-label-template {
+ opacity:.70 !important;
+}

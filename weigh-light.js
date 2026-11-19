@@ -1,4 +1,4 @@
-/* Inventaires U 41.05 — optical silk: tracé stable, lumières progressives.
+/* Inventaires U 41.06 — filaments nacrés supplémentaires, géométrie fixe.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -79,7 +79,13 @@
   if(canvas.height!==ph)canvas.height=ph;
   ctx.setTransform(pw/w,0,0,ph/h,0,0);
   ctx.imageSmoothingEnabled=true;
-  lanes=[buildLane(.28,.37),buildLane(2.35,.58),buildLane(4.5,.22)];
+  lanes=[
+   buildLane(.28,.37),
+   buildLane(2.35,.58),
+   buildLane(4.5,.22),
+   buildLane(1.42,.49),
+   buildLane(5.32,.30)
+  ];
   return true;
  }
  function baseFilament(laneIndex,alpha,widthPx){
@@ -128,6 +134,10 @@
   baseFilament(0,.60,.72);
   baseFilament(1,.30,.52);
   baseFilament(2,.17,.38);
+  // Deux fils nacrés très légers ajoutent de la densité sans
+  // grossir les lueurs colorées ni faire sautiller le contour.
+  baseFilament(3,.21,.34);
+  baseFilament(4,.15,.28);
   // Les couleurs n'apparaissent que dans des vagues mobiles discrètes.
   illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.23,
     tint:'#72bfff',core:'#f5fbff',opacity:.87});
