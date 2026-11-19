@@ -924,3 +924,18 @@
  transform:none !important;
  backface-visibility:hidden !important;
 }
+
+/* v41.05 — géométrie stable et rendu ivoire/nacré. Le Canvas gère seul
+   les reflets bleu, émeraude et rubis ; aucune bordure CSS ni filtre
+   ne doit produire de scintillement sur iOS. */
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ border:0 !important;
+ background:transparent !important;
+ box-shadow:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light {
+ filter:none !important;
+ image-rendering:auto !important;
+ opacity:1 !important;
+ will-change:auto !important;
+}

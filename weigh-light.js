@@ -1,153 +1,189 @@
-/* V41.04 — rubans optiques en traits continus, lissage haute définition.
-   Les images OCR restent lues depuis la vidéo, non depuis ce canvas. */
+/* Inventaires U 41.05 — optical silk: tracé stable, lumières progressives.
+   Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
  const overlay=document.getElementById('iuWeighScanOverlay');
  const guide=overlay?.querySelector('.iu-weigh-scan-guide');
  const canvas=guide?.querySelector('.iu-weight-light');
- if(!overlay||!guide||!canvas)return;
+ if(!overlay||!guide||!canvas||typeof Path2D==='undefined')return;
  const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
  if(!ctx)return;
- const motion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
- const PI=Math.PI,TAU=2*PI;
- let w=0,h=0,raf=0,last=0,running=false;
+ const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+ const TWO_PI=Math.PI*2;
+ const COUNT=480;
+ let width=0,height=0;
+ let lanes=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
+ function wrap(u){return ((u%1)+1)%1;}
+ // Contour arrondi à paramétrisation par longueur d'arc réelle :
+ // les déplacements restent continus, y compris dans les quatre coins.
+ function basePoint(u){
+  const left=7,top=7,right=width-7,bottom=height-7;
+  const r=Math.max(2,Math.min(9,(right-left)/5,(bottom-top)/3));
+  const horizontal=Math.max(1,right-left-2*r);
+  const vertical=Math.max(1,bottom-top-2*r);
+  const arc=Math.PI*r/2;
+  let d=wrap(u)*(horizontal*2+vertical*2+arc*4);
+  const corner=(x,y,angle)=>({x:x+r*Math.cos(angle),y:y+r*Math.sin(angle),
+     nx:Math.cos(angle),ny:Math.sin(angle)});
+  if(d<horizontal)return{x:left+r+d,y:top,nx:0,ny:-1};
+  d-=horizontal;
+  if(d<arc)return corner(right-r,top+r,-Math.PI/2+d/r);
+  d-=arc;
+  if(d<vertical)return{x:right,y:top+r+d,nx:1,ny:0};
+  d-=vertical;
+  if(d<arc)return corner(right-r,bottom-r,d/r);
+  d-=arc;
+  if(d<horizontal)return{x:right-r-d,y:bottom,nx:0,ny:1};
+  d-=horizontal;
+  if(d<arc)return corner(left+r,bottom-r,Math.PI/2+d/r);
+  d-=arc;
+  if(d<vertical)return{x:left,y:bottom-r-d,nx:-1,ny:0};
+  d-=vertical;
+  return corner(left+r,top+r,Math.PI+d/r);
+ }
+ function buildLane(phase,amplitude){
+  const points=[];
+  const line=new Path2D();
+  for(let i=0;i<COUNT;i++){
+   const u=i/COUNT;
+   const p=basePoint(u);
+   // Une très légère ondulation fixée une seule fois : ni déformation
+   // ni saut à chaque image. Fréquences entières => boucle fermée.
+   const displacement=amplitude*(.77*Math.sin(TWO_PI*3*u+phase)+
+      .23*Math.sin(TWO_PI*7*u-phase*.4));
+   const x=p.x+p.nx*displacement,y=p.y+p.ny*displacement;
+   points.push({x,y});
+   if(i===0)line.moveTo(x,y);else line.lineTo(x,y);
+  }
+  line.closePath();
+  return {points,line};
+ }
+ function point(u,laneIndex){
+  const a=wrap(u)*COUNT;
+  const i=Math.floor(a),frac=a-i;
+  const lane=lanes[laneIndex].points;
+  const p=lane[i],q=lane[(i+1)%COUNT];
+  return {x:p.x+(q.x-p.x)*frac,y:p.y+(q.y-p.y)*frac};
+ }
  function measure(){
-  const box=canvas.getBoundingClientRect(),a=box.width,b=box.height;
-  if(a<20||b<15){w=h=0;return;}
+  const bounds=canvas.getBoundingClientRect();
+  const w=Math.round(bounds.width),h=Math.round(bounds.height);
+  if(w<20||h<15){width=height=0;return false;}
+  // Évite de recréer les pixels du canvas pour des variations fractionnaires
+  // de layout : cela causait des scintillements visibles sur Safari.
+  if(w===width&&h===height&&lanes.length)return true;
+  width=w;height=h;
   const dpr=Math.min(3,window.devicePixelRatio||1);
-  w=a;h=b;
   const pw=Math.round(w*dpr),ph=Math.round(h*dpr);
-  if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph;}
+  if(canvas.width!==pw)canvas.width=pw;
+  if(canvas.height!==ph)canvas.height=ph;
   ctx.setTransform(pw/w,0,0,ph/h,0,0);
   ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality='high';
+  lanes=[buildLane(.28,.37),buildLane(2.35,.58),buildLane(4.5,.22)];
+  return true;
  }
- // Rectangle arrondi parcouru dans le sens horaire, avec normale sortante.
- function at(f){
-  const l=7,t=7,r=w-7,b=h-7;
-  const ww=r-l,hh=b-t,R=Math.max(1,Math.min(9,ww/5,hh/3));
-  const H=ww-2*R,V=hh-2*R,A=PI*R/2;
-  let p=((f%1)+1)%1*(2*H+2*V+4*A);
-  const corner=(x,y,a)=>({x:x+R*Math.cos(a),y:y+R*Math.sin(a),nx:Math.cos(a),ny:Math.sin(a)});
-  if(p<H)return{x:l+R+p,y:t,nx:0,ny:-1};p-=H;
-  if(p<A)return corner(r-R,t+R,-PI/2+p/R);p-=A;
-  if(p<V)return{x:r,y:t+R+p,nx:1,ny:0};p-=V;
-  if(p<A)return corner(r-R,b-R,p/R);p-=A;
-  if(p<H)return{x:r-R-p,y:b,nx:0,ny:1};p-=H;
-  if(p<A)return corner(l+R,b-R,PI/2+p/R);p-=A;
-  if(p<V)return{x:l,y:b-R-p,nx:-1,ny:0};p-=V;
-  return corner(l+R,t+R,PI+p/R);
- }
- function wave(u,time,phase,amp){
-  const p=at(u);
-  const shift=amp*(.75*Math.sin(TAU*3*u+time*.73+phase)+.25*Math.sin(TAU*7*u-time*.43+phase*1.6));
-  return{x:p.x+p.nx*shift,y:p.y+p.ny*shift};
- }
- function thread(time,phase,amp,color,halo){
-  ctx.save();ctx.globalCompositeOperation='lighter';
-  ctx.beginPath();
-  for(let i=0;i<=320;i++){
-   const p=wave(i/320,time,phase,amp);
-   if(!i)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);
-  }
-  ctx.closePath();ctx.strokeStyle=halo;ctx.globalAlpha=.11;
-  ctx.lineWidth=1.8;ctx.shadowColor=halo;ctx.shadowBlur=2.1;ctx.stroke();
-  ctx.globalAlpha=.48;ctx.strokeStyle=color;ctx.shadowBlur=.35;
-  ctx.lineWidth=.54;ctx.stroke();ctx.restore();
- }
- // Éclats dégradés sans tirets visibles : intensité fondue aux extrémités.
- // Trait lumineux dessiné en UN seul chemin, sans les 64 mini-segments
- // qui produisaient des petites cassures et des taches sur Safari iOS.
- function streak(time,o){
-  const center=o.offset+o.direction*time/o.period;
-  const first=center-o.span/2,last=center+o.span/2;
-  const p0=wave(first,time,o.phase,o.amp);
-  const p1=wave(last,time,o.phase,o.amp);
-  const mid=wave(center,time,o.phase,o.amp);
-  let dx=p1.x-p0.x,dy=p1.y-p0.y;
-  // Près d'un angle, prévenir un dégradé de longueur presque nulle.
-  if(dx*dx+dy*dy<25){
-   const before=wave(center-.035,time,o.phase,o.amp);
-   const after=wave(center+.035,time,o.phase,o.amp);
-   dx=after.x-before.x;dy=after.y-before.y;
-  }
-  const pStart=dx*dx+dy*dy>=25?p0:{x:mid.x-dx*2,y:mid.y-dy*2};
-  const pEnd=dx*dx+dy*dy>=25?p1:{x:mid.x+dx*2,y:mid.y+dy*2};
-  const gradient=ctx.createLinearGradient(pStart.x,pStart.y,pEnd.x,pEnd.y);
-  gradient.addColorStop(0,'rgba(0,0,0,0)');
-  gradient.addColorStop(.13,o.edge);
-  gradient.addColorStop(.30,o.color);
-  gradient.addColorStop(.46,o.core);
-  gradient.addColorStop(.57,o.core);
-  gradient.addColorStop(.73,o.color);
-  gradient.addColorStop(.90,o.edge);
-  gradient.addColorStop(1,'rgba(0,0,0,0)');
+ function baseFilament(laneIndex,alpha,widthPx){
   ctx.save();
-  ctx.globalCompositeOperation='screen';
-  ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.beginPath();
-  const samples=112;
-  for(let i=0;i<=samples;i++){
-   const p=wave(first+(last-first)*i/samples,time,o.phase,o.amp);
-   if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);
-  }
-  // Diffusion très localisée, puis cœur continu ultrafin.
-  ctx.strokeStyle=gradient;
-  ctx.globalAlpha=o.alpha*.54;
-  ctx.lineWidth=o.width*2.15;
-  ctx.shadowColor=o.halo;
-  ctx.shadowBlur=o.blur;
-  ctx.stroke();
-  ctx.globalAlpha=o.alpha;
-  ctx.lineWidth=o.width*.83;
-  ctx.shadowBlur=.35;
-  ctx.stroke();
+  ctx.globalCompositeOperation='source-over';
+  ctx.strokeStyle='#f0f5f7';
+  ctx.lineJoin='round';
+  ctx.lineWidth=widthPx;
+  ctx.globalAlpha=alpha;
+  ctx.stroke(lanes[laneIndex].line);
   ctx.restore();
  }
- function draw(t){
-  if(!w||!h)measure();if(!w||!h)return;
-  ctx.clearRect(0,0,w,h);
-  // Trois fibres ultrafines : bleue, émeraude et nacrée.
-  thread(t,.2,.72,'#80c0ec','rgba(29,100,207,.68)');
-  thread(t,2.4,.92,'#65d4b8','rgba(11,142,120,.62)');
-  thread(t,4.1,.69,'#e6f9ff','rgba(148,217,250,.52)');
-  // Reflets continus, sans raccords entre segments ni effet de pointillés.
-  streak(t,{offset:.10,direction:1,period:7.8,span:.285,phase:.2,amp:.72,
-   color:'#6eaef3',core:'#cfedff',edge:'rgba(66,137,225,.16)',halo:'#246fe1',blur:2.8,width:1.06,alpha:.87});
-  streak(t,{offset:.115,direction:1,period:7.8,span:.17,phase:4.1,amp:.69,
-   color:'#d5f3ff',core:'#ffffff',edge:'rgba(205,245,255,.08)',halo:'#aee5ff',blur:1.8,width:.82,alpha:.93});
-  streak(t,{offset:.66,direction:-1,period:10.4,span:.27,phase:2.4,amp:.92,
-   color:'#63d7b5',core:'#d5fff2',edge:'rgba(25,151,124,.11)',halo:'#0fa989',blur:2.5,width:1.02,alpha:.84});
-  // Notes rubis discrètes mais identifiables dans la matière lumineuse.
-  streak(t,{offset:.38,direction:-1,period:12.7,span:.105,phase:2.4,amp:.92,
-   color:'#b82e55',core:'#e77993',edge:'rgba(142,26,60,.08)',halo:'#8e163d',blur:2.1,width:.79,alpha:.63});
-  streak(t,{offset:.83,direction:1,period:16.2,span:.06,phase:.2,amp:.72,
-   color:'#c84a70',core:'#f4afbf',edge:'rgba(157,26,70,.06)',halo:'#881738',blur:1.6,width:.56,alpha:.43});
- }
- function enabled(){
-  return !document.hidden&&!overlay.hidden&&overlay.dataset.state==='scanning'&&!motion?.matches&&guide.getClientRects().length>0;
- }
- function loop(now){
-  if(!running)return;
-  if(now-last>=22){last=now;draw(now/1000);}
-  raf=requestAnimationFrame(loop);
- }
- function sync(){
-  if(enabled()){
-   measure();
-   if(!running){running=true;last=0;raf=requestAnimationFrame(loop);}
-  }else{
-   running=false;if(raf)cancelAnimationFrame(raf);raf=0;
-   if(!overlay.hidden&&guide.getClientRects().length){measure();draw(0);}
+ // Éclat local à enveloppe continue, sans dégradé directionnel :
+ // aucun retournement brutal lorsque la lumière traverse un angle.
+ function illuminate(t,config){
+  const position=wrap(config.start+config.direction*t/config.seconds);
+  const radius=config.span/2,steps=60;
+  for(let pass=0;pass<2;pass++){
+   ctx.save();
+   ctx.globalCompositeOperation='screen';
+   ctx.strokeStyle=pass?config.core:config.tint;
+   ctx.shadowColor=config.tint;
+   ctx.shadowBlur=pass?.5:2.2;
+   ctx.lineWidth=pass?.68:1.65;
+   ctx.lineCap='butt';
+   for(let i=0;i<steps;i++){
+    const normalized=(i+.5)/steps;
+    const intensity=Math.pow(Math.max(0,Math.sin(Math.PI*normalized)),2.8);
+    if(intensity<.004)continue;
+    const u0=position-radius+(i/steps)*config.span;
+    const u1=position-radius+((i+1)/steps)*config.span;
+    const p=point(u0,config.lane),q=point(u1,config.lane);
+    ctx.globalAlpha=config.opacity*intensity*(pass?.92:.27);
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    ctx.lineTo(q.x,q.y);
+    ctx.stroke();
+   }
+   ctx.restore();
   }
  }
- new MutationObserver(sync).observe(overlay,{attributes:true,attributeFilter:['hidden','data-state']});
+ function paint(t){
+  if(!width||!height)return;
+  ctx.clearRect(0,0,width,height);
+  // 80–85 % monochrome : deux fins fils nacrés, un troisième reflet.
+  baseFilament(0,.60,.72);
+  baseFilament(1,.30,.52);
+  baseFilament(2,.17,.38);
+  // Les couleurs n'apparaissent que dans des vagues mobiles discrètes.
+  illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.23,
+    tint:'#72bfff',core:'#f5fbff',opacity:.87});
+  illuminate(t,{lane:1,start:.62,direction:-1,seconds:12.3,span:.17,
+    tint:'#35cba6',core:'#e4fff5',opacity:.79});
+  illuminate(t,{lane:2,start:.34,direction:1,seconds:17.1,span:.072,
+    tint:'#b72850',core:'#f2c0cd',opacity:.44});
+  // Court éclat blanc qui croise les reflets colorés.
+  illuminate(t,{lane:2,start:.11,direction:-1,seconds:13.8,span:.115,
+    tint:'#d6e9f3',core:'#ffffff',opacity:.68});
+ }
+ function isActive(){
+  return !document.hidden&&!overlay.hidden&&
+    overlay.dataset.state==='scanning'&&!reduceMotion?.matches&&
+    guide.getClientRects().length>0;
+ }
+ function frame(now){
+  if(!running)return;
+  if(lastTick){
+   // Évite une téléportation du reflet après une longue frame OCR,
+   // une suspension Safari ou une baisse de FPS.
+   elapsed+=Math.min(48,Math.max(0,now-lastTick))/1000;
+  }
+  lastTick=now;
+  if(now-lastPaint>=16){
+   lastPaint=now;
+   paint(elapsed);
+  }
+  request=window.requestAnimationFrame(frame);
+ }
+ function sync(){
+  if(isActive()){
+   if(!measure())return;
+   if(!running){
+    running=true;lastTick=0;lastPaint=0;
+    request=window.requestAnimationFrame(frame);
+   }
+  }else{
+   running=false;
+   if(request)window.cancelAnimationFrame(request);
+   request=0;lastTick=0;
+   if(!overlay.hidden&&guide.getClientRects().length&&measure())paint(elapsed);
+  }
+ }
+ new MutationObserver(sync).observe(overlay,{
+  attributes:true,attributeFilter:['hidden','data-state']
+ });
  document.addEventListener('visibilitychange',sync);
  window.addEventListener('pageshow',sync);
- window.addEventListener('pagehide',()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=0;});
- window.addEventListener('resize',sync,{passive:true});
- if(motion?.addEventListener)motion.addEventListener('change',sync);
- else motion?.addListener?.(sync);
- if(window.ResizeObserver)new ResizeObserver(()=>{measure();if(!running)sync();}).observe(guide);
+ window.addEventListener('pagehide',()=>{running=false;if(request)cancelAnimationFrame(request);request=0;lastTick=0;});
+ window.addEventListener('resize',()=>{width=height=0;lanes=[];sync();},{passive:true});
+ if(reduceMotion?.addEventListener)reduceMotion.addEventListener('change',sync);
+ else reduceMotion?.addListener?.(sync);
+ if(window.ResizeObserver)new ResizeObserver(()=>{
+  // Recalcule uniquement si la taille CSS change vraiment.
+  if(guide.getClientRects().length){measure();if(!running)paint(elapsed);}
+ }).observe(guide);
  sync();
 })();

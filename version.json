@@ -1,6 +1,6 @@
 {
-  "version": "41.04",
+  "version": "41.05",
   "published": "2026-11-19",
   "assets": 52,
-  "notes": "Filaments lumineux redessinés en tracés continus avec dégradés de couleur, sans 64 micro-traits ni raccords visibles. Cœur nacré et reflets bleus, émeraude et rubis plus fins, Canvas Retina conservé et animation rendue plus fluide. OCR inchangé."
+  "notes": "Viseur blanc nacré à reflets mobiles bleus, émeraude et rubis. Tracé pré-calculé et fixe, position lumineuse continue sur les coins, delta de temps plafonné pour éviter le sautillement. Bordure CSS supprimée, OCR préservé."
 }
