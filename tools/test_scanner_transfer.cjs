@@ -55,7 +55,7 @@ assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sau
 assert.match(scanner,/anchor\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner se trouve dans la carte de pesée');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
 assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.78/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.79/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
 
 // Calcul réel de l'application pour 142g - 554g = -412g.
