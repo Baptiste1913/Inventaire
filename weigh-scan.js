@@ -1,4 +1,4 @@
-/* Inventaires U v40.75 — lecture OCR rapide ; préremplissage sans sauvegarde avant validation humaine. */
+/* Inventaires U v40.76 — lecteur compact, poids étiquette vers brut ; net calculé avec la tare. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -8,6 +8,17 @@
  status=$('iuWeighScanStatus'),proposal=$('iuWeighScanProposal'),value=$('iuWeighScanValue'),
  conversion=$('iuWeighScanConversion'),apply=$('iuWeighScanApply'),
  again=$('iuWeighScanAgain'),retry=$('iuWeighScanRetry'),gross=$('grossWeight');
+ // La vidéo s'ouvre dans la carte « Nouvelle pesée », comme le mini-lecteur
+ // de poids sans IA expérimenté dans l'administration.
+ const anchor=trigger.closest('.iu-weigh-scan-option');
+ if(anchor?.parentElement){
+  anchor.insertAdjacentElement('afterend',overlay);
+  overlay.classList.add('iu-weigh-scan-inline');
+  overlay.setAttribute('role','region');
+  overlay.removeAttribute('aria-modal');
+  trigger.removeAttribute('aria-haspopup');
+  trigger.setAttribute('aria-expanded','false');
+ }
  let stream=null,worker=null,enginePromise=null,session=0,scanning=false,starting=false,wasOpen=false;
  let proposalGrams=null,lastCandidate=null,observations=[],nextVariant=0,previousStatus='';
  const say=(msg,error=false)=>{
@@ -42,7 +53,7 @@
   session++;scanning=false;starting=false;stopTracks();resetObservations();
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
   overlay.hidden=true;overlay.dataset.state='';
-  document.body.classList.remove('iu-weigh-scan-open');
+  trigger.setAttribute('aria-expanded','false');
   if(wasOpen){wasOpen=false;trigger.focus({preventScroll:true});}
  }
  async function engine(){
@@ -95,11 +106,12 @@
    conversion.textContent='Panier introuvable. Sélectionne un panier valide avant utilisation.';
    apply.disabled=true;return;
   }
-  const gross=proposalGrams+state.tareGrams;
-  conversion.textContent='Poids net de l’étiquette : '+format(proposalGrams)+
+  const gross=proposalGrams;
+  const net=gross-state.tareGrams;
+  conversion.textContent='Poids brut proposé : '+format(gross)+
    ' · Tare du panier : '+format(state.tareGrams)+
-   ' · Brut reconstitué : '+format(gross)+'.';
-  apply.disabled=!Number.isSafeInteger(gross)||gross>999999||gross<=0;
+   ' · Net calculé : '+(net>=0?format(net):'inférieur à zéro, à corriger')+'.';
+  apply.disabled=!Number.isSafeInteger(gross)||gross>999999||gross<=0||net<0;
  }
  function showProposal(grams){
   // La reconnaissance complète la pesée ordinaire sans écran de
@@ -150,7 +162,7 @@
   session++;const id=session;
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
   resetObservations();overlay.dataset.state='scanning';scanning=true;
-  say('Prêt. Présente le poids suivant dans le cadre.');
+  say('Présente la ligne « Poids net » de l’étiquette : elle sera recopiée dans le champ Brut.');
   void scan(id);return true;
  }
  async function startCamera(){
@@ -187,30 +199,25 @@
   }finally{if(id===session)starting=false;}
  }
  trigger.addEventListener('click',()=>{
-  if(!overlay.hidden)return;
+  if(!overlay.hidden){close();return;}
   overlay.hidden=false;wasOpen=true;
-  document.body.classList.add('iu-weigh-scan-open');
+  trigger.setAttribute('aria-expanded','true');
   closeBtn.focus({preventScroll:true});
   void startCamera();
  });
  closeBtn.addEventListener('click',close);
- overlay.addEventListener('click',event=>{if(event.target===overlay)close();});
+ // Il n'y a plus de fond plein écran ni de clic extérieur à intercepter.
  retry.addEventListener('click',()=>{void startCamera();});
  again.addEventListener('click',()=>{
   // Pas de reconfiguration caméra ni rechargement OCR entre deux étiquettes.
   if(!resumeScan())void startCamera();
  });
  apply.addEventListener('click',()=>{
-  const state=context();
-  if(proposalGrams===null||!state){say('Sélectionne un panier valide avant de poursuivre.',true);return;}
-  const grossGrams=proposalGrams+state.tareGrams;
-  if(!Number.isSafeInteger(grossGrams)||grossGrams<=0||grossGrams>999999){
-   say('Poids brut invalide : transfert refusé.',true);return;
+  if(proposalGrams===null||typeof window.IUWeighScanDraft!=='function'||
+     window.IUWeighScanDraft(proposalGrams)!==true){
+   say('Sélectionne un panier et vérifie la pesée actuelle avant de transférer le poids.',true);
+   return;
   }
-  const text=state.entryMode==='g'?String(grossGrams):(grossGrams/1000).toFixed(3).replace('.',',');
-  gross.value=text;
-  // Cette action explicite reproduit une saisie manuelle, avec ses contrôles.
-  gross.dispatchEvent(new Event('input',{bubbles:true}));
   close();
  });
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.hidden)close();});
