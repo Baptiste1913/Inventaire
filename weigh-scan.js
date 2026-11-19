@@ -1,4 +1,4 @@
-/* Inventaires U v40.76 — lecteur compact, poids étiquette vers brut ; net calculé avec la tare. */
+/* Inventaires U v40.77 — mise au point continue si disponible ; caméra réutilisée entre étiquettes. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -108,25 +108,25 @@
   }
   const gross=proposalGrams;
   const net=gross-state.tareGrams;
-  conversion.textContent='Poids brut proposé : '+format(gross)+
-   ' · Tare du panier : '+format(state.tareGrams)+
-   ' · Net calculé : '+(net>=0?format(net):'inférieur à zéro, à corriger')+'.';
-  apply.disabled=!Number.isSafeInteger(gross)||gross>999999||gross<=0||net<0;
+  conversion.textContent='Brut : '+format(gross)+
+   ' · Panier : '+format(state.tareGrams)+
+   ' · Net : '+format(net)+(net<0?' (essai)':'')+'.';
+  apply.disabled=!Number.isSafeInteger(gross)||gross>999999||gross<=0;
  }
  function showProposal(grams){
-  // La reconnaissance complète la pesée ordinaire sans écran de
-  // confirmation supplémentaire. Le champ reste modifiable et une
-  // validation explicite est nécessaire avant sauvegarde.
-  if(typeof window.IUWeighScanDraft==='function'&&window.IUWeighScanDraft(grams)===true){
-   close();
-   return;
-  }
-  // Repli : conserver le bouton manuel si l'écran de pesée n'est pas prêt.
+  // Une seule lecture crédible est proposée, sans nouvelle phase de mise au
+  // point. La caméra reste ALLUMÉE, mais l'OCR est arrêté jusqu'à validation.
+  const transferred=typeof window.IUWeighScanDraft==='function'&&window.IUWeighScanDraft(grams)===true;
   proposalGrams=grams;value.textContent=format(grams);
   scanning=false;overlay.dataset.state='result';
   refreshConversion();proposal.hidden=false;retry.hidden=true;
-  say('Poids proposé. Vérifie les chiffres avant de l’utiliser dans la pesée.');
-  if(navigator.vibrate)try{navigator.vibrate(30);}catch(_){}
+  apply.hidden=transferred;
+  again.disabled=transferred;
+  again.textContent=transferred?'Valide la pesée pour continuer':'Ignorer et scanner la suivante';
+  say(transferred
+   ?'Poids prérempli dans Brut. Vérifie, corrige si nécessaire puis valide la pesée ci-dessous.'
+   :'Vérifie la pesée précédente avant de transférer ce poids.');
+  if(navigator.vibrate)try{navigator.vibrate(25);}catch(_){}
  }
  function evaluateObservation(grams,confidence){
   // Une seule lecture crédible suffit pour PROPOSER une valeur, jamais
@@ -161,9 +161,22 @@
   if(overlay.hidden||starting||scanning||!worker||!stream)return false;
   session++;const id=session;
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
+  apply.hidden=false;again.disabled=false;
   resetObservations();overlay.dataset.state='scanning';scanning=true;
   say('Présente la ligne « Poids net » de l’étiquette : elle sera recopiée dans le champ Brut.');
   void scan(id);return true;
+ }
+ // Demande la mise au point continue seulement si le navigateur expose
+ // explicitement cette capacité. Safari iPhone peut ne pas l'exposer.
+ // Une erreur ici ne doit JAMAIS arrêter le scanner.
+ function requestContinuousFocus(source){
+  try{
+   const track=source.getVideoTracks?.()[0];
+   if(!track?.getCapabilities||!track.applyConstraints)return;
+   const caps=track.getCapabilities();
+   if(!Array.isArray(caps?.focusMode)||!caps.focusMode.includes('continuous'))return;
+   void track.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
+  }catch(_){}
  }
  async function startCamera(){
   if(starting||scanning||overlay.hidden)return;
@@ -179,13 +192,14 @@
    // Permission caméra demandée directement lors de l'appui sur le bouton.
    const cameraPromise=stream?Promise.resolve(stream):navigator.mediaDevices.getUserMedia({
     audio:false,
-    video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:15,max:24}}
+    video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:24,max:30}}
    });
    const enginePromiseLocal=engine();
    const source=await cameraPromise;
    if(overlay.hidden||id!==session){if(source!==stream)source.getTracks().forEach(t=>t.stop());return;}
    stream=source;
    video.srcObject=source;
+   requestContinuousFocus(source);
    if(video.paused)await video.play();
    await enginePromiseLocal;
    if(overlay.hidden||id!==session)return;
@@ -208,8 +222,19 @@
  closeBtn.addEventListener('click',close);
  // Il n'y a plus de fond plein écran ni de clic extérieur à intercepter.
  retry.addEventListener('click',()=>{void startCamera();});
+ window.addEventListener('iu-weigh-scan-saved',()=>{
+  if(overlay.hidden||proposalGrams===null||proposal.hidden)return;
+  again.disabled=false;
+  again.textContent='Scanner l’étiquette suivante';
+  say('Pesée enregistrée. Caméra déjà prête pour l’étiquette suivante.');
+ });
  again.addEventListener('click',()=>{
-  // Pas de reconfiguration caméra ni rechargement OCR entre deux étiquettes.
+  if(again.disabled)return;
+  if(typeof window.IUWeighScanPrepareNext==='function'&&!window.IUWeighScanPrepareNext()){
+   say('Valide ou corrige la pesée en cours avant de poursuivre.',true);return;
+  }
+  // Le même flux reste ouvert : pas de nouveau getUserMedia ni autofocus
+  // au changement d'étiquette.
   if(!resumeScan())void startCamera();
  });
  apply.addEventListener('click',()=>{
