@@ -41,6 +41,7 @@
     return code;
   }
 
+  const noteId = (n,old = false) => [n.code,n.article,n.source,n.date,old ? n.ancienCentimes : n.kgCentimes].join('|');
   function build(data) {
     if (data?.type !== 'inventaires-u-catalogue-tarifs' || data.schemaVersion !== 1 ||
         data.storeId !== store || !dateOK(data.dateExport) || !Array.isArray(data.articles) ||
@@ -67,7 +68,20 @@
       const list = notes.get(note.code) || [];
       list.push(note); notes.set(note.code,list);
     }
-    return {data, groups, notes};
+    const corrections = new Map(), rules = data.rectifications ?? [];
+    if (!Array.isArray(rules) || rules.length > 24000) throw Error('Liste des rectifications invalide.');
+    for (const rule of rules) {
+      if (!rule || !centsOK(rule.ancienCentimes) || rule.ancienCentimes === rule.kgCentimes ||
+          !dateOK(rule.dateCorrection) || rule.dateCorrection < rule.date ||
+          !notes.get(rule.code)?.some(n => noteId(n) === noteId(rule))) throw Error('Rectification sans relevé correspondant.');
+      const id = noteId(rule,true);
+      if (corrections.has(id) && corrections.get(id).kgCentimes !== rule.kgCentimes) throw Error('Rectifications incompatibles.');
+      corrections.set(id,rule);
+    }
+    for (const rule of rules) {
+      if (corrections.has(noteId(rule))) throw Error('Le montant corrigé doit être le tarif retenu.');
+    }
+    return {data, groups, notes, corrections};
   }
   function database() {
     if (!index) {
@@ -119,7 +133,9 @@
       notes.push({source:entry.origin === 'authorized-feed' ? 'flux' : 'drive', date:parisDate.format(new Date(stamp)), kgCentimes:value});
     }
     // Afficher le dernier jour disponible par source. Deux montants le même jour restent visibles.
-    const sorted = notes.filter(n => Object.hasOwn(sourceNames,n.source) && centsOK(n.kgCentimes) && dateOK(n.date))
+    const corrections = database()?.corrections;
+    const sorted = notes.map(n => corrections?.get(noteId({...n,code:key,article:row?.article})) || n)
+      .filter(n => Object.hasOwn(sourceNames,n.source) && centsOK(n.kgCentimes) && dateOK(n.date))
       .sort((a,b) => b.date.localeCompare(a.date));
     const dates = new Map(), seen = new Set();
     return sorted.filter(n => {
@@ -297,17 +313,25 @@
       const next = build(JSON.parse(await file.text()));
       const previous = read(catalogueKey);
       if (previous?.dateExport > next.data.dateExport) throw Error('Un export plus récent est déjà installé.');
-      const seen = new Set(next.data.releves.map(n => [n.code,n.article,n.source,n.date,n.kgCentimes].join('|')));
+      const seen = new Set(next.data.releves.map(n => noteId(n)));
       for (const n of previous?.releves || []) {
-        const id = [n.code,n.article,n.source,n.date,n.kgCentimes].join('|');
+        const id = noteId(n);
         if (!seen.has(id) && next.groups.get(n.code)?.some(row => row.article === n.article)) { next.data.releves.push(n); seen.add(id); }
       }
+      for (const r of previous?.rectifications || []) {
+        const id = noteId(r,true);
+        if (!seen.has(noteId(r)) || next.corrections.has(id)) continue;
+        (next.data.rectifications ??= []).push(r);
+      }
+      const replaced = new Set((next.data.rectifications || []).map(r => noteId(r,true)));
+      next.data.releves = next.data.releves.filter(n => !replaced.has(noteId(n)));
       const verified = build(next.data);
       localStorage.setItem(catalogueKey,JSON.stringify(verified.data));
       index = verified; count();
       const message = 'Tarifs disponibles sur cet appareil · ' + verified.notes.size + ' codes avec un relevé au kilo dans le fichier.';
       $('iuPriceImportStatus').textContent = message; $('iuPriceModalStatus').textContent = message;
       window.dispatchEvent(new Event('iu-refresh-ean-lookup'));
+      window.dispatchEvent(new Event('iu-coursesu-prices-updated'));
     } catch (e) {
       const message = 'Import impossible. ' + e.message;
       $('iuPriceImportStatus').textContent = message; $('iuPriceModalStatus').textContent = message;
@@ -334,7 +358,16 @@
     }
   });
   window.addEventListener('iu-coursesu-prices-updated',render);
-  window.IUEanPrices = {normalize,match,show,feedItems};
+  function correctedPilotPrice(plu,entry,storeUrl) {
+    if (!entry?.confirmed || entry.origin === 'authorized-feed' || storeUrl !== driveUrl) return entry;
+    const row = match(String(entry.eanPrefix)).row, stamp = Number(entry.checkedAt);
+    if (!row || row.plu !== String(plu) || !Number.isFinite(stamp) || stamp <= 0 || stamp > Date.now()) return entry;
+    const id = noteId({code:entry.eanPrefix,article:row.article,source:'drive',date:parisDate.format(new Date(stamp)),
+      kgCentimes:Math.round(Number(entry.price)*100)});
+    const rule = database()?.corrections.get(id);
+    return rule ? {...entry,price:(rule.kgCentimes/100).toFixed(2)} : entry;
+  }
+  window.IUEanPrices = {normalize,match,show,feedItems,correctedPilotPrice};
   // Le catalogue est chargé lors de la première consultation.
   $('iuEanAdminPanel').closest('details')?.addEventListener('toggle',event=>{ if (event.target.open) count(); });
 })();

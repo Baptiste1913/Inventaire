@@ -39,6 +39,11 @@
   });
   return result;
  }
+ function currentPrice(article){
+  const entry=prices[article.plu];
+  if(entry?.eanPrefix!==article.eanPrefix)return null;
+  return window.IUEanPrices?.correctedPilotPrice(article.plu,entry,store)||entry;
+ }
  function save(){
   try{localStorage.setItem(key,JSON.stringify({...load(),items,prices,store}));return true}
   catch(_){$('iuCoursesSummary').textContent='Sauvegarde locale impossible : stockage insuffisant.';return false}
@@ -51,10 +56,10 @@
   const host=$('iuCoursesList');host.replaceChildren();
   $('iuCoursesForm').hidden=!items.length;$('iuCoursesExport').hidden=!items.length;
   items.forEach(article=>{
-   const saved=prices[article.plu]?.eanPrefix===article.eanPrefix?prices[article.plu]:null;
+   const saved=currentPrice(article);
    const box=node('div','iu-courses-product');
    const heading=node('div','iu-courses-heading');heading.append(node('strong','',article.name),node('small','', 'PLU '+article.plu+' · EAN '+article.eanPrefix));
-   box.append(heading,node('p','iu-courses-export-price',article.ulisPriceAtExport===null?'Prix Ulis inconnu':'Prix Ulis à l’export : '+euro(article.ulisPriceAtExport)+'/kg (historique)'));
+   box.append(heading,node('p','iu-courses-export-price',article.ulisPriceAtExport===null?'Prix Ulis inconnu':'Prix de vente Ulis à l’export : '+euro(article.ulisPriceAtExport)+' · unité non précisée'));
    const link=node('a','iu-courses-link',article.candidate?'Voir une fiche candidate Courses U':'Chercher sur le Drive Saint-Germain');
    link.href=article.candidate||store;link.target='_blank';link.rel='noopener noreferrer';
    box.append(link,node('small','iu-courses-explain',article.candidate?'Fiche candidate à confirmer, pas un rapprochement garanti.':'Aucun lien produit exact confirmé.'));
@@ -169,7 +174,7 @@
   if(!validEAN(code))return 'EAN-13 invalide : vérifie le code lu.';
   const article=items.find(x=>x.eanPrefix===code.slice(0,7));
   if(!article)return 'Produit absent des dix références du test.';
-  const p=prices[article.plu];
+  const p=currentPrice(article);
   if(!p?.confirmed||p.eanPrefix!==article.eanPrefix||parsePrice(p.price)===null)return article.name+' : prix Courses U non vérifié, poids non estimé.';
   const age=Date.now()-Number(p.checkedAt);
   if(!Number.isFinite(age)||age<0||age>24*3600000)return article.name+' : prix vérifié depuis plus de 24 h, nouvelle vérification nécessaire.';
@@ -182,7 +187,8 @@
   event.preventDefault();$('iuCoursesResult').textContent=decode($('iuCoursesEAN').value.replace(/[\s-]/g,''));
  });
  $('iuCoursesExport').addEventListener('click',()=>{
-  const blob=new Blob([JSON.stringify({type:'inventaires-u-coursesu-pilot-results',exportedAt:new Date().toISOString(),store,items,prices},null,2)],{type:'application/json'});
+  const exported={...prices};items.forEach(item=>{const price=currentPrice(item);if(price)exported[item.plu]=price;});
+  const blob=new Blob([JSON.stringify({type:'inventaires-u-coursesu-pilot-results',exportedAt:new Date().toISOString(),store,items,prices:exported},null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='bilan-test-coursesu.json';document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);

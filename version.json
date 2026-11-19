@@ -1,7 +1,7 @@
 {
-  "version": "40.70",
+  "version": "40.71",
   "published": "2026-11-19",
   "assets": 46,
-  "bytes": 2364988,
-  "notes": "Prix par préfixe de balance ou EAN complet. Relevés datés de Saint-Germain, lecture des étiquettes et captures Courses U, équivalent au kilo des paquets à poids fixe et prise en charge du flux tarifaire configuré."
+  "bytes": 2367457,
+  "notes": "Recherche des tarifs par préfixe de balance ou EAN complet, lecture des captures Courses U et des étiquettes. Les rectifications d’un relevé sont aussi appliquées aux anciennes saisies correspondantes."
 }
