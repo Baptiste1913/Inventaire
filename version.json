@@ -1,6 +1,6 @@
 {
-  "version": "40.99",
+  "version": "41.00",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Lumières Orb affinées autour du double trait bleu : halos très localisés, couleurs bleu/cyan/émeraude et petit accent rouge. Vidéo transparente, mouvement uniquement pendant la lecture et désactivé si mouvement réduit."
+  "notes": "Viseur OCR avec deux filaments lumineux croisés en mouvement opposé, sur des lignes ondulantes bleu et émeraude avec brèves touches corail. Lumière contenue à 1-2 px autour du cadre, centre transparent, animation uniquement pendant le scan."
 }

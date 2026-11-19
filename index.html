@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="40.99"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=40.72" rel="manifest"/><link href="apple-touch-icon.png?v=40.72" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=40.72" rel="icon" type="image/png"/><link href="favicon-32.png?v=40.72" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=40.72" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=40.72" rel="stylesheet"/><link href="coursesu-lab.css?v=40.72" rel="stylesheet"/><link href="coursesu-feed.css?v=40.72" rel="stylesheet"/><link href="weigh-scan-inline.css?v=40.99" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="41.00"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=40.72" rel="manifest"/><link href="apple-touch-icon.png?v=40.72" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=40.72" rel="icon" type="image/png"/><link href="favicon-32.png?v=40.72" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=40.72" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=40.72" rel="stylesheet"/><link href="coursesu-lab.css?v=40.72" rel="stylesheet"/><link href="coursesu-feed.css?v=40.72" rel="stylesheet"/><link href="weigh-scan-inline.css?v=41.00" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
 html.iu-pwa-starting body{overflow:hidden!important}
 html.iu-pwa-starting #iuPwaSplash{display:flex!important}
 #iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#f7f9fa;align-items:center;justify-content:center;opacity:1;transition:opacity .32s ease;pointer-events:all;padding:24px;box-sizing:border-box}
@@ -1094,7 +1094,28 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
     <div class="iu-weigh-label-barcode"><span></span></div>
     <div class="iu-weigh-label-price"></div>
    </div>
-   <div class="iu-weigh-scan-guide" aria-hidden="true"></div>
+   <div class="iu-weigh-scan-guide" aria-hidden="true">
+    <svg class="iu-orb-filaments" viewBox="0 0 200 70" preserveAspectRatio="none" fill="none" aria-hidden="true" focusable="false">
+     <defs>
+      <linearGradient id="iuOrbFilamentBlue" x1="0%" y1="10%" x2="100%" y2="80%">
+       <stop offset="0%" stop-color="#237fca"/>
+       <stop offset="28%" stop-color="#81ddf5"/>
+       <stop offset="51%" stop-color="#e7fdff"/>
+       <stop offset="70%" stop-color="#2baad4"/>
+       <stop offset="100%" stop-color="#11a693"/>
+      </linearGradient>
+      <linearGradient id="iuOrbFilamentGreen" x1="100%" y1="0%" x2="0%" y2="100%">
+       <stop offset="0%" stop-color="#6ee4c0"/>
+       <stop offset="30%" stop-color="#109c9c"/>
+       <stop offset="56%" stop-color="#d3f6ef"/>
+       <stop offset="74%" stop-color="#d87b80"/>
+       <stop offset="100%" stop-color="#52ade6"/>
+      </linearGradient>
+     </defs>
+     <path class="iu-orb-thread iu-orb-thread-blue" pathLength="100" stroke="url(#iuOrbFilamentBlue)" d="M10 2 C43 1 72 4 101 2 C137 0 166 4 190 2 Q198 2 198 10 L198 60 Q198 68 190 68 C157 69 132 66 100 68 C66 70 42 66 10 68 Q2 68 2 60 L2 10 Q2 2 10 2 Z"/>
+     <path class="iu-orb-thread iu-orb-thread-green" pathLength="100" stroke="url(#iuOrbFilamentGreen)" d="M10 3 C44 5 65 0 101 3 C141 5 159 0 190 3 Q197 3 197 10 L197 60 Q197 67 190 67 C153 65 130 70 100 67 C66 65 35 70 10 67 Q3 67 3 60 L3 11 Q3 3 10 3 Z"/>
+    </svg>
+   </div>
    <p id="iuWeighScanStatus" class="iu-weigh-scan-status" role="status" aria-live="polite"></p>
   </div>
   <div class="iu-weigh-scan-bottom">

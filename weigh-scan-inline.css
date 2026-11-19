@@ -1189,3 +1189,73 @@
   animation:none !important;
  }
 }
+
+/* v41.00 — filaments ondulants qui se croisent, inspirés d'un faisceau AI.
+   Contrairement au dégradé tournant, deux trajets lumineux suivent des
+   courbes légèrement différentes et se croisent sur le double contour.
+   Les lignes sont pointillées (deux rais), animées en sens opposés et le
+   centre du viseur reste intégralement transparent pour l'OCR. */
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ background:none !important;
+ background-color:transparent !important;
+ border:1px solid rgba(18,141,168,.86) !important;
+ border-radius:9px !important;
+ box-shadow:0 0 0 .5px rgba(48,192,172,.54) !important;
+ isolation:isolate !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide::before,
+.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
+ content:none !important;
+ display:none !important;
+ animation:none !important;
+}
+.iu-weigh-scan-inline .iu-orb-filaments {
+ position:absolute !important;
+ inset:-2px !important;
+ width:calc(100% + 4px) !important;
+ height:calc(100% + 4px) !important;
+ overflow:visible !important;
+ pointer-events:none !important;
+ z-index:1 !important;
+}
+.iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread {
+ fill:none !important;
+ stroke-linecap:round !important;
+ stroke-linejoin:round !important;
+ vector-effect:non-scaling-stroke !important;
+ stroke-dasharray:15 17 5 63 !important;
+ stroke-dashoffset:0;
+ opacity:.36;
+ animation:none !important;
+}
+.iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread-blue {
+ stroke-width:1.1px !important;
+ filter:drop-shadow(0 0 1.3px rgba(76,175,235,.78)) !important;
+}
+.iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread-green {
+ stroke-width:.85px !important;
+ stroke-dasharray:11 21 4 64 !important;
+ filter:drop-shadow(0 0 1.1px rgba(52,201,166,.72)) !important;
+}
+@keyframes iu-orb-filament-blue {
+ from { stroke-dashoffset:0; }
+ to { stroke-dashoffset:-100; }
+}
+@keyframes iu-orb-filament-green {
+ from { stroke-dashoffset:0; }
+ to { stroke-dashoffset:100; }
+}
+.iu-weigh-scan-inline[data-state="scanning"] .iu-orb-filaments .iu-orb-thread-blue {
+ opacity:1 !important;
+ animation:iu-orb-filament-blue 7.8s linear infinite !important;
+}
+.iu-weigh-scan-inline[data-state="scanning"] .iu-orb-filaments .iu-orb-thread-green {
+ opacity:.88 !important;
+ animation:iu-orb-filament-green 9.2s linear infinite !important;
+}
+@media (prefers-reduced-motion: reduce) {
+ .iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread {
+  animation:none !important;
+  opacity:.4 !important;
+ }
+}
