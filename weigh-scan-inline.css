@@ -1,0 +1,177 @@
+/* Inventaires U v40.76 — lecteur de poids intégré à la pesée (format compact). */
+/* Les règles sont limitées à la vue intégrée pour préserver les autres fenêtres. */
+.iu-weigh-scan-overlay.iu-weigh-scan-inline {
+  position:relative !important;
+  display:block !important;
+  inset:auto !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  min-height:0 !important;
+  margin:12px 0 14px !important;
+  padding:0 !important;
+  z-index:auto !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:none !important;
+  overflow:visible !important;
+  pointer-events:auto !important;
+}
+.iu-weigh-scan-overlay.iu-weigh-scan-inline[hidden] {
+  display:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-shell {
+  position:relative !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:10px !important;
+  inset:auto !important;
+  box-sizing:border-box !important;
+  width:100% !important;
+  max-width:none !important;
+  height:auto !important;
+  max-height:none !important;
+  min-height:0 !important;
+  padding:13px !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  border:1px solid rgba(164,185,196,.38) !important;
+  border-radius:17px !important;
+  background:linear-gradient(145deg,#f9fbfc,#edf2f5) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.92),3px 5px 14px rgba(94,124,141,.09) !important;
+  transform:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-header {
+  position:static !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-header strong {
+  font-size:14px !important;
+  line-height:1.25 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-header small {
+  display:block !important;
+  font-size:11px !important;
+  line-height:1.35 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-close {
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  min-height:32px !important;
+  border-radius:50% !important;
+  flex:0 0 auto !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera {
+  position:relative !important;
+  flex:none !important;
+  display:block !important;
+  box-sizing:border-box !important;
+  width:100% !important;
+  height:200px !important;
+  min-height:0 !important;
+  max-height:200px !important;
+  padding:0 !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  border:1px solid rgba(31,48,60,.2) !important;
+  border-radius:13px !important;
+  background:#111a20 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera video {
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  max-height:none !important;
+  object-fit:cover !important;
+  border-radius:0 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+  position:absolute !important;
+  box-sizing:border-box !important;
+  inset:42% auto auto 23% !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  width:54% !important;
+  height:16% !important;
+  min-height:31px !important;
+  max-height:none !important;
+  border:1px solid rgba(249,251,251,.9) !important;
+  border-radius:8px !important;
+  background:rgba(255,255,255,.06) !important;
+  pointer-events:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide span {
+  position:absolute !important;
+  top:-28px !important;
+  display:block !important;
+  width:max-content !important;
+  max-width:210px !important;
+  padding:4px 8px !important;
+  border-radius:7px !important;
+  background:rgba(21,32,40,.78) !important;
+  color:#fff !important;
+  font-size:10px !important;
+  text-align:center !important;
+  line-height:1.3 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-bottom {
+  position:static !important;
+  display:block !important;
+  flex:none !important;
+  width:100% !important;
+  min-height:0 !important;
+  max-height:none !important;
+  padding:0 !important;
+  margin:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-status {
+  padding:0 !important;
+  margin:2px 0 0 !important;
+  font-size:12px !important;
+  line-height:1.45 !important;
+  text-align:left !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-controls > p {
+  display:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-proposal {
+  margin-top:8px !important;
+  padding:10px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-proposal[hidden],
+.iu-weigh-scan-inline .iu-weigh-scan-controls [hidden],
+#iuScannedDraftNotice[hidden] {
+  display:none !important;
+}
+@media (max-width:390px) {
+  .iu-weigh-scan-inline .iu-weigh-scan-camera {
+    height:174px !important;
+    max-height:174px !important;
+  }
+  .iu-weigh-scan-inline .iu-weigh-scan-shell {
+    padding:11px !important;
+  }
+}
