@@ -2,6 +2,10 @@ name: Courses U - diagnostic prix au kilo (pilote)
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/coursesu-price-pilot.yml'
 
 permissions:
   contents: read
