@@ -1,6 +1,6 @@
 {
-  "version": "40.79",
+  "version": "40.80",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Nouvelle pesée enregistre maintenant une lecture OCR vérifiée au moment d'appuyer sur le bouton, puis relance immédiatement le lecteur sans arrêter la caméra. Le raccourci « Identifier un code-barres » est retiré de la pesée. Cadre caméra harmonisé au neumorphisme bleu-gris. Confirmation de pesée avec le style du bloc « Inventaire terminé » et marge supérieure."
+  "notes": "Sélecteur des paniers compact avec bouton de lecture du poids à droite : icône seule accessible, alignement responsive. Caméra affichée sous la ligne, sans modifier la sauvegarde ni l'OCR."
 }
