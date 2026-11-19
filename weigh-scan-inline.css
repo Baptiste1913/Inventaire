@@ -973,3 +973,60 @@
  box-shadow:none !important;
  pointer-events:none !important;
 }
+
+/* v40.97 — reflet Siri discret qui circule UNIQUEMENT sur le fin liseré.
+   Deux couches accolées, intérieur pleinement transparent pour la lecture OCR.
+   Pas de rotation d'élément : aucun changement de forme ni d'emplacement. */
+@property --iu-weigh-border-orbit {
+ syntax: "<angle>";
+ inherits: false;
+ initial-value: 0deg;
+}
+@keyframes iu-weigh-border-orbit {
+ from { --iu-weigh-border-orbit: 0deg; }
+ to { --iu-weigh-border-orbit: 360deg; }
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ background:none !important;
+ background-color:transparent !important;
+ border:1px solid #078fa9 !important;
+ border-radius:9px !important;
+ box-shadow:none !important;
+ isolation:isolate !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
+ content:"" !important;
+ display:block !important;
+ position:absolute !important;
+ inset:-1px !important;
+ box-sizing:border-box !important;
+ border:1px solid transparent !important;
+ border-radius:10px !important;
+ background:conic-gradient(
+  from var(--iu-weigh-border-orbit),
+  #168fae 0deg,
+  #1daeca 66deg,
+  #8bdfc4 101deg,
+  #2fc9b3 145deg,
+  #0d9eae 235deg,
+  #0c8ba9 305deg,
+  #168fae 360deg
+ ) border-box !important;
+ -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ -webkit-mask-composite:xor !important;
+ mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ mask-composite:exclude !important;
+ opacity:.9 !important;
+ pointer-events:none !important;
+ animation:none !important;
+}
+/* N'animer que durant la visée réelle : pas de calcul en arrière-plan,
+   à l'ouverture, après lecture, ou quand l'utilisateur ferme le scanner. */
+.iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
+ animation:iu-weigh-border-orbit 5.6s linear infinite !important;
+}
+@media (prefers-reduced-motion: reduce) {
+ .iu-weigh-scan-inline .iu-weigh-scan-guide::after {
+  animation:none !important;
+ }
+}
