@@ -1,6 +1,6 @@
 {
-  "version": "40.77",
+  "version": "40.78",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Scanner compact plus rapide en série : caméra conservée entre deux étiquettes et mise au point continue sollicitée si prise en charge. En mode essai, les poids nets négatifs (brut inférieur à la tare) sont affichés et peuvent être validés, historisés et exportés."
+  "notes": "Nouvelle pesée simplifiée : le poids brut et la tare sont dans le même bloc que le net, qui reste prédominant. Champ brut déplacé au-dessus du résultat, confirmation intégrée sans panneau orange ni texte redondant. Le bouton Nouvelle pesée relance la lecture sans redémarrer la caméra ouverte."
 }
