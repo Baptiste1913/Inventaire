@@ -51,7 +51,7 @@
         const age = same.length ? same.at(-1).time-same[0].time : 0;
         const strong = same.length >= 2 && same.every(v => v.confidence >= 89);
         const needed = strong ? 2 : 3;
-        return {accepted:same.length >= needed && independent && age >= 105,
+        return {accepted:same.length >= needed && independent && age >= 85,
           count:same.length,needed};
       }
     };
