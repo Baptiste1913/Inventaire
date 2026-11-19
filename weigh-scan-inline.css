@@ -1,4 +1,4 @@
-/* Inventaires U v40.79 — lecteur compact neumorphique et confirmation harmonisée. */
+/* Inventaires U v40.80 — lecteur compact neumorphique et confirmation harmonisée. */
 /* Les règles sont limitées à la vue intégrée pour préserver les autres fenêtres. */
 .iu-weigh-scan-overlay.iu-weigh-scan-inline {
   position:relative !important;
@@ -347,4 +347,83 @@
 }
 .calc-card #weighStatus.v22-message.is-complete .session-complete-title {
  font-variant-numeric:tabular-nums !important;
+}
+
+/* v40.80 : panier réduit et lecture de l'étiquette à droite sur la même ligne. */
+.calc-card .iu-basket-scan-row {
+ display:flex !important;
+ align-items:stretch !important;
+ gap:11px !important;
+ width:100% !important;
+ min-width:0 !important;
+ margin:0 0 8px !important;
+}
+.calc-card .iu-basket-select-wrap {
+ flex:1 1 0 !important;
+ min-width:0 !important;
+ display:flex !important;
+ align-items:stretch !important;
+}
+.calc-card .iu-basket-select-wrap #basketSelect {
+ display:block !important;
+ box-sizing:border-box !important;
+ width:100% !important;
+ max-width:100% !important;
+ min-width:0 !important;
+ min-height:60px !important;
+ height:60px !important;
+ margin:0 !important;
+ padding-top:0 !important;
+ padding-bottom:0 !important;
+ font-size:clamp(14px,3.7vw,17px) !important;
+ text-overflow:ellipsis !important;
+}
+.calc-card .iu-basket-scan-row .iu-weigh-scan-option {
+ flex:0 0 60px !important;
+ display:flex !important;
+ align-items:stretch !important;
+ width:60px !important;
+ max-width:60px !important;
+ min-width:60px !important;
+ margin:0 !important;
+ padding:0 !important;
+}
+.calc-card .iu-basket-scan-row .iu-weigh-scan-option #iuWeighScanToggle {
+ display:flex !important;
+ justify-content:center !important;
+ align-items:center !important;
+ flex:1 1 auto !important;
+ box-sizing:border-box !important;
+ width:60px !important;
+ min-width:60px !important;
+ max-width:60px !important;
+ height:60px !important;
+ min-height:60px !important;
+ max-height:60px !important;
+ margin:0 !important;
+ padding:0 !important;
+ border-radius:18px !important;
+}
+.calc-card .iu-basket-scan-row #iuWeighScanToggle svg {
+ display:block !important;
+ width:23px !important;
+ height:23px !important;
+ flex:0 0 23px !important;
+}
+@media(max-width:375px) {
+ .calc-card .iu-basket-scan-row {gap:8px !important;}
+ .calc-card .iu-basket-scan-row .iu-weigh-scan-option,
+ .calc-card .iu-basket-scan-row .iu-weigh-scan-option #iuWeighScanToggle {
+  flex-basis:56px !important;
+  width:56px !important;
+  min-width:56px !important;
+  max-width:56px !important;
+  height:56px !important;
+  min-height:56px !important;
+  max-height:56px !important;
+ }
+ .calc-card .iu-basket-select-wrap #basketSelect {
+  min-height:56px !important;
+  height:56px !important;
+ }
 }
