@@ -1,4 +1,4 @@
-/* Inventaires U 41.06 — filaments nacrés supplémentaires, géométrie fixe.
+/* Inventaires U 41.07 — rubans lumineux antialiasés, sans micro-segments de traits.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -10,7 +10,7 @@
  if(!ctx)return;
  const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
  const TWO_PI=Math.PI*2;
- const COUNT=480;
+ const COUNT=720;
  let width=0,height=0;
  let lanes=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
  function wrap(u){return ((u%1)+1)%1;}
@@ -79,6 +79,7 @@
   if(canvas.height!==ph)canvas.height=ph;
   ctx.setTransform(pw/w,0,0,ph/h,0,0);
   ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
   lanes=[
    buildLane(.28,.37),
    buildLane(2.35,.58),
@@ -98,39 +99,63 @@
   ctx.stroke(lanes[laneIndex].line);
   ctx.restore();
  }
- // Éclat local à enveloppe continue, sans dégradé directionnel :
- // aucun retournement brutal lorsque la lumière traverse un angle.
- function illuminate(t,config){
-  const position=wrap(config.start+config.direction*t/config.seconds);
-  const radius=config.span/2,steps=60;
-  for(let pass=0;pass<2;pass++){
-   ctx.save();
-   ctx.globalCompositeOperation='screen';
-   ctx.strokeStyle=pass?config.core:config.tint;
-   ctx.shadowColor=config.tint;
-   ctx.shadowBlur=pass?.5:2.2;
-   ctx.lineWidth=pass?.68:1.65;
-   ctx.lineCap='butt';
-   for(let i=0;i<steps;i++){
-    const normalized=(i+.5)/steps;
-    const intensity=Math.pow(Math.max(0,Math.sin(Math.PI*normalized)),2.8);
-    if(intensity<.004)continue;
-    const u0=position-radius+(i/steps)*config.span;
-    const u1=position-radius+((i+1)/steps)*config.span;
-    const p=point(u0,config.lane),q=point(u1,config.lane);
-    ctx.globalAlpha=config.opacity*intensity*(pass?.92:.27);
-    ctx.beginPath();
-    ctx.moveTo(p.x,p.y);
-    ctx.lineTo(q.x,q.y);
-    ctx.stroke();
-   }
-   ctx.restore();
+ // Les anciens reflets étaient assemblés par ~60 petits strokes séparés
+ // avec extrémités carrées : joints visibles à l'échelle Retina.
+ // Un ruban est maintenant UN chemin fermé antialiasé, d'épaisseur variable,
+ // effilé naturellement aux deux extrémités, sans ligne segmentée.
+ function ribbonGeometry(t,config){
+  const center=wrap(config.start+config.direction*t/config.seconds);
+  const samples=104;
+  const positions=[];
+  const epsilon=1/(COUNT*2);
+  for(let i=0;i<=samples;i++){
+   const s=i/samples;
+   const u=center+(s-.5)*config.span;
+   const p=point(u,config.lane);
+   const prev=point(u-epsilon,config.lane);
+   const next=point(u+epsilon,config.lane);
+   let tx=next.x-prev.x,ty=next.y-prev.y;
+   const magnitude=Math.hypot(tx,ty)||1;
+   tx/=magnitude;ty/=magnitude;
+   // La largeur évolue progressivement : aucune césure lumineuse.
+   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*s)),1.65);
+   positions.push({x:p.x,y:p.y,nx:-ty,ny:tx,envelope});
   }
+  return positions;
+ }
+ function drawRibbon(points,widthPx,color,opacity,blur){
+  const shape=new Path2D();
+  for(let i=0;i<points.length;i++){
+   const p=points[i];
+   const radius=widthPx*p.envelope/2;
+   const x=p.x+p.nx*radius,y=p.y+p.ny*radius;
+   if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y);
+  }
+  for(let i=points.length-1;i>=0;i--){
+   const p=points[i],radius=widthPx*p.envelope/2;
+   shape.lineTo(p.x-p.nx*radius,p.y-p.ny*radius);
+  }
+  shape.closePath();
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  ctx.globalAlpha=opacity;
+  ctx.fillStyle=color;
+  ctx.shadowColor=color;
+  ctx.shadowBlur=blur;
+  ctx.fill(shape);
+  ctx.restore();
+ }
+ function illuminate(t,config){
+  const ribbon=ribbonGeometry(t,config);
+  // Halo coloré feutré + centre nacré ultra-fin : deux formes continues.
+  // Limiter le flou aux pixels proches du repère.
+  drawRibbon(ribbon,2.25,config.tint,config.opacity*.27,2.3);
+  drawRibbon(ribbon,.86,config.core,config.opacity*.81,.55);
  }
  function paint(t){
   if(!width||!height)return;
   ctx.clearRect(0,0,width,height);
-  // 80–85 % monochrome : deux fins fils nacrés, un troisième reflet.
+  // Base monochrome conservée et cinq filaments à tracés fixes.
   baseFilament(0,.60,.72);
   baseFilament(1,.30,.52);
   baseFilament(2,.17,.38);

@@ -1,6 +1,6 @@
 {
-  "version": "41.06",
+  "version": "41.07",
   "published": "2026-11-19",
   "assets": 52,
-  "notes": "Deux fins filaments nacrés supplémentaires densifient subtilement le contour lumineux sans changer l'animation stabilisée. Opacité des repères d'étiquette abaissée de 30 %, indépendamment du viseur OCR."
+  "notes": "Refonte antialiasée des lumières du viseur : rubans continus effilés plutôt que micro-segments avec joints pixelisés, échantillonnage plus fin, halo localisé. Palette nacrée, bleu, émeraude et rubis, cinq filaments et repères -30 % conservés. OCR inchangé."
 }

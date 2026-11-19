@@ -946,3 +946,11 @@
 .iu-weigh-scan-inline .iu-weigh-label-template {
  opacity:.70 !important;
 }
+
+/* v41.07 — conserver le raster natif Retina pour le Canvas :
+   ni agrandissement CSS, ni ombre ou filtre supplémentaire. */
+.iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light {
+ image-rendering:auto !important;
+ filter:none !important;
+ transform:none !important;
+}
