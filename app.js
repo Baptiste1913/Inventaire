@@ -402,7 +402,9 @@ function saveCurrentWeigh(){
 function scheduleAutoSave(){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
  if(scannerDraft){
-  $('weighStatus').textContent='Poids de l’étiquette dans Brut : vérifie ou corrige, puis valide. Le Net est calculé après déduction de la tare.';
+  // La confirmation est maintenant dans la carte résultat : aucun
+  // second message explicatif sous celle-ci.
+  $('weighStatus').textContent='';
   scannerDraftUI();return;
  }
  $('weighStatus').textContent='';
@@ -464,9 +466,29 @@ function focusGrossWithoutScroll(){
  if(!field||document.activeElement===field)return;
  field.focus({preventScroll:true});
 }
-function newWeigh(){if(!flushPending())return;if(!netGrams&&$('grossWeight').value.trim()){$('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;}
- if(!$('grossWeight').value.trim()){focusGrossWithoutScroll();return;}
- clearWeigh();focusGrossWithoutScroll();}
+function newWeigh(){
+ const overlay=$('iuWeighScanOverlay');
+ const scannerOpen=Boolean(overlay&&!overlay.hidden);
+ if(scannerDraft){
+  // « Nouvelle pesée » annule uniquement le brouillon OCR non validé,
+  // sans jamais créer d'entrée dans l'historique.
+  clearWeigh();
+ }else{
+  // Pour les pesées manuelles ou déjà validées, préserver la sauvegarde
+  // et les avertissements existants avant de commencer une autre saisie.
+  if(!flushPending())return;
+  if(!netGrams&&$('grossWeight').value.trim()){
+   $('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;
+  }
+  if($('grossWeight').value.trim())clearWeigh();
+ }
+ if(scannerOpen){
+  // Réutilise la caméra déjà ouverte et le moteur OCR sans autofocus initial.
+  window.dispatchEvent(new Event('iu-weigh-scan-next'));
+ }else{
+  focusGrossWithoutScroll();
+ }
+}
 function beginGroup(){return false;}
 function finishGroup(){return true;}
 function removeGroupEntry(id){return false;}
@@ -1952,8 +1974,7 @@ $('iuScannedDraftConfirm')?.addEventListener('click',()=>{
  if(!saveCurrentWeigh()){
   scannerDraft=true;scannerDraftUI();
  }else{
-  // La fenêtre compacte peut proposer la prochaine étiquette en gardant
-  // la même caméra et sa mise au point.
+  $('weighStatus').textContent='Pesée enregistrée';
   window.dispatchEvent(new Event('iu-weigh-scan-saved'));
  }
 });
