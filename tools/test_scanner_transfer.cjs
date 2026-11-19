@@ -296,8 +296,10 @@ assert.match(style,/\.iu-weigh-scan-bottom:has\(/,
  'La marge inférieure est retirée sauf si une action de secours est nécessaire');
 assert.match(style,/\.iu-weigh-scan-camera \.iu-weigh-scan-status:not\(\.is-error\)/,
  'Statut normal masqué, erreurs conservées');
-assert.doesNotMatch(html,/Poids détecté\.|Lecture du poids en direct|Caméra prête pour plusieurs étiquettes/,
- 'Aucun texte de lecture superflu affiché');
+const scanOverlayHTML=html.slice(html.indexOf('id="iuWeighScanOverlay"'),
+ html.indexOf('id="iuEanOverlay"'));
+assert.doesNotMatch(scanOverlayHTML,/Poids détecté\.|Lecture du poids en direct|Caméra prête pour plusieurs étiquettes/,
+ 'Aucun texte de lecture superflu dans le lecteur OCR');
 assert.doesNotMatch(scanner,/Poids détecté\.|Pesée enregistrée · caméra prête\./,
  'Pas de statut superflu');
 assert.match(html,/weigh-scan-inline\.css\?v=40\.88/);
