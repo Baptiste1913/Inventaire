@@ -131,38 +131,82 @@ assert.match(scanner,/proposal\.hidden=transferred/,'Le scanner évite de dupliq
 assert.match(scanner,/window\.addEventListener\('iu-weigh-scan-next'/,
  'Le lecteur reçoit un événement pour la prochaine pesée');
 
-// Test de la fonction Nouvelle pesée avec un brouillon OCR.
-// Elle doit supprimer le brouillon et réactiver le scanner sans sauvegarde.
-const nextStart=app.indexOf('function newWeigh(){');
+// Tests v40.79 : « Nouvelle pesée » enregistre la lecture AVANT
+// d'effacer le champ, puis relance l'OCR sans redémarrer la caméra.
+const commitStart=app.indexOf('function commitScannerDraft(){');
+const nextStart=app.indexOf('function newWeigh(){',commitStart);
 const nextEnd=app.indexOf('\nfunction beginGroup()',nextStart);
-assert.ok(nextStart>0&&nextEnd>nextStart);
-const resetEnv={
- scannerDraft:true,
- grossWeightText:'0.254',
- window:{dispatched:[],dispatchEvent(event){this.dispatched.push(event.type);}},
- Event:class {constructor(type){this.type=type;}},
- calls:{cleared:0,flushed:0,focused:0},
- focusGrossWithoutScroll(){this.calls.focused++},
- clearWeigh(){
-  resetEnv.calls.cleared++;
-  resetEnv.scannerDraft=false;
-  resetEnv.grossWeightText='';
- },
- flushPending(){resetEnv.calls.flushed++;return true;},
- $:id=>id==='iuWeighScanOverlay'?{hidden:false}:
-       id==='grossWeight'?{get value(){return resetEnv.grossWeightText}}:
-       id==='weighStatus'?{textContent:''}:null,
- netGrams:254
-};
-vm.createContext(resetEnv);
-vm.runInContext(app.slice(nextStart,nextEnd),resetEnv);
-vm.runInContext('newWeigh()',resetEnv);
-assert.equal(resetEnv.calls.cleared,1);
-assert.equal(resetEnv.calls.flushed,0,'Ne pas enregistrer le brouillon non confirmé');
-assert.equal(resetEnv.calls.focused,0,'Ne pas ouvrir le clavier pendant le scan');
-assert.deepEqual(resetEnv.window.dispatched,['iu-weigh-scan-next']);
+assert.ok(commitStart>0&&nextStart>commitStart&&nextEnd>nextStart);
+const simulatedSource=app.slice(commitStart,nextEnd);
+function simulateNext({failSave=false,anomaly=false,scannerDraft=true}={}){
+ const env={
+  scannerDraft,
+  netGrams:-300,
+  grossWeightText:'0.254',
+  currentWeighId:null,
+  scannerDraftUI(){},
+  renderWarning:()=>anomaly,
+  clearWeighSavedStyle(){},
+  saved:[],
+  calls:{cleared:0,flushed:0,focused:0,keptStatus:false},
+  window:{dispatched:[],dispatchEvent(event){this.dispatched.push(event.type);}},
+  Event:class {constructor(type){this.type=type;}},
+  $:id=>id==='iuWeighScanOverlay'?{hidden:false}:
+    id==='grossWeight'?{get value(){return env.grossWeightText}}:
+    id==='weighStatus'?{textContent:''}:null,
+  saveCurrentWeigh(){
+   if(failSave)return false;
+   env.saved.push(env.grossWeightText);
+   env.currentWeighId='weigh-id-1';
+   return true;
+  },
+  clearWeigh(keepSuccess=false){
+   env.calls.cleared++;
+   env.calls.keptStatus=keepSuccess;
+   env.scannerDraft=false;
+   env.grossWeightText='';
+   env.currentWeighId=null;
+  },
+  flushPending(){env.calls.flushed++;return true;},
+  focusGrossWithoutScroll(){env.calls.focused++}
+ };
+ vm.createContext(env);
+ vm.runInContext(simulatedSource,env);
+ vm.runInContext('newWeigh()',env);
+ return env;
+}
+let next=simulateNext();
+assert.deepEqual(next.saved,['0.254'],'Le brut OCR doit être enregistré avant effacement');
+assert.equal(next.calls.cleared,1,'Champ effacé après sauvegarde');
+assert.equal(next.calls.keptStatus,true,'Conserver le bandeau de succès après effacement');
+assert.equal(next.calls.flushed,0,'Pas de sauvegarde via le chemin manuel');
+assert.equal(next.calls.focused,0,'Pas de clavier affiché en lecture continue');
+assert.deepEqual(next.window.dispatched,['iu-weigh-scan-saved','iu-weigh-scan-next']);
+next=simulateNext({failSave:true});
+assert.equal(next.scannerDraft,true,'Échec stockage : garder le brouillon à corriger');
+assert.equal(next.grossWeightText,'0.254','Échec stockage : préserver la valeur reconnue');
+assert.equal(next.calls.cleared,0);
+assert.equal(next.window.dispatched.length,0,'Échec stockage : ne pas passer au suivant');
+next=simulateNext({anomaly:true});
+assert.equal(next.saved.length,0,'Avertissement : aucune sauvegarde silencieuse');
+assert.equal(next.calls.cleared,0,'Avertissement : conserver le champ');
+next=simulateNext({scannerDraft:false});
+assert.equal(next.calls.flushed,1,'Garder la trajectoire manuelle');
+assert.equal(next.calls.cleared,1);
+
+assert.doesNotMatch(html,/id="iuEanWeighOpen"/,
+ 'Le raccourci code-barres doit être retiré de la zone de pesée');
+assert.match(app,/classList\.add\('v22-message','is-complete'\)/,
+ 'Reprendre les classes de la confirmation « Inventaire terminé »');
+assert.match(app,/className='session-complete-title'/,
+ 'Reprendre la structure de la confirmation d’inventaire');
+assert.match(style,/#weighStatus\.v22-message\.is-complete/,
+ 'Espacer le bandeau de succès');
+assert.match(style,/linear-gradient\(148deg,#f9fbfd/,
+ 'Accorder la carte caméra au style bleu-gris de l’application');
+assert.match(html,/weigh-scan-inline\.css\?v=40\.79/);
 assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/);
 assert.match(scanner,/if\(stream&&worker\)\{resumeScan\(\);return;\}/,
  'Réutiliser le flux et le moteur déjà ouverts');
 
-console.log('Tests scanner v40.78 : négatifs, historique, contrôle manuel, caméra réutilisée : OK');
+console.log('Tests scanner v40.79 : sauvegarde Nouvelle pesée, échecs de stockage, avertissements, statut et design : OK');
