@@ -401,7 +401,7 @@ function saveCurrentWeigh(){
 function scheduleAutoSave(){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
  if(scannerDraft){
-  $('weighStatus').textContent='Poids reconnu : vérifie les chiffres, corrige si besoin, puis valide la pesée.';
+  $('weighStatus').textContent='Poids de l’étiquette dans Brut : vérifie ou corrige, puis valide. Le Net est calculé après déduction de la tare.';
   scannerDraftUI();return;
  }
  $('weighStatus').textContent='';
@@ -424,13 +424,15 @@ function clearWeigh(){
  $('grossWeight').value='';$('weighStatus').textContent='';calculate();
 }
 
-// Transfert direct de la lecture du poids NET vers le champ BRUT classique.
+// Selon le fonctionnement demandé pour la pesée de rayon, le poids lu sur
+// l'étiquette est saisi TEL QUEL comme poids BRUT. La tare est ensuite
+// soustraite uniquement par calculate(), comme en saisie manuelle.
 // Le statut de brouillon empêche toute sauvegarde avant validation humaine.
-window.IUWeighScanDraft=net=>{
- if(!Number.isSafeInteger(net)||net<=0||net>30000)return false;
+window.IUWeighScanDraft=labelGrams=>{
+ if(!Number.isSafeInteger(labelGrams)||labelGrams<=0||labelGrams>30000)return false;
  const state=window.IUWeighScanContext();
  if(!state||!Number.isSafeInteger(state.tareGrams)||state.tareGrams<0)return false;
- const grossGrams=net+state.tareGrams;
+ const grossGrams=labelGrams;
  if(!Number.isSafeInteger(grossGrams)||grossGrams>999999)return false;
  // Une pesée précédente doit être enregistrée avant d'être remplacée.
  // Un brouillon OCR déjà présent peut simplement être remplacé.
