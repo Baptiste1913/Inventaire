@@ -1,7 +1,7 @@
 {
-  "version": "40.69",
-  "published": "2026-11-18",
+  "version": "40.70",
+  "published": "2026-11-19",
   "assets": 46,
-  "bytes": 1400033,
-  "notes": "Préparation à la mise à jour automatique par flux tarifaire explicitement autorisé. Contrôle strict €/kg même si vente à la pièce, PLU+EAN et magasin exacts, dates <24h, variation >20 % bloquée, historique local et cache Safari. Pas de scraping ni de source Courses U active tant qu'aucun flux autorisé n'est disponible."
+  "bytes": 2364988,
+  "notes": "Prix par préfixe de balance ou EAN complet. Relevés datés de Saint-Germain, lecture des étiquettes et captures Courses U, équivalent au kilo des paquets à poids fixe et prise en charge du flux tarifaire configuré."
 }

@@ -43,13 +43,18 @@
    throw Error('Le flux doit être daté de moins de 24 heures.');
   if(!Array.isArray(feed.articles)||feed.articles.length>10000)
    throw Error('Liste des articles invalide.');
-  const byPLU=new Map(local.items.map(item=>[String(item.plu),item]));
-  const used=new Set(),accepted=[];
+  const allItems=[...(window.IUEanPrices?.feedItems()||[]),...local.items];
+  const byReference=new Map(allItems.map(item=>[item.plu+'|'+item.eanPrefix,item]));
+  const used=new Set(),duplicates=new Set(),accepted=[];
+  for(const data of feed.articles){
+   const key=String(data?.plu??'')+'|'+String(data?.eanPrefix??'');
+   if(used.has(key))duplicates.add(key);
+   used.add(key);
+  }
   let ignored=0,missingKg=0;
   for(const data of feed.articles){
-   const plu=String(data?.plu??''),prefix=String(data?.eanPrefix??''),item=byPLU.get(plu);
-   if(!item||item.eanPrefix!==prefix||used.has(plu)){ignored++;continue}
-   used.add(plu);
+   const plu=String(data?.plu??''),prefix=String(data?.eanPrefix??''),key=plu+'|'+prefix,item=byReference.get(key);
+   if(!item||duplicates.has(key)){ignored++;continue}
    const unit=String(data.pricePerKgUnit??'').trim().toLowerCase();
    const value=['eur/kg','€/kg'].includes(unit)?cents(data.pricePerKg):null;
    if(value===null){missingKg++;continue}
@@ -58,28 +63,34 @@
   return {accepted,ignored,missingKg,time:t};
  }
  function loaded(){
-  const local=read(STORAGE);
-  if(!local||!Array.isArray(local.items)||local.items.length===0)
-   throw Error('Charge d’abord les articles de ton catalogue DIGI.');
+  const saved=read(STORAGE),local=saved&&Array.isArray(saved.items)?saved:{items:[],prices:{}};
+  if(!local.items.length&&!window.IUEanPrices?.feedItems().length)
+   throw Error('Importe les tarifs de Saint-Germain ou charge le catalogue DIGI.');
+  if(!local.feedPrices||typeof local.feedPrices!=='object'||Array.isArray(local.feedPrices))local.feedPrices={};
   if(!local.prices||typeof local.prices!=='object'||Array.isArray(local.prices))local.prices={};
   return local;
  }
  function apply(feed,local){
   const result=interpret(feed,local);
+  const pilotKeys=new Set(local.items.map(item=>item.plu+'|'+item.eanPrefix));
   let done=0,blocked=0;
   for(const entry of result.accepted){
-   const old=local.prices[entry.item.plu],oldCents=old?.eanPrefix===entry.item.eanPrefix?cents(old.price):null;
+   const prefix=entry.item.eanPrefix,plu=String(entry.item.plu),pilotEntry=local.prices[plu];
+   const candidates=[local.feedPrices[prefix],pilotEntry].filter(p=>p?.eanPrefix===prefix&&(!p.plu||p.plu===plu));
+   const old=candidates.sort((a,b)=>Number(b.checkedAt||0)-Number(a.checkedAt||0))[0],oldCents=cents(old?.price);
+   if(old&&Number(old.checkedAt)>result.time){blocked++;continue}
    if(oldCents!==null&&Math.abs(entry.value-oldCents)/oldCents>0.20){blocked++;continue}
    const history=Array.isArray(old?.history)?old.history.slice(-9):[];
    if(oldCents!==null&&oldCents!==entry.value)
     history.push({price:old.price,checkedAt:old.checkedAt,origin:old.origin||'manual'});
-   local.prices[entry.item.plu]={eanPrefix:entry.item.eanPrefix,price:(entry.value/100).toFixed(2),
+   local.feedPrices[prefix]={plu,eanPrefix:prefix,price:(entry.value/100).toFixed(2),
     confirmed:true,checkedAt:result.time,origin:'authorized-feed',history:history.slice(-10)};
+   if(pilotKeys.has(plu+'|'+prefix))local.prices[plu]=local.feedPrices[prefix];
    done++;
   }
   localStorage.setItem(STORAGE,JSON.stringify(local));
   window.dispatchEvent(new Event('iu-coursesu-prices-updated'));
-  return done+' tarif(s) en €/kg reçu(s) · '+blocked+' forte(s) variation(s) bloquée(s) · '+
+  return done+' tarif(s) en €/kg reçu(s) · '+blocked+' relevé(s) antérieur(s) ou forte(s) variation(s) bloqué(s) · '+
    result.missingKg+' sans prix €/kg · '+result.ignored+' hors correspondance exacte.';
  }
  const conf=read(CONFIG);
@@ -90,8 +101,7 @@
   const cfg=read(CONFIG),endpoint=validUrl(cfg?.url);
   if(!endpoint){status.textContent='Aucun flux autorisé configuré : actualisation automatique indisponible.';return}
   if(auto&&(!cfg.enabled||Date.now()-Number(cfg.lastAttempt||0)<DAY))return;
-  let local;
-  try{local=loaded()}catch(e){status.textContent=e.message;return}
+  try{loaded()}catch(e){status.textContent=e.message;return}
   busy=true;refreshButton.disabled=true;status.textContent='Lecture du flux tarifaire…';
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
   try{
@@ -102,8 +112,9 @@
    if(Number(response.headers.get('content-length'))>512000)throw Error('Fichier trop volumineux.');
    const body=await response.text();
    if(body.length>512000)throw Error('Fichier trop volumineux.');
-   const message=apply(JSON.parse(body),local);
-   cfg.lastSuccess=Date.now();localStorage.setItem(CONFIG,JSON.stringify(cfg));
+   if(read(CONFIG)?.url!==endpoint)throw Error('La source a changé pendant la lecture.');
+   const message=apply(JSON.parse(body),loaded());
+   const current=read(CONFIG);if(current?.url===endpoint)localStorage.setItem(CONFIG,JSON.stringify({...current,lastSuccess:Date.now()}));
    status.textContent='Flux accepté : '+message;
   }catch(e){
    status.textContent='Aucun prix modifié : '+String(e?.message||'source inaccessible').slice(0,140)+

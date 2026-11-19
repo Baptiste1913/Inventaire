@@ -16,7 +16,7 @@
  const learned=storedLinks&&typeof storedLinks==='object'&&!Array.isArray(storedLinks)?storedLinks:{};
  const $s=(id,txt)=>{$(id).textContent=txt;};
  let scanner=null,starting=false,scanning=false,closing=null,modalFromCalc=false,selectedCode='',currentPrefix='';
- let imported=false;
+ let imported=false,standalone=false;
  const normalizeItem=item=>{
   if(!item||typeof item!=='object')return null;
   const plu=String(item.plu??item.PLU??'').trim();
@@ -125,22 +125,10 @@
  }
  $('iuEanCatalogSearch').addEventListener('input',()=>renderSearch('iuEanCatalogSearch','iuEanCatalogMatches',false));
  $('iuEanLearnSearch').addEventListener('input',()=>renderSearch('iuEanLearnSearch','iuEanLearnMatches',true));
- function checkDigit(code){
-  if(!/^\d{8}$|^\d{12,14}$/.test(code))return false;
-  const sum=Array.from(code.slice(0,-1)).reduce((acc,digit,index)=>{
-   const distance=code.length-2-index;return acc+Number(digit)*(distance%2===0?3:1);
-  },0);
-  return (10-sum%10)%10===Number(code.at(-1));
- }
- function normalizeCode(text){
-  let code=String(text||'').replace(/[\s-]/g,'');
-  if(!/^\d{8}$|^\d{12,14}$/.test(code)||!checkDigit(code))return '';
-  if(code.length===12)code='0'+code;
-  return code;
- }
  function lookup(code){
   selectedCode=code;
-  currentPrefix=code.length===13&&/^0?2/.test(code)?code.slice(0,7):'';
+  const priced=window.IUEanPrices.match(code);
+  currentPrefix=priced.key.length===7?priced.key:'';
   const manual=currentPrefix&&typeof learned[currentPrefix]==='string'?learned[currentPrefix]:null;
   const importedPLU=currentPrefix?eanIndex.get(currentPrefix):null;
   const examplePLU=currentPrefix?known[currentPrefix]?.plu:null;
@@ -148,9 +136,11 @@
   // Un conflit avec l'import est signalé plutôt que masqué.
   const association=manual||importedPLU||examplePLU||null;
   const fallback=known[currentPrefix];
-  const matched=association?catalog.get(association)||
+  const digiMatch=association?catalog.get(association)||
    ((fallback?.plu===association)?{plu:association,name:fallback.name,active:false}:null):null;
-  const conflict=!!(manual&&importedPLU&&manual!==importedPLU);
+  const matched=digiMatch || (priced.row?{plu:priced.row.plu||'',name:priced.row.nom}:priced.remembered);
+  const conflict=!!(manual&&importedPLU&&manual!==importedPLU) ||
+    !!(association&&priced.row?.plu&&association!==priced.row.plu);
   const ambiguous=!!(currentPrefix&&ambiguousPrefixes.has(currentPrefix)&&!manual);
   let origin=matched?
    (manual?'Association enregistrée sur cet appareil':
@@ -158,27 +148,30 @@
     'Correspondance vérifiée sur une étiquette'):
    (ambiguous?'Préfixe partagé par plusieurs PLU : association manuelle nécessaire.':
     'Aucune correspondance EAN → PLU trouvée dans le catalogue actuel.');
+  if(matched&&!digiMatch)origin=priced.row?'Correspondance exacte dans le catalogue de tarifs de Saint-Germain.':'Nom enregistré avec un relevé local.';
+  if(priced.ambiguous)origin='Plusieurs références pour ce code dans le catalogue de tarifs.';
   if(conflict)origin+=' Attention : cette association est différente de l’export DIGI.';
   $s('iuEanResultCode',code);
   $s('iuEanResultPrefix',currentPrefix||'Non applicable');
-  $s('iuEanResultPLU',matched?'PLU '+matched.plu:'Non identifié');
+  $s('iuEanResultPLU',matched?.plu?'PLU '+matched.plu:'Non identifié');
   $s('iuEanResultTitle',matched?matched.name:'Produit non identifié');
   $s('iuEanMatchOrigin',origin);
   $s('iuEanResultWeight','Non disponible dans ce code de manière fiable');
+  window.IUEanPrices.show(code,matched,conflict||ambiguous);
   $('iuEanResult').hidden=false;
   $('iuEanLearn').hidden=!currentPrefix||!imported;
   $('iuEanLearnSearch').value='';
   $('iuEanLearnMatches').replaceChildren();
   $('iuEanOpenWeight').hidden=!modalFromCalc;
   $('iuEanInput').value=code;
-  const summary=matched?matched.name+' (PLU '+matched.plu+'). ':'';
-  status.textContent='Code-barres valide. '+summary+
+  const summary=matched?matched.name+(matched.plu?' (PLU '+matched.plu+')':'')+'. ':'';
+  status.textContent=(code.length===7?'Préfixe de balance. ':'Code-barres valide. ')+summary+
    'Le poids exact nécessite toujours la lecture de l’étiquette.'+
    (conflict?' Attention : vérifie l’association manuelle.':'');
  }
  const status=$('iuEanStatus');
- function handleCode(raw){
-  const code=normalizeCode(raw);
+ function handleCode(raw,allowPrefix=false){
+  const code=window.IUEanPrices.normalize(raw,allowPrefix);
   if(!code){status.textContent='Code invalide ou clé EAN incorrecte. Vérifie tous les chiffres.';$('iuEanResult').hidden=true;return}
   void stopCamera();
   lookup(code);
@@ -226,14 +219,14 @@
    if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia)throw Error('Permission caméra ou HTTPS indisponible');
    if(closing)await closing;
    const Reader=await loadScanner();
-   if(modal.hidden)return;
+   if(modal.hidden||document.hidden)return;
    const format=window.Html5QrcodeSupportedFormats;
    const formats=format?['EAN_13','EAN_8','UPC_A','UPC_E'].map(k=>format[k]).filter(x=>x!==undefined):[];
    scanner=new Reader('iuEanCamera',formats.length?{formatsToSupport:formats,verbose:false}:{verbose:false});
    $('iuEanCameraWrap').hidden=false;
    await scanner.start({facingMode:'environment'},{fps:10,disableFlip:true},
     result=>{if(!scanning)return;handleCode(result)},()=>{});
-   if(modal.hidden){await stopCamera();return}
+   if(modal.hidden||document.hidden){await stopCamera();return}
    scanning=true;$('iuEanStop').hidden=false;$('iuEanStart').hidden=true;
    status.textContent='Caméra active : pointe l’étiquette vers le code-barres.';
   }catch(_){
@@ -241,34 +234,45 @@
    status.textContent='Caméra indisponible. Vérifie son autorisation et Internet au premier lancement, ou saisis le code.';
   }finally{starting=false;$('iuEanStart').disabled=false}
  }
- function open(fromCalc){
-  modalFromCalc=!!fromCalc;modal.hidden=false;
+ function open(fromCalc,useCamera=true,direct=false){
+  standalone=direct;modalFromCalc=!!fromCalc;modal.hidden=false;
   $('iuEanResult').hidden=true;status.textContent='Prêt. Cadre un EAN sur une étiquette.';
   $('iuEanInput').value='';$('iuEanOpenWeight').hidden=!fromCalc;
   document.body.classList.add('iu-weigh-scan-open');
   $('iuEanClose').focus({preventScroll:true});
-  void startCamera();
+  if(useCamera)void startCamera();else{if(!standalone)$('iuEanInput').focus();status.textContent='Saisis les 7 chiffres de la balance ou un EAN complet.';}
  }
  function close(){
   void stopCamera();modal.hidden=true;document.body.classList.remove('iu-weigh-scan-open');
   $('iuEanResult').hidden=true;
   if(modalFromCalc)$('iuEanWeighOpen')?.focus({preventScroll:true});
   modalFromCalc=false;
+  if(standalone&&location.hash==='#tarifs')history.replaceState(history.state,'',location.pathname+location.search);
+  standalone=false;
  }
+ function openPriceLink(){
+  if(location.hash==='#tarifs')open(false,false,true);
+  else if(standalone)close();
+ }
+ window.addEventListener('hashchange',openPriceLink);
+ if(location.hash==='#tarifs')openPriceLink();
  $('iuEanWeighOpen')?.addEventListener('click',()=>open(true));
+ $('iuPriceManualOpen').addEventListener('click',()=>open(false,false));
+ window.addEventListener('iu-refresh-ean-lookup',()=>{if(selectedCode&&!modal.hidden&&!$('iuEanResult').hidden)lookup(selectedCode)});
  $('iuEanAdminOpen').addEventListener('click',()=>open(false));
  $('iuEanClose').addEventListener('click',close);
  modal.addEventListener('click',event=>{if(event.target===modal)close()});
  $('iuEanStart').addEventListener('click',()=>{void startCamera()});
  $('iuEanStop').addEventListener('click',()=>{void stopCamera();status.textContent='Caméra arrêtée.'});
  $('iuEanScanAgain').addEventListener('click',()=>{$('iuEanResult').hidden=true;void startCamera()});
- $('iuEanForm').addEventListener('submit',event=>{event.preventDefault();handleCode($('iuEanInput').value)});
+ $('iuEanForm').addEventListener('submit',event=>{event.preventDefault();handleCode($('iuEanInput').value,true)});
  $('iuEanOpenWeight').addEventListener('click',()=>{close();$('iuWeighScanToggle')?.click()});
- document.addEventListener('visibilitychange',()=>{if(document.hidden&&!modal.hidden)close()});
- window.addEventListener('pagehide',()=>{close()});
+ // Garder l’article et le relevé en cours quand on consulte la fiche du drive dans Safari.
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&!modal.hidden)void stopCamera()});
+ window.addEventListener('pagehide',()=>{if(!modal.hidden)void stopCamera()});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden)close()});
  new MutationObserver(()=>{
-  if(modal.hidden)return;
+  if(modal.hidden||standalone)return;
   if(modalFromCalc){if($('grossWeight')?.getClientRects().length===0)close()}
   else if(!document.body.classList.contains('is-admin-mode'))close();
  }).observe(document.body,{attributes:true,attributeFilter:['class']});

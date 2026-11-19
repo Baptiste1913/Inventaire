@@ -218,6 +218,25 @@
    return canvas;
   }finally{URL.revokeObjectURL(objectUrl);}
  }
+ let recognitionQueue=Promise.resolve(),reportProgress=null;
+ function recognize(canvas,progress){
+  const job=recognitionQueue.then(async()=>{
+   reportProgress=progress;
+   try{
+    const engine=await loadTesseract();
+    if(!worker)worker=await engine.createWorker(['fra','eng'],1,{
+     logger:event=>{if(event.status==='recognizing text'&&Number.isFinite(event.progress))reportProgress?.(event.progress)}
+    });
+    return (await worker.recognize(canvas)).data?.text||'';
+   }finally{reportProgress=null}
+  });
+  recognitionQueue=job.then(()=>{},()=>{});
+  return job;
+ }
+ window.IULabelOCR={async readFile(file){
+  if(!file?.type?.startsWith('image/')||file.size>22*1024*1024)throw Error('Sélectionne une image de moins de 22 Mo.');
+  return recognize(await prepareImage(file));
+ }};
  async function read(){
   if(!selectedFile||reading)return;
   reading=true;readBtn.disabled=true;const token=++generation;
@@ -227,30 +246,19 @@
    const canvas=croppedCanvas(full);
    if(token!==generation)return;
    statusText('Chargement du moteur de reconnaissance (premier essai : Internet requis)…');
-   const Tesseract=await loadTesseract();
+   let text=String(await recognize(canvas,progress=>{
+    if(token===generation)statusText('Lecture de l’étiquette : '+Math.round(progress*100)+' %');
+   })).trim();
    if(token!==generation)return;
-   if(!worker){
-    worker=await Tesseract.createWorker(['fra','eng'],1,{
-     logger:event=>{
-      if(token!==generation||!event?.status)return;
-      if(event.status==='recognizing text'&&Number.isFinite(event.progress))
-       statusText('Lecture de l’étiquette : '+Math.round(event.progress*100)+' %');
-     }
-    });
-   }
-   if(token!==generation)return;
-   const response=await worker.recognize(canvas);
-   if(token!==generation)return;
-   let text=String(response?.data?.text||'').trim();
    if(crop&&canvas.width>60&&canvas.height>90){
     // Deuxième passe sur la partie haute, pour isoler le libellé de l'étiquette.
     statusText('Lecture complémentaire du nom du produit…');
     const upper=document.createElement('canvas');
     upper.width=canvas.width;upper.height=Math.max(60,Math.round(canvas.height*.58));
     upper.getContext('2d').drawImage(canvas,0,0,canvas.width,upper.height,0,0,upper.width,upper.height);
-    const titleReply=await worker.recognize(upper);
+    const titleReply=await recognize(upper);
     if(token!==generation)return;
-    const title=productNameFromTop(titleReply?.data?.text);
+    const title=productNameFromTop(titleReply);
     if(title)text=title+'\n'+text;
    }
    textArea.value=text;

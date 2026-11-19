@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="40.69"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=40.69" rel="manifest"/><link href="apple-touch-icon.png?v=40.69" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=40.69" rel="icon" type="image/png"/><link href="favicon-32.png?v=40.69" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=40.69" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=40.69" rel="stylesheet"/><link href="coursesu-lab.css?v=40.69" rel="stylesheet"/><link href="coursesu-feed.css?v=40.69" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="40.70"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=40.70" rel="manifest"/><link href="apple-touch-icon.png?v=40.70" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=40.70" rel="icon" type="image/png"/><link href="favicon-32.png?v=40.70" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=40.70" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=40.70" rel="stylesheet"/><link href="coursesu-lab.css?v=40.70" rel="stylesheet"/><link href="coursesu-feed.css?v=40.70" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
 html.iu-pwa-starting body{overflow:hidden!important}
 html.iu-pwa-starting #iuPwaSplash{display:flex!important}
 #iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#f7f9fa;align-items:center;justify-content:center;opacity:1;transition:opacity .32s ease;pointer-events:all;padding:24px;box-sizing:border-box}
@@ -82,7 +82,7 @@ html.iu-pwa-splash-leaving #iuPwaSplash{opacity:0;pointer-events:none}
 }
 
 
-/* V40.69 — Squelette calqué sur l'accueil vérifié sur iPhone.
+/* V40.70 — Squelette calqué sur l'accueil vérifié sur iPhone.
    Animation visible mais limitée aux principaux espaces de texte. */
 html body #iuPwaSplash{
  align-items:stretch!important;justify-content:flex-start!important;
@@ -105,7 +105,7 @@ html body #iuPwaSplash .iu-skeleton-shape{
  background:linear-gradient(100deg,#e0e6eb 18%,#e9eef2 48%,#e1e7ed 80%)!important;
  background-size:100% 100%!important;animation:none!important;
 }
-/* V40.69 — Reflet blanc net et lent, qui traverse réellement les rectangles.
+/* V40.70 — Reflet blanc net et lent, qui traverse réellement les rectangles.
    Animation de transform sur une dizaine de bandes : pas de recalcul de layout. */
 html body #iuPwaSplash .iu-skeleton-flow{
  position:relative!important;
@@ -146,7 +146,7 @@ html body #iuPwaSplash .iu-skeleton-feature .iu-skeleton-flow::after{
 html body #iuPwaSplash .iu-skeleton-admin .iu-skeleton-flow::after{
  animation-delay:-1.1s!important;
 }
-/* V40.69 : décalage subtil des reflets entre les différents groupes. */
+/* V40.70 : décalage subtil des reflets entre les différents groupes. */
 html body #iuPwaSplash .iu-skeleton-info-grid .iu-skeleton-flow::after{
  animation-delay:-1.25s!important;
 }
@@ -316,7 +316,7 @@ html body #iuPwaSplash #iuSplashLoader.iu-skeleton-hidden-progress.iu-splash-loa
 .iu-home-welcome #iuDashFeature .iu-feature-alert-signal{position:absolute;left:13px;top:50%;width:7px;height:7px;border-radius:50%;transform:translateY(-50%);pointer-events:none;background:#d45f5b;box-shadow:0 0 0 3px rgba(212,95,91,.10),0 0 8px 2px rgba(212,95,91,.25);animation:iuAlertRecallPulse 2.6s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){.iu-home-welcome #iuDashFeature .iu-feature-alert-signal{animation:none!important}}
 </style></head>
-<body><div id="iuUpdateOverlay" role="status" aria-live="polite" aria-label="Installation de la mise à jour" aria-hidden="true"><div class="iu-loader-aurora" aria-hidden="true"><span class="iu-loader-aurora-orb iu-loader-aurora-red"></span><span class="iu-loader-aurora-orb iu-loader-aurora-blue"></span><span class="iu-loader-aurora-orb iu-loader-aurora-green"></span></div><div class="iu-update-screen"><span class="iu-update-logo"><img src="icon.png?v=40.69" width="192" height="192" alt=""/></span><strong id="iuUpdateScreenTitle">Installation de la mise à jour…</strong><p id="iuUpdateScreenText">Préparation de votre nouvelle version.</p><div class="iu-update-progress-block"><div class="iu-update-progress-meta"><span id="iuUpdateStep">Activation de la mise à jour</span><span id="iuUpdateStepCount">Étape 1 sur 4</span></div><div class="iu-update-progress" id="iuUpdateProgress" role="progressbar" aria-label="Étapes de la mise à jour" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span></span></div></div><button type="button" id="iuUpdateOverlayDismiss" hidden>Revenir au site</button></div></div><dialog id="accountResetDialog" class="account-reset-dialog" aria-labelledby="accountResetDialogTitle" aria-describedby="accountResetDialogText"><div class="account-reset-modal"><strong id="accountResetDialogTitle">Confirmer la réinitialisation</strong><p id="accountResetDialogText"></p><div class="account-reset-modal-actions"><button type="button" id="accountResetCancel">Annuler</button><button type="button" id="accountResetConfirm">Confirmer</button></div></div></dialog>
+<body><div id="iuUpdateOverlay" role="status" aria-live="polite" aria-label="Installation de la mise à jour" aria-hidden="true"><div class="iu-loader-aurora" aria-hidden="true"><span class="iu-loader-aurora-orb iu-loader-aurora-red"></span><span class="iu-loader-aurora-orb iu-loader-aurora-blue"></span><span class="iu-loader-aurora-orb iu-loader-aurora-green"></span></div><div class="iu-update-screen"><span class="iu-update-logo"><img src="icon.png?v=40.70" width="192" height="192" alt=""/></span><strong id="iuUpdateScreenTitle">Installation de la mise à jour…</strong><p id="iuUpdateScreenText">Préparation de votre nouvelle version.</p><div class="iu-update-progress-block"><div class="iu-update-progress-meta"><span id="iuUpdateStep">Activation de la mise à jour</span><span id="iuUpdateStepCount">Étape 1 sur 4</span></div><div class="iu-update-progress" id="iuUpdateProgress" role="progressbar" aria-label="Étapes de la mise à jour" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><span></span></div></div><button type="button" id="iuUpdateOverlayDismiss" hidden>Revenir au site</button></div></div><dialog id="accountResetDialog" class="account-reset-dialog" aria-labelledby="accountResetDialogTitle" aria-describedby="accountResetDialogText"><div class="account-reset-modal"><strong id="accountResetDialogTitle">Confirmer la réinitialisation</strong><p id="accountResetDialogText"></p><div class="account-reset-modal-actions"><button type="button" id="accountResetCancel">Annuler</button><button type="button" id="accountResetConfirm">Confirmer</button></div></div></dialog>
 <div id="iuPwaSplash" role="status" aria-label="Ouverture d’Inventaires U" aria-live="off">
  <div class="iu-skeleton-shell" aria-hidden="true">
   <div class="iu-skeleton-header">
@@ -538,9 +538,9 @@ html body #iuPwaSplash #iuSplashLoader.iu-skeleton-hidden-progress.iu-splash-loa
   <button type="button" class="intro-jump" id="heroStartSession" aria-label="Aller à Ma session" aria-controls="startSession"><span class="hero-start-layer hero-start-gradient" aria-hidden="true"></span><span class="hero-start-layer hero-start-surface" aria-hidden="true"></span><span class="hero-action-content"><span class="hero-action-copy"><span id="heroActionLabel">Aller à Ma session</span></span><svg class="hero-arrow-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6.5 8.5 10 12l3.5-3.5"/></svg></span></button>
  </div>
  </div>
- <img class="intro-mascot" src="mascotte-pasteque.svg?v=40.69" alt="" aria-hidden="true" width="230" height="205" decoding="async"/>
+ <img class="intro-mascot" src="mascotte-pasteque.svg?v=40.70" alt="" aria-hidden="true" width="230" height="205" decoding="async"/>
 </section>
-<!-- V40.69 : page Alertes, navigation identique aux pages Administration et Evenements. -->
+<!-- V40.70 : page Alertes, navigation identique aux pages Administration et Evenements. -->
 <section id="iuAlertsPage" class="card iu-alerts-page" aria-labelledby="iuAlertsHeading" hidden>
  <div class="iu-alerts-opaque-backdrop" aria-hidden="true"></div>
  <div class="iu-alerts-page-body">
@@ -690,8 +690,8 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
     </div>
   </section>
 
-  <!-- V40.69 : laboratoire isolé ; aucune écriture dans les pesées -->
-  <!-- V40.69 — Laboratoire de reconnaissance des étiquettes DIGI, indépendant des pesées -->
+  <!-- V40.70 : laboratoire isolé ; aucune écriture dans les pesées -->
+  <!-- V40.70 — Laboratoire de reconnaissance des étiquettes DIGI, indépendant des pesées -->
   <section id="iuLabelLabSection" class="iu-label-lab-section" aria-labelledby="iuLabelLabTitle">
    <header class="iu-admin-planning-header"><div><h3 id="iuLabelLabTitle">Laboratoire · Étiquettes</h3><p>Lire les informations imprimées sur les étiquettes des balances.</p></div></header>
    <details id="iuLabelLab" class="iu-label-lab">
@@ -754,6 +754,14 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   <label for="iuEanCatalogSearch">Chercher un PLU ou un produit</label>
   <input id="iuEanCatalogSearch" type="search" autocomplete="off" placeholder="Ex. : 916, banane, courgette…" />
   <div id="iuEanCatalogMatches" class="iu-ean-suggestions" aria-live="polite"></div>
+  <div class="iu-price-tools">
+   <strong>Tarifs par code-barres</strong>
+   <label class="iu-ean-import-button" for="iuPriceFile">Importer les tarifs de Saint-Germain</label>
+   <input id="iuPriceFile" type="file" accept=".json,application/json" hidden>
+   <p class="iu-ean-status" id="iuPriceCount">Catalogue de tarifs local · Super U Saint-Germain</p>
+   <p class="iu-ean-status" id="iuPriceImportStatus" role="status"></p>
+   <button type="button" class="iu-ean-action-secondary" id="iuPriceManualOpen">Saisir un préfixe ou un EAN</button>
+  </div>
   <button id="iuEanAdminOpen" type="button" class="iu-ean-admin-open">Tester un code-barres avec la caméra</button>
   <p class="iu-ean-disclaimer">Le nouvel export DIGI contient les préfixes EAN des articles avec PLU. Après import local, les noms peuvent être reconnus indépendamment du prix. Le poids exact n’est pas garanti par ces codes, et reste à lire sur l’étiquette.</p>
  </div>
@@ -1003,7 +1011,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   </div>
 </details><footer><strong class="footer-noncommercial">Utilisation non commerciale uniquement</strong><span class="footer-identity">Baptiste • Super U Saint-Germain</span><span class="footer-original">Inventaires U · Outil indépendant · Données stockées localement</span></footer></main>
 
-<!-- V40.69 — Barre de retour commune, fixe et condensable aux pages secondaires -->
+<!-- V40.70 — Barre de retour commune, fixe et condensable aux pages secondaires -->
 <nav id="iuSubpageBar" class="iu-subpage-bar" aria-label="Navigation de la page" data-compact="false" hidden>
  <span class="iu-subpage-heading iu-subpage-heading-admin"><span class="iu-subpage-heading-copy"><strong>Administration</strong></span></span>
  <span class="iu-subpage-heading iu-subpage-heading-account"><span class="iu-subpage-heading-copy"><strong>Compte</strong></span></span>
@@ -1034,8 +1042,8 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="market-watch.js?v=40.69"></script><script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=40.69"></script><script defer="" src="app.js?v=40.69"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=40.69"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=40.69"></script><script defer src="site-operations.js?v=40.69"></script><script defer src="update-manager.js?v=40.69"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=40.69"></script><script defer src="label-lab.js?v=40.69"></script><script defer src="live-weight.js?v=40.69"></script><script defer src="weigh-scan.js?v=40.69"></script><script defer src="barcode-catalog.js?v=40.69"></script><script defer src="coursesu-lab.js?v=40.69"></script><script defer src="coursesu-feed.js?v=40.69"></script><script id="iu-welcome-alert-lights-script-v3850">(function(){function init(){[['iuSupplyCount','.iu-dash-panel-supply'],['iuRecallCount','.iu-dash-panel-recall']].forEach(function(pair){var count=document.getElementById(pair[0]);var panel=document.querySelector('.iu-home-welcome '+pair[1]);if(!count||!panel)return;var light=document.createElement('span');light.className='iu-alert-signal';light.setAttribute('aria-hidden','true');panel.appendChild(light);function update(){var value=(count.textContent||'').trim();var number=value.match(/\d+/);panel.setAttribute('data-iu-alert-active',number&&Number(number[0])>0?'true':'false')}new MutationObserver(update).observe(count,{childList:true,characterData:true,subtree:true});update()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();</script>
-<!-- V40.69 — Accès rapide à l'accueil : mêmes routes existantes, sans dupliquer les vues. -->
+<script defer src="market-watch.js?v=40.70"></script><script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=40.70"></script><script defer="" src="app.js?v=40.70"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=40.70"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=40.70"></script><script defer src="site-operations.js?v=40.70"></script><script defer src="update-manager.js?v=40.70"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=40.70"></script><script defer src="label-lab.js?v=40.70"></script><script defer src="live-weight.js?v=40.70"></script><script defer src="weigh-scan.js?v=40.70"></script><script defer src="coursesu-releve.js?v=40.70"></script><script defer src="ean-prices.js?v=40.70"></script><script defer src="barcode-catalog.js?v=40.70"></script><script defer src="coursesu-lab.js?v=40.70"></script><script defer src="coursesu-feed.js?v=40.70"></script><script id="iu-welcome-alert-lights-script-v3850">(function(){function init(){[['iuSupplyCount','.iu-dash-panel-supply'],['iuRecallCount','.iu-dash-panel-recall']].forEach(function(pair){var count=document.getElementById(pair[0]);var panel=document.querySelector('.iu-home-welcome '+pair[1]);if(!count||!panel)return;var light=document.createElement('span');light.className='iu-alert-signal';light.setAttribute('aria-hidden','true');panel.appendChild(light);function update(){var value=(count.textContent||'').trim();var number=value.match(/\d+/);panel.setAttribute('data-iu-alert-active',number&&Number(number[0])>0?'true':'false')}new MutationObserver(update).observe(count,{childList:true,characterData:true,subtree:true});update()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();</script>
+<!-- V40.70 — Accès rapide à l'accueil : mêmes routes existantes, sans dupliquer les vues. -->
 <nav id="iuQuickDock" class="iu-quick-dock" aria-label="Accès rapide aux services">
  <button type="button" id="iuQuickSession" class="iu-quick-dock-item iu-quick-dock-main" aria-label="Démarrer un inventaire">
   <svg class="iu-dock-custom-icon" viewBox="0 0 512 512" aria-hidden="true"><path fill-rule="evenodd" d="M113,0L88,7L67,21L52,40L43,64L45,438L54,469L75,494L102,508L133,511L153,506L167,499L437,321L454,304L463,288L468,272L469,248L465,230L456,212L443,197L162,11L141,2Z"/></svg><span id="iuQuickSessionLabel">Inventaire</span>
@@ -1080,15 +1088,46 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
 
 <div id="iuEanOverlay" class="iu-ean-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="iuEanTitle">
  <div class="iu-ean-modal">
-  <header class="iu-ean-modal-header"><button id="iuEanClose" type="button" aria-label="Fermer la reconnaissance">✕</button><div><strong id="iuEanTitle">Identifier un code-barres</strong><small>Références DIGI · Laboratoire</small></div></header>
+  <header class="iu-ean-modal-header"><button id="iuEanClose" type="button" aria-label="Fermer la reconnaissance">✕</button><div><strong id="iuEanTitle">Identifier un code-barres</strong><small>Produits et prix au kilo · Saint-Germain</small></div></header>
   <div class="iu-ean-modal-content">
    <div id="iuEanCameraWrap" class="iu-ean-camera" hidden><div id="iuEanCamera"></div></div>
    <div class="iu-ean-camera-actions"><button type="button" id="iuEanStart">Ouvrir la caméra</button><button type="button" id="iuEanStop" hidden>Arrêter</button></div>
-   <form id="iuEanForm" class="iu-ean-manual-form"><label for="iuEanInput">Ou saisir un EAN</label><div><input id="iuEanInput" type="text" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="Ex. : 2824059002307" /><button type="submit">Identifier</button></div></form>
+   <form id="iuEanForm" class="iu-ean-manual-form"><label for="iuEanInput">Saisir les 7 chiffres de la balance ou le code-barres entier</label><div><input id="iuEanInput" type="text" inputmode="numeric" maxlength="28" autocomplete="off" placeholder="Ex. : 2824059002307" /><button type="submit">Identifier</button></div></form>
+   <details class="iu-price-tools" id="iuPriceModalImport"><summary>Catalogue de tarifs de Saint-Germain</summary>
+    <p class="iu-ean-status" id="iuPriceModalCount"></p>
+    <label class="iu-ean-import-button" for="iuPriceModalFile">Importer les tarifs de Saint-Germain</label>
+    <input id="iuPriceModalFile" type="file" accept=".json,application/json" hidden>
+    <p class="iu-ean-status" id="iuPriceModalStatus" role="status"></p>
+   </details>
    <p id="iuEanStatus" class="iu-ean-status" role="status" aria-live="polite">Prêt pour un scan.</p>
    <section id="iuEanResult" class="iu-ean-result" hidden aria-labelledby="iuEanResultTitle">
     <div><small>Produit identifié</small><h4 id="iuEanResultTitle">Non reconnu</h4><p id="iuEanMatchOrigin"></p></div>
     <dl><div><dt>Code lu</dt><dd id="iuEanResultCode">—</dd></div><div><dt>Référence DIGI</dt><dd id="iuEanResultPLU">—</dd></div><div><dt>Préfixe de l’étiquette</dt><dd id="iuEanResultPrefix">—</dd></div><div><dt>Poids exact</dt><dd id="iuEanResultWeight">Non décodable à ce stade</dd></div></dl>
+    <section class="iu-price-panel" aria-labelledby="iuPriceHeading">
+     <h4 id="iuPriceHeading">Prix au kilo · Saint-Germain</h4>
+     <strong id="iuPriceValue" aria-live="polite"></strong>
+     <ul id="iuPriceSources"></ul><p id="iuPriceRetail"></p>
+     <details id="iuPriceRecord"><summary>Enregistrer un prix au kilo</summary>
+      <a id="iuPriceShop" href="https://www.coursesu.com/drive-superu-saintgermain" target="_blank" rel="noopener noreferrer">Ouvrir le drive de Saint-Germain</a>
+      <form id="iuPriceForm">
+       <label id="iuPriceNameField">Nom de l’article<input id="iuPriceName" maxlength="160" autocomplete="off"></label>
+       <label>Source<select id="iuPriceSource"><option value="drive">Fiche Courses U</option><option value="etiquette">Étiquette du magasin</option></select></label>
+       <label>Date du relevé<input id="iuPriceDate" type="date" required></label>
+       <label class="iu-ean-import-button" for="iuPricePhoto">Lire une capture ou une étiquette en photo</label><input type="file" id="iuPricePhoto" accept="image/*" hidden>
+       <label>Ligne du prix ou relevé du raccourci Safari<textarea id="iuPriceText" rows="2" maxlength="6000" required placeholder="Colle le texte qui indique le prix en €/kg"></textarea></label>
+       <p id="iuPricePreview" role="status"></p>
+       <label class="iu-price-confirm"><input id="iuPriceStoreCheck" type="checkbox" required>Je confirme cet article et ce tarif pour le Super U Saint-Germain (10120).</label>
+       <button type="submit" class="iu-ean-action-secondary">Enregistrer le relevé</button>
+      </form>
+   <details class="iu-price-tools"><summary>Relever un prix depuis Safari</summary>
+    <p>Sur la fiche Courses U du magasin sélectionné, copie la ligne du prix au kilo. Tu peux la coller dans « Enregistrer un prix au kilo » après avoir identifié l’article.</p>
+    <p>Pour transmettre aussi le nom, la référence et la date, crée un raccourci iPhone affiché dans la feuille de partage de Safari. Choisis l’entrée « Pages web Safari », ajoute « Exécuter JavaScript sur une page web », colle le script ci-dessous, puis ajoute « Copier dans le presse-papiers ». Lance ce raccourci depuis la fiche du produit.</p>
+    <button type="button" class="iu-ean-action-secondary" id="iuPriceCopy">Copier le script pour Raccourcis</button>
+    <textarea id="iuPriceShortcut" rows="4" readonly hidden aria-label="Script du raccourci Safari"></textarea>
+    <p class="iu-ean-status" id="iuPriceCopyStatus" role="status"></p>
+   </details>
+     </details>
+    </section>
     <div id="iuEanLearn" class="iu-ean-learn" hidden><label for="iuEanLearnSearch">Associer une fois à un PLU connu</label><input id="iuEanLearnSearch" type="search" autocomplete="off" placeholder="Rechercher PLU / nom…" /><div id="iuEanLearnMatches" class="iu-ean-suggestions"></div><p>Les associations sont conservées sur cet appareil et ne sont pas envoyées dans le cloud.</p></div>
     <button id="iuEanOpenWeight" class="iu-ean-action-primary" type="button" hidden>Lire le poids net avec la caméra</button>
     <button id="iuEanScanAgain" class="iu-ean-action-secondary" type="button">Scanner une autre étiquette</button>

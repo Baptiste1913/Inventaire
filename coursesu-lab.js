@@ -40,7 +40,7 @@
   return result;
  }
  function save(){
-  try{localStorage.setItem(key,JSON.stringify({items,prices,store}));return true}
+  try{localStorage.setItem(key,JSON.stringify({...load(),items,prices,store}));return true}
   catch(_){$('iuCoursesSummary').textContent='Sauvegarde locale impossible : stockage insuffisant.';return false}
  }
  function updateSummary(){
