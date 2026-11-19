@@ -1,4 +1,4 @@
-/* Inventaires U v40.78 — lecteur compact : caméra active entre pesées. */
+/* Inventaires U v40.79 — lecteur compact neumorphique et confirmation harmonisée. */
 /* Les règles sont limitées à la vue intégrée pour préserver les autres fenêtres. */
 .iu-weigh-scan-overlay.iu-weigh-scan-inline {
   position:relative !important;
@@ -276,4 +276,75 @@
  .calc-card .iu-result-compact .iu-result-weights strong{
   font-size:13px !important;
  }
+}
+
+/* v40.79 — reprendre la palette bleu-gris douce, les reflets et les reliefs
+   présents sur les cartes de l'application, sans effet coûteux sur la vidéo. */
+.calc-card .iu-weigh-scan-option {
+ margin-bottom:2px !important;
+}
+.calc-card .iu-weigh-scan-option #iuWeighScanToggle {
+ width:100% !important;
+ max-width:none !important;
+ justify-content:center !important;
+}
+.iu-weigh-scan-overlay.iu-weigh-scan-inline .iu-weigh-scan-shell {
+ border:1px solid rgba(255,255,255,.92) !important;
+ border-radius:21px !important;
+ background:linear-gradient(148deg,#f9fbfd 0%,#f2f6f9 49%,#edf3f6 100%) !important;
+ box-shadow:
+   -4px -4px 11px rgba(255,255,255,.88),
+   5px 7px 18px rgba(101,128,148,.13),
+   inset 0 1px 0 rgba(255,255,255,.94),
+   inset 0 0 0 1px rgba(146,170,183,.16) !important;
+ padding:14px !important;
+ gap:12px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-header strong {
+ color:#283f4d !important;
+ letter-spacing:-.015em !important;
+ font-weight:790 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-header small {
+ color:#687d8a !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-close {
+ border:1px solid rgba(192,209,218,.42) !important;
+ background:linear-gradient(145deg,#fff,#edf3f6) !important;
+ color:#314754 !important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.9),2px 3px 7px rgba(96,124,143,.11) !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera {
+ border:1px solid rgba(255,255,255,.95) !important;
+ border-radius:16px !important;
+ box-shadow:0 0 0 1px rgba(102,133,152,.24),0 5px 12px rgba(65,89,104,.10) !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ border:1.5px solid rgba(255,255,255,.92) !important;
+ border-radius:9px !important;
+ background:rgba(255,255,255,.045) !important;
+ box-shadow:0 0 0 1px rgba(17,42,53,.09),0 0 14px rgba(255,255,255,.18) !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide span {
+ border:1px solid rgba(255,255,255,.19) !important;
+ background:rgba(34,53,64,.82) !important;
+ border-radius:9px !important;
+ box-shadow:0 2px 6px rgba(18,32,40,.10) !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-status {
+ color:#536c7b !important;
+ font-size:12px !important;
+ font-weight:570 !important;
+ margin-top:4px !important;
+}
+/* Le statut de sauvegarde utilise les classes et le contenu HTML exacts
+   de « Inventaire terminé ». Seul l'espacement vertical est ajusté ici. */
+.calc-card #weighStatus.v22-message.is-complete {
+ margin-top:19px !important;
+ margin-bottom:6px !important;
+ width:100% !important;
+ box-sizing:border-box !important;
+}
+.calc-card #weighStatus.v22-message.is-complete .session-complete-title {
+ font-variant-numeric:tabular-nums !important;
 }
