@@ -42,3 +42,13 @@
 #iuPriceForm input:not([type=checkbox]),#iuPriceForm select,#iuPriceForm textarea,.iu-price-tools textarea{width:100%;box-sizing:border-box;min-width:0;padding:9px;border:1px solid #cfdce4;border-radius:8px;background:white;color:#243641;font:inherit;font-size:16px}
 #iuPriceForm .iu-price-confirm{display:flex;align-items:center}
 #iuPriceForm [hidden],.iu-price-panel [hidden],.iu-price-tools [hidden]{display:none}
+#iuWeightWhen[hidden],#iuDriveReview[hidden]{display:none}
+#iuDrivePanel label,#iuWeightWhen label{font-size:14px}
+#iuDrivePanel summary{padding:5px 0}
+#iuDrivePanel textarea,#iuWeightDate{font-size:16px}
+#iuDriveItems{display:grid;gap:7px;max-height:230px;overflow:auto}
+#iuDriveItems label,#iuDriveReview label{display:flex;align-items:baseline;gap:6px;line-height:1.45}
+#iuDriveItems:empty{display:none}
+#iuDriveReview button{margin-top:9px}
+.iu-drive-links{display:flex;flex-wrap:wrap;gap:8px 14px}
+#iuDrivePanel a{color:#245875;text-decoration:underline}

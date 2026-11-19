@@ -1,7 +1,7 @@
 {
-  "version": "40.71",
+  "version": "40.72",
   "published": "2026-11-19",
-  "assets": 46,
-  "bytes": 2367457,
-  "notes": "Recherche des tarifs par préfixe de balance ou EAN complet, lecture des captures Courses U et des étiquettes. Les rectifications d’un relevé sont aussi appliquées aux anciennes saisies correspondantes."
+  "assets": 47,
+  "bytes": 2391659,
+  "notes": "Prix au kilo depuis la fiche ou le rayon affiché dans Safari. Le scan des étiquettes DIGI de Saint-Germain estime le poids en grammes avec le tarif de la date d’emballage et affiche la plage compatible avec le montant."
 }

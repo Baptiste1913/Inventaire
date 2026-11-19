@@ -156,7 +156,6 @@
   $s('iuEanResultPLU',matched?.plu?'PLU '+matched.plu:'Non identifié');
   $s('iuEanResultTitle',matched?matched.name:'Produit non identifié');
   $s('iuEanMatchOrigin',origin);
-  $s('iuEanResultWeight','Non disponible dans ce code de manière fiable');
   window.IUEanPrices.show(code,matched,conflict||ambiguous);
   $('iuEanResult').hidden=false;
   $('iuEanLearn').hidden=!currentPrefix||!imported;
@@ -166,7 +165,7 @@
   $('iuEanInput').value=code;
   const summary=matched?matched.name+(matched.plu?' (PLU '+matched.plu+')':'')+'. ':'';
   status.textContent=(code.length===7?'Préfixe de balance. ':'Code-barres valide. ')+summary+
-   'Le poids exact nécessite toujours la lecture de l’étiquette.'+
+   (code.length===7?'Le préfixe identifie le produit.':'')+
    (conflict?' Attention : vérifie l’association manuelle.':'');
  }
  const status=$('iuEanStatus');

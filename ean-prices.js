@@ -4,6 +4,7 @@
   const $ = id => document.getElementById(id);
   const catalogueKey = 'iu-catalogue-tarifs-stg-v1';
   const notesKey = 'iu-releves-kg-stg-v1';
+  const unmatchedKey = '_fichesCoursesU';
   const pilotKey = 'iu-coursesu-price-pilot-v1';
   const store = 'superu-saintgermain';
   const driveUrl = 'https://www.coursesu.com/drive-superu-saintgermain';
@@ -16,7 +17,7 @@
   const centsOK = n => Number.isInteger(n) && n > 0 && n <= 99999;
   const isArticleId = value => typeof value === 'string' && /^[A-Za-z0-9]{1,24}$/.test(value);
   const isPlu = value => typeof value === 'string' && /^\d{1,18}$/.test(value);
-  let index = null, current = null;
+  let index = null, current = null, driveRequest = null;
 
   function dateOK(value) {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value) || value > today()) return false;
@@ -81,7 +82,11 @@
     for (const rule of rules) {
       if (corrections.has(noteId(rule))) throw Error('Le montant corrigé doit être le tarif retenu.');
     }
-    return {data, groups, notes, corrections};
+    const byArticle = new Map();
+    for (const rows of groups.values()) for (const row of rows) {
+      byArticle.set(row.article,byArticle.has(row.article) || rows.length > 1 ? null : row);
+    }
+    return {data, groups, notes, corrections, byArticle};
   }
   function database() {
     if (!index) {
@@ -132,16 +137,15 @@
       if (!Number.isFinite(stamp) || stamp <= 0 || stamp > Date.now() || !centsOK(value)) continue;
       notes.push({source:entry.origin === 'authorized-feed' ? 'flux' : 'drive', date:parisDate.format(new Date(stamp)), kgCentimes:value});
     }
-    // Afficher le dernier jour disponible par source. Deux montants le même jour restent visibles.
+    // Garder l’historique par jour pour les étiquettes préparées la veille.
     const corrections = database()?.corrections;
     const sorted = notes.map(n => corrections?.get(noteId({...n,code:key,article:row?.article})) || n)
       .filter(n => Object.hasOwn(sourceNames,n.source) && centsOK(n.kgCentimes) && dateOK(n.date))
       .sort((a,b) => b.date.localeCompare(a.date));
-    const dates = new Map(), seen = new Set();
+    const seen = new Set();
     return sorted.filter(n => {
-      if (!dates.has(n.source)) dates.set(n.source,n.date);
       const id = n.source + '|' + n.date + '|' + n.kgCentimes;
-      if (dates.get(n.source) !== n.date || seen.has(id)) return false;
+      if (seen.has(id)) return false;
       seen.add(id); return true;
     });
   }
@@ -159,10 +163,40 @@
     const cents = Math.round(row.venteCentimes * 1000 / grams);
     return centsOK(cents) ? {grams,cents} : null;
   }
+  function renderWeight(state, prices) {
+    const date = $('iuWeightDate'), field = $('iuEanResultWeight'), info = $('iuWeightDetail');
+    const scale = isPrefix(state.key);
+    const amount = scale ? window.IUDigiWeight.amountCents(state.code,state.key) : null;
+    $('iuWeightWhen').hidden = !scale || state.code.length !== 13 || state.blocked || amount === null;
+    info.textContent = '';
+    if (state.blocked) { field.textContent = 'Correspondance à vérifier'; return; }
+    if (!scale) { field.textContent = 'Code article à poids fixe'; return; }
+    if (state.code.length === 7) { field.textContent = 'Scanne les 13 chiffres de cette étiquette pour lire le montant.'; return; }
+    if (amount === null) { field.textContent = 'Format de montant non reconnu sur cette étiquette.'; return; }
+    const day = date.value;
+    const matching = prices.filter(n => n.date === day);
+    const values = new Set(matching.map(n => n.kgCentimes));
+    info.textContent = 'Montant de l’étiquette ' + euro.format(amount/100) + '.';
+    if (!state.name) { field.textContent = 'Identifie d’abord ce produit.'; return; }
+    if (!dateOK(day)) { field.textContent = 'Choisis la date imprimée sur l’étiquette.'; return; }
+    if (!values.size) { field.textContent = 'Tarif du ' + displayDate(day) + ' à renseigner.'; return; }
+    if (values.size !== 1) { field.textContent = 'Tarifs contradictoires à cette date.'; return; }
+    const price = matching[0].kgCentimes, w = window.IUDigiWeight.estimate(state.code,state.key,price);
+    if (!w) { field.textContent = 'Montant incompatible avec le tarif au kilo.'; return; }
+    field.textContent = w.grams.toLocaleString('fr-FR') + ' g estimés';
+    info.textContent += ' Tarif ' + euro.format(price/100) + '/kg · ' + displayDate(day) +
+      '. Poids compatible avec l’arrondi au centime : ' + (w.low === w.high ? w.low + ' g.' : w.low + ' à ' + w.high + ' g.');
+  }
   function render() {
     if (!current) return;
     const state = current, row = state.row;
-    const notes = state.blocked ? [] : observedPrices(state);
+    const all = state.blocked ? [] : observedPrices(state);
+    const latestDay = new Map();
+    const notes = all.filter(n => {
+      if (!latestDay.has(n.source)) latestDay.set(n.source,n.date);
+      return latestDay.get(n.source) === n.date;
+    });
+    renderWeight(state,all);
     const pack = !state.blocked && packRate(row);
     let headline = 'Prix au kilo à relever';
     if (state.blocked) headline = 'Correspondance à vérifier';
@@ -194,13 +228,21 @@
   }
 
   function show(code, identity, conflict) {
+    if (current?.code !== code) {
+      driveRequest = null;
+      $('iuDriveLiveStatus').textContent = '';
+    }
     const found = match(code);
     current = {...found, code, plu:identity?.plu || found.row?.plu || '', name:identity?.name || found.row?.nom || '',
       blocked:conflict || found.ambiguous || !!(found.row?.plu && identity?.plu && found.row.plu !== identity.plu)};
+    $('iuDriveLive').hidden = current.blocked || !current.name;
     $('iuPriceRecord').open = false;
     $('iuPriceForm').reset();
     const date = $('iuPriceDate');
     date.value = today(); date.max = date.value;
+    const weightDate = $('iuWeightDate');
+    if (weightDate.dataset.code !== code || !dateOK(weightDate.value)) weightDate.value = date.value;
+    weightDate.dataset.code = code; weightDate.max = date.value;
     $('iuPriceName').value = current.name;
     $('iuPriceNameField').hidden = !!current.name;
     $('iuPricePreview').textContent = '';
@@ -220,6 +262,7 @@
     } else { $('iuPriceShop').textContent = 'Ouvrir le drive de Saint-Germain'; }
     render();
   }
+  $('iuWeightDate').addEventListener('input',render);
   function safeProduct(text) {
     try {
       const u = new URL(text);
@@ -228,8 +271,60 @@
     } catch { /* Lien facultatif. */ }
     return null;
   }
-  function draft() {
-    const text = $('iuPriceText').value.trim();
+  const shopOrigin = new URL(driveUrl).origin;
+  $('iuDriveLive').addEventListener('click',() => {
+    if (!current || current.blocked) return;
+    const url = $('iuPriceShop').href;
+    const win = window.open(url,'_blank');
+    const status = $('iuDriveLiveStatus');
+    if (!win) { status.textContent = 'Si Safari ouvre un onglet séparé, utilise le bouton Inventaires U sur la fiche du Drive.'; return; }
+    const token = [...crypto.getRandomValues(new Uint32Array(4))].join('-');
+    driveRequest = {win,token,code:current.code,article:safeProduct(url)?.id || current.row?.article || '',expires:Date.now()+600000};
+    status.textContent = 'Choisis Saint-Germain dans Safari. Le module Inventaires U lit le prix affiché ; si nécessaire, ouvre la fiche du produit.';
+  });
+  window.addEventListener('message',event => {
+    const req = driveRequest, msg = event.data;
+    if (!req || !current || $('iuEanOverlay').hidden || current.code !== req.code || Date.now() > req.expires ||
+        event.origin !== shopOrigin || event.source !== req.win || !msg || typeof msg !== 'object') return;
+    if (msg.type === 'iu-drive-ready') {
+      req.win.postMessage({type:'iu-drive-read',token:req.token,article:req.article},shopOrigin);
+      return;
+    }
+    if (msg.type !== 'iu-drive-price' || msg.token !== req.token) return;
+    try {
+      const item = msg.item, product = safeProduct(item?.url);
+      if (!product || item.article !== product.id || !centsOK(item.kgCentimes) ||
+          typeof item.nom !== 'string' || !item.nom.trim() || item.nom.length > 145 ||
+          !dateOK(msg.date) || msg.date !== today()) return;
+      const direct = safeProduct($('iuPriceShop').href);
+      if (direct && req.article !== product.id) return;
+      const capture = JSON.stringify({type:'inventaires-u-fiche-coursesu',url:product.url,
+        article:product.id,nom:item.nom,kgCentimes:item.kgCentimes,date:msg.date});
+      draft(capture);
+      $('iuPriceRecord').open = true;
+      $('iuPriceText').value = capture;
+      preview();
+      $('iuDriveLiveStatus').textContent = item.nom+' · '+euro.format(item.kgCentimes/100)+'/kg reçu du Drive. Confirme le magasin pour utiliser le tarif.';
+      req.win.postMessage({type:'iu-drive-received',token:req.token},shopOrigin);
+      driveRequest = null;
+    } catch (e) { $('iuDriveLiveStatus').textContent = e.message; }
+  });
+  function cachedFiche(id) {
+    const receipts = read(notesKey)?.[unmatchedKey]?.[id];
+    return Array.isArray(receipts) ? receipts[0] : null;
+  }
+  function saveUnmatched(all,date,items) {
+    if (!items.length) return;
+    const cache = all[unmatchedKey] || {};
+    for (const item of items) {
+      const previous = Array.isArray(cache[item.article]) ? cache[item.article] : [];
+      const notes = previous.filter(n => n.date !== date || n.kgCentimes !== item.kgCentimes);
+      cache[item.article] = [{...item,date},...notes].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+    }
+    all[unmatchedKey] = cache;
+  }
+  function draft(value = $('iuPriceText').value) {
+    const text = value.trim();
     if (!text || text.length > 6000) throw Error('Colle une ligne de prix au kilo ou le relevé du raccourci Safari.');
     let source = $('iuPriceSource').value, date = $('iuPriceDate').value, name = $('iuPriceName').value.trim(), kgCentimes, url;
     if (text.startsWith('{')) {
@@ -239,10 +334,9 @@
           !centsOK(capture.kgCentimes) || !dateOK(capture.date) || typeof capture.nom !== 'string' || !capture.nom.trim()) {
         throw Error('Relevé de fiche Courses U invalide.');
       }
-      if (current.row && product.id !== current.row.article) {
-        const inCatalogue = database()?.data.articles.find(row => row.article === product.id);
-        if (inCatalogue && inCatalogue.code !== current.key) throw Error('Cette fiche correspond à un autre code du catalogue.');
-      }
+      const db = database();
+      if (db?.byArticle.has(product.id) && db.byArticle.get(product.id)?.code !== current.key)
+        throw Error('Cette fiche correspond à un autre code du catalogue.');
       source = 'drive'; date = capture.date; kgCentimes = capture.kgCentimes; url = product.url;
       name = capture.nom.trim().slice(0,145);
     } else {
@@ -254,6 +348,134 @@
     if (!['drive','etiquette'].includes(source) || !dateOK(date)) throw Error('Vérifie la source et la date du relevé.');
     return {source,date,kgCentimes,nom:name,article:current.row?.article || '',plu:current.plu,url};
   }
+  function planDrive(batch) {
+    if (!batch || batch.type !== 'inventaires-u-page-coursesu' || batch.schemaVersion !== 1 || !dateOK(batch.date) ||
+        !Array.isArray(batch.articles) || !batch.articles.length || batch.articles.length > 1500) throw Error('Relevé de rayon ou date invalide.');
+    const db = database();
+    if (!db) throw Error('Importe d’abord le catalogue de tarifs de Saint-Germain.');
+    const saved = read(notesKey) || {}, aliases = new Map();
+    for (const [code,notes] of Object.entries(saved)) {
+      const rows = db.groups.get(code);
+      if ((rows && rows.length !== 1) || !Array.isArray(notes) || normalize(code,true) !== code || !notes.length) continue;
+      const row = rows?.[0] || {code,article:'',nom:notes.at(-1).nom,plu:notes.at(-1).plu || ''};
+      for (const note of notes) {
+        if (note.source !== 'drive' || note.article !== row.article) continue;
+        const id = safeProduct(note.url)?.id;
+        if (!id) continue;
+        const other = aliases.get(id);
+        aliases.set(id,other === undefined || other === row ? row : null);
+      }
+    }
+    const unique = new Map(), excluded = new Set(), items = [], missing = [], unmatched = [];
+    for (const item of batch.articles) {
+      const product = safeProduct(item?.url);
+      if (!product || product.id !== item.article || !centsOK(item.kgCentimes) ||
+          typeof item.nom !== 'string' || !item.nom.trim() || item.nom.length > 160) throw Error('Ligne produit ou prix au kilo invalide.');
+      if (unique.has(item.article) && unique.get(item.article).kgCentimes !== item.kgCentimes) excluded.add(item.article);
+      else unique.set(item.article,{article:product.id,url:product.url,nom:item.nom.trim(),kgCentimes:item.kgCentimes});
+    }
+    const byCode = new Map();
+    for (const item of unique.values()) {
+      if (excluded.has(item.article)) { missing.push(item.nom+' · tarifs différents'); continue; }
+      const row = db.byArticle.has(item.article) ? db.byArticle.get(item.article) : aliases.get(item.article);
+      if (!row || (aliases.has(item.article) && aliases.get(item.article) !== row)) {
+        missing.push(item.nom+' · référence à associer');
+        if (!db.byArticle.has(item.article) && !aliases.has(item.article)) unmatched.push(item);
+        continue;
+      }
+      const list = byCode.get(row.code) || [];
+      list.push({row,item}); byCode.set(row.code,list);
+    }
+    for (const list of byCode.values()) {
+      if (list.length !== 1) { missing.push(list[0].row.nom+' · plusieurs fiches correspondent'); continue; }
+      items.push(list[0]);
+    }
+    return {items,missing,unmatched,date:batch.date};
+  }
+  function saveDrive(batch,codes) {
+    const plan = planDrive(batch), all = read(notesKey) || {};
+    const chosen = plan.items.filter(x => codes.has(x.row.code+'|'+x.row.article));
+    if (chosen.length !== codes.size || (!chosen.length && !plan.unmatched.length)) throw Error('Vérifie la sélection des références.');
+    for (const {row,item} of chosen) {
+      const n = {source:'drive',date:plan.date,kgCentimes:item.kgCentimes,nom:row.nom,article:row.article,plu:row.plu || '',url:item.url};
+      const old = Array.isArray(all[row.code]) ? all[row.code] : [];
+      all[row.code] = old.filter(p => !(p.source===n.source && p.article===n.article && p.date===n.date && p.kgCentimes===n.kgCentimes)).concat(n).slice(-48);
+    }
+    saveUnmatched(all,plan.date,plan.unmatched);
+    localStorage.setItem(notesKey,JSON.stringify(all));
+    window.dispatchEvent(new Event('iu-coursesu-prices-updated'));
+    return chosen.length;
+  }
+  function driveShortcutControls() {
+    let batch = null, plan = null;
+    const panel = $('iuDrivePanel'), status = $('iuDriveStatus'), list = $('iuDriveItems'), storeCheck = $('iuDriveStore');
+    function clear() {
+      plan = null; list.replaceChildren(); storeCheck.checked = false; $('iuDriveReview').hidden = true;
+    }
+    function prepare() {
+      clear();
+      try {
+        const text = $('iuDriveText').value.trim(); batch = null;
+        if (!text || text.length > 512000) throw Error('Colle le relevé obtenu depuis Safari.');
+        batch = JSON.parse(text); plan = planDrive(batch);
+        for (const {row,item} of plan.items) {
+          const label = document.createElement('label'), input = document.createElement('input');
+          input.type = 'checkbox'; input.value = row.code+'|'+row.article; input.checked = true;
+          label.append(input,document.createTextNode(item.nom+' → '+row.nom+' · '+euro.format(item.kgCentimes/100)+'/kg'));
+          list.append(label);
+        }
+        for (const line of plan.missing) {
+          const mark = document.createElement('small'); mark.textContent = line; list.append(mark);
+        }
+        $('iuDriveReview').hidden = !plan.items.length && !plan.unmatched.length;
+        const omitted = Number.isSafeInteger(batch.unpriced) && batch.unpriced > 0 ? ' · '+batch.unpriced+' sans prix au kilo unique visible' : '';
+        status.textContent = displayDate(plan.date)+' · '+plan.items.length+' références reconnues · '+plan.missing.length+' à vérifier'+omitted+'.';
+      } catch (e) { status.textContent = e.name === 'SyntaxError' ? 'Le relevé est incomplet.' : e.message; }
+    }
+    $('iuDriveCheck').addEventListener('click',prepare);
+    $('iuDriveText').addEventListener('input',()=>{batch=null;clear();status.textContent='';});
+    $('iuDriveSave').addEventListener('click',() => {
+      try {
+        if (!plan || !storeCheck.checked) throw Error('Confirme le magasin affiché sur Courses U.');
+        const chosen = new Set([...list.querySelectorAll('input:checked')].map(i=>i.value));
+        const number = saveDrive(batch,chosen);
+        status.textContent = number+' tarif(s) du '+displayDate(plan.date)+' associé(s) pour Saint-Germain.'+
+          (plan.unmatched.length ? ' '+plan.unmatched.length+' fiche(s) conservée(s) pour une première association.' : '');
+        clear(); batch=null; $('iuDriveText').value='';
+      } catch(e) {status.textContent = e.name==='QuotaExceededError'?'Stockage plein. Aucun tarif enregistré.':e.message;}
+    });
+    window.addEventListener('iu-refresh-ean-lookup',()=>{if (panel.open && $('iuDriveText').value) prepare();});
+    function receive() {
+      if (!location.hash.startsWith('#tarifs?drive=')) return;
+      const raw = new URLSearchParams(location.hash.slice(8)).get('drive') || '';
+      history.replaceState(history.state,'',location.pathname+location.search+'#tarifs');
+      window.dispatchEvent(new Event('hashchange'));
+      panel.open = true;
+      $('iuDriveText').value = raw;
+      prepare();
+    }
+    window.addEventListener('hashchange',receive);
+    if (location.hash.startsWith('#tarifs?drive=')) queueMicrotask(receive);
+  }
+  driveShortcutControls();
+  $('iuPriceRecord').addEventListener('toggle',event => {
+    if (!event.target.open || !current) return;
+    const select = $('iuDriveUnmatched'), cache = read(notesKey)?.[unmatchedKey] || {};
+    const pending = Object.values(cache).map(notes=>notes?.[0]).filter(note=>note && safeProduct(note.url));
+    select.replaceChildren(new Option('Choisir une fiche',''));
+    for (const n of pending.sort((a,b)=>a.nom.localeCompare(b.nom,'fr'))) {
+      select.add(new Option(n.nom+' · '+n.article+' · '+euro.format(n.kgCentimes/100)+'/kg',n.article));
+    }
+    $('iuDriveAssociation').hidden = !pending.length;
+  });
+  $('iuDriveUnmatched').addEventListener('change',event => {
+    const n = cachedFiche(event.target.value);
+    if (!n) return;
+    $('iuPriceText').value = JSON.stringify({...n,type:'inventaires-u-fiche-coursesu'});
+    if (!$('iuPriceName').value) $('iuPriceName').value = n.nom;
+    preview();
+  });
+
   function preview() {
     $('iuPriceStoreCheck').checked = false;
     try {
@@ -299,6 +521,16 @@
       const old = Array.isArray(all[key]) ? all[key] : [];
       const same = p => p.source === n.source && p.date === n.date && p.article === n.article && p.kgCentimes === n.kgCentimes;
       all[key] = old.filter(p => !same(p)).concat(n).slice(-48);
+      const product = safeProduct(n.url);
+      if (product && all[unmatchedKey]?.[product.id]) {
+        for (const item of all[unmatchedKey][product.id]) {
+          if (item.date === n.date && item.kgCentimes === n.kgCentimes) continue;
+          const associated = {...n,date:item.date,kgCentimes:item.kgCentimes};
+          if (!all[key].some(p=>p.source==='drive' && p.article===n.article && p.date===associated.date && p.kgCentimes===associated.kgCentimes))
+            all[key].push(associated);
+        }
+        delete all[unmatchedKey][product.id];
+      }
       localStorage.setItem(notesKey,JSON.stringify(all));
       render(); $('iuPriceRecord').open = false;
       $('iuEanStatus').textContent = 'Tarif enregistré pour ' + key + ' · ' + sourceNames[n.source] + '.';
@@ -342,7 +574,7 @@
   $('iuPriceModalImport').addEventListener('toggle',event=>{if(event.target.open) count()});
   const shortcut = $('iuPriceShortcut');
   $('iuPriceCopy').addEventListener('click', async () => {
-    shortcut.value = window.IUCoursesCapture.shortcut();
+    shortcut.value = window.IUCoursesCapture.batchShortcut();
     try {
       await navigator.clipboard.writeText(shortcut.value);
       $('iuPriceCopyStatus').textContent = 'Script copié.';

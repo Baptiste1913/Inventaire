@@ -1,10 +1,10 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v40-71';
+const CACHE = 'inventaires-u-offline-v40-72';
 const CORE = [
-  './', './index.html', './version.json', './market-watch.js?v=40.71', './market-watch.json', './admin-categories.js?v=40.71', './technical-log.js?v=33.93', './update-manager.js?v=40.71', './error-journal.js?v=33.93', './site-operations.js?v=40.71', './push.js?v=33.75', './planning-admin.js?v=40.71', './events-data.js?v=33.19', './events.js?v=40.71', './style.css?v=40.71', './app.js?v=40.71', './label-lab.js?v=40.71', './live-weight.js?v=40.71', './weigh-scan.js?v=40.71', './coursesu-releve.js?v=40.71', './ean-prices.js?v=40.71', './barcode-catalog.js?v=40.71', './coursesu-lab.js?v=40.71', './coursesu-lab.css?v=40.71', './coursesu-feed.js?v=40.71', './coursesu-feed.css?v=40.71',
-  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=40.71', './manifest.webmanifest?v=40.71', './icon.png?v=40.71',
-  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=40.71', './apple-touch-icon.png?v=40.71', './logo-u.png', './favicon-32.png?v=40.71', './favicon-16.png?v=40.71',
-   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=40.71', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=40.71', './assets/u-aurora.svg?v=40.71'
+  './', './index.html', './version.json', './market-watch.js?v=40.72', './market-watch.json', './admin-categories.js?v=40.72', './technical-log.js?v=33.93', './update-manager.js?v=40.72', './error-journal.js?v=33.93', './site-operations.js?v=40.72', './push.js?v=33.75', './planning-admin.js?v=40.72', './events-data.js?v=33.19', './events.js?v=40.72', './style.css?v=40.72', './app.js?v=40.72', './label-lab.js?v=40.72', './live-weight.js?v=40.72', './weigh-scan.js?v=40.72', './digi-weight.js?v=40.72', './coursesu-releve.js?v=40.72', './ean-prices.js?v=40.72', './barcode-catalog.js?v=40.72', './coursesu-lab.js?v=40.72', './coursesu-lab.css?v=40.72', './coursesu-feed.js?v=40.72', './coursesu-feed.css?v=40.72',
+  './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=40.72', './manifest.webmanifest?v=40.72', './icon.png?v=40.72',
+  './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=40.72', './apple-touch-icon.png?v=40.72', './logo-u.png', './favicon-32.png?v=40.72', './favicon-16.png?v=40.72',
+   './tutorial-share.png', './tutorial-home.png', './wifi-disconnected.svg', './wifi-connected.svg', './mascotte-pasteque.svg?v=40.72', './start-inventory-icon.png?v=32.0', './assets/u-inventory-button.svg?v=40.72', './assets/u-aurora.svg?v=40.72'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
@@ -12,10 +12,10 @@ self.addEventListener('install', event => {
     // V35.67 : protéger les fichiers indispensables sans bloquer toute la
     // mise à jour lorsqu'une image ou une ressource secondaire manque.
     // Ne jamais activer un shell incomplet.
-    const required = ['./index.html', './style.css?v=40.71', './app.js?v=40.71',
-      './update-manager.js?v=40.71', './auth-config.js?v=32.0', './idb.js?v=33.0',
-      './auth.js?v=40.71', './icon.png?v=40.71', './assets/u-inventory-button.svg?v=40.71',
-      './coursesu-releve.js?v=40.71', './ean-prices.js?v=40.71', './barcode-catalog.js?v=40.71'];
+    const required = ['./index.html', './style.css?v=40.72', './app.js?v=40.72',
+      './update-manager.js?v=40.72', './auth-config.js?v=32.0', './idb.js?v=33.0',
+      './auth.js?v=40.72', './icon.png?v=40.72', './assets/u-inventory-button.svg?v=40.72',
+      './digi-weight.js?v=40.72', './coursesu-releve.js?v=40.72', './ean-prices.js?v=40.72', './barcode-catalog.js?v=40.72'];
     await cache.addAll(required);
     const optional = CORE.filter(path => !required.includes(path));
     await Promise.allSettled(optional.map(async path => {

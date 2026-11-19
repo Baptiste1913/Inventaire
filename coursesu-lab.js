@@ -178,10 +178,10 @@
   if(!p?.confirmed||p.eanPrefix!==article.eanPrefix||parsePrice(p.price)===null)return article.name+' : prix Courses U non vérifié, poids non estimé.';
   const age=Date.now()-Number(p.checkedAt);
   if(!Number.isFinite(age)||age<0||age>24*3600000)return article.name+' : prix vérifié depuis plus de 24 h, nouvelle vérification nécessaire.';
-  const amount=Number(code.slice(7,12))/655.957,price=Number(p.price);
-  const euroRounded=Math.round(amount*100)/100;
-  const estimated=amount/price,low=Math.max(0,(euroRounded-.005)/price),high=(euroRounded+.005)/price;
-  return article.name+' · montant estimé '+euro(euroRounded)+' · '+euro(price)+'/kg · poids estimé '+kg(estimated)+' (intervalle indicatif '+kg(low)+' à '+kg(high)+'). Confirme sur l’étiquette ; aucune pesée ajoutée.';
+  const weight=window.IUDigiWeight.estimate(code,article.eanPrefix,parsePrice(p.price));
+  if(!weight)return 'Ce montant ne correspond pas au format de balance vérifié.';
+  return article.name+' · montant '+euro(weight.total/100)+' · '+euro(Number(p.price))+'/kg · poids estimé '+kg(weight.grams/1000)+
+   ' (intervalle '+weight.low+' à '+weight.high+' g).';
  }
  $('iuCoursesForm').addEventListener('submit',event=>{
   event.preventDefault();$('iuCoursesResult').textContent=decode($('iuCoursesEAN').value.replace(/[\s-]/g,''));
