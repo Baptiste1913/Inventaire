@@ -474,3 +474,21 @@
 }
 .iu-weigh-scan-inline .iu-weigh-scan-torch[hidden] {display:none !important;}
 .iu-weigh-scan-inline .iu-weigh-scan-torch:disabled {opacity:.65 !important;}
+
+/* v40.85 — aperçu un peu plus bas, sans instruction répétée. */
+.iu-weigh-scan-inline .iu-weigh-scan-camera {
+ height:184px !important;
+ max-height:184px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ min-height:0 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-status:empty {
+ display:none !important;
+}
+@media(max-width:390px) {
+ .iu-weigh-scan-inline .iu-weigh-scan-camera {
+  height:160px !important;
+  max-height:160px !important;
+ }
+}
