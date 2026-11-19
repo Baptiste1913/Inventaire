@@ -1,6 +1,6 @@
 {
-  "version": "40.85",
+  "version": "40.86",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Caméra légèrement moins haute (184 px, 160 px sur petit écran), consigne « Vise le poids imprimé en kg » supprimée du lecteur et des messages répétés. Les erreurs et confirmations restent affichées."
+  "notes": "Ajout de repères de cadrage discrets représentant la structure d'une étiquette U (contour, nom, informations, code-barres et prix). Zone OCR centrale et fonctionnement de la caméra inchangés."
 }
