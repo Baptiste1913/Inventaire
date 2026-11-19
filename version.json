@@ -1,6 +1,6 @@
 {
-  "version": "40.82",
+  "version": "40.83",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Icône du bouton scanner très légèrement affinée (trait de 2,8 à 2,6 px), style et fonctionnement inchangés."
+  "notes": "Icône scanner affinée à 2,4 px, sans modifier le bouton ni le fonctionnement du lecteur."
 }
