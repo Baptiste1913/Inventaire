@@ -55,7 +55,7 @@ assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sau
 assert.match(scanner,/anchor\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner se trouve dans la carte de pesée');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
 assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.77/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.78/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
 
 // Calcul réel de l'application pour 142g - 554g = -412g.
@@ -106,4 +106,63 @@ assert.doesNotMatch(scanner.slice(showStart,showEnd),/close\(\)/,'Une détection
 assert.match(scanner,/getCapabilities\(\)/,'Détection du focus compatible navigateur');
 assert.match(scanner,/focusMode:'continuous'/,'Focus continu optionnel');
 assert.match(scanner,/iu-weigh-scan-saved/,'Passage à l’étiquette suivante après validation');
-console.log('Tests scanner v40.77 : négatifs, historique, contrôle manuel, caméra réutilisée : OK');
+
+// v40.78 : même bloc pour brut, tare, net ; pas de panneau orange.
+assert.match(html,/class="result iu-result-compact"/);
+assert.match(html,/id="iuScannedDraftNotice" class="iu-result-confirm" hidden/);
+assert.doesNotMatch(html,/id="iuScannedDraftNotice" class="v22-warning"/);
+assert.equal((html.match(/id="grossWeight"/g)||[]).length,1);
+assert.equal((html.match(/id="grossDisplay"/g)||[]).length,1);
+assert.equal((html.match(/id="netDisplay"/g)||[]).length,1);
+const scanButtonIndex=html.indexOf('id="iuWeighScanToggle"');
+const entryIndex=html.indexOf('class="iu-weigh-entry"');
+const resultIndex=html.indexOf('class="result iu-result-compact"');
+assert.ok(scanButtonIndex<entryIndex && entryIndex<resultIndex,
+ 'Champ brut directement entre scanner et bloc de résultat');
+const resultEnd=html.indexOf('</div>\n<p aria-live="polite" class="weigh-status"',resultIndex);
+assert.ok(resultEnd>resultIndex);
+const resultHTML=html.slice(resultIndex,resultEnd);
+for(const id of ['grossDisplay','tareDisplay','netDisplay','iuScannedDraftConfirm']){
+ assert.ok(resultHTML.includes('id="'+id+'"'),id+' doit être intégré au résultat');
+}
+assert.match(style,/\.calc-card \.iu-result-compact \.iu-result-weights/);
+assert.doesNotMatch(app,/Poids de l’étiquette dans Brut : vérifie ou corrige, puis valide\. Le Net est calculé après déduction de la tare\./);
+assert.match(scanner,/proposal\.hidden=transferred/,'Le scanner évite de dupliquer le résultat central');
+assert.match(scanner,/window\.addEventListener\('iu-weigh-scan-next'/,
+ 'Le lecteur reçoit un événement pour la prochaine pesée');
+
+// Test de la fonction Nouvelle pesée avec un brouillon OCR.
+// Elle doit supprimer le brouillon et réactiver le scanner sans sauvegarde.
+const nextStart=app.indexOf('function newWeigh(){');
+const nextEnd=app.indexOf('\nfunction beginGroup()',nextStart);
+assert.ok(nextStart>0&&nextEnd>nextStart);
+const resetEnv={
+ scannerDraft:true,
+ grossWeightText:'0.254',
+ window:{dispatched:[],dispatchEvent(event){this.dispatched.push(event.type);}},
+ Event:class {constructor(type){this.type=type;}},
+ calls:{cleared:0,flushed:0,focused:0},
+ focusGrossWithoutScroll(){this.calls.focused++},
+ clearWeigh(){
+  resetEnv.calls.cleared++;
+  resetEnv.scannerDraft=false;
+  resetEnv.grossWeightText='';
+ },
+ flushPending(){resetEnv.calls.flushed++;return true;},
+ $:id=>id==='iuWeighScanOverlay'?{hidden:false}:
+       id==='grossWeight'?{get value(){return resetEnv.grossWeightText}}:
+       id==='weighStatus'?{textContent:''}:null,
+ netGrams:254
+};
+vm.createContext(resetEnv);
+vm.runInContext(app.slice(nextStart,nextEnd),resetEnv);
+vm.runInContext('newWeigh()',resetEnv);
+assert.equal(resetEnv.calls.cleared,1);
+assert.equal(resetEnv.calls.flushed,0,'Ne pas enregistrer le brouillon non confirmé');
+assert.equal(resetEnv.calls.focused,0,'Ne pas ouvrir le clavier pendant le scan');
+assert.deepEqual(resetEnv.window.dispatched,['iu-weigh-scan-next']);
+assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/);
+assert.match(scanner,/if\(stream&&worker\)\{resumeScan\(\);return;\}/,
+ 'Réutiliser le flux et le moteur déjà ouverts');
+
+console.log('Tests scanner v40.78 : négatifs, historique, contrôle manuel, caméra réutilisée : OK');
