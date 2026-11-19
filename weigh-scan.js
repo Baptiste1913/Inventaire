@@ -1,4 +1,4 @@
-/* Inventaires U v40.91 — conserver le flux caméra au retour iOS, éviter les requêtes inutiles. */
+/* Inventaires U v41.10 — retour de détection compatible et confirmation visuelle iPhone. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -24,7 +24,7 @@
  }
  let stream=null,worker=null,enginePromise=null,session=0,scanning=false,starting=false,wasOpen=false;
  let proposalGrams=null,lastCandidate=null,observations=[],nextVariant=0,previousStatus='';
- let torchEnabled=false,torchBusy=false;
+ let torchEnabled=false,torchBusy=false,lastDetectionFeedbackAt=-Infinity;
  const say=(msg,error=false)=>{
   if(previousStatus!==msg){status.textContent=msg;previousStatus=msg;}
   status.classList.toggle('is-error',error);
@@ -101,6 +101,7 @@
  function close(){
   session++;scanning=false;starting=false;stopTracks();resetObservations();
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
+  guide?.classList.remove('iu-weigh-scan-confirmed');
   overlay.hidden=true;overlay.dataset.state='';
   trigger.setAttribute('aria-expanded','false');
   if(wasOpen){wasOpen=false;trigger.focus({preventScroll:true});}
@@ -212,6 +213,24 @@
    ' · Net : '+format(net)+(net<0?' (essai)':'')+'.';
   apply.disabled=!Number.isSafeInteger(gross)||gross>999999||gross<=0;
  }
+ // Une seule confirmation par nouvelle pesée reconnue. La lecture OCR
+ // est déjà interrompue après showProposal : aucune vibration répétée.
+ // iOS Safari ne prend pas en charge navigator.vibrate ; sur iPhone
+ // l'éclat visuel fournit le retour sans contour permanent supplémentaire.
+ function signalWeightDetected(){
+  if(document.hidden||overlay.hidden)return;
+  const now=performance.now();
+  if(now-lastDetectionFeedbackAt<900)return;
+  lastDetectionFeedbackAt=now;
+  guide?.classList.remove('iu-weigh-scan-confirmed');
+  // Une seule lecture du layout uniquement sur résultat pour relancer
+  // proprement le très court éclat lors d'une étiquette suivante.
+  if(guide)void guide.offsetWidth;
+  guide?.classList.add('iu-weigh-scan-confirmed');
+  if(typeof navigator.vibrate==='function'){
+   try{navigator.vibrate(35);}catch(_){}
+  }
+ }
  function showProposal(grams){
   // Une seule lecture crédible est proposée, sans nouvelle phase de mise au
   // point. La caméra reste ALLUMÉE, mais l'OCR est arrêté jusqu'à validation.
@@ -228,7 +247,7 @@
   again.hidden=transferred;
   again.textContent='Étiquette suivante';
   say(transferred?'':'Vérifie la pesée précédente.',!transferred);
-  if(navigator.vibrate)try{navigator.vibrate(25);}catch(_){}
+  signalWeightDetected();
  }
  function evaluateObservation(grams,confidence){
   // Une seule lecture crédible suffit pour PROPOSER une valeur, jamais
@@ -263,6 +282,7 @@
   if(overlay.hidden||document.hidden||starting||scanning||!worker||!stream)return false;
   session++;const id=session;
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
+  guide?.classList.remove('iu-weigh-scan-confirmed');
   apply.hidden=false;again.disabled=false;again.hidden=false;
   resetObservations();overlay.dataset.state='scanning';scanning=true;
   say('');

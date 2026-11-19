@@ -1,6 +1,6 @@
 {
-  "version": "41.09",
+  "version": "41.10",
   "published": "2026-11-19",
   "assets": 52,
-  "notes": "Viseur à 9 filaments nacrés fins, tracés de 1280 points et rubans à 192 échantillons. Canvas Retina s'adaptant au zoom réel (limite de résolution et de mémoire pour iPhone), sans modifier l'OCR, les reflets bleu/émeraude/rubis ni les repères à 55 %."
+  "notes": "Repères d'étiquette atténués de 15 % supplémentaires (55 % → 47 %). Nouvelle confirmation de poids : une seule courte vibration sur navigateurs compatibles et un très bref éclat du viseur sur iPhone (Safari iOS ne permet pas la vibration automatique PWA). OCR et caméra inchangés."
 }

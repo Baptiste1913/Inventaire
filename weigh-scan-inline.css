@@ -944,7 +944,7 @@
    dans la caméra (pointillés, zones, textes simulés et code-barres).
    Le viseur lumineux du poids est indépendant et reste inchangé. */
 .iu-weigh-scan-inline .iu-weigh-label-template {
- opacity:.55 !important;
+ opacity:.47 !important;
 }
 
 /* v41.07 — conserver le raster natif Retina pour le Canvas :
@@ -961,4 +961,32 @@
  image-rendering:auto !important;
  filter:none !important;
  transform:none !important;
+}
+
+/* v41.10 — signal optique discret lorsqu'un poids fiable est reconnu.
+   Les repères sont à 47 % (55 % × 0,85). Le signal dessine uniquement
+   un halo temporaire hors du viseur OCR ; pas de changement de cadrage. */
+.iu-weigh-scan-inline .iu-weigh-scan-guide.iu-weigh-scan-confirmed::before {
+ content:"" !important;
+ display:block !important;
+ position:absolute !important;
+ inset:-3px !important;
+ border:1px solid rgba(250,255,255,.68) !important;
+ border-radius:12px !important;
+ box-shadow:0 0 6px rgba(220,246,255,.48) !important;
+ background:transparent !important;
+ pointer-events:none !important;
+ opacity:0;
+ animation:iu-weigh-detected-flash .46s ease-out both !important;
+}
+@keyframes iu-weigh-detected-flash {
+ 0% {opacity:0;}
+ 28% {opacity:.8;}
+ 100% {opacity:0;}
+}
+@media (prefers-reduced-motion:reduce) {
+ .iu-weigh-scan-inline .iu-weigh-scan-guide.iu-weigh-scan-confirmed::before {
+  animation:none !important;
+  opacity:0 !important;
+ }
 }
