@@ -1,6 +1,6 @@
 {
-  "version": "40.95",
+  "version": "40.96",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Titre de cadrage allégé (450) ; remplacement du cadre OCR à deux contours espacés par une seule bordure jointive bleue et dégradée bleu-vert, sans interstice ni anneau supplémentaire."
+  "notes": "Titre de cadrage légèrement ré-épaissi (550) ; intérieur du cadre OCR entièrement transparent et double liseré bleu puis dégradé bleu-vert extrêmement fin, sans espace."
 }

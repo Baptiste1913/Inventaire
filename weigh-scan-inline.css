@@ -943,3 +943,33 @@
  content:none !important;
  display:none !important;
 }
+
+/* v40.96 — cadrage OCR vraiment transparent, deux traits ultra-fins
+   jointifs ; titre de poids intermédiaire. Safari iPhone compatible. */
+.iu-weigh-scan-inline .iu-weigh-scan-caption {
+ font-weight:550 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ background:none !important;
+ background-color:transparent !important;
+ border:1px solid #069db3 !important;
+ border-radius:9px !important;
+ box-shadow:none !important;
+ isolation:isolate !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
+ content:"" !important;
+ display:block !important;
+ position:absolute !important;
+ inset:-2px !important;
+ box-sizing:border-box !important;
+ border:1px solid transparent !important;
+ border-radius:10px !important;
+ background:linear-gradient(125deg,#15a8d1 0%,#14adbb 45%,#43caa4 100%) border-box !important;
+ -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ -webkit-mask-composite:xor !important;
+ mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ mask-composite:exclude !important;
+ box-shadow:none !important;
+ pointer-events:none !important;
+}
