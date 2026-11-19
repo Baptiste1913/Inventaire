@@ -1030,3 +1030,76 @@
   animation:none !important;
  }
 }
+
+/* v40.98 — effet Orb : lueurs nacrées cyan / bleu / mauve / vert d'eau.
+   Le mouvement provient de deux vagues de couleurs indépendantes, et non
+   d'un liseré uni qui tourne. Aucun aplat sur la vidéo. */
+@property --iu-orb-silk-angle {
+ syntax:"<angle>";
+ inherits:false;
+ initial-value:0deg;
+}
+@property --iu-orb-silk-x {
+ syntax:"<percentage>";
+ inherits:false;
+ initial-value:15%;
+}
+@property --iu-orb-silk-y {
+ syntax:"<percentage>";
+ inherits:false;
+ initial-value:25%;
+}
+@keyframes iu-orb-silk-flow {
+ 0% { --iu-orb-silk-angle:0deg; }
+ 33% { --iu-orb-silk-angle:110deg; }
+ 66% { --iu-orb-silk-angle:240deg; }
+ 100% { --iu-orb-silk-angle:360deg; }
+}
+@keyframes iu-orb-silk-glimmer {
+ 0%,100% { --iu-orb-silk-x:12%; --iu-orb-silk-y:20%; }
+ 25% { --iu-orb-silk-x:84%; --iu-orb-silk-y:17%; }
+ 50% { --iu-orb-silk-x:88%; --iu-orb-silk-y:81%; }
+ 75% { --iu-orb-silk-x:18%; --iu-orb-silk-y:78%; }
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ background:none !important;
+ background-color:transparent !important;
+ border:1px solid rgba(27,160,191,.93) !important;
+ border-radius:9px !important;
+ box-shadow:none !important;
+ isolation:isolate !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
+ content:"" !important;
+ display:block !important;
+ position:absolute !important;
+ inset:-1px !important;
+ box-sizing:border-box !important;
+ border:1px solid transparent !important;
+ border-radius:10px !important;
+ background:
+  radial-gradient(ellipse closest-side at var(--iu-orb-silk-x) var(--iu-orb-silk-y),
+   rgba(232,155,243,.88) 0%,rgba(166,164,240,.55) 55%,transparent 100%) border-box,
+  conic-gradient(from var(--iu-orb-silk-angle),
+   #6ed7ec 0deg,#78abeb 40deg,#d9a5ee 78deg,
+   #8bb9ed 118deg,#52d5e4 160deg,#7de1cf 207deg,
+   #56b5da 254deg,#8dc7f0 303deg,#6ed7ec 360deg) border-box !important;
+ -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ -webkit-mask-composite:xor !important;
+ mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ mask-composite:exclude !important;
+ opacity:.84 !important;
+ box-shadow:none !important;
+ pointer-events:none !important;
+ animation:none !important;
+}
+.iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
+ animation:
+  iu-orb-silk-flow 11.5s ease-in-out infinite,
+  iu-orb-silk-glimmer 8.8s ease-in-out infinite !important;
+}
+@media(prefers-reduced-motion:reduce) {
+ .iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
+  animation:none !important;
+ }
+}

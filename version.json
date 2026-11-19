@@ -1,6 +1,6 @@
 {
-  "version": "40.97",
+  "version": "40.98",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Effet de lumière bleu-vert inspiré de Siri, lent et discret sur le double liseré ultra-fin du viseur OCR. Intérieur transparent et animation désactivée hors scan et en mode mouvement réduit."
+  "notes": "Animation Orb inspirée d'AmazingUI : vagues lumineuses nacrées bleu, cyan, mauve et vert d'eau, superposées sur le seul liseré ultra-fin du viseur. Centre transparent, arrêt hors scanner, respect du mouvement réduit."
 }
