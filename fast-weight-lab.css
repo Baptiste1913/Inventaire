@@ -15,11 +15,11 @@
 .iu-fast-lab-file input{display:none}
 .iu-fast-camera{position:relative;overflow:hidden;border-radius:16px;background:#1d2225;min-height:240px;max-height:58dvh;aspect-ratio:4/5;display:grid;place-items:center}
 .iu-fast-camera[hidden]{display:none}
-.iu-fast-camera video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.iu-fast-camera video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .iu-fast-frame{position:relative;width:min(92%,410px);aspect-ratio:1.48;border:2px solid rgba(255,255,255,.9);border-radius:12px;box-shadow:0 0 0 200vmax rgba(0,0,0,.10);pointer-events:none}
 .iu-fast-frame::after{content:'ÉTIQUETTE ENTIÈRE';position:absolute;left:0;top:-24px;color:white;font:600 11px system-ui;letter-spacing:.08em;text-shadow:0 1px 3px #000}
-.iu-fast-target{position:absolute;left:39%;top:46%;width:35%;height:27%;border:2px solid #6bff9f;border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.13);pointer-events:none}
-.iu-fast-target::after{content:'POIDS NET';position:absolute;top:-20px;left:0;white-space:nowrap;font:700 10px system-ui;color:#8affb7;text-shadow:0 1px 3px #000}
+.iu-fast-target{position:absolute;left:6%;top:17%;width:88%;height:64%;border:1.5px dashed #6bff9f;border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.13);pointer-events:none}
+.iu-fast-target::after{content:'POIDS NET · CADRAGE LIBRE';position:absolute;top:-20px;left:0;white-space:nowrap;font:700 10px system-ui;color:#8affb7;text-shadow:0 1px 3px #000}
 .iu-fast-result{border-radius:16px;background:rgba(75,159,114,.09);border:1px solid rgba(55,148,95,.22);padding:14px;margin-top:13px}
 .iu-fast-result strong{display:block;font-size:30px;font-variant-numeric:tabular-nums;margin:4px 0}
 .iu-fast-meta{font-variant-numeric:tabular-nums;font-size:12px;opacity:.76}
