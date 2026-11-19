@@ -1,0 +1,28 @@
+/* Laboratoire indépendant de reconnaissance du poids net (n'affecte aucune pesée). */
+.iu-fast-lab{margin:16px 0;border:1px solid rgba(117,148,160,.3);border-radius:22px;padding:0 16px;background:rgba(255,255,255,.46)}
+.iu-fast-lab>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:17px 0;color:var(--text,#192b32)}
+.iu-fast-lab>summary::-webkit-details-marker{display:none}
+.iu-fast-lab>summary::before{content:'◎';font-size:27px;font-weight:600;color:#477988}
+.iu-fast-lab>summary span{display:grid;gap:4px}
+.iu-fast-lab>summary strong{font-size:16px}
+.iu-fast-lab>summary small{font-size:12px;opacity:.72}
+.iu-fast-lab-content{padding:0 0 17px}
+.iu-fast-lab-content>p{font-size:13px;line-height:1.5;opacity:.79}
+.iu-fast-lab-actions{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.iu-fast-lab button,.iu-fast-lab-file{appearance:none;border-radius:14px;padding:11px 15px;border:1px solid #c4d3d8;background:white;color:#183c46;font:600 13px system-ui;cursor:pointer}
+.iu-fast-lab button:first-child{background:#143c45;color:white}
+.iu-fast-lab button[hidden]{display:none}
+.iu-fast-lab-file input{display:none}
+.iu-fast-camera{position:relative;overflow:hidden;border-radius:16px;background:#1d2225;min-height:240px;max-height:58dvh;aspect-ratio:4/5;display:grid;place-items:center}
+.iu-fast-camera[hidden]{display:none}
+.iu-fast-camera video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.iu-fast-frame{position:relative;width:min(92%,410px);aspect-ratio:1.48;border:2px solid rgba(255,255,255,.9);border-radius:12px;box-shadow:0 0 0 200vmax rgba(0,0,0,.10);pointer-events:none}
+.iu-fast-frame::after{content:'ÉTIQUETTE ENTIÈRE';position:absolute;left:0;top:-24px;color:white;font:600 11px system-ui;letter-spacing:.08em;text-shadow:0 1px 3px #000}
+.iu-fast-target{position:absolute;left:39%;top:46%;width:35%;height:27%;border:2px solid #6bff9f;border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.13);pointer-events:none}
+.iu-fast-target::after{content:'POIDS NET';position:absolute;top:-20px;left:0;white-space:nowrap;font:700 10px system-ui;color:#8affb7;text-shadow:0 1px 3px #000}
+.iu-fast-result{border-radius:16px;background:rgba(75,159,114,.09);border:1px solid rgba(55,148,95,.22);padding:14px;margin-top:13px}
+.iu-fast-result strong{display:block;font-size:30px;font-variant-numeric:tabular-nums;margin:4px 0}
+.iu-fast-meta{font-variant-numeric:tabular-nums;font-size:12px;opacity:.76}
+.iu-fast-status{font-size:13px;margin:10px 0 5px;min-height:18px}
+.iu-fast-status[data-error=true]{color:#a13c3c}
+@media(prefers-reduced-motion:reduce){.iu-fast-lab *{scroll-behavior:auto}}
