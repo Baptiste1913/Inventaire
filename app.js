@@ -211,7 +211,7 @@ const DUPLICATE_CONFIRM_KEY='inventaires-u-duplicate-confirm-v1';
 const safeClone=x=>JSON.parse(JSON.stringify(x));
 const readJSON=(key,fallback)=>{try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw);}catch{return fallback;}};
 function cleanWeigh(x){
-  if(!x||typeof x!=='object'||!Number.isSafeInteger(x.net)||!Number.isSafeInteger(x.gross)||!Number.isSafeInteger(x.tare)||x.net<0||x.gross<x.tare||x.tare<0||!Number.isFinite(x.at))return null;
+  if(!x||typeof x!=='object'||!Number.isSafeInteger(x.net)||!Number.isSafeInteger(x.gross)||!Number.isSafeInteger(x.tare)||x.gross<0||x.tare<0||x.net!==x.gross-x.tare||!Number.isFinite(x.at))return null;
   return {id:typeof x.id==='string'?x.id.slice(0,90):uid(),at:x.at,name:String(x.name||'Panier').slice(0,40),tare:x.tare,gross:x.gross,net:x.net,groupId:String(x.groupId||x.id||uid()).slice(0,90)};
 }
 
@@ -318,7 +318,7 @@ function issueFor(gross,b){if(gross>maxGrossGrams)return `Poids brut inhabituel 
   return '';
 }
 function anomalyKey(gross,b){return `${b.id}:${gross}`;}
-function warningForCurrent(){const gross=parseWeight($('grossWeight').value),b=baskets.find(b=>b.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return '';return issueFor(gross,b);}
+function warningForCurrent(){const gross=parseWeight($('grossWeight').value),b=baskets.find(b=>b.id===$('basketSelect').value);if(gross===null||!b)return '';return issueFor(gross,b);}
 function renderWarning(){const message=warningForCurrent(),gross=parseWeight($('grossWeight').value),b=baskets.find(b=>b.id===$('basketSelect').value);const accepted=message&&b&&acceptedAnomalyKey===anomalyKey(gross,b);$('weighWarning').hidden=!message||Boolean(accepted);$('weighWarningText').textContent=message;return Boolean(message&&!accepted);}
 function calculate(){
  const previousNetText=$('netDisplay').textContent;
@@ -326,7 +326,8 @@ function calculate(){
  netGrams=null;$('grossDisplay').textContent=gross===null?'— kg':`${fmt(gross)} kg`;$('tareDisplay').textContent=b?`${fmt(b.tare)} kg`:'— kg';$('errorMessage').textContent='';$('netDisplay').textContent='—';$('resultHint').textContent='Renseigne le poids pour calculer le net.';$('copyBtn').disabled=true;
  if(!raw||!b){renderWarning();refreshActionButtons();return;}
  if(gross===null){$('errorMessage').textContent=entryMode==='g'?'Saisis des grammes entiers, par exemple 1250.':'Saisis un poids avec au maximum 3 décimales (ex. 1.230).';renderWarning();refreshActionButtons();return;}
- if(gross<b.tare){$('errorMessage').textContent='Le poids brut est inférieur à la tare du panier. Cette pesée ne sera pas enregistrée.';renderWarning();refreshActionButtons();return;}
+ // En mode essai, le poids NET peut être négatif si la tare est plus lourde.
+ // Le poids BRUT, lui, reste un nombre positif (poids de l'étiquette).
  netGrams=gross-b.tare;
  const nextNetText=fmt(netGrams),netElement=$('netDisplay');
  netElement.textContent=nextNetText;
@@ -335,7 +336,7 @@ function calculate(){
   void netElement.offsetWidth;
   netElement.classList.add('net-value-updated');
  }
- $('resultHint').textContent='Prêt à reporter.';
+ $('resultHint').textContent=netGrams<0?'Mode essai : poids net négatif autorisé.':'Prêt à reporter.';
  const blocked=renderWarning();$('copyBtn').disabled=blocked;refreshActionButtons();
 }
 function refreshActionButtons(){
@@ -353,7 +354,7 @@ function saveCurrentWeigh(){
  if(scannerDraft)return false;
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
  const b=baskets.find(x=>x.id===$('basketSelect').value),gross=parseWeight($('grossWeight').value);
- if(!b||gross===null||gross<b.tare)return false;
+ if(!b||gross===null)return false;
  if(renderWarning()){$('weighStatus').textContent='⚠️ Confirme cette valeur avant son enregistrement.';return false;}
  const previous=history.find(x=>x.id===currentWeighId);
  if(previous&&previous.gross===gross&&previous.tare===b.tare&&previous.name===b.name)return true;
@@ -1524,8 +1525,10 @@ function reviewSessionQuality(session){
  const target=$('sessionQualityReview');if(!target||!session)return;
  const entries=session.entries||[];
  const problems=[];
- const invalid=entries.filter(e=>!Number.isSafeInteger(e.gross)||!Number.isSafeInteger(e.tare)||!Number.isSafeInteger(e.net)||e.net!==e.gross-e.tare||e.gross<e.tare);
+ const invalid=entries.filter(e=>!Number.isSafeInteger(e.gross)||!Number.isSafeInteger(e.tare)||!Number.isSafeInteger(e.net)||e.net!==e.gross-e.tare||e.gross<0||e.tare<0);
  if(invalid.length)problems.push(`${invalid.length} pesée(s) incohérente(s) : vérifier les valeurs.`);
+ const negative=entries.filter(e=>Number.isSafeInteger(e.net)&&e.net<0);
+ if(negative.length)problems.push(`${negative.length} poids net(s) négatif(s) enregistrés en mode essai.`);
  const limit=maxGrossGrams;
  const heavy=entries.filter(e=>Number.isSafeInteger(e.gross)&&e.gross>limit);
  if(heavy.length)problems.push(`${heavy.length} poids brut(s) au-dessus du seuil d'alerte.`);
@@ -1915,7 +1918,7 @@ $('maxGrossLimit').addEventListener('change',setLimit);
 $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{safeSetItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('confirmWarning').addEventListener('click',()=>{
  const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);
- if(gross===null||!b||gross<b.tare)return;
+ if(gross===null||!b)return;
  acceptedAnomalyKey=anomalyKey(gross,b);
  scannerDraft=false;scannerDraftUI();
  calculate();saveCurrentWeigh();
@@ -1934,6 +1937,10 @@ $('iuScannedDraftConfirm')?.addEventListener('click',()=>{
  scannerDraft=false;scannerDraftUI();
  if(!saveCurrentWeigh()){
   scannerDraft=true;scannerDraftUI();
+ }else{
+  // La fenêtre compacte peut proposer la prochaine étiquette en gardant
+  // la même caméra et sa mise au point.
+  window.dispatchEvent(new Event('iu-weigh-scan-saved'));
  }
 });
 $('focusPause').addEventListener('click',()=>animateFocusExit(()=>$('pauseSession').click()));
