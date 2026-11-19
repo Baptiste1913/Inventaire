@@ -395,12 +395,26 @@ function saveCurrentWeigh(){
  renderHistory();
  if(trackSession)renderLiveSessionStats();
  if($('backupCard').open)renderBackupSummary();
- $('weighStatus').textContent='Pesée enregistrée automatiquement';
+ // Même structure et mêmes classes que le bloc « Inventaire terminé ».
+ const status=$('weighStatus');
+ status.classList.add('v22-message','is-complete');
+ const content=document.createElement('span');
+ content.className='session-complete-copy';
+ const title=document.createElement('strong');
+ title.className='session-complete-title';
+ title.textContent='Pesée enregistrée automatiquement';
+ content.append(title);
+ status.replaceChildren(content);
  animateConfirmation();
  return true;
 }
+function clearWeighSavedStyle(){
+ const status=$('weighStatus');
+ status.classList.remove('v22-message','is-complete');
+}
 function scheduleAutoSave(){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
+ clearWeighSavedStyle();
  if(scannerDraft){
   // La confirmation est maintenant dans la carte résultat : aucun
   // second message explicatif sous celle-ci.
@@ -421,10 +435,15 @@ function flushPending(){
  if(netGrams!==null&&currentWeighId){const prior=history.find(x=>x.id===currentWeighId),gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(!prior||gross!==prior.gross||b?.tare!==prior.tare)return saveCurrentWeigh();}
  return true;
 }
-function clearWeigh(){
+function clearWeigh(keepSuccess=false){
  clearTimeout(autoSaveTimer);autoSaveTimer=null;scannerDraft=false;scannerDraftUI();
  currentWeighId=null;acceptedAnomalyKey='';
- $('grossWeight').value='';$('weighStatus').textContent='';calculate();
+ $('grossWeight').value='';
+ if(!keepSuccess){
+  clearWeighSavedStyle();
+  $('weighStatus').textContent='';
+ }
+ calculate();
 }
 
 // Selon le fonctionnement demandé pour la pesée de rayon, le poids lu sur
@@ -466,24 +485,44 @@ function focusGrossWithoutScroll(){
  if(!field||document.activeElement===field)return;
  field.focus({preventScroll:true});
 }
+// « Nouvelle pesée » devient une validation explicite du brut reconnu :
+ // la sauvegarde est réalisée avant l'effacement, comme en saisie manuelle.
+function commitScannerDraft(){
+ if(!scannerDraft)return true;
+ if(netGrams===null){
+  clearWeighSavedStyle();
+  $('weighStatus').textContent='Corrige le poids reconnu avant de continuer.';
+  return false;
+ }
+ if(renderWarning()){
+  clearWeighSavedStyle();
+  $('weighStatus').textContent='Confirme d’abord l’avertissement avant la nouvelle pesée.';
+  return false;
+ }
+ scannerDraft=false;scannerDraftUI();
+ if(!saveCurrentWeigh()){
+  scannerDraft=true;scannerDraftUI();
+  return false;
+ }
+ window.dispatchEvent(new Event('iu-weigh-scan-saved'));
+ return true;
+}
 function newWeigh(){
  const overlay=$('iuWeighScanOverlay');
  const scannerOpen=Boolean(overlay&&!overlay.hidden);
+ let hadWeight=Boolean($('grossWeight').value.trim());
  if(scannerDraft){
-  // « Nouvelle pesée » annule uniquement le brouillon OCR non validé,
-  // sans jamais créer d'entrée dans l'historique.
-  clearWeigh();
+  if(!commitScannerDraft())return;
  }else{
-  // Pour les pesées manuelles ou déjà validées, préserver la sauvegarde
-  // et les avertissements existants avant de commencer une autre saisie.
   if(!flushPending())return;
-  if(!netGrams&&$('grossWeight').value.trim()){
+  if(!netGrams&&hadWeight){
+   clearWeighSavedStyle();
    $('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;
   }
-  if($('grossWeight').value.trim())clearWeigh();
  }
+ if(hadWeight)clearWeigh(true);
  if(scannerOpen){
-  // Réutilise la caméra déjà ouverte et le moteur OCR sans autofocus initial.
+  // Même flux vidéo, worker OCR et mise au point : pas de relance caméra.
   window.dispatchEvent(new Event('iu-weigh-scan-next'));
  }else{
   focusGrossWithoutScroll();
