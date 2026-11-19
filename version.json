@@ -1,6 +1,6 @@
 {
-  "version": "40.86",
+  "version": "40.87",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Ajout de repères de cadrage discrets représentant la structure d'une étiquette U (contour, nom, informations, code-barres et prix). Zone OCR centrale et fonctionnement de la caméra inchangés."
+  "notes": "Contraste adaptatif léger et niveaux de gris sur le poids scanné : correction douce des ombres, sans modifier la vidéo. Lecture OCR prioritaire sur image traitée et repli sur image naturelle, sans analyse supplémentaire."
 }
