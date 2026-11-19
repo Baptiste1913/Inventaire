@@ -1,4 +1,4 @@
-/* Inventaires U v40.77 — mise au point continue si disponible ; caméra réutilisée entre étiquettes. */
+/* Inventaires U v40.78 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -119,13 +119,16 @@
   const transferred=typeof window.IUWeighScanDraft==='function'&&window.IUWeighScanDraft(grams)===true;
   proposalGrams=grams;value.textContent=format(grams);
   scanning=false;overlay.dataset.state='result';
-  refreshConversion();proposal.hidden=false;retry.hidden=true;
+  refreshConversion();
+  // Lorsque le poids a été prérempli, le résultat central suffit.
+  // Ne pas dupliquer le montant, la tare ni les boutons sous la caméra.
+  proposal.hidden=transferred;
+  retry.hidden=true;
   apply.hidden=transferred;
   again.disabled=transferred;
-  again.textContent=transferred?'Valide la pesée pour continuer':'Ignorer et scanner la suivante';
-  say(transferred
-   ?'Poids prérempli dans Brut. Vérifie, corrige si nécessaire puis valide la pesée ci-dessous.'
-   :'Vérifie la pesée précédente avant de transférer ce poids.');
+  again.hidden=transferred;
+  again.textContent='Étiquette suivante';
+  say(transferred?'Poids détecté.':'Vérifie la pesée précédente.');
   if(navigator.vibrate)try{navigator.vibrate(25);}catch(_){}
  }
  function evaluateObservation(grams,confidence){
@@ -161,9 +164,9 @@
   if(overlay.hidden||starting||scanning||!worker||!stream)return false;
   session++;const id=session;
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
-  apply.hidden=false;again.disabled=false;
+  apply.hidden=false;again.disabled=false;again.hidden=false;
   resetObservations();overlay.dataset.state='scanning';scanning=true;
-  say('Présente la ligne « Poids net » de l’étiquette : elle sera recopiée dans le champ Brut.');
+  say('Vise le poids imprimé en kg.');
   void scan(id);return true;
  }
  // Demande la mise au point continue seulement si le navigateur expose
@@ -223,10 +226,14 @@
  // Il n'y a plus de fond plein écran ni de clic extérieur à intercepter.
  retry.addEventListener('click',()=>{void startCamera();});
  window.addEventListener('iu-weigh-scan-saved',()=>{
-  if(overlay.hidden||proposalGrams===null||proposal.hidden)return;
-  again.disabled=false;
-  again.textContent='Scanner l’étiquette suivante';
-  say('Pesée enregistrée. Caméra déjà prête pour l’étiquette suivante.');
+  if(overlay.hidden)return;
+  say('Pesée enregistrée · caméra prête.');
+ });
+ // « Nouvelle pesée » relance la lecture sur le flux existant (sans
+ // fermeture, sans nouvel accès caméra, sans perdre le focus optique).
+ window.addEventListener('iu-weigh-scan-next',()=>{
+  if(overlay.hidden||scanning||starting)return;
+  if(!resumeScan())void startCamera();
  });
  again.addEventListener('click',()=>{
   if(again.disabled)return;
