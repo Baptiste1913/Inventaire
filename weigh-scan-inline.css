@@ -439,7 +439,7 @@
  font-size:inherit !important;
 }
 .calc-card .iu-basket-scan-row #iuWeighScanToggle.new-weigh-btn svg {
- stroke-width:2.6 !important;
+ stroke-width:2.4 !important;
 }
 .calc-card .iu-basket-scan-row #iuWeighScanToggle.new-weigh-btn:active {
  transform:scale(.97);
