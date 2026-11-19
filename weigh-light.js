@@ -1,4 +1,4 @@
-/* Inventaires U 41.08 — rubans nacrés densifiés et reflets de couleur subtils.
+/* Inventaires U 41.09 — neuf fibres nacrées et rendu Retina adaptatif au zoom.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -10,8 +10,8 @@
  if(!ctx)return;
  const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
  const TWO_PI=Math.PI*2;
- const COUNT=720;
- let width=0,height=0;
+ const COUNT=1280;
+ let width=0,height=0,renderScale=0;
  let lanes=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
  function wrap(u){return ((u%1)+1)%1;}
  // Contour arrondi à paramétrisation par longueur d'arc réelle :
@@ -69,26 +69,39 @@
   const bounds=canvas.getBoundingClientRect();
   const w=Math.round(bounds.width),h=Math.round(bounds.height);
   if(w<20||h<15){width=height=0;return false;}
-  // Évite de recréer les pixels du canvas pour des variations fractionnaires
-  // de layout : cela causait des scintillements visibles sur Safari.
-  if(w===width&&h===height&&lanes.length)return true;
-  width=w;height=h;
-  const dpr=Math.min(3,window.devicePixelRatio||1);
-  const pw=Math.round(w*dpr),ph=Math.round(h*dpr);
-  if(canvas.width!==pw)canvas.width=pw;
-  if(canvas.height!==ph)canvas.height=ph;
-  ctx.setTransform(pw/w,0,0,ph/h,0,0);
+  // Respecter la densité native ET le zoom réel de Safari. Un canvas
+  // limité au DPR=3 était agrandi et apparaissait crénelé au pincement.
+  const zoom=Math.max(1,window.visualViewport?.scale||1);
+  const requested=Math.min(5.5,(window.devicePixelRatio||1)*zoom);
+  // Paliers de demi-pixel pour éviter de réallouer le bitmap en permanence
+  // pendant le geste de zoom, sans perdre la finesse à l'arrêt.
+  const scale=Math.max(1,Math.min(5.5,
+   Math.ceil(requested*2)/2,
+   Math.sqrt(1800000/(w*h))
+  ));
+  const pxW=Math.round(w*scale),pxH=Math.round(h*scale);
+  if(width===w&&height===h&&renderScale===scale&&
+     canvas.width===pxW&&canvas.height===pxH&&lanes.length===9)return true;
+  const geometryChanged=w!==width||h!==height||lanes.length!==9;
+  width=w;height=h;renderScale=scale;
+  if(canvas.width!==pxW)canvas.width=pxW;
+  if(canvas.height!==pxH)canvas.height=pxH;
+  ctx.setTransform(pxW/w,0,0,pxH/h,0,0);
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
-  lanes=[
-   buildLane(.28,.37),
-   buildLane(2.35,.58),
-   buildLane(4.5,.22),
-   buildLane(1.42,.49),
-   buildLane(5.32,.30),
-   buildLane(3.82,.41),
-   buildLane(.94,.26)
-  ];
+  if(geometryChanged){
+   lanes=[
+    buildLane(.28,.37),
+    buildLane(2.35,.58),
+    buildLane(4.5,.22),
+    buildLane(1.42,.49),
+    buildLane(5.32,.30),
+    buildLane(3.82,.41),
+    buildLane(.94,.26),
+    buildLane(2.93,.34),
+    buildLane(5.81,.23)
+   ];
+  }
   return true;
  }
  function baseFilament(laneIndex,alpha,widthPx){
@@ -107,7 +120,7 @@
  // effilé naturellement aux deux extrémités, sans ligne segmentée.
  function ribbonGeometry(t,config){
   const center=wrap(config.start+config.direction*t/config.seconds);
-  const samples=104;
+  const samples=192;
   const positions=[];
   const epsilon=1/(COUNT*2);
   for(let i=0;i<=samples;i++){
@@ -157,7 +170,7 @@
  function paint(t){
   if(!width||!height)return;
   ctx.clearRect(0,0,width,height);
-  // Sept fibres nacrées très fines : volume accru sans halo envahissant.
+  // Neuf fibres nacrées très fines : volume accru sans halo envahissant.
   baseFilament(0,.62,.74);
   baseFilament(1,.34,.56);
   baseFilament(2,.20,.40);
@@ -165,6 +178,10 @@
   baseFilament(4,.18,.30);
   baseFilament(5,.13,.24);
   baseFilament(6,.10,.20);
+  // Deux filaments soyeux supplémentaires : davantage de volume
+  // sans élargir les rubans colorés ni augmenter le halo.
+  baseFilament(7,.115,.23);
+  baseFilament(8,.085,.19);
   // Reflets bleu, émeraude et rubis légèrement renforcés.
   illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.25,
     tint:'#79c7ff',core:'#f6fbff',opacity:.94});
@@ -219,7 +236,12 @@
  document.addEventListener('visibilitychange',sync);
  window.addEventListener('pageshow',sync);
  window.addEventListener('pagehide',()=>{running=false;if(request)cancelAnimationFrame(request);request=0;lastTick=0;});
- window.addEventListener('resize',()=>{width=height=0;lanes=[];sync();},{passive:true});
+ window.addEventListener('resize',()=>{measure();sync();},{passive:true});
+ // Le zoom par pincement n'émet pas forcément window.resize sur iOS.
+ // La surface est rééchantillonnée uniquement quand son niveau change.
+ if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',()=>{measure();sync();},{passive:true});
+ }
  if(reduceMotion?.addEventListener)reduceMotion.addEventListener('change',sync);
  else reduceMotion?.addListener?.(sync);
  if(window.ResizeObserver)new ResizeObserver(()=>{

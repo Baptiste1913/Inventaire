@@ -954,3 +954,11 @@
  filter:none !important;
  transform:none !important;
 }
+
+/* v41.09 — préserver la netteté du Canvas zoomé sans effet CSS
+   supplémentaire. Les repères et couleurs de 41.08 sont inchangés. */
+.iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light {
+ image-rendering:auto !important;
+ filter:none !important;
+ transform:none !important;
+}

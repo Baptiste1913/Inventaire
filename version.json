@@ -1,6 +1,6 @@
 {
-  "version": "41.08",
+  "version": "41.09",
   "published": "2026-11-19",
   "assets": 52,
-  "notes": "Ajout de deux filaments nacrés fins, reflets bleu et émeraude renforcés avec touche rubis, et réduction de l’opacité des repères de l’étiquette de 70 à 55 %. Rendu Retina, animations stabilisées et OCR conservés."
+  "notes": "Viseur à 9 filaments nacrés fins, tracés de 1280 points et rubans à 192 échantillons. Canvas Retina s'adaptant au zoom réel (limite de résolution et de mémoire pour iPhone), sans modifier l'OCR, les reflets bleu/émeraude/rubis ni les repères à 55 %."
 }
