@@ -237,4 +237,36 @@ assert.match(html,/class="iu-weigh-label-barcode"/);
 assert.match(html,/class="iu-weigh-label-price"/);
 assert.match(style,/\.iu-weigh-scan-inline \.iu-weigh-label-template/);
 assert.match(style,/\.iu-weigh-scan-inline \.iu-weigh-label-metadata/);
+
+// v40.87 : contraste local limité aux images envoyées à Tesseract.
+const filterStart=scanner.indexOf('function improveOcrImage(image){');
+const filterEnd=scanner.indexOf('function cropFrame(adaptive){',filterStart);
+assert.ok(filterStart>0&&filterEnd>filterStart,'Le filtre OCR adaptatif est défini');
+const filterEnv={Float64Array,Uint32Array,Math};
+vm.createContext(filterEnv);
+vm.runInContext(scanner.slice(filterStart,filterEnd)+'\nthis.filter=improveOcrImage;',filterEnv);
+const fw=100,fh=40,rgba=new Uint8ClampedArray(fw*fh*4);
+for(let y=0;y<fh;y++)for(let x=0;x<fw;x++){
+ const i=(y*fw+x)*4;
+ const background=155+Math.round(40*x/(fw-1));
+ const print=(x>=32&&x<53&&y>=14&&y<26)?-52:0;
+ rgba[i]=rgba[i+1]=rgba[i+2]=background+print;rgba[i+3]=255;
+}
+const before=Uint8ClampedArray.from(rgba);
+const filtered=filterEnv.filter({width:fw,height:fh,data:rgba});
+const pix=(data,x,y)=>data[(y*fw+x)*4];
+assert.equal(filtered.data,rgba,'Transformation sans nouvelle allocation de pixels');
+assert.equal(rgba[(17*fw+36)*4+3],255,'Le canal alpha est préservé');
+assert.equal(rgba[(17*fw+36)*4],rgba[(17*fw+36)*4+1],'Niveaux de gris sur le crop');
+assert.ok(pix(rgba,36,17)<pix(rgba,58,17),'Texte plus sombre que le fond');
+assert.ok(pix(rgba,58,17)-pix(rgba,36,17)>pix(before,58,17)-pix(before,36,17),
+ 'Renforcement modéré du contraste texte / papier');
+assert.ok(Math.abs(pix(rgba,10,2)-pix(rgba,90,2))<
+ Math.abs(pix(before,10,2)-pix(before,90,2)),
+ 'Compensation des différences de luminosité du papier');
+assert.match(scanner,/const canvas=cropFrame\(variant===0\)/,
+ 'Traitement adaptatif au premier essai');
+assert.match(scanner,/if\(adaptive\)\{/,'Second essai OCR sans filtre');
+assert.doesNotMatch(scanner,/filter:\s*contrast\(/,
+ 'Ne pas modifier la caméra affichée');
 console.log('Tests scanner v40.80 : sauvegarde Nouvelle pesée, échecs de stockage, avertissements, statut et design : OK');
