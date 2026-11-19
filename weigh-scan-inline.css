@@ -990,3 +990,90 @@
   opacity:0 !important;
  }
 }
+
+
+/* v41.11 — laboratoire haptique provisoire, replié par défaut.
+   Hors de la caméra et du gabarit OCR ; contrôle natif WebKit conservé. */
+.calc-card .iu-haptic-lab {
+ margin:9px 0 15px !important;
+ border:1px solid rgba(170,191,200,.48) !important;
+ border-radius:14px !important;
+ background:rgba(245,248,250,.65) !important;
+ box-shadow:none !important;
+ overflow:hidden !important;
+}
+.calc-card .iu-haptic-lab > summary {
+ display:flex !important;
+ align-items:center !important;
+ justify-content:space-between !important;
+ gap:10px !important;
+ cursor:pointer !important;
+ padding:12px 14px !important;
+ font-size:13px !important;
+ font-weight:700 !important;
+ color:#283941 !important;
+ list-style:none !important;
+}
+.calc-card .iu-haptic-lab > summary::-webkit-details-marker {display:none !important;}
+.calc-card .iu-haptic-lab > summary small {
+ font-size:10px !important;
+ font-weight:550 !important;
+ color:#697e88 !important;
+}
+.calc-card .iu-haptic-body {
+ padding:0 14px 14px !important;
+ display:flex !important;
+ flex-direction:column !important;
+ gap:12px !important;
+}
+.calc-card .iu-haptic-body > p {
+ margin:0 !important;
+ line-height:1.5 !important;
+ font-size:12px !important;
+ color:#586d78 !important;
+}
+.calc-card .iu-haptic-native {
+ display:flex !important;
+ align-items:center !important;
+ justify-content:space-between !important;
+ gap:12px !important;
+ background:rgba(255,255,255,.72) !important;
+ border:1px solid rgba(181,198,206,.45) !important;
+ border-radius:11px !important;
+ padding:11px 12px !important;
+ cursor:pointer !important;
+}
+.calc-card .iu-haptic-native span {display:flex !important;flex-direction:column !important;gap:4px !important;}
+.calc-card .iu-haptic-native strong {font-size:12px !important;color:#26353d !important;}
+.calc-card .iu-haptic-native small {font-size:11px !important;line-height:1.35 !important;color:#6c7b84 !important;}
+.calc-card .iu-haptic-native input[type="checkbox"][switch] {
+ flex:0 0 auto !important;
+ width:44px !important;
+ height:26px !important;
+ margin:0 !important;
+ appearance:auto !important;
+ -webkit-appearance:auto !important;
+ accent-color:#27866c !important;
+}
+.calc-card .iu-haptic-run {
+ border:1px solid rgba(157,182,194,.66) !important;
+ background:linear-gradient(140deg,#fff,#e9f0f4) !important;
+ color:#243944 !important;
+ border-radius:11px !important;
+ min-height:42px !important;
+ padding:9px 12px !important;
+ font-size:12px !important;
+ font-weight:650 !important;
+ box-shadow:none !important;
+ cursor:pointer !important;
+}
+.calc-card .iu-haptic-run:disabled {opacity:.56 !important;cursor:wait !important;}
+.calc-card .iu-haptic-result {font-size:11px !important;color:#415560 !important;}
+.calc-card .iu-haptic-hidden {
+ position:absolute !important;
+ width:1px !important;height:1px !important;
+ padding:0 !important;margin:0 !important;
+ opacity:.01 !important;overflow:hidden !important;
+ border:0 !important;clip-path:inset(50%) !important;
+ pointer-events:none !important;
+}

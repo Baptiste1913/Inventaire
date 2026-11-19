@@ -1,6 +1,6 @@
 {
-  "version": "41.10",
+  "version": "41.11",
   "published": "2026-11-19",
-  "assets": 52,
-  "notes": "Repères d'étiquette atténués de 15 % supplémentaires (55 % → 47 %). Nouvelle confirmation de poids : une seule courte vibration sur navigateurs compatibles et un très bref éclat du viseur sur iPhone (Safari iOS ne permet pas la vibration automatique PWA). OCR et caméra inchangés."
+  "assets": 53,
+  "notes": "Test iPhone expérimental dans Nouvelle pesée : comparer vibration native d'un interrupteur WebKit et clic automatique différé sur son label. Aucun changement OCR ni retour haptique des vraies pesées ; styles isolés et section repliée par défaut."
 }
