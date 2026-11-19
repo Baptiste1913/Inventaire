@@ -6,8 +6,10 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/scan-quick-check.yml'
+      - 'tools/test_scanner_transfer.cjs'
       - 'app.js'
       - 'weigh-scan.js'
+      - 'weigh-scan-inline.css'
       - 'index.html'
       - 'sw.js'
       - 'version.json'
@@ -26,18 +28,6 @@ jobs:
           node --check app.js
           node --check weigh-scan.js
           node --check sw.js
-      - name: Contrôler le transfert sans sauvegarde automatique
-        run: |
-          node - <<'NODE'
-          const fs=require('fs'),assert=require('node:assert/strict');
-          const app=fs.readFileSync('app.js','utf8');
-          const scanner=fs.readFileSync('weigh-scan.js','utf8');
-          const html=fs.readFileSync('index.html','utf8');
-          assert.match(app,/window\.IUWeighScanDraft=net=>/);
-          assert.match(app,/if\(scannerDraft\)return false;/);
-          assert.match(app,/if\(scannerDraft\)\{[\s\S]*?autoSaveTimer/);
-          assert.match(scanner,/window\.IUWeighScanDraft\(grams\)===true/);
-          assert.match(html,/id="iuScannedDraftConfirm"/);
-          assert.match(html,/weigh-scan\.js\?v=40\.75/);
-          console.log('Contrôles de transfert et de validation : OK');
-          NODE
+          node --check tools/test_scanner_transfer.cjs
+      - name: Vérifier le transfert OCR et le calcul de tare
+        run: node tools/test_scanner_transfer.cjs
