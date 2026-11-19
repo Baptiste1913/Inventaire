@@ -448,6 +448,14 @@ window.IUWeighScanDraft=labelGrams=>{
  scannerDraftUI();
  return true;
 };
+// Préparer la pesée suivante sans fermer la caméra ni ouvrir le clavier.
+window.IUWeighScanPrepareNext=()=>{
+ if(scannerDraft)return false;
+ if(!$('grossWeight').value.trim())return true;
+ if(!flushPending()||!currentWeighId)return false;
+ clearWeigh();
+ return true;
+};
 // V36.59 — Sur Safari iOS, focus() sans option force parfois un scroll
 // lorsque le clavier numérique est déjà affiché. Garder le focus existant
 // et ne jamais demander à Safari de recentrer la page pour une nouvelle pesée.
@@ -1920,8 +1928,14 @@ $('confirmWarning').addEventListener('click',()=>{
  const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);
  if(gross===null||!b)return;
  acceptedAnomalyKey=anomalyKey(gross,b);
+ const wasScannerDraft=scannerDraft;
  scannerDraft=false;scannerDraftUI();
- calculate();saveCurrentWeigh();
+ calculate();
+ if(saveCurrentWeigh()){
+  if(wasScannerDraft)window.dispatchEvent(new Event('iu-weigh-scan-saved'));
+ }else if(wasScannerDraft){
+  scannerDraft=true;scannerDraftUI();
+ }
 });
 $('iuScannedDraftConfirm')?.addEventListener('click',()=>{
  if(!scannerDraft)return;
