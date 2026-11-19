@@ -1,10 +1,10 @@
-/* Inventaires U v40.80 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
+/* Inventaires U v40.84 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const trigger=$('iuWeighScanToggle'),overlay=$('iuWeighScanOverlay');
  if(!trigger||!overlay)return;
- const closeBtn=$('iuWeighScanClose'),video=$('iuWeighScanVideo'),guide=overlay.querySelector('.iu-weigh-scan-guide'),
+ const closeBtn=$('iuWeighScanClose'),video=$('iuWeighScanVideo'),torchBtn=$('iuWeighScanTorch'),guide=overlay.querySelector('.iu-weigh-scan-guide'),
  status=$('iuWeighScanStatus'),proposal=$('iuWeighScanProposal'),value=$('iuWeighScanValue'),
  conversion=$('iuWeighScanConversion'),apply=$('iuWeighScanApply'),
  again=$('iuWeighScanAgain'),retry=$('iuWeighScanRetry'),gross=$('grossWeight');
@@ -24,6 +24,7 @@
  }
  let stream=null,worker=null,enginePromise=null,session=0,scanning=false,starting=false,wasOpen=false;
  let proposalGrams=null,lastCandidate=null,observations=[],nextVariant=0,previousStatus='';
+ let torchEnabled=false,torchBusy=false;
  const say=(msg,error=false)=>{
   if(previousStatus!==msg){status.textContent=msg;previousStatus=msg;}
   status.classList.toggle('is-error',error);
@@ -47,7 +48,52 @@
  function resetObservations(){
   lastCandidate=null;observations=[];nextVariant=0;
  }
+ function updateTorchButton(){
+  if(!torchBtn)return;
+  torchBtn.setAttribute('aria-pressed',String(torchEnabled));
+  torchBtn.setAttribute('aria-label',torchEnabled?'Désactiver le flash':'Activer le flash');
+  torchBtn.title=torchEnabled?'Désactiver le flash':'Activer le flash';
+  torchBtn.classList.toggle('is-on',torchEnabled);
+  torchBtn.disabled=torchBusy;
+ }
+ function getTorchTrack(){
+  const track=stream?.getVideoTracks?.()[0];
+  if(!track||track.readyState!=='live'||typeof track.applyConstraints!=='function')return null;
+  try{
+   if(track.getCapabilities?.().torch===true)return track;
+  }catch(_){}
+  return null;
+ }
+ function refreshTorchAvailability(){
+  const track=getTorchTrack();
+  if(!track){torchEnabled=false;torchBusy=false;}
+  if(torchBtn)torchBtn.hidden=!track;
+  updateTorchButton();
+ }
+ async function setTorch(on){
+  const track=getTorchTrack();
+  if(!track||torchBusy)return;
+  torchBusy=true;updateTorchButton();
+  try{
+   await track.applyConstraints({advanced:[{torch:on}]});
+   if(stream?.getVideoTracks?.()[0]!==track||overlay.hidden)return;
+   torchEnabled=on;
+  }catch(_){
+   if(stream?.getVideoTracks?.()[0]===track&&!overlay.hidden){
+    say('Le flash n’est pas disponible sur cette caméra.',true);
+    torchEnabled=false;
+    if(torchBtn)torchBtn.hidden=true;
+   }
+  }finally{
+   torchBusy=false;
+   updateTorchButton();
+  }
+ }
  function stopTracks(){
+  // L'arrêt de la piste éteint aussi la torche si elle était active.
+  torchEnabled=false;torchBusy=false;
+  if(torchBtn)torchBtn.hidden=true;
+  updateTorchButton();
   if(stream){for(const track of stream.getTracks())track.stop();stream=null;}
   try{video.pause();}catch(_){}
   video.srcObject=null;scanning=false;
@@ -207,6 +253,7 @@
    video.srcObject=source;
    requestContinuousFocus(source);
    if(video.paused)await video.play();
+   refreshTorchAvailability();
    await enginePromiseLocal;
    if(overlay.hidden||id!==session)return;
    starting=false;resumeScan();
@@ -226,6 +273,7 @@
   void startCamera();
  });
  closeBtn.addEventListener('click',close);
+ torchBtn?.addEventListener('click',()=>{void setTorch(!torchEnabled);});
  // Il n'y a plus de fond plein écran ni de clic extérieur à intercepter.
  retry.addEventListener('click',()=>{void startCamera();});
  window.addEventListener('iu-weigh-scan-saved',()=>{
