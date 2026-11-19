@@ -864,3 +864,13 @@
  width:15px !important;
  height:15px !important;
 }
+
+/* v40.92 — titre de guidage légèrement agrandi, quasi collé à la caméra. */
+.iu-weigh-scan-inline .iu-weigh-scan-caption {
+ font-size:14px !important;
+ line-height:1.25 !important;
+ margin-bottom:0 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-shell {
+ gap:0 !important;
+}
