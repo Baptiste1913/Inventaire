@@ -1,4 +1,4 @@
-/* Inventaires U 41.07 — rubans lumineux antialiasés, sans micro-segments de traits.
+/* Inventaires U 41.08 — rubans nacrés densifiés et reflets de couleur subtils.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -85,7 +85,9 @@
    buildLane(2.35,.58),
    buildLane(4.5,.22),
    buildLane(1.42,.49),
-   buildLane(5.32,.30)
+   buildLane(5.32,.30),
+   buildLane(3.82,.41),
+   buildLane(.94,.26)
   ];
   return true;
  }
@@ -155,24 +157,28 @@
  function paint(t){
   if(!width||!height)return;
   ctx.clearRect(0,0,width,height);
-  // Base monochrome conservée et cinq filaments à tracés fixes.
-  baseFilament(0,.60,.72);
-  baseFilament(1,.30,.52);
-  baseFilament(2,.17,.38);
-  // Deux fils nacrés très légers ajoutent de la densité sans
-  // grossir les lueurs colorées ni faire sautiller le contour.
-  baseFilament(3,.21,.34);
-  baseFilament(4,.15,.28);
-  // Les couleurs n'apparaissent que dans des vagues mobiles discrètes.
-  illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.23,
-    tint:'#72bfff',core:'#f5fbff',opacity:.87});
-  illuminate(t,{lane:1,start:.62,direction:-1,seconds:12.3,span:.17,
-    tint:'#35cba6',core:'#e4fff5',opacity:.79});
-  illuminate(t,{lane:2,start:.34,direction:1,seconds:17.1,span:.072,
-    tint:'#b72850',core:'#f2c0cd',opacity:.44});
-  // Court éclat blanc qui croise les reflets colorés.
-  illuminate(t,{lane:2,start:.11,direction:-1,seconds:13.8,span:.115,
-    tint:'#d6e9f3',core:'#ffffff',opacity:.68});
+  // Sept fibres nacrées très fines : volume accru sans halo envahissant.
+  baseFilament(0,.62,.74);
+  baseFilament(1,.34,.56);
+  baseFilament(2,.20,.40);
+  baseFilament(3,.24,.36);
+  baseFilament(4,.18,.30);
+  baseFilament(5,.13,.24);
+  baseFilament(6,.10,.20);
+  // Reflets bleu, émeraude et rubis légèrement renforcés.
+  illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.25,
+    tint:'#79c7ff',core:'#f6fbff',opacity:.94});
+  illuminate(t,{lane:1,start:.62,direction:-1,seconds:12.3,span:.20,
+    tint:'#44d4ae',core:'#ebfff7',opacity:.88});
+  illuminate(t,{lane:2,start:.34,direction:1,seconds:17.1,span:.09,
+    tint:'#c4315b',core:'#f5c6d3',opacity:.56});
+  illuminate(t,{lane:2,start:.11,direction:-1,seconds:13.8,span:.13,
+    tint:'#dcecf5',core:'#ffffff',opacity:.72});
+  // Nouveaux reflets diffus : filaments animés sans rupture de tracé.
+  illuminate(t,{lane:5,start:.48,direction:1,seconds:15.4,span:.16,
+    tint:'#55b8ff',core:'#e8f6ff',opacity:.62});
+  illuminate(t,{lane:6,start:.79,direction:-1,seconds:18.6,span:.12,
+    tint:'#59dcb8',core:'#ecfff8',opacity:.54});
  }
  function isActive(){
   return !document.hidden&&!overlay.hidden&&

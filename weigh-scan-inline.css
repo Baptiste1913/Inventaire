@@ -944,7 +944,7 @@
    dans la caméra (pointillés, zones, textes simulés et code-barres).
    Le viseur lumineux du poids est indépendant et reste inchangé. */
 .iu-weigh-scan-inline .iu-weigh-label-template {
- opacity:.70 !important;
+ opacity:.55 !important;
 }
 
 /* v41.07 — conserver le raster natif Retina pour le Canvas :

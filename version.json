@@ -1,6 +1,6 @@
 {
-  "version": "41.07",
+  "version": "41.08",
   "published": "2026-11-19",
   "assets": 52,
-  "notes": "Refonte antialiasée des lumières du viseur : rubans continus effilés plutôt que micro-segments avec joints pixelisés, échantillonnage plus fin, halo localisé. Palette nacrée, bleu, émeraude et rubis, cinq filaments et repères -30 % conservés. OCR inchangé."
+  "notes": "Ajout de deux filaments nacrés fins, reflets bleu et émeraude renforcés avec touche rubis, et réduction de l’opacité des repères de l’étiquette de 70 à 55 %. Rendu Retina, animations stabilisées et OCR conservés."
 }
