@@ -492,3 +492,72 @@
   max-height:160px !important;
  }
 }
+
+/* v40.86 — silhouette d'étiquette U discrète pour faciliter le cadrage.
+   Le cadre central correspond exactement à la zone OCR (23/42/54/16 %). */
+.iu-weigh-scan-inline .iu-weigh-label-template {
+ position:absolute !important;
+ inset:7% 10% 7% !important;
+ z-index:1 !important;
+ border:1px dashed rgba(255,255,255,.68) !important;
+ border-radius:9px !important;
+ box-shadow:0 0 0 1px rgba(18,37,49,.13) !important;
+ pointer-events:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-label-title {
+ position:absolute !important;
+ left:27% !important;
+ top:16% !important;
+ width:46% !important;
+ height:10% !important;
+ border:1px solid rgba(255,255,255,.44) !important;
+ border-radius:4px !important;
+ background:rgba(255,255,255,.025) !important;
+}
+.iu-weigh-scan-inline .iu-weigh-label-metadata {
+ position:absolute !important;
+ left:12% !important;
+ right:12% !important;
+ top:43% !important;
+ display:flex !important;
+ justify-content:space-between !important;
+ gap:7% !important;
+ height:10% !important;
+}
+.iu-weigh-scan-inline .iu-weigh-label-metadata i {
+ display:block !important;
+ flex:1 1 0 !important;
+ border-top:1px solid rgba(255,255,255,.42) !important;
+ border-radius:2px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-label-barcode {
+ position:absolute !important;
+ left:11% !important;
+ bottom:8% !important;
+ width:42% !important;
+ height:24% !important;
+ border:1px solid rgba(255,255,255,.42) !important;
+ border-radius:3px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-label-barcode span {
+ position:absolute !important;
+ inset:15% 8% !important;
+ opacity:.34 !important;
+ background:repeating-linear-gradient(90deg,rgba(255,255,255,.65) 0 2px,transparent 2px 5px,rgba(255,255,255,.65) 5px 6px,transparent 6px 10px) !important;
+}
+.iu-weigh-scan-inline .iu-weigh-label-price {
+ position:absolute !important;
+ right:11% !important;
+ bottom:8% !important;
+ width:29% !important;
+ height:24% !important;
+ border:1px solid rgba(255,255,255,.47) !important;
+ border-radius:3px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ z-index:2 !important;
+ border:1.5px solid rgba(255,255,255,.96) !important;
+ background:rgba(255,255,255,.045) !important;
+ box-shadow:0 0 0 1px rgba(32,52,64,.3),0 0 12px rgba(255,255,255,.16) !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-torch {z-index:4 !important;}
