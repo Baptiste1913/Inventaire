@@ -1,6 +1,6 @@
 {
-  "version": "40.81",
+  "version": "40.82",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Le bouton scanner à droite des paniers reprend le style de Nouvelle pesée, avec une icône plus épaisse. Disposition et fonctionnement de la caméra inchangés."
+  "notes": "Icône du bouton scanner très légèrement affinée (trait de 2,8 à 2,6 px), style et fonctionnement inchangés."
 }
