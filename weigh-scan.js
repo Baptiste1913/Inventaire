@@ -1,4 +1,4 @@
-/* Inventaires U v40.78 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
+/* Inventaires U v40.80 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -12,7 +12,10 @@
  // de poids sans IA expérimenté dans l'administration.
  const anchor=trigger.closest('.iu-weigh-scan-option');
  if(anchor?.parentElement){
-  anchor.insertAdjacentElement('afterend',overlay);
+  // Le sélecteur de panier et le bouton occupent maintenant la même ligne.
+  // Insérer la caméra APRÈS cette ligne, sinon elle écraserait le sélecteur.
+  const row=anchor.closest('.iu-basket-scan-row');
+  (row||anchor).insertAdjacentElement('afterend',overlay);
   overlay.classList.add('iu-weigh-scan-inline');
   overlay.setAttribute('role','region');
   overlay.removeAttribute('aria-modal');
