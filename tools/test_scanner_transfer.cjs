@@ -55,7 +55,7 @@ assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sau
 assert.match(scanner,/\(row\|\|anchor\)\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner reste sous la ligne panier + bouton');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
 assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.83/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.84/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
 
 // Calcul réel de l'application pour 142g - 554g = -412g.
@@ -204,7 +204,7 @@ assert.match(style,/#weighStatus\.v22-message\.is-complete/,
  'Espacer le bandeau de succès');
 assert.match(style,/linear-gradient\(148deg,#f9fbfd/,
  'Accorder la carte caméra au style bleu-gris de l’application');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.83/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.84/);
 assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/);
 assert.match(scanner,/if\(stream&&worker\)\{resumeScan\(\);return;\}/,
  'Réutiliser le flux et le moteur déjà ouverts');
@@ -221,4 +221,10 @@ assert.match(style,/\.calc-card \.iu-basket-scan-row \.iu-weigh-scan-option #iuW
 assert.match(html,/class="iu-weigh-scan-toggle new-weigh-btn"/);
 assert.match(html,/stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/);
 assert.match(style,/#iuWeighScanToggle\.new-weigh-btn svg/);
+assert.match(html,/id="iuWeighScanTorch"/,'Flash dans le lecteur de poids');
+assert.match(scanner,/getCapabilities\?\.\(\)\.torch===true/,'Torche seulement si prise en charge');
+assert.match(scanner,/applyConstraints\(\{advanced:\[\{torch:on\}\]\}\)/,'Activation et désactivation via la piste caméra');
+assert.match(scanner,/torchBtn\.hidden=!track/,'Masquer le flash sur appareil incompatible');
+assert.match(scanner,/torchEnabled=false;torchBusy=false;/,'Éteindre et réinitialiser à la fermeture');
+assert.match(style,/\.iu-weigh-scan-torch\.is-on/,'État visuel flash activé');
 console.log('Tests scanner v40.80 : sauvegarde Nouvelle pesée, échecs de stockage, avertissements, statut et design : OK');
