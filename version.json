@@ -1,7 +1,6 @@
 {
-  "version": "40.72",
+  "version": "40.73",
   "published": "2026-11-19",
-  "assets": 47,
-  "bytes": 2391659,
-  "notes": "Prix au kilo depuis la fiche ou le rayon affiché dans Safari. Le scan des étiquettes DIGI de Saint-Germain estime le poids en grammes avec le tarif de la date d’emballage et affiche la plage compatible avec le montant."
+  "assets": 50,
+  "notes": "Scanner IA expérimental dédié au poids net des étiquettes DIGI : cadrage de l'étiquette, OCR local rapide, vérification multi-images et mesure du temps, sans modifier les pesées."
 }
