@@ -1,0 +1,43 @@
+name: Vérification scanner et pesée
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/scan-quick-check.yml'
+      - 'app.js'
+      - 'weigh-scan.js'
+      - 'index.html'
+      - 'sw.js'
+      - 'version.json'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier la syntaxe JavaScript
+        run: |
+          node --check app.js
+          node --check weigh-scan.js
+          node --check sw.js
+      - name: Contrôler le transfert sans sauvegarde automatique
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),assert=require('node:assert/strict');
+          const app=fs.readFileSync('app.js','utf8');
+          const scanner=fs.readFileSync('weigh-scan.js','utf8');
+          const html=fs.readFileSync('index.html','utf8');
+          assert.match(app,/window\.IUWeighScanDraft=net=>/);
+          assert.match(app,/if\(scannerDraft\)return false;/);
+          assert.match(app,/if\(scannerDraft\)\{[\s\S]*?autoSaveTimer/);
+          assert.match(scanner,/window\.IUWeighScanDraft\(grams\)===true/);
+          assert.match(html,/id="iuScannedDraftConfirm"/);
+          assert.match(html,/weigh-scan\.js\?v=40\.75/);
+          console.log('Contrôles de transfert et de validation : OK');
+          NODE
