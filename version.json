@@ -1,6 +1,6 @@
 {
-  "version": "40.98",
+  "version": "40.99",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Animation Orb inspirée d'AmazingUI : vagues lumineuses nacrées bleu, cyan, mauve et vert d'eau, superposées sur le seul liseré ultra-fin du viseur. Centre transparent, arrêt hors scanner, respect du mouvement réduit."
+  "notes": "Lumières Orb affinées autour du double trait bleu : halos très localisés, couleurs bleu/cyan/émeraude et petit accent rouge. Vidéo transparente, mouvement uniquement pendant la lecture et désactivé si mouvement réduit."
 }
