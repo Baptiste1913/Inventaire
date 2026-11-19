@@ -892,3 +892,35 @@
   0 0 0 3px rgba(0,111,129,.2),
   0 2px 8px rgba(0,103,122,.15) !important;
 }
+
+/* v40.94 — texte plus léger et suppression du blanc visible sous le titre.
+   Deux traits réellement distincts : bleu intérieur et dégradé bleu/vert extérieur. */
+.iu-weigh-scan-inline .iu-weigh-scan-caption {
+ font-weight:520 !important;
+ line-height:1.08 !important;
+ margin:0 4px -5px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-shell {
+ gap:0 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ position:absolute !important;
+ border:1.5px solid #0aa7c2 !important;
+ border-radius:9px !important;
+ background:rgba(255,255,255,.03) !important;
+ box-shadow:inset 0 0 0 .5px rgba(231,252,255,.6),0 1px 4px rgba(0,101,122,.13) !important;
+ isolation:isolate !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
+ content:"" !important;
+ position:absolute !important;
+ inset:-4px !important;
+ border:1.5px solid transparent !important;
+ border-radius:12px !important;
+ background:linear-gradient(125deg,#22b5dc 4%,#17b5b2 57%,#61cca3 100%) border-box !important;
+ -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ -webkit-mask-composite:xor !important;
+ mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
+ mask-composite:exclude !important;
+ pointer-events:none !important;
+}

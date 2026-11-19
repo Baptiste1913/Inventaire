@@ -1,6 +1,6 @@
 {
-  "version": "40.93",
+  "version": "40.94",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Titre de guidage légèrement moins gras et plus proche de la caméra ; cadre du poids net avec contour turquoise double et relief doux assorti au bouton Inventaire."
+  "notes": "Titre de guidage plus léger et rapproché du scanner ; cadre OCR affiné avec couche bleue et seconde couche dégradée bleu-vert indépendante, sans cercles blancs épais."
 }
