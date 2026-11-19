@@ -76,7 +76,7 @@
     // Rapide : bande centrale large. Plus besoin d'aligner exactement le poids.
     {x:.03,y:.18,w:.94,h:.66,psm:'11',size:1220,contrast:false,kind:0},
     // Vérification indépendante : contraste et cadrage différents.
-    {x:.06,y:.24,w:.88,h:.58,psm:'6',size:1370,contrast:true,kind:1},
+    {x:.06,y:.24,w:.88,h:.58,psm:'11',size:1370,contrast:true,kind:1},
     // Secours quand l'étiquette bouge ou se trouve vers un bord.
     {x:.02,y:.025,w:.96,h:.95,psm:'11',size:1450,contrast:false,kind:2},
     {x:.03,y:.12,w:.94,h:.75,psm:'11',size:1350,contrast:true,kind:3}
