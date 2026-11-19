@@ -722,3 +722,80 @@
 @media(max-width:390px) {
  .iu-weigh-scan-inline .iu-weigh-scan-shell {padding:9px !important;}
 }
+
+/* v40.89 — commandes à l'intérieur de l'aperçu, empilées sur la gauche.
+   Relief neutre identique à « Nouvelle pesée », flash jaune très discret. */
+.iu-weigh-scan-overlay.iu-weigh-scan-inline {
+ margin-top:5px !important;
+ margin-bottom:0 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-shell {
+ padding:9px !important;
+ gap:6px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header {
+ position:absolute !important;
+ z-index:5 !important;
+ inset:9px auto auto 9px !important;
+ display:flex !important;
+ flex-direction:column !important;
+ align-items:flex-start !important;
+ gap:7px !important;
+ width:auto !important;
+ min-height:0 !important;
+ margin:0 !important;
+ padding:0 !important;
+ pointer-events:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-close,
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-torch {
+ position:relative !important;
+ inset:auto !important;
+ flex:0 0 42px !important;
+ width:42px !important;
+ height:42px !important;
+ min-width:42px !important;
+ min-height:42px !important;
+ max-width:42px !important;
+ max-height:42px !important;
+ margin:0 !important;
+ padding:0 !important;
+ border-radius:14px !important;
+ border:1px solid rgba(255,255,255,.86) !important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94),2px 3px 9px rgba(27,43,52,.19) !important;
+ backdrop-filter:blur(9px) !important;
+ -webkit-backdrop-filter:blur(9px) !important;
+ pointer-events:auto !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-close {
+ background:linear-gradient(145deg,#f9fbfc,#e8eff4) !important;
+ color:#465e6b !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-torch {
+ background:linear-gradient(145deg,#fffdf7,#f0eadc) !important;
+ color:#94743c !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-torch.is-on {
+ background:linear-gradient(145deg,#fff5d4,#efda9e) !important;
+ color:#795919 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header .iu-weigh-scan-torch[hidden] {
+ display:none !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-camera .iu-weigh-scan-header button:focus-visible {
+ outline:2px solid #247d98 !important;
+ outline-offset:2px !important;
+}
+@media(max-width:390px) {
+ .iu-weigh-scan-inline .iu-weigh-scan-shell {padding:8px !important;}
+}
+/* Supprimer l'espace résiduel sous le résultat de tare, sans masquer
+   les messages et confirmations lorsqu'ils contiennent du texte. */
+.calc-card #weighStatus:empty,
+.calc-card #errorMessage:empty {
+ display:none !important;
+ margin:0 !important;
+ padding:0 !important;
+}
+.calc-card .iu-result-compact {margin-bottom:0 !important;}
+.calc-card:has(.iu-result-compact) {padding-bottom:12px !important;}

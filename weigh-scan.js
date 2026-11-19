@@ -1,4 +1,4 @@
-/* Inventaires U v40.88 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
+/* Inventaires U v40.89 — scanner intégré, retour d'arrière-plan sans fermeture, caméra relancée au besoin. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -260,7 +260,7 @@
   }
  }
  function resumeScan(){
-  if(overlay.hidden||starting||scanning||!worker||!stream)return false;
+  if(overlay.hidden||document.hidden||starting||scanning||!worker||!stream)return false;
   session++;const id=session;
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
   apply.hidden=false;again.disabled=false;again.hidden=false;
@@ -281,7 +281,7 @@
   }catch(_){}
  }
  async function startCamera(){
-  if(starting||scanning||overlay.hidden)return;
+  if(starting||scanning||overlay.hidden||document.hidden)return;
   if(stream&&worker){resumeScan();return;}
   if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
    say('Caméra indisponible : vérifie les autorisations iPhone et HTTPS.',true);
@@ -354,12 +354,27 @@
   close();
  });
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!overlay.hidden)close();});
- document.addEventListener('visibilitychange',()=>{if(document.hidden&&!overlay.hidden)close();});
- window.addEventListener('pagehide',()=>{
-  close();
-  const old=worker;worker=null;enginePromise=null;
-  if(old)void old.terminate().catch(()=>{});
+ // iOS peut suspendre ou interrompre la piste vidéo en arrière-plan.
+ // Conserver la zone scanner ouverte ; libérer le matériel puis redémarrer
+ // automatiquement à la prochaine apparition de l'application.
+ function suspendForBackground(){
+  if(overlay.hidden)return;
+  session++;scanning=false;starting=false;
+  stopTracks();resetObservations();
+  overlay.dataset.state='suspended';
+  say('');
+ }
+ function resumeAfterBackground(){
+  if(overlay.hidden||document.hidden||gross.getClientRects().length===0)return;
+  void startCamera();
+ }
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)suspendForBackground();
+  else resumeAfterBackground();
  });
+ window.addEventListener('pagehide',suspendForBackground);
+ window.addEventListener('pageshow',resumeAfterBackground);
+ window.addEventListener('focus',resumeAfterBackground);
  const observer=new MutationObserver(()=>{
   if(!overlay.hidden&&gross.getClientRects().length===0)close();
  });
