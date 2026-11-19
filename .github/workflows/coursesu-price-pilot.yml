@@ -1,0 +1,21 @@
+name: Courses U - diagnostic prix au kilo (pilote)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Tests sans réseau
+        run: python -m unittest discover -s tools -p 'test_coursesu_bridge.py' -v
+      - name: Vérifier le magasin et le prix au kilo d'une carotte
+        run: python tools/coursesu_bridge.py --probe 1892766
