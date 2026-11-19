@@ -1,4 +1,4 @@
-/* Inventaires U v40.87 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
+/* Inventaires U v40.88 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -171,11 +171,17 @@
   return image;
  }
  function cropFrame(adaptive){
-  const vw=video.videoWidth,vh=video.videoHeight,cw=video.clientWidth,ch=video.clientHeight;
-  if(!vw||!vh||!cw||!ch)return null;
-  // Exactement la zone superposée sur l'aperçu, sans texte des colonnes voisines.
+  const vw=video.videoWidth,vh=video.videoHeight;
+  const videoRect=video.getBoundingClientRect(),guideRect=guide.getBoundingClientRect();
+  const cw=videoRect.width,ch=videoRect.height;
+  if(!vw||!vh||!cw||!ch||!guideRect.width||!guideRect.height)return null;
+  // Le découpage OCR suit désormais la position RÉELLE du cadre affiché.
+  // La même zone est utilisée quelle que soit la taille de l'iPhone.
+  const x=Math.max(0,guideRect.left-videoRect.left);
+  const y=Math.max(0,guideRect.top-videoRect.top);
+  const w=Math.min(guideRect.width,cw-x),h=Math.min(guideRect.height,ch-y);
+  if(w<=0||h<=0)return null;
   const fit=Math.max(cw/vw,ch/vh),ox=(vw*fit-cw)/2,oy=(vh*fit-ch)/2;
-  const x=cw*.23,y=ch*.42,w=cw*.54,h=ch*.16;
   const canvas=document.createElement('canvas');
   canvas.width=720;
   canvas.height=Math.max(110,Math.round(canvas.width*h/w));
@@ -221,7 +227,7 @@
   again.disabled=transferred;
   again.hidden=transferred;
   again.textContent='Étiquette suivante';
-  say(transferred?'Poids détecté.':'Vérifie la pesée précédente.');
+  say(transferred?'':'Vérifie la pesée précédente.',!transferred);
   if(navigator.vibrate)try{navigator.vibrate(25);}catch(_){}
  }
  function evaluateObservation(grams,confidence){
@@ -322,7 +328,7 @@
  retry.addEventListener('click',()=>{void startCamera();});
  window.addEventListener('iu-weigh-scan-saved',()=>{
   if(overlay.hidden)return;
-  say('Pesée enregistrée · caméra prête.');
+  say('');
  });
  // « Nouvelle pesée » relance la lecture sur le flux existant (sans
  // fermeture, sans nouvel accès caméra, sans perdre le focus optique).

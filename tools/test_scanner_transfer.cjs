@@ -55,7 +55,7 @@ assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sau
 assert.match(scanner,/\(row\|\|anchor\)\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner reste sous la ligne panier + bouton');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
 assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.86/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.88/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
 
 // Calcul réel de l'application pour 142g - 554g = -412g.
@@ -204,7 +204,7 @@ assert.match(style,/#weighStatus\.v22-message\.is-complete/,
  'Espacer le bandeau de succès');
 assert.match(style,/linear-gradient\(148deg,#f9fbfd/,
  'Accorder la carte caméra au style bleu-gris de l’application');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.86/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.88/);
 assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/);
 assert.match(scanner,/if\(stream&&worker\)\{resumeScan\(\);return;\}/,
  'Réutiliser le flux et le moteur déjà ouverts');
@@ -269,4 +269,37 @@ assert.match(scanner,/const canvas=cropFrame\(variant===0\)/,
 assert.match(scanner,/if\(adaptive\)\{/,'Second essai OCR sans filtre');
 assert.doesNotMatch(scanner,/filter:\s*contrast\(/,
  'Ne pas modifier la caméra affichée');
+
+// v40.88 : guide aligné avec l'image analysée, boutons accolés et bloc compact.
+const scannerHeader=html.slice(html.indexOf('<header class="iu-weigh-scan-header">'),
+ html.indexOf('</header>',html.indexOf('<header class="iu-weigh-scan-header">')));
+assert.match(scannerHeader,/id="iuWeighScanClose"[\s\S]*id="iuWeighScanTorch"/,
+ 'Fermer et flash côte à côte dans l’en-tête');
+assert.doesNotMatch(scannerHeader,/Lecture du poids en direct|Caméra prête pour plusieurs étiquettes/,
+ 'Supprimer les textes visibles de l’en-tête');
+const scannerCamera=html.slice(html.indexOf('<div class="iu-weigh-scan-camera">'),
+ html.indexOf('<div class="iu-weigh-scan-bottom">'));
+assert.doesNotMatch(scannerCamera,/id="iuWeighScanTorch"/,
+ 'Le flash ne doit plus masquer l’aperçu');
+assert.match(scannerCamera,/id="iuWeighScanStatus"/,
+ 'Les messages importants restent accessibles dans la caméra');
+assert.match(html,/class="iu-weigh-label-store"/,'Repère magasin en haut à droite');
+assert.match(style,/inset:52% auto auto 37% !important/,'Recentrage vertical de la zone poids');
+assert.match(style,/width:26% !important/,'Zone poids resserrée');
+assert.match(scanner,/const videoRect=video\.getBoundingClientRect\(\),guideRect=guide\.getBoundingClientRect\(\)/,
+ 'Le crop suit le repère OCR affiché');
+assert.match(scanner,/const x=Math\.max\(0,guideRect\.left-videoRect\.left\)/,
+ 'Découpage OCR basé sur les coordonnées réelles du guide');
+assert.doesNotMatch(scanner,/const x=cw\*\.23,y=ch\*\.42/,
+ 'Plus de cadrage OCR figé à l’ancienne position');
+assert.match(style,/\.iu-weigh-scan-bottom:has\(/,
+ 'La marge inférieure est retirée sauf si une action de secours est nécessaire');
+assert.match(style,/\.iu-weigh-scan-camera \.iu-weigh-scan-status:not\(\.is-error\)/,
+ 'Statut normal masqué, erreurs conservées');
+assert.doesNotMatch(html,/Poids détecté\.|Lecture du poids en direct|Caméra prête pour plusieurs étiquettes/,
+ 'Aucun texte de lecture superflu affiché');
+assert.doesNotMatch(scanner,/Poids détecté\.|Pesée enregistrée · caméra prête\./,
+ 'Pas de statut superflu');
+assert.match(html,/weigh-scan-inline\.css\?v=40\.88/);
+assert.match(html,/weigh-scan\.js\?v=40\.88/);
 console.log('Tests scanner v40.80 : sauvegarde Nouvelle pesée, échecs de stockage, avertissements, statut et design : OK');

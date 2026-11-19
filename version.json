@@ -1,6 +1,6 @@
 {
-  "version": "40.87",
+  "version": "40.88",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Contraste adaptatif léger et niveaux de gris sur le poids scanné : correction douce des ombres, sans modifier la vidéo. Lecture OCR prioritaire sur image traitée et repli sur image naturelle, sans analyse supplémentaire."
+  "notes": "Repères d'étiquette réalignés sur le modèle U, cadre OCR synchronisé au découpage réel, en-tête simplifié : fermeture rouge et flash assorti côte à côte. Suppression des textes et marges inutiles sous la caméra, messages d'erreur et actions de secours préservés."
 }
