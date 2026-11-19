@@ -29,25 +29,30 @@
   }
 
   function newConsensus() {
-    let current = null;
     let votes = [];
     return {
-      reset() { current = null; votes = []; },
+      reset() { votes = []; },
       observe(grams, confidence, variant, now) {
+        const t = Number.isFinite(now) ? now : Date.now();
+        // Les échecs ponctuels (mouvement, reflet) n'effacent pas les mesures récentes.
+        // On laisse seulement tomber les observations devenues anciennes.
+        votes = votes.filter(v => t - v.time < 1650);
         if (!Number.isSafeInteger(grams) || grams < 1 || grams > MAX_GRAMS ||
-            !Number.isFinite(confidence) || confidence < 48) {
-          current = null; votes = [];
+            !Number.isFinite(confidence) || confidence < 62) {
           return {accepted:false,count:0,needed:2};
         }
-        const t = Number.isFinite(now) ? now : Date.now();
-        votes = votes.filter(v => t - v.time <= 2400);
-        if (current !== grams) { current = grams; votes = []; }
-        votes.push({variant, confidence, time:t});
-        if (votes.length > 5) votes.shift();
-        const strong = votes.length >= 2 && votes.every(v => v.confidence >= 82);
+        votes.push({grams, variant, confidence, time:t});
+        if (votes.length > 9) votes.shift();
+        const same = votes.filter(v => v.grams === grams);
+        const other = votes.filter(v => v.grams !== grams);
+        // Toute lecture contradictoire récente interdit une validation silencieuse.
+        if (other.length) return {accepted:false,count:same.length,needed:3,conflict:true};
+        const independent = new Set(same.map(v => v.variant)).size >= 2;
+        const age = same.length ? same.at(-1).time-same[0].time : 0;
+        const strong = same.length >= 2 && same.every(v => v.confidence >= 89);
         const needed = strong ? 2 : 3;
-        const distinct = new Set(votes.map(v => v.variant)).size >= 2;
-        return {accepted:votes.length >= needed && distinct,count:votes.length,needed};
+        return {accepted:same.length >= needed && independent && age >= 105,
+          count:same.length,needed};
       }
     };
   }
