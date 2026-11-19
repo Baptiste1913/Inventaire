@@ -515,7 +515,7 @@ function newWeigh(){
   if(!commitScannerDraft())return;
  }else{
   if(!flushPending())return;
-  if(!netGrams&&hadWeight){
+  if(netGrams===null&&hadWeight){
    clearWeighSavedStyle();
    $('weighStatus').textContent='Corrige cette saisie ou efface-la manuellement.';return;
   }
@@ -2013,7 +2013,6 @@ $('iuScannedDraftConfirm')?.addEventListener('click',()=>{
  if(!saveCurrentWeigh()){
   scannerDraft=true;scannerDraftUI();
  }else{
-  $('weighStatus').textContent='Pesée enregistrée';
   window.dispatchEvent(new Event('iu-weigh-scan-saved'));
  }
 });
