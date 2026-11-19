@@ -875,28 +875,14 @@
  gap:0 !important;
 }
 
-/* v40.93 — titre moins gras, espacement optique resserré et contour
-   du repère OCR accordé au bouton Inventaire actif de la navigation. */
-.iu-weigh-scan-inline .iu-weigh-scan-caption {
- font-weight:570 !important;
- line-height:1.14 !important;
- margin:0 4px -2px !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
- border:2px solid #008b9a !important;
- border-radius:10px !important;
- background:rgba(221,248,251,.055) !important;
- box-shadow:
-  0 0 0 2px rgba(245,254,255,.95),
-  inset 0 0 0 1px rgba(224,253,255,.85),
-  0 0 0 3px rgba(0,111,129,.2),
-  0 2px 8px rgba(0,103,122,.15) !important;
-}
 
-/* v40.94 — texte plus léger et suppression du blanc visible sous le titre.
-   Deux traits réellement distincts : bleu intérieur et dégradé bleu/vert extérieur. */
+/* v41.01 — Refonte totale de l'animation :
+   Fils lumineux CONTINUS qui se croisent, pas de tirets, pas de contour
+   multicolore tournant. Cœur blanc intense, bleu/émeraude et rouge
+   discret. Les deux reflets se déplacent à contre-courant sur les fils.
+   Le centre du cadrage et toute la vidéo restent 100 % transparents. */
 .iu-weigh-scan-inline .iu-weigh-scan-caption {
- font-weight:520 !important;
+ font-weight:550 !important;
  line-height:1.08 !important;
  margin:0 4px -5px !important;
 }
@@ -904,303 +890,11 @@
  gap:0 !important;
 }
 .iu-weigh-scan-inline .iu-weigh-scan-guide {
- position:absolute !important;
- border:1.5px solid #0aa7c2 !important;
- border-radius:9px !important;
- background:rgba(255,255,255,.03) !important;
- box-shadow:inset 0 0 0 .5px rgba(231,252,255,.6),0 1px 4px rgba(0,101,122,.13) !important;
- isolation:isolate !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
- content:"" !important;
- position:absolute !important;
- inset:-4px !important;
- border:1.5px solid transparent !important;
- border-radius:12px !important;
- background:linear-gradient(125deg,#22b5dc 4%,#17b5b2 57%,#61cca3 100%) border-box !important;
- -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- -webkit-mask-composite:xor !important;
- mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- mask-composite:exclude !important;
- pointer-events:none !important;
-}
-
-/* v40.95 — un seul contour jointif, sans espace blanc entre les couches.
-   Fond translucide + bordure dégradée et liseré bleu intérieur au contact. */
-.iu-weigh-scan-inline .iu-weigh-scan-caption {
- font-weight:450 !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
- border:2.5px solid transparent !important;
- border-radius:10px !important;
- background:
-  linear-gradient(rgba(255,255,255,.025),rgba(255,255,255,.025)) padding-box,
-  linear-gradient(125deg,#18b1d3 0%,#079baa 43%,#40c7aa 100%) border-box !important;
- box-shadow:inset 0 0 0 1px #008b9f,0 1px 3px rgba(0,93,114,.12) !important;
- isolation:auto !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
- content:none !important;
- display:none !important;
-}
-
-/* v40.96 — cadrage OCR vraiment transparent, deux traits ultra-fins
-   jointifs ; titre de poids intermédiaire. Safari iPhone compatible. */
-.iu-weigh-scan-inline .iu-weigh-scan-caption {
- font-weight:550 !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
  background:none !important;
  background-color:transparent !important;
- border:1px solid #069db3 !important;
+ border:1px solid rgba(31,118,148,.46) !important;
  border-radius:9px !important;
  box-shadow:none !important;
- isolation:isolate !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
- content:"" !important;
- display:block !important;
- position:absolute !important;
- inset:-2px !important;
- box-sizing:border-box !important;
- border:1px solid transparent !important;
- border-radius:10px !important;
- background:linear-gradient(125deg,#15a8d1 0%,#14adbb 45%,#43caa4 100%) border-box !important;
- -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- -webkit-mask-composite:xor !important;
- mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- mask-composite:exclude !important;
- box-shadow:none !important;
- pointer-events:none !important;
-}
-
-/* v40.97 — reflet Siri discret qui circule UNIQUEMENT sur le fin liseré.
-   Deux couches accolées, intérieur pleinement transparent pour la lecture OCR.
-   Pas de rotation d'élément : aucun changement de forme ni d'emplacement. */
-@property --iu-weigh-border-orbit {
- syntax: "<angle>";
- inherits: false;
- initial-value: 0deg;
-}
-@keyframes iu-weigh-border-orbit {
- from { --iu-weigh-border-orbit: 0deg; }
- to { --iu-weigh-border-orbit: 360deg; }
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
- background:none !important;
- background-color:transparent !important;
- border:1px solid #078fa9 !important;
- border-radius:9px !important;
- box-shadow:none !important;
- isolation:isolate !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
- content:"" !important;
- display:block !important;
- position:absolute !important;
- inset:-1px !important;
- box-sizing:border-box !important;
- border:1px solid transparent !important;
- border-radius:10px !important;
- background:conic-gradient(
-  from var(--iu-weigh-border-orbit),
-  #168fae 0deg,
-  #1daeca 66deg,
-  #8bdfc4 101deg,
-  #2fc9b3 145deg,
-  #0d9eae 235deg,
-  #0c8ba9 305deg,
-  #168fae 360deg
- ) border-box !important;
- -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- -webkit-mask-composite:xor !important;
- mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- mask-composite:exclude !important;
- opacity:.9 !important;
- pointer-events:none !important;
- animation:none !important;
-}
-/* N'animer que durant la visée réelle : pas de calcul en arrière-plan,
-   à l'ouverture, après lecture, ou quand l'utilisateur ferme le scanner. */
-.iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
- animation:iu-weigh-border-orbit 5.6s linear infinite !important;
-}
-@media (prefers-reduced-motion: reduce) {
- .iu-weigh-scan-inline .iu-weigh-scan-guide::after {
-  animation:none !important;
- }
-}
-
-/* v40.98 — effet Orb : lueurs nacrées cyan / bleu / mauve / vert d'eau.
-   Le mouvement provient de deux vagues de couleurs indépendantes, et non
-   d'un liseré uni qui tourne. Aucun aplat sur la vidéo. */
-@property --iu-orb-silk-angle {
- syntax:"<angle>";
- inherits:false;
- initial-value:0deg;
-}
-@property --iu-orb-silk-x {
- syntax:"<percentage>";
- inherits:false;
- initial-value:15%;
-}
-@property --iu-orb-silk-y {
- syntax:"<percentage>";
- inherits:false;
- initial-value:25%;
-}
-@keyframes iu-orb-silk-flow {
- 0% { --iu-orb-silk-angle:0deg; }
- 33% { --iu-orb-silk-angle:110deg; }
- 66% { --iu-orb-silk-angle:240deg; }
- 100% { --iu-orb-silk-angle:360deg; }
-}
-@keyframes iu-orb-silk-glimmer {
- 0%,100% { --iu-orb-silk-x:12%; --iu-orb-silk-y:20%; }
- 25% { --iu-orb-silk-x:84%; --iu-orb-silk-y:17%; }
- 50% { --iu-orb-silk-x:88%; --iu-orb-silk-y:81%; }
- 75% { --iu-orb-silk-x:18%; --iu-orb-silk-y:78%; }
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
- background:none !important;
- background-color:transparent !important;
- border:1px solid rgba(27,160,191,.93) !important;
- border-radius:9px !important;
- box-shadow:none !important;
- isolation:isolate !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
- content:"" !important;
- display:block !important;
- position:absolute !important;
- inset:-1px !important;
- box-sizing:border-box !important;
- border:1px solid transparent !important;
- border-radius:10px !important;
- background:
-  radial-gradient(ellipse closest-side at var(--iu-orb-silk-x) var(--iu-orb-silk-y),
-   rgba(232,155,243,.88) 0%,rgba(166,164,240,.55) 55%,transparent 100%) border-box,
-  conic-gradient(from var(--iu-orb-silk-angle),
-   #6ed7ec 0deg,#78abeb 40deg,#d9a5ee 78deg,
-   #8bb9ed 118deg,#52d5e4 160deg,#7de1cf 207deg,
-   #56b5da 254deg,#8dc7f0 303deg,#6ed7ec 360deg) border-box !important;
- -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- -webkit-mask-composite:xor !important;
- mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- mask-composite:exclude !important;
- opacity:.84 !important;
- box-shadow:none !important;
- pointer-events:none !important;
- animation:none !important;
-}
-.iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
- animation:
-  iu-orb-silk-flow 11.5s ease-in-out infinite,
-  iu-orb-silk-glimmer 8.8s ease-in-out infinite !important;
-}
-@media(prefers-reduced-motion:reduce) {
- .iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
-  animation:none !important;
- }
-}
-
-/* v40.99 — Orb adapté aux couleurs Inventaires U : lumière feutrée autour
-   du double liseré, cyan/bleu/émeraude avec un bref accent rouge corail.
-   L'aperçu caméra reste entièrement transparent, sans changement OCR. */
-@keyframes iu-orb-edge-breathe {
- 0%,100% { opacity:.22; }
- 50% { opacity:.37; }
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
- background:none !important;
- background-color:transparent !important;
- border:1px solid #158fa9 !important;
- border-radius:9px !important;
- box-shadow:none !important;
- isolation:isolate !important;
-}
-/* Le halo est limité à ~3-4 px autour du trait : la zone de lecture ne
-   reçoit ni fond, ni filtre, ni halo plein. */
-.iu-weigh-scan-inline .iu-weigh-scan-guide::before {
- content:"" !important;
- display:block !important;
- position:absolute !important;
- inset:-2px !important;
- box-sizing:border-box !important;
- border:2px solid transparent !important;
- border-radius:11px !important;
- background:conic-gradient(from var(--iu-orb-silk-angle),
-  rgba(63,181,229,.8) 0deg,
-  rgba(31,137,196,.65) 57deg,
-  rgba(87,216,220,.85) 105deg,
-  rgba(4,155,133,.9) 176deg,
-  rgba(69,208,166,.75) 227deg,
-  rgba(218,107,110,.65) 249deg,
-  rgba(212,119,121,.48) 258deg,
-  rgba(32,155,191,.8) 295deg,
-  rgba(63,181,229,.8) 360deg
- ) border-box !important;
- -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- -webkit-mask-composite:xor !important;
- mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- mask-composite:exclude !important;
- filter:blur(1.7px) !important;
- opacity:.29 !important;
- pointer-events:none !important;
- animation:none !important;
-}
-.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
- content:"" !important;
- display:block !important;
- position:absolute !important;
- inset:-1px !important;
- box-sizing:border-box !important;
- border:1px solid transparent !important;
- border-radius:10px !important;
- background:
-  radial-gradient(ellipse at var(--iu-orb-silk-x) var(--iu-orb-silk-y),
-   rgba(225,248,250,.9) 0%,rgba(103,212,219,.46) 22%,transparent 53%) border-box,
-  conic-gradient(from var(--iu-orb-silk-angle),
-   #229fbe 0deg,#267cba 40deg,#73d9dc 89deg,
-   #078eac 142deg,#0d9d80 193deg,#5bcb9b 230deg,
-   #d77c7a 250deg,#db8685 259deg,
-   #188eae 285deg,#229fbe 360deg) border-box !important;
- -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- -webkit-mask-composite:xor !important;
- mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0) !important;
- mask-composite:exclude !important;
- filter:none !important;
- box-shadow:none !important;
- opacity:.92 !important;
- pointer-events:none !important;
- animation:none !important;
-}
-.iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::before {
- animation:iu-orb-silk-flow 12s ease-in-out infinite,
-           iu-orb-edge-breathe 5.5s ease-in-out infinite !important;
-}
-.iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
- animation:iu-orb-silk-flow 12s ease-in-out infinite,
-           iu-orb-silk-glimmer 8.6s ease-in-out infinite !important;
-}
-@media (prefers-reduced-motion:reduce) {
- .iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::before,
- .iu-weigh-scan-inline[data-state="scanning"] .iu-weigh-scan-guide::after {
-  animation:none !important;
- }
-}
-
-/* v41.00 — filaments ondulants qui se croisent, inspirés d'un faisceau AI.
-   Contrairement au dégradé tournant, deux trajets lumineux suivent des
-   courbes légèrement différentes et se croisent sur le double contour.
-   Les lignes sont pointillées (deux rais), animées en sens opposés et le
-   centre du viseur reste intégralement transparent pour l'OCR. */
-.iu-weigh-scan-inline .iu-weigh-scan-guide {
- background:none !important;
- background-color:transparent !important;
- border:1px solid rgba(18,141,168,.86) !important;
- border-radius:9px !important;
- box-shadow:0 0 0 .5px rgba(48,192,172,.54) !important;
  isolation:isolate !important;
 }
 .iu-weigh-scan-inline .iu-weigh-scan-guide::before,
@@ -1209,53 +903,76 @@
  display:none !important;
  animation:none !important;
 }
-.iu-weigh-scan-inline .iu-orb-filaments {
+.iu-weigh-scan-inline .iu-light-ribbons {
  position:absolute !important;
  inset:-2px !important;
+ display:block !important;
  width:calc(100% + 4px) !important;
  height:calc(100% + 4px) !important;
  overflow:visible !important;
  pointer-events:none !important;
  z-index:1 !important;
 }
-.iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread {
+.iu-weigh-scan-inline .iu-light-thread,
+.iu-weigh-scan-inline .iu-light-flare {
  fill:none !important;
  stroke-linecap:round !important;
  stroke-linejoin:round !important;
  vector-effect:non-scaling-stroke !important;
- stroke-dasharray:15 17 5 63 !important;
+}
+.iu-weigh-scan-inline .iu-light-thread-blue {
+ stroke-width:.9px !important;
+ opacity:.87 !important;
+ filter:drop-shadow(0 0 1.1px rgba(56,135,244,.65)) !important;
+}
+.iu-weigh-scan-inline .iu-light-thread-green {
+ stroke-width:.85px !important;
+ opacity:.82 !important;
+ filter:drop-shadow(0 0 1px rgba(36,196,161,.58)) !important;
+}
+.iu-weigh-scan-inline .iu-light-thread-hair {
+ stroke-width:.45px !important;
+ opacity:.45 !important;
+}
+.iu-weigh-scan-inline .iu-light-flare {
+ stroke-width:1.25px !important;
+ stroke-dasharray:12 88 !important;
  stroke-dashoffset:0;
- opacity:.36;
+ opacity:.8 !important;
+ filter:drop-shadow(0 0 1.7px rgba(219,244,255,.88)) !important;
  animation:none !important;
 }
-.iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread-blue {
- stroke-width:1.1px !important;
- filter:drop-shadow(0 0 1.3px rgba(76,175,235,.78)) !important;
+.iu-weigh-scan-inline .iu-light-flare-green {
+ stroke-width:1px !important;
+ stroke-dasharray:9 91 !important;
+ opacity:.65 !important;
+ filter:drop-shadow(0 0 1.4px rgba(133,244,211,.77)) !important;
 }
-.iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread-green {
- stroke-width:.85px !important;
- stroke-dasharray:11 21 4 64 !important;
- filter:drop-shadow(0 0 1.1px rgba(52,201,166,.72)) !important;
-}
-@keyframes iu-orb-filament-blue {
+@keyframes iu-light-flare-forward {
  from { stroke-dashoffset:0; }
  to { stroke-dashoffset:-100; }
 }
-@keyframes iu-orb-filament-green {
+@keyframes iu-light-flare-reverse {
  from { stroke-dashoffset:0; }
  to { stroke-dashoffset:100; }
 }
-.iu-weigh-scan-inline[data-state="scanning"] .iu-orb-filaments .iu-orb-thread-blue {
- opacity:1 !important;
- animation:iu-orb-filament-blue 7.8s linear infinite !important;
+@keyframes iu-light-ribbon-breathe {
+ 0%,100% { opacity:.8; }
+ 50% { opacity:1; }
 }
-.iu-weigh-scan-inline[data-state="scanning"] .iu-orb-filaments .iu-orb-thread-green {
- opacity:.88 !important;
- animation:iu-orb-filament-green 9.2s linear infinite !important;
+.iu-weigh-scan-inline[data-state="scanning"] .iu-light-flare-blue {
+ animation:iu-light-flare-forward 6.9s linear infinite !important;
 }
-@media (prefers-reduced-motion: reduce) {
- .iu-weigh-scan-inline .iu-orb-filaments .iu-orb-thread {
+.iu-weigh-scan-inline[data-state="scanning"] .iu-light-flare-green {
+ animation:iu-light-flare-reverse 9.3s linear infinite !important;
+}
+.iu-weigh-scan-inline[data-state="scanning"] .iu-light-thread-blue,
+.iu-weigh-scan-inline[data-state="scanning"] .iu-light-thread-green {
+ animation:iu-light-ribbon-breathe 4.8s ease-in-out infinite !important;
+}
+@media (prefers-reduced-motion:reduce) {
+ .iu-weigh-scan-inline .iu-light-thread,
+ .iu-weigh-scan-inline .iu-light-flare {
   animation:none !important;
-  opacity:.4 !important;
  }
 }

@@ -1,6 +1,6 @@
 {
-  "version": "41.00",
+  "version": "41.01",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Viseur OCR avec deux filaments lumineux croisés en mouvement opposé, sur des lignes ondulantes bleu et émeraude avec brèves touches corail. Lumière contenue à 1-2 px autour du cadre, centre transparent, animation uniquement pendant le scan."
+  "notes": "Refonte complète du viseur : suppression des traits pointillés et des anciens dégradés rotatifs, trois fils lumineux continus qui s'entrecroisent avec deux reflets blancs mobiles. Halo fin limité au pourtour ; intérieur transparent, OCR inchangé."
 }
