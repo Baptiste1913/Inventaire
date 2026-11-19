@@ -924,3 +924,22 @@
  mask-composite:exclude !important;
  pointer-events:none !important;
 }
+
+/* v40.95 — un seul contour jointif, sans espace blanc entre les couches.
+   Fond translucide + bordure dégradée et liseré bleu intérieur au contact. */
+.iu-weigh-scan-inline .iu-weigh-scan-caption {
+ font-weight:450 !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ border:2.5px solid transparent !important;
+ border-radius:10px !important;
+ background:
+  linear-gradient(rgba(255,255,255,.025),rgba(255,255,255,.025)) padding-box,
+  linear-gradient(125deg,#18b1d3 0%,#079baa 43%,#40c7aa 100%) border-box !important;
+ box-shadow:inset 0 0 0 1px #008b9f,0 1px 3px rgba(0,93,114,.12) !important;
+ isolation:auto !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide::after {
+ content:none !important;
+ display:none !important;
+}

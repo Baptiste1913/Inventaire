@@ -1,6 +1,6 @@
 {
-  "version": "40.94",
+  "version": "40.95",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Titre de guidage plus léger et rapproché du scanner ; cadre OCR affiné avec couche bleue et seconde couche dégradée bleu-vert indépendante, sans cercles blancs épais."
+  "notes": "Titre de cadrage allégé (450) ; remplacement du cadre OCR à deux contours espacés par une seule bordure jointive bleue et dégradée bleu-vert, sans interstice ni anneau supplémentaire."
 }
