@@ -1,6 +1,6 @@
 {
-  "version": "40.75",
+  "version": "40.76",
   "published": "2026-11-19",
-  "assets": 50,
-  "notes": "Lecture du poids d’étiquette plus rapide : une détection plausible préremplit la pesée classique, avec correction libre et validation humaine avant enregistrement. Aucune pesée OCR sauvegardée automatiquement."
+  "assets": 51,
+  "notes": "Scanner de poids intégré en petite fenêtre dans Nouvelle pesée. Le poids imprimé est saisi tel quel comme brut, et le net est calculé après soustraction de la tare du panier. Poids corrigeable avant validation; aucune sauvegarde automatique de la lecture."
 }
