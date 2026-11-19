@@ -199,7 +199,7 @@
      const confidence=Number(data?.data?.confidence)||0;
      const grams=extractWeight(data?.data?.text);
      if(evaluateObservation(grams,confidence))return;
-     if(grams===null||confidence<54)say('Vise le poids imprimé en kg.');
+     if(grams===null||confidence<54)say('');
     }
    }catch(_){
     if(id===session&&scanning){resetObservations();say('Lecture difficile. Stabilise l’étiquette et rapproche-la.');}
@@ -215,7 +215,7 @@
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
   apply.hidden=false;again.disabled=false;again.hidden=false;
   resetObservations();overlay.dataset.state='scanning';scanning=true;
-  say('Vise le poids imprimé en kg.');
+  say('');
   void scan(id);return true;
  }
  // Demande la mise au point continue seulement si le navigateur expose
@@ -239,7 +239,7 @@
   }
   const id=++session;starting=true;retry.hidden=true;proposal.hidden=true;proposalGrams=null;
   resetObservations();overlay.dataset.state='loading';
-  say(stream?'Préparation du lecteur…':'Ouverture de la caméra…');
+  say('');
   try{
    // Permission caméra demandée directement lors de l'appui sur le bouton.
    const cameraPromise=stream?Promise.resolve(stream):navigator.mediaDevices.getUserMedia({
