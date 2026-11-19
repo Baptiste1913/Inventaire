@@ -269,6 +269,14 @@ window.IUWeighScanContext=()=>{
 let maxGrossGrams=parseKg(safeGet(LIMIT_KEY)||'20.000')||20000;
 let confirmDuplicates=safeGet(DUPLICATE_CONFIRM_KEY)!=='false';
 let acceptedAnomalyKey='',sessionsExpanded=false;
+// Une lecture OCR est une PROPOSITION. Elle ne peut être enregistrée
+// automatiquement : l'utilisateur vérifie et valide depuis la pesée classique.
+let scannerDraft=false;
+function scannerDraftUI(){
+ const banner=$('iuScannedDraftNotice');
+ if(banner)banner.hidden=!scannerDraft;
+}
+
 // V39.58 — Ordre de consultation des bilans (sans modifier les données).
 let iuInventorySort='recent';
 let iuArchiveYear=new Date().getFullYear(),iuArchiveMonth='all',iuArchiveUnclassified=true;
@@ -340,6 +348,9 @@ function refreshActionButtons(){
 // provoquant des compensations concurrentes de l'ancrage clavier Safari.
 // La mise en page conserve désormais assez de hauteur sous le calcul.
 function saveCurrentWeigh(){
+ // Même le minuteur, la suspension de Safari et les changements de panier
+ // ne doivent jamais enregistrer silencieusement une valeur issue du scanner.
+ if(scannerDraft)return false;
  clearTimeout(autoSaveTimer);autoSaveTimer=null;
  const b=baskets.find(x=>x.id===$('basketSelect').value),gross=parseWeight($('grossWeight').value);
  if(!b||gross===null||gross<b.tare)return false;
@@ -387,14 +398,53 @@ function saveCurrentWeigh(){
  animateConfirmation();
  return true;
 }
-function scheduleAutoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=null;$('weighStatus').textContent='';if(netGrams!==null&&!renderWarning())autoSaveTimer=setTimeout(saveCurrentWeigh,1100);}
-function flushPending(){if(autoSaveTimer!==null)return saveCurrentWeigh();if(netGrams!==null&&renderWarning()){$('weighStatus').textContent='⚠️ Confirme cette pesée avant de continuer.';return false;}
+function scheduleAutoSave(){
+ clearTimeout(autoSaveTimer);autoSaveTimer=null;
+ if(scannerDraft){
+  $('weighStatus').textContent='Poids reconnu : vérifie les chiffres, corrige si besoin, puis valide la pesée.';
+  scannerDraftUI();return;
+ }
+ $('weighStatus').textContent='';
+ if(netGrams!==null&&!renderWarning())autoSaveTimer=setTimeout(saveCurrentWeigh,1100);
+}
+function flushPending(){
+ if(scannerDraft){
+  $('weighStatus').textContent='Vérifie puis valide le poids détecté avant de passer à la pesée suivante.';
+  return false;
+ }
+ if(autoSaveTimer!==null)return saveCurrentWeigh();if(netGrams!==null&&renderWarning()){$('weighStatus').textContent='⚠️ Confirme cette pesée avant de continuer.';return false;}
  // Si une valeur valide a été saisie mais que le délai n'est pas encore passé.
  if(netGrams!==null&&!currentWeighId)return saveCurrentWeigh();
  if(netGrams!==null&&currentWeighId){const prior=history.find(x=>x.id===currentWeighId),gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(!prior||gross!==prior.gross||b?.tare!==prior.tare)return saveCurrentWeigh();}
  return true;
 }
-function clearWeigh(){clearTimeout(autoSaveTimer);autoSaveTimer=null;currentWeighId=null;acceptedAnomalyKey='';$('grossWeight').value='';$('weighStatus').textContent='';calculate();}
+function clearWeigh(){
+ clearTimeout(autoSaveTimer);autoSaveTimer=null;scannerDraft=false;scannerDraftUI();
+ currentWeighId=null;acceptedAnomalyKey='';
+ $('grossWeight').value='';$('weighStatus').textContent='';calculate();
+}
+
+// Transfert direct de la lecture du poids NET vers le champ BRUT classique.
+// Le statut de brouillon empêche toute sauvegarde avant validation humaine.
+window.IUWeighScanDraft=net=>{
+ if(!Number.isSafeInteger(net)||net<=0||net>30000)return false;
+ const state=window.IUWeighScanContext();
+ if(!state||!Number.isSafeInteger(state.tareGrams)||state.tareGrams<0)return false;
+ const grossGrams=net+state.tareGrams;
+ if(!Number.isSafeInteger(grossGrams)||grossGrams>999999)return false;
+ // Une pesée précédente doit être enregistrée avant d'être remplacée.
+ // Un brouillon OCR déjà présent peut simplement être remplacé.
+ if(!scannerDraft&&$('grossWeight').value.trim()){
+  if(!flushPending())return false;
+  clearWeigh();
+ }
+ scannerDraft=true;
+ clearTimeout(autoSaveTimer);autoSaveTimer=null;
+ $('grossWeight').value=state.entryMode==='g'?String(grossGrams):fmt(grossGrams);
+ $('grossWeight').dispatchEvent(new Event('input',{bubbles:true}));
+ scannerDraftUI();
+ return true;
+};
 // V36.59 — Sur Safari iOS, focus() sans option force parfois un scroll
 // lorsque le clavier numérique est déjà affiché. Garder le focus existant
 // et ne jamais demander à Safari de recentrer la page pour une nouvelle pesée.
@@ -1861,7 +1911,29 @@ $('modeG').addEventListener('click',()=>switchMode('g'));
 
 $('maxGrossLimit').addEventListener('change',setLimit);
 $('confirmDuplicates').addEventListener('change',event=>{confirmDuplicates=event.target.checked;try{safeSetItem(DUPLICATE_CONFIRM_KEY,String(confirmDuplicates));}catch{}acceptedAnomalyKey='';calculate();scheduleAutoSave();});
-$('confirmWarning').addEventListener('click',()=>{const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);if(gross===null||!b||gross<b.tare)return;acceptedAnomalyKey=anomalyKey(gross,b);calculate();saveCurrentWeigh();});
+$('confirmWarning').addEventListener('click',()=>{
+ const gross=parseWeight($('grossWeight').value),b=baskets.find(x=>x.id===$('basketSelect').value);
+ if(gross===null||!b||gross<b.tare)return;
+ acceptedAnomalyKey=anomalyKey(gross,b);
+ scannerDraft=false;scannerDraftUI();
+ calculate();saveCurrentWeigh();
+});
+$('iuScannedDraftConfirm')?.addEventListener('click',()=>{
+ if(!scannerDraft)return;
+ if(netGrams===null){
+  $('weighStatus').textContent='Corrige la valeur du poids avant de valider.';
+  return;
+ }
+ // Une anomalie (doublon, seuil) exige toujours sa confirmation dédiée.
+ if(renderWarning()){
+  $('weighStatus').textContent='Vérifie aussi l’avertissement avant l’enregistrement.';
+  return;
+ }
+ scannerDraft=false;scannerDraftUI();
+ if(!saveCurrentWeigh()){
+  scannerDraft=true;scannerDraftUI();
+ }
+});
 $('focusPause').addEventListener('click',()=>animateFocusExit(()=>$('pauseSession').click()));
 $('focusStop').addEventListener('click',()=>{$('focusConfirm').hidden=false;$('focusConfirmStop').focus();});
 // « Continuer » ferme seulement la confirmation, sans aucune animation.
@@ -1917,7 +1989,13 @@ $('basketTare').addEventListener('input',()=>{$('basketFormError').textContent='
  });
 })();
 
-$('grossWeight').addEventListener('input',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
+$('grossWeight').addEventListener('input',()=>{
+ acceptedAnomalyKey='';
+ calculate();
+ // En cas de correction manuelle, le brouillon est conservé jusqu'au
+ // bouton de validation ; la saisie n'est jamais perdue ni auto-enregistrée.
+ scheduleAutoSave();
+});
 $('basketSelect').addEventListener('change',()=>{acceptedAnomalyKey='';calculate();scheduleAutoSave();});
 $('grossWeight').addEventListener('blur',()=>{if(autoSaveTimer!==null)saveCurrentWeigh();});
 // iOS peut suspendre le timer de 1,1 s dès que l'application se verrouille.
