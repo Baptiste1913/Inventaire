@@ -874,3 +874,21 @@
 .iu-weigh-scan-inline .iu-weigh-scan-shell {
  gap:0 !important;
 }
+
+/* v40.93 — titre moins gras, espacement optique resserré et contour
+   du repère OCR accordé au bouton Inventaire actif de la navigation. */
+.iu-weigh-scan-inline .iu-weigh-scan-caption {
+ font-weight:570 !important;
+ line-height:1.14 !important;
+ margin:0 4px -2px !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ border:2px solid #008b9a !important;
+ border-radius:10px !important;
+ background:rgba(221,248,251,.055) !important;
+ box-shadow:
+  0 0 0 2px rgba(245,254,255,.95),
+  inset 0 0 0 1px rgba(224,253,255,.85),
+  0 0 0 3px rgba(0,111,129,.2),
+  0 2px 8px rgba(0,103,122,.15) !important;
+}

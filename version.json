@@ -1,6 +1,6 @@
 {
-  "version": "40.92",
+  "version": "40.93",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Titre « Visez le poids net de l’étiquette » agrandi à 14 px, espacement inférieur supprimé pour rapprocher la caméra."
+  "notes": "Titre de guidage légèrement moins gras et plus proche de la caméra ; cadre du poids net avec contour turquoise double et relief doux assorti au bouton Inventaire."
 }
