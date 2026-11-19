@@ -1,6 +1,6 @@
 {
-  "version": "41.02",
+  "version": "41.03",
   "published": "2026-11-19",
   "assets": 52,
-  "notes": "Refonte des lumières depuis la capture et la vidéo AmazingUI : vrais fils ondulants, cœurs blancs très brillants, reflets bleus, émeraude et corail, halo localisé au contour. Intérieur intégralement transparent ; animation mise en pause hors scan, moteur OCR inchangé."
+  "notes": "Amélioration Retina du viseur lumineux : suppression totale du contour bleu statique, filaments plus fins et lissés, halos resserrés, petites nuances rouge rubis. Canvas jusqu'à 3x en densité et 30 fps ; OCR inchangé."
 }

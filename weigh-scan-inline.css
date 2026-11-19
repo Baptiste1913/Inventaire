@@ -901,3 +901,17 @@
 @media(prefers-reduced-motion:reduce){
  .iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light{opacity:.72!important;}
 }
+
+/* v41.03 — aucun liseré statique : seules les fibres lumineuses Canvas
+   dessinent le viseur. Conserver la surface vidéo entièrement dégagée. */
+.iu-weigh-scan-inline .iu-weigh-scan-guide {
+ border:0 solid transparent !important;
+ outline:0 !important;
+ box-shadow:none !important;
+ background:none !important;
+ background-color:transparent !important;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light {
+ image-rendering:auto !important;
+ opacity:1 !important;
+}
