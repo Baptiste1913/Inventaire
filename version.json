@@ -1,6 +1,6 @@
 {
-  "version": "40.83",
+  "version": "40.84",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Icône scanner affinée à 2,4 px, sans modifier le bouton ni le fonctionnement du lecteur."
+  "notes": "Option flash dans la fenêtre caméra pour éclairer les étiquettes. Bouton discret dans l'aperçu, affiché uniquement si le navigateur et la caméra prennent en charge la torche. Extinction automatique à la fermeture."
 }
