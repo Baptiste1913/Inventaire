@@ -1,4 +1,4 @@
-/* Inventaires U v40.76 — lecteur de poids intégré à la pesée (format compact). */
+/* Inventaires U v40.77 — lecteur compact : caméra active entre pesées. */
 /* Les règles sont limitées à la vue intégrée pour préserver les autres fenêtres. */
 .iu-weigh-scan-overlay.iu-weigh-scan-inline {
   position:relative !important;
@@ -175,3 +175,8 @@
     padding:11px !important;
   }
 }
+
+/* Une fois le brut prérempli, on propose uniquement la pesée suivante. */
+.iu-weigh-scan-inline #iuWeighScanApply[hidden] { display:none !important; }
+.iu-weigh-scan-inline #iuWeighScanAgain:disabled { opacity:.55 !important; cursor:default !important; }
+.iu-weigh-scan-inline #iuWeighScanAgain:not(:disabled) { opacity:1 !important; }
