@@ -1,6 +1,6 @@
 {
-  "version": "40.78",
+  "version": "40.79",
   "published": "2026-11-19",
   "assets": 51,
-  "notes": "Nouvelle pesée simplifiée : le poids brut et la tare sont dans le même bloc que le net, qui reste prédominant. Champ brut déplacé au-dessus du résultat, confirmation intégrée sans panneau orange ni texte redondant. Le bouton Nouvelle pesée relance la lecture sans redémarrer la caméra ouverte."
+  "notes": "Nouvelle pesée enregistre maintenant une lecture OCR vérifiée au moment d'appuyer sur le bouton, puis relance immédiatement le lecteur sans arrêter la caméra. Le raccourci « Identifier un code-barres » est retiré de la pesée. Cadre caméra harmonisé au neumorphisme bleu-gris. Confirmation de pesée avec le style du bloc « Inventaire terminé » et marge supérieure."
 }
