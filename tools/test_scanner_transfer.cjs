@@ -55,6 +55,55 @@ assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sau
 assert.match(scanner,/anchor\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner se trouve dans la carte de pesée');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
 assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.76/);
+assert.match(html,/weigh-scan-inline\.css\?v=40\.77/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
-console.log('Tests de pesée : étiquette = brut, net = brut - tare, préremplissage sans sauvegarde, mini fenêtre = OK');
+
+// Calcul réel de l'application pour 142g - 554g = -412g.
+const calcStart=app.indexOf('function calculate(){');
+const calcEnd=app.indexOf('\n}\nfunction refreshActionButtons()',calcStart);
+assert.ok(calcStart>0&&calcEnd>calcStart,'La fonction calculate doit être accessible');
+const elements={
+  grossWeight:{value:'0.142'},
+  basketSelect:{value:'b1'},
+  grossDisplay:{textContent:''},
+  tareDisplay:{textContent:''},
+  errorMessage:{textContent:''},
+  netDisplay:{textContent:'—',classList:{add(){},remove(){}},offsetWidth:0},
+  resultHint:{textContent:''},
+  copyBtn:{disabled:true}
+};
+const calcEnv={
+  $:id=>elements[id], baskets:[{id:'b1',tare:554}],
+  parseWeight:t=>Math.round(Number(t)*1000),
+  fmt:g=>(g/1000).toFixed(3),netGrams:null,
+  renderWarning:()=>false,refreshActionButtons:()=>{},
+};
+vm.createContext(calcEnv);
+vm.runInContext(app.slice(calcStart,calcEnd+2),calcEnv);
+vm.runInContext('calculate()',calcEnv);
+assert.equal(calcEnv.netGrams,-412);
+assert.equal(elements.netDisplay.textContent,'-0.412');
+assert.equal(elements.errorMessage.textContent,'','Une valeur négative autorisée ne doit pas déclencher d’erreur');
+assert.match(elements.resultHint.textContent,/Mode essai/);
+
+// Charger une pesée négative ne doit pas l'effacer de l'historique ou du bilan.
+const cleanStart=app.indexOf('function cleanWeigh(x){');
+const cleanEnd=app.indexOf('\n}',cleanStart);
+assert.ok(cleanStart>0&&cleanEnd>cleanStart);
+const cleanEnv={Number,String,uid:()=> 'id'};
+vm.createContext(cleanEnv);
+vm.runInContext(app.slice(cleanStart,cleanEnd+2),cleanEnv);
+const valid=vm.runInContext('cleanWeigh({id:"neg1",at:100, gross:142,tare:554,net:-412,name:"Panier"})',cleanEnv);
+assert.ok(valid,'La pesée négative cohérente est conservée');
+assert.equal(valid.net,-412);
+assert.equal(vm.runInContext('cleanWeigh({id:"bad",at:100, gross:142,tare:554,net:-400})',cleanEnv),null,
+  'Un poids net incohérent reste rejeté');
+assert.match(app,/window\.IUWeighScanPrepareNext=\(\)=>/,'Le scanner peut passer à la pesée suivante');
+const showStart=scanner.indexOf('function showProposal(grams){');
+const showEnd=scanner.indexOf('function evaluateObservation(',showStart);
+assert.ok(showStart>0&&showEnd>showStart);
+assert.doesNotMatch(scanner.slice(showStart,showEnd),/close\(\)/,'Une détection ne doit pas fermer la caméra');
+assert.match(scanner,/getCapabilities\(\)/,'Détection du focus compatible navigateur');
+assert.match(scanner,/focusMode:'continuous'/,'Focus continu optionnel');
+assert.match(scanner,/iu-weigh-scan-saved/,'Passage à l’étiquette suivante après validation');
+console.log('Tests scanner v40.77 : négatifs, historique, contrôle manuel, caméra réutilisée : OK');
