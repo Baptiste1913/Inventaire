@@ -1,4 +1,4 @@
-/* Inventaires U v40.84 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
+/* Inventaires U v40.87 — mini-scanner épuré et Nouvelle pesée relance OCR si disponible ; caméra réutilisée entre étiquettes. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
@@ -122,7 +122,55 @@
   })().catch(error=>{enginePromise=null;throw error;});
   return enginePromise;
  }
- function cropFrame(enhance){
+ // Contraste adaptatif léger : niveaux de gris, correction des ombres et
+ // renforcement modéré des caractères. Uniquement sur le crop envoyé à l'OCR.
+ // 10 × 4 zones interpolées : évite les démarcations d'un filtre par blocs.
+ function improveOcrImage(image){
+  const {width,height,data}=image;
+  if(width<4||height<4)return image;
+  const cols=Math.min(10,Math.max(2,Math.floor(width/24)));
+  const rows=Math.min(4,Math.max(2,Math.floor(height/24)));
+  const sums=new Float64Array(cols*rows),counts=new Uint32Array(cols*rows);
+  const histogram=new Uint32Array(256);
+  for(let y=0,i=0;y<height;y++){
+   const cellRow=Math.min(rows-1,Math.floor(y*rows/height));
+   for(let x=0;x<width;x++,i+=4){
+    const gray=Math.round(.299*data[i]+.587*data[i+1]+.114*data[i+2]);
+    const cell=cellRow*cols+Math.min(cols-1,Math.floor(x*cols/width));
+    sums[cell]+=gray;counts[cell]++;histogram[gray]++;
+   }
+  }
+  const means=sums.map((sum,index)=>sum/Math.max(1,counts[index]));
+  const total=width*height;
+  let low=0,high=255,cumulative=0,foundLow=false;
+  for(let gray=0;gray<256;gray++){
+   cumulative+=histogram[gray];
+   if(!foundLow&&cumulative>=total*.08){low=gray;foundLow=true;}
+   if(cumulative>=total*.92){high=gray;break;}
+  }
+  // Les caractères déjà très contrastés sont moins retouchés.
+  const gain=Math.max(1.10,Math.min(1.23,1.23-(high-low-45)*.001));
+  const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+  for(let y=0,i=0;y<height;y++){
+   const yy=y*rows/height-.5;
+   const row0=clamp(Math.floor(yy),0,rows-1),row1=Math.min(rows-1,row0+1);
+   const ty=clamp(yy-row0,0,1);
+   for(let x=0;x<width;x++,i+=4){
+    const xx=x*cols/width-.5;
+    const col0=clamp(Math.floor(xx),0,cols-1),col1=Math.min(cols-1,col0+1);
+    const tx=clamp(xx-col0,0,1);
+    const top=means[row0*cols+col0]*(1-tx)+means[row0*cols+col1]*tx;
+    const bottom=means[row1*cols+col0]*(1-tx)+means[row1*cols+col1]*tx;
+    const local=top*(1-ty)+bottom*ty;
+    const gray=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+    const exposure=clamp((218-local)*.36,-14,34);
+    const shade=clamp(Math.round(local+(gray-local)*gain+exposure),0,255);
+    data[i]=data[i+1]=data[i+2]=shade;
+   }
+  }
+  return image;
+ }
+ function cropFrame(adaptive){
   const vw=video.videoWidth,vh=video.videoHeight,cw=video.clientWidth,ch=video.clientHeight;
   if(!vw||!vh||!cw||!ch)return null;
   // Exactement la zone superposée sur l'aperçu, sans texte des colonnes voisines.
@@ -135,16 +183,12 @@
   if(!ctx)return null;
   ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(video,(x+ox)/fit,(y+oy)/fit,w/fit,h/fit,0,0,canvas.width,canvas.height);
-  if(enhance){
+  if(adaptive){
+   // La première lecture profite du contraste adaptatif. Si elle échoue,
+   // le passage suivant conserve les pixels d'origine : aucune lecture
+   // supplémentaire n'est imposée et l'image caméra reste naturelle.
    const image=ctx.getImageData(0,0,canvas.width,canvas.height);
-   const data=image.data;
-   for(let i=0;i<data.length;i+=4){
-    const gray=.299*data[i]+.587*data[i+1]+.114*data[i+2];
-    // Un traitement différent fournit un contrôle visuel complémentaire.
-    const shade=gray<154?Math.max(0,(gray-111)*1.3+95):Math.min(255,(gray-111)*1.18+111);
-    data[i]=data[i+1]=data[i+2]=shade;
-   }
-   ctx.putImageData(image,0,0);
+   ctx.putImageData(improveOcrImage(image),0,0);
   }
   return canvas;
  }
@@ -192,7 +236,7 @@
   while(scanning&&id===session&&!overlay.hidden&&!document.hidden){
    const variant=nextVariant;nextVariant=(nextVariant+1)%2;
    try{
-    const canvas=cropFrame(variant===1);
+    const canvas=cropFrame(variant===0);
     if(canvas){
      const data=await worker.recognize(canvas);
      if(!scanning||id!==session)return;
