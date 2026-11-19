@@ -1,4 +1,4 @@
-/* V41.03 — fibre optique haute définition, sans contour bleu statique.
+/* V41.04 — rubans optiques en traits continus, lissage haute définition.
    Les images OCR restent lues depuis la vidéo, non depuis ce canvas. */
 (()=>{
  'use strict';
@@ -19,6 +19,8 @@
   const pw=Math.round(w*dpr),ph=Math.round(h*dpr);
   if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph;}
   ctx.setTransform(pw/w,0,0,ph/h,0,0);
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
  }
  // Rectangle arrondi parcouru dans le sens horaire, avec normale sortante.
  function at(f){
@@ -54,41 +56,80 @@
   ctx.lineWidth=.54;ctx.stroke();ctx.restore();
  }
  // Éclats dégradés sans tirets visibles : intensité fondue aux extrémités.
+ // Trait lumineux dessiné en UN seul chemin, sans les 64 mini-segments
+ // qui produisaient des petites cassures et des taches sur Safari iOS.
  function streak(time,o){
   const center=o.offset+o.direction*time/o.period;
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
-  const segments=64;
-  for(let i=0;i<segments;i++){
-   const a=(i/segments-.5)*o.span,b=((i+1)/segments-.5)*o.span;
-   const k=Math.pow(Math.sin(PI*(i+.5)/segments),1.65);
-   const p1=wave(center+a,time,o.phase,o.amp),p2=wave(center+b,time,o.phase,o.amp);
-   ctx.beginPath();ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);
-   ctx.lineWidth=o.width*(.57+.43*k);ctx.globalAlpha=o.alpha*k;
-   ctx.strokeStyle=o.color;ctx.shadowColor=o.halo;ctx.shadowBlur=o.blur;ctx.stroke();
+  const first=center-o.span/2,last=center+o.span/2;
+  const p0=wave(first,time,o.phase,o.amp);
+  const p1=wave(last,time,o.phase,o.amp);
+  const mid=wave(center,time,o.phase,o.amp);
+  let dx=p1.x-p0.x,dy=p1.y-p0.y;
+  // Près d'un angle, prévenir un dégradé de longueur presque nulle.
+  if(dx*dx+dy*dy<25){
+   const before=wave(center-.035,time,o.phase,o.amp);
+   const after=wave(center+.035,time,o.phase,o.amp);
+   dx=after.x-before.x;dy=after.y-before.y;
   }
+  const pStart=dx*dx+dy*dy>=25?p0:{x:mid.x-dx*2,y:mid.y-dy*2};
+  const pEnd=dx*dx+dy*dy>=25?p1:{x:mid.x+dx*2,y:mid.y+dy*2};
+  const gradient=ctx.createLinearGradient(pStart.x,pStart.y,pEnd.x,pEnd.y);
+  gradient.addColorStop(0,'rgba(0,0,0,0)');
+  gradient.addColorStop(.13,o.edge);
+  gradient.addColorStop(.30,o.color);
+  gradient.addColorStop(.46,o.core);
+  gradient.addColorStop(.57,o.core);
+  gradient.addColorStop(.73,o.color);
+  gradient.addColorStop(.90,o.edge);
+  gradient.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();
+  const samples=112;
+  for(let i=0;i<=samples;i++){
+   const p=wave(first+(last-first)*i/samples,time,o.phase,o.amp);
+   if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);
+  }
+  // Diffusion très localisée, puis cœur continu ultrafin.
+  ctx.strokeStyle=gradient;
+  ctx.globalAlpha=o.alpha*.54;
+  ctx.lineWidth=o.width*2.15;
+  ctx.shadowColor=o.halo;
+  ctx.shadowBlur=o.blur;
+  ctx.stroke();
+  ctx.globalAlpha=o.alpha;
+  ctx.lineWidth=o.width*.83;
+  ctx.shadowBlur=.35;
+  ctx.stroke();
   ctx.restore();
  }
  function draw(t){
   if(!w||!h)measure();if(!w||!h)return;
   ctx.clearRect(0,0,w,h);
-  // Filaments fins et continus, jamais de contour CSS uniforme.
-  thread(t,.2,.72,'#77bfee','rgba(29,105,223,.70)');
-  thread(t,2.4,.92,'#66d8bb','rgba(8,151,126,.68)');
-  thread(t,4.1,.69,'#e2f8ff','rgba(140,220,249,.58)');
-  // Cœurs blancs moins brûlés, traînées bleue et émeraude en sens opposés.
-  streak(t,{offset:.10,direction:1,period:7.8,span:.31,phase:.2,amp:.72,color:'#8bc6ff',halo:'#246fe1',blur:2.6,width:1.0,alpha:.72});
-  streak(t,{offset:.115,direction:1,period:7.8,span:.22,phase:4.1,amp:.69,color:'#f5fcff',halo:'#c8ecff',blur:1.5,width:.74,alpha:.88});
-  streak(t,{offset:.66,direction:-1,period:10.4,span:.30,phase:2.4,amp:.92,color:'#b0f8dd',halo:'#11ae8e',blur:2.4,width:.98,alpha:.73});
-  // Rubis en touches très courtes : coloris rouge profond, sans halo étendu.
-  streak(t,{offset:.38,direction:-1,period:12.7,span:.12,phase:2.4,amp:.92,color:'#e3587a',halo:'#a81845',blur:2.3,width:.78,alpha:.55});
-  streak(t,{offset:.83,direction:1,period:16.2,span:.065,phase:.2,amp:.72,color:'#f1a3b4',halo:'#95153d',blur:1.7,width:.52,alpha:.37});
+  // Trois fibres ultrafines : bleue, émeraude et nacrée.
+  thread(t,.2,.72,'#80c0ec','rgba(29,100,207,.68)');
+  thread(t,2.4,.92,'#65d4b8','rgba(11,142,120,.62)');
+  thread(t,4.1,.69,'#e6f9ff','rgba(148,217,250,.52)');
+  // Reflets continus, sans raccords entre segments ni effet de pointillés.
+  streak(t,{offset:.10,direction:1,period:7.8,span:.285,phase:.2,amp:.72,
+   color:'#6eaef3',core:'#cfedff',edge:'rgba(66,137,225,.16)',halo:'#246fe1',blur:2.8,width:1.06,alpha:.87});
+  streak(t,{offset:.115,direction:1,period:7.8,span:.17,phase:4.1,amp:.69,
+   color:'#d5f3ff',core:'#ffffff',edge:'rgba(205,245,255,.08)',halo:'#aee5ff',blur:1.8,width:.82,alpha:.93});
+  streak(t,{offset:.66,direction:-1,period:10.4,span:.27,phase:2.4,amp:.92,
+   color:'#63d7b5',core:'#d5fff2',edge:'rgba(25,151,124,.11)',halo:'#0fa989',blur:2.5,width:1.02,alpha:.84});
+  // Notes rubis discrètes mais identifiables dans la matière lumineuse.
+  streak(t,{offset:.38,direction:-1,period:12.7,span:.105,phase:2.4,amp:.92,
+   color:'#b82e55',core:'#e77993',edge:'rgba(142,26,60,.08)',halo:'#8e163d',blur:2.1,width:.79,alpha:.63});
+  streak(t,{offset:.83,direction:1,period:16.2,span:.06,phase:.2,amp:.72,
+   color:'#c84a70',core:'#f4afbf',edge:'rgba(157,26,70,.06)',halo:'#881738',blur:1.6,width:.56,alpha:.43});
  }
  function enabled(){
   return !document.hidden&&!overlay.hidden&&overlay.dataset.state==='scanning'&&!motion?.matches&&guide.getClientRects().length>0;
  }
  function loop(now){
   if(!running)return;
-  if(now-last>=33){last=now;draw(now/1000);}
+  if(now-last>=22){last=now;draw(now/1000);}
   raf=requestAnimationFrame(loop);
  }
  function sync(){

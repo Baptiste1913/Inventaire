@@ -1,6 +1,6 @@
 {
-  "version": "41.03",
+  "version": "41.04",
   "published": "2026-11-19",
   "assets": 52,
-  "notes": "Amélioration Retina du viseur lumineux : suppression totale du contour bleu statique, filaments plus fins et lissés, halos resserrés, petites nuances rouge rubis. Canvas jusqu'à 3x en densité et 30 fps ; OCR inchangé."
+  "notes": "Filaments lumineux redessinés en tracés continus avec dégradés de couleur, sans 64 micro-traits ni raccords visibles. Cœur nacré et reflets bleus, émeraude et rubis plus fins, Canvas Retina conservé et animation rendue plus fluide. OCR inchangé."
 }

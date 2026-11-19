@@ -915,3 +915,12 @@
  image-rendering:auto !important;
  opacity:1 !important;
 }
+
+/* v41.04 — transparence et bords propres lors du dessin Retina.
+   Pas de filtre CSS/ombre supplémentaire : toutes les lueurs sont
+   calculées directement dans le Canvas haute définition. */
+.iu-weigh-scan-inline .iu-weigh-scan-guide .iu-weight-light {
+ filter:none !important;
+ transform:none !important;
+ backface-visibility:hidden !important;
+}
