@@ -150,7 +150,7 @@
      const confidence=Number(data?.data?.confidence)||0;
      const grams=extractWeight(data?.data?.text);
      if(evaluateObservation(grams,confidence))return;
-     if(grams===null||confidence<54)say('Cadre le poids net et « kg » : la valeur détectée sera proposée à vérifier.');
+     if(grams===null||confidence<54)say('Vise le poids imprimé en kg.');
     }
    }catch(_){
     if(id===session&&scanning){resetObservations();say('Lecture difficile. Stabilise l’étiquette et rapproche-la.');}
