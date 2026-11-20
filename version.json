@@ -1,6 +1,6 @@
 {
-  "version": "41.18",
+  "version": "41.19",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Résultat de pesée harmonisé avec le bloc Bienvenue : même fond blanc translucide, bordure douce et points gris animés en diagonale. Chiffres Brut et Tare agrandis. Calcul, OCR, connexion et sauvegardes inchangés."
+  "notes": "Résultat de pesée : ajout des halos pastel rose, bleu et vert du bloc Bienvenue, avec opacité réduite et débordement contenu dans la carte de pesée. Trame de points gris atténuée. Calculs, OCR et sauvegardes inchangés."
 }
