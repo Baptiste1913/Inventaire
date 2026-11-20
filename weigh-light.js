@@ -1,4 +1,4 @@
-/* Inventaires U 41.09 — neuf fibres nacrées et rendu Retina adaptatif au zoom.
+/* Inventaires U 41.12 — deux filaments anthracite sous les fibres nacrées.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -104,10 +104,10 @@
   }
   return true;
  }
- function baseFilament(laneIndex,alpha,widthPx){
+ function baseFilament(laneIndex,alpha,widthPx,color='#f0f5f7'){
   ctx.save();
   ctx.globalCompositeOperation='source-over';
-  ctx.strokeStyle='#f0f5f7';
+  ctx.strokeStyle=color;
   ctx.lineJoin='round';
   ctx.lineWidth=widthPx;
   ctx.globalAlpha=alpha;
@@ -170,18 +170,20 @@
  function paint(t){
   if(!width||!height)return;
   ctx.clearRect(0,0,width,height);
-  // Neuf fibres nacrées très fines : volume accru sans halo envahissant.
-  baseFilament(0,.62,.74);
-  baseFilament(1,.34,.56);
-  baseFilament(2,.20,.40);
-  baseFilament(3,.24,.36);
-  baseFilament(4,.18,.30);
-  baseFilament(5,.13,.24);
-  baseFilament(6,.10,.20);
-  // Deux filaments soyeux supplémentaires : davantage de volume
-  // sans élargir les rubans colorés ni augmenter le halo.
-  baseFilament(7,.115,.23);
-  baseFilament(8,.085,.19);
+  // Deux fibres anthracite sous la nacre : contraste subtil lorsque
+  // l'étiquette est claire. Tracés animés inchangés, aucun bord statique.
+  baseFilament(0,.22,.92,'rgba(12,16,20,.85)');
+  baseFilament(3,.16,.72,'rgba(18,22,28,.72)');
+  // Neuf fibres claires, toujours dominantes sur le contour.
+  baseFilament(0,.56,.74,'#f0f5f7');
+  baseFilament(1,.32,.56,'#eef4f6');
+  baseFilament(2,.18,.40,'#edf3f5');
+  baseFilament(3,.22,.36,'#eef5f7');
+  baseFilament(4,.17,.30,'#eff4f6');
+  baseFilament(5,.12,.24,'#eef3f5');
+  baseFilament(6,.09,.20,'#edf2f4');
+  baseFilament(7,.10,.23,'#eef4f6');
+  baseFilament(8,.08,.19,'#edf2f4');
   // Reflets bleu, émeraude et rubis légèrement renforcés.
   illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.25,
     tint:'#79c7ff',core:'#f6fbff',opacity:.94});

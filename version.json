@@ -1,6 +1,6 @@
 {
-  "version": "41.11",
-  "published": "2026-11-19",
+  "version": "41.12",
+  "published": "2026-11-20",
   "assets": 53,
-  "notes": "Test iPhone expérimental dans Nouvelle pesée : comparer vibration native d'un interrupteur WebKit et clic automatique différé sur son label. Aucun changement OCR ni retour haptique des vraies pesées ; styles isolés et section repliée par défaut."
+  "notes": "Ajout de deux fins filaments anthracite derrière les neuf fibres nacrées du cadre OCR pour améliorer le contraste sur les étiquettes claires. Reflets bleu, émeraude et rubis, haptique expérimental, animations Retina et reconnaissance OCR conservés."
 }
