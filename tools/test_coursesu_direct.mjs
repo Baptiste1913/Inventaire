@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const input=fs.readFileSync(new URL('../actors/coursesu-prix-direct/main.js',import.meta.url),'utf8');
+const source=input.replace(/^import \{ Actor \} from 'apify';\s*/m,'').split('\nawait Actor.init();')[0];
+const ctx=vm.createContext({});
+vm.runInContext(source+'\nglobalThis.api={parsePrice,selected};',ctx);
+const {parsePrice,selected}=ctx.api;
+const product=(s)=>'<h1 data-name-link="Carotte 750 g">Carotte</h1><span class="price">1,49 €</span>'+s;
+assert.equal(parsePrice(product('<span class="unit-info">1,99 €/kg</span>'),'Carotte').pricePerKg,1.99);
+assert.throws(()=>parsePrice(product('<span class="unit-info">1,49 €</span>'),'Carotte'),/explicite/);
+assert.throws(()=>parsePrice(product('<span class="unit-info">1,99 €/kg</span><span class="unit-info">2,39 €/kg</span>'),'Carotte'),/contradictoires/);
+assert.throws(()=>parsePrice(product('<span class="unit-info">1,99 €/kg</span>'),'Pomme'),/non confirmé/);
+const status={selectedStore:{id:'68539',name:'Saint-Germain',address:'10120'}};
+assert.equal(selected(status,'68539','Saint-Germain','10120'),true);
+assert.equal(selected(status,'21643','Saint-Germain','10120'),false);
+assert.equal(selected({stores:[status.selectedStore]},'68539','Saint-Germain','10120'),false);
+console.log('Tests OK — tarif €/kg explicite, rejets, magasin');
