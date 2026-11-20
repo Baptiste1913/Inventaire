@@ -78,6 +78,9 @@ function verifiedCatalogRow(row,match,storeId,prefix){
 async function lookup(request,env,origin){
  if(env.COURSESU_LIVE_ENABLED!=='true')
   return reply({error:'Recherches Apify désactivées pendant la configuration : aucun appel payant autorisé'},503,origin);
+ // Pilote uniquement : le navigateur public n'a pas cette clé, même si le mode live est activé.
+ if(!env.COURSESU_TEST_TOKEN||request.headers.get('X-IU-Pilot-Key')!==env.COURSESU_TEST_TOKEN)
+  return reply({error:'Clé privée de test requise : aucun appel Apify lancé'},401,origin);
  if(!env.APIFY_TOKEN||!env.COURSESU_STORE_ID||!env.COURSESU_MATCHES_JSON)
   return reply({error:'Passerelle non configurée : token, magasin et correspondances requis'},503,origin);
  let input;
@@ -116,7 +119,7 @@ async function lookup(request,env,origin){
  const timeout=setTimeout(()=>stop.abort(),10000);
  let records;
  try{
-  const url='https://api.apify.com/v2/acts/ratatoskr~systeme-u-scraper/run-sync-get-dataset-items';
+  const url='https://api.apify.com/v2/acts/ratatoskr~systeme-u-scraper/run-sync-get-dataset-items?maxTotalChargeUsd=0.02&maxItems=1&restartOnError=false';
   const response=await fetch(url,{method:'POST',headers:{
    'Authorization':'Bearer '+env.APIFY_TOKEN,
    'Content-Type':'application/json'
@@ -150,7 +153,7 @@ export default {
    return new Response(null,{status:204,headers:{
     'Access-Control-Allow-Origin':origin,
     'Access-Control-Allow-Methods':'POST,OPTIONS',
-    'Access-Control-Allow-Headers':'Content-Type',
+    'Access-Control-Allow-Headers':'Content-Type,X-IU-Pilot-Key',
     'Access-Control-Max-Age':'3600','Vary':'Origin'
    }});
   }
