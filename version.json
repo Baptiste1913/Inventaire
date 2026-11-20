@@ -1,6 +1,6 @@
 {
-  "version": "41.12",
+  "version": "41.13",
   "published": "2026-11-20",
-  "assets": 53,
-  "notes": "Ajout de deux fins filaments anthracite derrière les neuf fibres nacrées du cadre OCR pour améliorer le contraste sur les étiquettes claires. Reflets bleu, émeraude et rubis, haptique expérimental, animations Retina et reconnaissance OCR conservés."
+  "assets": 54,
+  "notes": "Carte de résultat de pesée refondue en nacre bleu-gris : suppression des halos roses/verts, relief plus premium, mince reflet bleu/émeraude, hiérarchie Brut/Tare/Poids net renforcée et bouton Copier harmonisé. Calcul, OCR et données inchangés."
 }

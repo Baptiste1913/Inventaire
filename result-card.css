@@ -1,0 +1,195 @@
+/* Inventaires U v41.13 — Carte résultat nacrée, mise en valeur premium.
+   Feuille autonome : ne touche pas au calcul, au scanner ou à l'OCR. */
+html body .app > section.calc-card .result.iu-result-compact {
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+ box-sizing:border-box!important;
+ margin-top:15px!important;
+ padding:18px 19px 19px!important;
+ border:1px solid rgba(255,255,255,.96)!important;
+ border-radius:22px!important;
+ background:
+  radial-gradient(ellipse 72% 78% at 100% 0%,rgba(139,184,206,.11) 0%,transparent 76%),
+  linear-gradient(150deg,#ffffff 0%,#f8fafc 46%,#ecf3f7 100%)!important;
+ background-color:#f6f9fc!important;
+ color:#263946!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ box-shadow:
+  0 0 0 1px rgba(142,171,189,.28),
+  0 15px 31px rgba(66,94,113,.155),
+  0 4px 9px rgba(82,107,122,.07),
+  inset 0 1px 0 rgba(255,255,255,.98),
+  inset 0 -1px 0 rgba(157,178,192,.12)!important;
+}
+/* Remplace totalement les gros halos roses/verts hérités de v39.41. */
+html body .app > section.calc-card .result.iu-result-compact::before {
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:0!important;
+ z-index:0!important;
+ background:linear-gradient(124deg,rgba(255,255,255,.56) 0%,rgba(255,255,255,0) 56%)!important;
+ opacity:1!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ transform:none!important;
+ animation:none!important;
+ pointer-events:none!important;
+}
+/* Un fil de lumière bleu/émeraude, limité au bord haut. */
+html body .app > section.calc-card .result.iu-result-compact::after {
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ inset:0 17px auto 17px!important;
+ width:auto!important;
+ height:2px!important;
+ z-index:1!important;
+ border:0!important;
+ border-radius:0 0 5px 5px!important;
+ background:linear-gradient(90deg,
+  transparent 0%,
+  rgba(82,160,203,.48) 25%,
+  rgba(60,135,178,.55) 51%,
+  rgba(51,164,144,.48) 76%,
+  transparent 100%)!important;
+ opacity:.9!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ transform:none!important;
+ animation:none!important;
+ pointer-events:none!important;
+}
+html body .app > section.calc-card .result.iu-result-compact > * {
+ position:relative!important;
+ z-index:2!important;
+}
+/* Brut/Tare : informations secondaires, structurées et discrètes. */
+html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {
+ display:flex!important;
+ align-items:center!important;
+ flex-wrap:wrap!important;
+ column-gap:22px!important;
+ row-gap:7px!important;
+ padding:0 0 13px!important;
+ margin:0 0 13px!important;
+ min-width:0!important;
+ border-bottom:1px solid rgba(137,162,180,.23)!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span {
+ display:inline-flex!important;
+ align-items:baseline!important;
+ gap:6px!important;
+ min-width:0!important;
+ color:#7a8995!important;
+ font-size:12.5px!important;
+ font-weight:600!important;
+ letter-spacing:0!important;
+ white-space:normal!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong {
+ color:#435864!important;
+ -webkit-text-fill-color:#435864!important;
+ font-size:14.5px!important;
+ font-weight:790!important;
+ font-variant-numeric:tabular-nums!important;
+ white-space:nowrap!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .result-heading {
+ align-items:center!important;
+ margin:0!important;
+ gap:12px!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .result-heading > span {
+ color:#334753!important;
+ -webkit-text-fill-color:#334753!important;
+ font-size:15px!important;
+ line-height:1.3!important;
+ font-weight:830!important;
+ letter-spacing:-.01em!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .net-line {
+ display:flex!important;
+ align-items:baseline!important;
+ min-width:0!important;
+ gap:9px!important;
+ margin:8px 0 1px!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .net-line strong {
+ color:#203643!important;
+ -webkit-text-fill-color:#203643!important;
+ font-size:clamp(47px,11.6vw,70px)!important;
+ font-weight:900!important;
+ line-height:1.04!important;
+ letter-spacing:-.048em!important;
+ font-variant-numeric:tabular-nums!important;
+ overflow-wrap:anywhere!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.35)!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .net-line span {
+ color:#586e7b!important;
+ -webkit-text-fill-color:#586e7b!important;
+ font-size:16px!important;
+ font-weight:750!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
+ color:#788995!important;
+ -webkit-text-fill-color:#788995!important;
+ margin:5px 0 0!important;
+ font-size:11px!important;
+ font-weight:550!important;
+ line-height:1.4!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn {
+ min-height:36px!important;
+ padding:8px 12px!important;
+ color:#526b79!important;
+ border:1px solid rgba(255,255,255,.92)!important;
+ background:linear-gradient(155deg,rgba(255,255,255,.98),rgba(239,245,249,.92))!important;
+ box-shadow:
+  0 1px 3px rgba(90,123,144,.10),
+  inset 0 1px 0 rgba(255,255,255,.98)!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn:not(:disabled):active {
+ transform:scale(.97)!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn:focus-visible {
+ outline:2px solid #459ab2!important;
+ outline-offset:3px!important;
+}
+/* Le bouton de validation du scanner conserve sa priorité et son action. */
+html body .app > section.calc-card .result.iu-result-compact .iu-result-confirm {
+ position:relative!important;
+ z-index:3!important;
+}
+@media(max-width:390px) {
+ html body .app > section.calc-card .result.iu-result-compact {padding:16px 15px 17px!important;}
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {column-gap:13px!important;}
+ html body .app > section.calc-card .result.iu-result-compact .net-line strong {font-size:clamp(43px,11.2vw,64px)!important;}
+}
+@media(prefers-reduced-transparency:reduce) {
+ html body .app > section.calc-card .result.iu-result-compact {
+  background:#f7fafc!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact::before {opacity:0!important;}
+}
+@media(forced-colors:active) {
+ html body .app > section.calc-card .result.iu-result-compact {
+  background:Canvas!important;color:CanvasText!important;
+  border:1px solid CanvasText!important;box-shadow:none!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact::before,
+ html body .app > section.calc-card .result.iu-result-compact::after {display:none!important;}
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span,
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong,
+ html body .app > section.calc-card .result.iu-result-compact .result-heading > span,
+ html body .app > section.calc-card .result.iu-result-compact .net-line strong,
+ html body .app > section.calc-card .result.iu-result-compact .net-line span,
+ html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
+  color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;
+ }
+}
