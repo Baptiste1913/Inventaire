@@ -1,6 +1,6 @@
 {
-  "version": "41.14",
+  "version": "41.15",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Résultat de pesée réintégré au langage visuel de l'app : verre nacré lumineux, halos très diffus rubis/bleu/émeraude, relief adouci et sans liseré isolé. Hiérarchie du poids net conservée ; calcul, OCR et données inchangés."
+  "notes": "Stylisation du résultat de pesée dans l'esprit Liquid Glass : valeur du poids net sur un verre intérieur lumineux avec petite accentuation bleu-émeraude, ombres mieux travaillées. Couleurs principales, calcul, OCR et données préservés."
 }
