@@ -1,0 +1,16 @@
+/* Pilote en ligne : masque les anciennes commandes du scanner EAN sans en supprimer les hooks. */
+#iuPriceModalImport,#iuDrivePanel,#iuEanResult>.iu-price-panel,#iuWeightWhen,#iuEanResult>dl>div:nth-child(4){display:none!important}
+.iu-online-admin{margin-top:20px}.iu-online-panel{display:grid;gap:12px;padding:18px;border:1px solid rgba(110,140,170,.2);border-radius:18px;background:rgba(249,252,255,.7)}
+.iu-online-panel p{margin:0;font-size:13px;line-height:1.5;color:#475d70}.iu-online-panel label{font-size:13px;font-weight:650}
+.iu-online-panel input[type=url]{width:100%;min-width:0;box-sizing:border-box;padding:12px;border:1px solid rgba(90,120,155,.27);border-radius:12px;font:inherit;background:#fff}
+.iu-online-toggle{display:flex;align-items:center;gap:8px}.iu-online-panel small{color:#61768a;line-height:1.5}
+.iu-online-output{margin:14px 0;padding:16px;border:1px solid rgba(110,140,160,.22);border-radius:17px;background:rgba(243,249,252,.92)}
+.iu-online-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px}
+#iuOnlineTimer{font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap}
+#iuOnlineMessage{margin:9px 0;font-size:13px;line-height:1.4}
+#iuOnlineFacts>strong{display:block;margin:10px 0;font-size:17px}
+#iuOnlineFacts dl{display:grid;gap:8px;margin:0 0 10px}
+#iuOnlineFacts dl>div{display:flex;justify-content:space-between;gap:10px}
+#iuOnlineFacts dt{font-size:12px;color:#607389}
+#iuOnlineFacts dd{margin:0;text-align:right;font-weight:700;font-size:13px}
+#iuOnlineFacts small{color:#607389}

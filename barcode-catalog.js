@@ -167,6 +167,7 @@
   status.textContent=(code.length===7?'Préfixe de balance. ':'Code-barres valide. ')+summary+
    (code.length===7?'Le préfixe identifie le produit.':'')+
    (conflict?' Attention : vérifie l’association manuelle.':'');
+  window.dispatchEvent(new CustomEvent('iu-ean-code-recognized',{detail:{code,eanPrefix:currentPrefix,plu:matched?.plu||'',name:matched?.name||'',blocked:!!(conflict||ambiguous||priced.ambiguous)}}));
  }
  const status=$('iuEanStatus');
  function handleCode(raw,allowPrefix=false){
