@@ -1,6 +1,6 @@
 {
-  "version": "41.23",
+  "version": "41.24",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Pilote Courses U en direct et mesure du temps des appels réseau ; anciens laboratoires Administrateur masqués, scanner OCR principal préservé."
+  "notes": "Pilote d’identification renforcée : vérification EAN complet Courses U, nom et source du tarif, sans enregistrer automatiquement de pesée."
 }
