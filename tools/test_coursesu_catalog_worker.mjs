@@ -14,7 +14,7 @@ const eanBase='020123400000',ean=eanBase+checkdigit(eanBase);
 const prefix='0201234';
 const row={extId:'1234567',ean,name:'Radis rond',storeExtId:68539,
  storeName:'St germain',currency:'EUR',price:1.49,capacityVolume:1,capacityUnit:'kg'};
-const match={productId:'1234567',catalogEan:ean,expectedName:'Radis rond',
+const match={productId:'1234567',actorExtId:'1234567',catalogEan:ean,expectedName:'Radis rond',
  expectedStoreName:'St germain',expectedStorePostcode:'10120'};
 assert.equal(validEAN13(ean),true);
 assert.equal(verifiedCatalogRow(row,match,'68539',prefix),true);

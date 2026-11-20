@@ -65,7 +65,7 @@ function verifiedCatalogRow(row,match,storeId,prefix){
  return !!row&&String(storeId)==='68539'&&
   String(match.expectedStorePostcode)==='10120'&&
   String(row.storeExtId||'')===String(storeId)&&
-  String(row.extId||'')===String(match.productId)&&
+  String(row.extId||'')===String(match.actorExtId)&&
   validEAN13(String(row.ean||''))&&
   String(row.ean)===String(match.catalogEan)&&
   String(row.ean).slice(0,7)===prefix&&
@@ -94,13 +94,15 @@ async function lookup(request,env,origin){
   mapping=JSON.parse(env.COURSESU_MATCHES_JSON);
   match=mapping[plu+'|'+prefix];
   if(!match||!/^\d{1,14}$/.test(String(match.productId||''))||
+   !/^\d{1,14}$/.test(String(match.actorExtId||''))||
    !String(match.expectedName||'').trim()||
    !String(match.digiName||'').trim()||
    !validEAN13(String(match.catalogEan||''))||
    String(match.catalogEan).slice(0,7)!==prefix||
    !String(match.expectedStoreName||'').trim()||
    !String(match.expectedStorePostcode||'').trim()||
-   !String(match.productUrl||'').startsWith('https://www.coursesu.com/p/'))
+   !String(match.productUrl||'').startsWith('https://www.coursesu.com/p/')||
+   !String(match.productUrl||'').endsWith('/'+String(match.productId)+'.html'))
    throw Error('Article non apparié à une fiche Courses U et un EAN vérifiés');
   if(normalize(input.name)!==normalize(match.digiName))
    throw Error('Nom de l’article DIGI différent du produit associé');
@@ -116,7 +118,7 @@ async function lookup(request,env,origin){
   const response=await fetch(url,{method:'POST',headers:{
    'Authorization':'Bearer '+env.APIFY_TOKEN,
    'Content-Type':'application/json'
-  },body:JSON.stringify({storeIds:[storeId],productIds:[String(match.productId)],maxItemsPerStore:1,language:'fr'}),signal:stop.signal});
+  },body:JSON.stringify({storeIds:[storeId],productIds:[String(match.actorExtId)],maxItemsPerStore:1,language:'fr'}),signal:stop.signal});
   if(!response.ok)throw Error('Scraper HTTP '+response.status);
   const text=await response.text();
   if(text.length>120000)throw Error('Réponse du scraper trop volumineuse');

@@ -20,7 +20,8 @@ Le fichier secret Cloudflare `COURSESU_MATCHES_JSON` contient un objet indexé p
 ```json
 {
   "<PLU>|<PREFIXE_EAN7>": {
-    "productId": "<ID_DU_PRODUIT_COURSESU>",
+    "productId": "<ID_FICHE_COURSESU>",
+    "actorExtId": "<ID_CATALOGUE_APIFY>",
     "catalogEan": "<EAN13_COURSESU_VERIFIE>",
     "digiName": "<LIBELLE_DIGI>",
     "expectedName": "<NOM_CATALOGUE_EXACT>",
@@ -40,3 +41,7 @@ Les valeurs illustratives ne doivent pas être déployées telles quelles. `veri
 Le Worker est un **pilote** ; il faut encore déployer le code dans Cloudflare, configurer les secrets, vérifier les noms exacts renvoyés par Apify et tester le temps de réponse. L'ID magasin 68539 est celui du scraper, vérifié précédemment par `storeSearch`, pas un identifiant obtenu de la page web. Les limitations de débit et de coût restent nécessaires pour éviter des utilisations imprévues.
 
 Pour les tests locaux sans réseau : `node tools/test_coursesu_catalog_worker.mjs`.
+
+## Identifiants distincts
+
+`productId` : fiche Courses U (carotte 1892766) ; `actorExtId` : identifiant catalogue Apify (carotte 193975), utilisé dans le filtre `productIds`. Les deux ne doivent pas être confondus.
