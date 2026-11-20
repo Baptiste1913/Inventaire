@@ -1,10 +1,11 @@
-/* Inventaires U v41.10 — retour de détection compatible et confirmation visuelle iPhone. */
+/* Inventaires U v41.21 — retour de détection compatible et confirmation visuelle iPhone. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const trigger=$('iuWeighScanToggle'),overlay=$('iuWeighScanOverlay');
  if(!trigger||!overlay)return;
  const closeBtn=$('iuWeighScanClose'),video=$('iuWeighScanVideo'),torchBtn=$('iuWeighScanTorch'),guide=overlay.querySelector('.iu-weigh-scan-guide'),
+ detected=$('iuWeighScanDetected'),
  status=$('iuWeighScanStatus'),proposal=$('iuWeighScanProposal'),value=$('iuWeighScanValue'),
  conversion=$('iuWeighScanConversion'),apply=$('iuWeighScanApply'),
  again=$('iuWeighScanAgain'),retry=$('iuWeighScanRetry'),gross=$('grossWeight');
@@ -47,6 +48,21 @@
  };
  function resetObservations(){
   lastCandidate=null;observations=[];nextVariant=0;
+ }
+ function resetDetectedIndicator(){
+  if(!detected)return;
+  detected.hidden=true;
+  detected.classList.remove('is-visible');
+  detected.removeAttribute('title');
+ }
+ function revealDetectedIndicator(grams){
+  if(!detected||overlay.hidden)return;
+  detected.title='Poids reconnu : '+format(grams);
+  detected.setAttribute('aria-label','Poids reconnu : '+format(grams));
+  detected.hidden=false;
+  detected.classList.remove('is-visible');
+  void detected.offsetWidth;
+  detected.classList.add('is-visible');
  }
  function updateTorchButton(){
   if(!torchBtn)return;
@@ -101,6 +117,7 @@
  function close(){
   session++;scanning=false;starting=false;stopTracks();resetObservations();
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
+  resetDetectedIndicator();
   guide?.classList.remove('iu-weigh-scan-confirmed');
   overlay.hidden=true;overlay.dataset.state='';
   trigger.setAttribute('aria-expanded','false');
@@ -222,6 +239,7 @@
   const now=performance.now();
   if(now-lastDetectionFeedbackAt<900)return;
   lastDetectionFeedbackAt=now;
+  if(proposalGrams!==null)revealDetectedIndicator(proposalGrams);
   guide?.classList.remove('iu-weigh-scan-confirmed');
   // Une seule lecture du layout uniquement sur résultat pour relancer
   // proprement le très court éclat lors d'une étiquette suivante.
@@ -237,6 +255,7 @@
   const transferred=typeof window.IUWeighScanDraft==='function'&&window.IUWeighScanDraft(grams)===true;
   proposalGrams=grams;value.textContent=format(grams);
   scanning=false;overlay.dataset.state='result';
+  revealDetectedIndicator(grams);
   refreshConversion();
   // Lorsque le poids a été prérempli, le résultat central suffit.
   // Ne pas dupliquer le montant, la tare ni les boutons sous la caméra.
@@ -282,6 +301,7 @@
   if(overlay.hidden||document.hidden||starting||scanning||!worker||!stream)return false;
   session++;const id=session;
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
+  resetDetectedIndicator();
   guide?.classList.remove('iu-weigh-scan-confirmed');
   apply.hidden=false;again.disabled=false;again.hidden=false;
   resetObservations();overlay.dataset.state='scanning';scanning=true;
@@ -311,6 +331,7 @@
    retry.hidden=false;return;
   }
   const id=++session;starting=true;retry.hidden=true;proposal.hidden=true;proposalGrams=null;
+  resetDetectedIndicator();
   resetObservations();overlay.dataset.state='loading';
   say('');
   try{
@@ -398,6 +419,7 @@
  function suspendForBackground(){
   if(overlay.hidden)return;
   session++;scanning=false;starting=false;
+  resetDetectedIndicator();
   resetObservations();overlay.dataset.state='suspended';
   say('');
   try{video.pause();}catch(_){}
