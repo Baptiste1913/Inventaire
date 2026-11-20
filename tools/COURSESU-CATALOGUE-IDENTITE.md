@@ -63,3 +63,14 @@ Pour un service production, remplacer cette porte de test par une authentificati
 ## Blocage carotte en sachet vs vrac
 
 **Important** : même si le nom `Carotte`, le préfixe DIGI et l'EAN catalogue correspondent, la fiche Courses U `1892766` semble être une carotte en sachet de 750 g ; ce n'est pas une preuve d'identité commerciale avec la carotte en vrac de la balance. Sans `sameRetailOfferVerified:true` établi et documenté en dehors du Worker, ne renvoyer aucun `EUR/kg` comme valable. `confirmedKgRate` bloque désormais même les prix explicites tant que l'équivalence de produit n'est pas confirmée. Pour le test actuel, aucune équivalence n'a été établie ; HTTP 422 après scraper et confirmation correcte est donc attendu. Délai HTTP Apify étendu de 10 à 60 secondes afin d'éviter une annulation prématurée du Worker (qui n'arrête pas nécessairement la facturation de l'Actor).
+
+## Vérification du token gratuite
+
+Le Worker expose maintenant **POST /auth-check**, protégé par le seul en-tête `X-IU-Pilot-Key`, même quand `COURSESU_LIVE_ENABLED=false`. L'endpoint envoie exclusivement **GET https://api.apify.com/v2/users/me** avec le `APIFY_TOKEN` stocké en Secret et renvoie uniquement le code HTTP, le type d'erreur et un verdict local, jamais le profil ni le secret. Aucun Actor n'est lancé.
+
+- `apifyStatus=200` : token reconnu, mais les permissions d'exécution de cet Actor restent à vérifier.
+- `apifyStatus=403` et `errorType=insufficient-permissions` : token reconnu mais refusé sur l'endpoint privé `users/me`, résultat **normal** pour un token restreint. Les permissions Run ne sont pas vérifiées par ce test.
+- `apifyStatus=401` : token absent/invalide/non reconnu par Apify.
+- Autres états : verdict indéterminé, ne pas relancer d'exécution payante à l'aveugle.
+
+Utilisation Cloudflare HTTP : POST sur `/auth-check` avec Origin `https://inventaires-u.com` et en-tête `X-IU-Pilot-Key`. Ne pas utiliser `APIFY_TOKEN` dans les en-têtes du navigateur. Une fois le test fini, conserver `COURSESU_LIVE_ENABLED=false`.

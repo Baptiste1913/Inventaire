@@ -145,6 +145,30 @@ async function lookup(request,env,origin){
   packGrams:rate.packGrams||null,checkedAt:new Date().toISOString(),
   sourceUrl:match.productUrl},200,origin);
 }
+// Diagnostic sans exécution d'Actor : permet d'identifier les tokens invalides
+// et les tokens à droits restreints (403 attendu sur /v2/users/me).
+async function authCheck(request,env,origin){
+ if(!env.COURSESU_TEST_TOKEN||request.headers.get('X-IU-Pilot-Key')!==env.COURSESU_TEST_TOKEN)
+  return reply({error:'Clé privée de test requise'},401,origin);
+ if(!env.APIFY_TOKEN)return reply({error:'Token Apify non configuré'},503,origin);
+ const stop=new AbortController(),timeout=setTimeout(()=>stop.abort(),10000);
+ try{
+  // Cet endpoint ne démarre aucun Actor et n'accède à aucune donnée facturable.
+  const response=await fetch('https://api.apify.com/v2/users/me',{
+   method:'GET',headers:{Authorization:'Bearer '+env.APIFY_TOKEN},signal:stop.signal
+  });
+  let payload;
+  try{payload=await response.json()}catch(_){payload=null}
+  const errorType=String(payload?.error?.type||'').slice(0,60);
+  const verdict=response.status===200?'recognized':
+   response.status===403&&errorType==='insufficient-permissions'?'recognized-restricted':
+   response.status===401?'rejected':'inconclusive';
+  return reply({type:'inventaires-u-apify-auth-check',
+   apifyStatus:response.status,errorType:errorType||null,tokenStatus:verdict,
+   actorExecuted:false,actorRunPermissionVerified:false},200,origin);
+ }catch(_){return reply({error:stop.signal.aborted?'Délai de vérification Apify dépassé':'Erreur réseau Apify',actorExecuted:false},502,origin)}
+ finally{clearTimeout(timeout)}
+}
 function normalizedName(a,b){return !!normalize(a)&&normalize(a)===normalize(b)}
 export default {
  async fetch(request,env){
@@ -160,7 +184,9 @@ export default {
     'Access-Control-Max-Age':'3600','Vary':'Origin'
    }});
   }
-  if(request.method!=='POST'||new URL(request.url).pathname!=='/lookup')
+  const path=new URL(request.url).pathname;
+  if(path==='/auth-check'&&request.method==='POST')return authCheck(request,env,origin);
+  if(request.method!=='POST'||path!=='/lookup')
    return reply({error:'Route invalide'},405,origin);
   return lookup(request,env,origin);
  }
