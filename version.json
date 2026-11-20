@@ -1,6 +1,6 @@
 {
-  "version": "41.17",
+  "version": "41.18",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Résultat de pesée : nouveau double contour identique au bouton Démarrer un inventaire (dégradé #269ebc -> #349b8c, liseré #007583). Lumières petites et discrètes; Brut et Tare remis en haut en plus lisible. Calcul, OCR, connexion et sauvegardes inchangés."
+  "notes": "Résultat de pesée harmonisé avec le bloc Bienvenue : même fond blanc translucide, bordure douce et points gris animés en diagonale. Chiffres Brut et Tare agrandis. Calcul, OCR, connexion et sauvegardes inchangés."
 }
