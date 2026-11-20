@@ -1,101 +1,166 @@
-/* Inventaires U 41.16 — résultat « Aurore ».
-   Le bloc Bienvenue inspire les lumières et le verre, mais la carte reste
-   une lecture de données : grand poids net, micro-halo à droite et métriques
-   dans un soubassement léger. Aucun cadre autour du nombre. */
+/* Inventaires U 41.17 — resultat de pesee : contour de Demarrer un inventaire.
+   Source exacte des couleurs : #269ebc -> #349b8c, liseré #007583.
+   Halos localises, et Brut/Tare visibles en tete de carte. */
 html body .app > section.calc-card .result.iu-result-compact {
  position:relative!important;
  isolation:isolate!important;
  overflow:hidden!important;
  box-sizing:border-box!important;
  margin-top:15px!important;
- padding:19px 19px 15px!important;
- border:1px solid transparent!important;
+ padding:18px 20px 17px!important;
+ border:0!important;
  border-radius:20px!important;
- background:
-  linear-gradient(150deg,
-   rgba(255,255,255,.78) 0%,
-   rgba(251,254,254,.68) 52%,
-   rgba(246,252,252,.72) 100%) padding-box,
-  linear-gradient(118deg,
-   rgba(231,155,180,.55) 0%,
-   rgba(123,188,225,.67) 42%,
-   rgba(71,181,157,.63) 100%) border-box!important;
- background-color:#f5f9fa!important;
+ background:transparent!important;
+ background-color:transparent!important;
+ background-image:none!important;
+ background-clip:border-box!important;
  color:#253a45!important;
- -webkit-backdrop-filter:blur(22px) saturate(112%)!important;
- backdrop-filter:blur(22px) saturate(112%)!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
  box-shadow:
-  inset 0 1px 0 rgba(255,255,255,.95),
-  0 11px 24px rgba(64,102,123,.13),
-  0 3px 6px rgba(78,105,128,.07)!important;
+  -3px -3px 7px rgba(255,255,255,.95),
+   4px 5px 13px rgba(91,148,155,.20),
+   1px 2px 4px rgba(72,126,136,.10)!important;
 }
-/* L'irisation vient d'un coin, plutôt que de colorer le bloc par bandes.
-   Pas d'animation coûteuse, ombres statiques, contraste du texte préservé. */
+/* L'anneau extérieur reprend exactement le dégradé du bouton Inventaire. */
 html body .app > section.calc-card .result.iu-result-compact::before {
  content:""!important;
  display:block!important;
  position:absolute!important;
- inset:-24% -19% -28% -21%!important;
- z-index:0!important;
- background:
-  radial-gradient(ellipse 35% 55% at 6% 8%,rgba(233,111,145,.19) 0%,transparent 84%),
-  radial-gradient(ellipse 50% 61% at 89% 24%,rgba(60,155,222,.38) 0%,transparent 82%),
-  radial-gradient(ellipse 52% 54% at 88% 91%,rgba(33,173,131,.34) 0%,transparent 84%)!important;
+ inset:0!important;
+ top:0!important;right:0!important;bottom:0!important;left:0!important;
+ width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ margin:0!important;padding:0!important;
+ box-sizing:border-box!important;
+ border:0!important;
+ border-radius:20px!important;
+ background:linear-gradient(90deg,#269ebc 0%,#349b8c 100%)!important;
  opacity:1!important;
- filter:blur(23px)!important;
- -webkit-filter:blur(23px)!important;
- animation:none!important;
+ z-index:0!important;
+ filter:none!important;
+ -webkit-filter:none!important;
  transform:none!important;
+ animation:none!important;
+ box-shadow:none!important;
  pointer-events:none!important;
+ -webkit-mask:none!important;mask:none!important;
 }
+/* Surface et liseré intérieur du bouton, adaptés au rayon de la carte.
+   Vrai double contour continu : aucun joint dans les coins. */
 html body .app > section.calc-card .result.iu-result-compact::after {
  content:""!important;
  display:block!important;
  position:absolute!important;
- inset:0!important;
- z-index:0!important;
- width:auto!important;
- height:auto!important;
+ inset:1px!important;
+ top:1px!important;right:1px!important;bottom:1px!important;left:1px!important;
+ width:auto!important;height:auto!important;
+ min-width:0!important;min-height:0!important;
+ margin:0!important;padding:0!important;
+ box-sizing:border-box!important;
+ border:1px solid #007583!important;
+ border-radius:19px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ opacity:1!important;
+ z-index:1!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ transform:none!important;
+ animation:none!important;
+ box-shadow:none!important;
+ pointer-events:none!important;
+ -webkit-mask:none!important;mask:none!important;
+}
+/* Petites touches rubis, azur et émeraude. Elles restent concentrées
+   dans les coins, sans grands aplats colorés ni animation continue. */
+html body .app > section.calc-card .result.iu-result-compact > .iu-result-light-field {
+ position:absolute!important;
+ inset:3px!important;
+ z-index:2!important;
  border:0!important;
- background:linear-gradient(142deg,rgba(255,255,255,.44) 0%,transparent 45%,rgba(255,255,255,.12) 100%)!important;
+ border-radius:17px!important;
+ pointer-events:none!important;
+ background:
+  radial-gradient(ellipse 26% 34% at 9% 8%,rgba(225,100,140,.105) 0%,transparent 100%),
+  radial-gradient(ellipse 29% 37% at 91% 12%,rgba(70,158,224,.16) 0%,transparent 100%),
+  radial-gradient(ellipse 30% 32% at 87% 91%,rgba(44,175,142,.13) 0%,transparent 100%)!important;
  opacity:1!important;
  filter:none!important;
  -webkit-filter:none!important;
- animation:none!important;
  transform:none!important;
- pointer-events:none!important;
+ animation:none!important;
 }
-html body .app > section.calc-card .result.iu-result-compact > * {
+html body .app > section.calc-card .result.iu-result-compact > :not(.iu-result-light-field) {
  position:relative!important;
- z-index:1!important;
+ z-index:3!important;
+}
+/* Brut et Tare remontent au premier regard : labels contrastés,
+   valeurs affirmées et petite séparation. */
+html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {
+ display:flex!important;
+ flex-wrap:wrap!important;
+ justify-content:space-between!important;
+ align-items:center!important;
+ column-gap:16px!important;
+ row-gap:8px!important;
+ min-width:0!important;
+ margin:0 0 14px!important;
+ padding:0 0 13px!important;
+ border:0!important;
+ border-bottom:1px solid rgba(57,124,146,.22)!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span {
+ display:inline-flex!important;
+ align-items:baseline!important;
+ gap:7px!important;
+ min-width:0!important;
+ color:#546f7d!important;
+ -webkit-text-fill-color:#546f7d!important;
+ font-size:13px!important;
+ font-weight:720!important;
+ line-height:1.4!important;
+ letter-spacing:0!important;
+ white-space:normal!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong {
+ color:#244555!important;
+ -webkit-text-fill-color:#244555!important;
+ font-size:15px!important;
+ font-weight:850!important;
+ line-height:1.3!important;
+ font-variant-numeric:tabular-nums!important;
+ white-space:nowrap!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-heading {
  display:flex!important;
  align-items:center!important;
  justify-content:space-between!important;
  gap:12px!important;
+ min-height:34px!important;
  margin:0!important;
  padding:0!important;
- min-height:35px!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-heading > span {
- color:#435b67!important;
- -webkit-text-fill-color:#435b67!important;
+ color:#3b5765!important;
+ -webkit-text-fill-color:#3b5765!important;
  font-size:13px!important;
- font-weight:780!important;
- letter-spacing:.015em!important;
- line-height:1.3!important;
+ font-weight:800!important;
+ line-height:1.35!important;
+ letter-spacing:.01em!important;
  text-transform:none!important;
 }
+/* Nombre sans sous-carte, bien visible sur la surface claire. */
 html body .app > section.calc-card .result.iu-result-compact .net-line {
  display:flex!important;
  align-items:baseline!important;
- gap:8px!important;
- box-sizing:border-box!important;
  min-width:0!important;
  min-height:0!important;
  width:auto!important;
- margin:6px 0 14px!important;
+ gap:8px!important;
+ margin:8px 0 5px!important;
  padding:0!important;
  border:0!important;
  border-radius:0!important;
@@ -108,65 +173,24 @@ html body .app > section.calc-card .result.iu-result-compact .net-line::after {
  display:none!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .net-line strong {
- color:#183b4a!important;
- -webkit-text-fill-color:#183b4a!important;
- font-size:clamp(50px,12vw,76px)!important;
- line-height:1.03!important;
- letter-spacing:-.055em!important;
- font-weight:890!important;
+ color:#1b3a49!important;
+ -webkit-text-fill-color:#1b3a49!important;
+ font-size:clamp(49px,11.8vw,74px)!important;
+ font-weight:900!important;
+ letter-spacing:-.05em!important;
+ line-height:1.04!important;
  font-variant-numeric:tabular-nums!important;
  overflow-wrap:anywhere!important;
- text-shadow:0 1px 0 rgba(255,255,255,.42)!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.45)!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .net-line span {
- color:#577584!important;
- -webkit-text-fill-color:#577584!important;
+ color:#54717e!important;
+ -webkit-text-fill-color:#54717e!important;
  font-size:16px!important;
- font-weight:730!important;
+ font-weight:770!important;
  line-height:1.3!important;
 }
-/* Les détails Brut et Tare font partie de la même surface, pas d'une
-   petite carte superposée. */
-html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {
- display:flex!important;
- flex-wrap:wrap!important;
- align-items:center!important;
- gap:10px 23px!important;
- padding:12px 0 0!important;
- margin:0!important;
- min-width:0!important;
- border:0!important;
- border-top:1px solid rgba(115,157,173,.23)!important;
- border-radius:0!important;
- background:transparent!important;
- box-shadow:none!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span {
- display:inline-flex!important;
- align-items:baseline!important;
- gap:7px!important;
- color:#788b97!important;
- font-size:12px!important;
- font-weight:590!important;
- letter-spacing:0!important;
- min-width:0!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong {
- color:#415e6d!important;
- -webkit-text-fill-color:#415e6d!important;
- font-size:14px!important;
- font-weight:780!important;
- white-space:nowrap!important;
- font-variant-numeric:tabular-nums!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
- color:#748997!important;
- -webkit-text-fill-color:#748997!important;
- font-size:11px!important;
- font-weight:550!important;
- line-height:1.42!important;
- margin:10px 0 0!important;
-}
+/* Bouton Copier : restent les actions et icones existantes. */
 html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn {
  display:inline-flex!important;
  align-items:center!important;
@@ -174,66 +198,83 @@ html body .app > section.calc-card .result.iu-result-compact .result-heading .co
  flex:0 0 auto!important;
  min-height:34px!important;
  padding:8px 11px!important;
- border:1px solid rgba(255,255,255,.9)!important;
+ border:1px solid rgba(255,255,255,.92)!important;
  border-radius:999px!important;
- background:rgba(255,255,255,.72)!important;
- color:#375b6e!important;
- -webkit-backdrop-filter:blur(9px)!important;
- backdrop-filter:blur(9px)!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 2px 6px rgba(83,125,148,.08)!important;
+ background:rgba(255,255,255,.80)!important;
+ color:#385a6b!important;
+ -webkit-backdrop-filter:blur(8px)!important;
+ backdrop-filter:blur(8px)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.97),0 2px 5px rgba(83,125,148,.08)!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn:disabled {
- opacity:.58!important;
+ opacity:.60!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn:focus-visible {
  outline:2px solid #398eb6!important;
  outline-offset:3px!important;
 }
+html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
+ color:#718694!important;
+ -webkit-text-fill-color:#718694!important;
+ font-size:11px!important;
+ font-weight:560!important;
+ line-height:1.42!important;
+ margin:7px 0 0!important;
+}
 html body .app > section.calc-card .result.iu-result-compact .iu-result-confirm {
  position:relative!important;
- z-index:2!important;
- margin:0 0 12px!important;
+ z-index:4!important;
+ margin:8px 0 10px!important;
 }
 html body .app > section.calc-card .result.iu-result-compact [hidden] {
  display:none!important;
 }
 @media(max-width:390px) {
  html body .app > section.calc-card .result.iu-result-compact {
-  padding:16px 15px 14px!important;
- }
- html body .app > section.calc-card .result.iu-result-compact .net-line strong {
-  font-size:clamp(45px,11.8vw,65px)!important;
+  padding:15px 15px 15px!important;
  }
  html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {
-  gap:9px 14px!important;
+  column-gap:10px!important;
+  margin-bottom:12px!important;
+  padding-bottom:11px!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span {
+  gap:5px!important;
+  font-size:12px!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong {
+  font-size:13px!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact .net-line strong {
+  font-size:clamp(44px,11.5vw,63px)!important;
  }
 }
 @media(prefers-reduced-transparency:reduce) {
- html body .app > section.calc-card .result.iu-result-compact {
-  background:#f5fafb!important;
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-light-field {
+  opacity:.38!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn {
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
- }
- html body .app > section.calc-card .result.iu-result-compact::before {
-  opacity:.32!important;
  }
 }
 @media(forced-colors:active) {
  html body .app > section.calc-card .result.iu-result-compact {
   background:Canvas!important;
   border:1px solid CanvasText!important;
-  color:CanvasText!important;
   box-shadow:none!important;
  }
  html body .app > section.calc-card .result.iu-result-compact::before,
- html body .app > section.calc-card .result.iu-result-compact::after {display:none!important;}
- html body .app > section.calc-card .result.iu-result-compact .net-line strong,
- html body .app > section.calc-card .result.iu-result-compact .net-line span,
- html body .app > section.calc-card .result.iu-result-compact .result-heading > span,
+ html body .app > section.calc-card .result.iu-result-compact::after,
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-light-field {
+  display:none!important;
+ }
  html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span,
  html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong,
+ html body .app > section.calc-card .result.iu-result-compact .result-heading > span,
+ html body .app > section.calc-card .result.iu-result-compact .net-line strong,
+ html body .app > section.calc-card .result.iu-result-compact .net-line span,
  html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
-  color:CanvasText!important;
-  -webkit-text-fill-color:CanvasText!important;
+  color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;
  }
 }

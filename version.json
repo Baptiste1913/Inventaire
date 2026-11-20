@@ -1,6 +1,6 @@
 {
-  "version": "41.16",
+  "version": "41.17",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Refonte Aurore du résultat : verre irisé du Bienvenue mais composition différente, valeur du poids net en premier, Brut/Tare en bas sans sous-cadre, bord dégradé très fin et halos bleu/émeraude/rubis localisés. Scanner, calcul, sauvegardes inchangés."
+  "notes": "Résultat de pesée : nouveau double contour identique au bouton Démarrer un inventaire (dégradé #269ebc -> #349b8c, liseré #007583). Lumières petites et discrètes; Brut et Tare remis en haut en plus lisible. Calcul, OCR, connexion et sauvegardes inchangés."
 }
