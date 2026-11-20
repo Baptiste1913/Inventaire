@@ -1,8 +1,11 @@
-/* Inventaires U 41.19 — halos Bienvenue rose/bleu/vert tres doux autour
-   du resultat (limites au bloc de pesee) et quadrillage attenue.
-   Brut, tare, poids net et interactions inchanges. */
-/* Lueurs exterieures : elles sortent du resultat, mais ne vont pas plus
-   loin que les marges interieures de la carte de pesee. Aucun flou GPU. */
+/* Inventaires U 41.20 — Resultat de pesee : vraies lumieres de Bienvenue.
+   Les halos reutilisent strictement les couleurs et les animations de
+   l'accueil (iuHomeBackdropRed/Blue/Green, 10/13/17 secondes).
+   Les anciens gradients statiques en double epaisseur sont supprimes.
+   Diffusion et trame dans le cadre de pesee, chiffres et calcul inchanges. */
+
+/* Le conteneur permet aux halos de depasser la petite carte sans laisser
+   leurs bords se couper d'un coup. Aucun debordement dans les autres cartes. */
 html body .app > section.calc-card .iu-result-glow-shell {
  position:relative!important;
  isolation:isolate!important;
@@ -11,23 +14,83 @@ html body .app > section.calc-card .iu-result-glow-shell {
  margin:15px 0 0!important;
  padding:0!important;
 }
-html body .app > section.calc-card .iu-result-glow-shell::before {
- content:""!important;
+html body .app > section.calc-card .iu-result-glow-shell::before,
+html body .app > section.calc-card .iu-result-glow-shell::after {
+ content:none!important;
+ display:none!important;
+}
+
+/* Meme organisation que .iu-home-glow-field. Le degrade du masque disparait
+   progressivement avant les limites du bloc de pesee. */
+html body .app > section.calc-card .iu-result-glow-field {
+ position:absolute!important;
+ display:block!important;
+ inset:-17px -14px -38px!important;
+ width:auto!important;
+ height:auto!important;
+ z-index:0!important;
+ overflow:visible!important;
+ border:0!important;
+ background:none!important;
+ pointer-events:none!important;
+ user-select:none!important;
+ -webkit-mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,
+  #000 0%,#000 46%,rgba(0,0,0,.85) 65%,
+  rgba(0,0,0,.40) 84%,transparent 100%)!important;
+ mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,
+  #000 0%,#000 46%,rgba(0,0,0,.85) 65%,
+  rgba(0,0,0,.40) 84%,transparent 100%)!important;
+ -webkit-mask-repeat:no-repeat!important;
+ mask-repeat:no-repeat!important;
+}
+html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-orb {
  display:block!important;
  position:absolute!important;
- inset:-11px -10px -11px!important;
  z-index:0!important;
+ box-sizing:border-box!important;
  pointer-events:none!important;
  border:0!important;
- border-radius:27px!important;
- background:
-  radial-gradient(ellipse 45% 69% at 6% 14%,rgba(241,143,170,.13) 0%,transparent 97%),
-  radial-gradient(ellipse 55% 74% at 51% 38%,rgba(63,187,220,.12) 0%,transparent 97%),
-  radial-gradient(ellipse 48% 70% at 96% 80%,rgba(70,181,160,.10) 0%,transparent 97%)!important;
- opacity:.76!important;
+ border-radius:50%!important;
+ -webkit-filter:blur(25px)!important;
+ filter:blur(25px)!important;
+ background-repeat:no-repeat!important;
+ transform-origin:center!important;
 }
-html body .app > section.calc-card .result.iu-result-compact {
+/* Memes couleurs, degrès de diffusion et animations que Bienvenue. */
+html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-red {
+ left:-10%!important;
+ top:-14%!important;
+ width:clamp(195px,55%,290px)!important;
+ height:clamp(215px,55vw,285px)!important;
+ background:radial-gradient(ellipse at 47% 49%,
+  rgba(243,65,124,.68) 0%,rgba(244,89,137,.34) 33%,
+  rgba(244,89,137,.105) 63%,transparent 91%)!important;
+ animation:iuHomeBackdropRed 10s ease-in-out -2s infinite!important;
+}
+html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-blue {
+ left:29%!important;
+ top:-2%!important;
+ width:clamp(205px,57%,315px)!important;
+ height:clamp(210px,61vw,310px)!important;
+ background:radial-gradient(ellipse at center,
+  rgba(48,155,238,.66) 0%,rgba(60,168,237,.33) 37%,
+  rgba(60,168,237,.10) 65%,transparent 94%)!important;
+ animation:iuHomeBackdropBlue 13s ease-in-out -6s infinite!important;
+}
+html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-green {
+ right:-10%!important;
+ top:15%!important;
+ width:clamp(195px,52%,292px)!important;
+ height:clamp(220px,67vw,335px)!important;
+ background:radial-gradient(ellipse at 54% 51%,
+  rgba(21,184,150,.65) 0%,rgba(44,186,158,.34) 37%,
+  rgba(44,186,158,.105) 65%,transparent 92%)!important;
+ animation:iuHomeBackdropGreen 17s ease-in-out -11s infinite!important;
+}
 
+/* Verre du resultat identique au verre de Bienvenue : couleurs issues
+   des halos animes derriere la carte, plus de teinte statique dessus. */
+html body .app > section.calc-card .result.iu-result-compact {
  position:relative!important;
  isolation:isolate!important;
  overflow:hidden!important;
@@ -37,8 +100,7 @@ html body .app > section.calc-card .result.iu-result-compact {
  padding:18px 20px 17px!important;
  border:1px solid rgba(255,255,255,.94)!important;
  border-radius:20px!important;
- /* Surface et trame fixes identiques au panneau Bienvenue (V40.11). */
- background-color:rgba(255,255,255,.62)!important;
+ background-color:transparent!important;
  background-image:
   radial-gradient(circle,rgba(92,121,147,.091) .40px,rgba(92,121,147,.056) .96px,rgba(92,121,147,.017) 1.55px,transparent 2.15px),
   linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important;
@@ -46,25 +108,14 @@ html body .app > section.calc-card .result.iu-result-compact {
  background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
  background-repeat:repeat,no-repeat!important;
  color:#253a45!important;
- -webkit-backdrop-filter:blur(17px) saturate(108%)!important;
- backdrop-filter:blur(17px) saturate(108%)!important;
+ -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
+ backdrop-filter:blur(27px) saturate(109%)!important;
  box-shadow:0 23px 30px -18px rgba(83,105,121,.112),inset 0 1px 0 rgba(255,255,255,.97)!important;
 }
-/* Halos interieurs, sous la trame de points et les valeurs. */
 html body .app > section.calc-card .result.iu-result-compact::before {
- content:""!important;
- display:block!important;
- position:absolute!important;
- inset:-14px!important;
- z-index:0!important;
- border:0!important;
- border-radius:inherit!important;
- pointer-events:none!important;
- background:
-  radial-gradient(ellipse 46% 70% at 6% 13%,rgba(241,143,170,.092) 0%,transparent 96%),
-  radial-gradient(ellipse 56% 76% at 52% 37%,rgba(63,187,220,.088) 0%,transparent 97%),
-  radial-gradient(ellipse 50% 75% at 97% 80%,rgba(70,181,160,.075) 0%,transparent 97%)!important;
- opacity:1!important;
+ content:none!important;
+ display:none!important;
+ background:none!important;
  box-shadow:none!important;
 }
 /* Le panneau Bienvenue utilise un seul bord blanc : aucun anneau intérieur. */
@@ -292,5 +343,36 @@ html body .app > section.calc-card .result.iu-result-compact [hidden] {
  html body .app > section.calc-card .result.iu-result-compact .net-line span,
  html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
   color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;
+ }
+}
+
+/* Le bloc accueille les memes 3 animations que Bienvenue, avec les
+   preferences d'accessibilite respectees et sans animation au repos force. */
+@media (prefers-reduced-motion:no-preference) {
+ html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-orb {
+  will-change:transform,opacity!important;
+ }
+}
+@media (prefers-reduced-motion:reduce) {
+ html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-orb {
+  animation:none!important;
+  transform:none!important;
+  opacity:.55!important;
+  will-change:auto!important;
+ }
+}
+@media (prefers-reduced-transparency:reduce) {
+ html body .app > section.calc-card .iu-result-glow-field {
+  display:none!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact {
+  background-color:#fff!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
+@media (forced-colors:active) {
+ html body .app > section.calc-card .iu-result-glow-field {
+  display:none!important;
  }
 }
