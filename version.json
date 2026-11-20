@@ -1,6 +1,6 @@
 {
-  "version": "41.19",
+  "version": "41.20",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Résultat de pesée : ajout des halos pastel rose, bleu et vert du bloc Bienvenue, avec opacité réduite et débordement contenu dans la carte de pesée. Trame de points gris atténuée. Calculs, OCR et sauvegardes inchangés."
+  "notes": "Résultat de pesée : mêmes halos rose, bleu et vert que le bloc Bienvenue, avec les animations originales désynchronisées 10/13/17 s et le même verre translucide. Suppression des dégradés fixes trop opaques ; diffusion douce jusqu’aux marges de la carte. Trame animée, calculs et sauvegardes conservés."
 }
