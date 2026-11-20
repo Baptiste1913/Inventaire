@@ -1,4 +1,4 @@
-/* Inventaires U 41.20 — Resultat de pesee : vraies lumieres de Bienvenue.
+/* Inventaires U 41.21 — Resultat de pesee : vraies lumieres de Bienvenue.
    Les halos reutilisent strictement les couleurs et les animations de
    l'accueil (iuHomeBackdropRed/Blue/Green, 10/13/17 secondes).
    Les anciens gradients statiques en double epaisseur sont supprimes.
@@ -25,21 +25,21 @@ html body .app > section.calc-card .iu-result-glow-shell::after {
 html body .app > section.calc-card .iu-result-glow-field {
  position:absolute!important;
  display:block!important;
- inset:-17px -14px -38px!important;
+ inset:-10px 0 -16px!important;
  width:auto!important;
  height:auto!important;
  z-index:0!important;
- overflow:visible!important;
+ overflow:hidden!important;
  border:0!important;
  background:none!important;
  pointer-events:none!important;
  user-select:none!important;
- -webkit-mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,
-  #000 0%,#000 46%,rgba(0,0,0,.85) 65%,
-  rgba(0,0,0,.40) 84%,transparent 100%)!important;
- mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,
-  #000 0%,#000 46%,rgba(0,0,0,.85) 65%,
-  rgba(0,0,0,.40) 84%,transparent 100%)!important;
+ -webkit-mask-image:radial-gradient(ellipse 57% 57% at 50% 50%,
+  #000 0%,#000 34%,rgba(0,0,0,.82) 50%,
+  rgba(0,0,0,.31) 72%,transparent 89%)!important;
+ mask-image:radial-gradient(ellipse 57% 57% at 50% 50%,
+  #000 0%,#000 34%,rgba(0,0,0,.82) 50%,
+  rgba(0,0,0,.31) 72%,transparent 89%)!important;
  -webkit-mask-repeat:no-repeat!important;
  mask-repeat:no-repeat!important;
 }
@@ -63,8 +63,8 @@ html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-red {
  width:clamp(195px,55%,290px)!important;
  height:clamp(215px,55vw,285px)!important;
  background:radial-gradient(ellipse at 47% 49%,
-  rgba(243,65,124,.68) 0%,rgba(244,89,137,.34) 33%,
-  rgba(244,89,137,.105) 63%,transparent 91%)!important;
+  rgba(243,65,124,.57) 0%,rgba(244,89,137,.28) 33%,
+  rgba(244,89,137,.086) 63%,transparent 91%)!important;
  animation:iuHomeBackdropRed 10s ease-in-out -2s infinite!important;
 }
 html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-blue {
@@ -73,8 +73,8 @@ html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-blue {
  width:clamp(205px,57%,315px)!important;
  height:clamp(210px,61vw,310px)!important;
  background:radial-gradient(ellipse at center,
-  rgba(48,155,238,.66) 0%,rgba(60,168,237,.33) 37%,
-  rgba(60,168,237,.10) 65%,transparent 94%)!important;
+  rgba(48,155,238,.55) 0%,rgba(60,168,237,.27) 37%,
+  rgba(60,168,237,.083) 65%,transparent 94%)!important;
  animation:iuHomeBackdropBlue 13s ease-in-out -6s infinite!important;
 }
 html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-green {
@@ -83,8 +83,8 @@ html body .app > section.calc-card .iu-result-glow-field > .iu-home-glow-green {
  width:clamp(195px,52%,292px)!important;
  height:clamp(220px,67vw,335px)!important;
  background:radial-gradient(ellipse at 54% 51%,
-  rgba(21,184,150,.65) 0%,rgba(44,186,158,.34) 37%,
-  rgba(44,186,158,.105) 65%,transparent 92%)!important;
+  rgba(21,184,150,.54) 0%,rgba(44,186,158,.28) 37%,
+  rgba(44,186,158,.086) 65%,transparent 92%)!important;
  animation:iuHomeBackdropGreen 17s ease-in-out -11s infinite!important;
 }
 
@@ -102,7 +102,7 @@ html body .app > section.calc-card .result.iu-result-compact {
  border-radius:20px!important;
  background-color:transparent!important;
  background-image:
-  radial-gradient(circle,rgba(92,121,147,.091) .40px,rgba(92,121,147,.056) .96px,rgba(92,121,147,.017) 1.55px,transparent 2.15px),
+  radial-gradient(circle,rgba(92,121,147,.062) .40px,rgba(92,121,147,.038) .96px,rgba(92,121,147,.012) 1.55px,transparent 2.15px),
   linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important;
  background-size:28px 28px,100% 100%!important;
  background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
@@ -144,7 +144,7 @@ html body .app > section.calc-card .result.iu-result-compact > .iu-result-light-
     l'animation iuWelcomeDiagonalLines du bloc Bienvenue. */
 }
 html body .app > section.calc-card .iu-result-glow-shell .iu-result-light-field > i {
- opacity:.61!important;
+ opacity:.43!important;
 }
 html body .app > section.calc-card .result.iu-result-compact > :not(.iu-result-light-field) {
  position:relative!important;
