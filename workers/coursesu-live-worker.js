@@ -76,6 +76,8 @@ function verifiedCatalogRow(row,match,storeId,prefix){
   row.currency==='EUR';
 }
 async function lookup(request,env,origin){
+ if(env.COURSESU_LIVE_ENABLED!=='true')
+  return reply({error:'Recherches Apify désactivées pendant la configuration : aucun appel payant autorisé'},503,origin);
  if(!env.APIFY_TOKEN||!env.COURSESU_STORE_ID||!env.COURSESU_MATCHES_JSON)
   return reply({error:'Passerelle non configurée : token, magasin et correspondances requis'},503,origin);
  let input;

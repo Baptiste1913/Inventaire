@@ -45,3 +45,9 @@ Pour les tests locaux sans réseau : `node tools/test_coursesu_catalog_worker.mj
 ## Identifiants distincts
 
 `productId` : fiche Courses U (carotte 1892766) ; `actorExtId` : identifiant catalogue Apify (carotte 193975), utilisé dans le filtre `productIds`. Les deux ne doivent pas être confondus.
+
+## Activation explicite (novembre 2026)
+
+Le Worker exige désormais `COURSESU_LIVE_ENABLED=true` pour déclencher un appel Apify. Sans cette variable, ou avec la valeur `false`, il répond HTTP 503 avant toute requête réseau. Les tests de configuration sont donc possibles sans dépenses involontaires.
+
+**Ne pas activer le switch pour le public avant d'avoir mis en place une limitation réelle des appels** (quotas côté compte Apify et contrôles Cloudflare). Un contrôle CORS n'est pas une authentification et n'empêche pas les requêtes HTTP directes. Un prix inexact demeure bloqué malgré l'activation.
