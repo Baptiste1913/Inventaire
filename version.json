@@ -1,6 +1,6 @@
 {
-  "version": "41.20",
+  "version": "41.21",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Résultat de pesée : mêmes halos rose, bleu et vert que le bloc Bienvenue, avec les animations originales désynchronisées 10/13/17 s et le même verre translucide. Suppression des dégradés fixes trop opaques ; diffusion douce jusqu’aux marges de la carte. Trame animée, calculs et sauvegardes conservés."
+  "notes": "Résultat de pesée : lueurs rose/bleu/vert légèrement atténuées avec fondu doux avant les limites du grand bloc, points gris plus discrets. Retrait du bloc expérimental de vibration. Ajout d'une coche verte dans la caméra après reconnaissance fiable d'un poids ; la coche disparaît à la pesée suivante."
 }
