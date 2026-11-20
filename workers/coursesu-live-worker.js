@@ -39,6 +39,9 @@ function pricePerKg(row){
 // Un calcul n'est autorisé que depuis une quantité *séparément vérifiée*
 // sur la fiche du même produit, datée et enregistrée côté serveur.
 function confirmedKgRate(row,match){
+ // Une identité numérique (EAN/nom) ne prouve pas une offre commerciale identique :
+ // ex. carotte en sachet de 750 g vs carotte en vrac pesée par balance DIGI.
+ if(match?.sameRetailOfferVerified!==true)return null;
  const explicit=pricePerKg(row);
  if(explicit!==null)return {price:explicit,source:'explicit-EUR/kg'};
  const grams=Number(match?.verifiedPackGrams);
@@ -116,7 +119,7 @@ async function lookup(request,env,origin){
    throw Error('Préfixe EAN associé à plusieurs produits : identification bloquée');
  }catch(e){return reply({error:e.message||'Correspondance invalide'},422,origin)}
  const storeId=String(env.COURSESU_STORE_ID),stop=new AbortController();
- const timeout=setTimeout(()=>stop.abort(),10000);
+ const timeout=setTimeout(()=>stop.abort(),60000);
  let records;
  try{
   const url='https://api.apify.com/v2/acts/ratatoskr~systeme-u-scraper/run-sync-get-dataset-items?maxTotalChargeUsd=0.02&maxItems=1&restartOnError=false';
@@ -129,7 +132,7 @@ async function lookup(request,env,origin){
   if(text.length>120000)throw Error('Réponse du scraper trop volumineuse');
   records=JSON.parse(text);
  }catch(e){
-  return reply({error:stop.signal.aborted?'Délai de scraping dépassé (10 s)':String(e.message||'Échec scraper').slice(0,100)},504,origin);
+  return reply({error:stop.signal.aborted?'Délai de scraping dépassé (60 s)':String(e.message||'Échec scraper').slice(0,100)},504,origin);
  }finally{clearTimeout(timeout)}
  if(!Array.isArray(records))return reply({error:'Format de réponse scraper inconnu'},502,origin);
  const matches=records.filter(row=>verifiedCatalogRow(row,match,storeId,prefix));
