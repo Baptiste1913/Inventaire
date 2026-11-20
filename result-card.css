@@ -1,6 +1,6 @@
-/* Inventaires U 41.17 — resultat de pesee : contour de Demarrer un inventaire.
-   Source exacte des couleurs : #269ebc -> #349b8c, liseré #007583.
-   Halos localises, et Brut/Tare visibles en tete de carte. */
+/* Inventaires U 41.18 — Résultat de pesée : même verre blanc, liseré et
+   trame grise en onde diagonale que « Bienvenue dans votre espace ».
+   Brut et Tare agrandis, calcul et actions inchangés. */
 html body .app > section.calc-card .result.iu-result-compact {
  position:relative!important;
  isolation:isolate!important;
@@ -8,87 +8,52 @@ html body .app > section.calc-card .result.iu-result-compact {
  box-sizing:border-box!important;
  margin-top:15px!important;
  padding:18px 20px 17px!important;
- border:0!important;
+ border:1px solid rgba(255,255,255,.94)!important;
  border-radius:20px!important;
- background:transparent!important;
- background-color:transparent!important;
- background-image:none!important;
- background-clip:border-box!important;
+ /* Surface et trame fixes identiques au panneau Bienvenue (V40.11). */
+ background-color:rgba(255,255,255,.62)!important;
+ background-image:
+  radial-gradient(circle,rgba(92,121,147,.158) .40px,rgba(92,121,147,.101) .96px,rgba(92,121,147,.030) 1.55px,transparent 2.15px),
+  linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important;
+ background-size:28px 28px,100% 100%!important;
+ background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
+ background-repeat:repeat,no-repeat!important;
  color:#253a45!important;
- -webkit-backdrop-filter:none!important;
- backdrop-filter:none!important;
- box-shadow:
-  -3px -3px 7px rgba(255,255,255,.95),
-   4px 5px 13px rgba(91,148,155,.20),
-   1px 2px 4px rgba(72,126,136,.10)!important;
+ -webkit-backdrop-filter:blur(17px) saturate(108%)!important;
+ backdrop-filter:blur(17px) saturate(108%)!important;
+ box-shadow:0 23px 30px -18px rgba(83,105,121,.112),inset 0 1px 0 rgba(255,255,255,.97)!important;
 }
-/* L'anneau extérieur reprend exactement le dégradé du bouton Inventaire. */
+/* Suppression de l'ancien contour double coloré. */
 html body .app > section.calc-card .result.iu-result-compact::before {
- content:""!important;
- display:block!important;
- position:absolute!important;
- inset:0!important;
- top:0!important;right:0!important;bottom:0!important;left:0!important;
- width:100%!important;height:100%!important;
- min-width:0!important;min-height:0!important;
- margin:0!important;padding:0!important;
- box-sizing:border-box!important;
- border:0!important;
- border-radius:20px!important;
- background:linear-gradient(90deg,#269ebc 0%,#349b8c 100%)!important;
- opacity:1!important;
- z-index:0!important;
- filter:none!important;
- -webkit-filter:none!important;
- transform:none!important;
- animation:none!important;
+ content:none!important;
+ display:none!important;
+ background:none!important;
  box-shadow:none!important;
- pointer-events:none!important;
- -webkit-mask:none!important;mask:none!important;
 }
-/* Surface et liseré intérieur du bouton, adaptés au rayon de la carte.
-   Vrai double contour continu : aucun joint dans les coins. */
+/* Le panneau Bienvenue utilise un seul bord blanc : aucun anneau intérieur. */
 html body .app > section.calc-card .result.iu-result-compact::after {
- content:""!important;
- display:block!important;
- position:absolute!important;
- inset:1px!important;
- top:1px!important;right:1px!important;bottom:1px!important;left:1px!important;
- width:auto!important;height:auto!important;
- min-width:0!important;min-height:0!important;
- margin:0!important;padding:0!important;
- box-sizing:border-box!important;
- border:1px solid #007583!important;
- border-radius:19px!important;
- background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
- opacity:1!important;
- z-index:1!important;
- filter:none!important;
- -webkit-filter:none!important;
- transform:none!important;
- animation:none!important;
+ content:none!important;
+ display:none!important;
+ background:none!important;
  box-shadow:none!important;
- pointer-events:none!important;
- -webkit-mask:none!important;mask:none!important;
 }
-/* Petites touches rubis, azur et émeraude. Elles restent concentrées
-   dans les coins, sans grands aplats colorés ni animation continue. */
+/* Trame mobile exactement partagée avec l'accueil, sans halo coloré local. */
 html body .app > section.calc-card .result.iu-result-compact > .iu-result-light-field {
  position:absolute!important;
- inset:3px!important;
- z-index:2!important;
+ inset:0!important;
+ z-index:0!important;
+ overflow:hidden!important;
  border:0!important;
- border-radius:17px!important;
+ border-radius:inherit!important;
  pointer-events:none!important;
- background:
-  radial-gradient(ellipse 26% 34% at 9% 8%,rgba(225,100,140,.105) 0%,transparent 100%),
-  radial-gradient(ellipse 29% 37% at 91% 12%,rgba(70,158,224,.16) 0%,transparent 100%),
-  radial-gradient(ellipse 30% 32% at 87% 91%,rgba(44,175,142,.13) 0%,transparent 100%)!important;
+ user-select:none!important;
+ contain:paint!important;
+ background:none!important;
+ box-shadow:none!important;
  opacity:1!important;
- filter:none!important;
- -webkit-filter:none!important;
  transform:none!important;
- animation:none!important;
+ /* Les deux <i> réutilisent directement le motif, le masque et
+    l'animation iuWelcomeDiagonalLines du bloc Bienvenue. */
 }
 html body .app > section.calc-card .result.iu-result-compact > :not(.iu-result-light-field) {
  position:relative!important;
@@ -119,7 +84,7 @@ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights 
  min-width:0!important;
  color:#546f7d!important;
  -webkit-text-fill-color:#546f7d!important;
- font-size:13px!important;
+ font-size:14px!important;
  font-weight:720!important;
  line-height:1.4!important;
  letter-spacing:0!important;
@@ -128,10 +93,11 @@ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights 
 html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong {
  color:#244555!important;
  -webkit-text-fill-color:#244555!important;
- font-size:15px!important;
+ font-size:clamp(18px,4.8vw,21px)!important;
  font-weight:850!important;
- line-height:1.3!important;
+ line-height:1.2!important;
  font-variant-numeric:tabular-nums!important;
+ letter-spacing:-.025em!important;
  white-space:nowrap!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-heading {
@@ -243,7 +209,7 @@ html body .app > section.calc-card .result.iu-result-compact [hidden] {
   font-size:12px!important;
  }
  html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong {
-  font-size:13px!important;
+  font-size:clamp(17px,4.7vw,19px)!important;
  }
  html body .app > section.calc-card .result.iu-result-compact .net-line strong {
   font-size:clamp(44px,11.5vw,63px)!important;
