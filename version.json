@@ -1,6 +1,6 @@
 {
-  "version": "41.15",
+  "version": "41.16",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Stylisation du résultat de pesée dans l'esprit Liquid Glass : valeur du poids net sur un verre intérieur lumineux avec petite accentuation bleu-émeraude, ombres mieux travaillées. Couleurs principales, calcul, OCR et données préservés."
+  "notes": "Refonte Aurore du résultat : verre irisé du Bienvenue mais composition différente, valeur du poids net en premier, Brut/Tare en bas sans sous-cadre, bord dégradé très fin et halos bleu/émeraude/rubis localisés. Scanner, calcul, sauvegardes inchangés."
 }

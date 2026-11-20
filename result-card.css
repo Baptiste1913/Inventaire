@@ -1,271 +1,239 @@
-/* Inventaires U v41.14 — Carte résultat verre irisé, plus proche du reste de l'application.
-   Feuille autonome : ne touche pas au calcul, au scanner ou à l'OCR. */
+/* Inventaires U 41.16 — résultat « Aurore ».
+   Le bloc Bienvenue inspire les lumières et le verre, mais la carte reste
+   une lecture de données : grand poids net, micro-halo à droite et métriques
+   dans un soubassement léger. Aucun cadre autour du nombre. */
 html body .app > section.calc-card .result.iu-result-compact {
  position:relative!important;
  isolation:isolate!important;
  overflow:hidden!important;
  box-sizing:border-box!important;
  margin-top:15px!important;
- padding:18px 19px 19px!important;
- border:1px solid rgba(255,255,255,.96)!important;
- border-radius:22px!important;
- background:linear-gradient(148deg,
-  rgba(255,255,255,.73) 0%,
-  rgba(251,253,254,.64) 50%,
-  rgba(243,250,251,.70) 100%)!important;
- background-color:#f5f9fb!important;
- color:#263946!important;
- -webkit-backdrop-filter:blur(30px) saturate(112%)!important;
- backdrop-filter:blur(30px) saturate(112%)!important;
+ padding:19px 19px 15px!important;
+ border:1px solid transparent!important;
+ border-radius:20px!important;
+ background:
+  linear-gradient(150deg,
+   rgba(255,255,255,.78) 0%,
+   rgba(251,254,254,.68) 52%,
+   rgba(246,252,252,.72) 100%) padding-box,
+  linear-gradient(118deg,
+   rgba(231,155,180,.55) 0%,
+   rgba(123,188,225,.67) 42%,
+   rgba(71,181,157,.63) 100%) border-box!important;
+ background-color:#f5f9fa!important;
+ color:#253a45!important;
+ -webkit-backdrop-filter:blur(22px) saturate(112%)!important;
+ backdrop-filter:blur(22px) saturate(112%)!important;
  box-shadow:
-  inset 0 1px 0 rgba(255,255,255,.98),
-  0 12px 23px rgba(76,105,120,.115),
-  0 4px 9px rgba(91,117,134,.055)!important;
+  inset 0 1px 0 rgba(255,255,255,.95),
+  0 11px 24px rgba(64,102,123,.13),
+  0 3px 6px rgba(78,105,128,.07)!important;
 }
-/* Trois halos diffus, comme sur Bienvenue : rose rubis très discret,
-   bleu et émeraude plus présents, mais lumière centrale quasi blanche. */
+/* L'irisation vient d'un coin, plutôt que de colorer le bloc par bandes.
+   Pas d'animation coûteuse, ombres statiques, contraste du texte préservé. */
 html body .app > section.calc-card .result.iu-result-compact::before {
  content:""!important;
  display:block!important;
  position:absolute!important;
- inset:-22% -17% -24% -17%!important;
+ inset:-24% -19% -28% -21%!important;
  z-index:0!important;
  background:
-  radial-gradient(ellipse 40% 65% at 9% 37%,rgba(225,91,130,.25),transparent 81%),
-  radial-gradient(ellipse 57% 72% at 82% 18%,rgba(70,159,220,.38),transparent 82%),
-  radial-gradient(ellipse 60% 64% at 83% 90%,rgba(43,185,142,.34),transparent 84%)!important;
- opacity:.92!important;
- filter:blur(29px)!important;
- -webkit-filter:blur(29px)!important;
- transform:none!important;
+  radial-gradient(ellipse 35% 55% at 6% 8%,rgba(233,111,145,.19) 0%,transparent 84%),
+  radial-gradient(ellipse 50% 61% at 89% 24%,rgba(60,155,222,.38) 0%,transparent 82%),
+  radial-gradient(ellipse 52% 54% at 88% 91%,rgba(33,173,131,.34) 0%,transparent 84%)!important;
+ opacity:1!important;
+ filter:blur(23px)!important;
+ -webkit-filter:blur(23px)!important;
  animation:none!important;
+ transform:none!important;
  pointer-events:none!important;
 }
-/* Reflet interne doux plutôt qu'un liseré isolé qui tranche avec
-   les autres surfaces Liquid Glass de l'application. */
 html body .app > section.calc-card .result.iu-result-compact::after {
  content:""!important;
  display:block!important;
  position:absolute!important;
  inset:0!important;
+ z-index:0!important;
  width:auto!important;
  height:auto!important;
- z-index:1!important;
  border:0!important;
- border-radius:inherit!important;
- background:linear-gradient(156deg,
-  rgba(255,255,255,.30) 0%,
-  rgba(255,255,255,.06) 42%,
-  rgba(255,255,255,.13) 100%)!important;
+ background:linear-gradient(142deg,rgba(255,255,255,.44) 0%,transparent 45%,rgba(255,255,255,.12) 100%)!important;
  opacity:1!important;
  filter:none!important;
  -webkit-filter:none!important;
- transform:none!important;
  animation:none!important;
+ transform:none!important;
  pointer-events:none!important;
 }
 html body .app > section.calc-card .result.iu-result-compact > * {
  position:relative!important;
- z-index:2!important;
+ z-index:1!important;
 }
-/* Brut/Tare : informations secondaires, structurées et discrètes. */
-html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {
+html body .app > section.calc-card .result.iu-result-compact .result-heading {
  display:flex!important;
  align-items:center!important;
- flex-wrap:wrap!important;
- column-gap:22px!important;
- row-gap:7px!important;
- padding:0 0 13px!important;
- margin:0 0 13px!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+ margin:0!important;
+ padding:0!important;
+ min-height:35px!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .result-heading > span {
+ color:#435b67!important;
+ -webkit-text-fill-color:#435b67!important;
+ font-size:13px!important;
+ font-weight:780!important;
+ letter-spacing:.015em!important;
+ line-height:1.3!important;
+ text-transform:none!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .net-line {
+ display:flex!important;
+ align-items:baseline!important;
+ gap:8px!important;
+ box-sizing:border-box!important;
  min-width:0!important;
- border-bottom:1px solid rgba(120,161,178,.20)!important;
+ min-height:0!important;
+ width:auto!important;
+ margin:6px 0 14px!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:none!important;
+ box-shadow:none!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .net-line::before,
+html body .app > section.calc-card .result.iu-result-compact .net-line::after {
+ content:none!important;
+ display:none!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .net-line strong {
+ color:#183b4a!important;
+ -webkit-text-fill-color:#183b4a!important;
+ font-size:clamp(50px,12vw,76px)!important;
+ line-height:1.03!important;
+ letter-spacing:-.055em!important;
+ font-weight:890!important;
+ font-variant-numeric:tabular-nums!important;
+ overflow-wrap:anywhere!important;
+ text-shadow:0 1px 0 rgba(255,255,255,.42)!important;
+}
+html body .app > section.calc-card .result.iu-result-compact .net-line span {
+ color:#577584!important;
+ -webkit-text-fill-color:#577584!important;
+ font-size:16px!important;
+ font-weight:730!important;
+ line-height:1.3!important;
+}
+/* Les détails Brut et Tare font partie de la même surface, pas d'une
+   petite carte superposée. */
+html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:center!important;
+ gap:10px 23px!important;
+ padding:12px 0 0!important;
+ margin:0!important;
+ min-width:0!important;
+ border:0!important;
+ border-top:1px solid rgba(115,157,173,.23)!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span {
  display:inline-flex!important;
  align-items:baseline!important;
- gap:6px!important;
- min-width:0!important;
- color:#7a8995!important;
- font-size:12.5px!important;
- font-weight:600!important;
+ gap:7px!important;
+ color:#788b97!important;
+ font-size:12px!important;
+ font-weight:590!important;
  letter-spacing:0!important;
- white-space:normal!important;
+ min-width:0!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong {
- color:#435864!important;
- -webkit-text-fill-color:#435864!important;
- font-size:14.5px!important;
- font-weight:790!important;
- font-variant-numeric:tabular-nums!important;
- white-space:nowrap!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .result-heading {
- align-items:center!important;
- margin:0!important;
- gap:12px!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .result-heading > span {
- color:#334753!important;
- -webkit-text-fill-color:#334753!important;
+ color:#415e6d!important;
+ -webkit-text-fill-color:#415e6d!important;
  font-size:14px!important;
- line-height:1.3!important;
- font-weight:830!important;
- letter-spacing:-.01em!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .net-line {
- display:flex!important;
- align-items:baseline!important;
- min-width:0!important;
- gap:9px!important;
- margin:8px 0 1px!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .net-line strong {
- color:#203643!important;
- -webkit-text-fill-color:#203643!important;
- font-size:clamp(47px,11.6vw,70px)!important;
- font-weight:900!important;
- line-height:1.04!important;
- letter-spacing:-.048em!important;
+ font-weight:780!important;
+ white-space:nowrap!important;
  font-variant-numeric:tabular-nums!important;
- overflow-wrap:anywhere!important;
- text-shadow:0 1px 0 rgba(255,255,255,.35)!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .net-line span {
- color:#586e7b!important;
- -webkit-text-fill-color:#586e7b!important;
- font-size:16px!important;
- font-weight:750!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
- color:#788995!important;
- -webkit-text-fill-color:#788995!important;
- margin:5px 0 0!important;
+ color:#748997!important;
+ -webkit-text-fill-color:#748997!important;
  font-size:11px!important;
  font-weight:550!important;
- line-height:1.4!important;
+ line-height:1.42!important;
+ margin:10px 0 0!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn {
- min-height:36px!important;
- padding:8px 12px!important;
- color:#526b79!important;
- border:1px solid rgba(255,255,255,.92)!important;
- background:linear-gradient(155deg,rgba(255,255,255,.98),rgba(239,245,249,.92))!important;
- box-shadow:
-  0 1px 3px rgba(90,123,144,.10),
-  inset 0 1px 0 rgba(255,255,255,.98)!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:0 0 auto!important;
+ min-height:34px!important;
+ padding:8px 11px!important;
+ border:1px solid rgba(255,255,255,.9)!important;
+ border-radius:999px!important;
+ background:rgba(255,255,255,.72)!important;
+ color:#375b6e!important;
+ -webkit-backdrop-filter:blur(9px)!important;
+ backdrop-filter:blur(9px)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 2px 6px rgba(83,125,148,.08)!important;
 }
-html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn:not(:disabled):active {
- transform:scale(.97)!important;
+html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn:disabled {
+ opacity:.58!important;
 }
 html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn:focus-visible {
- outline:2px solid #459ab2!important;
+ outline:2px solid #398eb6!important;
  outline-offset:3px!important;
 }
-/* Le bouton de validation du scanner conserve sa priorité et son action. */
 html body .app > section.calc-card .result.iu-result-compact .iu-result-confirm {
  position:relative!important;
- z-index:3!important;
+ z-index:2!important;
+ margin:0 0 12px!important;
+}
+html body .app > section.calc-card .result.iu-result-compact [hidden] {
+ display:none!important;
 }
 @media(max-width:390px) {
- html body .app > section.calc-card .result.iu-result-compact {padding:16px 15px 17px!important;}
- html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {column-gap:13px!important;}
- html body .app > section.calc-card .result.iu-result-compact .net-line strong {font-size:clamp(43px,11.2vw,64px)!important;}
+ html body .app > section.calc-card .result.iu-result-compact {
+  padding:16px 15px 14px!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact .net-line strong {
+  font-size:clamp(45px,11.8vw,65px)!important;
+ }
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights {
+  gap:9px 14px!important;
+ }
 }
 @media(prefers-reduced-transparency:reduce) {
  html body .app > section.calc-card .result.iu-result-compact {
-  background:#f4f9fa!important;
+  background:#f5fafb!important;
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
  }
- html body .app > section.calc-card .result.iu-result-compact::before {opacity:.35!important;}
+ html body .app > section.calc-card .result.iu-result-compact::before {
+  opacity:.32!important;
+ }
 }
 @media(forced-colors:active) {
  html body .app > section.calc-card .result.iu-result-compact {
-  background:Canvas!important;color:CanvasText!important;
-  border:1px solid CanvasText!important;box-shadow:none!important;
+  background:Canvas!important;
+  border:1px solid CanvasText!important;
+  color:CanvasText!important;
+  box-shadow:none!important;
  }
  html body .app > section.calc-card .result.iu-result-compact::before,
  html body .app > section.calc-card .result.iu-result-compact::after {display:none!important;}
- html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span,
- html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong,
- html body .app > section.calc-card .result.iu-result-compact .result-heading > span,
  html body .app > section.calc-card .result.iu-result-compact .net-line strong,
  html body .app > section.calc-card .result.iu-result-compact .net-line span,
+ html body .app > section.calc-card .result.iu-result-compact .result-heading > span,
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span,
+ html body .app > section.calc-card .result.iu-result-compact .iu-result-weights > span strong,
  html body .app > section.calc-card .result.iu-result-compact .result-subtitle {
-  color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;
+  color:CanvasText!important;
+  -webkit-text-fill-color:CanvasText!important;
  }
-}
-
-/* v41.15 — résultat mis en scène sans modifier la palette Liquid Glass.
-   La valeur prend place sur une surface de verre surélevée, plus visible
-   que les autres informations. Aucun changement de dimensions OCR. */
-html body .app > section.calc-card .result.iu-result-compact {
- border-color:rgba(246,255,255,.99)!important;
- box-shadow:
-  inset 0 1px 0 rgba(255,255,255,.98),
-  0 14px 26px rgba(71,105,124,.145),
-  0 3px 7px rgba(89,125,142,.075)!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .net-line {
- position:relative!important;
- display:flex!important;
- align-items:baseline!important;
- width:100%!important;
- min-width:0!important;
- min-height:75px!important;
- box-sizing:border-box!important;
- gap:8px!important;
- margin:13px 0 7px!important;
- padding:11px 15px 12px 19px!important;
- border:1px solid rgba(255,255,255,.93)!important;
- border-radius:16px!important;
- background:
-  radial-gradient(ellipse 50% 95% at 100% 100%,rgba(52,183,140,.12),transparent 90%),
-  linear-gradient(117deg,rgba(221,238,248,.77) 0%,rgba(255,255,255,.78) 46%,rgba(225,246,243,.77) 100%)!important;
- box-shadow:
-  0 3px 10px rgba(68,108,133,.095),
-  inset 0 1px 0 rgba(255,255,255,1),
-  inset 0 -1px 0 rgba(139,180,191,.12)!important;
-}
-/* Mini-accent bleu / émeraude, sans liseré sur l'intégralité de la carte. */
-html body .app > section.calc-card .result.iu-result-compact .net-line::before {
- content:""!important;
- display:block!important;
- position:absolute!important;
- top:calc(50% - 15px)!important;
- left:7px!important;
- width:3px!important;
- height:30px!important;
- border-radius:999px!important;
- background:linear-gradient(180deg,rgba(61,150,210,.65),rgba(50,174,141,.67))!important;
- opacity:.85!important;
- pointer-events:none!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .net-line strong {
- color:#1f3846!important;
- -webkit-text-fill-color:#1f3846!important;
- text-shadow:0 1px 0 rgba(255,255,255,.55)!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .net-line span {
- color:#536d7b!important;
- -webkit-text-fill-color:#536d7b!important;
-}
-html body .app > section.calc-card .result.iu-result-compact .result-heading .copy-btn {
- box-shadow:
-  0 2px 6px rgba(91,125,144,.13),
-  inset 0 1px 0 rgba(255,255,255,.99)!important;
-}
-@media (max-width:390px) {
- html body .app > section.calc-card .result.iu-result-compact .net-line {
-  min-height:68px!important;
-  padding:10px 12px 10px 18px!important;
- }
-}
-@media(forced-colors:active) {
- html body .app > section.calc-card .result.iu-result-compact .net-line {
-  background:Canvas!important;
-  border:1px solid CanvasText!important;
-  box-shadow:none!important;
- }
- html body .app > section.calc-card .result.iu-result-compact .net-line::before {display:none!important;}
 }
