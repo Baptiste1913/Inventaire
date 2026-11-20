@@ -1,6 +1,6 @@
 {
-  "version": "41.13",
+  "version": "41.14",
   "published": "2026-11-20",
   "assets": 54,
-  "notes": "Carte de résultat de pesée refondue en nacre bleu-gris : suppression des halos roses/verts, relief plus premium, mince reflet bleu/émeraude, hiérarchie Brut/Tare/Poids net renforcée et bouton Copier harmonisé. Calcul, OCR et données inchangés."
+  "notes": "Résultat de pesée réintégré au langage visuel de l'app : verre nacré lumineux, halos très diffus rubis/bleu/émeraude, relief adouci et sans liseré isolé. Hiérarchie du poids net conservée ; calcul, OCR et données inchangés."
 }
