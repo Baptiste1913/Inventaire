@@ -44,6 +44,7 @@ function confirmedKgRate(row,match){
  const grams=Number(match?.verifiedPackGrams);
  const date=String(match?.packVerifiedAt||'');
  if(!Number.isInteger(grams)||grams<50||grams>20000||
+  match?.sameRetailOfferVerified!==true||
   match?.packVerifiedSource!==match?.productUrl||
   !/^\d{4}-\d{2}-\d{2}$/.test(date))return null;
  const then=Date.parse(date+'T12:00:00Z'),age=Date.now()-then;
@@ -55,6 +56,24 @@ function confirmedKgRate(row,match){
  if(cents<1||cents>99999)return null;
  return {price:cents/100,source:'verified-packaging',packGrams:grams,
   packVerifiedAt:date};
+}
+// Identité stricte du produit et du magasin, contrôlée hors de la requête HTTP.
+// Le champ storeAddress n'est pas toujours présent dans les résultats du scraper :
+// l'ID 68539 a été vérifié séparément avec storeSearch pour Saint-Germain (10120).
+// Une adresse présente mais incompatible est systématiquement refusée.
+function verifiedCatalogRow(row,match,storeId,prefix){
+ return !!row&&String(storeId)==='68539'&&
+  String(match.expectedStorePostcode)==='10120'&&
+  String(row.storeExtId||'')===String(storeId)&&
+  String(row.extId||'')===String(match.productId)&&
+  validEAN13(String(row.ean||''))&&
+  String(row.ean)===String(match.catalogEan)&&
+  String(row.ean).slice(0,7)===prefix&&
+  !!normalize(row.name)&&normalize(row.name)===normalize(match.expectedName)&&
+  !!normalize(row.storeName)&&
+  normalize(row.storeName)===normalize(match.expectedStoreName)&&
+  (!row.storeAddress||String(row.storeAddress).includes('10120'))&&
+  row.currency==='EUR';
 }
 async function lookup(request,env,origin){
  if(!env.APIFY_TOKEN||!env.COURSESU_STORE_ID||!env.COURSESU_MATCHES_JSON)
@@ -106,17 +125,7 @@ async function lookup(request,env,origin){
   return reply({error:stop.signal.aborted?'Délai de scraping dépassé (10 s)':String(e.message||'Échec scraper').slice(0,100)},504,origin);
  }finally{clearTimeout(timeout)}
  if(!Array.isArray(records))return reply({error:'Format de réponse scraper inconnu'},502,origin);
- const matches=records.filter(row=>
-  String(row?.extId||'')===String(match.productId)&&
-  validEAN13(String(row?.ean||''))&&
-  String(row.ean)===String(match.catalogEan)&&
-  String(row.ean).slice(0,7)===prefix&&
-  String(row?.storeExtId||'')===storeId&&
-  normalizedName(row.name,match.expectedName)&&
-  normalize(row.storeName).includes(normalize(match.expectedStoreName))&&
-  String(row.storeAddress||'').includes(String(match.expectedStorePostcode))&&
-  row.currency==='EUR'
- );
+ const matches=records.filter(row=>verifiedCatalogRow(row,match,storeId,prefix));
  if(matches.length!==1)return reply({error:'Produit ou magasin non confirmé par le scraper'},422,origin);
  const row=matches[0],rate=confirmedKgRate(row,match);
  if(rate===null)return reply({error:'EAN et article confirmés, mais prix €/kg non fiable : contenance non vérifiée ou tarif indisponible'},422,origin);
