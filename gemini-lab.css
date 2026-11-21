@@ -577,3 +577,23 @@
  .calc-card .iu-gemini-label-number {font-size:5.9cqw;}
  .calc-card .iu-gemini-label-total-number {font-size:11.6cqw;}
 }
+
+/* v41.36 — code DIGI recalculé, EAN-13 réellement dessiné en SVG. */
+.calc-card .iu-gemini-label-bars .iu-gemini-ean-svg {
+ display:block;width:100%;height:100%;background:#fff;
+}
+.calc-card .iu-gemini-recode-summary {
+ display:flex;flex-direction:column;gap:4px;padding:11px 13px;
+ margin:0 0 10px;border:1px solid rgba(157,180,193,.5);
+ border-radius:12px;background:rgba(244,248,251,.8);
+}
+.calc-card .iu-gemini-recode-title {
+ font-size:10px;font-weight:750;letter-spacing:.025em;color:#647685;
+}
+.calc-card .iu-gemini-recode-code {
+ font-size:18px;font-weight:800;letter-spacing:.035em;
+ color:#263b47;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.calc-card .iu-gemini-recode-details {
+ font-size:11px;line-height:1.5;color:#647685;
+}
