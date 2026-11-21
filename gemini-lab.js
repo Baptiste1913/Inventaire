@@ -1,4 +1,4 @@
-/* Inventaires U 41.55 — chiffres EAN et PLU sans déformation, alignement poids net.
+/* Inventaires U 41.56 — chiffres EAN au ras du bas de l'encadré prix, sans déformation.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -288,7 +288,7 @@
   const ns='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(ns,'svg');
   svg.setAttribute('viewBox','0 0 150 58');
-  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svg.setAttribute('preserveAspectRatio','xMidYMax meet');
   svg.setAttribute('role','img');
   svg.setAttribute('aria-label','EAN 13 '+ean[0]+' '+ean.slice(1,7)+' '+ean.slice(7));
   svg.classList.add('iu-gemini-ean-svg');
@@ -320,10 +320,10 @@
    text.textContent=digit;svg.append(text);
    return text;
   };
-  addDigit(ean[0],10,55,'iu-gemini-ean-leading');
+  addDigit(ean[0],10,58,'iu-gemini-ean-leading');
   for(let i=0;i<6;i++){
-   addDigit(ean[i+1],15+(3+7*i+3.5)*1.38,55,'iu-gemini-ean-digit');
-   addDigit(ean[i+7],15+(50+7*i+3.5)*1.38,55,'iu-gemini-ean-digit');
+   addDigit(ean[i+1],15+(3+7*i+3.5)*1.38,58,'iu-gemini-ean-digit');
+   addDigit(ean[i+7],15+(50+7*i+3.5)*1.38,58,'iu-gemini-ean-digit');
   }
   // Le code 0203476... de la photo porte le PLU 3476 sur le bord gauche.
   if(ean.startsWith('020')){

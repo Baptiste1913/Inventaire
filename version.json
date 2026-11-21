@@ -1,6 +1,6 @@
 {
-  "version": "41.55",
+  "version": "41.56",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Étiquette Gemini : Poids net et sa valeur alignés à gauche, Date d’emballage toujours alignée à droite ; chiffres EAN et PLU sans étirement grâce aux proportions natives du SVG ajustées au cadre du prix ; chiffres EAN rapprochés du code-barres. Capture et validation inchangées."
+  "notes": "Étiquette Gemini : libellé Date d’emballage et valeur strictement alignés sur le bord droit. Chiffres EAN abaissés et ancrés au bas du cadre Prix à payer, avec conservation des proportions du code-barres et du PLU. Aucune modification des calculs ni de la validation."
 }

@@ -135,10 +135,10 @@ assert(worker.includes("Réponse Gemini vide."),'Réponse vide diagnostiquée');
 assert(worker.includes("Réponse Gemini non exploitable."),'Réponse JSON invalide diagnostiquée');
 
 
-assert.equal(svg.attrs.preserveAspectRatio,'xMidYMid meet',
+assert.equal(svg.attrs.preserveAspectRatio,'xMidYMax meet',
  'Les chiffres EAN et le PLU ne sont plus étirés ni écrasés');
-assert.equal(digits.every(node=>node.attrs.y==='55'),true,
- 'Les 13 chiffres EAN ont été rapprochés du pied des barres');
+assert.equal(digits.every(node=>node.attrs.y==='58'),true,
+ 'La base des chiffres EAN rejoint le bas du cadre Prix à payer');
 assert.equal(digits.every(node=>node.attrs['font-size']==='10.5'),true,
  'Les chiffres EAN gardent une typographie de taille constante');
 assert.equal(svg.attrs.viewBox,'0 0 150 58',
@@ -155,4 +155,10 @@ assert(css.includes('transform:translateY(-2px)!important;')&&
  css.includes('font-size:clamp(17px,6.6cqw,28px)!important;'),
  'Le nom du produit est légèrement réduit et remonté');
 
-console.log('Gemini : chiffres EAN/PLU non déformés, poids net à gauche, code et prix alignés ; tests réussis.');
+assert(css.includes('v41.56 — Titre et valeur « Date d\'emballage » au même bord droit.'),
+ 'Règle de finition de la date présente');
+assert(css.includes('width:max-content!important;')&&css.includes('margin-right:0!important;'),
+ 'Le titre Date d\'emballage et la valeur terminent au même bord droit');
+assert(svg.attrs.viewBox==='0 0 150 58'&&svg.attrs.preserveAspectRatio==='xMidYMax meet',
+ 'Le code préserve les proportions tout en s\'ancrant au bas du cadre');
+console.log('Gemini : date alignée à droite, chiffres EAN alignés au bas du cadre prix ; tests réussis.');
