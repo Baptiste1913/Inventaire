@@ -182,6 +182,7 @@
   cameraStarting=false;torchBusy=false;torchOn=false;
   cameraShell.hidden=true;
   openCamera.hidden=false;
+  openCamera.disabled=false;
   refreshTorch();
  }
  async function startCamera(){
