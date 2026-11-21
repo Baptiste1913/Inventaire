@@ -157,3 +157,42 @@
 @media(max-width:390px) {
  .calc-card .iu-gemini-camera-stage {height:220px;}
 }
+
+/* v41.28 — repères DIGI complets, inspirés de la silhouette de l'OCR. */
+.calc-card .iu-gemini-photo-actions {display:flex;flex-direction:column;gap:9px;}
+.calc-card .iu-gemini-camera-guide {
+ inset:8% 10% 8%;border:1px dashed rgba(255,255,255,.75);
+ border-radius:10px;box-shadow:0 0 0 100vmax rgba(0,0,0,.13);
+ background:transparent;
+}
+.calc-card .iu-gemini-camera-guide::before,
+.calc-card .iu-gemini-camera-guide::after {content:none;}
+.calc-card .iu-gemini-guide-corner {
+ position:absolute;width:19px;height:19px;border:2px solid rgba(255,255,255,.9);
+}
+.calc-card .iu-gemini-guide-corner.tl {left:-2px;top:-2px;border-right:0;border-bottom:0;border-radius:8px 0 0 0;}
+.calc-card .iu-gemini-guide-corner.tr {right:-2px;top:-2px;border-left:0;border-bottom:0;border-radius:0 8px 0 0;}
+.calc-card .iu-gemini-guide-corner.bl {left:-2px;bottom:-2px;border-right:0;border-top:0;border-radius:0 0 0 8px;}
+.calc-card .iu-gemini-guide-corner.br {right:-2px;bottom:-2px;border-left:0;border-top:0;border-radius:0 0 8px 0;}
+.calc-card .iu-gemini-guide-line {
+ position:absolute;left:25%;width:50%;height:8%;border:1px solid rgba(255,255,255,.46);
+ border-radius:4px;background:rgba(255,255,255,.025);
+}
+.calc-card .iu-gemini-guide-line.upper {top:14%;}
+.calc-card .iu-gemini-guide-line.lower {top:46%;left:12%;width:76%;height:10%;border-style:dotted;}
+.calc-card .iu-gemini-guide-barcode {
+ position:absolute;bottom:9%;left:12%;width:44%;height:22%;
+ border:1px solid rgba(255,255,255,.5);border-radius:3px;
+ background:repeating-linear-gradient(90deg,rgba(255,255,255,.24) 0 2px,transparent 2px 6px,rgba(255,255,255,.24) 6px 7px,transparent 7px 11px);
+ background-clip:content-box;padding:4px;
+}
+.calc-card .iu-gemini-key-config {display:flex;flex-direction:column;gap:7px;}
+.calc-card .iu-gemini-key-config > label {display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:680;color:#354f60;}
+.calc-card .iu-gemini-key-save,.calc-card .iu-gemini-key-forget {
+ min-height:38px;border-radius:10px;border:1px solid rgba(154,177,191,.56);
+ background:#f9fcff;color:#254d63;font-size:12px;font-weight:700;cursor:pointer;
+}
+.calc-card .iu-gemini-key-forget {color:#9a4545;}
+.calc-card .iu-gemini-key-save[hidden],.calc-card .iu-gemini-key-forget[hidden] {display:none!important;}
+.calc-card .iu-gemini-key-info {font-size:11px;line-height:1.45;color:#667783;margin:0;}
+.calc-card .iu-gemini-lab-consent {margin:0;font-size:11px;line-height:1.5;color:#677986;}
