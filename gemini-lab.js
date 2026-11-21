@@ -1,4 +1,4 @@
-/* Inventaires U 41.45 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.46 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -392,6 +392,7 @@
   const caution=add(output,'p','iu-gemini-result-warning',
    'Un calcul cohérent ou un EAN valide ne garantit pas que Gemini a lu les bons chiffres. Compare avec la photo avant de confirmer.');
   output.hidden=false;
+  const empty=$('iuGeminiEmptyResult');if(empty)empty.hidden=true;
   if(verified.error){
    resetTransfer();transfer.hidden=false;
    transferCheck.textContent='Transfert bloqué : '+verified.error;
@@ -538,6 +539,7 @@
    }
   }finally{torchBusy=false;refreshTorch();}
  }
+ $('iuGeminiCameraShortcut')?.addEventListener('click',()=>{if(cameraStream){stopCamera();}else{startCamera();}});
  openCamera.addEventListener('click',startCamera);
  closeCamera.addEventListener('click',()=>{
   stopCamera();say('Viseur fermé. Aucune photo envoyée.');
