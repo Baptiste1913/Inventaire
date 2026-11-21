@@ -1,4 +1,4 @@
-/* Inventaires U 41.34 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.35 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -233,7 +233,6 @@
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
-  add(label,'p','iu-gemini-label-notice','Aperçu non scannable · comparer avec l’étiquette photographiée');
   const summary=add(output,'div','iu-gemini-label-summary','');
   const statusText=ready?'Contrôles cohérents · vérification visuelle requise'
     :verified.error?'Transfert bloqué · '+verified.error
@@ -241,6 +240,7 @@
     :'Vérification nécessaire';
   add(summary,'span','iu-gemini-label-state'+(ready?' is-ready':' is-review'),statusText);
   output.append(label);
+  add(output,'p','iu-gemini-label-notice','Code-barres illustratif non scannable · comparer avec la photo originale');
   const calculation=add(output,'div','iu-gemini-net-summary','');
   add(calculation,'span','iu-gemini-net-caption','POIDS RÉEL DES PRODUITS · APRÈS TARE');
   add(calculation,'strong','iu-gemini-net-value'+(netValid?'':' is-invalid'),
