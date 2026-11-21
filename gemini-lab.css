@@ -404,3 +404,100 @@
  .calc-card .iu-gemini-label-number {font-size:16px;}
  .calc-card .iu-gemini-label-total-number {font-size:29px;}
 }
+
+/* v41.34 — reproduction des proportions et de la mise en page de la vraie
+   étiquette Super U Saint-Germain fournie en référence (1372 × 1088). */
+.calc-card .iu-gemini-printed-label {
+ position:relative;display:grid;grid-template-rows:22% 28% 16% 29% 5%;
+ aspect-ratio:1372/1088;width:100%;height:auto;min-height:0;
+ padding:2.2% 3.2% 1.5%;margin:4px 0 10px;
+ border:1px solid #d2cfc8;border-radius:5px;
+ background:#f9f8f3;color:#151515;
+ box-shadow:0 3px 10px rgba(44,64,79,.1);
+ font-family:"Arial Narrow","Roboto Condensed",Impact,Arial,sans-serif;
+ container-type:inline-size;
+}
+.calc-card .iu-gemini-label-top {
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ gap:0;margin-left:auto;width:53%;height:100%;
+ padding:0;border:0;text-align:center;
+}
+.calc-card .iu-gemini-label-store,
+.calc-card .iu-gemini-label-address {
+ color:#141414;font-family:Impact,"Arial Narrow",sans-serif;
+ font-stretch:condensed;font-size:clamp(10px,4.1cqw,26px);
+ font-weight:900;line-height:1.16;letter-spacing:.015em;
+ white-space:nowrap;
+}
+.calc-card .iu-gemini-label-address {font-size:clamp(9px,3.55cqw,24px);}
+.calc-card .iu-gemini-label-name {
+ display:flex;align-items:center;justify-content:center;text-align:center;
+ padding:0;border:0;font-family:Impact,"Arial Narrow",sans-serif;
+ font-size:clamp(16px,6.7cqw,46px);font-weight:900;letter-spacing:.01em;
+ line-height:1.05;overflow-wrap:anywhere;
+}
+.calc-card .iu-gemini-label-middle {
+ display:grid;grid-template-columns:1fr 1fr 1fr;gap:2%;
+ align-items:end;padding:0 1% 2%;border:0;
+}
+.calc-card .iu-gemini-label-rate,
+.calc-card .iu-gemini-label-gross,
+.calc-card .iu-gemini-label-date {
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:end;
+ gap:1%;min-width:0;padding:0;border:0;
+}
+.calc-card .iu-gemini-label-caption {
+ font-family:"Arial Narrow",Arial,sans-serif;
+ font-size:clamp(8px,2.8cqw,20px);font-weight:500;
+ letter-spacing:-.045em;white-space:nowrap;color:#191919;
+}
+.calc-card .iu-gemini-label-number {
+ font-family:Impact,"Arial Narrow",sans-serif;
+ font-size:clamp(13px,5.05cqw,38px);font-weight:900;
+ letter-spacing:-.045em;line-height:1.1;white-space:nowrap;
+ overflow:visible;overflow-wrap:normal;
+}
+.calc-card .iu-gemini-label-date .iu-gemini-label-number {font-size:clamp(12px,4.65cqw,35px);}
+.calc-card .iu-gemini-label-bottom {
+ display:grid;grid-template-columns:1fr 1fr;gap:3%;
+ align-items:stretch;min-width:0;
+}
+.calc-card .iu-gemini-label-barcode {
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+ gap:0;margin:0;min-width:0;padding:0;
+}
+.calc-card .iu-gemini-label-bars {
+ width:100%;height:80%;min-height:0;opacity:1;
+ border-top:3px solid #111;
+ background:repeating-linear-gradient(90deg,#111 0 2px,transparent 2px 4px,#111 4px 5px,transparent 5px 8px,#111 8px 11px,transparent 11px 14px);
+}
+.calc-card .iu-gemini-label-ean {
+ font-family:Impact,"Arial Narrow",sans-serif;
+ font-size:clamp(9px,3.4cqw,25px);font-weight:500;
+ line-height:1.05;letter-spacing:.12em;white-space:nowrap;color:#111;
+}
+.calc-card .iu-gemini-label-total {
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:1%;min-width:0;margin:0;padding:1%;
+ border:3px solid #111;box-sizing:border-box;
+}
+.calc-card .iu-gemini-label-total-caption {
+ font-family:"Arial Narrow",Arial,sans-serif;
+ font-size:clamp(10px,3.4cqw,25px);font-weight:500;
+ line-height:1;white-space:nowrap;
+}
+.calc-card .iu-gemini-label-total-number {
+ font-family:Impact,"Arial Narrow",sans-serif;
+ font-size:clamp(24px,9.3cqw,68px);font-weight:900;
+ letter-spacing:-.045em;line-height:1.1;white-space:nowrap;
+}
+.calc-card .iu-gemini-label-notice {
+ align-self:center;margin:0;padding:0;
+ font-family:Arial,sans-serif;font-size:clamp(6px,1.8cqw,12px);
+ line-height:1.1;color:#777;text-align:center;
+}
+@media(max-width:370px){
+ .calc-card .iu-gemini-label-name {font-size:6.7cqw;}
+ .calc-card .iu-gemini-label-number {font-size:5.05cqw;}
+ .calc-card .iu-gemini-label-total-number {font-size:9.3cqw;}
+}
