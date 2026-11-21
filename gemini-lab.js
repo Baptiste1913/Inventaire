@@ -1,4 +1,4 @@
-/* Inventaires U 41.46 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.47 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -22,6 +22,15 @@
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
   torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture');
  let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false;
+ const modeCamera=$('iuGeminiModeCamera'),modePhoto=$('iuGeminiModePhoto');
+ const modeControl=$('iuGeminiModeCamera')?.closest('.iu-gemini-mode-control');
+ const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
+ const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
+ function selectReadingMode(mode){
+  modeCamera?.setAttribute('aria-pressed',String(mode==='camera'));
+  modePhoto?.setAttribute('aria-pressed',String(mode==='photo'));
+  modeControl?.classList.toggle('is-rapid',mode==='photo');
+ }
  const say=(message,error=false)=>{
   status.textContent=message;
   status.classList.toggle('is-error',error);
@@ -70,7 +79,8 @@
   const quickNet=output.querySelector('.iu-gemini-quick-net-value');
   const quickTare=output.querySelector('.iu-gemini-quick-tare');
   if(quickGross)quickGross.textContent=formatWeight(f.weightGrams);
-  if(quickNet)quickNet.textContent=corrected?String((corrected.net/1000).toFixed(3)).replace('.',','):'—';
+  const netValue=Number.isSafeInteger(f.weightGrams)&&Number.isSafeInteger(tare)&&f.weightGrams>tare?f.weightGrams-tare:null;
+  if(quickNet)quickNet.textContent=netValue===null?'—':(netValue/1000).toFixed(3).replace('.',',');
   if(quickTare)quickTare.textContent=formatWeight(tare);
   if(total)total.textContent=money(corrected?corrected.cents:f.totalCents).replace(/\\s/g,'');
   if(digits)digits.textContent=corrected?.ean||f.ean13||'EAN NON RECONNU';
@@ -127,15 +137,16 @@
   if(url){URL.revokeObjectURL(url);url=null;}
   picture.hidden=true;picture.removeAttribute('src');
  }
- function clear(){
-  stopCamera();
+ function resetReading(){
   generation++;abort?.abort();abort=null;active=false;file=null;
-  attempts.clear();
-  photo.value='';
-  latestLabelFields=null;
+  attempts.clear();photo.value='';latestLabelFields=null;
   output.hidden=true;output.replaceChildren();networkTime.textContent='';resetTransfer();
-  clearPreview();updateButton();say('Sélectionne une photo pour commencer.');
+  if(grossPreview)grossPreview.value='';
+  if(emptyResult)emptyResult.hidden=false;
+  clearPreview();capture.disabled=false;updateButton();
+  say('Scanne une étiquette pour commencer.');
  }
+ function clear(){stopCamera();resetReading();}
  function setPhoto(chosen){
   if(!chosen)return;
   if(active){say('Analyse en cours : attends la réponse avant de changer de photo.',true);return;}
@@ -147,10 +158,13 @@
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
   output.hidden=true;networkTime.textContent='';resetTransfer();
+  if(emptyResult)emptyResult.hidden=false;
+  if(grossPreview)grossPreview.value='';
   say(cameraStream?'Photo capturée. Appuie sur « Analyser une fois », puis vise la suivante.':'Photo prête. Une analyse sera envoyée uniquement après validation.');
   updateButton();
  }
  photo.addEventListener('change',()=>{
+  selectReadingMode('photo');
   const selected=photo.files?.[0]||null;
   photo.value='';
   setPhoto(selected);
@@ -293,6 +307,7 @@
   const context=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const tare=context?.tareGrams;
   const gross=fields.weightGrams;
+  if(grossPreview)grossPreview.value=Number.isSafeInteger(gross)?(gross/1000).toFixed(3):'';
   const net=Number.isSafeInteger(gross)&&Number.isSafeInteger(tare)?gross-tare:null;
   const arithmetic=checks.arithmeticConsistent===true;
   const eanValid=checks.eanChecksumValid===true;
@@ -356,6 +371,15 @@
   add(tareWeight,'strong','iu-gemini-quick-tare',formatWeight(tare));
   const heading=add(quick,'div','result-heading','');
   add(heading,'span','','Poids net');
+  const copy=add(heading,'button','copy-btn iu-gemini-copy','');
+  copy.type='button';copy.disabled=!netValid;
+  copy.setAttribute('aria-label','Copier le poids net Gemini');
+  copy.innerHTML='<svg class="copy-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8h2"/></svg><svg class="copy-btn-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Copier</span>';
+  copy.addEventListener('click',async()=>{
+   if(!netValid)return;
+   try{await navigator.clipboard.writeText((net/1000).toFixed(3));say('Poids net copié.');}
+   catch{say('Impossible de copier sur cet appareil.',true);}
+  });
   const netLine=add(quick,'div','net-line','');
   add(netLine,'strong','iu-gemini-quick-net-value',netValid?String((net/1000).toFixed(3)).replace('.',','):'—');
   add(netLine,'span','','kg');
@@ -367,6 +391,7 @@
   add(summary,'span','iu-gemini-label-state'+(ready?' is-ready':' is-review'),statusText);
   // L'étiquette numérique corrigée vient APRÈS le résultat OCR compact.
   output.append(label);
+  output.append(summary);
   add(output,'p','iu-gemini-label-notice',corrected
    ?'Code DIGI recalculé expérimentalement après tare · non validé sur Zebra · barres EAN-13 générées, lecture Zebra non vérifiée'
    :'Code-barres original · barres EAN-13 générées');
@@ -377,13 +402,6 @@
    add(compare,'span','iu-gemini-recode-details','Original : '+fields.ean13+' · montant corrigé : '+money(corrected.cents)+' · poids : '+formatWeight(corrected.net));
   }
   refreshCorrectedLabel();
-  const calculation=add(output,'div','iu-gemini-net-summary','');
-  calculation.hidden=true; // Remplacé par le résultat compact au-dessus de l'étiquette.
-  add(calculation,'span','iu-gemini-net-caption','POIDS RÉEL DES PRODUITS · APRÈS TARE');
-  add(calculation,'strong','iu-gemini-net-value'+(netValid?'':' is-invalid'),
-   net===null?'Tare non disponible':formatWeight(net));
-  add(calculation,'span','iu-gemini-net-detail',
-   formatWeight(gross)+' brut − '+formatWeight(tare)+' panière');
   const checksRow=add(output,'div','iu-gemini-label-checks','');
   add(checksRow,'span',arithmetic?'is-ok':'is-warning',
    (arithmetic?'✓':'!')+' Calcul du prix '+(arithmetic?'cohérent':'à vérifier'));
@@ -392,7 +410,7 @@
   const caution=add(output,'p','iu-gemini-result-warning',
    'Un calcul cohérent ou un EAN valide ne garantit pas que Gemini a lu les bons chiffres. Compare avec la photo avant de confirmer.');
   output.hidden=false;
-  const empty=$('iuGeminiEmptyResult');if(empty)empty.hidden=true;
+  if(emptyResult)emptyResult.hidden=true;
   if(verified.error){
    resetTransfer();transfer.hidden=false;
    transferCheck.textContent='Transfert bloqué : '+verified.error;
@@ -484,8 +502,10 @@
   cameraStarting=false;torchBusy=false;torchOn=false;
   cameraShell.dataset.state='idle';
   cameraShell.hidden=true;
-  openCamera.hidden=false;
+  openCamera.hidden=true; // ouverture uniquement par le bouton scanner partagé
   openCamera.disabled=false;
+  shortcut?.setAttribute('aria-pressed','false');
+  shortcut?.setAttribute('aria-expanded','false');
   refreshTorch();
  }
  async function startCamera(){
@@ -509,6 +529,8 @@
    cameraStream=obtained;
    video.srcObject=obtained;
    cameraShell.hidden=false;cameraShell.dataset.state='scanning';openCamera.hidden=true;
+   shortcut?.setAttribute('aria-pressed','true');
+   shortcut?.setAttribute('aria-expanded','true');
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
@@ -539,7 +561,23 @@
    }
   }finally{torchBusy=false;refreshTorch();}
  }
- $('iuGeminiCameraShortcut')?.addEventListener('click',()=>{if(cameraStream){stopCamera();}else{startCamera();}});
+ modeCamera?.addEventListener('click',()=>{
+  selectReadingMode('camera');
+  if(cameraStream)cameraShell.scrollIntoView({block:'nearest',behavior:'smooth'});
+  else startCamera();
+ });
+ modePhoto?.addEventListener('click',()=>{
+  selectReadingMode('photo');
+  photo.click();
+ });
+ shortcut?.addEventListener('click',()=>{
+  selectReadingMode('camera');
+  if(cameraStream)stopCamera();else startCamera();
+ });
+ nextWeigh?.addEventListener('click',()=>{
+  if(active){say('L’analyse est en cours : termine-la avant une nouvelle pesée.',true);return;}
+  resetReading();
+ });
  openCamera.addEventListener('click',startCamera);
  closeCamera.addEventListener('click',()=>{
   stopCamera();say('Viseur fermé. Aucune photo envoyée.');
