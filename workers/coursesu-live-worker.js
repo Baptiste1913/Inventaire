@@ -127,7 +127,31 @@ async function lookup(request,env,origin){
    'Authorization':'Bearer '+env.APIFY_TOKEN,
    'Content-Type':'application/json'
   },body:JSON.stringify({storeIds:[storeId],productIds:[String(match.actorExtId)],maxItemsPerStore:1,language:'fr'}),signal:stop.signal});
-  if(!response.ok)throw Error('Scraper HTTP '+response.status);
+  if(!response.ok){
+   // Ne jamais exposer la réponse brute : elle pourrait contenir des données sensibles.
+   // Le type d'erreur Apify est un identifiant technique contrôlé, pas un message libre.
+   let payload=null;
+   try{payload=await response.json()}catch(_){}
+   const rawType=payload?.error?.type;
+   const errorType=typeof rawType==='string'&&/^[a-z0-9-]{1,72}$/.test(rawType)
+    ?rawType:'unknown';
+   const explanations={
+    'insufficient-permissions':'Permissions insuffisantes pour cet appel ; vérifier la portée exacte du token.',
+    'missing-actor-rights':'Le token ne dispose pas des droits nécessaires sur cet Actor.',
+    'full-permission-actor-not-approved':'Approbation des permissions de l’Actor requise dans la console Apify.',
+    'actor-is-not-rented':'L’accès à cet Actor n’est pas activé pour ce compte Apify.',
+    'actor-not-found':'Actor introuvable ou inaccessible avec ce token.',
+    'invalid-token':'Token Apify invalide.',
+    'not-enough-usage-to-run-paid-actor':'Crédits ou limite d’utilisation insuffisants.',
+    'apify-plan-required-to-use-paid-actor':'Abonnement Apify incompatible avec cet Actor payant.',
+    'max-total-charge-usd-below-minimum':'Le plafond de coût par exécution est inférieur au minimum autorisé.',
+    'invalid-input':'Paramètres d’entrée refusés par Apify.'
+   };
+   return reply({error:'Requête refusée par Apify',apifyStatus:response.status,
+    apifyErrorType:errorType,
+    diagnostic:explanations[errorType]||'Cause non déterminée : vérifier le type d’erreur Apify.',
+    actorRunVerified:false},502,origin);
+  }
   const text=await response.text();
   if(text.length>120000)throw Error('Réponse du scraper trop volumineuse');
   records=JSON.parse(text);
