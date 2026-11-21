@@ -1668,8 +1668,12 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
  border:0!important;
  border-radius:20px!important;
  z-index:0!important;
- background:linear-gradient(105deg,
-  #f45e6b 0%,#ffbd34 26%,#39bf85 52%,#3286f8 77%,#6d80f5 100%)!important;
+ background:radial-gradient(ellipse 81% 46% at 0% 0%,
+  #ed4d55 0%,rgba(237,77,85,.99) 27%,rgba(237,77,85,0) 100%),
+ radial-gradient(ellipse 85% 37% at 0% 50%,
+  #f9c017 0%,rgba(249,192,23,.99) 36%,rgba(249,192,23,0) 100%),
+ radial-gradient(ellipse 83% 45% at 0% 100%,
+  #0cb768 0%,rgba(12,183,104,.99) 32%,rgba(12,183,104,0) 100%),#3287fe!important;
  box-shadow:
   -3px -3px 7px rgba(255,255,255,.98),
   -6px -6px 13px rgba(255,255,255,.60),
@@ -1685,14 +1689,19 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
  /* Surface nacrée inchangée et deuxième liseré aux nuances Gemini. */
  background:
   linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%) padding-box,
-  linear-gradient(105deg,
-   #c84b63 0%,#cb963a 26%,#32936e 52%,#3676c9 77%,#6967ba 100%) border-box!important;
+  radial-gradient(ellipse 81% 46% at 0% 0%,
+   #ed4d55 0%,rgba(237,77,85,.99) 27%,rgba(237,77,85,0) 100%) border-box,
+  radial-gradient(ellipse 85% 37% at 0% 50%,
+   #f9c017 0%,rgba(249,192,23,.99) 36%,rgba(249,192,23,0) 100%) border-box,
+  radial-gradient(ellipse 83% 45% at 0% 100%,
+   #0cb768 0%,rgba(12,183,104,.99) 32%,rgba(12,183,104,0) 100%) border-box,
+  linear-gradient(#3287fe,#3287fe) border-box!important;
  box-shadow:none!important;
 }
 /* Empêcher les deux couches décoratives de recouvrir le titre, le panier,
    le viseur, les champs, les bilans ou les boutons de validation. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
- > :not(.iu-gemini-frame-gradient):not(.iu-gemini-frame-surface):not(.iu-gemini-hidden-photo-input) {
+ > :not(.iu-gemini-frame-gradient):not(.iu-gemini-frame-surface):not(.iu-gemini-hidden-photo-input):not(.iu-gemini-title-badge) {
  position:relative!important;
  z-index:2!important;
 }
@@ -1706,5 +1715,87 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   > .iu-gemini-frame-surface {
   display:none!important;
+ }
+}
+
+
+/* v41.61 — Retour de la pastille Gemini en haut à droite.
+   Taille du pictogramme identique au logo Google de « Connecté » (14px).
+   Le SVG utilise un viewBox généreux pour préserver les quatre pointes. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
+ position:absolute!important;
+ inset:14px 16px auto auto!important;
+ top:14px!important;
+ right:16px!important;
+ bottom:auto!important;
+ left:auto!important;
+ z-index:5!important;
+ display:inline-flex!important;
+ box-sizing:border-box!important;
+ width:max-content!important;
+ max-width:calc(100% - 32px)!important;
+ min-height:32px!important;
+ height:auto!important;
+ margin:0!important;
+ padding:7px 12px!important;
+ gap:7px!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:center!important;
+ border:1px solid #d7dfe4!important;
+ border-radius:999px!important;
+ background:linear-gradient(150deg,#f8fafb,#edf1f3)!important;
+ color:#4d5b65!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 3px rgba(45,64,76,.045)!important;
+ opacity:1!important;
+ visibility:visible!important;
+ overflow:visible!important;
+ pointer-events:none!important;
+ white-space:nowrap!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge .iu-gemini-brand-mark {
+ display:block!important;
+ box-sizing:content-box!important;
+ width:14px!important;
+ height:14px!important;
+ min-width:14px!important;
+ max-width:14px!important;
+ min-height:14px!important;
+ max-height:14px!important;
+ flex:0 0 14px!important;
+ align-self:center!important;
+ overflow:visible!important;
+ transform:none!important;
+ clip-path:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge .iu-gemini-title-text {
+ display:block!important;
+ font-family:inherit!important;
+ font-size:11px!important;
+ font-weight:820!important;
+ line-height:1.15!important;
+ color:#4d5b65!important;
+}
+/* Le titre peut conserver toute la largeur de la carte.
+   Seul le petit sous-titre se réserve l'espace de la pastille. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading {
+ padding-right:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading .section-kicker {
+ display:block!important;
+ max-width:calc(100% - 102px)!important;
+ white-space:normal!important;
+}
+@media(max-width:365px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading .section-kicker {
+  max-width:calc(100% - 108px)!important;
+ }
+}
+/* Le mode contraste renforcé conserve la pastille lisible sans dégradé. */
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  color:CanvasText!important;
  }
 }

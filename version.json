@@ -1,6 +1,6 @@
 {
-  "version": "41.60",
-  "published": "2026-11-21",
+  "version": "41.61",
+  "published": "2026-11-22",
   "assets": 54,
-  "notes": "Carte Nouvelle pesée avec Gemini : ajout du double contour identique au bouton Démarrer un inventaire, avec un anneau extérieur dégradé rouge/jaune/vert/bleu/violet et un liseré intérieur Gemini, rayons concentriques et relief neumorphique. Contenu, scanner, résultats et validation inchangés."
+  "notes": "Carte Gemini : pastille replacée en haut à droite, icône SVG complète sans rognage (14 px, même hauteur que le logo Google de Connecté), formes et couleurs tirées du logo de référence ; double contour avec rouge en haut à gauche, jaune au milieu, vert en bas et bleu dominant sur le bord droit. Scanner et validation inchangés."
 }
