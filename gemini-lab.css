@@ -1188,3 +1188,115 @@ html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-ean
 @media(max-width:350px) {
  html body .app > section#iuGeminiLab > .iu-gemini-title-badge {margin-bottom:7px!important;}
 }
+
+
+/* v41.51 — reproduction des proportions réelles de l'étiquette DIGI.
+   Référence : étiquette CAROTTE 1372 × 1088, trois colonnes et deux blocs
+   bas presque égaux (barres EAN à gauche, prix encadré à droite). */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame {
+ padding:10px 5px 9px!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-printed-label {
+ box-sizing:border-box!important;
+ width:min(100%,306px)!important;
+ max-width:306px!important;
+ aspect-ratio:1372/1088!important;
+ margin:0 auto!important;
+ padding:2.1% 2.5% 2.5%!important;
+ grid-template-rows:22% 29% 17% 32%!important;
+ border-radius:4px!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-top {
+ width:58%!important;margin-left:auto!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:flex-start!important;
+ padding:0!important;border:0!important;text-align:center!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-name {
+ display:flex!important;align-items:center!important;
+ justify-content:center!important;text-align:center!important;
+ padding:0!important;border:0!important;
+ font-size:clamp(18px,7.2cqw,30px)!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle {
+ display:grid!important;grid-template-columns:minmax(0,1.02fr) minmax(0,.89fr) minmax(0,1.16fr)!important;
+ gap:1.7%!important;align-items:end!important;
+ padding:0 0 3%!important;border:0!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-rate,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-gross,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-date {
+ min-width:0!important;display:flex!important;
+ flex-direction:column!important;align-items:flex-start!important;
+ justify-content:flex-end!important;gap:2px!important;
+ padding:0!important;margin:0!important;border:0!important;
+ text-align:left!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-caption {
+ font-size:clamp(8px,3.15cqw,12px)!important;
+ line-height:1.05!important;letter-spacing:-.018em!important;
+ white-space:nowrap!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-number {
+ font-size:clamp(13px,5.2cqw,19px)!important;
+ line-height:1.12!important;white-space:nowrap!important;
+ letter-spacing:-.035em!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-date .iu-gemini-label-number {
+ font-size:clamp(11px,4.55cqw,17px)!important;letter-spacing:-.035em!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom {
+ display:grid!important;
+ grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)!important;
+ gap:2.5%!important;
+ min-width:0!important;min-height:0!important;
+ align-items:stretch!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-barcode {
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:flex-end!important;
+ width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ margin:0!important;padding:0!important;overflow:visible!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bars {
+ display:block!important;width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ margin:0!important;padding:0!important;
+ border:0!important;background:none!important;
+ opacity:1!important;overflow:visible!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bars .iu-gemini-ean-svg {
+ display:block!important;width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;
+ background:none!important;overflow:visible!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-total {
+ display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;
+ min-width:0!important;min-height:0!important;
+ margin:0!important;padding:1%!important;
+ border:clamp(2px,.8cqw,4px) solid #111!important;
+ border-radius:0!important;
+ box-sizing:border-box!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-total-caption {
+ font-size:clamp(10px,3.85cqw,14px)!important;
+ line-height:1.05!important;white-space:nowrap!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-total-number {
+ font-size:clamp(24px,10.1cqw,37px)!important;
+ line-height:1.05!important;white-space:nowrap!important;
+}
+@media(max-width:350px){
+ html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-printed-label {
+  width:min(100%,285px)!important;
+  max-width:285px!important;
+ }
+}
+@media(forced-colors:active){
+ html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-printed-label {
+  border:1px solid CanvasText!important;
+  background:Canvas!important;color:CanvasText!important;
+ }
+}

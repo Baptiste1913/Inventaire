@@ -68,7 +68,7 @@ render(holder,original);
 assert.equal(holder.children.length,1,'Un seul symbole créé');
 const svg=holder.children[0];
 assert.equal(svg.name,'svg');
-assert.equal(svg.attrs.viewBox,'0 0 126 83');
+assert.equal(svg.attrs.viewBox,'0 0 128 66');
 const printed=svg.children.filter(node=>node.name==='text');
 const digits=printed.filter(node=>node.attrs.class!=='iu-gemini-ean-plu');
 assert.equal(digits.length,13,'Les 13 chiffres visibles');
@@ -77,8 +77,12 @@ assert.equal(digits.sort((a,b)=>Number(a.attrs.x)-Number(b.attrs.x)).map(node=>n
 assert.equal(printed.find(node=>node.attrs.class==='iu-gemini-ean-plu').textContent,
  '3476','PLU vertical conforme à la photo');
 const bars=svg.children.filter(node=>node.name==='rect');
+assert.equal(bars.every(node=>node.attrs.width==='1.12'),true,'Tous les modules EAN ont une largeur identique');
+assert(bars[0].attrs.x==='15','Le premier module commence après le PLU et le premier chiffre');
+assert(css.includes('grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)'),'Proportions du bas conformes à la photo');
+assert(css.includes('width:min(100%,306px)'),'Étiquette virtuelle élargie');
 assert(bars.length>30&&bars.length<70,'Seulement les modules noirs');
-assert(bars.some(node=>node.attrs.height==='61')&&bars.some(node=>node.attrs.height==='52'),
+assert(bars.some(node=>node.attrs.height==='52')&&bars.some(node=>node.attrs.height==='44'),
  'Barres de garde prolongées');
 render(holder,'0203476013845');
 assert.equal(holder.children.length,0,'EAN avec mauvais checksum non dessiné');

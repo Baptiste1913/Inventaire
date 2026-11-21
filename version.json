@@ -1,6 +1,6 @@
 {
-  "version": "41.50",
+  "version": "41.51",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "La photo capturée ou importée lance immédiatement son analyse Gemini (clé pilote requise). Date de la maquette d’étiquette réglée sur le jour local ; EAN-13 tracé avec les 13 chiffres sous les barres comme les étiquettes DIGI, PLU vertical pour préfixe 020. Pastille Gemini colorée rétablie. Validation de pesée toujours manuelle et scanner classique inchangé."
+  "notes": "Étiquette virtuelle Gemini recalée sur les proportions de l’étiquette papier Super U : largeur 306 px, magasin en haut à droite, produit centré, informations en trois colonnes, code EAN-13 élargi avec modules non déformés et chiffres/PLU intégrés, prix encadré à droite. Analyse automatique et validation manuelle inchangées."
 }
