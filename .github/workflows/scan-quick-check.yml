@@ -9,6 +9,9 @@ on:
       - 'tools/test_scanner_transfer.cjs'
       - 'app.js'
       - 'weigh-scan.js'
+      - 'gemini-lab.js'
+      - 'gemini-lab.css'
+      - 'tools/test_gemini_manual_save.cjs'
       - 'weigh-scan-inline.css'
       - 'index.html'
       - 'sw.js'
@@ -27,7 +30,11 @@ jobs:
         run: |
           node --check app.js
           node --check weigh-scan.js
+          node --check gemini-lab.js
+          node --check tools/test_gemini_manual_save.cjs
           node --check sw.js
           node --check tools/test_scanner_transfer.cjs
       - name: Vérifier le transfert OCR et le calcul de tare
         run: node tools/test_scanner_transfer.cjs
+      - name: Vérifier la validation manuelle Gemini
+        run: node tools/test_gemini_manual_save.cjs

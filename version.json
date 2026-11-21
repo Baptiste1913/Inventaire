@@ -1,6 +1,6 @@
 {
-  "version": "41.48",
+  "version": "41.49",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Pesée IA compacte pour inventaire : panier et boutons caméra/photo sur une ligne, accès direct à l’analyse, résultat net prioritaire, étiquette détaillée repliable et réglages Gemini en bas. Contrôles de tare et d’article conservés ; scanner classique inchangé."
+  "notes": "Pesée Gemini : intitulé explicite, panier élargi avec caméra et galerie jointes à droite, poids brut à vérifier en grand et net calculé en petit, étiquette virtuelle miniature visible sans volet. La validation par « Valider et suivante » déclenche désormais seule l’enregistrement et prépare une nouvelle lecture. Contrôles de sécurité et scanner historique conservés."
 }

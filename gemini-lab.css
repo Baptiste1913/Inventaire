@@ -1018,3 +1018,122 @@ html body .app > section.calc-card.card > #iuGeminiOptions > .calc-alerts-summar
 @media(prefers-reduced-motion:reduce){
  .iu-gemini-standalone .iu-gemini-details > summary::after {transition:none;}
 }
+
+/* v41.49 — disposition centrée sur le contrôle du brut avant validation. */
+.iu-gemini-standalone > .iu-gemini-title-badge {display:none!important;}
+.iu-gemini-standalone > .card-heading {
+ padding-right:0!important;margin-bottom:7px;
+}
+.iu-gemini-standalone > .card-heading h2 {
+ font-size:clamp(21px,5.3vw,27px)!important;
+ line-height:1.16!important;letter-spacing:-.028em;
+}
+/* Garder au maximum l'espace pour le choix du panier : deux cibles de 44px,
+   collées à droite sans réduire leur surface tactile. */
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row {
+ display:flex!important;gap:0!important;align-items:stretch!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row .iu-basket-select-wrap {
+ flex:1 1 auto!important;min-width:0!important;margin-right:7px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row .iu-weigh-scan-option {
+ flex:0 0 44px!important;width:44px!important;min-width:44px!important;
+ max-width:44px!important;margin:0!important;padding:0!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiBasketSelect {
+ height:48px!important;min-height:48px!important;padding:0 9px!important;
+ font-size:14px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiCameraShortcut,
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiModePhoto {
+ flex:0 0 44px!important;width:44px!important;min-width:44px!important;
+ max-width:44px!important;height:48px!important;min-height:48px!important;
+ max-height:48px!important;margin:0!important;padding:0!important;
+ border-radius:0!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiCameraShortcut {
+ border-radius:13px 3px 3px 13px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiModePhoto {
+ border-radius:3px 13px 13px 3px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiCameraShortcut svg {
+ width:21px!important;height:21px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiModePhoto svg {
+ width:20px!important;height:20px!important;
+}
+/* Validation explicite : on ne peut ni sauter ni enregistrer un calcul non fiable. */
+html body .app > section.calc-card#iuGeminiLab #iuGeminiNext {
+ box-sizing:border-box;flex:0 0 87px!important;width:87px!important;
+ min-width:87px!important;max-width:87px!important;height:52px!important;
+ min-height:52px!important;padding:5px 6px!important;
+ gap:3px!important;font-size:18px!important;line-height:1!important;
+ border-radius:15px!important;touch-action:manipulation;
+}
+html body .app > section.calc-card#iuGeminiLab #iuGeminiNext > span {
+ font-size:10px!important;line-height:1.18!important;font-weight:800!important;
+}
+html body .app > section.calc-card#iuGeminiLab #iuGeminiNext:disabled {opacity:.52!important;}
+html body .app > section.calc-card#iuGeminiLab #iuGeminiNext.is-ready:not(:disabled){
+ border-color:rgba(38,120,106,.45)!important;
+ background:linear-gradient(145deg,#f8fffd,#e1f2ed)!important;
+ color:#155e50!important;
+ box-shadow:inset 0 1px 0 #fff,3px 4px 10px rgba(50,115,100,.13)!important;
+}
+/* Les deux valeurs secondaires ne concurrencent plus le poids brut lu. */
+html body .app > section.calc-card#iuGeminiLab .result.iu-result-compact .iu-result-weights {
+ flex-wrap:nowrap!important;align-items:start!important;
+ column-gap:12px!important;row-gap:3px!important;
+ margin-bottom:9px!important;padding-bottom:8px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .result.iu-result-compact .iu-result-weights > span {
+ display:flex!important;flex-direction:column!important;
+ flex:1 1 54%!important;align-items:flex-start!important;gap:3px!important;
+ font-size:11px!important;line-height:1.22!important;min-width:0!important;
+}
+html body .app > section.calc-card#iuGeminiLab .result.iu-result-compact .iu-result-weights > span:last-child {
+ flex:0 1 38%!important;align-items:flex-end!important;
+}
+html body .app > section.calc-card#iuGeminiLab .result.iu-result-compact .iu-result-weights > span strong {
+ font-size:clamp(15px,4.4vw,19px)!important;line-height:1.18!important;
+ white-space:nowrap!important;
+}
+html body .app > section.calc-card#iuGeminiLab .result.iu-result-compact .result-heading > span {
+ font-size:13px!important;font-weight:850!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-empty-result .result.iu-result-compact .iu-result-weights {
+ margin-bottom:6px!important;padding-bottom:6px!important;
+}
+/* Étiquette virtuelle toujours accessible, dans une présentation miniature
+   cadrée ; les avertissements sur l'EAN expérimental restent explicites. */
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-label-frame {
+ box-sizing:border-box;width:100%;min-width:0;
+ margin:8px 0 0;padding:11px 8px 9px;
+ border:1px solid rgba(198,214,223,.84);border-radius:15px;
+ background:linear-gradient(145deg,#fafcfd,#eff4f7);
+ box-shadow:inset 0 1px 0 #fff,2px 3px 9px rgba(87,120,140,.055);
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-label-frame .iu-gemini-printed-label {
+ box-sizing:border-box!important;width:min(100%,238px)!important;
+ max-width:238px!important;min-width:0!important;height:auto!important;
+ margin:0 auto!important;border-radius:5px!important;
+ box-shadow:0 2px 8px rgba(29,48,60,.1)!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-label-frame-caption {
+ margin:7px 0 0;text-align:center;font-size:10px;
+ line-height:1.3;color:#697c86;font-weight:550;
+}
+@media(max-width:350px){
+ html body .app > section.calc-card#iuGeminiLab .iu-gemini-scan-row #iuGeminiBasketSelect {
+  font-size:12px!important;
+ }
+ html body .app > section.calc-card#iuGeminiLab .iu-gemini-label-frame .iu-gemini-printed-label {
+  width:min(100%,210px)!important;
+ }
+}
+@media(forced-colors:active){
+ html body .app > section.calc-card#iuGeminiLab .iu-gemini-label-frame {
+  background:Canvas;border:1px solid CanvasText;box-shadow:none;
+ }
+}
