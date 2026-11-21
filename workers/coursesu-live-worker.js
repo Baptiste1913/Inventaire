@@ -122,7 +122,7 @@ async function lookup(request,env,origin){
  const timeout=setTimeout(()=>stop.abort(),60000);
  let records;
  try{
-  const url='https://api.apify.com/v2/acts/ratatoskr~systeme-u-scraper/run-sync-get-dataset-items?maxTotalChargeUsd=0.02&maxItems=1&restartOnError=false';
+  const url='https://api.apify.com/v2/acts/ratatoskr~systeme-u-scraper/run-sync-get-dataset-items?maxTotalChargeUsd=0.10&maxItems=1&restartOnError=false';
   const response=await fetch(url,{method:'POST',headers:{
    'Authorization':'Bearer '+env.APIFY_TOKEN,
    'Content-Type':'application/json'
