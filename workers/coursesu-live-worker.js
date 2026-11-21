@@ -274,6 +274,112 @@ async function htmlCheck(request,env,origin){
  }finally{clearTimeout(timeout)}
 }
 
+
+// Essai privé Gemini, distinct du moteur de pesée. Aucune écriture en inventaire.
+// Activation opt-in GEMINI_LAB_ENABLED + clef utilisateur TEST jamais publiée.
+// Les appels Gemini sont susceptibles de consommer des quotas ou d'être facturés.
+function geminiLabValue(raw,kind){
+ if(typeof raw!=='string')return null;
+ const text=raw.replace(/\s+/g,'').replace(',','.').replace(/€/g,'');
+ if(kind==='weight'){
+  const m=text.match(/^(\d{1,2})\.(\d{3})(?:kg)?$/i);
+  if(!m)return null;
+  const grams=Number(m[1])*1000+Number(m[2]);
+  return grams>=1&&grams<=30000?grams:null;
+ }
+ const m=text.match(/^(\d{1,3})\.(\d{2})$/);
+ if(!m)return null;
+ const cents=Number(m[1])*100+Number(m[2]);
+ return cents>0&&cents<=99999?cents:null;
+}
+function geminiLabName(value){
+ if(typeof value!=='string')return null;
+ const name=value.trim();
+ return name.length>=2&&name.length<=70&&/^[\p{L}\d '.\-]+$/u.test(name)?name:null;
+}
+async function geminiPilot(request,env,origin){
+ const closed={type:'inventaires-u-gemini-lab',actorExecuted:false,
+  inventoryUpdated:false};
+ if(env.GEMINI_LAB_ENABLED!=='true')
+  return reply({...closed,error:'Pilote Gemini désactivé. Aucun appel lancé.'},503,origin);
+ if(!env.COURSESU_TEST_TOKEN||request.headers.get('X-IU-Pilot-Key')!==env.COURSESU_TEST_TOKEN)
+  return reply({...closed,error:'Clé privée de pilote requise. Aucun appel lancé.'},401,origin);
+ if(!env.GEMINI_API_KEY)return reply({...closed,error:'GEMINI_API_KEY non configurée.'},503,origin);
+ let payload;
+ try{
+  const length=Number(request.headers.get('content-length')||0);
+  if(length>800000)throw Error('Image trop volumineuse');
+  const text=await request.text();
+  if(text.length>800000)throw Error('Image trop volumineuse');
+  payload=JSON.parse(text);
+ }catch(_){return reply({...closed,error:'Image ou JSON invalide.'},400,origin)}
+ const model=payload?.model;
+ if(!['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model)||
+    payload?.type!=='iu-gemini-label-test'||
+    payload?.mimeType!=='image/jpeg'||
+    typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
+    payload.imageBase64.length<100||!/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(payload.imageBase64))
+  return reply({...closed,error:'Modèle ou image JPEG incorrect.'},400,origin);
+ const photoBytes=payload.imageBase64.length*3/4;
+ if(photoBytes>525000)return reply({...closed,error:'Photo trop volumineuse.'},413,origin);
+ const prompt='Tu es un lecteur visuel d’étiquettes DIGI du rayon fruits et légumes. '
+  +'Lis uniquement les informations VISIBLES sur cette seule photo, sans inventer, déduire ou compléter. '
+  +'Rends un objet JSON uniquement avec les clés name, weightKg, pricePerKgEur, totalEur, ean13. '
+  +'Chaque valeur est une chaîne exacte ou null si texte non visible, ambigu ou illisible. '
+  +'weightKg = nombre imprimé devant kg sous Poids net (ex. "1,058"); '
+  +'pricePerKgEur = prix imprimé devant €/kg (ex. "1,99"); '
+  +'totalEur = prix affiché dans Prix à payer (ex. "2,11"); '
+  +'ean13 = exactement 13 chiffres lisibles, sinon null. '
+  +'NE déduis JAMAIS un chiffre par la somme, le prix, le code ou un article supposé.';
+ const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),55000);
+ const started=Date.now();
+ try{
+  const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
+   +model+':generateContent',{
+    method:'POST',signal:abort.signal,
+    headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
+    body:JSON.stringify({
+     contents:[{role:'user',parts:[{text:prompt},
+      {inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}]}],
+     generationConfig:{temperature:0,maxOutputTokens:450,responseMimeType:'application/json'}
+    })
+   });
+  if(!res.ok){
+   const status=res.status;
+   // Ne pas faire fuiter le corps de la réponse, qui peut contenir des données du compte.
+   const diagnostic=status===401||status===403?'Clé Gemini non autorisée pour ce projet.'
+    :status===429?'Quota Gemini atteint. Ne pas réessayer en boucle.'
+    :status===404?'Modèle non accessible avec cette clé API.'
+    :status===400?'Paramètres refusés par Gemini.'
+    :'Erreur du fournisseur Gemini.';
+   return reply({...closed,error:diagnostic,providerStatus:status,model},502,origin);
+  }
+  const raw=await res.text();
+  if(raw.length>16000)throw Error('Réponse trop volumineuse');
+  const data=JSON.parse(raw);
+  const parts=data?.candidates?.[0]?.content?.parts||[];
+  const answer=parts.filter(p=>typeof p?.text==='string').map(p=>p.text).join('');
+  if(answer.length>5000)throw Error('Réponse trop longue');
+  const extracted=JSON.parse(answer);
+  if(!extracted||typeof extracted!=='object'||Array.isArray(extracted))throw Error('JSON non reconnu');
+  const weightGrams=geminiLabValue(extracted.weightKg,'weight');
+  const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'money');
+  const totalCents=geminiLabValue(extracted.totalEur,'money');
+  const ean13=typeof extracted.ean13==='string'&&validEAN13(extracted.ean13)
+    ?extracted.ean13:null;
+  const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
+    &&Math.round(weightGrams*pricePerKgCents/1000)===totalCents;
+  return reply({...closed,model,elapsedMs:Date.now()-started,
+   fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
+   checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null},
+   verifiedForInventory:false,warning:'Données indicatives : vérifier visuellement chaque chiffre avant toute utilisation.'},
+   200,origin);
+ }catch(_){
+  return reply({...closed,error:abort.signal.aborted?'Délai Gemini dépassé.':'Réponse Gemini non exploitable.',
+   model},502,origin);
+ }finally{clearTimeout(timeout)}
+}
+
 function normalizedName(a,b){return !!normalize(a)&&normalize(a)===normalize(b)}
 export default {
  async fetch(request,env){
@@ -292,6 +398,7 @@ export default {
   const path=new URL(request.url).pathname;
   if(path==='/auth-check'&&request.method==='POST')return authCheck(request,env,origin);
   if(path==='/html-check'&&request.method==='POST')return htmlCheck(request,env,origin);
+  if(path==='/gemini-lab'&&request.method==='POST')return geminiPilot(request,env,origin);
   if(request.method!=='POST'||path!=='/lookup')
    return reply({error:'Route invalide'},405,origin);
   return lookup(request,env,origin);
