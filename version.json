@@ -1,6 +1,6 @@
 {
-  "version": "41.40",
+  "version": "41.41",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Pesées Gemini valides sauvegardées automatiquement dans l'historique et la session active, avec article, EAN original/corrigé, prix au kilo et prix corrigé. Badge Gemini distinct, prévention des doublons et refus des lectures incohérentes. OCR classique inchangé."
+  "notes": "Ajout de la pastille étoile multicolore Gemini en haut à droite du bloc de pesée IA et de chaque pesée Gemini dans l’historique. Les pesées classiques restent inchangées."
 }
