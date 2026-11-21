@@ -247,7 +247,7 @@ async function htmlCheck(request,env,origin){
   // La page peut afficher le même tarif en version desktop, mobile et sticky.
   // On n'accepte qu'une seule valeur €/kg distincte.
   const unitRates=[];
-  for(const tag of html.matchAll(/<span\b([^>]*)>([\s\S]*?)<\/span>/gi)){
+  for(const tag of html.matchAll(/<span\b([^>]*)>([^<]{0,200})<\/span>/gi)){
    const cls=tag[1].match(/\bclass\s*=\s*["']([^"']+)["']/i)?.[1]||'';
    if(!cls.split(/\s+/).includes('unit-info'))continue;
    const label=tag[2].replace(/&#8364;|&#x20ac;|&euro;/gi,'€')
