@@ -204,6 +204,34 @@
   const first12=ean.slice(0,7)+String(encoded).padStart(5,'0');
   return {ean:first12+eanCheck(first12),net,cents,encoded};
  }
+ // Barres EAN-13 exactes, SVG local sans bibliothèque ni réseau.
+ function renderEanBars(container,ean){
+  if(!/^\\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12])return;
+  const L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+  const G=['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'];
+  const R=['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
+  const parity=['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+  let bits='101';
+  for(let i=1;i<=6;i++){const d=Number(ean[i]);bits+=parity[Number(ean[0])][i-1]==='L'?L[d]:G[d];}
+  bits+='01010';
+  for(let i=7;i<13;i++)bits+=R[Number(ean[i])];
+  bits+='101';
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 95 56');
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.setAttribute('role','img');
+  svg.setAttribute('aria-label','Code-barres EAN-13 généré '+ean);
+  svg.classList.add('iu-gemini-ean-svg');
+  for(let i=0;i<bits.length;i++){
+   if(bits[i]!=='1')continue;
+   const rect=document.createElementNS(ns,'rect');
+   rect.setAttribute('x',String(i));rect.setAttribute('y','0');
+   rect.setAttribute('width','1');rect.setAttribute('height',(i<3||i>=92||i>=45&&i<50)?'56':'49');
+   rect.setAttribute('fill','#111');svg.append(rect);
+  }
+  container.replaceChildren(svg);
+ }
  function display(result,wallMs){
   output.replaceChildren();
   const fields=result?.fields||{},checks=result?.checks||{};
@@ -251,6 +279,7 @@
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
   bars.setAttribute('aria-hidden','true');
+  renderEanBars(bars,corrected?.ean||fields.ean13);
   add(barcode,'span','iu-gemini-label-ean',corrected?.ean||fields.ean13||'EAN NON RECONNU');
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
@@ -263,8 +292,8 @@
   add(summary,'span','iu-gemini-label-state'+(ready?' is-ready':' is-review'),statusText);
   output.append(label);
   add(output,'p','iu-gemini-label-notice',corrected
-   ?'Code DIGI recalculé expérimentalement après tare · non validé sur Zebra · barres illustratives non scannables'
-   :'Code-barres original · barres illustratives non scannables');
+   ?'Code DIGI recalculé expérimentalement après tare · non validé sur Zebra · barres EAN-13 générées, lecture Zebra non vérifiée'
+   :'Code-barres original · barres EAN-13 générées');
   if(corrected){
    const compare=add(output,'div','iu-gemini-recode-summary','');
    add(compare,'span','iu-gemini-recode-title','CODE RECALCULÉ APRÈS TARE · EXPÉRIMENTAL');
