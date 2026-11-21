@@ -1,4 +1,4 @@
-/* Inventaires U 41.52 — alignements comparés à la vraie étiquette DIGI, ligne au-dessus du code et PLU vertical centré.
+/* Inventaires U 41.53 — caméra recadrée, capture nette et reprise manuelle des erreurs Gemini.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -139,6 +139,7 @@
    say('Pesée conservée. Valide-la pour continuer.');return false;
   }
   latestLabelFields=null;
+  analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
@@ -456,7 +457,17 @@
    if(id!==generation)return;
    let result;
    try{result=await response.json()}catch(_){throw Error('Réponse JSON invalide');}
-   if(!response.ok)throw Error(String(result?.error||'Réponse du Worker impossible'));
+   if(!response.ok){
+    const message=String(result?.error||'Réponse du Worker impossible');
+    // Une réponse 502 non exploitable permet une NOUVELLE tentative manuelle,
+    // sans deuxième requête cachée ni sauvegarde automatique.
+    if(response.status===502&&/Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide/i.test(message)){
+     attempts.delete(selectedModel);
+     analyze.textContent='Réessayer l’analyse';
+     throw Error('Gemini n’a pas fourni de lecture utilisable. Recadre l’étiquette ou touche « Réessayer l’analyse ».');
+    }
+    throw Error(message);
+   }
    display(result,performance.now()-start);
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    say(proposal
@@ -526,7 +537,7 @@
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
-   say('Cadre l’étiquette, capture-la, puis lance l’analyse.');
+   say('Centre l’étiquette entière. Une seule analyse démarrera après capture.');
   }catch(_){
    if(epoch===cameraEpoch){
     stopCamera();
@@ -597,18 +608,38 @@
   stopCamera();say('Viseur fermé. Aucune photo envoyée.');
  });
  torch.addEventListener('click',()=>setTorch(!torchOn));
+ // Reprendre le cadrage visible en direct, puis réduire les marges latérales.
+ // Les étiquettes voisines ne doivent pas être envoyées si possible.
+ function cameraCaptureCrop(srcW,srcH,viewW,viewH){
+  if(!Number.isFinite(srcW)||!Number.isFinite(srcH)||srcW<=0||srcH<=0)
+   throw Error('Dimensions de caméra indisponibles');
+  let x=0,y=0,width=srcW,height=srcH;
+  const ratio=Number.isFinite(viewW)&&Number.isFinite(viewH)&&viewW>0&&viewH>0
+   ?viewW/viewH:srcW/srcH;
+  if(width/height>ratio){width=height*ratio;x=(srcW-width)/2;}
+  else{height=width/ratio;y=(srcH-height)/2;}
+  // Préserver une marge pour le PLU vertical et les gardes EAN.
+  const focused=width*.88;
+  x+=(width-focused)/2;
+  width=focused;
+  return {x,y,width,height};
+ }
  capture.addEventListener('click',async()=>{
   if(!cameraStream||active||!video.videoWidth||!video.videoHeight)return;
   capture.disabled=true;
   try{
    const cv=document.createElement('canvas');
-   const factor=Math.min(1,1600/Math.max(video.videoWidth,video.videoHeight));
-   cv.width=Math.round(video.videoWidth*factor);
-   cv.height=Math.round(video.videoHeight*factor);
+   const viewport=video.getBoundingClientRect();
+   const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,viewport.width,viewport.height);
+   const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
+   cv.width=Math.max(1,Math.round(crop.width*factor));
+   cv.height=Math.max(1,Math.round(crop.height*factor));
    const ctx=cv.getContext('2d');
    if(!ctx)throw Error('Capture impossible');
-   ctx.drawImage(video,0,0,cv.width,cv.height);
-   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.87));
+   ctx.imageSmoothingEnabled=true;
+   ctx.imageSmoothingQuality='high';
+   ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
+   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.95));
    if(!blob)throw Error('Capture impossible');
    setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
   }catch(_){say('Capture impossible. Réessaie.',true);}

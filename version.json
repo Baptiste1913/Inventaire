@@ -1,6 +1,6 @@
 {
-  "version": "41.52",
+  "version": "41.53",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Alignements précis sur l’étiquette papier DIGI : prix unitaire aligné sur le début des barres, poids net centré, date d’emballage agrandie et alignée avec la droite du prix. EAN légèrement décalé à gauche, barre supérieure noire ajoutée, PLU vertical agrandi et centré. Analyse automatique et validation manuelle conservées."
+  "notes": "Gemini caméra : capture centrée sur le viseur, suppression des marges latérales et JPEG haute qualité avant analyse automatique. En cas de réponse Gemini inexploitable, réessai uniquement sur action manuelle. Worker Gemini préparé avec réponses JSON plus robustes, diagnostics explicites et limite de sortie relevée ; déploiement Cloudflare à effectuer séparément. Import galerie et validation manuelle inchangés."
 }

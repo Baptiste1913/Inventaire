@@ -341,7 +341,7 @@ async function geminiPilot(request,env,origin){
     body:JSON.stringify({
      contents:[{role:'user',parts:[{text:prompt},
       {inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}]}],
-     generationConfig:{temperature:0,maxOutputTokens:450,responseMimeType:'application/json'}
+     generationConfig:{temperature:0,maxOutputTokens:1024,responseMimeType:'application/json'}
     })
    });
   if(!res.ok){
@@ -357,10 +357,33 @@ async function geminiPilot(request,env,origin){
   const raw=await res.text();
   if(raw.length>16000)throw Error('Réponse trop volumineuse');
   const data=JSON.parse(raw);
-  const parts=data?.candidates?.[0]?.content?.parts||[];
+  const candidate=data?.candidates?.[0];
+  // Une réponse interrompue par la limite de tokens ne peut pas être
+  // interprétée comme une étiquette fiable, même si le JSON est partiel.
+  if(candidate?.finishReason==='MAX_TOKENS')
+   return reply({...closed,error:'Réponse Gemini incomplète (limite de génération). Recadrez l’étiquette et réessayez.',
+    model},502,origin);
+  const parts=candidate?.content?.parts||[];
   const answer=parts.filter(p=>typeof p?.text==='string').map(p=>p.text).join('');
+  if(!answer.trim())
+   return reply({...closed,error:'Réponse Gemini vide. Centrez l’étiquette et réessayez.',
+    model},502,origin);
   if(answer.length>5000)throw Error('Réponse trop longue');
-  const extracted=JSON.parse(answer);
+  // Certaines réponses textuelles conservent des balises Markdown malgré
+  // responseMimeType. Accepter le JSON strict puis, à défaut, le bloc JSON.
+  let extracted;
+  try{extracted=JSON.parse(answer)}
+  catch(_){
+   const match=answer.trim().match(/^(?:```(?:json)?\s*)?(\{[\s\S]*\})(?:\s*```)?$/i);
+   if(!match)
+    return reply({...closed,error:'Réponse Gemini non exploitable. Recadrez l’étiquette et réessayez.',
+     model},502,origin);
+   try{extracted=JSON.parse(match[1])}
+   catch(_){
+    return reply({...closed,error:'Réponse Gemini incomplète. Recadrez l’étiquette et réessayez.',
+     model},502,origin);
+   }
+  }
   if(!extracted||typeof extracted!=='object'||Array.isArray(extracted))throw Error('JSON non reconnu');
   const weightGrams=geminiLabValue(extracted.weightKg,'weight');
   const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'money');

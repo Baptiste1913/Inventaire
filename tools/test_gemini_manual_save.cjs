@@ -104,4 +104,34 @@ assert(bars.some(node=>node.attrs.height==='52')&&bars.some(node=>node.attrs.hei
 render(holder,'0203476013845');
 assert.equal(holder.children.length,0,'EAN avec mauvais checksum non dessiné');
 
+
+const retryStart=js.indexOf('if(!response.ok){',analyzeStart);
+const retryEnd=js.indexOf('display(result,performance.now()-start);',retryStart);
+assert(retryStart>analyzeStart&&retryEnd>retryStart,'Erreur réseau traitée au niveau de la photo');
+const retry=js.slice(retryStart,retryEnd);
+assert(retry.includes('attempts.delete(selectedModel)'),'Réessai possible si la réponse du Worker est inexploitable');
+assert(retry.includes("analyze.textContent='Réessayer l’analyse'"),'Le bouton de réessai doit être visible');
+assert(!retry.includes('analyze.click()'),'Aucun réessai automatiquement facturable');
+const cropStart=js.indexOf('function cameraCaptureCrop(');
+const cropEnd=js.indexOf("capture.addEventListener('click'",cropStart);
+assert(cropStart>0&&cropEnd>cropStart,'Recadrage vidéo dédié à la caméra');
+const cropSource=js.slice(cropStart,cropEnd).trim();
+const crop=vm.runInNewContext('('+cropSource+')');
+const wide=crop(1920,1080,560,300);
+assert(wide.width<1920&&wide.height<=1080,'Éliminer les étiquettes voisines sans zoom excessif');
+assert(wide.x>0&&wide.y>=0&&wide.x+wide.width<=1920&&wide.y+wide.height<=1080,'Cadrage dans les bornes de la caméra');
+const portrait=crop(1280,1920,300,560);
+assert(portrait.x>=0&&portrait.y>=0&&portrait.x+portrait.width<=1280&&portrait.y+portrait.height<=1920,
+ 'Capture verticale conforme au ratio du viseur');
+const captureBlock=js.slice(cropEnd,js.indexOf("document.addEventListener('visibilitychange'",cropEnd));
+assert(captureBlock.includes('cameraCaptureCrop(video.videoWidth'),'Le viseur pilote le recadrage');
+assert(captureBlock.includes("cv.toBlob(resolve,'image/jpeg',.95)"),'JPEG de qualité renforcée');
+assert(captureBlock.includes("setPhoto(new File([blob]"),'La capture revient au même parcours que la galerie');
+const worker=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
+assert(worker.includes("maxOutputTokens:1024,responseMimeType:'application/json'"),
+ 'Prévoir une réponse JSON complète sans tronquer Gemini trop tôt');
+assert(worker.includes("candidate?.finishReason==='MAX_TOKENS'"),'Réponse tronquée diagnostiquée');
+assert(worker.includes("Réponse Gemini vide."),'Réponse vide diagnostiquée');
+assert(worker.includes("Réponse Gemini non exploitable."),'Réponse JSON invalide diagnostiquée');
+
 console.log('Gemini : analyse, date, alignements papier, PLU centré, barre haute EAN et validation manuelle vérifiés.');

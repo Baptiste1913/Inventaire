@@ -10,6 +10,7 @@ on:
       - 'app.js'
       - 'weigh-scan.js'
       - 'gemini-lab.js'
+      - 'workers/coursesu-live-worker.js'
       - 'gemini-lab.css'
       - 'tools/test_gemini_manual_save.cjs'
       - 'weigh-scan-inline.css'
@@ -31,6 +32,7 @@ jobs:
           node --check app.js
           node --check weigh-scan.js
           node --check gemini-lab.js
+          node --check workers/coursesu-live-worker.js
           node --check tools/test_gemini_manual_save.cjs
           node --check sw.js
           node --check tools/test_scanner_transfer.cjs
