@@ -74,12 +74,29 @@ const digits=printed.filter(node=>node.attrs.class!=='iu-gemini-ean-plu');
 assert.equal(digits.length,13,'Les 13 chiffres visibles');
 assert.equal(digits.sort((a,b)=>Number(a.attrs.x)-Number(b.attrs.x)).map(node=>node.textContent).join(''),
  original,'Ordre exact 0 + 203476 + 013844');
-assert.equal(printed.find(node=>node.attrs.class==='iu-gemini-ean-plu').textContent,
- '3476','PLU vertical conforme à la photo');
+const plu=printed.find(node=>node.attrs.class==='iu-gemini-ean-plu');
+assert.equal(plu?.textContent,'3476','PLU vertical conforme à la photo');
+assert.equal(plu.attrs['text-anchor'],'middle','PLU centré');
+assert.equal(plu.attrs['dominant-baseline'],'middle','PLU centré verticalement');
+assert.equal(plu.attrs.transform,'translate(5.6 28) rotate(90)','PLU au centre de la hauteur des barres');
+assert.equal(plu.attrs['font-size'],'12','PLU plus grand');
+const topLine=svg.children.find(node=>node.name==='line');
+assert(topLine,'Barre noire horizontale au-dessus de l’EAN');
+assert.equal(topLine.attrs.x1,'15','Barre supérieure commence avec les barres');
+assert.equal(Number(topLine.attrs.x2),15+95*1.12,'Barre supérieure sur toute la largeur EAN');
 const bars=svg.children.filter(node=>node.name==='rect');
 assert.equal(bars.every(node=>node.attrs.width==='1.12'),true,'Tous les modules EAN ont une largeur identique');
 assert(bars[0].attrs.x==='15','Le premier module commence après le PLU et le premier chiffre');
-assert(css.includes('grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)'),'Proportions du bas conformes à la photo');
+assert(css.includes('grid-template-columns:minmax(0,1.16fr) minmax(0,1fr)'),
+ 'Étiquette : nouveau rapport largeur du code / encadré prix');
+assert(css.includes('padding:0 7% 3% 5.9%!important;'),
+ 'Prix unitaire aligné à gauche avec le début des barres');
+assert(css.includes('align-items:center!important;justify-self:stretch!important;'),
+ 'Poids net centré horizontalement');
+assert(css.includes('align-self:flex-end!important;text-align:right!important;'),
+ 'Date alignée par la droite sur le prix à payer');
+assert(css.includes('font-size:clamp(14px,5.8cqw,21px)'),
+ 'Date agrandie pour correspondre aux caractères de la balance');
 assert(css.includes('width:min(100%,306px)'),'Étiquette virtuelle élargie');
 assert(bars.length>30&&bars.length<70,'Seulement les modules noirs');
 assert(bars.some(node=>node.attrs.height==='52')&&bars.some(node=>node.attrs.height==='44'),
@@ -87,4 +104,4 @@ assert(bars.some(node=>node.attrs.height==='52')&&bars.some(node=>node.attrs.hei
 render(holder,'0203476013845');
 assert.equal(holder.children.length,0,'EAN avec mauvais checksum non dessiné');
 
-console.log('Gemini : analyse automatique, date du jour, EAN DIGI et validation manuelle vérifiés.');
+console.log('Gemini : analyse, date, alignements papier, PLU centré, barre haute EAN et validation manuelle vérifiés.');

@@ -1,4 +1,4 @@
-/* Inventaires U 41.51 — proportions authentiques de l'étiquette et EAN élargi sans distorsion.
+/* Inventaires U 41.52 — alignements comparés à la vraie étiquette DIGI, ligne au-dessus du code et PLU vertical centré.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -291,6 +291,16 @@
   svg.setAttribute('role','img');
   svg.setAttribute('aria-label','EAN 13 '+ean[0]+' '+ean.slice(1,7)+' '+ean.slice(7));
   svg.classList.add('iu-gemini-ean-svg');
+  // La vraie étiquette comporte une barre noire continue au-dessus du code.
+  // Elle commence et termine au droit des 95 modules de l'EAN.
+  const topLine=document.createElementNS(ns,'line');
+  topLine.setAttribute('x1','15');
+  topLine.setAttribute('y1','0.7');
+  topLine.setAttribute('x2',String(15+95*1.12));
+  topLine.setAttribute('y2','0.7');
+  topLine.setAttribute('stroke','#111');
+  topLine.setAttribute('stroke-width','1.9');
+  svg.append(topLine);
   for(let i=0;i<bits.length;i++){
    if(bits[i]!=='1')continue;
    const rect=document.createElementNS(ns,'rect');
@@ -317,9 +327,12 @@
   // Le code 0203476... de la photo porte le PLU 3476 sur le bord gauche.
   if(ean.startsWith('020')){
    const plu=addDigit(ean.slice(3,7),0,0,'iu-gemini-ean-plu');
-   plu.setAttribute('text-anchor','start');
-   plu.setAttribute('font-size','8.5');
-   plu.setAttribute('transform','translate(4 13) rotate(90)');
+   plu.setAttribute('text-anchor','middle');
+   plu.setAttribute('dominant-baseline','middle');
+   plu.setAttribute('font-size','12');
+   plu.setAttribute('font-weight','700');
+   // Centre du PLU calé sur la hauteur des vraies barres noires.
+   plu.setAttribute('transform','translate(5.6 28) rotate(90)');
   }
   container.replaceChildren(svg);
  }

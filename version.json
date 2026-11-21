@@ -1,6 +1,6 @@
 {
-  "version": "41.51",
+  "version": "41.52",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Étiquette virtuelle Gemini recalée sur les proportions de l’étiquette papier Super U : largeur 306 px, magasin en haut à droite, produit centré, informations en trois colonnes, code EAN-13 élargi avec modules non déformés et chiffres/PLU intégrés, prix encadré à droite. Analyse automatique et validation manuelle inchangées."
+  "notes": "Alignements précis sur l’étiquette papier DIGI : prix unitaire aligné sur le début des barres, poids net centré, date d’emballage agrandie et alignée avec la droite du prix. EAN légèrement décalé à gauche, barre supérieure noire ajoutée, PLU vertical agrandi et centré. Analyse automatique et validation manuelle conservées."
 }

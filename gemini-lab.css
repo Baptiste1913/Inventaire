@@ -1300,3 +1300,69 @@ html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-tot
   background:Canvas!important;color:CanvasText!important;
  }
 }
+
+
+/* v41.52 — alignements de référence mesurés sur l'étiquette DIGI de carotte :
+   barres EAN commencent vers 7 % de la largeur papier,
+   rectangle du prix se termine vers 92 % ; la valeur de date est
+   calée sur ce bord, le prix unitaire sur le début des barres,
+   le poids net au centre. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-printed-label {
+ padding:2.1% 1% 2.5%!important;
+}
+/* Repères communs pour les informations et le code imprimé. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle {
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ column-gap:0!important;
+ align-items:end!important;
+ box-sizing:border-box!important;
+ padding:0 7% 3% 5.9%!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle > .iu-gemini-label-rate {
+ display:flex!important;flex-direction:column!important;
+ align-items:flex-start!important;
+ text-align:left!important;
+ min-width:0!important;justify-self:stretch!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle > .iu-gemini-label-gross {
+ display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-self:stretch!important;
+ text-align:center!important;min-width:0!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle > .iu-gemini-label-date {
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-self:stretch!important;
+ text-align:left!important;min-width:0!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle > .iu-gemini-label-date > .iu-gemini-label-number {
+ align-self:flex-end!important;text-align:right!important;
+ /* Sur la photo, les chiffres de date ont quasiment la même
+    hauteur que ceux du prix/kg et du poids : éviter la micro-date. */
+ font-size:clamp(14px,5.8cqw,21px)!important;
+ letter-spacing:-.045em!important;
+ line-height:1.12!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom {
+ display:grid!important;
+ grid-template-columns:minmax(0,1.16fr) minmax(0,1fr)!important;
+ column-gap:.7%!important;
+ box-sizing:border-box!important;
+ padding:0 7% 0 0!important;
+ margin:0!important;
+ min-width:0!important;min-height:0!important;
+ align-items:stretch!important;
+}
+/* La zone gauche inclut maintenant le PLU vertical. Le SVG lui-même
+   dessine la vraie barre horizontale et conserve des modules EAN uniformes. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom .iu-gemini-label-barcode,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom .iu-gemini-label-bars {
+ min-width:0!important;width:100%!important;height:100%!important;
+ margin:0!important;padding:0!important;
+ box-sizing:border-box!important;
+ overflow:visible!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom .iu-gemini-ean-svg {
+ display:block!important;width:100%!important;height:100%!important;
+ overflow:visible!important;
+}
