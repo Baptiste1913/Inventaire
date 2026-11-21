@@ -1,6 +1,6 @@
 {
-  "version": "41.41",
+  "version": "41.42",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Ajout de la pastille étoile multicolore Gemini en haut à droite du bloc de pesée IA et de chaque pesée Gemini dans l’historique. Les pesées classiques restent inchangées."
+  "notes": "Titre Pesée avec Gemini intégré dans la pastille multicolore du bloc IA. Ancien titre et description supprimés, historique et OCR inchangés."
 }
