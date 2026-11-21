@@ -1,6 +1,6 @@
 {
-  "version": "41.59",
+  "version": "41.60",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Gemini : l’animation lumineuse du scanner encadre toute l’étiquette de référence, sans toucher au viseur OCR. La caméra autorisée est réutilisée pendant la session, et sa piste est désactivée temporairement lorsque l’application passe à l’arrière-plan puis reprise si possible. iOS peut redemander l’autorisation au lancement d’une PWA ; ce contrôle système ne peut pas être supprimé par le site."
+  "notes": "Carte Nouvelle pesée avec Gemini : ajout du double contour identique au bouton Démarrer un inventaire, avec un anneau extérieur dégradé rouge/jaune/vert/bleu/violet et un liseré intérieur Gemini, rayons concentriques et relief neumorphique. Contenu, scanner, résultats et validation inchangés."
 }
