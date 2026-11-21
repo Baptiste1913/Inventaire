@@ -1,6 +1,6 @@
 {
-  "version": "41.33",
+  "version": "41.34",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Résultats Gemini présentés comme une étiquette de balance : article, prix/kg, poids imprimé brut, montant, EAN non scannable et vérification visuelle express du net après tare. Transfert manuel inchangé."
+  "notes": "Étiquette numérique Gemini alignée sur la vraie étiquette DIGI Super U Saint-Germain : proportions, magasin, article, trois colonnes, code-barres décoratif et prix encadré. Date affichée uniquement si reconnue. Validation manuelle et tare inchangées."
 }
