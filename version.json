@@ -1,6 +1,6 @@
 {
-  "version": "41.32",
+  "version": "41.33",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Correction critique du transfert Gemini : le poids dit net sur l'étiquette DIGI inclut la panière et est transféré tel quel comme brut. La tare sélectionnée est déduite une seule fois par le formulaire. Contrôles article, EAN, calcul et validation humaine conservés. Ancien OCR inchangé."
+  "notes": "Résultats Gemini présentés comme une étiquette de balance : article, prix/kg, poids imprimé brut, montant, EAN non scannable et vérification visuelle express du net après tare. Transfert manuel inchangé."
 }
