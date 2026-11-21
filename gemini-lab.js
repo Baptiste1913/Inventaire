@@ -1,4 +1,4 @@
-/* Inventaires U 41.35 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.36 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -183,6 +183,27 @@
   }
   throw Error('Photo trop volumineuse après compression');
  }
+ // Encodage DIGI expérimental vérifié sur 8 étiquettes :
+ // 7 chiffres article + 5 chiffres prix (euros × 655,36) + clé EAN-13.
+ // Ce code n'est jamais transféré ni présenté comme validé sur Zebra.
+ function eanCheck(first12){
+  if(!/^\\d{12}$/.test(first12))return null;
+  let sum=0;
+  for(let i=0;i<12;i++)sum+=Number(first12[i])*(i%2===0?1:3);
+  return String((10-sum%10)%10);
+ }
+ function recodeAfterTare(ean,gross,tare,rate){
+  if(!/^\\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12]||
+     !Number.isSafeInteger(gross)||!Number.isSafeInteger(tare)||
+     !Number.isSafeInteger(rate)||tare<0||rate<=0||gross<=tare)return null;
+  const net=gross-tare;
+  // Montant de vente arrondi au centime, puis encodage de ce montant.
+  const cents=Math.round(net*rate/1000);
+  const encoded=Math.round(cents*655.36/100);
+  if(!Number.isSafeInteger(encoded)||encoded<0||encoded>99999)return null;
+  const first12=ean.slice(0,7)+String(encoded).padStart(5,'0');
+  return {ean:first12+eanCheck(first12),net,cents,encoded};
+ }
  function display(result,wallMs){
   output.replaceChildren();
   const fields=result?.fields||{},checks=result?.checks||{};
@@ -195,6 +216,7 @@
   const eanValid=checks.eanChecksumValid===true;
   const netValid=Number.isSafeInteger(net)&&net>0;
   const ready=!verified.error&&netValid;
+  const corrected=ready?recodeAfterTare(fields.ean13,gross,tare,fields.pricePerKgCents):null;
   const label=document.createElement('article');
   label.className='iu-gemini-printed-label'+(ready?' is-ready':' is-review');
   label.setAttribute('aria-label','Étiquette reconstituée à vérifier avant transfert');
@@ -229,7 +251,7 @@
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
   bars.setAttribute('aria-hidden','true');
-  add(barcode,'span','iu-gemini-label-ean',fields.ean13||'EAN NON RECONNU');
+  add(barcode,'span','iu-gemini-label-ean',corrected?.ean||fields.ean13||'EAN NON RECONNU');
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
@@ -240,7 +262,15 @@
     :'Vérification nécessaire';
   add(summary,'span','iu-gemini-label-state'+(ready?' is-ready':' is-review'),statusText);
   output.append(label);
-  add(output,'p','iu-gemini-label-notice','Code-barres illustratif non scannable · comparer avec la photo originale');
+  add(output,'p','iu-gemini-label-notice',corrected
+   ?'Code DIGI recalculé expérimentalement après tare · non validé sur Zebra · barres illustratives non scannables'
+   :'Code-barres original · barres illustratives non scannables');
+  if(corrected){
+   const compare=add(output,'div','iu-gemini-recode-summary','');
+   add(compare,'span','iu-gemini-recode-title','CODE RECALCULÉ APRÈS TARE · EXPÉRIMENTAL');
+   add(compare,'strong','iu-gemini-recode-code',corrected.ean);
+   add(compare,'span','iu-gemini-recode-details','Original : '+fields.ean13+' · montant corrigé : '+money(corrected.cents)+' · poids : '+formatWeight(corrected.net));
+  }
   const calculation=add(output,'div','iu-gemini-net-summary','');
   add(calculation,'span','iu-gemini-net-caption','POIDS RÉEL DES PRODUITS · APRÈS TARE');
   add(calculation,'strong','iu-gemini-net-value'+(netValid?'':' is-invalid'),
