@@ -1,4 +1,4 @@
-/* Inventaires U 41.40 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.45 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -70,8 +70,8 @@
   const quickNet=output.querySelector('.iu-gemini-quick-net-value');
   const quickTare=output.querySelector('.iu-gemini-quick-tare');
   if(quickGross)quickGross.textContent=formatWeight(f.weightGrams);
-  if(quickNet)quickNet.textContent=corrected?formatWeight(corrected.net):'—';
-  if(quickTare)quickTare.textContent='Tare : '+formatWeight(tare);
+  if(quickNet)quickNet.textContent=corrected?String((corrected.net/1000).toFixed(3)).replace('.',','):'—';
+  if(quickTare)quickTare.textContent=formatWeight(tare);
   if(total)total.textContent=money(corrected?corrected.cents:f.totalCents).replace(/\\s/g,'');
   if(digits)digits.textContent=corrected?.ean||f.ean13||'EAN NON RECONNU';
   if(bars)renderEanBars(bars,corrected?.ean||f.ean13);
@@ -340,15 +340,26 @@
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
   // Résultat compact, comme l'OCR : poids brut et net côte à côte.
   const summary=add(output,'div','iu-gemini-label-summary','');
-  const quick=add(output,'div','iu-gemini-quick-result','');
-  const quickGross=add(quick,'div','iu-gemini-quick-weight','');
-  add(quickGross,'span','iu-gemini-quick-caption','POIDS BRUT · ÉTIQUETTE');
-  add(quickGross,'strong','iu-gemini-quick-gross',formatWeight(gross));
-  const quickNet=add(quick,'div','iu-gemini-quick-weight iu-gemini-quick-net','');
-  add(quickNet,'span','iu-gemini-quick-caption','POIDS NET · APRÈS TARE');
-  add(quickNet,'strong','iu-gemini-quick-net-value',netValid?formatWeight(net):'—');
-  add(quick,'span','iu-gemini-quick-tare','Tare : '+formatWeight(tare));
-
+  // Même composant de résultat que la pesée classique : structure et classes partagées.
+  const glow=add(output,'div','iu-result-glow-shell iu-gemini-result-glow','');
+  const lights=add(glow,'div','iu-result-glow-field','');
+  lights.setAttribute('aria-hidden','true');
+  for(const color of ['red','blue','green'])add(lights,'span','iu-home-glow-orb iu-home-glow-'+color,'');
+  const quick=add(glow,'div','result iu-result-compact iu-gemini-quick-result','');
+  const waves=add(quick,'div','iu-result-light-field iu-welcome-dot-wave','');
+  waves.setAttribute('aria-hidden','true');
+  add(waves,'i','','');add(waves,'i','','');
+  const weights=add(quick,'div','iu-result-weights','');
+  const brut=add(weights,'span','','Brut ');
+  add(brut,'strong','iu-gemini-quick-gross',formatWeight(gross));
+  const tareWeight=add(weights,'span','','Tare ');
+  add(tareWeight,'strong','iu-gemini-quick-tare',formatWeight(tare));
+  const heading=add(quick,'div','result-heading','');
+  add(heading,'span','','Poids net');
+  const netLine=add(quick,'div','net-line','');
+  add(netLine,'strong','iu-gemini-quick-net-value',netValid?String((net/1000).toFixed(3)).replace('.',','):'—');
+  add(netLine,'span','','kg');
+  add(quick,'p','result-subtitle','Poids des produits après déduction du panier.');
   const statusText=ready?'Contrôles cohérents · vérification visuelle requise'
     :verified.error?'Transfert bloqué · '+verified.error
     :!netValid?'Transfert bloqué · tare supérieure ou égale au brut'
