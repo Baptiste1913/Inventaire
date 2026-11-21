@@ -5,6 +5,8 @@
  const trigger=$('iuWeighScanToggle'),overlay=$('iuWeighScanOverlay');
  if(!trigger||!overlay)return;
  const closeBtn=$('iuWeighScanClose'),video=$('iuWeighScanVideo'),torchBtn=$('iuWeighScanTorch'),guide=overlay.querySelector('.iu-weigh-scan-guide'),
+ photoCamera=$('iuWeighScanPhotoCamera'),photoGallery=$('iuWeighScanPhotoGallery'),
+ photoStatus=$('iuWeighScanPhotoStatus'),photoResult=$('iuWeighScanPhotoResult'),
  detected=$('iuWeighScanDetected'),
  status=$('iuWeighScanStatus'),proposal=$('iuWeighScanProposal'),value=$('iuWeighScanValue'),
  conversion=$('iuWeighScanConversion'),apply=$('iuWeighScanApply'),
@@ -26,6 +28,7 @@
  let stream=null,worker=null,enginePromise=null,session=0,scanning=false,starting=false,wasOpen=false;
  let proposalGrams=null,lastCandidate=null,observations=[],nextVariant=0,previousStatus='';
  let torchEnabled=false,torchBusy=false,lastDetectionFeedbackAt=-Infinity;
+ let photoBusy=false,photoToken=0,scanRead=null;
  const say=(msg,error=false)=>{
   if(previousStatus!==msg){status.textContent=msg;previousStatus=msg;}
   status.classList.toggle('is-error',error);
@@ -115,7 +118,10 @@
   video.srcObject=null;scanning=false;
  }
  function close(){
+  photoToken++;
   session++;scanning=false;starting=false;stopTracks();resetObservations();
+  if(photoStatus)photoStatus.textContent='Aucune photo analysée.';
+  if(photoResult){photoResult.hidden=true;photoResult.replaceChildren();}
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
   resetDetectedIndicator();
   guide?.classList.remove('iu-weigh-scan-confirmed');
@@ -230,6 +236,134 @@
    ' · Net : '+format(net)+(net<0?' (essai)':'')+'.';
   apply.disabled=!Number.isSafeInteger(gross)||gross>999999||gross<=0;
  }
+
+ // Lecture locale d'une photo entière de DIGI : aucune valeur n'est appliquée
+ // aux inventaires ; ne pas déduire un prix unitaire du code-barres.
+ function parseWholeLabel(raw){
+  const lines=String(raw||'').replace(/[\u00a0\u202f]/g,' ').replace(/[’‘]/g,"'")
+   .split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const text=lines.join(' ');
+  const values=(regex,mult,max)=>[...new Set([...text.matchAll(regex)]
+   .map(m=>Math.round(Number(m[1].replace(',','.'))*mult))
+   .filter(n=>Number.isSafeInteger(n)&&n>0&&n<=max))];
+  const weights=values(/(?:^|[^\d.,€/$])(\d{1,2}[,.]\d{3})\s*k\s*g\b/gi,1000,30000);
+  const rates=values(/(?:^|[^\d.,])(\d{1,3}[,.]\d{2})\s*(?:€|EUR|E)?\s*\/\s*k\s*g\b/gi,100,99999);
+  const totals=values(/(?:^|[^\d.,])(\d{1,3}[,.]\d{2})\s*(?:€|EUR)(?!\s*\/\s*k\s*g\b)/gi,100,99999);
+  const labeled=text.match(/(?:prix\s*(?:a|à)\s*payer|montant\s*total|total\s*(?:a|à)\s*payer)\s*[:\-]?\s*(\d{1,3}[,.]\d{2})/i);
+  if(labeled){
+   const cents=Math.round(Number(labeled[1].replace(',','.'))*100);
+   if(cents>0&&cents<=99999&&!totals.includes(cents))totals.push(cents);
+  }
+  const name=lines.find(line=>{
+   const letters=(line.match(/\p{L}/gu)||[]),caps=(line.match(/[A-ZÀ-Ÿ]/g)||[]);
+   return letters.length>=5&&letters.length<=32&&caps.length/letters.length>.75&&
+    !/(SUPER\s*U|SAINT|GERMAIN|PRIX|POIDS|TOTAL|PAYER|EMBALLAGE|DATE|EUR|KG|CARTE)/i.test(line)&&
+    !/\d{2,}/.test(line);
+  })||'';
+  const checkEAN=c=>{
+   if(!/^\d{13}$/.test(c))return false;
+   let sum=0;
+   for(let i=0;i<12;i++)sum+=Number(c[i])*(i%2?3:1);
+   return (10-sum%10)%10===Number(c[12]);
+  };
+  const eans=[...new Set((text.match(/(?<!\d)\d{13}(?!\d)/g)||[]).filter(checkEAN))];
+  const weight=weights.length===1?weights[0]:null;
+  const rate=rates.length===1?rates[0]:null;
+  const total=totals.length===1?totals[0]:null;
+  return {name,weight,rate,total,ean:eans.length===1?eans[0]:null,
+   ambiguous:weights.length>1||rates.length>1||totals.length>1,
+   consistent:weight!==null&&rate!==null&&total!==null&&
+    Math.abs(Math.round(weight*rate/1000)-total)<=1};
+ }
+ function displayWholeLabel(p){
+  if(!photoResult)return false;
+  const euro=n=>n===null?'Non détecté':(n/100).toFixed(2).replace('.',',')+' €';
+  const tare=context()?.tareGrams;
+  const same=proposalGrams===null||p.weight===proposalGrams;
+  const valid=p.consistent&&!p.ambiguous&&same;
+  const rows=[
+   ['Article OCR',p.name||'Non détecté'],
+   ['Poids imprimé',p.weight===null?'Non détecté':format(p.weight)],
+   ['Prix au kilo',p.rate===null?'Non détecté':euro(p.rate)+'/kg'],
+   ['Prix total',euro(p.total)],
+   ['EAN en OCR',p.ean||'Non détecté (lecteur de codes-barres séparé)']
+  ];
+  if(p.weight!==null&&Number.isSafeInteger(tare)&&tare>=0){
+   const net=p.weight-tare;
+   rows.push(['Après tare du panier',net>=0?format(net):'Tare supérieure au poids : refus']);
+  }
+  rows.push(['Contrôle des montants',
+   valid?'Prix × poids cohérent · vérification visuelle nécessaire':
+   p.ambiguous?'Valeurs contradictoires : refus':
+   !same?'Poids différent du scanner : refus':
+   'Incomplet ou incohérent : aucun calcul validé']);
+  photoResult.replaceChildren();
+  for(const [label,value] of rows){
+   const row=document.createElement('div');row.className='iu-weigh-ocr-row';
+   const a=document.createElement('span');a.textContent=label;
+   const b=document.createElement('strong');b.textContent=value;
+   row.append(a,b);photoResult.append(row);
+  }
+  const warning=document.createElement('p');warning.className='iu-weigh-ocr-note';
+  warning.textContent='Essai OCR local seulement. Ne valide aucune pesée et ne crée aucun EAN.';
+  photoResult.append(warning);photoResult.hidden=false;
+  return valid;
+ }
+ async function readWholeLabelPhoto(file){
+  if(!file||photoBusy||overlay.hidden||!photoStatus||!photoResult)return;
+  if(!file.type.startsWith('image/')||file.size>18*1024*1024){
+   photoStatus.textContent='Sélectionne une photo de moins de 18 Mo.';return;
+  }
+  const token=++photoToken;
+  photoBusy=true;session++;scanning=false;
+  photoResult.hidden=true;photoResult.replaceChildren();
+  photoStatus.textContent='Analyse locale de la photo en cours…';
+  let url=null;
+  try{
+   if(scanRead)await scanRead.catch(()=>{});
+   const ocr=await engine();
+   url=URL.createObjectURL(file);
+   const picture=new Image();
+   await new Promise((resolve,reject)=>{
+    picture.onload=resolve;picture.onerror=reject;picture.src=url;
+   });
+   const w=picture.naturalWidth,h=picture.naturalHeight;
+   if(!w||!h)throw Error('Image vide');
+   const scale=Math.min(2,1800/Math.max(w,h));
+   const canvas=document.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(w*scale));
+   canvas.height=Math.max(1,Math.round(h*scale));
+   const ctx=canvas.getContext('2d');
+   if(!ctx)throw Error('Canvas inaccessible');
+   ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+   ctx.drawImage(picture,0,0,canvas.width,canvas.height);
+   await ocr.setParameters({tessedit_pageseg_mode:'6',tessedit_char_whitelist:''});
+   const answer=await ocr.recognize(canvas);
+   if(token!==photoToken||overlay.hidden)return;
+   const parsed=parseWholeLabel(answer?.data?.text||'');
+   const valid=displayWholeLabel(parsed);
+   photoStatus.textContent=valid
+    ?'Montants cohérents. Compare les valeurs à l’étiquette.'
+    :'Lecture incomplète ou contradictoire : reprends la photo.';
+  }catch(_){
+   if(token===photoToken&&!overlay.hidden)
+    photoStatus.textContent='Lecture impossible : vérifie la photo ou le chargement OCR.';
+  }finally{
+   if(url)URL.revokeObjectURL(url);
+   if(worker)try{await worker.setParameters({
+    tessedit_pageseg_mode:'7',tessedit_char_whitelist:'0123456789.,kKgG '
+   });}catch(_){}
+   photoBusy=false;
+  }
+ }
+ for(const input of [photoCamera,photoGallery]){
+  input?.addEventListener('change',()=>{
+   const file=input.files?.[0]||null;
+   input.value='';
+   if(file)void readWholeLabelPhoto(file);
+  });
+ }
+
  // Une seule confirmation par nouvelle pesée reconnue. La lecture OCR
  // est déjà interrompue après showProposal : aucune vibration répétée.
  // iOS Safari ne prend pas en charge navigator.vibrate ; sur iPhone
@@ -282,7 +416,10 @@
    try{
     const canvas=cropFrame(variant===0);
     if(canvas){
-     const data=await worker.recognize(canvas);
+     const reading=worker.recognize(canvas);
+      scanRead=reading;
+      const data=await reading;
+      scanRead=null;
      if(!scanning||id!==session)return;
      const confidence=Number(data?.data?.confidence)||0;
      const grams=extractWeight(data?.data?.text);
@@ -290,6 +427,7 @@
      if(grams===null||confidence<54)say('');
     }
    }catch(_){
+    scanRead=null;
     if(id===session&&scanning){resetObservations();say('Lecture difficile. Stabilise l’étiquette et rapproche-la.');}
    }
    if(id!==session||!scanning)return;
@@ -298,7 +436,7 @@
   }
  }
  function resumeScan(){
-  if(overlay.hidden||document.hidden||starting||scanning||!worker||!stream)return false;
+  if(overlay.hidden||document.hidden||starting||scanning||photoBusy||!worker||!stream)return false;
   session++;const id=session;
   proposalGrams=null;proposal.hidden=true;retry.hidden=true;
   resetDetectedIndicator();
@@ -321,7 +459,7 @@
   }catch(_){}
  }
  async function startCamera(){
-  if(starting||scanning||overlay.hidden||document.hidden)return;
+  if(starting||scanning||photoBusy||overlay.hidden||document.hidden)return;
   // Une piste encore active est réutilisée : pas de nouvelle permission.
   // Une piste définitivement terminée ne peut pas être réactivée.
   const existingTrack=stream?.getVideoTracks?.()[0];
@@ -425,7 +563,7 @@
   try{video.pause();}catch(_){}
  }
  function resumeAfterBackground(){
-  if(overlay.hidden||document.hidden||gross.getClientRects().length===0||starting||scanning)return;
+  if(overlay.hidden||document.hidden||gross.getClientRects().length===0||starting||scanning||photoBusy)return;
   const track=stream?.getVideoTracks?.()[0];
   if(track?.readyState==='live'){
    // Reprendre la piste existante, sans nouvel appel à getUserMedia.
