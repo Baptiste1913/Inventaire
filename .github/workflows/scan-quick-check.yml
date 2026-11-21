@@ -13,6 +13,7 @@ on:
       - 'workers/coursesu-live-worker.js'
       - 'gemini-lab.css'
       - 'tools/test_gemini_manual_save.cjs'
+      - 'tools/test_gemini_auto_scan.cjs'
       - 'weigh-scan-inline.css'
       - 'index.html'
       - 'sw.js'
@@ -34,9 +35,12 @@ jobs:
           node --check gemini-lab.js
           node --check workers/coursesu-live-worker.js
           node --check tools/test_gemini_manual_save.cjs
+          node --check tools/test_gemini_auto_scan.cjs
           node --check sw.js
           node --check tools/test_scanner_transfer.cjs
       - name: Vérifier le transfert OCR et le calcul de tare
         run: node tools/test_scanner_transfer.cjs
       - name: Vérifier la validation manuelle Gemini
         run: node tools/test_gemini_manual_save.cjs
+      - name: Vérifier le scanner Gemini automatique et anti-doublon
+        run: node tools/test_gemini_auto_scan.cjs

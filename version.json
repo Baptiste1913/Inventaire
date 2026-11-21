@@ -1,6 +1,6 @@
 {
-  "version": "41.57",
+  "version": "41.58",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Retouche ciblée de l’étiquette Gemini : le titre Date d’emballage commence exactement au même bord gauche que sa valeur, l’ensemble reste près du côté droit du prix, et le groupe Poids net/poids est légèrement décalé vers le centre. EAN, scanner et validation inchangés."
+  "notes": "Scanner Gemini automatique : caméra persistante, vérification locale de la netteté et de la stabilité avant une seule capture envoyée à Gemini ; mode Manuel de secours, réarmement après validation uniquement lors d’un changement de scène, reprise manuelle en cas d’échec. Analyse cloud et enregistrement manuel inchangés."
 }

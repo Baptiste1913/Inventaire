@@ -114,8 +114,9 @@ assert(retry.includes("analyze.textContent='Réessayer l’analyse'"),'Le bouton
 assert(!retry.includes('analyze.click()'),'Aucun réessai automatiquement facturable');
 const cropStart=js.indexOf('function cameraCaptureCrop(');
 const cropEnd=js.indexOf("capture.addEventListener('click'",cropStart);
-assert(cropStart>0&&cropEnd>cropStart,'Recadrage vidéo dédié à la caméra');
-const cropSource=js.slice(cropStart,cropEnd).trim();
+const cropFnEnd=js.indexOf('function inspectAutoFrame(frame){',cropStart);
+assert(cropStart>0&&cropEnd>cropFnEnd&&cropFnEnd>cropStart,'Recadrage vidéo et lecteur automatique dédiés à la caméra');
+const cropSource=js.slice(cropStart,cropFnEnd).trim()+'\n';
 const crop=vm.runInNewContext('('+cropSource+')');
 const wide=crop(1920,1080,560,300);
 assert(wide.width<1920&&wide.height<=1080,'Éliminer les étiquettes voisines sans zoom excessif');
@@ -125,7 +126,7 @@ assert(portrait.x>=0&&portrait.y>=0&&portrait.x+portrait.width<=1280&&portrait.y
  'Capture verticale conforme au ratio du viseur');
 const captureBlock=js.slice(cropEnd,js.indexOf("document.addEventListener('visibilitychange'",cropEnd));
 assert(captureBlock.includes('cameraCaptureCrop(video.videoWidth'),'Le viseur pilote le recadrage');
-assert(captureBlock.includes("cv.toBlob(resolve,'image/jpeg',.95)"),'JPEG de qualité renforcée');
+assert(captureBlock.includes("cv.toBlob(resolve,'image/jpeg',.90)"),'JPEG haute qualité sans réencodage inutile');
 assert(captureBlock.includes("setPhoto(new File([blob]"),'La capture revient au même parcours que la galerie');
 const worker=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
 assert(worker.includes("maxOutputTokens:1024,responseMimeType:'application/json'"),

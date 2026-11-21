@@ -1,4 +1,4 @@
-/* Inventaires U 41.56 — chiffres EAN au ras du bas de l'encadré prix, sans déformation.
+/* Inventaires U 41.58 — caméra Gemini à capture automatique, filtre local de netteté et validation manuelle.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -24,6 +24,13 @@
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const setupCallout=$('iuGeminiSetupCallout'),geminiOptions=$('iuGeminiOptions');
+ const autoModeButton=$('iuGeminiAutoMode'),manualModeButton=$('iuGeminiManualMode'),
+  autoScanState=$('iuGeminiAutoScanState'),autoReset=$('iuGeminiAutoReset');
+ const autoSampleCanvas=document.createElement('canvas');
+ let cameraMode='auto',autoTimer=0,autoLocked=false,autoSuspended=false,
+  autoLastFrame=null,autoLastCaptured=null,autoChangeReference=null,
+  autoNeedsChange=false,autoChangeCount=0,autoStableSince=0,autoStableCount=0,
+  autoEarliest=0,autoCapturePending=false,lastPhotoWasAuto=false;
  function selectReadingMode(mode){
   modeCamera?.setAttribute('aria-pressed',String(mode==='camera'));
   modePhoto?.setAttribute('aria-pressed',String(mode==='photo'));
@@ -161,7 +168,13 @@
   selectReadingMode('photo');
   const selected=photo.files?.[0]||null;
   photo.value='';
-  setPhoto(selected);
+  if(selected){
+   autoSuspended=true;autoLocked=true;lastPhotoWasAuto=false;
+   setAutoHint('Photo importée · lecture Gemini','waiting');
+   setPhoto(selected);
+  }else if(cameraStream&&cameraMode==='auto'&&!file&&!proposal&&!active){
+   autoSuspended=false;armAutoScanner(false);
+  }
  });
  pilotKey.addEventListener('input',updateButton);
  function readStoredKey(){
@@ -234,6 +247,25 @@
   });
  }
  async function imageBase64(source){
+  // Le JPEG issu du viseur est déjà recadré, redimensionné et compressé.
+  // Éviter une deuxième décompression/compression si l'image passe sous
+  // la limite Cloudflare (surtout sur Safari iPhone).
+  if(source?.name==='etiquette-gemini.jpg'&&source.type==='image/jpeg'&&
+     source.size>=100&&source.size<=490000){
+   try{
+    const encoded=await new Promise((resolve,reject)=>{
+     const reader=new FileReader();
+     reader.onerror=()=>reject(Error('Lecture JPEG indisponible'));
+     reader.onload=()=>{
+      const str=String(reader.result||''),index=str.indexOf(',');
+      if(index<0)return reject(Error('Format JPEG invalide'));
+      resolve(str.slice(index+1));
+     };
+     reader.readAsDataURL(source);
+    });
+    if(encoded.length>=100&&encoded.length<=690000)return encoded;
+   }catch(_){/* Safari peut nécessiter le chemin canvas habituel. */}
+  }
   const img=await decodePhoto(source);
   const scale=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
   if(!scale||!img.naturalWidth||!img.naturalHeight)throw Error('Photo vide');
@@ -439,6 +471,7 @@
   const selectedModel=fixedModel,access=pilotKey.value.trim();
   attempts.add(selectedModel);active=true;updateButton();capture.disabled=true;
   output.hidden=true;networkTime.textContent='';resetProposal();
+  if(cameraStream&&cameraMode==='auto')setAutoHint('Analyse en cours · une seule photo envoyée','capturing');
   const id=++generation;
   abort=new AbortController();
   const start=performance.now();
@@ -469,6 +502,9 @@
     throw Error(message);
    }
    display(result,performance.now()-start);
+   // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
+   if(lastPhotoWasAuto&&proposal)
+    requestAnimationFrame(()=>nextWeigh?.scrollIntoView({block:'nearest',behavior:'smooth'}));
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    say(proposal
     ?'Lecture prête : vérifie le poids brut et l’étiquette, puis valide.'
@@ -480,7 +516,13 @@
     say('Essai non terminé : '+reason,true);
    }
   }finally{
-   if(id===generation){active=false;abort=null;capture.disabled=false;updateButton();validationState();}
+   if(id===generation){
+    active=false;abort=null;capture.disabled=false;updateButton();validationState();
+    if(cameraStream&&cameraMode==='auto'){
+     setAutoHint(proposal?'Lecture prête · vérifie puis valide'
+      :'Lecture à reprendre · recadre et relance','waiting');
+    }
+   }
   }
  });
 
@@ -495,6 +537,9 @@
   torch.title=torchOn?'Désactiver le flash':'Activer le flash';
  }
  function stopCamera(){
+  clearAutoTimer();clearAutoStability();
+  autoLocked=false;autoSuspended=false;autoNeedsChange=false;
+  autoCapturePending=false;autoLastCaptured=null;autoChangeReference=null;
   cameraEpoch++;
   if(cameraStream){
    for(const track of cameraStream.getTracks())track.stop();
@@ -537,7 +582,11 @@
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
-   say('Centre l’étiquette entière. Une seule analyse démarrera après capture.');
+   if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
+   else setAutoHint('Valide ou reprends la lecture en cours','waiting');
+   say(cameraMode==='auto'
+    ?'Scanner auto prêt : tiens une seule étiquette nette et stable dans le cadre.'
+    :'Mode manuel : capture l’étiquette quand elle est nette.');
   }catch(_){
    if(epoch===cameraEpoch){
     stopCamera();
@@ -566,11 +615,14 @@
  }
  modeCamera?.addEventListener('click',()=>{
   selectReadingMode('camera');
-  if(cameraStream)cameraShell.scrollIntoView({block:'nearest',behavior:'smooth'});
-  else startCamera();
+  if(cameraStream){
+   if(cameraMode==='auto'&&autoSuspended&&!file&&!active&&!proposal)armAutoScanner(false);
+   cameraShell.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }else startCamera();
  });
  modePhoto?.addEventListener('click',()=>{
   selectReadingMode('photo');
+  autoSuspended=true;
   photo.click();
  });
  shortcut?.addEventListener('click',()=>{
@@ -591,6 +643,7 @@
   });
   if(saved?.ok){
    resetReading();
+   if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
    say('Pesée validée et enregistrée · '+formatWeight(saved.net)+' net. Prêt pour la suivante.');
    // Après validation, les commandes du prochain scan reviennent à portée de vue.
    requestAnimationFrame(()=>{
@@ -624,14 +677,166 @@
   width=focused;
   return {x,y,width,height};
  }
+
+ // Analyse locale basse résolution, sans photo transmise ni API distante.
+ // Ce filtre détecte un document clair, contrasté et net au centre du viseur ;
+ // Gemini reste seul responsable de la reconnaissance du texte et de l'EAN.
+ function inspectAutoFrame(frame){
+  const width=frame.width,height=frame.height,data=frame.data;
+  const gray=new Uint8Array(width*height);
+  for(let i=0,j=0;i<gray.length;i++,j+=4)
+   gray[i]=(77*data[j]+150*data[j+1]+29*data[j+2])>>>8;
+  const x0=Math.floor(width*.12),x1=Math.ceil(width*.88);
+  const y0=Math.floor(height*.12),y1=Math.ceil(height*.88);
+  let light=0,dark=0,edges=0,strong=0,count=0;
+  for(let y=y0+1;y<y1;y++){
+   for(let x=x0+1;x<x1;x++){
+    const index=y*width+x,v=gray[index];
+    if(v>172)light++;
+    if(v<100)dark++;
+    const edge=Math.abs(v-gray[index-1])+Math.abs(v-gray[index-width]);
+    edges+=edge;if(edge>42)strong++;
+    count++;
+   }
+  }
+  const bright=light/Math.max(count,1),darkness=dark/Math.max(count,1);
+  const sharpness=edges/Math.max(count,1),strongRatio=strong/Math.max(count,1);
+  return {pixels:gray,bright,darkness,sharpness,strongRatio,
+   usable:bright>.25&&darkness>.015&&darkness<.60&&
+    sharpness>7&&strongRatio>.027};
+ }
+ function autoFrameDistance(first,second){
+  if(!first||!second||first.length!==second.length)return Infinity;
+  let sum=0,count=0;
+  for(let i=0;i<first.length;i+=5){sum+=Math.abs(first[i]-second[i]);count++;}
+  return sum/Math.max(count,1);
+ }
+ function setAutoHint(message,phase='waiting'){
+  if(autoScanState&&autoScanState.textContent!==message)autoScanState.textContent=message;
+  if(cameraShell)cameraShell.dataset.autoPhase=phase;
+  if(autoReset)autoReset.hidden=!(cameraMode==='auto'&&cameraStream&&autoLocked&&!active&&!proposal&&Boolean(file));
+ }
+ function clearAutoTimer(){
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=0;}
+ }
+ function clearAutoStability(){
+  autoLastFrame=null;autoStableSince=0;autoStableCount=0;autoChangeCount=0;
+ }
+ function armAutoScanner(afterValidation=false){
+  clearAutoStability();
+  autoLocked=false;autoSuspended=false;
+  autoChangeReference=afterValidation?autoLastCaptured:null;
+  autoNeedsChange=Boolean(autoChangeReference);
+  autoEarliest=performance.now()+(afterValidation?650:320);
+  autoCapturePending=false;
+  if(cameraMode==='auto'&&cameraStream){
+   setAutoHint(afterValidation?'Présente une autre étiquette':'Centre une étiquette nette','waiting');
+   startAutoMonitor();
+  }
+ }
+ function startAutoMonitor(){
+  if(cameraMode!=='auto'||!cameraStream||autoTimer)return;
+  autoTimer=setTimeout(autoTick,230);
+ }
+ function autoTick(){
+  autoTimer=0;
+  if(!cameraStream||cameraShell.hidden||document.hidden||cameraMode!=='auto')return;
+  try{
+   if(!autoLocked&&!autoSuspended&&!active&&!file&&!proposal&&performance.now()>=autoEarliest){
+    if(!pilotKey.value.trim()){
+     setAutoHint('Configure la clé Gemini pour le scan auto','waiting');
+    }else if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
+     const bounds=video.getBoundingClientRect();
+     const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,bounds.width,bounds.height);
+     if(autoSampleCanvas.width!==176)autoSampleCanvas.width=176;
+     const sampleHeight=Math.max(78,Math.min(126,Math.round(176*crop.height/crop.width)));
+     if(autoSampleCanvas.height!==sampleHeight)autoSampleCanvas.height=sampleHeight;
+     const ctx=autoSampleCanvas.getContext('2d',{willReadFrequently:true});
+     if(!ctx)throw Error('Canvas de contrôle indisponible');
+     ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,
+      autoSampleCanvas.width,autoSampleCanvas.height);
+     const quality=inspectAutoFrame(ctx.getImageData(0,0,autoSampleCanvas.width,autoSampleCanvas.height));
+     const now=performance.now();
+     if(autoNeedsChange){
+      const changed=autoFrameDistance(quality.pixels,autoChangeReference)>11||!quality.usable;
+      autoChangeCount=changed?autoChangeCount+1:0;
+      if(autoChangeCount<2){
+       setAutoHint('Écarte l’ancienne étiquette avant la suivante','waiting');
+       autoLastFrame=null;return;
+      }
+      autoNeedsChange=false;autoChangeReference=null;
+      autoLastFrame=null;autoStableSince=0;autoStableCount=0;
+      autoEarliest=now+250;
+      setAutoHint('Nouvelle étiquette détectée · stabilise','framing');
+     }
+     if(!quality.usable){
+      clearAutoStability();
+      setAutoHint('Approche et centre une seule étiquette nette','framing');
+     }else{
+      const motion=autoFrameDistance(quality.pixels,autoLastFrame);
+      if(motion>=10.5||!autoLastFrame){
+       autoStableSince=now;autoStableCount=1;
+       setAutoHint('Maintiens l’étiquette immobile','framing');
+      }else{
+       autoStableCount++;
+       setAutoHint('Étiquette cadrée · contrôle de netteté','framing');
+      }
+      autoLastFrame=quality.pixels;
+      if(autoStableCount>=4&&now-autoStableSince>=650&&now>=autoEarliest){
+       autoLocked=true;
+       autoLastCaptured=quality.pixels;
+       autoCapturePending=true;
+       setAutoHint('Photo nette · analyse Gemini…','capturing');
+       capture.click();
+      }
+     }
+    }
+   }
+  }catch(_){
+   autoLocked=true;
+   setAutoHint('Détection automatique indisponible · utilise Capturer','error');
+  }finally{
+   if(cameraMode==='auto'&&cameraStream&&!cameraShell.hidden&&!document.hidden)
+    startAutoMonitor();
+  }
+ }
+ function selectCameraMode(mode){
+  cameraMode=mode==='manual'?'manual':'auto';
+  autoModeButton?.setAttribute('aria-pressed',String(cameraMode==='auto'));
+  manualModeButton?.setAttribute('aria-pressed',String(cameraMode==='manual'));
+  autoModeButton?.classList.toggle('is-selected',cameraMode==='auto');
+  manualModeButton?.classList.toggle('is-selected',cameraMode==='manual');
+  if(capture)capture.textContent=cameraMode==='auto'?'Capturer maintenant':'Capturer cette étiquette';
+  if(cameraMode==='manual'){
+   clearAutoTimer();setAutoHint('Capture manuelle activée','manual');
+  }else if(cameraStream&&!file&&!active&&!proposal){
+   armAutoScanner(false);
+  }else{
+   setAutoHint('Valide ou reprends la lecture en cours','waiting');
+   startAutoMonitor();
+  }
+ }
+ autoModeButton?.addEventListener('click',()=>selectCameraMode('auto'));
+ manualModeButton?.addEventListener('click',()=>selectCameraMode('manual'));
+ autoReset?.addEventListener('click',()=>{
+  if(active||proposal||!cameraStream)return;
+  resetReading();armAutoScanner(false);
+  say('Détection automatique reprise : centre une étiquette nette.');
+ });
+
  capture.addEventListener('click',async()=>{
   if(!cameraStream||active||!video.videoWidth||!video.videoHeight)return;
+  const automatic=autoCapturePending;
+  autoCapturePending=false;autoLocked=true;
+  lastPhotoWasAuto=automatic;
+  if(!automatic)autoLastCaptured=autoLastFrame;
+  setAutoHint(automatic?'Capture automatique · analyse en cours':'Capture manuelle · analyse en cours','capturing');
   capture.disabled=true;
   try{
    const cv=document.createElement('canvas');
    const viewport=video.getBoundingClientRect();
    const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,viewport.width,viewport.height);
-   const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
+   const factor=Math.min(1,1600/Math.max(crop.width,crop.height));
    cv.width=Math.max(1,Math.round(crop.width*factor));
    cv.height=Math.max(1,Math.round(crop.height*factor));
    const ctx=cv.getContext('2d');
@@ -639,10 +844,13 @@
    ctx.imageSmoothingEnabled=true;
    ctx.imageSmoothingQuality='high';
    ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
-   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.95));
+   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.90));
    if(!blob)throw Error('Capture impossible');
    setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
-  }catch(_){say('Capture impossible. Réessaie.',true);}
+  }catch(_){
+   say('Capture impossible. Réessaie.',true);
+   setAutoHint('Capture impossible · utilise le bouton manuel','error');
+  }
   finally{capture.disabled=active;}
  });
  document.addEventListener('visibilitychange',()=>{

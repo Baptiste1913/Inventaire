@@ -1526,3 +1526,68 @@ html body .app > section#iuGeminiLab .iu-gemini-label-frame
  .iu-gemini-label-middle > .iu-gemini-label-gross {
  transform:translateX(clamp(6px,2.8cqw,10px))!important;
 }
+
+
+/* v41.58 — Mode de capture Gemini : rapide, accessible et discret.
+   La caméra conserve son design et l'enregistrement reste manuel. */
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-controls {
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+ gap:7px;margin:9px 2px 3px;min-width:0;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-modes {
+ display:inline-flex;align-items:center;gap:2px;flex:0 0 auto;
+ padding:3px;border:1px solid rgba(168,188,201,.55);
+ border-radius:11px;background:rgba(235,242,247,.8);
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-mode {
+ appearance:none;cursor:pointer;border:0;background:transparent;
+ border-radius:8px;padding:6px 11px;min-height:32px;
+ color:#5f7280;font-family:inherit;font-size:11px;font-weight:700;line-height:1.1;
+ transition:background .18s ease,color .18s ease,box-shadow .18s ease;
+ touch-action:manipulation;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-mode[aria-pressed="true"] {
+ background:linear-gradient(145deg,#fff,#f4f8fa);
+ color:#27596a;box-shadow:0 1px 5px rgba(71,102,120,.13);
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-state {
+ display:flex;flex:1 1 115px;min-width:0;gap:6px;
+ align-items:center;justify-content:flex-end;
+ color:#536e7e;font-size:10.5px;font-weight:650;line-height:1.35;
+ text-align:right;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-state::before {
+ content:"";display:block;flex:0 0 7px;width:7px;height:7px;
+ border-radius:50%;background:#9baeba;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell[data-auto-phase="framing"] .iu-gemini-scan-state::before {
+ background:#d5a54f;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell[data-auto-phase="capturing"] .iu-gemini-scan-state::before {
+ background:#36a67c;box-shadow:0 0 0 3px rgba(54,166,124,.11);
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell[data-auto-phase="error"] .iu-gemini-scan-state::before {
+ background:#cb7770;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-auto-reset {
+ min-height:34px;align-self:stretch;margin:3px 2px 0;padding:6px 9px;
+ border:1px solid rgba(158,186,200,.64);border-radius:10px;
+ background:rgba(255,255,255,.7);color:#38596e;font-family:inherit;font-size:11px;font-weight:700;line-height:1.2;
+ cursor:pointer;touch-action:manipulation;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-auto-reset[hidden] {
+ display:none!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-camera-shell #iuGeminiCapture {
+ margin-top:5px!important;
+}
+@media(max-width:365px){
+ html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-state {
+  flex:1 1 100%;justify-content:flex-start;text-align:left;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ html body .app > section#iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-mode {
+  transition:none;
+ }
+}
