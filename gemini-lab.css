@@ -1799,3 +1799,32 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
   color:CanvasText!important;
  }
 }
+
+
+/* v41.62 — L'en-tête Gemini reprend EXACTEMENT la typographie et les
+   espacements de « Nouvelle pesée » (#calc-title, V34.28).
+   La pastille Gemini reste en haut à droite, sans chevaucher le kicker. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading {
+ margin-bottom:20px!important;
+ padding:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading > div {
+ display:grid!important;
+ align-content:center!important;
+ gap:4px!important;
+ min-width:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading h2#iu-gemini-section-title {
+ margin:0!important;
+ padding:0!important;
+ font-size:17px!important;
+ line-height:1.25!important;
+ letter-spacing:-.45px!important;
+ font-weight:850!important;
+ color:#20252b!important;
+}
+@media(max-width:380px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading h2#iu-gemini-section-title {
+  font-size:16px!important;
+ }
+}

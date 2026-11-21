@@ -1,6 +1,6 @@
 {
-  "version": "41.61",
+  "version": "41.62",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Carte Gemini : pastille replacée en haut à droite, icône SVG complète sans rognage (14 px, même hauteur que le logo Google de Connecté), formes et couleurs tirées du logo de référence ; double contour avec rouge en haut à gauche, jaune au milieu, vert en bas et bleu dominant sur le bord droit. Scanner et validation inchangés."
+  "notes": "Interface Gemini : retrait de l'explication longue du mode Auto ; titre Nouvelle pesée avec Gemini harmonisé avec Nouvelle pesée (17 px, 16 px sous 380 px, mêmes marges, graisse, interlignage et espacement). Pastille Gemini à droite et reconnaissance inchangées."
 }
