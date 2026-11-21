@@ -1,4 +1,4 @@
-/* Inventaires U 41.49 — pesée Gemini compacte, validation manuelle avant enregistrement.
+/* Inventaires U 41.50 — analyse dès la capture et EAN présenté comme sur l'étiquette.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -35,6 +35,13 @@
  };
  const formatWeight=g=>Number.isInteger(g)?(g/1000).toFixed(3).replace('.',',')+' kg':'Non reconnu';
  const money=c=>Number.isInteger(c)?(c/100).toFixed(2).replace('.',',')+' €':'Non reconnu';
+ // Jour local de l'appareil pour la date de la MAQUETTE d'étiquette.
+ const todayForVirtualLabel=()=>{
+  const date=new Date();
+  return [String(date.getDate()).padStart(2,'0'),
+   String(date.getMonth()+1).padStart(2,'0'),
+   String(date.getFullYear())].join('.');
+ };
  function updateButton(){
   analyze.hidden=!file;
   analyze.disabled=!file||!pilotKey.value.trim()||active||attempts.has(fixedModel);
@@ -77,6 +84,8 @@
   const bars=label.querySelector('.iu-gemini-label-bars');
   const caption=output.querySelector('.iu-gemini-label-frame-caption');
   if(weight)weight.textContent=corrected?formatWeight(corrected.net):formatWeight(gross);
+  const virtualDate=label.querySelector('.iu-gemini-label-date .iu-gemini-label-number');
+  if(virtualDate)virtualDate.textContent=todayForVirtualLabel();
   if(total)total.textContent=money(corrected?corrected.cents:fields.totalCents).replace(/\s/g,'');
   if(digits)digits.textContent=corrected?.ean||fields.ean13||'EAN NON RECONNU';
   if(bars)renderEanBars(bars,corrected?.ean||fields.ean13);
@@ -136,8 +145,15 @@
   output.hidden=true;networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
   if(grossPreview)grossPreview.value='';
-  say(cameraStream?'Photo prête : touche « Analyser l’étiquette ».':'Photo prête : confirme pour lancer l’analyse.');
   updateButton();
+  if(!analyze.disabled){
+   // Une seule analyse par capture/import. Enregistrement toujours manuel.
+   analyze.click();
+  }else if(!pilotKey.value.trim()){
+   say('Photo prête. Configure la clé Gemini pour lancer l’analyse.',true);
+  }else{
+   say('Photo prête, analyse indisponible pour le moment.',true);
+  }
   return true;
  }
  photo.addEventListener('change',()=>{
@@ -257,6 +273,7 @@
  }
  // Barres EAN-13 exactes, SVG local sans bibliothèque ni réseau.
  function renderEanBars(container,ean){
+  container.replaceChildren();
   if(!/^\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12])return;
   const L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
   const G=['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'];
@@ -269,17 +286,40 @@
   bits+='101';
   const ns='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(ns,'svg');
-  svg.setAttribute('viewBox','0 0 95 56');
-  svg.setAttribute('preserveAspectRatio','none');
+  svg.setAttribute('viewBox','0 0 126 83');
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
   svg.setAttribute('role','img');
-  svg.setAttribute('aria-label','Code-barres EAN-13 généré '+ean);
+  svg.setAttribute('aria-label','EAN 13 '+ean[0]+' '+ean.slice(1,7)+' '+ean.slice(7));
   svg.classList.add('iu-gemini-ean-svg');
   for(let i=0;i<bits.length;i++){
    if(bits[i]!=='1')continue;
    const rect=document.createElementNS(ns,'rect');
-   rect.setAttribute('x',String(i));rect.setAttribute('y','0');
-   rect.setAttribute('width','1');rect.setAttribute('height',(i<3||i>=92||i>=45&&i<50)?'56':'49');
+   rect.setAttribute('x',String(22+i));rect.setAttribute('y','2');
+   rect.setAttribute('width','1');rect.setAttribute('height',(i<3||i>=92||i>=45&&i<50)?'61':'52');
    rect.setAttribute('fill','#111');svg.append(rect);
+  }
+  // Chiffres imprimés comme sur une étiquette Super U : 0 203476 013844.
+  const addDigit=(digit,x,y,cls)=>{
+   const text=document.createElementNS(ns,'text');
+   text.setAttribute('x',String(x));text.setAttribute('y',String(y));
+   text.setAttribute('fill','#111');text.setAttribute('text-anchor','middle');
+   text.setAttribute('font-family','Oswald, Arial Narrow, sans-serif');
+   text.setAttribute('font-size','10.5');text.setAttribute('font-weight','500');
+   text.setAttribute('class',cls);
+   text.textContent=digit;svg.append(text);
+   return text;
+  };
+  addDigit(ean[0],14,77,'iu-gemini-ean-leading');
+  for(let i=0;i<6;i++){
+   addDigit(ean[i+1],22+3+(i+.5)*7,77,'iu-gemini-ean-digit');
+   addDigit(ean[i+7],22+3+42+5+(i+.5)*7,77,'iu-gemini-ean-digit');
+  }
+  // Le code 0203476... de la photo porte le PLU 3476 sur le bord gauche.
+  if(ean.startsWith('020')){
+   const plu=addDigit(ean.slice(3,7),0,0,'iu-gemini-ean-plu');
+   plu.setAttribute('text-anchor','start');
+   plu.setAttribute('font-size','8.5');
+   plu.setAttribute('transform','translate(7 14) rotate(90)');
   }
   container.replaceChildren(svg);
  }
@@ -321,14 +361,9 @@
   add(grossBox,'strong','iu-gemini-label-number',formatWeight(corrected?.net??gross));
   const dateBox=add(middle,'div','iu-gemini-label-date','');
   add(dateBox,'span','iu-gemini-label-caption',"Date d’emballage");
-  const rawDate=fields.packagingDate||fields.packedOn||fields.date||null;
-  const printedDate=typeof rawDate==='string'&&/^\d{2}[./-]\d{2}[./-]\d{4}$/.test(rawDate.trim())
-    ?rawDate.trim().replace(/[/-]/g,'.')
-    :typeof rawDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(rawDate.trim())
-      ?rawDate.trim().slice(8,10)+'.'+rawDate.trim().slice(5,7)+'.'+rawDate.trim().slice(0,4)
-      :'—';
-  add(dateBox,'strong','iu-gemini-label-number',printedDate);
-  const bottom=add(label,'div','iu-gemini-label-bottom','');
+  // Date du jour pour l'aperçu virtuel, pas pour la photo source.
+  add(dateBox,'strong','iu-gemini-label-number',todayForVirtualLabel());
+    const bottom=add(label,'div','iu-gemini-label-bottom','');
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
   bars.setAttribute('aria-hidden','true');
@@ -562,10 +597,9 @@
    ctx.drawImage(video,0,0,cv.width,cv.height);
    const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.87));
    if(!blob)throw Error('Capture impossible');
-   if(setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'})))
-    say('Photo prête. Lance l’analyse, puis capture la suivante.');
+   setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
   }catch(_){say('Capture impossible. Réessaie.',true);}
-  finally{capture.disabled=false;}
+  finally{capture.disabled=active;}
  });
  document.addEventListener('visibilitychange',()=>{
   if(document.hidden&&cameraStream)stopCamera();

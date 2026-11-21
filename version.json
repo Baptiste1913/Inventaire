@@ -1,6 +1,6 @@
 {
-  "version": "41.49",
+  "version": "41.50",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Pesée Gemini : intitulé explicite, panier élargi avec caméra et galerie jointes à droite, poids brut à vérifier en grand et net calculé en petit, étiquette virtuelle miniature visible sans volet. La validation par « Valider et suivante » déclenche désormais seule l’enregistrement et prépare une nouvelle lecture. Contrôles de sécurité et scanner historique conservés."
+  "notes": "La photo capturée ou importée lance immédiatement son analyse Gemini (clé pilote requise). Date de la maquette d’étiquette réglée sur le jour local ; EAN-13 tracé avec les 13 chiffres sous les barres comme les étiquettes DIGI, PLU vertical pour préfixe 020. Pastille Gemini colorée rétablie. Validation de pesée toujours manuelle et scanner classique inchangé."
 }

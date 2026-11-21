@@ -1137,3 +1137,54 @@ html body .app > section.calc-card#iuGeminiLab .iu-gemini-label-frame-caption {
   background:Canvas;border:1px solid CanvasText;box-shadow:none;
  }
 }
+
+
+/* v41.50 — Pastille Gemini restaurée ; titre long sans chevauchement. */
+html body .app > section#iuGeminiLab > .iu-gemini-title-badge {
+ position:relative!important;inset:auto!important;top:auto!important;right:auto!important;
+ display:inline-flex!important;width:max-content!important;max-width:100%!important;
+ margin:0 0 9px!important;padding:6px 11px!important;min-height:29px!important;
+ align-items:center!important;gap:7px!important;opacity:1!important;
+ visibility:visible!important;white-space:nowrap!important;
+}
+html body .app > section#iuGeminiLab > .iu-gemini-title-badge svg {
+ display:block!important;width:15px!important;height:15px!important;flex:0 0 15px!important;
+}
+html body .app > section#iuGeminiLab > .iu-gemini-title-badge .iu-gemini-title-text {
+ font-size:11px!important;font-weight:800!important;
+}
+html body .app > section#iuGeminiLab > .iu-gemini-auto-disclosure {
+ margin:7px 1px 4px!important;font-size:10.5px!important;line-height:1.38!important;
+ color:#6c7e88!important;
+}
+/* Le code DIGI reste un EAN-13 valide et lisible, avec ses vrais
+   chiffres imprimés sous les barres (0 / six chiffres / six chiffres).
+   Les 4 chiffres du PLU sont dessinés verticalement à gauche si préfixe 020. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-barcode {
+ display:flex!important;align-items:stretch!important;justify-content:flex-end!important;
+ overflow:visible!important;min-width:0!important;min-height:0!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bars {
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;height:100%!important;min-height:0!important;
+ margin:0!important;padding:0!important;border:0!important;
+ background:none!important;opacity:1!important;overflow:visible!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bars .iu-gemini-ean-svg {
+ display:block!important;box-sizing:border-box!important;width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;background:transparent!important;
+ overflow:visible!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-ean-svg text {
+ paint-order:normal;letter-spacing:0;stroke:none;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-ean {
+ /* Le texte EAN est maintenant intégré au SVG. Garder ce noeud pour
+    l'accessibilité et les mises à jour, sans doubler l'impression. */
+ position:absolute!important;width:1px!important;height:1px!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;
+ white-space:nowrap!important;
+}
+@media(max-width:350px) {
+ html body .app > section#iuGeminiLab > .iu-gemini-title-badge {margin-bottom:7px!important;}
+}
