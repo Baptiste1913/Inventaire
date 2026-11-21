@@ -1,6 +1,6 @@
 {
-  "version": "41.46",
+  "version": "41.47",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Refonte structurelle de la carte Gemini pour reprendre Nouvelle pesée : titre et surtitre, panier avec bouton scanner latéral, résultat lumineux même au repos, configuration et photo repliées. Aucun changement à l'OCR classique ni aux calculs."
+  "notes": "Refonte native du bloc IA : structure sœur de Nouvelle pesée avec mêmes composants réglages, sélecteur, scanner, champ brut, nouvelle pesée et résultat lumineux. Suppression des surcharges CSS historiques, configuration repliée, caméra/photo fonctionnelles. OCR classique inchangé."
 }
