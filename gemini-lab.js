@@ -1,4 +1,4 @@
-/* Inventaires U 41.58 — caméra Gemini à capture automatique, filtre local de netteté et validation manuelle.
+/* Inventaires U 41.59 — gabarit lumineux intégral et réutilisation sûre de l'autorisation caméra.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -19,6 +19,7 @@
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
   torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture');
  let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false;
+ let cameraPausedInBackground=false;
  const modeCamera=$('iuGeminiModeCamera'),modePhoto=$('iuGeminiModePhoto');
  const modeControl=$('iuGeminiModeCamera')?.closest('.iu-gemini-mode-control');
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
@@ -537,6 +538,7 @@
   torch.title=torchOn?'Désactiver le flash':'Activer le flash';
  }
  function stopCamera(){
+  cameraPausedInBackground=false;
   clearAutoTimer();clearAutoStability();
   autoLocked=false;autoSuspended=false;autoNeedsChange=false;
   autoCapturePending=false;autoLastCaptured=null;autoChangeReference=null;
@@ -557,7 +559,32 @@
   refreshTorch();
  }
  async function startCamera(){
-  if(cameraStarting||cameraStream||active)return;
+  if(cameraStarting||active)return;
+  // Réutiliser la même piste déjà autorisée : pas de nouvel appel
+  // getUserMedia tant que la caméra fonctionne dans cette session.
+  if(cameraStream){
+   const track=cameraStream.getVideoTracks?.()[0];
+   if(track?.readyState==='live'){
+    if(document.hidden)return;
+    cameraPausedInBackground=false;
+    track.enabled=true;
+    video.srcObject=cameraStream;
+    cameraShell.hidden=false;
+    cameraShell.dataset.state='scanning';
+    shortcut?.setAttribute('aria-pressed','true');
+    shortcut?.setAttribute('aria-expanded','true');
+    shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
+    try{await video.play()}catch(_){
+     say('Vidéo suspendue par iOS. Réessaie de toucher le viseur.',true);
+    }
+    if(cameraMode==='auto'&&!autoSuspended&&!active&&!file&&!proposal)startAutoMonitor();
+    cameraShell.scrollIntoView({block:'nearest',behavior:'smooth'});
+    return;
+   }
+   // iOS peut terminer une piste après verrouillage. Dans ce cas
+   // l'app ne relance pas automatiquement une demande d'autorisation.
+   stopCamera();
+  }
   if(!navigator.mediaDevices?.getUserMedia){
    say('Caméra en direct indisponible : autorise la caméra ou utilise la galerie.',true);return;
   }
@@ -575,10 +602,12 @@
     return;
    }
    cameraStream=obtained;
+   cameraPausedInBackground=false;
    video.srcObject=obtained;
    cameraShell.hidden=false;cameraShell.dataset.state='scanning';openCamera.hidden=true;
    shortcut?.setAttribute('aria-pressed','true');
    shortcut?.setAttribute('aria-expanded','true');
+   shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
@@ -615,10 +644,9 @@
  }
  modeCamera?.addEventListener('click',()=>{
   selectReadingMode('camera');
-  if(cameraStream){
-   if(cameraMode==='auto'&&autoSuspended&&!file&&!active&&!proposal)armAutoScanner(false);
-   cameraShell.scrollIntoView({block:'nearest',behavior:'smooth'});
-  }else startCamera();
+  if(cameraStream?.getVideoTracks?.()[0]?.readyState==='live'&&
+     cameraMode==='auto'&&autoSuspended&&!file&&!active&&!proposal)armAutoScanner(false);
+  startCamera();
  });
  modePhoto?.addEventListener('click',()=>{
   selectReadingMode('photo');
@@ -627,7 +655,9 @@
  });
  shortcut?.addEventListener('click',()=>{
   selectReadingMode('camera');
-  if(cameraStream)stopCamera();else startCamera();
+  // Ce raccourci doit toujours AFFICHER le viseur. Une seconde pression
+  // ne ferme plus la piste et ne provoque plus un nouveau prompt iOS.
+  startCamera();
  });
  nextWeigh?.addEventListener('click',()=>{
   if(active||!proposal)return;
@@ -854,8 +884,34 @@
   finally{capture.disabled=active;}
  });
  document.addEventListener('visibilitychange',()=>{
-  if(document.hidden&&cameraStream)stopCamera();
+  if(document.hidden&&cameraStream){
+   // Aucune image vidéo ne doit rester capturée lorsque la PWA est masquée.
+   // Désactiver temporairement la piste au lieu de la détruire évite
+   // de redemander l'accès lors de courts changements d'application.
+   clearAutoTimer();
+   cameraPausedInBackground=true;
+   for(const track of cameraStream.getVideoTracks())track.enabled=false;
+   try{video.pause()}catch(_){}
+  }else if(!document.hidden&&cameraPausedInBackground&&cameraStream){
+   cameraPausedInBackground=false;
+   const track=cameraStream.getVideoTracks?.()[0];
+   if(!track||track.readyState!=='live'){
+    stopCamera();
+    say('iOS a interrompu la caméra. Touche Scanner pour la rouvrir.',true);
+    return;
+   }
+   track.enabled=true;
+   video.srcObject=cameraStream;
+   Promise.resolve(video.play()).then(()=>{
+    if(cameraMode==='auto'&&!autoLocked&&!autoSuspended&&
+       !active&&!file&&!proposal)startAutoMonitor();
+   }).catch(()=>{
+    say('Reprise vidéo bloquée par iOS. Touche Scanner pour continuer.',true);
+   });
+  }
  });
-
+ // Quand la page est réellement fermée, WebKit libère automatiquement
+ // les pistes. Ne pas forcer stop() ici : certaines navigations internes
+ // de PWA peuvent aussi émettre pagehide et provoquer un prompt inutile.
  clear();
 })();

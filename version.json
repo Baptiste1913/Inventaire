@@ -1,6 +1,6 @@
 {
-  "version": "41.58",
+  "version": "41.59",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Scanner Gemini automatique : caméra persistante, vérification locale de la netteté et de la stabilité avant une seule capture envoyée à Gemini ; mode Manuel de secours, réarmement après validation uniquement lors d’un changement de scène, reprise manuelle en cas d’échec. Analyse cloud et enregistrement manuel inchangés."
+  "notes": "Gemini : l’animation lumineuse du scanner encadre toute l’étiquette de référence, sans toucher au viseur OCR. La caméra autorisée est réutilisée pendant la session, et sa piste est désactivée temporairement lorsque l’application passe à l’arrière-plan puis reprise si possible. iOS peut redemander l’autorisation au lancement d’une PWA ; ce contrôle système ne peut pas être supprimé par le site."
 }
