@@ -940,10 +940,9 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
 </div>
 <p aria-live="polite" class="weigh-status" id="weighStatus" role="status"></p>
 <p class="error" id="errorMessage" role="status"></p></section>
-<section class="card calc-card iu-gemini-standalone" aria-labelledby="iu-gemini-section-title">
+<section id="iuGeminiLab" class="card calc-card iu-gemini-standalone" aria-labelledby="iu-gemini-section-title">
 <div class="card-heading"><div><span class="section-kicker">SERVICES U / CALCUL IA</span><h2 id="iu-gemini-section-title">Nouvelle pesée</h2></div></div>
 <span class="iu-gemini-star-badge iu-gemini-title-badge" aria-label="Traitement des pesées avec Gemini"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiStarGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiStarGradient)"/></svg><span class="iu-gemini-title-text">Pesée avec Gemini</span></span>
-<section id="iuGeminiLab" class="iu-gemini-lab" aria-label="Pesée avec Gemini">
 <div class="weigh-preferences iu-gemini-reading-preferences" aria-label="Réglages de la lecture">
  <div class="weigh-preferences-head"><strong class="weigh-preferences-title">Réglages de la lecture</strong><span class="weigh-preferences-subtitle">Choisis ton mode de lecture</span></div>
  <div class="v22-mode weigh-preferences-mode iu-gemini-mode-control" role="group" aria-label="Mode de lecture Gemini">
@@ -1025,7 +1024,6 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <label class="iu-gemini-transfer-confirm"><input type="checkbox" id="iuGeminiConfirmTare" /> Je confirme que le poids imprimé inclut la panière et que la tare du panier sélectionné doit être soustraite une seule fois.</label>
  <button type="button" id="iuGeminiTransferApply" class="iu-gemini-transfer-apply" disabled>Transférer vers la pesée (sans enregistrer)</button>
 </div>
-</section>
 </section>
 
 <details aria-labelledby="history-title" class="card history-card fold-card"><summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / SUIVI</span><h2 class="fold-label" id="history-title">Historique des pesées</h2><small class="history-heading-subtitle">Consulter les dernières pesées enregistrées.</small></span><span class="fold-trailing"><span class="count session-pill" id="historyCount">0 pesée</span><svg aria-hidden="true" class="fold-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary><div class="fold-body"><button aria-controls="historyList" aria-expanded="false" class="history-toggle" hidden="" id="historyToggleTop" type="button"><span class="history-toggle-label">Voir les pesées</span><svg aria-hidden="true" class="history-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button><div class="history-list" id="historyList"></div><button class="history-clear" hidden="" id="clearHistoryBtn" type="button">Effacer l’historique</button></div></details>
