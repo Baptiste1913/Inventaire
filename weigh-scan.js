@@ -266,27 +266,42 @@
    for(let i=0;i<12;i++)sum+=Number(c[i])*(i%2?3:1);
    return (10-sum%10)%10===Number(c[12]);
   };
-  const eans=[...new Set((text.match(/(?<!\d)\d{13}(?!\d)/g)||[]).filter(checkEAN))];
+  const eans=[...new Set((text.match(/(?<!\\d)\\d{13}(?!\\d)/g)||[]).filter(checkEAN))];
   const weight=weights.length===1?weights[0]:null;
   const rate=rates.length===1?rates[0]:null;
   const total=totals.length===1?totals[0]:null;
   return {name,weight,rate,total,ean:eans.length===1?eans[0]:null,
    ambiguous:weights.length>1||rates.length>1||totals.length>1,
    consistent:weight!==null&&rate!==null&&total!==null&&
-    Math.abs(Math.round(weight*rate/1000)-total)<=1};
+    Math.round(weight*rate/1000)===total};
  }
- function displayWholeLabel(p){
+ function agreeWholeLabel(a,b){
+  // Deux configurations de reconnaissance de la même image : accord numérique
+  // obligatoire ; ce n'est pas une preuve absolue d'exactitude.
+  if(!a.consistent||!b.consistent||a.ambiguous||b.ambiguous)return false;
+  if(a.weight!==b.weight||a.rate!==b.rate||a.total!==b.total)return false;
+  if(a.ean&&b.ean&&a.ean!==b.ean)return false;
+  if(a.name&&b.name&&normalize(a.name)!==normalize(b.name))return false;
+  return true;
+ }
+ function displayWholeLabel(p,agreed){
   if(!photoResult)return false;
   const euro=n=>n===null?'Non détecté':(n/100).toFixed(2).replace('.',',')+' €';
   const tare=context()?.tareGrams;
   const same=proposalGrams===null||p.weight===proposalGrams;
-  const valid=p.consistent&&!p.ambiguous&&same;
+  const encoded=typeof window.IUDigiWeight?.amountCents==='function'&&p.ean
+   ?window.IUDigiWeight.amountCents(p.ean,p.ean.slice(0,7)):null;
+  const barcodeContradiction=encoded!==null&&p.total!==null&&encoded!==p.total;
+  const valid=p.consistent&&!p.ambiguous&&same&&agreed&&!barcodeContradiction;
   const rows=[
    ['Article OCR',p.name||'Non détecté'],
    ['Poids imprimé',p.weight===null?'Non détecté':format(p.weight)],
    ['Prix au kilo',p.rate===null?'Non détecté':euro(p.rate)+'/kg'],
    ['Prix total',euro(p.total)],
-   ['EAN en OCR',p.ean||'Non détecté (lecteur de codes-barres séparé)']
+   ['EAN en OCR',p.ean||'Non détecté (lecteur de codes-barres séparé)'],
+   ['Accord entre 2 lectures',agreed?'Valeurs numériques identiques':'Échec : vérifier chaque chiffre'],
+   ['Contrôle code DIGI / montant',encoded===null?'Non vérifiable avec ce code'
+    :barcodeContradiction?'Prix encodé contradictoire : REFUS':'Prix encodé cohérent (format DIGI)']
   ];
   if(p.weight!==null&&Number.isSafeInteger(tare)&&tare>=0){
    const net=p.weight-tare;
@@ -295,6 +310,8 @@
   rows.push(['Contrôle des montants',
    valid?'Prix × poids cohérent · vérification visuelle nécessaire':
    p.ambiguous?'Valeurs contradictoires : refus':
+   !agreed?'Deux lectures différentes ou incomplètes : refus':
+   barcodeContradiction?'EAN et prix contradictoires : refus':
    !same?'Poids différent du scanner : refus':
    'Incomplet ou incohérent : aucun calcul validé']);
   photoResult.replaceChildren();
@@ -340,11 +357,32 @@
    await ocr.setParameters({tessedit_pageseg_mode:'6',tessedit_char_whitelist:''});
    const answer=await ocr.recognize(canvas);
    if(token!==photoToken||overlay.hidden)return;
+   // Deuxième lecture : traitement de luminosité puis mode texte épars.
+   // Aucune donnée n'est envoyée à un serveur.
+   photoStatus.textContent='Vérification des chiffres avec une deuxième lecture locale…';
+   const confirmCanvas=document.createElement('canvas');
+   confirmCanvas.width=canvas.width;confirmCanvas.height=canvas.height;
+   const confirmCtx=confirmCanvas.getContext('2d',{willReadFrequently:true});
+   if(!confirmCtx)throw Error('Traitement image indisponible');
+   confirmCtx.drawImage(canvas,0,0);
+   const pixels=confirmCtx.getImageData(0,0,confirmCanvas.width,confirmCanvas.height);
+   const d=pixels.data;
+   for(let i=0;i<d.length;i+=4){
+    const gray=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);
+    const enhanced=Math.max(0,Math.min(255,Math.round((gray-128)*1.24+132)));
+    d[i]=d[i+1]=d[i+2]=enhanced;
+   }
+   confirmCtx.putImageData(pixels,0,0);
+   await ocr.setParameters({tessedit_pageseg_mode:'11',tessedit_char_whitelist:''});
+   const second=await ocr.recognize(confirmCanvas);
+   if(token!==photoToken||overlay.hidden)return;
    const parsed=parseWholeLabel(answer?.data?.text||'');
-   const valid=displayWholeLabel(parsed);
+   const check=parseWholeLabel(second?.data?.text||'');
+   const agreed=agreeWholeLabel(parsed,check);
+   const valid=displayWholeLabel(parsed,agreed);
    photoStatus.textContent=valid
-    ?'Montants cohérents. Compare les valeurs à l’étiquette.'
-    :'Lecture incomplète ou contradictoire : reprends la photo.';
+    ?'Deux lectures concordantes et contrôles cohérents. Vérifie encore la photo.'
+    :'Lecture non confirmée : aucun transfert, refais une photo plus nette.';
   }catch(_){
    if(token===photoToken&&!overlay.hidden)
     photoStatus.textContent='Lecture impossible : vérifie la photo ou le chargement OCR.';
