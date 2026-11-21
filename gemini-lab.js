@@ -1,4 +1,4 @@
-/* Inventaires U 41.32 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.33 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -186,33 +186,68 @@
  function display(result,wallMs){
   output.replaceChildren();
   const fields=result?.fields||{},checks=result?.checks||{};
-  const entries=[
-   ['Article',fields.name||'Non reconnu'],
-   ['Poids lu sur l’étiquette (brut avec panière)',formatWeight(fields.weightGrams)],
-   ['Prix au kilo',Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'Non reconnu'],
-   ['Prix à payer',money(fields.totalCents)],
-   ['Code-barres EAN-13',fields.ean13||'Non confirmé'],
-   ['Contrôle du calcul',checks.arithmeticConsistent===true?'Cohérent (arrondi au centime)':'Non confirmé ou incohérent'],
-   ['EAN : clé de contrôle',checks.eanChecksumValid===true?'Valide':'Non confirmé']
-  ];
-  for(const [label,value] of entries){
-   const row=document.createElement('div');row.className='iu-gemini-result-row';
-   const title=document.createElement('span');title.textContent=label;
-   const strong=document.createElement('strong');strong.textContent=value;
-   row.append(title,strong);output.append(row);
-  }
-  const caution=document.createElement('p');
-  caution.textContent='Résultat expérimental : transfert uniquement après vérification et confirmation manuelles. Aucun EAN généré.';
-  caution.className='iu-gemini-result-warning';output.append(caution);
-  output.hidden=false;
   const verified=validateResult(result);
+  const context=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  const tare=context?.tareGrams;
+  const gross=fields.weightGrams;
+  const net=Number.isSafeInteger(gross)&&Number.isSafeInteger(tare)?gross-tare:null;
+  const arithmetic=checks.arithmeticConsistent===true;
+  const eanValid=checks.eanChecksumValid===true;
+  const netValid=Number.isSafeInteger(net)&&net>0;
+  const ready=!verified.error&&netValid;
+  const label=document.createElement('article');
+  label.className='iu-gemini-printed-label'+(ready?' is-ready':' is-review');
+  label.setAttribute('aria-label','Étiquette reconstituée à vérifier avant transfert');
+  const add=(parent,tag,className,value)=>{
+   const el=document.createElement(tag);el.className=className;el.textContent=value;
+   parent.append(el);return el;
+  };
+  const top=add(label,'div','iu-gemini-label-top','');
+  add(top,'span','iu-gemini-label-brand','U');
+  add(top,'span','iu-gemini-label-store','FRUITS & LÉGUMES · LECTURE GEMINI');
+  const name=typeof fields.name==='string'&&fields.name.trim()?fields.name.trim():'ARTICLE NON RECONNU';
+  add(label,'div','iu-gemini-label-name',name);
+  const middle=add(label,'div','iu-gemini-label-middle','');
+  const rate=add(middle,'div','iu-gemini-label-rate','');
+  add(rate,'span','iu-gemini-label-caption','PRIX AU KILO');
+  add(rate,'strong','iu-gemini-label-number',Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'—');
+  const grossBox=add(middle,'div','iu-gemini-label-gross','');
+  add(grossBox,'span','iu-gemini-label-caption','POIDS IMPRIMÉ · BRUT');
+  add(grossBox,'strong','iu-gemini-label-number',formatWeight(gross));
+  const total=add(label,'div','iu-gemini-label-total','');
+  add(total,'span','iu-gemini-label-caption','PRIX À PAYER');
+  add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents));
+  const barcode=add(label,'div','iu-gemini-label-barcode','');
+  const bars=add(barcode,'div','iu-gemini-label-bars','');
+  bars.setAttribute('aria-hidden','true');
+  add(barcode,'span','iu-gemini-label-ean',fields.ean13||'EAN NON RECONNU');
+  add(label,'p','iu-gemini-label-notice','Reconstitution visuelle non scannable · vérifier sur la photo d’origine');
+  const summary=add(output,'div','iu-gemini-label-summary','');
+  const statusText=ready?'Contrôles cohérents · vérification visuelle requise'
+    :verified.error?'Transfert bloqué · '+verified.error
+    :!netValid?'Transfert bloqué · tare supérieure ou égale au brut'
+    :'Vérification nécessaire';
+  add(summary,'span','iu-gemini-label-state'+(ready?' is-ready':' is-review'),statusText);
+  output.append(label);
+  const calculation=add(output,'div','iu-gemini-net-summary','');
+  add(calculation,'span','iu-gemini-net-caption','POIDS RÉEL DES PRODUITS · APRÈS TARE');
+  add(calculation,'strong','iu-gemini-net-value'+(netValid?'':' is-invalid'),
+   net===null?'Tare non disponible':formatWeight(net));
+  add(calculation,'span','iu-gemini-net-detail',
+   formatWeight(gross)+' brut − '+formatWeight(tare)+' panière');
+  const checksRow=add(output,'div','iu-gemini-label-checks','');
+  add(checksRow,'span',arithmetic?'is-ok':'is-warning',
+   (arithmetic?'✓':'!')+' Calcul du prix '+(arithmetic?'cohérent':'à vérifier'));
+  add(checksRow,'span',eanValid?'is-ok':'is-warning',
+   (eanValid?'✓':'!')+' EAN '+(eanValid?'valide':'à vérifier'));
+  const caution=add(output,'p','iu-gemini-result-warning',
+   'Un calcul cohérent ou un EAN valide ne garantit pas que Gemini a lu les bons chiffres. Compare avec la photo avant de confirmer.');
+  output.hidden=false;
   if(verified.error){
-   resetTransfer();
-   transfer.hidden=false;
+   resetTransfer();transfer.hidden=false;
    transferCheck.textContent='Transfert bloqué : '+verified.error;
   }else{
-   proposal=verified;
-   transfer.hidden=false;
+   proposal=verified;transfer.hidden=false;
    confirmArticle.checked=false;confirmTare.checked=false;
    transferState();
   }
