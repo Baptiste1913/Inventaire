@@ -1,4 +1,4 @@
-/* Inventaires U 41.37 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.38 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -66,6 +66,12 @@
   const notice=output.querySelector('.iu-gemini-label-notice');
   const comparison=output.querySelector('.iu-gemini-recode-summary');
   if(weight)weight.textContent=corrected?formatWeight(corrected.net):formatWeight(f.weightGrams);
+  const quickGross=output.querySelector('.iu-gemini-quick-gross');
+  const quickNet=output.querySelector('.iu-gemini-quick-net-value');
+  const quickTare=output.querySelector('.iu-gemini-quick-tare');
+  if(quickGross)quickGross.textContent=formatWeight(f.weightGrams);
+  if(quickNet)quickNet.textContent=corrected?formatWeight(corrected.net):'—';
+  if(quickTare)quickTare.textContent='Tare : '+formatWeight(tare);
   if(total)total.textContent=money(corrected?corrected.cents:f.totalCents).replace(/\\s/g,'');
   if(digits)digits.textContent=corrected?.ean||f.ean13||'EAN NON RECONNU';
   if(bars)renderEanBars(bars,corrected?.ean||f.ean13);
@@ -218,13 +224,13 @@
  // 7 chiffres article + 5 chiffres prix (euros × 655,36) + clé EAN-13.
  // Ce code n'est jamais transféré ni présenté comme validé sur Zebra.
  function eanCheck(first12){
-  if(!/^\\d{12}$/.test(first12))return null;
+  if(!/^\d{12}$/.test(first12))return null;
   let sum=0;
   for(let i=0;i<12;i++)sum+=Number(first12[i])*(i%2===0?1:3);
   return String((10-sum%10)%10);
  }
  function recodeAfterTare(ean,gross,tare,rate){
-  if(!/^\\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12]||
+  if(!/^\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12]||
      !Number.isSafeInteger(gross)||!Number.isSafeInteger(tare)||
      !Number.isSafeInteger(rate)||tare<0||rate<=0||gross<=tare)return null;
   const net=gross-tare;
@@ -237,7 +243,7 @@
  }
  // Barres EAN-13 exactes, SVG local sans bibliothèque ni réseau.
  function renderEanBars(container,ean){
-  if(!/^\\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12])return;
+  if(!/^\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12])return;
   const L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
   const G=['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'];
   const R=['1110010','1100110','1101100','1000010','1011100','1001110','1010000','1000100','1001000','1110100'];
@@ -316,12 +322,23 @@
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
+  // Résultat compact, comme l'OCR : poids brut et net côte à côte.
   const summary=add(output,'div','iu-gemini-label-summary','');
+  const quick=add(output,'div','iu-gemini-quick-result','');
+  const quickGross=add(quick,'div','iu-gemini-quick-weight','');
+  add(quickGross,'span','iu-gemini-quick-caption','POIDS BRUT · ÉTIQUETTE');
+  add(quickGross,'strong','iu-gemini-quick-gross',formatWeight(gross));
+  const quickNet=add(quick,'div','iu-gemini-quick-weight iu-gemini-quick-net','');
+  add(quickNet,'span','iu-gemini-quick-caption','POIDS NET · APRÈS TARE');
+  add(quickNet,'strong','iu-gemini-quick-net-value',netValid?formatWeight(net):'—');
+  add(quick,'span','iu-gemini-quick-tare','Tare : '+formatWeight(tare));
+
   const statusText=ready?'Contrôles cohérents · vérification visuelle requise'
     :verified.error?'Transfert bloqué · '+verified.error
     :!netValid?'Transfert bloqué · tare supérieure ou égale au brut'
     :'Vérification nécessaire';
   add(summary,'span','iu-gemini-label-state'+(ready?' is-ready':' is-review'),statusText);
+  // L'étiquette numérique corrigée vient APRÈS le résultat OCR compact.
   output.append(label);
   add(output,'p','iu-gemini-label-notice',corrected
    ?'Code DIGI recalculé expérimentalement après tare · non validé sur Zebra · barres EAN-13 générées, lecture Zebra non vérifiée'
@@ -334,6 +351,7 @@
   }
   refreshCorrectedLabel();
   const calculation=add(output,'div','iu-gemini-net-summary','');
+  calculation.hidden=true; // Remplacé par le résultat compact au-dessus de l'étiquette.
   add(calculation,'span','iu-gemini-net-caption','POIDS RÉEL DES PRODUITS · APRÈS TARE');
   add(calculation,'strong','iu-gemini-net-value'+(netValid?'':' is-invalid'),
    net===null?'Tare non disponible':formatWeight(net));
