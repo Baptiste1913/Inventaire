@@ -1,4 +1,4 @@
-/* Inventaires U 41.36 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.37 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -14,7 +14,7 @@
   transferCheck=$('iuGeminiTransferCheck'),confirmArticle=$('iuGeminiConfirmArticle'),
   confirmTare=$('iuGeminiConfirmTare'),transferApply=$('iuGeminiTransferApply');
  let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
- let proposal=null;
+ let proposal=null,latestLabelFields=null;
  const fixedModel='gemini-3.5-flash-lite';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
@@ -51,6 +51,33 @@
   if(c.eanChecksumValid!==true||!/^[0-9]{13}$/.test(f.ean13||''))return {error:'EAN non confirmé ou invalide.'};
   return {name,grams,rate,total,ean:f.ean13};
  }
+ function refreshCorrectedLabel(){
+  if(!latestLabelFields)return;
+  const f=latestLabelFields;
+  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  const tare=ctx?.tareGrams;
+  const corrected=recodeAfterTare(f.ean13,f.weightGrams,tare,f.pricePerKgCents);
+  const label=output.querySelector('.iu-gemini-printed-label');
+  if(!label)return;
+  const weight=label.querySelector('.iu-gemini-label-gross .iu-gemini-label-number');
+  const total=label.querySelector('.iu-gemini-label-total-number');
+  const digits=label.querySelector('.iu-gemini-label-ean');
+  const bars=label.querySelector('.iu-gemini-label-bars');
+  const notice=output.querySelector('.iu-gemini-label-notice');
+  const comparison=output.querySelector('.iu-gemini-recode-summary');
+  if(weight)weight.textContent=corrected?formatWeight(corrected.net):formatWeight(f.weightGrams);
+  if(total)total.textContent=money(corrected?corrected.cents:f.totalCents).replace(/\\s/g,'');
+  if(digits)digits.textContent=corrected?.ean||f.ean13||'EAN NON RECONNU';
+  if(bars)renderEanBars(bars,corrected?.ean||f.ean13);
+  if(notice)notice.textContent=corrected?'Code recalculé après tare · expérimental, non validé sur Zebra':'Code original · choisir une tare valide pour recalculer';
+  if(comparison){
+   comparison.hidden=!corrected;
+   const code=comparison.querySelector('.iu-gemini-recode-code');
+   const details=comparison.querySelector('.iu-gemini-recode-details');
+   if(code)code.textContent=corrected?.ean||'';
+   if(details)details.textContent=corrected?'Original : '+f.ean13+' · montant corrigé : '+money(corrected.cents)+' · poids : '+formatWeight(corrected.net):'';
+  }
+ }
  function transferState(){
   if(!proposal){transferApply.disabled=true;return;}
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
@@ -68,6 +95,7 @@
   transferCheck.textContent='Article à confirmer visuellement : '+proposal.name+
    ' · EAN '+proposal.ean+'. Le code-barres n’est pas transféré.';
   transferApply.disabled=!allowed||!confirmArticle.checked||!confirmTare.checked||active;
+  refreshCorrectedLabel();
  }
  confirmArticle.addEventListener('change',transferState);
  confirmTare.addEventListener('change',transferState);
@@ -85,6 +113,7 @@
   if(typeof window.IUWeighScanDraft!=='function'||window.IUWeighScanDraft(gross)!==true){
    say('Transfert refusé : termine ou vérifie la pesée précédente.',true);return;
   }
+  refreshCorrectedLabel();
   resetTransfer();
   say('Poids BRUT de l’étiquette transféré en brouillon, sans sauvegarde. La tare du panier est déduite par le formulaire : vérifie le net et valide la pesée.');
  });
@@ -97,6 +126,7 @@
   generation++;abort?.abort();abort=null;active=false;file=null;
   attempts.clear();
   photo.value='';
+  latestLabelFields=null;
   output.hidden=true;output.replaceChildren();networkTime.textContent='';resetTransfer();
   clearPreview();updateButton();say('Sélectionne une photo pour commencer.');
  }
@@ -106,6 +136,7 @@
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return;
   }
+  latestLabelFields=null;
   clearPreview();file=chosen;attempts.clear();generation++;
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
@@ -235,6 +266,7 @@
  function display(result,wallMs){
   output.replaceChildren();
   const fields=result?.fields||{},checks=result?.checks||{};
+  latestLabelFields=fields;
   const verified=validateResult(result);
   const context=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const tare=context?.tareGrams;
@@ -265,7 +297,7 @@
   add(rate,'strong','iu-gemini-label-number',Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents).replace(/\s/g,'')+'/kg':'—');
   const grossBox=add(middle,'div','iu-gemini-label-gross','');
   add(grossBox,'span','iu-gemini-label-caption','Poids net');
-  add(grossBox,'strong','iu-gemini-label-number',formatWeight(gross));
+  add(grossBox,'strong','iu-gemini-label-number',formatWeight(corrected?.net??gross));
   const dateBox=add(middle,'div','iu-gemini-label-date','');
   add(dateBox,'span','iu-gemini-label-caption',"Date d’emballage");
   const rawDate=fields.packagingDate||fields.packedOn||fields.date||null;
@@ -300,6 +332,7 @@
    add(compare,'strong','iu-gemini-recode-code',corrected.ean);
    add(compare,'span','iu-gemini-recode-details','Original : '+fields.ean13+' · montant corrigé : '+money(corrected.cents)+' · poids : '+formatWeight(corrected.net));
   }
+  refreshCorrectedLabel();
   const calculation=add(output,'div','iu-gemini-net-summary','');
   add(calculation,'span','iu-gemini-net-caption','POIDS RÉEL DES PRODUITS · APRÈS TARE');
   add(calculation,'strong','iu-gemini-net-value'+(netValid?'':' is-invalid'),
