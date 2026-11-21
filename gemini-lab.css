@@ -839,3 +839,182 @@ html body .app > section.calc-card.card > #iuGeminiOptions > .calc-alerts-body {
 @media(prefers-reduced-motion:reduce){
  .iu-gemini-standalone .iu-gemini-mode-control .mode-slide-thumb {transition:none!important;}
 }
+
+
+/* v41.48 — inventaire : commandes immédiates, résultat prioritaire,
+   étiquette et réglages techniques repliables, sans toucher au scanner classique. */
+.iu-gemini-standalone {min-width:0;}
+.iu-gemini-standalone > .card-heading {margin-bottom:5px;}
+.iu-gemini-standalone > .iu-gemini-title-badge {
+ top:13px;right:14px;min-height:27px;padding:5px 9px;gap:5px;
+}
+.iu-gemini-standalone .iu-gemini-title-text {font-size:10.5px;}
+.iu-gemini-standalone > .iu-gemini-basket-label {
+ margin:5px 0 6px;font-size:12px;
+}
+.iu-gemini-standalone .iu-gemini-scan-row {
+ display:flex;align-items:stretch;gap:8px;margin:0;min-width:0;
+}
+.iu-gemini-standalone .iu-gemini-scan-row .iu-basket-select-wrap {
+ flex:1 1 auto;min-width:0;
+}
+.iu-gemini-standalone .iu-gemini-scan-row .iu-weigh-scan-option {
+ flex:0 0 52px;min-width:52px;max-width:52px;
+}
+.iu-gemini-standalone .iu-gemini-scan-row .iu-basket-select-wrap #iuGeminiBasketSelect {
+ height:52px;min-height:52px;padding:0 10px;font-size:14px;
+}
+.iu-gemini-standalone .iu-gemini-scan-row .iu-weigh-scan-option #iuGeminiCameraShortcut,
+.iu-gemini-standalone .iu-gemini-scan-row .iu-weigh-scan-option #iuGeminiModePhoto {
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ flex:0 0 52px;width:52px;min-width:52px;max-width:52px;
+ height:52px;min-height:52px;max-height:52px;padding:0;
+ border:1px solid rgba(255,255,255,.89);border-radius:15px;
+ background:linear-gradient(145deg,#f9fbfc,#e8eff4);color:#465e6b;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.93),3px 4px 10px rgba(98,126,144,.10);
+ cursor:pointer;touch-action:manipulation;
+}
+.iu-gemini-standalone #iuGeminiModePhoto svg {display:block;width:21px;height:21px;}
+.iu-gemini-standalone #iuGeminiModePhoto:active {transform:scale(.97);}
+.iu-gemini-standalone #iuGeminiSetupCallout[hidden] {display:none!important;}
+.iu-gemini-standalone .iu-gemini-setup-callout:not([hidden]) {
+ display:block;width:100%;min-height:42px;margin:8px 0 2px;
+ padding:9px 12px;border:1px solid #b8d7e4;border-radius:11px;
+ background:#f2f8fb;color:#24576a;font-size:12px;font-weight:750;
+ text-align:left;cursor:pointer;
+}
+.iu-gemini-standalone .iu-gemini-camera-shell {margin:8px 0 5px;}
+.calc-card.iu-gemini-standalone .iu-gemini-camera-shell.iu-weigh-scan-inline {
+ padding:7px!important;gap:0!important;border-radius:16px!important;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+ height:169px!important;max-height:169px!important;border-radius:12px!important;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-camera-shell .iu-gemini-caption {
+ margin:2px 3px 4px!important;font-size:11px!important;line-height:1.2!important;
+}
+.iu-gemini-standalone #iuGeminiCapture {
+ min-height:44px;margin:6px 0 0;padding:9px 12px;
+ font-size:13px;touch-action:manipulation;
+}
+.iu-gemini-standalone .iu-gemini-review-row {
+ display:flex;gap:9px;align-items:stretch;min-width:0;margin:6px 0 0;
+}
+.iu-gemini-standalone .iu-gemini-review-row:has(> #iuGeminiAnalyze[hidden]) {display:none;}
+.iu-gemini-standalone .iu-gemini-review-row > #iuGeminiLabPreview:not([hidden]) {
+ display:block;flex:0 0 62px;width:62px;max-width:62px;height:56px;max-height:56px;
+ margin:0;object-fit:cover;border-radius:11px;
+}
+.iu-gemini-standalone .iu-gemini-review-row > #iuGeminiAnalyze:not([hidden]) {
+ display:block;flex:1 1 auto;min-width:0;min-height:56px;
+ margin:0;padding:9px 10px;border-radius:13px;font-size:13px;
+}
+.iu-gemini-standalone .iu-gemini-review-row > #iuGeminiAnalyze:not([hidden]):not(:disabled) {
+ color:#f9fdff;border-color:#446a80;
+ background:linear-gradient(145deg,#456c83,#263f52);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 3px 9px rgba(47,72,87,.16);
+}
+.iu-gemini-standalone > .iu-gemini-weigh-entry {margin:8px 0 8px;}
+.iu-gemini-standalone > .iu-gemini-weigh-entry > label {margin-bottom:3px;font-size:12px;}
+.iu-gemini-standalone > .iu-gemini-weigh-entry .weight-row {gap:8px;}
+.iu-gemini-standalone > .iu-gemini-weigh-entry .weight-field,
+.iu-gemini-standalone > .iu-gemini-weigh-entry #iuGeminiNext {
+ min-height:52px;height:52px;
+}
+.iu-gemini-standalone > .iu-gemini-weigh-entry #iuGeminiNext {
+ min-width:60px;line-height:1.15;
+}
+.iu-gemini-standalone > .iu-gemini-empty-result,
+.iu-gemini-standalone > .iu-gemini-lab-result {margin:0;}
+/* Avant lecture, Brut / Tare / Net restent visibles avec un encombrement réduit. */
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-empty-result .result.iu-result-compact {
+ padding:10px 13px 9px!important;min-height:0!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-empty-result .result.iu-result-compact .iu-result-weights {
+ margin-bottom:5px!important;padding-bottom:5px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-empty-result .result.iu-result-compact .net-line {
+ margin:3px 0!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-empty-result .result.iu-result-compact .net-line strong {
+ font-size:34px!important;
+}
+html body .app > section.calc-card#iuGeminiLab .iu-gemini-empty-result .result.iu-result-compact .result-subtitle {
+ margin-top:3px!important;
+}
+.iu-gemini-standalone > .iu-gemini-lab-result .iu-result-glow-shell {margin:8px 0 0;}
+.iu-gemini-standalone > .iu-gemini-lab-result .iu-gemini-result-signal {
+ margin:7px 2px 5px;font-size:11px;font-weight:750;line-height:1.4;color:#19724e;
+}
+.iu-gemini-standalone > .iu-gemini-lab-result .iu-gemini-result-signal.is-warning {color:#9b593c;}
+.iu-gemini-standalone .iu-gemini-details {
+ margin:6px 0 0;border:1px solid #dce5eb;border-radius:12px;
+ background:rgba(250,252,254,.75);overflow:hidden;
+}
+.iu-gemini-standalone .iu-gemini-details > summary {
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ min-height:44px;box-sizing:border-box;padding:10px 12px;list-style:none;
+ font-size:12px;font-weight:750;color:#3c5869;cursor:pointer;touch-action:manipulation;
+}
+.iu-gemini-standalone .iu-gemini-details > summary::-webkit-details-marker {display:none;}
+.iu-gemini-standalone .iu-gemini-details > summary::after {
+ content:"⌄";display:block;font-size:20px;line-height:1;transition:transform .2s;
+}
+.iu-gemini-standalone .iu-gemini-details[open] > summary::after {transform:rotate(180deg);}
+.iu-gemini-standalone .iu-gemini-details[open] > summary {border-bottom:1px solid #dce5eb;}
+.iu-gemini-standalone .iu-gemini-details .iu-gemini-printed-label,
+.iu-gemini-standalone .iu-gemini-details .iu-gemini-label-summary,
+.iu-gemini-standalone .iu-gemini-details .iu-gemini-label-checks,
+.iu-gemini-standalone .iu-gemini-details .iu-gemini-recode-summary,
+.iu-gemini-standalone .iu-gemini-details .iu-gemini-label-notice,
+.iu-gemini-standalone .iu-gemini-details .iu-gemini-result-warning {
+ max-width:calc(100% - 20px);margin-left:auto;margin-right:auto;
+}
+.iu-gemini-standalone .iu-gemini-details .iu-gemini-printed-label {margin-top:10px;}
+.calc-card.iu-gemini-standalone .iu-gemini-transfer {
+ gap:8px;margin-top:8px;padding:11px 12px;border-radius:13px;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-transfer > strong {font-size:13px;}
+.calc-card.iu-gemini-standalone .iu-gemini-transfer-summary,
+.calc-card.iu-gemini-standalone .iu-gemini-transfer-check {font-size:11px;line-height:1.4;}
+.calc-card.iu-gemini-standalone .iu-gemini-transfer-confirm {
+ min-height:42px;align-items:center;padding:8px 9px;font-size:11.5px;line-height:1.35;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-transfer-confirm input {width:19px;height:19px;margin:0;}
+.calc-card.iu-gemini-standalone .iu-gemini-transfer-apply {min-height:47px;font-size:12px;}
+html body .app > section.calc-card.card > #iuGeminiOptions.weigh-preferences-alerts {
+ margin:12px 0 0;padding:0 11px;border-radius:13px;
+}
+html body .app > section.calc-card.card > #iuGeminiOptions > .calc-alerts-summary {
+ min-height:44px;padding:8px 2px;
+}
+.iu-gemini-standalone #iuGeminiOptions .iu-gemini-key-config {margin:5px 0 8px;}
+.iu-gemini-standalone #iuGeminiOptions .iu-gemini-lab-timing:empty {display:none;}
+.iu-gemini-standalone #iuGeminiOptions .iu-gemini-lab-timing {
+ margin:8px 2px 0;font-size:11px;line-height:1.35;overflow-wrap:anywhere;
+}
+.iu-gemini-standalone > .iu-gemini-lab-status:empty {display:none;}
+.iu-gemini-standalone > .iu-gemini-lab-status:not(:empty) {
+ margin:7px 2px 3px;font-size:11px;line-height:1.4;
+}
+@media(max-width:390px){
+ .calc-card.iu-gemini-standalone .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+  height:152px!important;max-height:152px!important;
+ }
+}
+@media(max-width:350px){
+ .iu-gemini-standalone .iu-gemini-scan-row {gap:6px;}
+ .iu-gemini-standalone .iu-gemini-scan-row .iu-weigh-scan-option {
+  flex-basis:46px;min-width:46px;max-width:46px;
+ }
+ .iu-gemini-standalone .iu-gemini-scan-row .iu-weigh-scan-option #iuGeminiCameraShortcut,
+ .iu-gemini-standalone .iu-gemini-scan-row .iu-weigh-scan-option #iuGeminiModePhoto {
+  flex-basis:46px;width:46px;min-width:46px;max-width:46px;height:48px;min-height:48px;max-height:48px;
+ }
+ .iu-gemini-standalone .iu-gemini-scan-row .iu-basket-select-wrap #iuGeminiBasketSelect {
+  height:48px;min-height:48px;font-size:13px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .iu-gemini-standalone .iu-gemini-details > summary::after {transition:none;}
+}

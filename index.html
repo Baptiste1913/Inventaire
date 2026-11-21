@@ -9,7 +9,7 @@ try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', top, {once:true});
   else top();
 })();
-</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="41.47"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=40.72" rel="manifest"/><link href="apple-touch-icon.png?v=40.72" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=40.72" rel="icon" type="image/png"/><link href="favicon-32.png?v=40.72" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=40.72" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=40.72" rel="stylesheet"/><link href="weigh-scan-inline.css?v=41.25" rel="stylesheet"/><link href="gemini-lab.css?v=41.47" rel="stylesheet"/><link href="result-card.css?v=41.21" rel="stylesheet"/><link href="coursesu-online.css?v=41.23" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
+</script><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/><meta content="#007d89" name="theme-color"/><meta name="iu-build-version" content="41.48"/><meta name="color-scheme" content="light"/><meta content="Inventaires U : calcul du poids net et gestion des tares des paniers." name="description"/><link href="manifest.webmanifest?v=40.72" rel="manifest"/><link href="apple-touch-icon.png?v=40.72" sizes="180x180" rel="apple-touch-icon"/><link href="favicon-32.png?v=40.72" rel="icon" type="image/png"/><link href="favicon-32.png?v=40.72" rel="shortcut icon" type="image/png"/><link href="favicon-16.png?v=40.72" rel="icon" sizes="16x16" type="image/png"/><link href="style.css?v=40.72" rel="stylesheet"/><link href="weigh-scan-inline.css?v=41.25" rel="stylesheet"/><link href="gemini-lab.css?v=41.48" rel="stylesheet"/><link href="result-card.css?v=41.21" rel="stylesheet"/><link href="coursesu-online.css?v=41.23" rel="stylesheet"/><title>Utilitaire d’inventaire U</title><script id="iuUpdateEarly">(function(){try{var s=JSON.parse(sessionStorage.getItem('iu-update-visual-v1')||'null');if(s&&typeof s.at==='number'&&Date.now()-s.at<60000&&Date.now()>=s.at){document.documentElement.classList.add('iu-update-recovering');}else{sessionStorage.removeItem('iu-update-visual-v1');}}catch(e){}})();</script><script id="iuSplashEarly">(function(){try{if(!document.documentElement.classList.contains('iu-update-recovering')&&(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true)){document.documentElement.classList.add('iu-pwa-starting');}}catch(e){}})();</script><style id="iuSplashCritical">
 html.iu-pwa-starting body{overflow:hidden!important}
 html.iu-pwa-starting #iuPwaSplash{display:flex!important}
 #iuPwaSplash{display:none;position:fixed;inset:0;z-index:2147483646;background:#f7f9fa;align-items:center;justify-content:center;opacity:1;transition:opacity .32s ease;pointer-events:all;padding:24px;box-sizing:border-box}
@@ -942,36 +942,16 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
 <p class="error" id="errorMessage" role="status"></p></section>
 <section id="iuGeminiLab" class="card calc-card iu-gemini-standalone" aria-labelledby="iu-gemini-section-title">
 <div class="card-heading"><div><span class="section-kicker">SERVICES U / CALCUL IA</span><h2 id="iu-gemini-section-title">Nouvelle pesée</h2></div></div>
-<span class="iu-gemini-star-badge iu-gemini-title-badge" aria-label="Traitement des pesées avec Gemini"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiStarGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiStarGradient)"/></svg><span class="iu-gemini-title-text">Pesée avec Gemini</span></span>
-<div class="weigh-preferences iu-gemini-reading-preferences" aria-label="Réglages de la lecture">
- <div class="weigh-preferences-head"><strong class="weigh-preferences-title">Réglages de la lecture</strong><span class="weigh-preferences-subtitle">Choisis ton mode de lecture</span></div>
- <div class="v22-mode weigh-preferences-mode iu-gemini-mode-control" role="group" aria-label="Mode de lecture Gemini">
-  <span class="mode-slide-thumb" aria-hidden="true"></span>
-  <button class="mode-btn" id="iuGeminiModeCamera" type="button" aria-pressed="true">Caméra</button>
-  <button class="mode-btn" id="iuGeminiModePhoto" type="button" aria-pressed="false">Photo</button>
- </div>
-</div>
-<details id="iuGeminiOptions" class="v22-settings calc-alerts weigh-preferences-alerts iu-gemini-options">
- <summary class="calc-alerts-summary"><span class="calc-alerts-title"><strong>Réglages Gemini</strong><small>Clé d’accès, photo et confidentialité</small></span><svg aria-hidden="true" class="calc-alerts-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></summary>
- <div class="calc-alerts-body">
-  <label for="iuGeminiLabPhoto">Choisir une photo</label>
-  <div class="iu-gemini-key-config" id="iuGeminiKeyConfig">
- <label for="iuGeminiPilotKey">Clé privée du pilote Cloudflare
-  <input type="password" id="iuGeminiPilotKey" autocomplete="off" placeholder="Saisir une seule fois sur cet appareil" />
- </label>
- <button type="button" id="iuGeminiSaveKey" class="iu-gemini-key-save">Mémoriser sur cet appareil</button>
- <button type="button" id="iuGeminiForgetKey" class="iu-gemini-key-forget" hidden>Effacer la clé enregistrée</button>
- <p id="iuGeminiKeyInfo" class="iu-gemini-key-info">Clé mémorisée uniquement dans ce navigateur, sans chiffrement : à utiliser sur un appareil personnel de confiance.</p>
-</div>
-  <p class="iu-gemini-lab-consent">En appuyant sur « Analyser l’étiquette », la photo est transmise à Google. Au niveau gratuit, Google peut utiliser les données pour améliorer ses produits ; le niveau payant peut être facturé.</p>
- </div>
-</details>
+<span class="iu-gemini-star-badge iu-gemini-title-badge" aria-label="Traitement des pesées avec Gemini"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiStarGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiStarGradient)"/></svg><span class="iu-gemini-title-text">Gemini</span></span>
+
 <input class="iu-gemini-hidden-photo-input" type="file" id="iuGeminiLabPhoto" accept="image/*" aria-label="Choisir une photo d’étiquette DIGI"/>
-<label class="iu-gemini-basket-label" for="iuGeminiBasketSelect">Type de panier</label>
-<div class="iu-basket-scan-row">
+<label class="iu-gemini-basket-label" for="iuGeminiBasketSelect">Panier</label>
+<div class="iu-basket-scan-row iu-gemini-scan-row">
  <div class="iu-basket-select-wrap"><select id="iuGeminiBasketSelect" class="iu-gemini-basket-select" aria-label="Panier utilisé pour la pesée Gemini"></select></div>
- <div class="iu-weigh-scan-option"><button type="button" id="iuGeminiCameraShortcut" class="iu-weigh-scan-toggle new-weigh-btn iu-gemini-scan-shortcut" aria-label="Ouvrir la caméra Gemini" aria-pressed="false" aria-expanded="false" aria-controls="iuGeminiCameraShell" title="Scanner avec Gemini"><svg viewBox="0 0 24 24" aria-hidden="true" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg></button></div>
+ <div class="iu-weigh-scan-option"><button type="button" id="iuGeminiCameraShortcut" class="iu-weigh-scan-toggle new-weigh-btn iu-gemini-scan-shortcut" aria-label="Ouvrir la caméra Gemini" aria-pressed="false" aria-expanded="false" aria-controls="iuGeminiCameraShell" title="Scanner une étiquette"><svg viewBox="0 0 24 24" aria-hidden="true" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M7 12h10"/></svg></button></div>
+ <div class="iu-weigh-scan-option iu-gemini-photo-option"><button type="button" id="iuGeminiModePhoto" class="iu-weigh-scan-toggle new-weigh-btn iu-gemini-photo-shortcut" aria-label="Choisir une photo dans la galerie" aria-pressed="false" title="Choisir une photo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m4.5 17 5-5 3.2 3.1 2.7-2.6L20 17"/></svg></button></div>
 </div>
+<button type="button" id="iuGeminiSetupCallout" class="iu-gemini-setup-callout" hidden>Configurer l’accès Gemini pour analyser</button>
 <div class="iu-gemini-photo-actions">
 <button type="button" id="iuGeminiOpenCamera" class="iu-gemini-camera-open" hidden>Ouvrir le viseur Gemini</button>
 <div id="iuGeminiCameraShell" class="iu-gemini-camera-shell iu-weigh-scan-inline" hidden>
@@ -995,7 +975,10 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
 <button type="button" id="iuGeminiCapture" class="iu-gemini-capture">Capturer cette étiquette</button>
 </div>
 </div>
+<div class="iu-gemini-review-row">
 <img id="iuGeminiLabPreview" class="iu-gemini-lab-preview" alt="Dernière étiquette capturée" hidden />
+<button type="button" id="iuGeminiAnalyze" class="iu-gemini-lab-run" disabled>Analyser l’étiquette</button>
+</div>
 <div class="iu-weigh-entry iu-gemini-weigh-entry">
  <label for="iuGeminiGrossPreview">Poids brut</label>
  <div class="weight-row">
@@ -1003,7 +986,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
   <button type="button" id="iuGeminiNext" class="new-weigh-btn" aria-label="Préparer une nouvelle pesée Gemini">＋<span>Nouvelle<br>pesée</span></button>
  </div>
 </div>
-<button type="button" id="iuGeminiAnalyze" class="iu-gemini-lab-run" disabled>Analyser l’étiquette</button>
+
 <div id="iuGeminiEmptyResult" class="iu-gemini-empty-result" aria-hidden="true">
 <div class="iu-result-glow-shell">
 <div class="iu-result-glow-field" aria-hidden="true"><span class="iu-home-glow-orb iu-home-glow-red"></span><span class="iu-home-glow-orb iu-home-glow-blue"></span><span class="iu-home-glow-orb iu-home-glow-green"></span></div>
@@ -1016,15 +999,31 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
 </div></div></div>
 <div id="iuGeminiLabOutput" class="iu-gemini-lab-result" hidden></div>
 <p id="iuGeminiLabStatus" class="weigh-status iu-gemini-lab-status" role="status" aria-live="polite"></p>
-<p id="iuGeminiNetworkTime" class="iu-gemini-lab-timing" aria-live="polite"></p>
+
 <div id="iuGeminiTransfer" class="iu-gemini-transfer" hidden>
- <strong>Transfert contrôlé vers la pesée</strong>
+ <strong>Vérifier avant le transfert</strong>
  <p id="iuGeminiTransferSummary" class="iu-gemini-transfer-summary"></p>
  <p id="iuGeminiTransferCheck" class="iu-gemini-transfer-check" role="status"></p>
- <label class="iu-gemini-transfer-confirm"><input type="checkbox" id="iuGeminiConfirmArticle" /> J’ai vérifié l’article, le code-barres et les chiffres sur l’étiquette.</label>
- <label class="iu-gemini-transfer-confirm"><input type="checkbox" id="iuGeminiConfirmTare" /> Je confirme que le poids imprimé inclut la panière et que la tare du panier sélectionné doit être soustraite une seule fois.</label>
- <button type="button" id="iuGeminiTransferApply" class="iu-gemini-transfer-apply" disabled>Transférer vers la pesée (sans enregistrer)</button>
+ <label class="iu-gemini-transfer-confirm"><input type="checkbox" id="iuGeminiConfirmArticle" /> J’ai vérifié l’article, l’EAN et les chiffres de l’étiquette.</label>
+ <label class="iu-gemini-transfer-confirm"><input type="checkbox" id="iuGeminiConfirmTare" /> Le poids lu inclut la panière : soustraire une seule fois la tare du panier choisi.</label>
+ <button type="button" id="iuGeminiTransferApply" class="iu-gemini-transfer-apply" disabled>Préparer la pesée (sans enregistrer)</button>
 </div>
+<details id="iuGeminiOptions" class="v22-settings calc-alerts weigh-preferences-alerts iu-gemini-options">
+ <summary class="calc-alerts-summary"><span class="calc-alerts-title"><strong>Options Gemini</strong><small>Clé d’accès et confidentialité</small></span><svg aria-hidden="true" class="calc-alerts-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></summary>
+ <div class="calc-alerts-body">
+  <label for="iuGeminiLabPhoto">Choisir une photo</label>
+  <div class="iu-gemini-key-config" id="iuGeminiKeyConfig">
+ <label for="iuGeminiPilotKey">Clé privée du pilote Cloudflare
+  <input type="password" id="iuGeminiPilotKey" autocomplete="off" placeholder="Saisir une seule fois sur cet appareil" />
+ </label>
+ <button type="button" id="iuGeminiSaveKey" class="iu-gemini-key-save">Mémoriser sur cet appareil</button>
+ <button type="button" id="iuGeminiForgetKey" class="iu-gemini-key-forget" hidden>Effacer la clé enregistrée</button>
+ <p id="iuGeminiKeyInfo" class="iu-gemini-key-info">Clé mémorisée uniquement dans ce navigateur, sans chiffrement : à utiliser sur un appareil personnel de confiance.</p>
+</div>
+  <p class="iu-gemini-lab-consent">En appuyant sur « Analyser l’étiquette », la photo est transmise à Google. Au niveau gratuit, Google peut utiliser les données pour améliorer ses produits ; le niveau payant peut être facturé.</p>
+   <p id="iuGeminiNetworkTime" class="iu-gemini-lab-timing" aria-live="polite"></p>
+ </div>
+</details>
 </section>
 
 <details aria-labelledby="history-title" class="card history-card fold-card"><summary class="fold-summary"><span class="fold-heading"><span class="section-kicker">SERVICES U / SUIVI</span><h2 class="fold-label" id="history-title">Historique des pesées</h2><small class="history-heading-subtitle">Consulter les dernières pesées enregistrées.</small></span><span class="fold-trailing"><span class="count session-pill" id="historyCount">0 pesée</span><svg aria-hidden="true" class="fold-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></span></summary><div class="fold-body"><button aria-controls="historyList" aria-expanded="false" class="history-toggle" hidden="" id="historyToggleTop" type="button"><span class="history-toggle-label">Voir les pesées</span><svg aria-hidden="true" class="history-chevron" viewbox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button><div class="history-list" id="historyList"></div><button class="history-clear" hidden="" id="clearHistoryBtn" type="button">Effacer l’historique</button></div></details>
@@ -1097,7 +1096,7 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <p class="import-choice-hint">Remplace les inventaires, paniers et réglages de cet espace. Une confirmation supplémentaire sera demandée.</p>
  <button type="button" id="importCancelBtn" class="outline-btn">Annuler</button>
 </dialog>
-<script defer src="market-watch.js?v=40.72"></script><script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=40.72"></script><script defer="" src="app.js?v=41.41"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=40.72"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=40.72"></script><script defer src="site-operations.js?v=40.72"></script><script defer src="update-manager.js?v=40.72"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=40.72"></script><script defer src="fast-weight-core.js?v=40.74"></script><script defer src="weigh-scan.js?v=41.25"></script><script defer src="gemini-lab.js?v=41.47"></script><script defer src="weigh-light.js?v=41.29"></script><script defer src="digi-weight.js?v=40.72"></script><script defer src="coursesu-releve.js?v=40.72"></script><script defer src="ean-prices.js?v=40.72"></script><script defer src="barcode-catalog.js?v=41.23"></script><script defer src="coursesu-online.js?v=41.24"></script><script id="iu-welcome-alert-lights-script-v3850">(function(){function init(){[['iuSupplyCount','.iu-dash-panel-supply'],['iuRecallCount','.iu-dash-panel-recall']].forEach(function(pair){var count=document.getElementById(pair[0]);var panel=document.querySelector('.iu-home-welcome '+pair[1]);if(!count||!panel)return;var light=document.createElement('span');light.className='iu-alert-signal';light.setAttribute('aria-hidden','true');panel.appendChild(light);function update(){var value=(count.textContent||'').trim();var number=value.match(/\d+/);panel.setAttribute('data-iu-alert-active',number&&Number(number[0])>0?'true':'false')}new MutationObserver(update).observe(count,{childList:true,characterData:true,subtree:true});update()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();</script>
+<script defer src="market-watch.js?v=40.72"></script><script defer src="technical-log.js?v=33.93"></script><script defer src="auth-config.js?v=32.0"></script><script defer src="idb.js?v=33.0"></script><script defer src="auth.js?v=40.72"></script><script defer="" src="app.js?v=41.41"></script><dialog id="otherTabDialog" class="import-choice-dialog" aria-labelledby="otherTabTitle"><h2 id="otherTabTitle">Données modifiées dans un autre onglet</h2><p>Un autre onglet a enregistré des modifications. Pour éviter d'utiliser une ancienne version, actualise cette page. Vérifie d'abord que tes pesées en cours sont enregistrées.</p><button class="primary-btn" id="otherTabReload" type="button">Actualiser les données</button><button class="outline-btn" id="otherTabLater" type="button">Plus tard</button></dialog><script defer src="events-data.js?v=33.19"></script><script defer src="events.js?v=40.72"></script><script defer src="push.js?v=33.75"></script><script defer src="planning-admin.js?v=40.72"></script><script defer src="site-operations.js?v=40.72"></script><script defer src="update-manager.js?v=40.72"></script><script defer src="error-journal.js?v=33.93"></script><script defer src="admin-categories.js?v=40.72"></script><script defer src="fast-weight-core.js?v=40.74"></script><script defer src="weigh-scan.js?v=41.25"></script><script defer src="gemini-lab.js?v=41.48"></script><script defer src="weigh-light.js?v=41.29"></script><script defer src="digi-weight.js?v=40.72"></script><script defer src="coursesu-releve.js?v=40.72"></script><script defer src="ean-prices.js?v=40.72"></script><script defer src="barcode-catalog.js?v=41.23"></script><script defer src="coursesu-online.js?v=41.24"></script><script id="iu-welcome-alert-lights-script-v3850">(function(){function init(){[['iuSupplyCount','.iu-dash-panel-supply'],['iuRecallCount','.iu-dash-panel-recall']].forEach(function(pair){var count=document.getElementById(pair[0]);var panel=document.querySelector('.iu-home-welcome '+pair[1]);if(!count||!panel)return;var light=document.createElement('span');light.className='iu-alert-signal';light.setAttribute('aria-hidden','true');panel.appendChild(light);function update(){var value=(count.textContent||'').trim();var number=value.match(/\d+/);panel.setAttribute('data-iu-alert-active',number&&Number(number[0])>0?'true':'false')}new MutationObserver(update).observe(count,{childList:true,characterData:true,subtree:true});update()})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();</script>
 <!-- V40.70 — Accès rapide à l'accueil : mêmes routes existantes, sans dupliquer les vues. -->
 <nav id="iuQuickDock" class="iu-quick-dock" aria-label="Accès rapide aux services">
  <button type="button" id="iuQuickSession" class="iu-quick-dock-item iu-quick-dock-main" aria-label="Démarrer un inventaire">

@@ -1,6 +1,6 @@
 {
-  "version": "41.47",
+  "version": "41.48",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Refonte native du bloc IA : structure sœur de Nouvelle pesée avec mêmes composants réglages, sélecteur, scanner, champ brut, nouvelle pesée et résultat lumineux. Suppression des surcharges CSS historiques, configuration repliée, caméra/photo fonctionnelles. OCR classique inchangé."
+  "notes": "Pesée IA compacte pour inventaire : panier et boutons caméra/photo sur une ligne, accès direct à l’analyse, résultat net prioritaire, étiquette détaillée repliable et réglages Gemini en bas. Contrôles de tare et d’article conservés ; scanner classique inchangé."
 }
