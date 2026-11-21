@@ -1,10 +1,10 @@
-/* Inventaires U 41.38 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.39 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const toggle=$('iuGeminiLabToggle'),panel=$('iuGeminiLab');
- if(!toggle||!panel)return;
+ if(!panel)return;
  const photo=$('iuGeminiLabPhoto'),picture=$('iuGeminiLabPreview'),
   pilotKey=$('iuGeminiPilotKey'),saveKey=$('iuGeminiSaveKey'),
   forgetKey=$('iuGeminiForgetKey'),keyInfo=$('iuGeminiKeyInfo'),
@@ -187,7 +187,23 @@
  pilotKey.addEventListener('input',keyState);
  pilotKey.value=readStoredKey();
  keyState();
- toggle.addEventListener('click',()=>{
+ // Le panier Gemini réutilise la sélection et les règles de tare de la pesée classique.
+ const classicBasket=$('basketSelect'),geminiBasket=$('iuGeminiBasketSelect');
+ function syncGeminiBasket(){
+  if(!classicBasket||!geminiBasket)return;
+  geminiBasket.replaceChildren(...Array.from(classicBasket.options,option=>option.cloneNode(true)));
+  geminiBasket.value=classicBasket.value;
+ }
+ if(classicBasket&&geminiBasket){
+  syncGeminiBasket();
+  classicBasket.addEventListener('change',syncGeminiBasket);
+  geminiBasket.addEventListener('change',()=>{
+   classicBasket.value=geminiBasket.value;
+   classicBasket.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  new MutationObserver(syncGeminiBasket).observe(classicBasket,{childList:true,subtree:true});
+ }
+ if(toggle)toggle.addEventListener('click',()=>{
   const opening=panel.hidden;
   panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
   if(!opening)clear();
