@@ -1427,3 +1427,41 @@ html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-tot
  font-size:clamp(22px,9.25cqw,34px)!important;
  line-height:1!important;
 }
+
+
+/* v41.55 — alignement de la légende Poids net à GAUCHE de sa valeur.
+   La colonne date reste alignée à droite, comme sur l'étiquette papier. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-middle > .iu-gemini-label-gross {
+ align-items:flex-start!important;
+ text-align:left!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-middle > .iu-gemini-label-gross > .iu-gemini-label-caption,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-middle > .iu-gemini-label-gross > .iu-gemini-label-number {
+ align-self:flex-start!important;
+ text-align:left!important;
+}
+/* La proportion intrinsèque du SVG a été adaptée à la zone du bas :
+   préserver le ratio pour que PLU et chiffres EAN restent sans déformation.
+   Barre, chiffres et rectangle de prix partagent le même haut et le même bas. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-bottom > .iu-gemini-label-barcode {
+ height:78%!important;
+ align-self:end!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-bottom .iu-gemini-label-bars,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-bottom .iu-gemini-ean-svg {
+ width:100%!important;
+ height:100%!important;
+ min-width:0!important;
+ min-height:0!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-bottom .iu-gemini-ean-svg text {
+ font-stretch:normal!important;
+ letter-spacing:0!important;
+}

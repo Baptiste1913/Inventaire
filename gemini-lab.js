@@ -1,4 +1,4 @@
-/* Inventaires U 41.54 — affinage des dimensions de l'étiquette virtuelle DIGI.
+/* Inventaires U 41.55 — chiffres EAN et PLU sans déformation, alignement poids net.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -287,8 +287,8 @@
   bits+='101';
   const ns='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(ns,'svg');
-  svg.setAttribute('viewBox','0 0 128 66');
-  svg.setAttribute('preserveAspectRatio','none');
+  svg.setAttribute('viewBox','0 0 150 58');
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
   svg.setAttribute('role','img');
   svg.setAttribute('aria-label','EAN 13 '+ean[0]+' '+ean.slice(1,7)+' '+ean.slice(7));
   svg.classList.add('iu-gemini-ean-svg');
@@ -297,7 +297,7 @@
   const topLine=document.createElementNS(ns,'line');
   topLine.setAttribute('x1','15');
   topLine.setAttribute('y1','-0.3');
-  topLine.setAttribute('x2',String(15+95*1.12));
+  topLine.setAttribute('x2',String(15+95*1.38));
   topLine.setAttribute('y2','-0.3');
   topLine.setAttribute('stroke','#111');
   topLine.setAttribute('stroke-width','1.9');
@@ -305,8 +305,8 @@
   for(let i=0;i<bits.length;i++){
    if(bits[i]!=='1')continue;
    const rect=document.createElementNS(ns,'rect');
-   rect.setAttribute('x',String(15+i*1.12));rect.setAttribute('y','2');
-   rect.setAttribute('width','1.12');rect.setAttribute('height',(i<3||i>=92||i>=45&&i<50)?'52':'44');
+   rect.setAttribute('x',String(15+i*1.38));rect.setAttribute('y','2');
+   rect.setAttribute('width','1.38');rect.setAttribute('height',(i<3||i>=92||i>=45&&i<50)?'52':'44');
    rect.setAttribute('fill','#111');svg.append(rect);
   }
   // Chiffres imprimés comme sur une étiquette Super U : 0 203476 013844.
@@ -320,10 +320,10 @@
    text.textContent=digit;svg.append(text);
    return text;
   };
-  addDigit(ean[0],10,61,'iu-gemini-ean-leading');
+  addDigit(ean[0],10,55,'iu-gemini-ean-leading');
   for(let i=0;i<6;i++){
-   addDigit(ean[i+1],15+(3+7*i+3.5)*1.12,61,'iu-gemini-ean-digit');
-   addDigit(ean[i+7],15+(50+7*i+3.5)*1.12,61,'iu-gemini-ean-digit');
+   addDigit(ean[i+1],15+(3+7*i+3.5)*1.38,55,'iu-gemini-ean-digit');
+   addDigit(ean[i+7],15+(50+7*i+3.5)*1.38,55,'iu-gemini-ean-digit');
   }
   // Le code 0203476... de la photo porte le PLU 3476 sur le bord gauche.
   if(ean.startsWith('020')){

@@ -1,6 +1,6 @@
 {
-  "version": "41.54",
+  "version": "41.55",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Ajustements de la maquette Gemini : bloc de prix raccourci, code-barres et prix alignés à la même hauteur, barre supérieure de l’EAN remontée de 1 unité SVG, espacement sous les valeurs de poids/prix/date, alignements à droite des libellés Poids net et Date d’emballage, nom d’article réduit et remonté. Logique de pesée, capture et validation conservée."
+  "notes": "Étiquette Gemini : Poids net et sa valeur alignés à gauche, Date d’emballage toujours alignée à droite ; chiffres EAN et PLU sans étirement grâce aux proportions natives du SVG ajustées au cadre du prix ; chiffres EAN rapprochés du code-barres. Capture et validation inchangées."
 }

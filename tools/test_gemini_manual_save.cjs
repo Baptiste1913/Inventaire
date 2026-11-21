@@ -68,7 +68,7 @@ render(holder,original);
 assert.equal(holder.children.length,1,'Un seul symbole créé');
 const svg=holder.children[0];
 assert.equal(svg.name,'svg');
-assert.equal(svg.attrs.viewBox,'0 0 128 66');
+assert.equal(svg.attrs.viewBox,'0 0 150 58');
 const printed=svg.children.filter(node=>node.name==='text');
 const digits=printed.filter(node=>node.attrs.class!=='iu-gemini-ean-plu');
 assert.equal(digits.length,13,'Les 13 chiffres visibles');
@@ -83,16 +83,16 @@ assert.equal(plu.attrs['font-size'],'12','PLU plus grand');
 const topLine=svg.children.find(node=>node.name==='line');
 assert(topLine,'Barre noire horizontale au-dessus de l’EAN');
 assert.equal(topLine.attrs.x1,'15','Barre supérieure commence avec les barres');
-assert.equal(Number(topLine.attrs.x2),15+95*1.12,'Barre supérieure sur toute la largeur EAN');
+assert.equal(Number(topLine.attrs.x2),15+95*1.38,'Barre supérieure sur toute la largeur EAN');
 const bars=svg.children.filter(node=>node.name==='rect');
-assert.equal(bars.every(node=>node.attrs.width==='1.12'),true,'Tous les modules EAN ont une largeur identique');
+assert.equal(bars.every(node=>node.attrs.width==='1.38'),true,'Tous les modules EAN ont une largeur identique');
 assert(bars[0].attrs.x==='15','Le premier module commence après le PLU et le premier chiffre');
 assert(css.includes('grid-template-columns:minmax(0,1.16fr) minmax(0,1fr)'),
  'Étiquette : nouveau rapport largeur du code / encadré prix');
 assert(css.includes('padding:0 7% 3% 5.9%!important;'),
  'Prix unitaire aligné à gauche avec le début des barres');
-assert(css.includes('align-items:center!important;justify-self:stretch!important;'),
- 'Poids net centré horizontalement');
+assert(css.includes('v41.55 — alignement de la légende Poids net à GAUCHE'),
+ 'La colonne Poids net reste alignée à gauche avec sa valeur');
 assert(css.includes('align-self:flex-end!important;text-align:right!important;'),
  'Date alignée par la droite sur le prix à payer');
 assert(css.includes('font-size:clamp(14px,5.8cqw,21px)'),
@@ -135,7 +135,14 @@ assert(worker.includes("Réponse Gemini vide."),'Réponse vide diagnostiquée');
 assert(worker.includes("Réponse Gemini non exploitable."),'Réponse JSON invalide diagnostiquée');
 
 
-assert.equal(svg.attrs.preserveAspectRatio,'none','Le code-barres remplit exactement le cadre aligné sur le prix');
+assert.equal(svg.attrs.preserveAspectRatio,'xMidYMid meet',
+ 'Les chiffres EAN et le PLU ne sont plus étirés ni écrasés');
+assert.equal(digits.every(node=>node.attrs.y==='55'),true,
+ 'Les 13 chiffres EAN ont été rapprochés du pied des barres');
+assert.equal(digits.every(node=>node.attrs['font-size']==='10.5'),true,
+ 'Les chiffres EAN gardent une typographie de taille constante');
+assert.equal(svg.attrs.viewBox,'0 0 150 58',
+ 'Le ratio du SVG correspond au bloc de code-barres réduit');
 assert.equal(topLine.attrs.y1,'-0.3','Barre horizontale remontée de 1 unité SVG');
 assert.equal(topLine.attrs.y2,'-0.3','Les deux extrémités de la barre ont été remontées');
 assert(css.includes('height:78%!important;'),'La hauteur du prix et du code est réduite à 78%');
@@ -148,4 +155,4 @@ assert(css.includes('transform:translateY(-2px)!important;')&&
  css.includes('font-size:clamp(17px,6.6cqw,28px)!important;'),
  'Le nom du produit est légèrement réduit et remonté');
 
-console.log('Gemini : analyse, date, alignements papier, PLU centré, barre haute EAN et validation manuelle vérifiés.');
+console.log('Gemini : chiffres EAN/PLU non déformés, poids net à gauche, code et prix alignés ; tests réussis.');
