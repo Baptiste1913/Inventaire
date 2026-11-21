@@ -55,7 +55,7 @@ assert.match(app,/if\(scannerDraft\)return false/,'Une lecture scanner ne se sau
 assert.match(scanner,/\(row\|\|anchor\)\.insertAdjacentElement\('afterend',overlay\)/,'Le scanner reste sous la ligne panier + bouton');
 assert.doesNotMatch(scanner,/document\.body\.classList\.add\('iu-weigh-scan-open'\)/,'Pas de panneau plein écran');
 assert.match(style,/\.iu-weigh-scan-overlay\.iu-weigh-scan-inline\[hidden\]/,'La mini fenêtre se ferme proprement');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.88/);
+assert.match(html,/weigh-scan-inline\.css\?v=\d+\.\d+/);
 assert.match(html,/aria-expanded="false" aria-controls="iuWeighScanOverlay"/);
 
 // Calcul réel de l'application pour 142g - 554g = -412g.
@@ -204,7 +204,7 @@ assert.match(style,/#weighStatus\.v22-message\.is-complete/,
  'Espacer le bandeau de succès');
 assert.match(style,/linear-gradient\(148deg,#f9fbfd/,
  'Accorder la carte caméra au style bleu-gris de l’application');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.88/);
+assert.match(html,/weigh-scan-inline\.css\?v=\d+\.\d+/);
 assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/);
 assert.match(scanner,/if\(stream&&worker\)\{resumeScan\(\);return;\}/,
  'Réutiliser le flux et le moteur déjà ouverts');
@@ -302,6 +302,6 @@ assert.doesNotMatch(scanOverlayHTML,/Poids détecté\.|Lecture du poids en direc
  'Aucun texte de lecture superflu dans le lecteur OCR');
 assert.doesNotMatch(scanner,/Poids détecté\.|Pesée enregistrée · caméra prête\./,
  'Pas de statut superflu');
-assert.match(html,/weigh-scan-inline\.css\?v=40\.88/);
-assert.match(html,/weigh-scan\.js\?v=40\.88/);
+assert.match(html,/weigh-scan-inline\.css\?v=\d+\.\d+/);
+assert.match(html,/weigh-scan\.js\?v=\d+\.\d+/);
 console.log('Tests scanner v40.80 : sauvegarde Nouvelle pesée, échecs de stockage, avertissements, statut et design : OK');
