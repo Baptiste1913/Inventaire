@@ -266,7 +266,7 @@
    for(let i=0;i<12;i++)sum+=Number(c[i])*(i%2?3:1);
    return (10-sum%10)%10===Number(c[12]);
   };
-  const eans=[...new Set((text.match(/(?<!\\d)\\d{13}(?!\\d)/g)||[]).filter(checkEAN))];
+  const eans=[...new Set((text.match(/(?<!\d)\d{13}(?!\d)/g)||[]).filter(checkEAN))];
   const weight=weights.length===1?weights[0]:null;
   const rate=rates.length===1?rates[0]:null;
   const total=totals.length===1?totals[0]:null;
@@ -281,7 +281,7 @@
   if(!a.consistent||!b.consistent||a.ambiguous||b.ambiguous)return false;
   if(a.weight!==b.weight||a.rate!==b.rate||a.total!==b.total)return false;
   if(a.ean&&b.ean&&a.ean!==b.ean)return false;
-  if(a.name&&b.name&&normalize(a.name)!==normalize(b.name))return false;
+  if(a.name&&b.name&&a.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()!==b.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())return false;
   return true;
  }
  function displayWholeLabel(p,agreed){
