@@ -1,4 +1,4 @@
-/* Inventaires U 41.26 — banc d'essai Gemini, indépendant des pesées.
+/* Inventaires U 41.27 — banc d'essai Gemini, indépendant des pesées.
    Aucun stockage d'image ou de clé ; une requête volontaire par modèle et photo. */
 (()=>{
  'use strict';
@@ -12,6 +12,10 @@
   output=$('iuGeminiLabOutput'),networkTime=$('iuGeminiNetworkTime');
  let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
+ const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
+  video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
+  torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture');
+ let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false;
  const say=(message,error=false)=>{
   status.textContent=message;
   status.classList.toggle('is-error',error);
@@ -27,6 +31,7 @@
   picture.hidden=true;picture.removeAttribute('src');
  }
  function clear(){
+  stopCamera();
   generation++;abort?.abort();abort=null;active=false;file=null;
   pilotKey.value='';consent.checked=false;attempts.clear();
   photo.value='';camera.value='';
@@ -36,6 +41,7 @@
  function setPhoto(chosen){
   if(!chosen)return;
   if(active){say('Analyse en cours : attends la réponse avant de changer de photo.',true);return;}
+  stopCamera();
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return;
   }
@@ -154,5 +160,108 @@
    if(id===generation){active=false;abort=null;pilotKey.value='';updateButton();}
   }
  });
+
+ function refreshTorch(){
+  let supported=false;
+  try{supported=cameraStream?.getVideoTracks?.()[0]?.getCapabilities?.()?.torch===true;}catch(_){}
+  torch.hidden=!supported;
+  torch.disabled=torchBusy;
+  torch.classList.toggle('is-on',torchOn);
+  torch.setAttribute('aria-pressed',String(torchOn));
+  torch.setAttribute('aria-label',torchOn?'Désactiver le flash':'Activer le flash');
+  torch.title=torchOn?'Désactiver le flash':'Activer le flash';
+ }
+ function stopCamera(){
+  cameraEpoch++;
+  if(cameraStream){
+   for(const track of cameraStream.getTracks())track.stop();
+   cameraStream=null;
+  }
+  try{video.pause();}catch(_){}
+  video.srcObject=null;
+  cameraStarting=false;torchBusy=false;torchOn=false;
+  cameraShell.hidden=true;
+  openCamera.hidden=false;
+  refreshTorch();
+ }
+ async function startCamera(){
+  if(cameraStarting||cameraStream||active)return;
+  if(!navigator.mediaDevices?.getUserMedia){
+   say('Caméra en direct indisponible : utilise Photo iPhone.',true);return;
+  }
+  cameraStarting=true;
+  const epoch=++cameraEpoch;
+  openCamera.disabled=true;
+  say('Ouverture du viseur…');
+  let obtained=null;
+  try{
+   obtained=await navigator.mediaDevices.getUserMedia({
+    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
+   });
+   if(epoch!==cameraEpoch||panel.hidden){
+    for(const track of obtained.getTracks())track.stop();
+    return;
+   }
+   cameraStream=obtained;
+   video.srcObject=obtained;
+   cameraShell.hidden=false;openCamera.hidden=true;
+   await video.play();
+   if(epoch!==cameraEpoch||panel.hidden)return;
+   refreshTorch();
+   say('Vise l’étiquette entière, puis touche Capturer.');
+  }catch(_){
+   if(epoch===cameraEpoch){
+    stopCamera();
+    say('Caméra indisponible ou accès refusé. Utilise Photo iPhone.',true);
+   }
+  }finally{
+   if(epoch===cameraEpoch){cameraStarting=false;openCamera.disabled=false;}
+  }
+ }
+ async function setTorch(enabled){
+  const track=cameraStream?.getVideoTracks?.()[0];
+  if(!track||torchBusy)return;
+  let capable=false;
+  try{capable=track.getCapabilities?.()?.torch===true;}catch(_){}
+  if(!capable)return;
+  torchBusy=true;refreshTorch();
+  try{
+   await track.applyConstraints({advanced:[{torch:enabled}]});
+   if(cameraStream?.getVideoTracks?.()[0]===track)torchOn=enabled;
+  }catch(_){
+   if(cameraStream?.getVideoTracks?.()[0]===track){
+    say('Flash indisponible sur cette caméra.',true);
+    torchOn=false;
+   }
+  }finally{torchBusy=false;refreshTorch();}
+ }
+ openCamera.addEventListener('click',startCamera);
+ closeCamera.addEventListener('click',()=>{
+  stopCamera();say('Viseur fermé. Aucune photo envoyée.');
+ });
+ torch.addEventListener('click',()=>setTorch(!torchOn));
+ capture.addEventListener('click',async()=>{
+  if(!cameraStream||active||!video.videoWidth||!video.videoHeight)return;
+  capture.disabled=true;
+  try{
+   const cv=document.createElement('canvas');
+   const factor=Math.min(1,1600/Math.max(video.videoWidth,video.videoHeight));
+   cv.width=Math.round(video.videoWidth*factor);
+   cv.height=Math.round(video.videoHeight*factor);
+   const ctx=cv.getContext('2d');
+   if(!ctx)throw Error('Capture impossible');
+   ctx.drawImage(video,0,0,cv.width,cv.height);
+   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.87));
+   if(!blob)throw Error('Capture impossible');
+   stopCamera();
+   setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
+   say('Étiquette capturée. Vérifie la photo avant d’envoyer à Gemini.');
+  }catch(_){say('Capture impossible. Réessaie.',true);}
+  finally{capture.disabled=false;}
+ });
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&cameraStream)stopCamera();
+ });
+
  clear();
 })();
