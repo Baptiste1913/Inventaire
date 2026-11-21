@@ -1,6 +1,6 @@
 {
-  "version": "41.30",
+  "version": "41.31",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Gemini : caméra maintenue active pour enchaîner les étiquettes, capture et analyse manuelles à chaque article, aperçu compact et protection contre les requêtes simultanées."
+  "notes": "Gemini : contrôle strict article, EAN, prix × poids et tare, double confirmation manuelle, transfert du poids net en brouillon de pesée via brut calculé, sans enregistrement automatique ni modification OCR."
 }
