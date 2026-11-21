@@ -1,16 +1,18 @@
-/* Inventaires U 41.27 — banc d'essai Gemini, indépendant des pesées.
-   Aucun stockage d'image ou de clé ; une requête volontaire par modèle et photo. */
+/* Inventaires U 41.28 — viseur Gemini expérimental indépendant des pesées.
+   Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const toggle=$('iuGeminiLabToggle'),panel=$('iuGeminiLab');
  if(!toggle||!panel)return;
- const photo=$('iuGeminiLabPhoto'),camera=$('iuGeminiLabCamera'),
-  picture=$('iuGeminiLabPreview'),model=$('iuGeminiLabModel'),
-  pilotKey=$('iuGeminiPilotKey'),consent=$('iuGeminiConsent'),
+ const photo=$('iuGeminiLabPhoto'),picture=$('iuGeminiLabPreview'),
+  pilotKey=$('iuGeminiPilotKey'),saveKey=$('iuGeminiSaveKey'),
+  forgetKey=$('iuGeminiForgetKey'),keyInfo=$('iuGeminiKeyInfo'),
   analyze=$('iuGeminiAnalyze'),status=$('iuGeminiLabStatus'),
   output=$('iuGeminiLabOutput'),networkTime=$('iuGeminiNetworkTime');
  let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
+ const fixedModel='gemini-3.5-flash-lite';
+ const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
@@ -23,8 +25,7 @@
  const formatWeight=g=>Number.isInteger(g)?(g/1000).toFixed(3).replace('.',',')+' kg':'Non reconnu';
  const money=c=>Number.isInteger(c)?(c/100).toFixed(2).replace('.',',')+' €':'Non reconnu';
  function updateButton(){
-  analyze.disabled=!file||!consent.checked||!pilotKey.value.trim()||active||
-   attempts.has(model.value);
+  analyze.disabled=!file||!pilotKey.value.trim()||active||attempts.has(fixedModel);
  }
  function clearPreview(){
   if(url){URL.revokeObjectURL(url);url=null;}
@@ -33,8 +34,8 @@
  function clear(){
   stopCamera();
   generation++;abort?.abort();abort=null;active=false;file=null;
-  pilotKey.value='';consent.checked=false;attempts.clear();
-  photo.value='';camera.value='';
+  attempts.clear();
+  photo.value='';
   output.hidden=true;output.replaceChildren();networkTime.textContent='';
   clearPreview();updateButton();say('Sélectionne une photo pour commencer.');
  }
@@ -52,17 +53,43 @@
   say('Photo prête. Une analyse sera envoyée uniquement après validation.');
   updateButton();
  }
- for(const input of [photo,camera]){
-  input.addEventListener('change',()=>{
-   const selected=input.files?.[0]||null;
-   input.value='';
-   setPhoto(selected);
-  });
+ photo.addEventListener('change',()=>{
+  const selected=photo.files?.[0]||null;
+  photo.value='';
+  setPhoto(selected);
+ });
+ pilotKey.addEventListener('input',updateButton);
+ function readStoredKey(){
+  try{return localStorage.getItem(storageKey)||'';}catch(_){return '';}
  }
- for(const input of [model,pilotKey,consent]){
-  input.addEventListener('change',updateButton);
-  input.addEventListener('input',updateButton);
+ function keyState(){
+  const stored=readStoredKey();
+  const hasKey=Boolean(stored);
+  forgetKey.hidden=!hasKey;
+  saveKey.hidden=hasKey&&pilotKey.value.trim()===stored;
+  keyInfo.textContent=hasKey
+   ?'Clé enregistrée sur cet appareil. Tu peux la supprimer à tout moment.'
+   :'Clé non enregistrée. Mémorisation locale non chiffrée : uniquement sur un appareil personnel de confiance.';
+  updateButton();
  }
+ saveKey.addEventListener('click',()=>{
+  const key=pilotKey.value.trim();
+  if(!key){say('Saisis la clé pilote avant de la mémoriser.',true);return;}
+  try{
+   localStorage.setItem(storageKey,key);
+   keyState();
+   say('Clé mémorisée dans ce navigateur. Elle ne sera plus demandée ici.');
+  }catch(_){say('Enregistrement impossible : stockage du navigateur indisponible.',true);}
+ });
+ forgetKey.addEventListener('click',()=>{
+  try{localStorage.removeItem(storageKey);}catch(_){}
+  pilotKey.value='';
+  keyState();
+  say('Clé locale effacée. Tu devras la saisir pour une prochaine analyse.');
+ });
+ pilotKey.addEventListener('input',keyState);
+ pilotKey.value=readStoredKey();
+ keyState();
  toggle.addEventListener('click',()=>{
   const opening=panel.hidden;
   panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
@@ -120,12 +147,11 @@
   output.hidden=false;
   networkTime.textContent='Gemini : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
    +' · total photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
-   +' · modèle '+String(result.model||model.value);
+   +' · modèle '+String(result.model||fixedModel);
  }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
-  const selectedModel=model.value,access=pilotKey.value.trim();
-  if(!['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(selectedModel))return;
+  const selectedModel=fixedModel,access=pilotKey.value.trim();
   attempts.add(selectedModel);active=true;updateButton();
   output.hidden=true;networkTime.textContent='';
   const id=++generation;
@@ -142,7 +168,7 @@
     body:JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,
       mimeType:'image/jpeg',imageBase64:encoded})
    });
-   // Aucun secret ni photo n'est conservé dans l'interface après le test.
+   // La photo n'est pas enregistrée ; la clé n'est conservée que si l'utilisateur l'a mémorisée.
    if(id!==generation)return;
    let result;
    try{result=await response.json()}catch(_){throw Error('Réponse JSON invalide');}
@@ -157,7 +183,7 @@
     say('Essai non terminé : '+reason,true);
    }
   }finally{
-   if(id===generation){active=false;abort=null;pilotKey.value='';updateButton();}
+   if(id===generation){active=false;abort=null;updateButton();}
   }
  });
 
@@ -188,7 +214,7 @@
  async function startCamera(){
   if(cameraStarting||cameraStream||active)return;
   if(!navigator.mediaDevices?.getUserMedia){
-   say('Caméra en direct indisponible : utilise Photo iPhone.',true);return;
+   say('Caméra en direct indisponible : autorise la caméra ou utilise la galerie.',true);return;
   }
   cameraStarting=true;
   const epoch=++cameraEpoch;
@@ -213,7 +239,7 @@
   }catch(_){
    if(epoch===cameraEpoch){
     stopCamera();
-    say('Caméra indisponible ou accès refusé. Utilise Photo iPhone.',true);
+    say('Caméra indisponible ou accès refusé. Tu peux utiliser la galerie.',true);
    }
   }finally{
    if(epoch===cameraEpoch){cameraStarting=false;openCamera.disabled=false;}
