@@ -1,6 +1,6 @@
 {
-  "version": "41.24",
-  "published": "2026-11-20",
+  "version": "41.25",
+  "published": "2026-11-21",
   "assets": 54,
-  "notes": "Pilote d’identification renforcée : vérification EAN complet Courses U, nom et source du tarif, sans enregistrer automatiquement de pesée."
+  "notes": "Essai IA locale DIGI : deux lectures OCR sur une photo, contrôles poids/prix/EAN et affichage après tare, sans enregistrement automatique."
 }
