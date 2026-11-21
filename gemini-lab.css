@@ -89,3 +89,71 @@
 @media(max-width:350px){
  .calc-card .iu-gemini-photo-actions {grid-template-columns:1fr;}
 }
+
+/* v41.27 — viseur Gemini reprenant le langage visuel du scanner OCR. */
+.calc-card .iu-gemini-photo-actions .iu-gemini-camera-open,
+.calc-card .iu-gemini-photo-actions .iu-gemini-camera-fallback,
+.calc-card .iu-gemini-photo-actions .iu-gemini-camera-shell {
+ grid-column:1 / -1;
+}
+.calc-card .iu-gemini-photo-actions .iu-gemini-camera-open {
+ min-height:43px;border:1px solid rgba(151,175,192,.5);
+ border-radius:12px;background:linear-gradient(145deg,#fff,#eef4f8);
+ color:#263f50;font-size:12px;font-weight:700;line-height:1.35;font-family:inherit;cursor:pointer;
+}
+.calc-card .iu-gemini-photo-actions .iu-gemini-camera-open[hidden],
+.calc-card .iu-gemini-photo-actions .iu-gemini-camera-shell[hidden] {display:none!important;}
+.calc-card .iu-gemini-camera-shell {
+ min-width:0;display:flex;flex-direction:column;gap:9px;
+ padding:10px;border:1px solid rgba(160,184,198,.4);
+ border-radius:15px;background:linear-gradient(145deg,#f9fbfc,#edf2f5);
+}
+.calc-card .iu-gemini-camera-stage {
+ position:relative;width:100%;height:260px;overflow:hidden;
+ border-radius:13px;background:#111a20;border:1px solid rgba(31,48,60,.2);
+}
+.calc-card .iu-gemini-camera-stage video {
+ display:block;width:100%;height:100%;object-fit:cover;
+}
+.calc-card .iu-gemini-camera-header {
+ position:absolute;z-index:4;top:10px;left:10px;right:10px;
+ display:flex;gap:9px;align-items:center;
+}
+.calc-card .iu-gemini-camera-header .iu-weigh-scan-close,
+.calc-card .iu-gemini-camera-header .iu-weigh-scan-torch {
+ position:static!important;display:flex;align-items:center;justify-content:center;
+ width:36px!important;height:36px!important;min-width:36px!important;
+ min-height:36px!important;border-radius:50%!important;
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.calc-card .iu-gemini-camera-header .iu-weigh-scan-torch[hidden] {display:none!important;}
+.calc-card .iu-gemini-camera-guide {
+ position:absolute;z-index:2;inset:16% 12%;pointer-events:none;
+ border:1.5px solid rgba(255,255,255,.78);border-radius:12px;
+ box-shadow:0 0 0 100vmax rgba(0,0,0,.14),0 0 22px rgba(93,192,228,.19);
+}
+.calc-card .iu-gemini-camera-guide::before,
+.calc-card .iu-gemini-camera-guide::after {
+ content:"";position:absolute;width:22px;height:22px;
+ border:3px solid rgba(152,222,240,.94);pointer-events:none;
+}
+.calc-card .iu-gemini-camera-guide::before {
+ top:-2px;left:-2px;border-right:0;border-bottom:0;border-radius:11px 0 0 0;
+}
+.calc-card .iu-gemini-camera-guide::after {
+ right:-2px;bottom:-2px;border-left:0;border-top:0;border-radius:0 0 11px 0;
+}
+.calc-card .iu-gemini-camera-hint {
+ position:absolute;z-index:3;left:8px;right:8px;bottom:7px;
+ margin:0;color:white;text-align:center;font-size:11px;font-weight:650;
+ text-shadow:0 1px 6px rgba(0,0,0,.9);
+}
+.calc-card .iu-gemini-capture {
+ width:100%;min-height:43px;border:1px solid rgba(13,105,145,.55);
+ border-radius:12px;background:linear-gradient(145deg,#2b789e,#195b7b);
+ color:white;font-size:12px;font-weight:750;cursor:pointer;
+}
+.calc-card .iu-gemini-capture:disabled {opacity:.5;}
+@media(max-width:390px) {
+ .calc-card .iu-gemini-camera-stage {height:220px;}
+}
