@@ -619,3 +619,28 @@
 .calc-card .iu-gemini-quick-tare {grid-column:1/-1;font-size:11px;color:#647c8c;text-align:right;}
 .calc-card .iu-gemini-net-summary[hidden] {display:none!important;}
 .calc-card .iu-gemini-printed-label {margin-top:0;}
+
+/* v41.39 — seconde carte de pesée, même langage visuel que la pesée classique. */
+.calc-card.iu-gemini-standalone {margin-top:15px;}
+.calc-card.iu-gemini-standalone .iu-gemini-lab {
+ margin:0;padding:0;border:0;background:transparent;box-shadow:none;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-lab-heading {display:none;}
+.calc-card.iu-gemini-standalone .iu-gemini-basket-label {
+ display:block;margin:12px 0 7px;font-size:14px;font-weight:750;color:inherit;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-basket-select {
+ width:100%;min-height:48px;padding:10px 14px;margin:0 0 13px;
+ border:1px solid rgba(153,177,195,.5);border-radius:14px;
+ background:linear-gradient(145deg,#fff,#f1f6f9);
+ box-shadow:inset 0 1px #fff,2px 3px 9px rgba(90,119,139,.07);
+ color:#254154;font:inherit;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-lab-result {
+ margin-top:12px;padding:12px;border-radius:17px;
+ background:linear-gradient(145deg,#fafdff,#edf4f8);
+ box-shadow:inset 0 1px #fff,3px 5px 13px rgba(91,121,141,.08);
+}
+.calc-card.iu-gemini-standalone .iu-gemini-quick-result {
+ border-radius:17px;margin-top:5px;
+}
