@@ -1,6 +1,6 @@
 {
-  "version": "41.45",
+  "version": "41.46",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Refonte visuelle du bloc de pesée Gemini à partir des composants réels de Nouvelle pesée : même carte, panier, boutons et cadre de résultat lumineux avec brut/tare/net. Étiquette corrigée conservée en dessous, OCR et calculs inchangés."
+  "notes": "Refonte structurelle de la carte Gemini pour reprendre Nouvelle pesée : titre et surtitre, panier avec bouton scanner latéral, résultat lumineux même au repos, configuration et photo repliées. Aucun changement à l'OCR classique ni aux calculs."
 }
