@@ -12,8 +12,9 @@ const version=JSON.parse(fs.readFileSync('version.json','utf8')).version;
 
 for(const id of ['iuGeminiAutoMode','iuGeminiManualMode','iuGeminiAutoScanState','iuGeminiAutoReset','iuGeminiCapture'])
  assert(html.includes('id="'+id+'"'),'Contrôle requis : '+id);
-assert(html.includes('sans envoyer la vidéo'),'Seules les captures partent vers Gemini');
-assert(html.includes('chaque pesée doit être validée'),'Validation toujours explicite');
+assert(!html.includes('Mode Auto : la netteté et la stabilité'),'Texte explicatif supprimé sans modifier le scanner');
+assert(source.includes('getImageData(')&&source.includes('capture.click();'),'Le traitement local précède une seule capture');
+assert(source.includes('nextWeigh?.addEventListener(\'click\''),'Validation manuelle conservée');
 assert(html.includes('gemini-lab.js?v='+version)&&html.includes('gemini-lab.css?v='+version),
  'Versions synchronisées dans l’application');
 assert(css.includes('iu-gemini-scan-controls')&&css.includes('iu-gemini-scan-state'),

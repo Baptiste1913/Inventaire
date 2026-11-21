@@ -38,7 +38,8 @@ assert(photoSection.includes('analyze.click();'),'La capture ou l’import décl
 assert(photoSection.includes('!pilotKey.value.trim()'),'Sans clé pilote, aucune analyse ne démarre');
 assert(js.includes('todayForVirtualLabel()'),'La date du jour est affichée sur la maquette');
 assert(!js.includes('const rawDate=fields.packagingDate'),'La date ancienne de la photo ne doit pas être recopiée');
-assert(html.includes('iu-gemini-auto-disclosure'),'La transmission automatique de la photo doit être annoncée');
+assert(!html.includes('class="iu-gemini-auto-disclosure"'),'Le long texte du mode Auto est retiré');
+assert(html.includes('id="iuGeminiOptions"')&&html.includes('Clé d’accès et confidentialité'),'Les réglages de confidentialité restent accessibles');
 assert(css.includes('v41.50 — Pastille Gemini restaurée')&&css.includes('display:inline-flex!important'),'Pastille Gemini restaurée');
 
 // Exécuter le traceur EAN SVG de l'application sur l'étiquette réelle de la carotte.
