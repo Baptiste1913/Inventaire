@@ -1,6 +1,6 @@
 {
-  "version": "41.35",
+  "version": "41.36",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Étiquette Gemini rapprochée du ticket DIGI réel : typographie condensée Oswald/Barlow Condensed, caractères moins épais, proportions et alignements corrigés, aucune mention technique sur l'étiquette. Police de repli hors connexion. OCR et transfert inchangés."
+  "notes": "Recalcul expérimental du code DIGI après déduction de la tare : prix net arrondi au centime, encodage ×655,36 sur cinq chiffres, clé EAN-13, barres SVG réelles. Comparaison avec code original. Aucun transfert automatique du code, lecture Zebra non garantie."
 }
