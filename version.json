@@ -1,6 +1,6 @@
 {
-  "version": "41.38",
+  "version": "41.39",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Correction EAN DIGI : expressions régulières corrigées, code-barres et prix après tare visibles dans l’étiquette. Nouveau résultat compact brut/net au-dessus, inspiré de l’OCR. Ancien OCR inchangé; validation Zebra encore expérimentale."
+  "notes": "Pesée Gemini désormais dans sa propre carte sous la pesée classique, avec les mêmes codes visuels, sélection de panier synchronisée et résultat brut/net suivi de l’étiquette recalculée. Ancien OCR conservé."
 }
