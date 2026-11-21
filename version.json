@@ -1,6 +1,6 @@
 {
-  "version": "41.31",
+  "version": "41.32",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Gemini : contrôle strict article, EAN, prix × poids et tare, double confirmation manuelle, transfert du poids net en brouillon de pesée via brut calculé, sans enregistrement automatique ni modification OCR."
+  "notes": "Correction critique du transfert Gemini : le poids dit net sur l'étiquette DIGI inclut la panière et est transféré tel quel comme brut. La tare sélectionnée est déduite une seule fois par le formulaire. Contrôles article, EAN, calcul et validation humaine conservés. Ancien OCR inchangé."
 }
