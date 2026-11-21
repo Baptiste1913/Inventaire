@@ -128,10 +128,50 @@ let baskets=loadBaskets(),editingId=null,netGrams=null,dragId=null;
 function loadHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.net)&&Number.isFinite(x.gross)&&Number.isFinite(x.tare)&&typeof x.at==='number').slice(0,15):[];}catch{return [];}}
 let history=loadHistory(),historyExpanded=false,autoSaveTimer=null,currentWeighId=null;
 function persistHistory(){try{safeSetItem(HISTORY_KEY,JSON.stringify(history));renderHistory();return true;}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';return false;}}
+// Gemini utilise exactement les mêmes clés d'historique et de session que la pesée classique.
+window.IUGeminiSaveWeigh=payload=>{
+ const gross=payload?.gross,rate=payload?.pricePerKgCents,total=payload?.totalCents;
+ const ean=payload?.ean13,corrected=payload?.correctedEan13;
+ const product=typeof payload?.product==='string'?payload.product.trim().slice(0,120):'';
+ const b=baskets.find(x=>x.id===$('basketSelect').value);
+ if(!b||!product||!Number.isSafeInteger(gross)||gross<=b.tare||gross>30000||
+    !Number.isSafeInteger(rate)||rate<=0||!Number.isSafeInteger(total)||total<0||
+    !/^\\d{13}$/.test(ean||'')||!/^\\d{13}$/.test(corrected||''))return {ok:false,reason:'Données ou panier invalides'};
+ const net=gross-b.tare;
+ if(Math.abs(Math.round(gross*rate/1000)-total)>1)return {ok:false,reason:'Prix original incohérent'};
+ const now=Date.now();
+ const duplicate=history.find(x=>x.source==='gemini'&&x.ean13===ean&&x.gross===gross&&x.tare===b.tare&&now-x.at<120000);
+ if(duplicate)return {ok:false,duplicate:true,reason:'Cette étiquette a déjà été enregistrée récemment'};
+ const entry={id:uid(),at:now,name:b.name,tare:b.tare,gross,net,
+  source:'gemini',product,ean13:ean,correctedEan13:corrected,
+  pricePerKgCents:rate,originalTotalCents:total,correctedTotalCents:payload.correctedTotalCents,
+  model:'gemini-3.5-flash-lite'};
+ const newHistory=[entry,...history].slice(0,15);
+ const session=getActiveSession(),trackSession=Boolean(session&&!session.pausedAt);
+ const newEntries=trackSession?[...session.entries,{...entry,groupId:entry.id}]:null;
+ try{
+  const oldHistory=localStorage.getItem(HISTORY_KEY);
+  const oldSessions=trackSession?localStorage.getItem(SESSION_KEY):null;
+  try{
+   if(trackSession)safeSetItem(SESSION_KEY,JSON.stringify({sessions:sessions.map(x=>x===session?{...x,entries:newEntries}:x),activeId:activeSessionId}));
+   safeSetItem(HISTORY_KEY,JSON.stringify(newHistory));
+  }catch(error){
+   try{if(trackSession){if(oldSessions===null)localStorage.removeItem(SESSION_KEY);else safeSetItem(SESSION_KEY,oldSessions);}}catch{}
+   try{if(oldHistory===null)localStorage.removeItem(HISTORY_KEY);else safeSetItem(HISTORY_KEY,oldHistory);}catch{}
+   throw error;
+  }
+ }catch{return {ok:false,reason:'Stockage indisponible : pesée non enregistrée'};}
+ history=newHistory;
+ if(trackSession)session.entries=newEntries;
+ renderHistory();
+ if(trackSession)renderLiveSessionStats();
+ if($('backupCard')?.open)renderBackupSummary();
+ return {ok:true,id:entry.id,net};
+};
 function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
 const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('aria-expanded',String(historyExpanded));const label=btn.querySelector('.history-toggle-label');if(label)label.textContent=historyExpanded?'Réduire l’historique':`Voir les ${history.length} pesées`;
 if(!history.length){const p=document.createElement('p');p.className='empty history-empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
-for(const entry of (historyExpanded?history:history.slice(0,5))){const row=document.createElement('article');row.className='history-item';const info=document.createElement('div');info.className='history-info';const name=document.createElement('strong');name.className='history-name';name.textContent=entry.name;const meta=document.createElement('div');meta.className='history-meta';const date=document.createElement('span');date.className='history-chip';date.textContent=new Date(entry.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit'});const detail=document.createElement('span');detail.className='history-chip history-chip-detail';detail.textContent=`Brut ${fmt(entry.gross)} kg · Tare ${fmt(entry.tare)} kg`;meta.append(date,detail);info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);row.append(info,result);list.append(row);}}
+for(const entry of (historyExpanded?history:history.slice(0,5))){const row=document.createElement('article');row.className='history-item'+(entry.source==='gemini'?' history-item-gemini':'');const info=document.createElement('div');info.className='history-info';const name=document.createElement('strong');name.className='history-name';name.textContent=entry.name;const meta=document.createElement('div');meta.className='history-meta';const date=document.createElement('span');date.className='history-chip';date.textContent=new Date(entry.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit'});const detail=document.createElement('span');detail.className='history-chip history-chip-detail';detail.textContent=`Brut ${fmt(entry.gross)} kg · Tare ${fmt(entry.tare)} kg`;meta.append(date,detail);if(entry.source==='gemini'){const badge=document.createElement('span');badge.className='history-chip history-chip-gemini';badge.textContent='✧ Gemini';meta.prepend(badge);const extra=document.createElement('div');extra.className='history-gemini-extra';extra.textContent=[entry.product,entry.ean13?'EAN '+entry.ean13:null,entry.correctedEan13?'Corrigé '+entry.correctedEan13:null,Number.isInteger(entry.pricePerKgCents)?(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €/kg':null,Number.isInteger(entry.correctedTotalCents)?(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' € après tare':null].filter(Boolean).join(' · ');info.append(name,meta,extra);}else info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);row.append(info,result);list.append(row);}}
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
 function persist(){
  try{safeSetItem(STORAGE_KEY,JSON.stringify(baskets));render();return true;}
@@ -358,7 +398,7 @@ function saveCurrentWeigh(){
  if(renderWarning()){$('weighStatus').textContent='⚠️ Confirme cette valeur avant son enregistrement.';return false;}
  const previous=history.find(x=>x.id===currentWeighId);
  if(previous&&previous.gross===gross&&previous.tare===b.tare&&previous.name===b.name)return true;
- const entry={id:currentWeighId||uid(),at:Date.now(),name:b.name,tare:b.tare,gross,net:gross-b.tare};
+ const entry={id:currentWeighId||uid(),at:Date.now(),name:b.name,tare:b.tare,gross,net:gross-b.tare,source:'classique'};
  const newHistory=[entry,...history.filter(x=>x.id!==entry.id)].slice(0,15);
  const session=getActiveSession();
  const trackSession=session&&!session.pausedAt;
