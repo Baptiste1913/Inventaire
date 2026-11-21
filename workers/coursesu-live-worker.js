@@ -193,6 +193,87 @@ async function authCheck(request,env,origin){
  }catch(_){return reply({error:stop.signal.aborted?'Délai de vérification Apify dépassé':'Erreur réseau Apify',actorExecuted:false},502,origin)}
  finally{clearTimeout(timeout)}
 }
+
+// Diagnostic strictement non facturable côté Apify : lecture HTML d'une seule
+// fiche Courses U publique. Aucun prix n'est transmis au calculateur d'inventaire.
+async function htmlCheck(request,env,origin){
+ if(!env.COURSESU_TEST_TOKEN||request.headers.get('X-IU-Pilot-Key')!==env.COURSESU_TEST_TOKEN)
+  return reply({error:'Clé privée de test requise ; aucun accès externe effectué'},401,origin);
+ const sourceUrl='https://www.coursesu.com/p/carotte/1892766.html';
+ const stop=new AbortController(),timeout=setTimeout(()=>stop.abort(),12000);
+ try{
+  const response=await fetch(sourceUrl,{method:'GET',redirect:'manual',
+   headers:{'Accept':'text/html','Accept-Language':'fr-FR,fr;q=0.9'},signal:stop.signal});
+  const upstreamStatus=response.status;
+  const contentType=String(response.headers.get('content-type')||'').split(';')[0].trim().toLowerCase();
+  if(upstreamStatus!==200||contentType!=='text/html'){
+   return reply({type:'inventaires-u-html-check',upstreamStatus,htmlReceived:false,
+    contentType:contentType||null,actorExecuted:false,usableForWeight:false},200,origin);
+  }
+  if(!response.body)return reply({error:'Corps HTML absent',actorExecuted:false},502,origin);
+  const reader=response.body.getReader(),decoder=new TextDecoder();
+  let html='',bytes=0;
+  while(true){
+   const {done,value}=await reader.read();
+   if(done)break;
+   bytes+=value.byteLength;
+   if(bytes>600000){
+    await reader.cancel();
+    return reply({error:'Page HTML trop volumineuse',upstreamStatus,actorExecuted:false},502,origin);
+   }
+   html+=decoder.decode(value,{stream:true});
+  }
+  html+=decoder.decode();
+  // L'ID du magasin provient des données de la page, pas des scripts génériques.
+  const dataLayerMatch=html.match(/\bdataLayerNC\s*=\s*(\{[^\r\n]{1,3000}\})/);
+  let storeId=null;
+  if(dataLayerMatch){
+   try{storeId=String(JSON.parse(dataLayerMatch[1]).store_id||'')}catch(_){}
+  }
+  // Vérification par le JSON-LD Product, évite de confondre le nom et le prix
+  // d'un article recommandé avec celui de la fiche consultée.
+  const products=[];
+  const ldTags=html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi);
+  for(const tag of ldTags){
+   try{
+    const data=JSON.parse(tag[1]);
+    const candidates=Array.isArray(data)?data:(Array.isArray(data?.['@graph'])?data['@graph']:[data]);
+    for(const item of candidates)if(item?.['@type']==='Product')products.push(item);
+   }catch(_){}
+  }
+  const productMatches=products.filter(p=>p['@id']===sourceUrl&&
+   String(p.mpn||'')==='1892766'&&String(p.sku||'')==='0203476000004'&&
+   normalize(p.name)==='carotte');
+  // La page peut afficher le même tarif en version desktop, mobile et sticky.
+  // On n'accepte qu'une seule valeur €/kg distincte.
+  const unitRates=[];
+  for(const tag of html.matchAll(/<span\b([^>]*)>([\s\S]*?)<\/span>/gi)){
+   const cls=tag[1].match(/\bclass\s*=\s*["']([^"']+)["']/i)?.[1]||'';
+   if(!cls.split(/\s+/).includes('unit-info'))continue;
+   const label=tag[2].replace(/&#8364;|&#x20ac;|&euro;/gi,'€')
+    .replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+   const m=label.match(/^(\d{1,3}(?:[.,]\d{1,2})?)\s*€\s*\/\s*kg$/i);
+   if(!m)continue;
+   const cents=Math.round(Number(m[1].replace(',','.'))*100);
+   if(Number.isSafeInteger(cents)&&cents>0&&cents<=99900)unitRates.push(cents);
+  }
+  const distinct=[...new Set(unitRates)];
+  const storeVerified=storeId==='68539';
+  const productVerified=productMatches.length===1;
+  return reply({type:'inventaires-u-html-check',upstreamStatus,htmlReceived:true,
+   storeVerified,productVerified,unitPriceOccurrences:unitRates.length,
+   unitPriceDistinctCount:distinct.length,
+   observedUnitPriceEurKg:storeVerified&&productVerified&&distinct.length===1
+    ?distinct[0]/100:null,
+   actorExecuted:false,usableForWeight:false,
+   note:'Diagnostic uniquement ; équivalence commerciale DIGI non confirmée'},200,origin);
+ }catch(_){
+  return reply({type:'inventaires-u-html-check',
+   error:stop.signal.aborted?'Délai de lecture HTML dépassé':'Lecture HTML impossible',
+   actorExecuted:false,usableForWeight:false},502,origin);
+ }finally{clearTimeout(timeout)}
+}
+
 function normalizedName(a,b){return !!normalize(a)&&normalize(a)===normalize(b)}
 export default {
  async fetch(request,env){
@@ -210,6 +291,7 @@ export default {
   }
   const path=new URL(request.url).pathname;
   if(path==='/auth-check'&&request.method==='POST')return authCheck(request,env,origin);
+  if(path==='/html-check'&&request.method==='POST')return htmlCheck(request,env,origin);
   if(request.method!=='POST'||path!=='/lookup')
    return reply({error:'Route invalide'},405,origin);
   return lookup(request,env,origin);
