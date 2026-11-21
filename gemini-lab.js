@@ -1,4 +1,4 @@
-/* Inventaires U 41.53 — caméra recadrée, capture nette et reprise manuelle des erreurs Gemini.
+/* Inventaires U 41.54 — affinage des dimensions de l'étiquette virtuelle DIGI.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -288,7 +288,7 @@
   const ns='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(ns,'svg');
   svg.setAttribute('viewBox','0 0 128 66');
-  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svg.setAttribute('preserveAspectRatio','none');
   svg.setAttribute('role','img');
   svg.setAttribute('aria-label','EAN 13 '+ean[0]+' '+ean.slice(1,7)+' '+ean.slice(7));
   svg.classList.add('iu-gemini-ean-svg');
@@ -296,9 +296,9 @@
   // Elle commence et termine au droit des 95 modules de l'EAN.
   const topLine=document.createElementNS(ns,'line');
   topLine.setAttribute('x1','15');
-  topLine.setAttribute('y1','0.7');
+  topLine.setAttribute('y1','-0.3');
   topLine.setAttribute('x2',String(15+95*1.12));
-  topLine.setAttribute('y2','0.7');
+  topLine.setAttribute('y2','-0.3');
   topLine.setAttribute('stroke','#111');
   topLine.setAttribute('stroke-width','1.9');
   svg.append(topLine);

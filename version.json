@@ -1,6 +1,6 @@
 {
-  "version": "41.53",
+  "version": "41.54",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Gemini caméra : capture centrée sur le viseur, suppression des marges latérales et JPEG haute qualité avant analyse automatique. En cas de réponse Gemini inexploitable, réessai uniquement sur action manuelle. Worker Gemini préparé avec réponses JSON plus robustes, diagnostics explicites et limite de sortie relevée ; déploiement Cloudflare à effectuer séparément. Import galerie et validation manuelle inchangés."
+  "notes": "Ajustements de la maquette Gemini : bloc de prix raccourci, code-barres et prix alignés à la même hauteur, barre supérieure de l’EAN remontée de 1 unité SVG, espacement sous les valeurs de poids/prix/date, alignements à droite des libellés Poids net et Date d’emballage, nom d’article réduit et remonté. Logique de pesée, capture et validation conservée."
 }

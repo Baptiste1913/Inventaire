@@ -1366,3 +1366,64 @@ html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bot
  display:block!important;width:100%!important;height:100%!important;
  overflow:visible!important;
 }
+
+
+/* v41.54 — finition de l'étiquette : prix et EAN de hauteur identique.
+   Les règles sont limitées à l'aperçu Gemini, sans modifier la pesée classique. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-name {
+ font-size:clamp(17px,6.6cqw,28px)!important;
+ transform:translateY(-2px)!important;
+ line-height:1.05!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle {
+ /* Dégagement sous les trois valeurs avant le code et l'encadré. */
+ padding-bottom:4.4%!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle .iu-gemini-label-number {
+ margin-bottom:2px!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle > .iu-gemini-label-gross,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-middle > .iu-gemini-label-date {
+ align-items:flex-end!important;
+ text-align:right!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-gross > .iu-gemini-label-caption,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-date > .iu-gemini-label-caption {
+ align-self:flex-end!important;text-align:right!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-gross > .iu-gemini-label-number,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-date > .iu-gemini-label-number {
+ align-self:flex-end!important;text-align:right!important;
+}
+/* La zone du bas occupe sa ligne habituelle. Les deux éléments
+   à l'intérieur commencent et finissent exactement au même niveau. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom {
+ align-items:end!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom > .iu-gemini-label-barcode,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom > .iu-gemini-label-total {
+ box-sizing:border-box!important;
+ align-self:end!important;
+ height:78%!important;
+ min-height:0!important;
+ margin:0!important;
+}
+/* Le SVG occupe toute la hauteur de l'encadré prix, y compris les chiffres. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom .iu-gemini-label-bars,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-bottom .iu-gemini-ean-svg {
+ height:100%!important;
+ max-height:100%!important;
+ min-height:0!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-total {
+ padding:.4% 1% .2%!important;
+ justify-content:center!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-total-caption {
+ font-size:clamp(9px,3.55cqw,13px)!important;
+ line-height:1.05!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame .iu-gemini-label-total-number {
+ font-size:clamp(22px,9.25cqw,34px)!important;
+ line-height:1!important;
+}

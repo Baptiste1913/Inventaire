@@ -134,4 +134,18 @@ assert(worker.includes("candidate?.finishReason==='MAX_TOKENS'"),'Réponse tronq
 assert(worker.includes("Réponse Gemini vide."),'Réponse vide diagnostiquée');
 assert(worker.includes("Réponse Gemini non exploitable."),'Réponse JSON invalide diagnostiquée');
 
+
+assert.equal(svg.attrs.preserveAspectRatio,'none','Le code-barres remplit exactement le cadre aligné sur le prix');
+assert.equal(topLine.attrs.y1,'-0.3','Barre horizontale remontée de 1 unité SVG');
+assert.equal(topLine.attrs.y2,'-0.3','Les deux extrémités de la barre ont été remontées');
+assert(css.includes('height:78%!important;'),'La hauteur du prix et du code est réduite à 78%');
+assert(css.includes('> .iu-gemini-label-barcode,')&&
+ css.includes('> .iu-gemini-label-total {'),'Le prix et le code partagent exactement la même règle de hauteur');
+assert(css.includes('padding-bottom:4.4%!important;'),'Une marge sous les valeurs est ajoutée');
+assert(css.includes('align-self:flex-end!important;text-align:right!important;'),
+ 'Les titres et valeurs du poids/date sont alignés par la droite');
+assert(css.includes('transform:translateY(-2px)!important;')&&
+ css.includes('font-size:clamp(17px,6.6cqw,28px)!important;'),
+ 'Le nom du produit est légèrement réduit et remonté');
+
 console.log('Gemini : analyse, date, alignements papier, PLU centré, barre haute EAN et validation manuelle vérifiés.');
