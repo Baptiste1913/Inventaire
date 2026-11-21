@@ -136,7 +136,7 @@ window.IUGeminiSaveWeigh=payload=>{
  const b=baskets.find(x=>x.id===$('basketSelect').value);
  if(!b||!product||!Number.isSafeInteger(gross)||gross<=b.tare||gross>30000||
     !Number.isSafeInteger(rate)||rate<=0||!Number.isSafeInteger(total)||total<0||
-    !/^\\d{13}$/.test(ean||'')||!/^\\d{13}$/.test(corrected||''))return {ok:false,reason:'Données ou panier invalides'};
+    !/^\d{13}$/.test(ean||'')||!/^\d{13}$/.test(corrected||''))return {ok:false,reason:'Données ou panier invalides'};
  const net=gross-b.tare;
  if(Math.abs(Math.round(gross*rate/1000)-total)>1)return {ok:false,reason:'Prix original incohérent'};
  const now=Date.now();
