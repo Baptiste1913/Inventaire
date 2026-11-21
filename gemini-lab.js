@@ -1,4 +1,4 @@
-/* Inventaires U 41.30 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.31 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -9,8 +9,12 @@
   pilotKey=$('iuGeminiPilotKey'),saveKey=$('iuGeminiSaveKey'),
   forgetKey=$('iuGeminiForgetKey'),keyInfo=$('iuGeminiKeyInfo'),
   analyze=$('iuGeminiAnalyze'),status=$('iuGeminiLabStatus'),
-  output=$('iuGeminiLabOutput'),networkTime=$('iuGeminiNetworkTime');
+  output=$('iuGeminiLabOutput'),networkTime=$('iuGeminiNetworkTime'),
+  transfer=$('iuGeminiTransfer'),transferSummary=$('iuGeminiTransferSummary'),
+  transferCheck=$('iuGeminiTransferCheck'),confirmArticle=$('iuGeminiConfirmArticle'),
+  confirmTare=$('iuGeminiConfirmTare'),transferApply=$('iuGeminiTransferApply');
  let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
+ let proposal=null;
  const fixedModel='gemini-3.5-flash-lite';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
@@ -27,6 +31,56 @@
  function updateButton(){
   analyze.disabled=!file||!pilotKey.value.trim()||active||attempts.has(fixedModel);
  }
+ function resetTransfer(){
+  proposal=null;
+  transfer.hidden=true;
+  transferApply.disabled=true;
+  confirmArticle.checked=false;confirmTare.checked=false;
+  transferSummary.textContent='';transferCheck.textContent='';
+ }
+ function validateResult(result){
+  const f=result?.fields||{},c=result?.checks||{};
+  const grams=f.weightGrams,rate=f.pricePerKgCents,total=f.totalCents;
+  const name=typeof f.name==='string'?f.name.trim():'';
+  if(!name||name.length<3||name.length>120)return {error:'Article non reconnu avec certitude.'};
+  if(!Number.isSafeInteger(grams)||grams<=0||grams>30000)return {error:'Poids net manquant ou invalide.'};
+  if(!Number.isSafeInteger(rate)||rate<=0||rate>1000000||
+     !Number.isSafeInteger(total)||total<0)return {error:'Prix au kilo ou montant manquant.'};
+  if(Math.abs(Math.round(grams*rate/1000)-total)>1||
+     c.arithmeticConsistent!==true)return {error:'Calcul prix × poids incohérent.'};
+  if(c.eanChecksumValid!==true||!/^[0-9]{13}$/.test(f.ean13||''))return {error:'EAN non confirmé ou invalide.'};
+  return {name,grams,rate,total,ean:f.ean13};
+ }
+ function transferState(){
+  if(!proposal){transferApply.disabled=true;return;}
+  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  const tare=ctx?.tareGrams;
+  const valid=Number.isSafeInteger(tare)&&tare>=0&&tare<=30000;
+  const gross=valid?proposal.grams+tare:null;
+  const allowed=valid&&gross<=30000;
+  transferSummary.textContent=allowed
+   ?proposal.name+' · '+formatWeight(proposal.grams)+' net + '+formatWeight(tare)+' de tare = '+formatWeight(gross)+' brut à saisir.'
+   :'Sélectionne un panier avec une tare valide pour préparer la pesée.';
+  transferCheck.textContent='Article à confirmer visuellement : '+proposal.name+
+   ' · EAN '+proposal.ean+'. Le code-barres n’est pas transféré.';
+  transferApply.disabled=!allowed||!confirmArticle.checked||!confirmTare.checked||active;
+ }
+ confirmArticle.addEventListener('change',transferState);
+ confirmTare.addEventListener('change',transferState);
+ $('basketSelect')?.addEventListener('change',()=>{
+  confirmTare.checked=false;transferState();
+ });
+ transferApply.addEventListener('click',()=>{
+  transferState();
+  if(transferApply.disabled||!proposal)return;
+  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  const gross=proposal.grams+ctx.tareGrams;
+  if(typeof window.IUWeighScanDraft!=='function'||window.IUWeighScanDraft(gross)!==true){
+   say('Transfert refusé : termine ou vérifie la pesée précédente.',true);return;
+  }
+  resetTransfer();
+  say('Poids transféré en brouillon, sans sauvegarde. Vérifie le résultat puis valide la pesée depuis le formulaire.');
+ });
  function clearPreview(){
   if(url){URL.revokeObjectURL(url);url=null;}
   picture.hidden=true;picture.removeAttribute('src');
@@ -36,7 +90,7 @@
   generation++;abort?.abort();abort=null;active=false;file=null;
   attempts.clear();
   photo.value='';
-  output.hidden=true;output.replaceChildren();networkTime.textContent='';
+  output.hidden=true;output.replaceChildren();networkTime.textContent='';resetTransfer();
   clearPreview();updateButton();say('Sélectionne une photo pour commencer.');
  }
  function setPhoto(chosen){
@@ -48,7 +102,7 @@
   clearPreview();file=chosen;attempts.clear();generation++;
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
-  output.hidden=true;networkTime.textContent='';
+  output.hidden=true;networkTime.textContent='';resetTransfer();
   say(cameraStream?'Photo capturée. Appuie sur « Analyser une fois », puis vise la suivante.':'Photo prête. Une analyse sera envoyée uniquement après validation.');
   updateButton();
  }
@@ -141,9 +195,20 @@
    row.append(title,strong);output.append(row);
   }
   const caution=document.createElement('p');
-  caution.textContent='Résultat expérimental : contrôle visuel obligatoire. Aucun poids transféré, aucun EAN généré.';
+  caution.textContent='Résultat expérimental : transfert uniquement après vérification et confirmation manuelles. Aucun EAN généré.';
   caution.className='iu-gemini-result-warning';output.append(caution);
   output.hidden=false;
+  const verified=validateResult(result);
+  if(verified.error){
+   resetTransfer();
+   transfer.hidden=false;
+   transferCheck.textContent='Transfert bloqué : '+verified.error;
+  }else{
+   proposal=verified;
+   transfer.hidden=false;
+   confirmArticle.checked=false;confirmTare.checked=false;
+   transferState();
+  }
   networkTime.textContent='Gemini : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
    +' · total photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
    +' · modèle '+String(result.model||fixedModel);
@@ -152,7 +217,7 @@
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
   attempts.add(selectedModel);active=true;updateButton();capture.disabled=true;
-  output.hidden=true;networkTime.textContent='';
+  output.hidden=true;networkTime.textContent='';resetTransfer();
   const id=++generation;
   abort=new AbortController();
   const start=performance.now();
