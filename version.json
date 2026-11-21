@@ -1,6 +1,6 @@
 {
-  "version": "41.56",
+  "version": "41.57",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Étiquette Gemini : libellé Date d’emballage et valeur strictement alignés sur le bord droit. Chiffres EAN abaissés et ancrés au bas du cadre Prix à payer, avec conservation des proportions du code-barres et du PLU. Aucune modification des calculs ni de la validation."
+  "notes": "Retouche ciblée de l’étiquette Gemini : le titre Date d’emballage commence exactement au même bord gauche que sa valeur, l’ensemble reste près du côté droit du prix, et le groupe Poids net/poids est légèrement décalé vers le centre. EAN, scanner et validation inchangés."
 }

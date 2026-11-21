@@ -1495,3 +1495,34 @@ html body .app > section#iuGeminiLab .iu-gemini-label-frame
  .iu-gemini-label-bottom .iu-gemini-label-total {
  align-self:end!important;
 }
+
+
+/* v41.57 — Date : libellé et chiffres démarrent sur le même axe gauche.
+   Le groupe reste positionné à droite de sa colonne, comme le prix.
+   Poids net : un léger décalage de tout le groupe vers le centre. */
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-middle > .iu-gemini-label-date {
+ display:grid!important;
+ grid-template-columns:max-content!important;
+ grid-auto-flow:row!important;
+ justify-content:end!important;
+ justify-items:start!important;
+ align-content:end!important;
+ align-items:end!important;
+ row-gap:2px!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-middle > .iu-gemini-label-date > .iu-gemini-label-caption,
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-middle > .iu-gemini-label-date > .iu-gemini-label-number {
+ justify-self:start!important;
+ align-self:auto!important;
+ width:auto!important;
+ margin-left:0!important;
+ margin-right:0!important;
+ text-align:left!important;
+}
+html body .app > section#iuGeminiLab .iu-gemini-label-frame
+ .iu-gemini-label-middle > .iu-gemini-label-gross {
+ transform:translateX(clamp(6px,2.8cqw,10px))!important;
+}

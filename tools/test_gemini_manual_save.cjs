@@ -161,4 +161,12 @@ assert(css.includes('width:max-content!important;')&&css.includes('margin-right:
  'Le titre Date d\'emballage et la valeur terminent au même bord droit');
 assert(svg.attrs.viewBox==='0 0 150 58'&&svg.attrs.preserveAspectRatio==='xMidYMax meet',
  'Le code préserve les proportions tout en s\'ancrant au bas du cadre');
-console.log('Gemini : date alignée à droite, chiffres EAN alignés au bas du cadre prix ; tests réussis.');
+
+assert(css.includes('v41.57 — Date : libellé et chiffres démarrent sur le même axe gauche.'),
+ 'Date : règle du nouvel alignement présente');
+assert(css.includes('grid-template-columns:max-content!important;')&&
+ css.includes('justify-items:start!important;'),
+ 'Date : le titre et la valeur partagent une même colonne alignée à gauche');
+assert(css.includes('transform:translateX(clamp(6px,2.8cqw,10px))!important;'),
+ 'Poids net et valeur sont déplacés ensemble vers le centre');
+console.log('Gemini : date alignée depuis la gauche, Poids net recentré ; tests réussis.');
