@@ -1034,3 +1034,108 @@
   color:CanvasText!important;
  }
 }
+
+
+/* v41.25 — reconnaissance locale expérimentale sur une photo complète DIGI.
+   Le lecteur rapide historique et ses animations restent inchangés. */
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-lab {
+  margin:8px 0 2px;
+  padding:0;
+  border:1px solid rgba(161,184,199,.35);
+  border-radius:13px;
+  background:linear-gradient(146deg,rgba(255,255,255,.88),rgba(235,243,248,.70));
+  box-shadow:inset 0 1px rgba(255,255,255,.9);
+  color:#283e4d;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-lab summary {
+  cursor:pointer;
+  padding:11px 13px;
+  font-size:12px;
+  font-weight:710;
+  line-height:1.35;
+  -webkit-tap-highlight-color:transparent;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-lab[open] summary {border-bottom:1px solid rgba(163,185,198,.27);}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-content {padding:11px 12px 12px;}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-content > p {
+  margin:0 0 10px;
+  font-size:11px;
+  line-height:1.55;
+  color:#546c7c;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-actions {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin:7px 0 10px;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-actions label {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+  min-height:40px;
+  padding:8px;
+  border:1px solid rgba(151,175,192,.5);
+  border-radius:12px;
+  background:linear-gradient(145deg,#fff,#eef4f8);
+  box-shadow:0 2px 5px rgba(78,102,116,.07);
+  color:#243b48;
+  font-size:11px;
+  line-height:1.35;
+  font-weight:680;
+  cursor:pointer;
+  overflow:hidden;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-actions label:focus-within {
+  outline:2px solid #247da2;
+  outline-offset:2px;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-actions input {
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+.iu-weigh-scan-inline #iuWeighScanPhotoStatus {
+  margin:7px 0 6px;
+  font-size:11px;
+  color:#486577;
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-result {
+  margin-top:9px;
+  border:1px solid rgba(165,185,199,.3);
+  border-radius:11px;
+  padding:5px 10px;
+  background:rgba(255,255,255,.62);
+}
+.iu-weigh-scan-inline .iu-weigh-scan-ocr-result[hidden] {display:none!important;}
+.iu-weigh-scan-inline .iu-weigh-ocr-row {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(166,187,201,.2);
+  font-size:11px;
+  line-height:1.4;
+}
+.iu-weigh-scan-inline .iu-weigh-ocr-row span {flex:0 0 43%;color:#627785;}
+.iu-weigh-scan-inline .iu-weigh-ocr-row strong {
+  flex:1 1 auto;
+  text-align:right;
+  font-weight:730;
+  color:#253b48;
+  overflow-wrap:anywhere;
+}
+.iu-weigh-scan-inline .iu-weigh-ocr-note {
+  margin:8px 0 4px;
+  font-size:10px;
+  line-height:1.45;
+  color:#775c50;
+}
+@media(max-width:360px) {
+  .iu-weigh-scan-inline .iu-weigh-scan-ocr-actions {grid-template-columns:1fr;}
+}
