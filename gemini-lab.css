@@ -658,3 +658,20 @@
  margin-top:6px;color:#4d7080;font-size:11px;line-height:1.5;
  overflow-wrap:anywhere;
 }
+
+/* v41.41 — étoile multicolore Gemini, discrète et cohérente avec l'interface. */
+.calc-card.iu-gemini-standalone,.history-item.history-item-gemini{position:relative;}
+.iu-gemini-star-badge{
+ position:absolute;top:16px;right:17px;z-index:2;
+ display:grid;place-items:center;width:36px;height:36px;
+ border-radius:13px;background:rgba(255,255,255,.62);
+ border:1px solid rgba(255,255,255,.85);
+ box-shadow:0 3px 12px rgba(67,107,155,.10),inset 0 1px 0 rgba(255,255,255,.9);
+ pointer-events:none;
+}
+.iu-gemini-star-badge svg{display:block;width:25px;height:25px;}
+.calc-card.iu-gemini-standalone>.card-heading{padding-right:43px;}
+.history-item.history-item-gemini{padding-right:49px;}
+.iu-gemini-history-star{width:28px;height:28px;top:9px;right:10px;border-radius:10px;}
+.iu-gemini-history-star svg{width:19px;height:19px;}
+@media(max-width:390px){.iu-gemini-star-badge{right:12px;top:12px;width:32px;height:32px}.iu-gemini-star-badge svg{width:23px;height:23px}.iu-gemini-history-star{width:27px;height:27px;top:9px;right:9px}.iu-gemini-history-star svg{width:18px;height:18px}}
