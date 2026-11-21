@@ -723,3 +723,55 @@
  .calc-card.iu-gemini-standalone>.iu-gemini-title-badge .iu-gemini-title-text {font-size:11px;}
  .calc-card.iu-gemini-standalone>.iu-gemini-title-badge svg {width:21px;height:21px;}
 }
+
+/* v41.44 — mêmes dimensions, fond, contour et ombre que la pastille
+   Google « Connecté » définie dans style.css. Icône de 14px (13px mobile). */
+.calc-card.iu-gemini-standalone{padding-top:52px!important;}
+.calc-card.iu-gemini-standalone>.iu-gemini-section-kicker{
+ top:23px;left:18px;max-width:calc(100% - 205px);
+ font-size:10px;line-height:1.15;
+}
+.calc-card.iu-gemini-standalone>.iu-gemini-title-badge{
+ box-sizing:border-box!important;display:inline-flex!important;
+ align-items:center!important;justify-content:center!important;
+ width:auto!important;min-height:32px!important;height:auto!important;
+ top:13px!important;right:15px!important;
+ gap:7px!important;padding:7px 12px!important;
+ border:1px solid #d7dfe4!important;border-radius:999px!important;
+ background:#f2f5f7!important;
+ background-image:linear-gradient(150deg,#f8fafb,#edf1f3)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 3px rgba(45,64,76,.045)!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ white-space:nowrap!important;
+}
+.calc-card.iu-gemini-standalone>.iu-gemini-title-badge svg{
+ width:14px!important;height:14px!important;flex:0 0 14px!important;
+ filter:none!important;
+}
+.calc-card.iu-gemini-standalone>.iu-gemini-title-badge .iu-gemini-title-text{
+ color:#4d5b65!important;font-family:inherit!important;
+ font-size:11px!important;font-weight:820!important;
+ line-height:1.15!important;letter-spacing:0!important;
+}
+.calc-card.iu-gemini-standalone .iu-gemini-basket-label{
+ margin-top:2px!important;margin-bottom:7px!important;
+}
+@media(max-width:430px){
+ .calc-card.iu-gemini-standalone{padding-top:47px!important;}
+ .calc-card.iu-gemini-standalone>.iu-gemini-section-kicker{
+  top:21px;left:13px;max-width:calc(100% - 187px);
+  font-size:9px;
+ }
+ .calc-card.iu-gemini-standalone>.iu-gemini-title-badge{
+  top:12px!important;right:10px!important;
+  min-height:30px!important;height:auto!important;
+  padding:6px 10px!important;gap:6px!important;
+ }
+ .calc-card.iu-gemini-standalone>.iu-gemini-title-badge svg{
+  width:13px!important;height:13px!important;flex-basis:13px!important;
+ }
+ .calc-card.iu-gemini-standalone>.iu-gemini-title-badge .iu-gemini-title-text{
+  font-size:10.5px!important;
+ }
+ .calc-card.iu-gemini-standalone .iu-gemini-basket-label{margin-top:0!important;}
+}
