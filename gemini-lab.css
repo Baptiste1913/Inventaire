@@ -675,3 +675,22 @@
 .iu-gemini-history-star{width:28px;height:28px;top:9px;right:10px;border-radius:10px;}
 .iu-gemini-history-star svg{width:19px;height:19px;}
 @media(max-width:390px){.iu-gemini-star-badge{right:12px;top:12px;width:32px;height:32px}.iu-gemini-star-badge svg{width:23px;height:23px}.iu-gemini-history-star{width:27px;height:27px;top:9px;right:9px}.iu-gemini-history-star svg{width:18px;height:18px}}
+
+/* v41.42 — titre intégré dans la pastille Gemini, sans en-tête doublon. */
+.calc-card.iu-gemini-standalone{padding-top:65px;}
+.calc-card.iu-gemini-standalone>.iu-gemini-title-badge{
+ width:auto;height:37px;max-width:calc(100% - 28px);
+ padding:0 12px 0 8px;gap:8px;
+ display:inline-flex;align-items:center;justify-content:center;
+ border-radius:13px;white-space:nowrap;
+}
+.iu-gemini-title-badge .iu-gemini-title-text{
+ font-size:13px;font-weight:800;letter-spacing:-.015em;color:#314e60;
+}
+.calc-card.iu-gemini-standalone>.iu-gemini-title-badge svg{
+ width:23px;height:23px;flex-shrink:0;
+}
+@media(max-width:390px){
+ .calc-card.iu-gemini-standalone{padding-top:61px;}
+ .calc-card.iu-gemini-standalone>.iu-gemini-title-badge{height:35px;}
+}
