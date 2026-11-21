@@ -294,3 +294,32 @@
 .calc-card .iu-gemini-camera-shell .iu-gemini-capture:disabled {
  opacity:.55!important;cursor:wait;
 }
+
+/* v41.31 — validation Gemini avant brouillon de pesée. */
+.calc-card .iu-gemini-transfer {
+ display:flex;flex-direction:column;gap:10px;
+ margin-top:12px;padding:14px;
+ border:1px solid rgba(159,182,196,.46);border-radius:16px;
+ background:linear-gradient(145deg,#fcfdfe,#eef4f7);
+ box-shadow:inset 0 1px 0 #fff,3px 5px 12px rgba(85,112,132,.08);
+ color:#294455;font-size:12px;
+}
+.calc-card .iu-gemini-transfer[hidden] {display:none!important;}
+.calc-card .iu-gemini-transfer>strong {font-size:14px;}
+.calc-card .iu-gemini-transfer-summary,
+.calc-card .iu-gemini-transfer-check {margin:0;line-height:1.5;overflow-wrap:anywhere;}
+.calc-card .iu-gemini-transfer-confirm {
+ display:flex;align-items:flex-start;gap:9px;
+ padding:9px;border:1px solid rgba(159,182,196,.3);
+ border-radius:11px;background:rgba(255,255,255,.55);
+ line-height:1.45;font-weight:600;
+}
+.calc-card .iu-gemini-transfer-confirm input {flex:0 0 auto;width:17px;height:17px;margin:1px 0 0;accent-color:#177c94;}
+.calc-card .iu-gemini-transfer-apply {
+ min-height:44px;padding:10px;border-radius:12px;
+ border:1px solid rgba(255,255,255,.9);
+ background:linear-gradient(145deg,#fff,#e5f0f5);
+ color:#244b5d;font-weight:750;font-size:12px;
+ box-shadow:inset 0 1px 0 #fff,3px 4px 9px rgba(91,122,143,.11);
+}
+.calc-card .iu-gemini-transfer-apply:disabled {opacity:.45;}
