@@ -1,6 +1,6 @@
 {
-  "version": "41.26",
+  "version": "41.27",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Laboratoire Gemini séparé : photo d'étiquette, comparaison Flash / Flash-Lite, durée de réponse et contrôles, sans transfert de pesée. Requiert activation volontaire des secrets Cloudflare."
+  "notes": "Viseur Gemini intégré au laboratoire : caméra arrière en direct, cadre étiquette, flash si compatible, capture manuelle et galerie, sans analyse automatique ni enregistrement de pesée."
 }
