@@ -206,8 +206,10 @@ assert.match(style,/linear-gradient\(148deg,#f9fbfd/,
  'Accorder la carte caméra au style bleu-gris de l’application');
 assert.match(html,/weigh-scan-inline\.css\?v=\d+\.\d+/);
 assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/);
-assert.match(scanner,/if\(stream&&worker\)\{resumeScan\(\);return;\}/,
- 'Réutiliser le flux et le moteur déjà ouverts');
+assert.match(scanner,/if\(stream&&\(!existingTrack\|\|existingTrack\.readyState!=='live'\)\)stopTracks\(\)/,
+ 'Ne fermer que les flux caméra réellement interrompus');
+assert.match(scanner,/if\(!resumeScan\(\)\)void startCamera\(\)/,
+ 'Réutiliser le flux et le moteur quand ils sont encore ouverts');
 
 assert.match(html,/class="iu-basket-scan-row"/,'Panier et scanner sur une ligne');
 assert.match(html,/class="iu-basket-select-wrap"><select id="basketSelect"/);
