@@ -1,4 +1,4 @@
-/* Inventaires U 41.31 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.32 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -56,11 +56,15 @@
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const tare=ctx?.tareGrams;
   const valid=Number.isSafeInteger(tare)&&tare>=0&&tare<=30000;
-  const gross=valid?proposal.grams+tare:null;
-  const allowed=valid&&gross<=30000;
+  // L’étiquette DIGI affiche un « poids net » qui inclut la panière :
+  // ce poids est le BRUT de notre formulaire, sans ajout de tare.
+  const gross=proposal.grams;
+  const net=valid?gross-tare:null;
+  const allowed=valid&&net>0&&gross<=30000;
   transferSummary.textContent=allowed
-   ?proposal.name+' · '+formatWeight(proposal.grams)+' net + '+formatWeight(tare)+' de tare = '+formatWeight(gross)+' brut à saisir.'
-   :'Sélectionne un panier avec une tare valide pour préparer la pesée.';
+   ?proposal.name+' · '+formatWeight(gross)+' brut (lu sur l’étiquette) − '+formatWeight(tare)+' de tare = '+formatWeight(net)+' net de produits.'
+   :valid?'Transfert bloqué : le poids de l’étiquette doit être supérieur à la tare sélectionnée.'
+    :'Sélectionne un panier avec une tare valide pour préparer la pesée.';
   transferCheck.textContent='Article à confirmer visuellement : '+proposal.name+
    ' · EAN '+proposal.ean+'. Le code-barres n’est pas transféré.';
   transferApply.disabled=!allowed||!confirmArticle.checked||!confirmTare.checked||active;
@@ -74,12 +78,15 @@
   transferState();
   if(transferApply.disabled||!proposal)return;
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
-  const gross=proposal.grams+ctx.tareGrams;
+  const gross=proposal.grams;
+  if(!ctx||!Number.isSafeInteger(ctx.tareGrams)||gross<=ctx.tareGrams){
+   say('Transfert bloqué : panier ou tare invalide.',true);return;
+  }
   if(typeof window.IUWeighScanDraft!=='function'||window.IUWeighScanDraft(gross)!==true){
    say('Transfert refusé : termine ou vérifie la pesée précédente.',true);return;
   }
   resetTransfer();
-  say('Poids transféré en brouillon, sans sauvegarde. Vérifie le résultat puis valide la pesée depuis le formulaire.');
+  say('Poids BRUT de l’étiquette transféré en brouillon, sans sauvegarde. La tare du panier est déduite par le formulaire : vérifie le net et valide la pesée.');
  });
  function clearPreview(){
   if(url){URL.revokeObjectURL(url);url=null;}
@@ -181,7 +188,7 @@
   const fields=result?.fields||{},checks=result?.checks||{};
   const entries=[
    ['Article',fields.name||'Non reconnu'],
-   ['Poids net lu',formatWeight(fields.weightGrams)],
+   ['Poids lu sur l’étiquette (brut avec panière)',formatWeight(fields.weightGrams)],
    ['Prix au kilo',Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'Non reconnu'],
    ['Prix à payer',money(fields.totalCents)],
    ['Code-barres EAN-13',fields.ean13||'Non confirmé'],
