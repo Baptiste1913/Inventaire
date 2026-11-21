@@ -644,3 +644,17 @@
 .calc-card.iu-gemini-standalone .iu-gemini-quick-result {
  border-radius:17px;margin-top:5px;
 }
+
+/* v41.40 — origine des pesées identifiable au premier regard dans l'historique. */
+.history-item.history-item-gemini {
+ border-left:3px solid rgba(33,128,147,.78);
+ background:linear-gradient(105deg,rgba(225,244,248,.72),rgba(250,252,254,.96) 65%);
+}
+.history-chip.history-chip-gemini {
+ color:#086d80;background:rgba(202,235,242,.75);
+ border:1px solid rgba(66,154,173,.3);font-weight:800;
+}
+.history-gemini-extra {
+ margin-top:6px;color:#4d7080;font-size:11px;line-height:1.5;
+ overflow-wrap:anywhere;
+}
