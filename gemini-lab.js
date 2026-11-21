@@ -38,6 +38,7 @@
  const formatWeight=g=>Number.isInteger(g)?(g/1000).toFixed(3).replace('.',',')+' kg':'Non reconnu';
  const money=c=>Number.isInteger(c)?(c/100).toFixed(2).replace('.',',')+' €':'Non reconnu';
  function updateButton(){
+  analyze.hidden=!file;
   analyze.disabled=!file||!pilotKey.value.trim()||active||attempts.has(fixedModel);
  }
  function resetTransfer(){
@@ -144,7 +145,7 @@
   if(grossPreview)grossPreview.value='';
   if(emptyResult)emptyResult.hidden=false;
   clearPreview();capture.disabled=false;updateButton();
-  say('Scanne une étiquette pour commencer.');
+  say('');
  }
  function clear(){stopCamera();resetReading();}
  function setPhoto(chosen){
