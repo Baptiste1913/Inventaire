@@ -1,6 +1,6 @@
 {
-  "version": "41.34",
+  "version": "41.35",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Étiquette numérique Gemini alignée sur la vraie étiquette DIGI Super U Saint-Germain : proportions, magasin, article, trois colonnes, code-barres décoratif et prix encadré. Date affichée uniquement si reconnue. Validation manuelle et tare inchangées."
+  "notes": "Étiquette Gemini rapprochée du ticket DIGI réel : typographie condensée Oswald/Barlow Condensed, caractères moins épais, proportions et alignements corrigés, aucune mention technique sur l'étiquette. Police de repli hors connexion. OCR et transfert inchangés."
 }
