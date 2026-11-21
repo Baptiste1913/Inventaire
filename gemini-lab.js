@@ -1,4 +1,4 @@
-/* Inventaires U 41.33 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.34 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -202,26 +202,38 @@
    const el=document.createElement(tag);el.className=className;el.textContent=value;
    parent.append(el);return el;
   };
+  // Composition conforme à la vraie étiquette : magasin en haut à droite,
+  // produit au centre, trois colonnes, EAN à gauche et prix encadré à droite.
   const top=add(label,'div','iu-gemini-label-top','');
-  add(top,'span','iu-gemini-label-brand','U');
-  add(top,'span','iu-gemini-label-store','FRUITS & LÉGUMES · LECTURE GEMINI');
+  add(top,'span','iu-gemini-label-store','SUPER U');
+  add(top,'span','iu-gemini-label-address','10120 ST GERMAIN');
   const name=typeof fields.name==='string'&&fields.name.trim()?fields.name.trim():'ARTICLE NON RECONNU';
   add(label,'div','iu-gemini-label-name',name);
   const middle=add(label,'div','iu-gemini-label-middle','');
   const rate=add(middle,'div','iu-gemini-label-rate','');
-  add(rate,'span','iu-gemini-label-caption','PRIX AU KILO');
-  add(rate,'strong','iu-gemini-label-number',Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'—');
+  add(rate,'span','iu-gemini-label-caption','Prix unitaire');
+  add(rate,'strong','iu-gemini-label-number',Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents).replace(/\\s/g,'')+'/kg':'—');
   const grossBox=add(middle,'div','iu-gemini-label-gross','');
-  add(grossBox,'span','iu-gemini-label-caption','POIDS IMPRIMÉ · BRUT');
+  add(grossBox,'span','iu-gemini-label-caption','Poids net');
   add(grossBox,'strong','iu-gemini-label-number',formatWeight(gross));
-  const total=add(label,'div','iu-gemini-label-total','');
-  add(total,'span','iu-gemini-label-caption','PRIX À PAYER');
-  add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents));
-  const barcode=add(label,'div','iu-gemini-label-barcode','');
+  const dateBox=add(middle,'div','iu-gemini-label-date','');
+  add(dateBox,'span','iu-gemini-label-caption',"Date d’emballage");
+  const rawDate=fields.packagingDate||fields.packedOn||fields.date||null;
+  const printedDate=typeof rawDate==='string'&&/^\\d{2}[./-]\\d{2}[./-]\\d{4}$/.test(rawDate.trim())
+    ?rawDate.trim().replace(/[/-]/g,'.')
+    :typeof rawDate==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(rawDate.trim())
+      ?rawDate.trim().slice(8,10)+'.'+rawDate.trim().slice(5,7)+'.'+rawDate.trim().slice(0,4)
+      :'—';
+  add(dateBox,'strong','iu-gemini-label-number',printedDate);
+  const bottom=add(label,'div','iu-gemini-label-bottom','');
+  const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
   bars.setAttribute('aria-hidden','true');
   add(barcode,'span','iu-gemini-label-ean',fields.ean13||'EAN NON RECONNU');
-  add(label,'p','iu-gemini-label-notice','Reconstitution visuelle non scannable · vérifier sur la photo d’origine');
+  const total=add(bottom,'div','iu-gemini-label-total','');
+  add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
+  add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\\s/g,''));
+  add(label,'p','iu-gemini-label-notice','Aperçu non scannable · comparer avec l’étiquette photographiée');
   const summary=add(output,'div','iu-gemini-label-summary','');
   const statusText=ready?'Contrôles cohérents · vérification visuelle requise'
     :verified.error?'Transfert bloqué · '+verified.error
