@@ -642,7 +642,7 @@
  display:block;width:14px;height:14px;flex:0 0 14px;
 }
 .iu-gemini-title-text {
- color:#4d5b65;font:820 11px/1.15 inherit;letter-spacing:0;
+ color:#4d5b65;font-family:inherit;font-size:11px;font-weight:820;line-height:1.15;letter-spacing:0;
 }
 .iu-gemini-standalone > .card-heading {padding-right:min(160px,40%);}
 .iu-gemini-standalone > .card-heading h2 {white-space:normal;}
@@ -739,7 +739,7 @@ html body .app > section.calc-card.card > #iuGeminiOptions > .calc-alerts-body {
  display:block;width:100%;margin:9px 0 0;padding:11px 14px;
  border:1px solid #d7dde2;border-radius:15px;
  background:linear-gradient(145deg,#fff,#e9edf0);
- color:#4b5963;font:750 13px/1.35 inherit;
+ color:#4b5963;font-family:inherit;font-size:13px;font-weight:750;line-height:1.35;
  box-shadow:inset 0 1px 0 #fff,0 2px 7px rgba(35,45,55,.045);
  cursor:pointer;
 }
