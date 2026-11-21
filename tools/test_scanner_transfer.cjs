@@ -281,8 +281,8 @@ assert.doesNotMatch(scannerHeader,/Lecture du poids en direct|Caméra prête pou
  'Supprimer les textes visibles de l’en-tête');
 const scannerCamera=html.slice(html.indexOf('<div class="iu-weigh-scan-camera">'),
  html.indexOf('<div class="iu-weigh-scan-bottom">'));
-assert.doesNotMatch(scannerCamera,/id="iuWeighScanTorch"/,
- 'Le flash ne doit plus masquer l’aperçu');
+assert.match(scannerCamera,/<header class="iu-weigh-scan-header">[\s\S]*?id="iuWeighScanTorch"/,
+ 'Le flash doit rester groupé avec Fermer dans l’en-tête de la caméra');
 assert.match(scannerCamera,/id="iuWeighScanStatus"/,
  'Les messages importants restent accessibles dans la caméra');
 assert.match(html,/class="iu-weigh-label-store"/,'Repère magasin en haut à droite');
