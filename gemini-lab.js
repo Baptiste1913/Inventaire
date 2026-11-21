@@ -1,4 +1,4 @@
-/* Inventaires U 41.29 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.30 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -42,7 +42,6 @@
  function setPhoto(chosen){
   if(!chosen)return;
   if(active){say('Analyse en cours : attends la réponse avant de changer de photo.',true);return;}
-  stopCamera();
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return;
   }
@@ -50,7 +49,7 @@
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
   output.hidden=true;networkTime.textContent='';
-  say('Photo prête. Une analyse sera envoyée uniquement après validation.');
+  say(cameraStream?'Photo capturée. Appuie sur « Analyser une fois », puis vise la suivante.':'Photo prête. Une analyse sera envoyée uniquement après validation.');
   updateButton();
  }
  photo.addEventListener('change',()=>{
@@ -152,7 +151,7 @@
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
-  attempts.add(selectedModel);active=true;updateButton();
+  attempts.add(selectedModel);active=true;updateButton();capture.disabled=true;
   output.hidden=true;networkTime.textContent='';
   const id=++generation;
   abort=new AbortController();
@@ -183,7 +182,7 @@
     say('Essai non terminé : '+reason,true);
    }
   }finally{
-   if(id===generation){active=false;abort=null;updateButton();}
+   if(id===generation){active=false;abort=null;capture.disabled=false;updateButton();}
   }
  });
 
@@ -236,7 +235,7 @@
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
-   say('Vise l’étiquette entière, puis touche Capturer.');
+   say('Vise une étiquette, capture-la, puis analyse-la. La caméra reste ouverte pour les suivantes.');
   }catch(_){
    if(epoch===cameraEpoch){
     stopCamera();
@@ -281,9 +280,8 @@
    ctx.drawImage(video,0,0,cv.width,cv.height);
    const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.87));
    if(!blob)throw Error('Capture impossible');
-   stopCamera();
    setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
-   say('Étiquette capturée. Vérifie la photo avant d’envoyer à Gemini.');
+   say('Photo capturée. Le viseur reste ouvert : analyse-la, puis capture la suivante.');
   }catch(_){say('Capture impossible. Réessaie.',true);}
   finally{capture.disabled=false;}
  });
