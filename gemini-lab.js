@@ -1,4 +1,4 @@
-/* Inventaires U 41.39 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.40 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -418,9 +418,29 @@
    try{result=await response.json()}catch(_){throw Error('Réponse JSON invalide');}
    if(!response.ok)throw Error(String(result?.error||'Réponse du Worker impossible'));
    display(result,performance.now()-start);
-   say(result?.checks?.arithmeticConsistent===true
-     ?'Lecture terminée : calcul cohérent. Vérifie les chiffres sur la photo.'
-     :'Lecture terminée : un ou plusieurs champs sont à contrôler.');
+   // Enregistrement automatique uniquement après validation stricte des données.
+   const checked=validateResult(result);
+   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+   const corrected=!checked.error&&ctx
+    ?recodeAfterTare(checked.ean,checked.grams,ctx.tareGrams,checked.rate):null;
+   if(corrected&&typeof window.IUGeminiSaveWeigh==='function'){
+    const saved=window.IUGeminiSaveWeigh({
+     gross:checked.grams,product:checked.name,ean13:checked.ean,
+     pricePerKgCents:checked.rate,totalCents:checked.total,
+     correctedEan13:corrected.ean,correctedTotalCents:corrected.cents
+    });
+    if(saved?.ok){
+     say('Pesée Gemini enregistrée automatiquement dans l’historique · '+formatWeight(saved.net)+' net.');
+     resetTransfer();
+    }else if(saved?.duplicate){
+     say('Étiquette déjà enregistrée récemment : aucun doublon créé.');
+    }else{
+     say('Lecture réussie, mais sauvegarde non effectuée : '+String(saved?.reason||'erreur'),true);
+    }
+   }else{
+    say('Lecture à vérifier : aucune pesée enregistrée automatiquement.',true);
+   }
+
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
     const reason=String(error?.message||'Échec réseau').slice(0,140);
