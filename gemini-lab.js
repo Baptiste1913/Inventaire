@@ -356,11 +356,11 @@
   // Résultat compact, comme l'OCR : poids brut et net côte à côte.
   const summary=add(output,'div','iu-gemini-label-summary','');
   // Même composant de résultat que la pesée classique : structure et classes partagées.
-  const glow=add(output,'div','iu-result-glow-shell iu-gemini-result-glow','');
+  const glow=add(output,'div','iu-result-glow-shell','');
   const lights=add(glow,'div','iu-result-glow-field','');
   lights.setAttribute('aria-hidden','true');
   for(const color of ['red','blue','green'])add(lights,'span','iu-home-glow-orb iu-home-glow-'+color,'');
-  const quick=add(glow,'div','result iu-result-compact iu-gemini-quick-result','');
+  const quick=add(glow,'div','result iu-result-compact','');
   const waves=add(quick,'div','iu-result-light-field iu-welcome-dot-wave','');
   waves.setAttribute('aria-hidden','true');
   add(waves,'i','','');add(waves,'i','','');
