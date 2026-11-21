@@ -1,4 +1,4 @@
-/* Inventaires U 41.28 — viseur Gemini expérimental indépendant des pesées.
+/* Inventaires U 41.29 — viseur Gemini expérimental indépendant des pesées.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -206,6 +206,7 @@
   try{video.pause();}catch(_){}
   video.srcObject=null;
   cameraStarting=false;torchBusy=false;torchOn=false;
+  cameraShell.dataset.state='idle';
   cameraShell.hidden=true;
   openCamera.hidden=false;
   openCamera.disabled=false;
@@ -231,7 +232,7 @@
    }
    cameraStream=obtained;
    video.srcObject=obtained;
-   cameraShell.hidden=false;openCamera.hidden=true;
+   cameraShell.hidden=false;cameraShell.dataset.state='scanning';openCamera.hidden=true;
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
