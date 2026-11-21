@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-11-20T23:10:32+00:00",
+  "generatedAt": "2026-11-21T13:33:56+00:00",
   "recalls": [],
   "prices": [],
   "shortages": [],
@@ -38,9 +38,9 @@
   ],
   "water": [],
   "checks": {
-    "recalls": "2026-11-20T23:10:32+00:00",
+    "recalls": "2026-11-21T13:33:56+00:00",
     "prices": null,
     "shortages": null,
-    "supply": "2026-11-20T23:10:32+00:00"
+    "supply": "2026-11-21T13:33:56+00:00"
   }
 }
