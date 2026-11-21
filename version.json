@@ -1,6 +1,6 @@
 {
-  "version": "41.27",
+  "version": "41.28",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Viseur Gemini intégré au laboratoire : caméra arrière en direct, cadre étiquette, flash si compatible, capture manuelle et galerie, sans analyse automatique ni enregistrement de pesée."
+  "notes": "Gemini 3.5 Flash-Lite par défaut, repères de cadrage DIGI, retrait photo iPhone et case de consentement, clé pilote mémorisable localement avec effacement, envoi toujours manuel."
 }
