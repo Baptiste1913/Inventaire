@@ -1,6 +1,6 @@
 {
-  "version": "41.37",
+  "version": "41.38",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Correction de l'affichage Gemini : le code EAN-13, les barres, le poids et le prix dans l'étiquette numérique sont recalculés après la tare. Actualisation lors du changement de panier et maintien du code original dans le comparatif. Expérimental, non validé sur Zebra."
+  "notes": "Correction EAN DIGI : expressions régulières corrigées, code-barres et prix après tare visibles dans l’étiquette. Nouveau résultat compact brut/net au-dessus, inspiré de l’OCR. Ancien OCR inchangé; validation Zebra encore expérimentale."
 }
