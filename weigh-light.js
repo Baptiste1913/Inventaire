@@ -2,7 +2,8 @@
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- const overlay=document.getElementById('iuWeighScanOverlay');
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell')]){
+ if(!overlay)continue;
  const guide=overlay?.querySelector('.iu-weigh-scan-guide');
  const canvas=guide?.querySelector('.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')return;
@@ -251,4 +252,5 @@
   if(guide.getClientRects().length){measure();if(!running)paint(elapsed);}
  }).observe(guide);
  sync();
+ }
 })();
