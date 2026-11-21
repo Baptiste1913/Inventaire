@@ -1,6 +1,6 @@
 {
-  "version": "41.39",
+  "version": "41.40",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Pesée Gemini désormais dans sa propre carte sous la pesée classique, avec les mêmes codes visuels, sélection de panier synchronisée et résultat brut/net suivi de l’étiquette recalculée. Ancien OCR conservé."
+  "notes": "Pesées Gemini valides sauvegardées automatiquement dans l'historique et la session active, avec article, EAN original/corrigé, prix au kilo et prix corrigé. Badge Gemini distinct, prévention des doublons et refus des lectures incohérentes. OCR classique inchangé."
 }
