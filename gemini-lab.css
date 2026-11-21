@@ -775,3 +775,75 @@
  }
  .calc-card.iu-gemini-standalone .iu-gemini-basket-label{margin-top:0!important;}
 }
+
+/* v41.45 — la carte Gemini réutilise les composants visuels de Nouvelle pesée.
+   Les couleurs, contours, typographies et lumières viennent des classes communes. */
+body .app > .calc-card.iu-gemini-standalone {
+ border:1px solid #dfe3e7!important;
+ border-radius:20px!important;
+ background:linear-gradient(165deg,#fff 0%,#fff 64%,#f7f8f9 100%)!important;
+ box-shadow:0 6px 23px rgba(36,52,62,.045)!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-lab{
+ margin:0!important;padding:0!important;border:0!important;
+ border-radius:0!important;background:transparent!important;box-shadow:none!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-basket-label{
+ font-size:14px!important;font-weight:700!important;color:inherit!important;
+ margin:0 0 8px!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-basket-select{
+ box-sizing:border-box;width:100%;min-height:48px!important;
+ border:1px solid #d4dce1!important;border-radius:15px!important;
+ background:linear-gradient(155deg,#fff,#f7f8f9)!important;
+ box-shadow:inset 0 1px 1px rgba(39,52,62,.025)!important;
+ color:#303d46!important;font:inherit!important;
+ padding:11px 14px!important;margin:0 0 9px!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-camera-open,
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-capture,
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-lab-run{
+ border:1px solid #d7dde2!important;border-radius:14px!important;
+ background:linear-gradient(145deg,#fff,#e9edf0)!important;
+ box-shadow:inset 0 1px 0 #fff,2px 3px 9px rgba(77,99,114,.065)!important;
+ color:#303d46!important;font-family:inherit!important;
+ font-weight:750!important;min-height:45px!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-lab-run:disabled{opacity:.5!important;}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-lab-help{
+ color:#647782!important;font-size:11.5px!important;line-height:1.5!important;
+ margin:3px 0 12px!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-result-glow{
+ margin:12px 0!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-quick-result{
+ display:block!important;grid-template-columns:none!important;
+ margin:0!important;padding:inherit!important;
+ border-radius:inherit!important;border:0!important;
+ background:transparent!important;box-shadow:none!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-quick-result .iu-result-weights{
+ display:flex!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-quick-result .net-line{
+ display:flex!important;align-items:baseline!important;gap:7px!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-quick-result .iu-gemini-quick-gross,
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-quick-result .iu-gemini-quick-tare{
+ font-size:inherit!important;color:inherit!important;letter-spacing:inherit!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-quick-result .iu-gemini-quick-net-value{
+ font-size:clamp(48px,11.5vw,72px)!important;color:inherit!important;
+ letter-spacing:inherit!important;line-height:inherit!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-lab-result{
+ margin-top:12px!important;padding:0!important;
+ border:0!important;background:transparent!important;box-shadow:none!important;
+}
+body .app > .calc-card.iu-gemini-standalone .iu-gemini-printed-label{
+ margin:13px 0 0!important;
+}
+@media(max-width:390px){
+ body .app > .calc-card.iu-gemini-standalone .iu-gemini-basket-select{min-height:46px!important;}
+}
