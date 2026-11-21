@@ -35,6 +35,7 @@
  }
  function setPhoto(chosen){
   if(!chosen)return;
+  if(active){say('Analyse en cours : attends la réponse avant de changer de photo.',true);return;}
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return;
   }
@@ -121,7 +122,9 @@
   if(!['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(selectedModel))return;
   attempts.add(selectedModel);active=true;updateButton();
   output.hidden=true;networkTime.textContent='';
-  const id=++generation;abort=new AbortController(),start=performance.now();
+  const id=++generation;
+  abort=new AbortController();
+  const start=performance.now();
   say('Préparation puis envoi d’une seule photo à Gemini…');
   try{
    const encoded=await imageBase64(file);
@@ -129,8 +132,7 @@
    say('Gemini analyse l’étiquette…');
    const response=await fetch(endpoint,{
     method:'POST',signal:abort.signal,
-    headers:{'Origin':'https://inventaires-u.com',
-     'Content-Type':'application/json','X-IU-Pilot-Key':access},
+    headers:{'Content-Type':'application/json','X-IU-Pilot-Key':access},
     body:JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,
       mimeType:'image/jpeg',imageBase64:encoded})
    });
