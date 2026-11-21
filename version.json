@@ -1,6 +1,6 @@
 {
-  "version": "41.44",
+  "version": "41.45",
   "published": "2026-11-21",
   "assets": 54,
-  "notes": "Pastille Gemini calquée sur la pastille Google Connecté : même capsule, bordure, fond, ombre et typographie, étoile 14px / 13px mobile. Marge réduite au-dessus de Type de panier. SERVICE U / CALCUL IA conservé."
+  "notes": "Refonte visuelle du bloc de pesée Gemini à partir des composants réels de Nouvelle pesée : même carte, panier, boutons et cadre de résultat lumineux avec brut/tare/net. Étiquette corrigée conservée en dessous, OCR et calculs inchangés."
 }
