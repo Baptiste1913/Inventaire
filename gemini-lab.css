@@ -323,3 +323,84 @@
  box-shadow:inset 0 1px 0 #fff,3px 4px 9px rgba(91,122,143,.11);
 }
 .calc-card .iu-gemini-transfer-apply:disabled {opacity:.45;}
+
+/* v41.33 — reconstitution visuelle d'une étiquette de balance DIGI. */
+.calc-card .iu-gemini-lab-result {min-width:0;}
+.calc-card .iu-gemini-printed-label {
+ width:100%;box-sizing:border-box;overflow:hidden;
+ padding:13px 14px 10px;margin:4px 0 10px;
+ border:1px solid #d4d7d9;border-radius:5px;
+ background:#fff;color:#171b1e;
+ box-shadow:0 3px 12px rgba(44,64,79,.10);
+ font-family:Arial,Helvetica,sans-serif;
+}
+.calc-card .iu-gemini-label-top {
+ display:flex;align-items:center;gap:9px;padding-bottom:9px;
+ border-bottom:1px solid #d5d8db;
+}
+.calc-card .iu-gemini-label-brand {
+ width:33px;height:33px;display:flex;align-items:center;justify-content:center;
+ border-radius:50%;background:#07884c;color:#fff;font-weight:900;font-size:25px;
+ letter-spacing:-3px;padding-right:3px;box-sizing:border-box;
+}
+.calc-card .iu-gemini-label-store {font-size:10px;font-weight:750;letter-spacing:.09em;color:#555;}
+.calc-card .iu-gemini-label-name {
+ padding:13px 0 11px;font-size:22px;font-weight:900;line-height:1.1;
+ text-transform:uppercase;overflow-wrap:anywhere;letter-spacing:-.025em;
+}
+.calc-card .iu-gemini-label-middle {
+ display:grid;grid-template-columns:1fr 1fr;gap:10px;
+ padding:10px 0;border-top:1px solid #d4d7d9;border-bottom:1px solid #d4d7d9;
+}
+.calc-card .iu-gemini-label-rate,.calc-card .iu-gemini-label-gross {
+ display:flex;flex-direction:column;gap:6px;min-width:0;
+}
+.calc-card .iu-gemini-label-gross {border-left:1px solid #d4d7d9;padding-left:10px;}
+.calc-card .iu-gemini-label-caption {
+ display:block;font-size:9px;letter-spacing:.04em;font-weight:750;color:#51565a;
+}
+.calc-card .iu-gemini-label-number {font-size:19px;font-weight:850;line-height:1.2;overflow-wrap:anywhere;}
+.calc-card .iu-gemini-label-total {
+ display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+ padding:13px 0 9px;
+}
+.calc-card .iu-gemini-label-total-number {
+ font-size:35px;font-weight:900;line-height:1;letter-spacing:-.045em;white-space:nowrap;
+}
+.calc-card .iu-gemini-label-barcode {display:flex;flex-direction:column;align-items:center;gap:3px;margin:5px 0 0;}
+.calc-card .iu-gemini-label-bars {
+ width:85%;height:38px;
+ background:repeating-linear-gradient(90deg,#171717 0 2px,transparent 2px 4px,#171717 4px 5px,transparent 5px 8px,#171717 8px 11px,transparent 11px 14px);
+ opacity:.75;
+}
+.calc-card .iu-gemini-label-ean {font-size:13px;font-weight:750;letter-spacing:.16em;font-variant-numeric:tabular-nums;}
+.calc-card .iu-gemini-label-notice {
+ text-align:center;font-size:9px;line-height:1.4;margin:9px 0 0;
+ color:#62666a;font-weight:500;
+}
+.calc-card .iu-gemini-label-summary {margin:0 0 7px;}
+.calc-card .iu-gemini-label-state {display:block;font-size:12px;font-weight:750;line-height:1.4;color:#995d27;}
+.calc-card .iu-gemini-label-state.is-ready {color:#14744f;}
+.calc-card .iu-gemini-net-summary {
+ display:flex;flex-direction:column;gap:4px;
+ padding:13px 15px;margin:0 0 10px;
+ border:1px solid rgba(157,180,193,.5);border-radius:14px;
+ background:linear-gradient(145deg,#fafdff,#eaf2f6);
+ box-shadow:inset 0 1px 0 #fff,3px 4px 10px rgba(98,126,144,.07);
+}
+.calc-card .iu-gemini-net-caption {font-size:10px;font-weight:750;letter-spacing:.025em;color:#546d7a;}
+.calc-card .iu-gemini-net-value {font-size:29px;font-weight:850;line-height:1.2;color:#177650;font-variant-numeric:tabular-nums;}
+.calc-card .iu-gemini-net-value.is-invalid {color:#ae4848;font-size:18px;}
+.calc-card .iu-gemini-net-detail {font-size:11px;color:#5c7080;}
+.calc-card .iu-gemini-label-checks {display:flex;flex-wrap:wrap;gap:7px;margin:0 0 8px;}
+.calc-card .iu-gemini-label-checks span {
+ font-size:10px;font-weight:750;padding:6px 8px;border-radius:8px;
+ border:1px solid rgba(160,184,197,.35);background:#f1f5f7;
+}
+.calc-card .iu-gemini-label-checks .is-ok {color:#18744f;}
+.calc-card .iu-gemini-label-checks .is-warning {color:#a14e37;}
+@media(max-width:370px) {
+ .calc-card .iu-gemini-label-name {font-size:19px;}
+ .calc-card .iu-gemini-label-number {font-size:16px;}
+ .calc-card .iu-gemini-label-total-number {font-size:29px;}
+}
