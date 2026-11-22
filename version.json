@@ -1,6 +1,6 @@
 {
-  "version": "42.11",
+  "version": "42.12",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Optimisation des analyses IA : préconnexion DNS/TLS au Worker lors de l'ouverture caméra ou de l'import, sans transmission de secrets ; préchauffage Tesseract durant le choix d'une photo ; décodage unique réutilisé par OCR et JPEG Gemini, cache effacé à la pesée suivante. Compression de galerie avec canvas.toBlob asynchrone, rejet précoce des JPEG dépassant la limite Base64, mêmes résolutions, qualités et limite de 690000 caractères que précédemment. OCR indépendant, EAN, prix, tare, analyse de secours et validation manuelle inchangés. Worker Cloudflare conservé tel quel faute de code source / accès déploiement."
+  "notes": "Optimisations Gemini côté Worker : schéma JSON strict 5 champs avec repli compatible sur HTTP 400 (aucune consigne de reconnaissance ni qualité photo réduite), plafond de génération 2048 jetons pour éviter des réponses tronquées, codes d'erreur temporaires 429/500/502/503/504 transmis au client et Retry-After exposé ; clés/modèles non autorisés signalés sans réessais inutiles. Frontend : message d'accès refusé adapté. Validations EAN, prix, poids, tare, OCR local et validation manuelle inchangées. Source Worker mise à jour sur GitHub ; un déploiement Cloudflare distinct est nécessaire, non automatisé dans ce dépôt."
 }
