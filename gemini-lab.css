@@ -5397,3 +5397,49 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiLabelPanel #iuGeminiDuplicateSkip.iu-gemini-duplicate-skip[hidden] {
  display:none!important;
 }
+
+/* v42.22 — récupération ciblée sans agrandir le bloc Gemini : ces
+   commandes n'apparaissent qu'après une lecture incomplète. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair.iu-gemini-repair {
+ display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+ gap:6px!important;margin:5px 0 7px!important;
+ padding:0 3px!important;background:none!important;
+ border:0!important;box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair.iu-gemini-repair[hidden],
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepairManual.iu-gemini-repair-manual[hidden] {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair select,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair button,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair input {
+ box-sizing:border-box!important;min-height:31px!important;
+ border-radius:10px!important;border:1px solid rgba(178,192,201,.68)!important;
+ background:rgba(255,255,255,.68)!important;color:#3b5361!important;
+ font-family:inherit!important;font-size:11px!important;
+ font-weight:650!important;line-height:1.25!important;
+ margin:0!important;padding:5px 9px!important;
+ box-shadow:none!important;max-width:100%!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair select {
+ flex:1 1 115px!important;min-width:0!important;width:auto!important;
+ appearance:auto!important;-webkit-appearance:menulist!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair button {flex:0 0 auto!important;cursor:pointer!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair .iu-gemini-repair-manual {
+ flex:1 1 100%!important;display:flex!important;gap:6px!important;
+ align-items:center!important;min-width:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiRepair .iu-gemini-repair-manual input {
+ flex:1 1 auto!important;width:100px!important;min-width:0!important;
+}
