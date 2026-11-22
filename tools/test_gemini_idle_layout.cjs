@@ -445,5 +445,22 @@ assert(cameraRefresh.includes('#iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[ari
  !cameraRefresh.includes('0 0 0 2px rgba(40,145,235')&&
  !cameraRefresh.includes('0 3px 14px rgba(34,122,214'),
  'Flash actif : fond bleu conservé, halo et lueur éliminés');
+// v42.04 — flash bleu plein sans recolorer le bouton, moins d'espace sous le panier.
+const flashV4204=css.slice(css.indexOf('/* v42.04 — Flash actif'));
+assert(flashV4204.includes('#iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) > svg')&&
+ flashV4204.includes('fill:currentColor!important')&&
+ flashV4204.includes('fill:none!important')&&
+ flashV4204.includes('stroke:currentColor!important'),
+ 'L’éclair se remplit de bleu seulement quand le flash est actif');
+assert(flashV4204.includes('background:linear-gradient(145deg,#fafbfc,#ebeff2)!important')&&
+ flashV4204.includes('color:#2588c7!important')&&
+ flashV4204.includes('2px 3px 8px rgba(35,51,64,.12)!important')&&
+ flashV4204.includes('filter:none!important'),
+ 'Le verre du flash reste inchangé et aucun halo lumineux ne revient');
+assert(flashV4204.includes('margin-bottom:3px!important')&&
+ flashV4204.includes('margin-top:1px!important')&&
+ !flashV4204.includes('height:60px!important')&&
+ !flashV4204.includes('height:184px!important'),
+ 'Moins de marge sous le panier sans modifier la taille des contrôles ni du viseur');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.03 : marges uniformes, contour rapproché, déclencheur rouge, flash sans halo OK.');
+console.log('Gemini v42.04 : éclair bleu rempli et marge réduite sous panier OK.');
