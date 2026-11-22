@@ -682,6 +682,9 @@
   if(repairManual)repairManual.hidden=true;
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
+  // Lire l'EAN en local en parallèle du réseau, sans envoi ni bibliothèque.
+  barcodeJob=Promise.resolve().then(()=>
+   window.IUGeminiEAN?.read(chosen)||null).catch(()=>null);
   url=URL.createObjectURL(chosen);
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
   showBlankLabel();networkTime.textContent='';resetProposal();
@@ -1043,9 +1046,10 @@
   if(Number.isFinite(seconds)&&seconds>0)return Math.min(8000,Math.max(1000,Math.ceil(seconds*1000)));
   return attempt===1?1100:2600;
  }
- async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id){
+ async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null){
   const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,
-   mimeType:'image/jpeg',imageBase64:encoded});
+   mimeType:'image/jpeg',imageBase64:encoded,
+   ...(focusField?{focusField}:{})});
   // Une seule requête par pression : HTTP 502 peut cacher un échec de
   // lecture et ne doit jamais provoquer une deuxième analyse automatique.
   if(signal.aborted||id!==generation)
@@ -1085,6 +1089,8 @@
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
+  const targetField=repairFocus&&lastRawResult?repairFocus:null;
+  const oldResult=targetField?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
   resetDetectedIndicator();updateButton();setAnalysisCameraClosed(true);
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
@@ -1097,14 +1103,58 @@
   const start=performance.now();
   say('Préparation puis envoi d’une seule photo à Gemini…');
   try{
-   const encoded=await imageBase64(file);
+   // La lecture indépendante est déclenchée UNE fois par photo.
+   // Seuls les codes confirmés et leur géométrie sûre peuvent influencer
+   // le cadrage. Une photo ambiguë est transmise sans découpe.
+   const job=barcodeJob||Promise.resolve().then(()=>
+    window.IUGeminiEAN?.read(file)||null).catch(()=>null);
+   barcodeJob=job;
+   const readFast=await Promise.race([job,
+    new Promise(resolve=>setTimeout(()=>resolve(null),250))]);
+   if(id!==generation)return;
+   if(readFast)localBarcode=readFast;
+   let photoForGemini=file;
+   // Sur une RELECTURE ciblée, garder le cliché intact pour ne pas
+   // réappliquer un recadrage qui aurait pu perdre des caractères.
+   if(!targetField&&readFast?.confirmed&&!readFast.ambiguous&&
+      typeof window.IUGeminiEAN?.cropIfSafe==='function'){
+    const cropped=await window.IUGeminiEAN.cropIfSafe(file,readFast);
+    if(id!==generation)return;
+    if(cropped)photoForGemini=cropped;
+   }
+   const encoded=await imageBase64(photoForGemini);
    if(id!==generation)return;
    say('Gemini analyse l’étiquette…');
-   // Une seule image encodée, au plus trois appels réseau uniquement
-   // si une indisponibilité temporaire du fournisseur est détectée.
-   const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
+   // Une seule demande réseau. La relecture ciblée est VOLONTAIRE.
+   const received=await requestGeminiWithRecovery(
+    encoded,access,selectedModel,abort.signal,id,targetField);
    if(id!==generation)return;
-   display(result,performance.now()-start);
+   // Attendre brièvement la lecture locale après Gemini ; jamais de long
+   // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
+   if(!localBarcode){
+    const independent=await Promise.race([job,
+     new Promise(resolve=>setTimeout(()=>resolve(null),350))]);
+    if(id!==generation)return;
+    if(independent)localBarcode=independent;
+   }
+   let combined=received;
+   if(targetField&&oldResult){
+    const key=fieldKeys[targetField];
+    const value=received?.fields?.[key];
+    if(value!==null&&value!==undefined&&value!==''){
+     combined={...oldResult,fields:{...oldResult.fields,[key]:value},
+      source:'gemini-focused',focusField:targetField};
+    }else{
+     combined={...oldResult,
+      source:'gemini-focused',focusField:targetField};
+    }
+   }
+   // Le code optique supplée un EAN incomplet ; s'il contredit Gemini,
+   // l'étiquette reste à vérifier et NE PEUT PAS être enregistrée.
+   const validated=reconcileBarcode(combined,localBarcode);
+   validated.checks={...validated.checks,...fieldsChecks(validated.fields)};
+   repairFocus=null;
+   display(validated,performance.now()-start);
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
@@ -1119,13 +1169,15 @@
     if(!proposal&&!output.querySelector('.iu-gemini-printed-label'))showBlankLabel();
     const reason=String(error?.message||'Échec réseau').slice(0,140);
     lastAnalysisError=reason;
+    repairFocus=null;
+    if(oldResult)display(reconcileBarcode(oldResult,localBarcode),performance.now()-start);
     say(lastAnalysisError,true);
     updateCardState('error');
    }
   }finally{
    if(id===generation){
     active=false;abort=null;setAnalysisCameraClosed(false);
-    updateButton();validationState();
+    updateButton();validationState();refreshRepairPanel();
     if(cameraStream&&cameraMode==='auto'){
      setAutoHint(proposal?'Lecture prête · vérifie puis valide'
       :'Lecture à reprendre · recadre et relance','waiting');
