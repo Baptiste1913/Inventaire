@@ -462,5 +462,27 @@ assert(flashV4204.includes('margin-bottom:3px!important')&&
  !flashV4204.includes('height:60px!important')&&
  !flashV4204.includes('height:184px!important'),
  'Moins de marge sous le panier sans modifier la taille des contrôles ni du viseur');
+// v42.05 — contrôle compact et effet verre renforcé, sans toucher à l'étiquette.
+const compactPanelCss=css.slice(css.indexOf('/* v42.05 — Le panneau commun'));
+assert(compactPanelCss.includes('rgba(255,255,255,.16)')&&
+ compactPanelCss.includes('rgba(255,255,255,.23)')&&
+ compactPanelCss.includes('backdrop-filter:blur(18px) saturate(105%)!important'),
+ 'Panneau de contrôle nettement plus translucide, halo et trame préservés');
+assert(compactPanelCss.includes('height:54px!important')&&
+ compactPanelCss.includes('min-height:54px!important')&&
+ compactPanelCss.includes('max-height:54px!important')&&
+ compactPanelCss.includes('> .iu-gemini-gross-row > .iu-gemini-gross-panel')&&
+ compactPanelCss.includes('> button#iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next'),
+ 'Poids brut et bouton Nouvelle pesée réduits à la même hauteur de 54px');
+assert(compactPanelCss.includes('border:1px solid rgba(214,224,231,.95)!important')&&
+ compactPanelCss.includes('border-radius:14px!important')&&
+ compactPanelCss.includes('background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important')&&
+ compactPanelCss.includes('2px 3px 7px rgba(146,166,179,.16)')&&
+ compactPanelCss.includes('.is-ready:not(:disabled)')&&
+ compactPanelCss.includes(':active:not(:disabled)'),
+ 'Nouvelle pesée identique aux boutons Caméra/Import y compris prêt et touché');
+assert(section.includes('id="iuGeminiNext"')&&
+ js.includes("nextWeigh.addEventListener('click',async()=>{"),
+ 'Enregistrement de la pesée inchangé');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.04 : éclair bleu rempli et marge réduite sous panier OK.');
+console.log('Gemini v42.05 : panneau translucide, brut et bouton 54px, Nouvelle pesée assorti aux boutons Caméra/Import OK.');
