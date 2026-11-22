@@ -1585,7 +1585,8 @@
  selectCameraMode();
 
  capture.addEventListener('click',async()=>{
-  if(!cameraStream||cameraShell.hidden||!video.videoWidth||!video.videoHeight){
+  if(!cameraStream||cameraShell.hidden||cameraShell.dataset.state!=='scanning'||
+     document.hidden||!video.videoWidth||!video.videoHeight){
    say('Viseur non prêt · ouvre la caméra.',true);
    return;
   }
@@ -1631,7 +1632,8 @@
    // pendant toBlob, n'enregistrer ni ne remplacer quoi que ce soit.
    if(frameEpoch!==cameraEpoch||frameGeneration!==generation||
       proposal!==priorProposal||priorBasket!==$('basketSelect')?.value||
-      !cameraStream||cameraShell.hidden)return;
+      !cameraStream||cameraShell.hidden||document.hidden||
+      cameraShell.dataset.state!=='scanning')return;
    const nextPhoto=new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'});
    if(priorWasSavable){
     const saved=saveVerifiedProposal({
