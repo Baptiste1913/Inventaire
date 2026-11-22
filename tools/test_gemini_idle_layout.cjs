@@ -484,5 +484,26 @@ assert(compactPanelCss.includes('border:1px solid rgba(214,224,231,.95)!importan
 assert(section.includes('id="iuGeminiNext"')&&
  js.includes("nextWeigh?.addEventListener('click',()=>{"),
  'Enregistrement de la pesée inchangé');
+// v42.06 — réessais transitoires bornés : pas d'écritures ni de capture ajoutées.
+assert(js.includes('async function requestGeminiWithRecovery(')&&
+ js.includes('const maxAttempts=3;')&&
+ js.includes('const recoverable=[429,500,502,503,504].includes(status);')&&
+ js.includes('attempt<maxAttempts')&&
+ js.includes('waitGeminiBackoff('),
+ 'Gemini : maximum 3 tentatives avec temporisation seulement pour erreurs transitoires');
+assert(js.includes("if(status===401||status===403)throw Error(")&&
+ js.includes("attempts.delete(selectedModel);")&&
+ js.includes("analyze.textContent='Réessayer l’analyse';"),
+ 'Clé non réessayée et photo manuellement réanalysable après erreur');
+assert(js.includes("signal.addEventListener('abort',onAbort,{once:true})")&&
+ js.includes("signal.removeEventListener('abort',onAbort)")&&
+ js.includes("id!==generation")&&
+ js.includes("body=JSON.stringify({type:'iu-gemini-label-test'"),
+ 'Même photo réutilisée, délais annulables et générations protégées');
+assert(js.includes("const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id)")&&
+ js.includes("const saveReady=Boolean(validationState());")&&
+ js.includes("nextWeigh?.addEventListener('click',()=>{")&&
+ js.includes("if(c.arithmeticConsistent!==true")===false,
+ 'Une requête par tentative ; pas de validation automatique');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.05 : panneau translucide, brut et bouton 54px, Nouvelle pesée assorti aux boutons Caméra/Import OK.');
+console.log('Gemini v42.06 : reprises réseau bornées, photo conservée, validation manuelle OK.');
