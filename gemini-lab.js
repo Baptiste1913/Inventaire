@@ -1,4 +1,4 @@
-/* Inventaires U 42.22 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.23 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -849,7 +849,7 @@
    }catch(_){/* Safari peut nécessiter le chemin canvas habituel. */}
   }
   const img=await decodePhoto(source);
-  const scale=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
+  const scale=Math.min(1,1920/Math.max(img.naturalWidth,img.naturalHeight));
   if(!scale||!img.naturalWidth||!img.naturalHeight)throw Error('Photo vide');
   const cv=document.createElement('canvas');
   cv.width=Math.max(1,Math.round(img.naturalWidth*scale));
@@ -1095,6 +1095,21 @@
    throw Error('Modèle Gemini indisponible');
   throw Error('Service IA indisponible · réessaie cette photo');
  }
+ // Une relecture ciblée n'est justifiée que si UNE seule information
+ // manque. Si deux valeurs se contredisent, aucune réparation automatique.
+ function singleMissingField(result){
+  const f=result?.fields||{};
+  const missing=[
+   !(typeof f.name==='string'&&f.name.trim().length>=3)?'name':null,
+   !Number.isSafeInteger(f.weightGrams)||f.weightGrams<=0?'weight':null,
+   !Number.isSafeInteger(f.pricePerKgCents)||f.pricePerKgCents<=0?'rate':null,
+   !Number.isSafeInteger(f.totalCents)||f.totalCents<0?'total':null,
+   !(typeof f.ean13==='string'&&/^\\d{13}$/.test(f.ean13)&&
+      eanCheck(f.ean13.slice(0,12))===f.ean13[12])?'ean':null
+  ].filter(Boolean);
+  return missing.length===1&&!result?.checks?.independentMismatch
+   ?missing[0]:null;
+ }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
@@ -1112,26 +1127,13 @@
   const start=performance.now();
   say('Préparation puis envoi d’une seule photo à Gemini…');
   try{
-   // La lecture indépendante est déclenchée UNE fois par photo.
-   // Seuls les codes confirmés et leur géométrie sûre peuvent influencer
-   // le cadrage. Une photo ambiguë est transmise sans découpe.
+   // Gemini reçoit immédiatement l'image la plus complète possible.
+   // Le décodeur EAN-13 travaille EN PARALLÈLE, sans retarder l'appel
+   // réseau ni recadrer la photo pour ne pas couper les chiffres.
    const job=barcodeJob||Promise.resolve().then(()=>
     window.IUGeminiEAN?.read(file)||null).catch(()=>null);
    barcodeJob=job;
-   const readFast=await Promise.race([job,
-    new Promise(resolve=>setTimeout(()=>resolve(null),250))]);
-   if(id!==generation)return;
-   if(readFast)localBarcode=readFast;
-   let photoForGemini=file;
-   // Sur une RELECTURE ciblée, garder le cliché intact pour ne pas
-   // réappliquer un recadrage qui aurait pu perdre des caractères.
-   if(!targetField&&readFast?.confirmed&&!readFast.ambiguous&&
-      typeof window.IUGeminiEAN?.cropIfSafe==='function'){
-    const cropped=await window.IUGeminiEAN.cropIfSafe(file,readFast);
-    if(id!==generation)return;
-    if(cropped)photoForGemini=cropped;
-   }
-   const encoded=await imageBase64(photoForGemini);
+   const encoded=await imageBase64(file);
    if(id!==generation)return;
    say('Gemini analyse l’étiquette…');
    // Une seule demande réseau. La relecture ciblée est VOLONTAIRE.
@@ -1150,17 +1152,37 @@
    if(targetField&&oldResult){
     const key=fieldKeys[targetField];
     const value=received?.fields?.[key];
-    if(value!==null&&value!==undefined&&value!==''){
-     combined={...oldResult,fields:{...oldResult.fields,[key]:value},
-      source:'gemini-focused',focusField:targetField};
-    }else{
-     combined={...oldResult,
-      source:'gemini-focused',focusField:targetField};
+    combined=value!==null&&value!==undefined&&value!==''
+     ?{...oldResult,fields:{...oldResult.fields,[key]:value},
+       source:'gemini-focused',focusField:targetField}
+     :{...oldResult,source:'gemini-focused',focusField:targetField};
+   }
+   // Le décodeur local peut remplir l'EAN manquant mais ne peut jamais
+   // écraser une valeur Gemini confirmée et contradictoire.
+   combined=reconcileBarcode(combined,localBarcode);
+   const missing=!targetField?singleMissingField(combined):null;
+   if(missing){
+    // Un seul second appel, uniquement pour le champ réellement illisible
+    // sur la MÊME photo. Échec = conserver le premier résultat.
+    try{
+     say('Gemini · vérification de '+({ean:'l’EAN',weight:'poids',
+      rate:'prix au kilo',total:'prix total',name:'nom'}[missing]||'la lecture')+'…');
+     const focused=await requestGeminiWithRecovery(
+      encoded,access,selectedModel,abort.signal,id,missing);
+     if(id!==generation)return;
+     const key=fieldKeys[missing],value=focused?.fields?.[key];
+     if(value!==null&&value!==undefined&&value!==''){
+      combined={...combined,fields:{...combined.fields,[key]:value},
+       source:'gemini-focused',focusField:missing};
+      combined=reconcileBarcode(combined,localBarcode);
+     }
+    }catch(error){
+     if(error?.name==='AbortError')throw error;
+     // Conserver les données Gemini déjà reconnues, et permettre la
+     // relecture manuelle du champ plutôt que rejeter tout le document.
     }
    }
-   // Le code optique supplée un EAN incomplet ; s'il contredit Gemini,
-   // l'étiquette reste à vérifier et NE PEUT PAS être enregistrée.
-   const validated=reconcileBarcode(combined,localBarcode);
+   const validated=combined;
    const priorMismatch=validated.checks?.independentMismatch===true;
    const localChecks=fieldsChecks(validated.fields);
    validated.checks={...validated.checks,...localChecks,
@@ -1266,7 +1288,6 @@
      say('Vidéo suspendue par iOS. Réessaie de toucher le viseur.',true);
     }
     if(cameraMode==='auto'&&!autoSuspended&&!active&&!file&&!proposal){
-     void ensureLocalOcr();
      startAutoMonitor();
     }
     return;
@@ -1452,7 +1473,7 @@
   if(width/height>ratio){width=height*ratio;x=(srcW-width)/2;}
   else{height=width/ratio;y=(srcH-height)/2;}
   // Préserver une marge pour le PLU vertical et les gardes EAN.
-  const focused=width*.88;
+  const focused=width*.96;
   x+=(width-focused)/2;
   width=focused;
   return {x,y,width,height};
@@ -1522,7 +1543,7 @@
  function liveFrameCanvas(){
   const view=video.getBoundingClientRect();
   const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,view.width,view.height);
-  const factor=Math.min(1,1450/Math.max(crop.width,crop.height));
+  const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
   const cv=document.createElement('canvas');
   cv.width=Math.max(1,Math.round(crop.width*factor));
   cv.height=Math.max(1,Math.round(crop.height*factor));
@@ -1573,8 +1594,8 @@
    say('Lecture OCR incertaine. Aucune image envoyée : configure la clé Cloudflare ou réessaie.',true);
    return;
   }
-  setAutoHint('Lecture locale incomplète · secours Gemini…','capturing');
-  say('OCR incomplet : une seule image sera transmise à Gemini pour vérification.');
+  setAutoHint('Gemini · lecture de l’étiquette…','capturing');
+  say('Analyse principale Gemini de l’étiquette…');
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.88));
   if(!blob||!sessionValid())throw Error('Image de secours indisponible');
   lastPhotoWasAuto=true;
@@ -1583,6 +1604,9 @@
   setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
  }
  async function readLocalFrame(quality){
+  // Mode automatique : la détection de stabilité reste locale et légère,
+  // mais le PREMIER moteur à lire le texte est toujours Gemini. L'OCR
+  // local ne peut plus court-circuiter l'analyse principale.
   if(localOcrBusy||autoSuspended||active||file||proposal)return;
   autoLocked=true;localOcrBusy=true;
   refreshCaptureButton();
@@ -1590,55 +1614,24 @@
   const valid=()=>token===localOcrToken&&epoch===cameraEpoch&&
    cameraStream===stream&&scannerCardVisible()&&!active&&!file&&!proposal&&
    cameraMode==='auto';
-  let canvas=null;
-  const started=performance.now();
   try{
-   canvas=liveFrameCanvas();
+   const canvas=liveFrameCanvas();
    autoLastCaptured=quality.pixels;
-   setAutoHint('OCR local · lecture de la vidéo…','framing');
-   let parsed=null;
-   try{parsed=await recognizeLocally(canvas)}catch(_){}
    if(!valid())return;
-   if(parsed){
-    if(localCandidate&&localReader.matchTwo(localCandidate,parsed)){
-     parsed.elapsedMs=Math.round(performance.now()-started);
-     parsed.model='OCR local · 2 lectures concordantes';
-     display(parsed,parsed.elapsedMs);
-     autoLocked=true;
-     const saveReady=Boolean(validationState());
-     setAutoHint(saveReady?'OCR local confirmé · vérifie et valide'
-      :'Lecture locale non validable · vérifie les valeurs',saveReady?'ready':'error');
-     say(saveReady
-      ?'Lecture OCR locale confirmée : vérifie le brut, puis touche Nouvelle pesée.'
-      :'Lecture locale incomplète : contrôle manuel nécessaire.',!saveReady);
-     return;
-    }
-    if(!localCandidate){
-     localCandidate=parsed;
-     localPasses=1;
-     autoLocked=false;
-     autoStableCount=0;autoEarliest=performance.now()+180;
-     setAutoHint('OCR lu · vérification par une seconde lecture…','framing');
-     return;
-    }
-   }
-   // Une seule image de secours, jamais deux requêtes silencieuses.
+   setAutoHint('Gemini · lecture de l’étiquette…','capturing');
    await sendOcrFallback(canvas,valid);
   }catch(_){
    if(valid()){
     autoLocked=true;
-    setAutoHint('Lecture incomplète · touche Reprendre ou Capturer','error');
-    say('Lecture automatique impossible. Essaie la capture manuelle.',true);
+    setAutoHint('Capture impossible · utilise le déclencheur','error');
+    say('Capture automatique impossible, photographie manuellement.',true);
    }
   }finally{
    if(token===localOcrToken){
-    localOcrBusy=false;
-    refreshCaptureButton();
-    if(!autoLocked&&valid())startAutoMonitor();
+    localOcrBusy=false;refreshCaptureButton();
    }
   }
  }
-
  // Analyse locale basse résolution, sans photo transmise ni API distante.
  // Ce filtre détecte un document clair, contrasté et net au centre du viseur ;
  // Gemini reste seul responsable de la reconnaissance du texte et de l'EAN.
@@ -1692,7 +1685,7 @@
   autoEarliest=performance.now()+(afterValidation?420:180);
   autoCapturePending=false;
   if(cameraMode==='auto'&&cameraStream){
-   setAutoHint(afterValidation?'Présente une autre étiquette':'OCR local prêt · vise une étiquette','waiting');
+   setAutoHint(afterValidation?'Présente une autre étiquette':'Gemini prêt · vise une étiquette','waiting');
    startAutoMonitor();
   }
  }
@@ -1804,7 +1797,7 @@
    const viewport=video.getBoundingClientRect();
    const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,
     viewport.width,viewport.height);
-   const factor=Math.min(1,1600/Math.max(crop.width,crop.height));
+   const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
    cv.width=Math.max(1,Math.round(crop.width*factor));
    cv.height=Math.max(1,Math.round(crop.height*factor));
    const ctx=cv.getContext('2d');
@@ -1813,7 +1806,7 @@
    ctx.imageSmoothingQuality='high';
    ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,
     0,0,cv.width,cv.height);
-   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.90));
+   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.86));
    if(!blob)throw Error('Capture impossible');
    // Si le panier, la session, le flux caméra ou la lecture a changé
    // pendant toBlob, n'enregistrer ni ne remplacer quoi que ce soit.
