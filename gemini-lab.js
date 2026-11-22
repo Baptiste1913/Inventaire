@@ -1,11 +1,11 @@
-/* Inventaires U 42.17 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.18 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const toggle=$('iuGeminiLabToggle'),panel=$('iuGeminiLab');
  if(!panel)return;
- const photo=$('iuGeminiLabPhoto'),picture=$('iuGeminiLabPreview'),
+ const photo=$('iuGeminiLabPhoto'),
   pilotKey=$('iuGeminiPilotKey'),saveKey=$('iuGeminiSaveKey'),
   forgetKey=$('iuGeminiForgetKey'),keyInfo=$('iuGeminiKeyInfo'),
   analyze=$('iuGeminiAnalyze'),status=$('iuGeminiLabStatus'),
@@ -40,7 +40,6 @@
  const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText');
  const resultGross=$('iuGeminiGrossDisplay');
  const cameraStill=$('iuGeminiCameraStill'),frameState=$('iuGeminiFrameState'),
-  sourceCaption=$('iuGeminiPhotoContext'),
   replacementPrompt=$('iuGeminiReplacePrompt'),
   replaceKeep=$('iuGeminiReplaceKeep'),replaceProceed=$('iuGeminiReplaceProceed');
  const primaryText=nextWeigh?.querySelector('span');
@@ -200,7 +199,7 @@
   status.classList.toggle('is-error',error);
   // Le texte de statut était masqué par les styles : réutiliser le voyant
   // réellement visible pendant une analyse plutôt que laisser « Aucune pesée ».
-  if(active&&!latestLabelFields)setLabelAlert('working',message||'Analyse en cours…');
+  if(active&&!latestLabelFields)setLabelAlert('working','Analyse…');
  };
  function freezeCameraPhoto(freeze){
   if(!cameraStill||!cameraStage)return;
@@ -219,24 +218,26 @@
   pendingReplacementFile=null;
   if(replacementPrompt)replacementPrompt.hidden=true;
  }
+ function needsBasketChange(){
+  if(!proposal)return false;
+  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  return !Number.isSafeInteger(ctx?.tareGrams)||ctx.tareGrams<0||
+   ctx.tareGrams>=proposal.grams;
+ }
  function setPrimaryAction(canSave){
   if(!nextWeigh)return;
-  const caption=canSave?'Enregistrer'
-   :active?'Analyse…'
-   :(file||latestLabelFields||lastReadProblem||lastAnalysisError)?'Reprendre photo':'Nouvelle photo';
+  const retry=Boolean(file&&(lastAnalysisError||lastReadProblem||
+   (!proposal&&latestLabelFields)));
+  const caption=canSave?'Enregistrer':active?'Analyse…'
+   :needsBasketChange()?'Changer panier'
+   :retry?'Réessayer':'Nouvelle photo';
   if(primaryText&&primaryText.textContent!==caption)primaryText.textContent=caption;
-  nextWeigh.setAttribute('aria-label',canSave?'Enregistrer cette pesée et passer à la suivante'
-   :active?'Analyse de la photo en cours'
-   :'Préparer une nouvelle photographie sans enregistrer de pesée');
-  nextWeigh.dataset.action=canSave?'save':active?'busy':'retake';
- }
- function refreshPhotoContext(){
-  if(!sourceCaption)return;
-  sourceCaption.hidden=!file;
-  if(file)sourceCaption.textContent=active?'Photo en cours d’analyse'
-   :lastAnalysisError?'Échec · photo conservée'
-   :lastReadProblem?'Photo reconnue · à vérifier'
-   :latestLabelFields?'Photo analysée':'Photo à analyser';
+  nextWeigh.setAttribute('aria-label',canSave?'Enregistrer la pesée'
+   :active?'Analyse en cours'
+   :needsBasketChange()?'Changer de panier sans relire l’étiquette'
+   :retry?'Relire la même photo':'Prendre une nouvelle photographie');
+  nextWeigh.dataset.action=canSave?'save':active?'busy'
+   :needsBasketChange()?'basket':retry?'retry':'retake';
  }
  const formatWeight=g=>Number.isInteger(g)?(g/1000).toFixed(3).replace('.',',')+' kg':'Non reconnu';
  const money=c=>Number.isInteger(c)?(c/100).toFixed(2).replace('.',',')+' €':'Non reconnu';
@@ -280,15 +281,11 @@
    :'Photographier une étiquette');
  }
  function updateButton(){
-  // Une lecture refusée est TOUJOURS ré-analysable manuellement.
-  // Ne plus condamner le bouton après la première réponse Gemini.
-  analyze.hidden=!file||Boolean(proposal&&!lastReadProblem);
+  // Une seule action visible, analyse déclenchée en interne après la photo.
+  analyze.hidden=true;
   analyze.disabled=!file||!pilotKey.value.trim()||active;
-  if(!analyze.hidden)analyze.textContent=active?'Analyse en cours…'
-   :lastReadProblem||lastAnalysisError?'Relire cette photo':'Analyser cette photo';
   setPrimaryAction(false);
   refreshCaptureButton();
-  refreshPhotoContext();
  }
  // Réutilisation exacte de l'indicateur OCR classique : une coche verte
  // apparaît dans le viseur lorsqu'une étiquette a été reconnue.
@@ -324,6 +321,7 @@
    labelAlert.classList.toggle('is-working',type==='working');
   }
   labelAlertText.textContent=message;
+  labelAlert.hidden=type==='idle'&&!message;
  }
  function duplicateForCurrent(){
   if(!proposal||typeof window.IUGeminiDuplicateInfo!=='function')return false;
@@ -332,23 +330,23 @@
   })?.duplicate===true;}catch(_){return false;}
  }
  function refreshLabelAlert(){
-  if(active){setLabelAlert('working','Analyse de la photo en cours…');return;}
+  if(active){setLabelAlert('working','Analyse…');return;}
   if(lastAnalysisError){setLabelAlert('warning',lastAnalysisError);return;}
   const raw=latestLabelFields?.weightGrams;
   if(!Number.isSafeInteger(raw)||raw<=0){
    if(lastReadProblem)setLabelAlert('warning','Lecture non validable · '+lastReadProblem);
    else if(latestLabelFields)setLabelAlert('warning','Poids non reconnu · relis cette photo');
-   else setLabelAlert('idle','Aucune pesée analysée');
+   else setLabelAlert('idle','');
    return;
   }
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const tare=ctx?.tareGrams;
   if(Number.isSafeInteger(tare)&&tare>=raw){
-   setLabelAlert('warning','Mauvais panier · tare supérieure ou égale au poids brut');
+   setLabelAlert('warning','Tare trop élevée · change de panier');
    return;
   }
   if(!Number.isSafeInteger(tare)||tare<0){
-   setLabelAlert('warning','Tare non disponible · choisis un panier');
+   setLabelAlert('warning','Choisis un panier');
    return;
   }
   if(lastReadProblem){
@@ -356,7 +354,7 @@
    return;
   }
   if(!proposal){
-   setLabelAlert('warning','Lecture incomplète · relis cette photo');
+   setLabelAlert('warning','Lecture incomplète · réessaie');
    return;
   }
   if(duplicateForCurrent()){
@@ -445,13 +443,11 @@
    resetDetectedIndicator();
   }
   refreshCaptureButton();
-  refreshPhotoContext();
   return canSave?corrected:null;
  }
  $('basketSelect')?.addEventListener('change',validationState);
  function clearPreview(){
   if(url){URL.revokeObjectURL(url);url=null;}
-  picture.hidden=true;picture.removeAttribute('src');
  }
  function resetReading(){
   freezeCameraPhoto(false);
@@ -493,7 +489,6 @@
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
   url=URL.createObjectURL(chosen);
-  picture.src=url;picture.hidden=false;
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
   showBlankLabel();networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
@@ -506,7 +501,8 @@
    // Une seule analyse par capture/import. Enregistrement toujours manuel.
    analyze.click();
   }else if(!pilotKey.value.trim()){
-   say('Photo prête. Configure la clé Gemini pour lancer l’analyse.',true);
+   setLabelAlert('warning','Configure la clé Gemini');
+   say('Configure la clé Gemini pour analyser la photo.',true);
   }else{
    say('Photo prête, analyse indisponible pour le moment.',true);
   }
@@ -856,62 +852,41 @@
  async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id){
   const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,
    mimeType:'image/jpeg',imageBase64:encoded});
-  // Ne pas multiplier les appels sur un résultat visuellement non exploitable.
-  // Une deuxième tentative n'est réservée qu'à une panne de transport brève.
-  const maxAttempts=2;
-  for(let attempt=1;attempt<=maxAttempts;attempt++){
-   if(signal.aborted||id!==generation)throw new DOMException('Analyse annulée','AbortError');
-   if(attempt>1)say('Service momentanément indisponible · nouvelle tentative '+attempt+'/'+maxAttempts+'…');
-   let response;
-   try{
-    response=await fetch(endpoint,{
-     method:'POST',signal,
-     headers:{'Content-Type':'application/json','X-IU-Pilot-Key':access},
-     body
-    });
-   }catch(error){
-    if(signal.aborted||id!==generation||error?.name==='AbortError')throw error;
-    // Échec de transport : une brève coupure Safari/Worker peut se résoudre.
-    if(attempt<maxAttempts&&error instanceof TypeError){
-     await waitGeminiBackoff(retryDelay(null,attempt),signal);
-     continue;
-    }
-    throw Error('Connexion au service indisponible. Vérifie le réseau puis réessaie.');
-   }
-   if(signal.aborted||id!==generation)throw new DOMException('Analyse annulée','AbortError');
-   let result;
-   try{result=await response.json()}catch(_){
-    if(attempt<maxAttempts&&[500,503,504].includes(response.status)){
-     await waitGeminiBackoff(retryDelay(response,attempt),signal);
-     continue;
-    }
-    throw Error('Réponse du service illisible (HTTP '+response.status+').');
-   }
-   if(response.ok)return result;
-   const status=response.status;
-   const providerError=String(result?.error||'');
-   // 502 peut être une lecture illisible, pas une panne réseau :
-   // les relances automatiques rendaient chaque échec très long.
-   const nonReadable=status===502&&
-    /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération/i.test(providerError);
-   const providerStatus=Number(result?.providerStatus);
-   const quotaBlocked=status===429||providerStatus===429;
-   const providerRejected=[400,401,403,404].includes(providerStatus);
-   const recoverable=[500,503,504].includes(status)||
-    (status===502&&!nonReadable&&!quotaBlocked&&!providerRejected);
-   if(recoverable&&attempt<maxAttempts){
-    await waitGeminiBackoff(retryDelay(response,attempt),signal);
-    continue;
-   }
-   if(status===401||status===403)throw Error('Accès Gemini refusé : vérifie les clés du Worker et de Gemini.');
-   if(status===429||quotaBlocked)throw Error('Quota Gemini atteint. Tu peux relancer cette photo plus tard.');
-   if(nonReadable){
-    throw Error('Gemini n’a pas fourni une lecture exploitable après plusieurs essais. Tu peux réessayer avec la même photo.');
-   }
-   if(recoverable)throw Error('Service Gemini temporairement indisponible après '+maxAttempts+' tentatives (HTTP '+status+').');
-   throw Error(String(result?.error||'Erreur du service Gemini (HTTP '+status+').').slice(0,140));
+  // Une seule requête par pression : HTTP 502 peut cacher un échec de
+  // lecture et ne doit jamais provoquer une deuxième analyse automatique.
+  if(signal.aborted||id!==generation)
+   throw new DOMException('Analyse annulée','AbortError');
+  let response;
+  try{
+   response=await fetch(endpoint,{
+    method:'POST',signal,
+    headers:{'Content-Type':'application/json','X-IU-Pilot-Key':access},
+    body
+   });
+  }catch(error){
+   if(signal.aborted||id!==generation||error?.name==='AbortError')throw error;
+   throw Error('Connexion interrompue · réessaie cette photo');
   }
-  throw Error('Analyse indisponible. Réessaie avec la même photo.');
+  if(signal.aborted||id!==generation)
+   throw new DOMException('Analyse annulée','AbortError');
+  let result;
+  try{result=await response.json()}
+  catch(_){throw Error('Réponse illisible du service · réessaie cette photo');}
+  if(response.ok)return result;
+  const status=response.status,providerStatus=Number(result?.providerStatus);
+  const diagnostic=String(result?.error||'');
+  const unreadable=status===422||
+   /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération|JSON non reconnu/i.test(diagnostic);
+  if(unreadable)throw Error('Étiquette non lue · réessaie cette photo');
+  if([401,403].includes(status)||[401,403].includes(providerStatus))
+   throw Error('Accès Gemini refusé · vérifie la clé');
+  if(status===429||providerStatus===429)
+   throw Error('Quota Gemini atteint · réessaie plus tard');
+  if(status===400||status===413)
+   throw Error('Photo non acceptée · reprends une photo');
+  if(status===404||providerStatus===404)
+   throw Error('Modèle Gemini indisponible');
+  throw Error('Service IA indisponible · réessaie cette photo');
  }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
@@ -940,9 +915,7 @@
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    const saveReady=Boolean(validationState());
-   say(saveReady
-    ?'Étiquette prête · vérifie, puis enregistre la pesée.'
-    :'Lecture à corriger · '+(lastReadProblem||'vérifie le panier et sa tare')+'.',!saveReady);
+   say(saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),!saveReady);
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
@@ -951,7 +924,7 @@
     attempts.delete(selectedModel);
     if(!proposal&&!output.querySelector('.iu-gemini-printed-label'))showBlankLabel();
     const reason=String(error?.message||'Échec réseau').slice(0,140);
-    lastAnalysisError='Analyse impossible · '+reason;
+    lastAnalysisError=reason;
     say(lastAnalysisError,true);
     updateCardState('error');
    }
@@ -1128,19 +1101,25 @@
  });
  nextWeigh?.addEventListener('click',()=>{
   if(active)return;
-  const correctedBefore=validationState();
-  if(!correctedBefore){
-   // Dans le flux rapide, le bouton sert à repartir sur une nouvelle photo
-   // lorsque l'ancienne ne peut pas être enregistrée.
-   resetReading();
-   if(cameraStream&&cameraMode==='auto')armAutoScanner(false);
-   if(!cameraStream)say('Prêt · ouvre le scanner et photographie la prochaine étiquette.');
-   else say('Prêt · photographie la prochaine étiquette.');
-   return;
-  }
   const corrected=validationState();
   if(!corrected){
-   say('Pesée non enregistrée : vérifie le poids brut et la tare du panier.',true);
+   if(needsBasketChange()){
+    setLabelAlert('warning','Tare trop élevée · change de panier');
+    if(geminiBasket){
+     geminiBasket.focus();
+     try{geminiBasket.showPicker?.();}catch(_){}
+    }
+    return;
+   }
+   if(file&&(lastReadProblem||lastAnalysisError||(!proposal&&latestLabelFields))){
+    if(!analyze.disabled)analyze.click();
+    else setLabelAlert('warning','Configure la clé Gemini');
+    return;
+   }
+   resetReading();
+   if(!cameraStream)void startCamera();
+   else if(cameraMode==='auto')armAutoScanner(false);
+   else capture?.focus();
    return;
   }
   if(typeof window.IUGeminiSaveWeigh!=='function'){
@@ -1154,9 +1133,8 @@
   if(saved?.ok){
    resetReading();
    if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
-   say(saved.duplicate
-    ?'Doublon volontaire enregistré · '+formatWeight(saved.net)+' net. Prêt pour la suivante.'
-    :'Pesée enregistrée · '+formatWeight(saved.net)+' net. Prêt pour la suivante.');
+   setLabelAlert('success','Pesée enregistrée');
+   say('Pesée enregistrée. Prêt pour la prochaine étiquette.');
   }else{
    refreshLabelAlert();
    say('Pesée non enregistrée : '+String(saved?.reason||'erreur de sauvegarde'),true);
