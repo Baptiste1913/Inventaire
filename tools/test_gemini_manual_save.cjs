@@ -19,10 +19,16 @@ assert(confirm.includes('window.IUGeminiSaveWeigh('),'La sauvegarde exige le cli
 assert(confirm.indexOf('validationState()')<confirm.indexOf('window.IUGeminiSaveWeigh('),'Recalculer la tare juste avant de sauvegarder');
 assert(confirm.includes('resetReading();'),'La prochaine lecture se prépare après validation');
 assert(js.includes("if(proposal&&!window.confirm("),'Ne pas écraser silencieusement une lecture non validée');
-assert(js.includes("copy.setAttribute('aria-label','Copier le poids brut"),'La copie porte sur le brut vérifié');
+assert(js.includes("copyNet?.addEventListener('click'")&&
+ html.includes('id="iuGeminiCopyNet"'),
+ 'Le bouton Copier de la carte classique copie le poids net calculé');
 assert(html.includes('Nouvelle pesée avec Gemini'),'Titre Gemini explicite');
-assert(html.includes('Poids brut à vérifier'),'Poids brut en grand');
-assert(html.includes('Poids net calculé'),'Poids net secondaire');
+assert(html.includes('Brut <strong id="iuGeminiGrossDisplay"')&&
+ html.includes('Tare <strong id="iuGeminiTareDisplay"'),
+ 'Le brut et la tare figurent dans la même carte');
+assert(html.includes('<span>Poids net</span>')&&
+ html.includes('<strong id="iuGeminiNetDisplay">—</strong>'),
+ 'Poids net en grand comme dans la pesée classique');
 assert(html.includes('id="iuGeminiNext"')&&html.includes('Valider<br>et suivante'),'Bouton unique de validation');
 assert(!html.includes('id="iuGeminiTransfer"'),'Ancien double parcours supprimé');
 assert(js.includes('iu-gemini-label-frame')&&!js.includes('iu-gemini-details'),'Étiquette miniature directement visible');

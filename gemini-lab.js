@@ -1,4 +1,4 @@
-/* Inventaires U 41.65 — carte Gemini compacte native, sans mode séparé.
+/* Inventaires U 41.66 — résultat classique prêt, caméra Gemini en continu.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -24,6 +24,11 @@
  const modeControl=$('iuGeminiModeCamera')?.closest('.iu-gemini-mode-control');
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
+ const resultGross=$('iuGeminiGrossDisplay'),resultTare=$('iuGeminiTareDisplay'),
+  resultNet=$('iuGeminiNetDisplay'),resultHint=$('iuGeminiResultHint'),
+  copyNet=$('iuGeminiCopyNet'),copyNetLabel=$('iuGeminiCopyNetLabel');
+ const productBar=$('iuGeminiProductBar'),productName=$('iuGeminiProductName'),
+  productRate=$('iuGeminiProductRate');
  // La carte reste compacte en permanence : seuls les états changent.
  function updateCardState(nextState){
   panel.dataset.scanState=nextState||(!output.hidden?'review':file?'working':'search');
@@ -58,6 +63,37 @@
    String(date.getMonth()+1).padStart(2,'0'),
    String(date.getFullYear())].join('.');
  };
+ // Le résultat reprend directement la carte de pesée classique.
+ // Il reste visible sans étiquette ; la tare suit le panier en cours.
+ function refreshResultCard(){
+  const context=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  const gross=latestLabelFields?.weightGrams,tare=context?.tareGrams;
+  const grossValid=Number.isSafeInteger(gross)&&gross>0;
+  const tareValid=Number.isSafeInteger(tare)&&tare>=0;
+  const net=grossValid&&tareValid&&gross>tare?gross-tare:null;
+  if(resultGross)resultGross.textContent=grossValid?formatWeight(gross):'— kg';
+  if(resultTare)resultTare.textContent=tareValid?formatWeight(tare):'— kg';
+  if(resultNet)resultNet.textContent=net===null?'—':(net/1000).toFixed(3).replace('.',',');
+  if(resultHint)resultHint.textContent=net!==null
+   ?'Vérifie le poids net et l’étiquette avant de valider.'
+   :grossValid?'Poids net indisponible : vérifie le panier et sa tare.'
+   :'Présente une étiquette pour calculer le poids net.';
+  if(copyNet){
+   copyNet.disabled=net===null;
+   copyNet.dataset.grams=net===null?'':String(net);
+  }
+  return net;
+ }
+ copyNet?.addEventListener('click',async()=>{
+  const grams=Number(copyNet.dataset.grams);
+  if(copyNet.disabled||!Number.isSafeInteger(grams)||grams<=0)return;
+  try{
+   await navigator.clipboard.writeText((grams/1000).toFixed(3));
+   if(copyNetLabel)copyNetLabel.textContent='Copié';
+   setTimeout(()=>{if(copyNetLabel)copyNetLabel.textContent='Copier';},1100);
+  }catch(_){say('Impossible de copier sur cet appareil.',true);}
+ });
+ refreshResultCard();
  function updateButton(){
   analyze.hidden=!file;
   analyze.disabled=!file||!pilotKey.value.trim()||active||attempts.has(fixedModel);
@@ -80,24 +116,13 @@
   return {name,grams,rate,total,ean:f.ean13};
  }
  function refreshCorrectedLabel(){
+  refreshResultCard();
   if(!latestLabelFields)return;
   const fields=latestLabelFields;
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const tare=ctx?.tareGrams,gross=fields.weightGrams;
   const corrected=recodeAfterTare(fields.ean13,gross,tare,fields.pricePerKgCents);
   const net=Number.isSafeInteger(gross)&&Number.isSafeInteger(tare)&&gross>tare?gross-tare:null;
-  const grossEl=output.querySelector('.iu-gemini-quick-gross-value');
-  const netEl=output.querySelector('.iu-gemini-quick-net-value');
-  const tareEl=output.querySelector('.iu-gemini-quick-tare');
-  if(grossEl)grossEl.textContent=Number.isSafeInteger(gross)?(gross/1000).toFixed(3).replace('.',','):'—';
-  if(netEl)netEl.textContent=net===null?'—':formatWeight(net);
-  if(tareEl)tareEl.textContent=formatWeight(tare);
-  const compactGross=output.querySelector('.iu-gemini-focus-gross-value');
-  const compactTare=output.querySelector('.iu-gemini-focus-tare-value');
-  const compactNet=output.querySelector('.iu-gemini-focus-net-value');
-  if(compactGross)compactGross.textContent=formatWeight(gross);
-  if(compactTare)compactTare.textContent=formatWeight(tare);
-  if(compactNet)compactNet.textContent=net===null?'—':formatWeight(net);
   const label=output.querySelector('.iu-gemini-printed-label');
   if(!label)return;
   const weight=label.querySelector('.iu-gemini-label-gross .iu-gemini-label-number');
@@ -147,6 +172,10 @@
   output.hidden=true;output.replaceChildren();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
   if(emptyResult)emptyResult.hidden=false;
+  if(productBar)productBar.hidden=true;
+  if(productName)productName.textContent='';
+  if(productRate)productRate.textContent='';
+  refreshResultCard();
   clearPreview();capture.disabled=false;updateButton();
   updateCardState('search');
   say('');
@@ -168,7 +197,9 @@
   picture.src=url;picture.hidden=false;
   output.hidden=true;networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
+  if(productBar)productBar.hidden=true;
   if(grossPreview)grossPreview.value='';
+  refreshResultCard();
   updateCardState('working');
   updateButton();
   if(!analyze.disabled){
@@ -435,55 +466,13 @@
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
-  // La vue scanner montre l'article et les trois poids sans répétition.
-  // L'étiquette virtuelle complète est toujours visible juste en dessous.
-  const focusSummary=add(output,'div','iu-gemini-focus-summary','');
-  focusSummary.setAttribute('role','group');
-  focusSummary.setAttribute('aria-label','Article et poids reconnus par Gemini');
-  const focusTitle=add(focusSummary,'div','iu-gemini-focus-product','');
-  add(focusTitle,'strong','iu-gemini-focus-name',name);
-  add(focusTitle,'span','iu-gemini-focus-price-per-kg',
-   Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'Prix non reconnu');
-  const focusMetrics=add(focusSummary,'div','iu-gemini-focus-metrics','');
-  const addMetric=(caption,value,className)=>{
-   const metric=add(focusMetrics,'div','iu-gemini-focus-metric','');
-   add(metric,'span','iu-gemini-focus-metric-caption',caption);
-   add(metric,'strong','iu-gemini-focus-metric-value '+className,value);
-  };
-  addMetric('Brut',formatWeight(gross),'iu-gemini-focus-gross-value');
-  addMetric('Tare',formatWeight(tare),'iu-gemini-focus-tare-value');
-  addMetric('Net',netValid?formatWeight(net):'—','iu-gemini-focus-net-value');
-  // Le résultat de taille classique est conservé hors du mode scanner.
-  // Résultat prioritaire : poids lu en grand, net calculé en petit, tare visible.
-  // Même composant de résultat que la pesée classique : structure et classes partagées.
-  const glow=add(output,'div','iu-result-glow-shell','');
-  const lights=add(glow,'div','iu-result-glow-field','');
-  lights.setAttribute('aria-hidden','true');
-  for(const color of ['red','blue','green'])add(lights,'span','iu-home-glow-orb iu-home-glow-'+color,'');
-  const quick=add(glow,'div','result iu-result-compact','');
-  const waves=add(quick,'div','iu-result-light-field iu-welcome-dot-wave','');
-  waves.setAttribute('aria-hidden','true');
-  add(waves,'i','','');add(waves,'i','','');
-  const weights=add(quick,'div','iu-result-weights','');
-  const netWeight=add(weights,'span','','Poids net calculé ');
-  add(netWeight,'strong','iu-gemini-quick-net-value',netValid?formatWeight(net):'—');
-  const tareWeight=add(weights,'span','','Tare ');
-  add(tareWeight,'strong','iu-gemini-quick-tare',formatWeight(tare));
-  const heading=add(quick,'div','result-heading','');
-  add(heading,'span','','Poids brut à vérifier');
-  const copy=add(heading,'button','copy-btn iu-gemini-copy','');
-  copy.type='button';copy.disabled=!Number.isSafeInteger(gross)||gross<=0;
-  copy.setAttribute('aria-label','Copier le poids brut lu par Gemini');
-  copy.innerHTML='<svg class="copy-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8h2"/></svg><svg class="copy-btn-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Copier</span>';
-  copy.addEventListener('click',async()=>{
-   if(!Number.isSafeInteger(gross)||gross<=0)return;
-   try{await navigator.clipboard.writeText((gross/1000).toFixed(3));say('Poids brut copié.');}
-   catch{say('Impossible de copier sur cet appareil.',true);}
-  });
-  const netLine=add(quick,'div','net-line','');
-  add(netLine,'strong','iu-gemini-quick-gross-value',Number.isSafeInteger(gross)?(gross/1000).toFixed(3).replace('.',','):'—');
-  add(netLine,'span','','kg');
-  add(quick,'p','result-subtitle','Poids lu sur l’étiquette, panière comprise.');
+  // Le résultat permanent au-dessus de l'étiquette est exactement
+  // celui de la pesée classique : Brut, Tare et Net dans une seule carte.
+  if(productBar)productBar.hidden=false;
+  if(productName)productName.textContent=name;
+  if(productRate)productRate.textContent=
+   Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'Prix non reconnu';
+  refreshResultCard();
   const signal=add(output,'p','iu-gemini-result-signal'+(ready?' is-ready':' is-warning'),
    verified.error?'Enregistrement bloqué · '+verified.error
    :!netValid?'Enregistrement bloqué · la tare dépasse le poids lu.'
@@ -494,7 +483,7 @@
   frame.append(label);
   add(frame,'p','iu-gemini-label-frame-caption','Aperçu simulé · EAN non vérifié sur Zebra');
   output.hidden=false;
-  if(emptyResult)emptyResult.hidden=true;
+  if(emptyResult)emptyResult.hidden=false;
   proposal=ready?verified:null;
   updateCardState(proposal?'review':'retry');
   if(!proposal)resetProposal();
@@ -595,6 +584,18 @@
   shortcut?.setAttribute('aria-expanded','false');
   refreshTorch();
  }
+ // Comme le scanner OCR classique, demander la mise au point continue
+ // uniquement lorsqu'elle est officiellement prise en charge par le capteur.
+ // Un échec de contrainte ne doit jamais interrompre la caméra.
+ function requestContinuousFocus(source){
+  try{
+   const track=source?.getVideoTracks?.()[0];
+   if(!track?.getCapabilities||!track.applyConstraints)return;
+   const caps=track.getCapabilities();
+   if(!Array.isArray(caps?.focusMode)||!caps.focusMode.includes('continuous'))return;
+   void track.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
+  }catch(_){}
+ }
  async function startCamera(){
   if(cameraStarting||active)return;
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
@@ -639,6 +640,15 @@
    }
    cameraStream=obtained;
    cameraPausedInBackground=false;
+   requestContinuousFocus(obtained);
+   const liveTrack=obtained.getVideoTracks?.()[0];
+   liveTrack?.addEventListener('ended',()=>{
+    if(cameraStream!==obtained||cameraShell.hidden||document.hidden)return;
+    clearAutoTimer();
+    autoLocked=true;
+    setAutoHint('Caméra interrompue · touche Scanner pour reprendre','error');
+    say('La caméra a été interrompue. Touche Scanner pour la rouvrir.',true);
+   },{once:true});
    video.srcObject=obtained;
    cameraShell.hidden=false;cameraShell.dataset.state='scanning';openCamera.hidden=true;
    shortcut?.setAttribute('aria-pressed','true');

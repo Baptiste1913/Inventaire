@@ -1,8 +1,7 @@
 'use strict';
-// v41.65 — Le scanner compact est la carte Gemini elle-même, pas un mode
-// séparé. Reconnaissance et validation manuelle ne doivent pas régresser.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
 const js=fs.readFileSync('gemini-lab.js','utf8');
 const css=fs.readFileSync('gemini-lab.css','utf8');
@@ -10,74 +9,117 @@ const sw=fs.readFileSync('sw.js','utf8');
 const version=JSON.parse(fs.readFileSync('version.json','utf8')).version;
 
 assert(html.includes('<section id="iuGeminiLab" class="card calc-card iu-gemini-standalone"'),
- 'Le scanner reste le bloc Gemini de la page d’accueil');
-assert(html.includes('Nouvelle pesée avec Gemini'),'Le titre d’origine est conservé');
-assert(!html.includes('id="iuGeminiFocusExit"')&&
- !html.includes('class="iu-gemini-focus-heading"'),
- 'Plus de bouton retour ni de titre de sous-page');
-assert(html.includes('iu-gemini-star-badge iu-gemini-title-badge'),
- 'Pastille Gemini toujours visible');
-assert(html.includes('gemini-lab.js?v='+version)&&html.includes('gemini-lab.css?v='+version),
- 'Cache-busting des scripts dans la page');
-assert(sw.includes('gemini-lab.js?v='+version)&&sw.includes('gemini-lab.css?v='+version),
- 'Cache-busting cohérent dans le Service Worker');
+ 'La carte Gemini reste sur la page d’accueil');
+assert(html.includes('Nouvelle pesée avec Gemini')&&
+ html.includes('iu-gemini-star-badge iu-gemini-title-badge'),
+ 'Titre et pastille Gemini inchangés');
+assert(html.includes('gemini-lab.js?v='+version)&&html.includes('gemini-lab.css?v='+version)&&
+ sw.includes('gemini-lab.js?v='+version)&&sw.includes('gemini-lab.css?v='+version),
+ 'HTML et service worker rechargent cette version');
 
-assert(!js.includes("document.body.classList.add('iu-gemini-focus')")&&
- !js.includes('function enterFocus()')&&!js.includes('function leaveFocus()'),
- 'Aucune activation d’un mode d’affichage à chaque scan');
-assert(!js.includes('focusActive'),'Aucun état artificiel de mode');
-assert(js.includes('function updateCardState(nextState)')&&
- js.includes('panel.dataset.scanState='),
- 'Les étapes recherche, analyse et résultat sont internes au bloc');
-assert(js.includes("updateCardState('search')")&&
- js.includes("updateCardState('working')")&&
- js.includes("updateCardState(proposal?'review':'retry')"),
- 'L’état de la carte reste cohérent avant et après chaque lecture');
-assert(js.includes('function scannerCardVisible()')&&
- js.includes('panel.getClientRects().length>0'),
- 'Le scanner auto ne tourne pas quand le bloc est masqué');
-assert(js.includes("nextWeigh?.addEventListener('click'")&&
- js.includes('window.IUGeminiSaveWeigh('),
- 'L’enregistrement reste lié au vrai bouton Valider et suivante');
-assert(!js.includes("nextWeigh?.scrollIntoView")&&
- !js.includes("panel.scrollIntoView")&&
- !js.includes("cameraShell.scrollIntoView"),
- 'Aucun défilement automatique introduit par le scanner');
+const classic=html.slice(html.indexOf('<div aria-live="polite" class="result iu-result-compact">'));
+const gemini=html.slice(html.indexOf('<div id="iuGeminiEmptyResult"'),
+ html.indexOf('<div id="iuGeminiLabOutput"'));
+for(const phrase of ['iu-result-glow-shell','iu-result-glow-field',
+ 'result iu-result-compact','iu-result-light-field iu-welcome-dot-wave',
+ 'iu-result-weights','result-heading','net-line','result-subtitle','copy-btn']){
+ assert(classic.includes(phrase),'Référence classique manquante : '+phrase);
+ assert(gemini.includes(phrase),'Même composant visuel Gemini manquant : '+phrase);
+}
+assert(gemini.includes('Brut <strong id="iuGeminiGrossDisplay">— kg</strong>')&&
+ gemini.includes('Tare <strong id="iuGeminiTareDisplay">— kg</strong>')&&
+ gemini.includes('<span>Poids net</span>')&&
+ gemini.includes('<strong id="iuGeminiNetDisplay">—</strong>'),
+ 'Brut, tare et net sont dans un seul bloc présent dès le chargement');
+assert(!gemini.includes('aria-hidden="true" class="iu-gemini-empty-result"'),
+ 'Le résultat initial ne doit plus être masqué aux lecteurs d’écran');
+const product=html.slice(html.indexOf('id="iuGeminiProductBar"'),
+ html.indexOf('<div class="iu-weigh-entry iu-gemini-weigh-entry">'));
+assert(product.includes('hidden')&&product.includes('iuGeminiProductName'),
+ 'Article affiché seulement après reconnaissance');
+assert(html.includes('<div id="iuGeminiLabOutput" class="iu-gemini-lab-result" hidden>'),
+ 'L’étiquette DIGI ne doit pas être visible avant l’analyse');
+
 const displayStart=js.indexOf('function display(result,wallMs){');
 const displayEnd=js.indexOf("analyze.addEventListener('click'",displayStart);
 const display=js.slice(displayStart,displayEnd);
-assert(display.includes("addMetric('Brut'")&&
- display.includes("addMetric('Tare'")&&display.includes("addMetric('Net'"),
- 'Le brut, la tare et le net restent réunis dans une ligne compacte');
-assert(display.includes("frame.append(label)")&&display.includes('output.hidden=false'),
- 'L’étiquette DIGI complète apparaît automatiquement, sans clic');
+assert(display.includes('frame.append(label)')&&display.includes('output.hidden=false'),
+ 'L’étiquette reconstituée s’affiche automatiquement');
+assert(!display.includes("add(output,'div','iu-result-glow-shell'")&&
+ !display.includes("add(output,'div','iu-gemini-focus-summary'"),
+ 'Aucun deuxième résultat de poids ajouté après reconnaissance');
+assert(display.includes('refreshResultCard()')&&display.includes('productBar.hidden=false'),
+ 'Le résultat unique et le nom de l’article sont renseignés lors d’une lecture');
+assert(js.includes('function refreshResultCard()')&&
+ js.includes('function refreshCorrectedLabel(){\n  refreshResultCard();'),
+ 'Le changement de panier recalcule brut, tare, net et étiquette');
+assert(js.includes('if(productBar)productBar.hidden=true')&&
+ js.includes("updateCardState('search')"),
+ 'Le bouton Suivante rétablit l’affichage de départ sans l’étiquette');
+assert(js.includes("nextWeigh?.addEventListener('click'")&&
+ js.includes('window.IUGeminiSaveWeigh('),
+ 'Seule la validation explicite enregistre une pesée');
+assert(js.includes('if(cameraStream&&cameraMode===\'auto\')armAutoScanner(true)'),
+ 'Après validation, le scanner se réarme sur le même flux vidéo');
+assert(js.includes('autoNeedsChange=Boolean(autoChangeReference)')&&
+ js.includes('autoStableCount>=4&&now-autoStableSince>=650'),
+ 'Changement de scène et stabilité empêchent les doublons automatiques');
+assert(js.includes("track?.readyState==='live'")&&js.includes('video.srcObject=cameraStream;'),
+ 'Une caméra déjà autorisée est réutilisée, sans rouvrir la permission');
+assert(js.includes('function requestContinuousFocus(source)')&&
+ js.includes("caps.focusMode.includes('continuous')")&&
+ js.includes("requestContinuousFocus(obtained)"),
+ 'La mise au point continue est demandée si disponible comme dans l’OCR classique');
+assert(!js.includes('focusActive')&&!js.includes("document.body.classList.add('iu-gemini-focus')"),
+ 'Aucun écran spécial ou mode de pesée introduit');
+assert(!js.includes('nextWeigh?.scrollIntoView')&&!js.includes('panel.scrollIntoView'),
+ 'Pas de défilement automatique à chaque pesée');
 
-const marker='/* v41.65 — Le bloc Gemini est nativement compact';
-const index=css.indexOf(marker);
-assert(index>0,'Les styles compacts font partie de la carte permanente');
-const compact=css.slice(index);
-assert(!compact.includes('body.iu-gemini-focus')&&
- !css.includes('html body.iu-gemini-focus'),
- 'Les styles ne dépendent plus d’une classe sur la page');
-assert(!compact.includes('height:100dvh!important')&&
- !compact.includes('position:fixed!important'),
- 'La carte ne se substitue plus à la page entière');
-assert(!compact.includes('#iuQuickDock.iu-quick-dock {\n display:none!important'),
- 'Le dock principal de l’accueil reste disponible');
-assert(compact.includes('min-height:36px!important;')&&
- compact.includes('font-size:12px!important;'),
- 'Les chiffres et les blocs Brut/Tare/Net sont moins hauts');
-assert(compact.includes('#iuGeminiLabOutput > .iu-result-glow-shell')&&
- compact.includes('display:none!important;'),
- 'Le grand panneau de poids redondant est masqué');
-assert(compact.includes('width:min(100%,310px)!important;')&&
- compact.includes('aspect-ratio:1372/1088!important;'),
- 'L’étiquette reste visible et proportionnée');
-assert(compact.includes('height:46px!important;')&&
- compact.includes('.iu-gemini-weigh-entry'),
- 'Le bouton Valider est raccourci et placé sous l’étiquette');
-assert(compact.includes('order:3!important;')&&
- compact.includes('#iuGeminiOptions'),'Les options Gemini restent accessibles');
-assert(compact.includes('scroll-margin-bottom:calc('),
- 'Un espace évite que le dock recouvre la validation');
-console.log('Scanner Gemini natif : bloc permanent, pas de mode, étiquette et validation préservées.');
+const cssStart=css.indexOf('/* v41.65 — Le bloc Gemini est nativement compact');
+const relevant=css.slice(cssStart);
+assert(cssStart>0&&relevant.includes('/* v41.66 — Même composant résultat'),
+ 'Mise en page intégrée à la carte Gemini');
+assert(relevant.includes('#iuGeminiEmptyResult {\n display:block!important;'),
+ 'Le résultat commun est visible avant le premier scan');
+assert(relevant.includes('#iuGeminiProductBar[hidden]')&&
+ relevant.includes('display:none!important;'),
+ 'Le nom d’article disparaît bien après validation');
+assert(!relevant.includes('body.iu-gemini-focus')&&
+ !relevant.includes('position:fixed!important'),
+ 'Pas de plein écran ni de mode artificiel');
+assert(relevant.includes('order:1!important;')&&relevant.includes('order:2!important;'),
+ 'L’étiquette complète précède le vrai bouton Valider');
+assert(relevant.includes('width:min(100%,310px)!important;')&&
+ relevant.includes('aspect-ratio:1372/1088!important;'),
+ 'Proportions de l’étiquette DIGI et du code-barres conservées');
+assert(relevant.includes('order:3!important;')&&
+ relevant.includes('#iuGeminiOptions'), 'Options Gemini toujours accessibles');
+
+// Vérification calculatoire sans appel réseau ni caméra.
+const a=js.indexOf('function refreshResultCard(){');
+const b=js.indexOf("copyNet?.addEventListener('click'",a);
+assert(a>0&&b>a,'Fonction d’affichage de poids isolable');
+const nodes=Object.fromEntries(['gross','tare','net','hint','copy'].map(n=>[n,{textContent:'',disabled:true,dataset:{}}]));
+const context={window:{IUWeighScanContext:()=>({tareGrams:554})},
+ latestLabelFields:null,
+ resultGross:nodes.gross,resultTare:nodes.tare,resultNet:nodes.net,
+ resultHint:nodes.hint,copyNet:nodes.copy,
+ formatWeight:g=>(g/1000).toFixed(3).replace('.',',')+' kg',
+ Number};
+const refresh=vm.runInNewContext(js.slice(a,b)+';refreshResultCard',context);
+assert.equal(refresh(),null,'Sans photo le résultat net est indéfini');
+assert.equal(nodes.gross.textContent,'— kg');
+assert.equal(nodes.tare.textContent,'0,554 kg');
+assert.equal(nodes.net.textContent,'—');
+assert.equal(nodes.copy.disabled,true);
+context.latestLabelFields={weightGrams:1058};
+assert.equal(refresh(),504,'1,058 brut - 0,554 tare = 0,504 net');
+assert.equal(nodes.gross.textContent,'1,058 kg');
+assert.equal(nodes.net.textContent,'0,504');
+assert.equal(nodes.copy.disabled,false);
+context.window.IUWeighScanContext=()=>({tareGrams:700});
+assert.equal(refresh(),358,'Le changement de tare recalcule le net sans photographie');
+context.latestLabelFields=null;
+assert.equal(refresh(),null,'Nouvelle pesée réinitialise la carte');
+assert.equal(nodes.net.textContent,'—');
+console.log('Gemini : résultat classique permanent, copie du net, recalcul de tare et scanner continu vérifiés.');
