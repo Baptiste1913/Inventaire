@@ -596,5 +596,27 @@ assert(badgeV4210.includes('> #iuGeminiDetected.iu-weigh-scan-detected-indicator
  badgeV4210.includes('visibility:hidden!important')&&
  badgeV4210.includes('[data-state="idle"] .iu-gemini-camera-stage.iu-weigh-scan-camera'),
  'Masquage de priorité identique au display:flex initial');
+// v42.11 : chemin réseau préparé, OCR prêt, encodeur asynchrone.
+assert(js.includes('function warmGeminiConnection()')&&
+ js.includes("hint.rel='preconnect'")&&
+ js.includes("hint.href=new URL(endpoint).origin")&&
+ js.includes('warmGeminiConnection();')&&
+ js.includes('if(localReader)void ensureLocalOcr();'),
+ 'DNS/TLS et moteur local préparés à l’ouverture caméra / import');
+assert(js.includes('let photoDecodeCache=new WeakMap();')&&
+ js.includes('const cached=photoDecodeCache.get(source);')&&
+ js.includes('photoDecodeCache.set(source,pending);')&&
+ js.includes('photoDecodeCache=new WeakMap();'),
+ 'Partage du décodage avec nettoyage au changement de photo');
+assert(js.includes("canvas.toBlob(blob=>blob?resolve(blob):reject(Error('JPEG indisponible'))")&&
+ js.includes('const maxJpegBytes=Math.floor(maxBase64*3/4)')&&
+ js.includes('for(const side of [2400,2200,1920,1700,1500])')&&
+ js.includes('for(const quality of [.93,.87,.81,.75])'),
+ 'JPEG asynchrone sans diminuer qualité/résolution ni augmenter le payload');
+assert(js.includes('const independent=independentLocalReadingFor(file)')&&
+ js.includes('const local=await localCheckWithin(independent,2200)')&&
+ js.includes('eanCheck(ean.slice(0,12))!==ean[12]')&&
+ js.includes("nextWeigh?.addEventListener('click',()=>{"),
+ 'Tous contrôles métiers et validation manuelle conservés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.10 : témoin vert et coche affinée, réellement cachée avant lecture OK.');
+console.log('Gemini v42.11 : préconnexion, OCR anticipé, décompression unique et JPEG asynchrone OK.');
