@@ -4533,3 +4533,91 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   box-shadow:none!important;
  }
 }
+
+/* v41.99 — capture dans la colonne Fermer / Flash de la caméra.
+   Même bouton et même style que Fermer : 32px, rayon 11px,
+   exactement les mêmes bord, fond, ombre, couleur, icône centrée
+   et écart de 5px dans l'en-tête. Aucun positionnement indépendant.
+   L'élément est DANS le header, donc masqué quand la caméra est idle. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > button#iuGeminiCapture.iu-weigh-scan-close.iu-gemini-shutter {
+ -webkit-appearance:none!important;
+ appearance:none!important;
+ position:relative!important;
+ inset:auto!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ flex:0 0 32px!important;
+ width:32px!important;
+ min-width:32px!important;
+ max-width:32px!important;
+ height:32px!important;
+ min-height:32px!important;
+ max-height:32px!important;
+ margin:0!important;
+ padding:0!important;
+ border:1px solid rgba(255,255,255,.86)!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#f9fbfc,#e8eff4)!important;
+ color:#465e6b!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94),2px 3px 9px rgba(27,43,52,.19)!important;
+ font-size:0!important;
+ line-height:1!important;
+ opacity:1!important;
+ filter:none!important;
+ transform:none!important;
+ pointer-events:auto!important;
+ touch-action:manipulation!important;
+ cursor:pointer!important;
+ -webkit-tap-highlight-color:transparent!important;
+ transition:transform .17s ease,box-shadow .22s ease,opacity .22s ease!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > button#iuGeminiCapture.iu-gemini-shutter > svg {
+ display:block!important;
+ flex:0 0 15px!important;
+ width:15px!important;
+ height:15px!important;
+ min-width:15px!important;
+ min-height:15px!important;
+ max-width:15px!important;
+ max-height:15px!important;
+ stroke:currentColor!important;
+ pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > button#iuGeminiCapture.iu-gemini-shutter:active:not(:disabled) {
+ transform:scale(.94)!important;
+ box-shadow:inset 1px 2px 5px rgba(46,65,82,.18),
+  inset -1px -1px 2px rgba(255,255,255,.94)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > button#iuGeminiCapture.iu-gemini-shutter:focus-visible {
+ outline:2px solid #318cd0!important;
+ outline-offset:2px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > button#iuGeminiCapture.iu-gemini-shutter:disabled {
+ display:flex!important;
+ opacity:.56!important;
+ filter:none!important;
+ cursor:not-allowed!important;
+ transform:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > button#iuGeminiCapture.iu-gemini-shutter {
+  transition:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > button#iuGeminiCapture.iu-gemini-shutter {
+  background:ButtonFace!important;
+  color:ButtonText!important;
+  border:1px solid ButtonText!important;
+  box-shadow:none!important;
+ }
+}
