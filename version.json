@@ -1,6 +1,6 @@
 {
-  "version": "41.84",
+  "version": "41.85",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Gabarit caméra DIGI : contour du code-barres aligné sur la hauteur et le bas du prix à payer ; contours prix unitaire, poids net et date réduits de 33 % ; contour du libellé produit réduit de 15 %. Zones conservées centrées, repères transparents, caméra, OCR, flash et pesées inchangés."
+  "notes": "Viseur Gemini pleine largeur : suppression du format vidéo très panoramique qui laissait de grandes bandes latérales autour du gabarit DIGI. Fenêtre calée sur le ratio réel 1372/1088, étendue jusqu'aux bords internes du bloc et flux vidéo recadré avec object-fit:cover sans étirement. Les sept zones, l'OCR, les captures et le flash sont conservés."
 }
