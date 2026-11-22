@@ -1,4 +1,4 @@
-/* Inventaires U 42.19 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.20 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -243,6 +243,12 @@
    !cameraShell.hidden&&!panel.hidden);
   if(!canResume){
    cameraShell.dataset.state='idle';
+   // Safari peut terminer une piste quand elle est momentanément coupée.
+   // Rouvrir dans ce cas seulement, sans affecter la fermeture volontaire.
+   if(resume&&wasLive&&cameraStream&&track?.readyState!=='live'&&
+      !document.hidden&&!panel.hidden){
+    void startCamera();
+   }
    return;
   }
   if(document.hidden){
@@ -1615,6 +1621,7 @@
     return;
    }
    track.enabled=true;
+   cameraShell.dataset.state='scanning';
    video.srcObject=cameraStream;
    Promise.resolve(video.play()).then(()=>{
     if(cameraMode==='auto'&&!autoLocked&&!autoSuspended&&
