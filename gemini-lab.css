@@ -5322,3 +5322,41 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  min-height:32px!important;font-size:11px!important;
  border-radius:10px!important;box-shadow:none!important;
 }
+
+/* v42.19 — viseur réellement fermé pendant l'analyse (piste vidéo
+   désactivée), avec l'apparence exacte de l'état initial. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell[data-state="analyzing"]
+ .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle {
+ display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;
+ font-size:16px!important;font-weight:800!important;
+ opacity:1!important;filter:none!important;
+ pointer-events:none!important;cursor:default!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell[data-state="analyzing"]
+ .iu-gemini-camera-stage > video#iuGeminiVideo {
+ opacity:0!important;visibility:hidden!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell[data-state="analyzing"]
+ .iu-gemini-camera-stage > #iuGeminiCameraStill,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell[data-state="analyzing"]
+ .iu-gemini-camera-stage > #iuGeminiCapture,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell[data-state="analyzing"]
+ .iu-gemini-camera-header,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell[data-state="analyzing"]
+ .iu-gemini-camera-exact-guide {
+ display:none!important;
+}
+/* Correction du badge Analyse visible au repos : la règle [hidden]
+   doit rester prioritaire sur le display:flex de v42.18. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiFrameState.iu-gemini-frame-state[hidden] {
+ display:none!important;visibility:hidden!important;
+}
