@@ -227,7 +227,7 @@ assert(js.includes("let cameraMode='manual',autoTimer=0")&&
  !js.includes("autoToggle?.addEventListener('change'"),
  'Préférence Auto historique ignorée et capture manuelle forcée');
 assert(js.includes("capture.addEventListener('click',async()=>{")&&
- js.includes('const used=setPhoto(new File([blob]')&&js.includes('if(!analyze.disabled){'),
+ js.includes('const used=setPhoto(nextPhoto,{confirmed:true});')&&js.includes('if(!analyze.disabled){'),
  'La prise de photo et l’analyse restent déclenchées volontairement');
 const cloudCss=css.slice(css.indexOf('/* v41.91 — Cloudflare'));
 assert(cloudCss.length>1700&&cloudCss.includes('margin-bottom:20px!important')&&
@@ -531,7 +531,7 @@ assert(js.includes('const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-tota
  js.includes('eanCheck(ean.slice(0,12))!==ean[12]'),
  'Vérifications prix et EAN non diminuées');
 assert(js.includes("setLabelAlert('success','étiquette prête');")&&
- js.includes("setLabelAlert('warning','Cette étiquette a déjà été enregistrée');")&&
+ js.includes("setLabelAlert('warning','Doublon détecté · confirme ou ignore');")&&
  js.includes("dateValue.title='Date du jour — non reconnue sur la photo'"),
  'Textes récents et date d’emballage virtuelle conservés');
 // v42.09 — indications entre brut et étiquette, duplicata exact, cohérence visuelle.
@@ -542,7 +542,7 @@ assert(grossPos>0&&grossPos<alertPos&&alertPos<virtualPos&&
  (section.match(/id="iuGeminiLabelAlert"/g)||[]).length===1&&
  section.includes('id="iuGeminiLabelAlertText"'),
  'Le statut accessible est bien placé entre le brut et l’étiquette virtuelle');
-assert(js.includes("setLabelAlert('warning','Cette étiquette a déjà été enregistrée');")&&
+assert(js.includes("setLabelAlert('warning','Doublon détecté · confirme ou ignore');")&&
  !js.includes('tu peux la valider à nouveau'),
  'Message de doublon remplacé exactement');
 const geminiVisuals=css.slice(css.indexOf('/* v42.09 — Indications'));
@@ -623,12 +623,13 @@ assert(html.includes('gemini-lab.js?v='+version)&&
  !js.includes('imageEncoderWorker'), 'Cache PWA avec lecteur stable');
 assert(js.includes('function hasSavableProposal(){')&&
  js.includes('const locked=Boolean(frameCaptureBusy||(!active&&localOcrBusy));')&&
- js.includes('if(hasSavableProposal()&&performance.now()>retakeConfirmUntil')&&
- js.includes('if(proposal||latestLabelFields||file)resetReading();')&&
+ js.includes('const priorWasSavable=Boolean(correctedCurrentProposal());')&&
+ js.includes('const nextPhoto=new File([blob]')&&
+ js.includes('if(priorWasSavable){')&&
  js.includes('generation++;abort?.abort();abort=null;active=false;file=null;'),
  'Correction du blocage de la reprise avec tare invalide préservée');
 assert(js.includes("nextWeigh?.addEventListener('click',()=>{")&&
- js.includes('const canSave=Boolean(corrected)&&!active&&!duplicateForCurrent();')&&
+ js.includes('const canSave=Boolean(corrected)&&!active;')&&
  js.includes('const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;'),
  'Contrôle métier et validation manuelle préservés');
 // v42.17 — capture réelle, échec relançable et validation bloquée.
@@ -641,10 +642,10 @@ assert(js.includes('setAnalysisCameraClosed(true);')&&js.includes('setAnalysisCa
  js.includes('lastReadProblem=verified.error||null;')&&
  js.includes('const unreadable=status===422||')&&
  !js.includes('window.confirm('),'Erreurs précises et pas de pop-up bloquante');
-assert(js.includes("const caption=canSave?'Enregistrer'")&&
+assert(js.includes("const caption=active?'Analyse…':duplicate?'Confirmer doublon'")&&
  js.includes("if(digits)digits.textContent=labelReady?corrected.ean:'CODE EN ATTENTE';")&&
  js.includes('else bars.replaceChildren();')&&
- js.includes('const canSave=Boolean(corrected)&&!active&&!duplicateForCurrent();'),
+ js.includes('const canSave=Boolean(corrected)&&!active;'),
  'Bouton explicite et absence de code-barres fictif en cas de tare incorrecte');
 assert(css.includes('/* v42.18 — parcours rapide')&&
  css.includes('> #iuGeminiAnalyze,')&&
@@ -663,8 +664,8 @@ assert(js.includes('function needsBasketChange(){')&&
  js.includes("needsBasketChange()?'Changer panier'")&&
  js.includes("if(file&&(lastReadProblem||lastAnalysisError||(!proposal&&latestLabelFields)))"),
  'Corriger la tare sans nouvelle analyse ou relire la photo en échec');
-assert(js.includes("setLabelAlert('success','Pesée enregistrée');")&&
- js.includes('const canSave=Boolean(corrected)&&!active&&!duplicateForCurrent();')&&
+assert(js.includes("setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');")&&
+ js.includes('const canSave=Boolean(corrected)&&!active;')&&
  js.includes('if(labelReady)renderEanBars(bars,corrected.ean);')&&
  js.includes('else bars.replaceChildren();'),
  'Enregistrement volontaire et code-barres après validation');
@@ -690,4 +691,31 @@ assert(js.includes("cameraShell.dataset.state='scanning';\n   video.srcObject=ca
  js.includes("void startCamera();")&&
  js.includes('if(resume&&wasLive&&cameraStream&&track?.readyState!=='),
  'Reprise Safari après arrière-plan et piste terminée');
-console.log('Gemini v42.20 : guides plus petits et caméra fermée uniquement durant analyse, reprise Safari OK.');
+// v42.21 — un geste : sauvegarde avant une nouvelle lecture uniquement
+// après acquisition de la photo, doublons à confirmation explicite.
+const app=fs.readFileSync('app.js','utf8');
+assert(js.includes('const nextPhoto=new File([blob]')&&
+ js.indexOf('const nextPhoto=new File([blob]')<
+ js.indexOf('const saved=saveVerifiedProposal({\n     confirmDuplicate:duplicateBefore,fromCapture:true')&&
+ js.includes('if(!saved?.ok){announceSaveError(saved);return;}')&&
+ js.includes('const used=setPhoto(nextPhoto,{confirmed:true});'),
+ 'Nouvelle photo capturée avant enregistrement, échec protégé');
+assert(js.includes('function saveVerifiedProposal(')&&
+ js.includes('confirmDuplicate:duplicate&&confirmDuplicate')&&
+ js.includes('duplicateSkip?.addEventListener(')&&
+ js.includes("capture.dataset.action=duplicated?'confirm-duplicate'"),
+ 'Déclencheur avec confirmation volontaire, option Ignorer');
+assert(app.includes('x.pricePerKgCents===rate&&x.originalTotalCents===total')&&
+ app.includes("if(duplicate&&payload?.confirmDuplicate!==true)")&&
+ app.includes('duplicateConfirmed:duplicate&&payload?.confirmDuplicate===true')&&
+ app.includes("confirmed.textContent='Doublon confirmé'"),
+ 'Comparaison EAN, brut, prix et historique des doublons explicites');
+assert(js.includes('identity&&identity===lastSavedImportedPhoto')&&
+ js.includes('frameGeneration!==generation')&&
+ js.includes("priorBasket!==$('basketSelect')?.value"),
+ 'Photo importée répétée et changements pendant capture pris en charge');
+assert(section.includes('id="iuGeminiDuplicateSkip"')&&
+ css.includes('/* v42.21 — un seul déclencheur')&&
+ css.includes('#iuGeminiDuplicateSkip.iu-gemini-duplicate-skip[hidden]'),
+ 'Alerte doublon discrète et compacte');
+console.log('Gemini v42.21 : déclencheur combiné et doublons confirmés OK.');
