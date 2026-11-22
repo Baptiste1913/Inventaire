@@ -538,12 +538,13 @@ assert(js.includes("if(validateResult(result).error){")&&
  js.includes('const saveReady=Boolean(validationState());')&&
  js.includes("nextWeigh?.addEventListener('click',()=>{"),
  'Deuxième passage Gemini seulement après échec de vérification, enregistrement manuel');
-// v42.08 — dates non inventées et encodages inutiles éliminés.
-assert(js.includes('function recognizedPackagingDate(fields)')&&
- js.includes("if(typeof candidate!=='string')return '—'")&&
- !js.includes('todayForVirtualLabel')&&
- js.includes('recognizedPackagingDate(fields));'),
- 'Date de la vignette jamais fabriquée depuis l’heure système');
+// v42.13 : la date sur la maquette est explicitement locale, pas OCR.
+assert(js.includes('function todayForVirtualLabel()')&&
+ js.includes("date.getDate()")&&
+ js.includes("date.getMonth()+1")&&
+ js.includes("dateValue.title='Date du jour — non reconnue sur la photo'")&&
+ !js.includes('recognizedPackagingDate(fields)'),
+ 'Date de la maquette locale et identifiée comme non reconnue');
 assert(js.includes('let previousWidth=0,previousHeight=0;')&&
  js.includes('if(width===previousWidth&&height===previousHeight)continue;'),
  'JPEG haute qualité : ne jamais encoder deux fois une même résolution');
@@ -634,5 +635,28 @@ assert(js.includes('Accès Gemini refusé : vérifie les clés du Worker et de G
  js.includes('const local=await localCheckWithin(independent,2200)')&&
  js.includes('const saveReady=Boolean(validationState());'),
  'Analyse locale indépendante et validation manuelle conservées');
+// v42.13 : voyant compact, mêmes marges et marqueurs de sécurité conservés.
+const compactGreen=css.slice(css.indexOf('/* v42.13 — coche réduite'));
+assert(compactGreen.includes('right:5px!important')&&
+ compactGreen.includes('bottom:5px!important')&&
+ compactGreen.includes('width:27px!important')&&
+ compactGreen.includes('min-width:27px!important')&&
+ compactGreen.includes('max-width:27px!important')&&
+ compactGreen.includes('height:27px!important')&&
+ compactGreen.includes('min-height:27px!important')&&
+ compactGreen.includes('max-height:27px!important')&&
+ compactGreen.includes('width:17px!important')&&
+ compactGreen.includes('height:17px!important'),
+ 'Témoin vert réduit, éloignement des bords inchangé');
+assert(js.includes("setLabelAlert('success','étiquette prête');")&&
+ !js.includes('Étiquette prête · vérifie le poids brut avant de valider'),
+ 'Message succès simplifié');
+assert(js.includes('virtualDate.textContent=todayForVirtualLabel();')&&
+ js.includes("add(dateBox,'strong','iu-gemini-label-number',todayForVirtualLabel())"),
+ 'Date civile locale affichée sur étiquette virtuelle à création et mise à jour');
+assert(js.includes("nextWeigh?.addEventListener('click',()=>{")&&
+ js.includes("const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;")&&
+ css.includes('> #iuGeminiDetected.iu-weigh-scan-detected-indicator[hidden] {'),
+ 'Validation volontaire et masquage des étiquettes non valides conservés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.12 : Worker Gemini JSON strict, états d’erreur conservés et OCR validé OK.');
+console.log('Gemini v42.13 : voyant 27px, étiquette prête et date du jour locale OK.');
