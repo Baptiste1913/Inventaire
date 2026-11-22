@@ -292,7 +292,7 @@
   const duplicate=canSave&&duplicateForCurrent();
   const retry=Boolean(file&&(lastAnalysisError||lastReadProblem||
    (!proposal&&latestLabelFields)));
-  const caption=active?'Analyse…':duplicate?'Confirmer doublon'
+  const caption=active?'…':duplicate?'Confirmer doublon'
    :canSave?'Enregistrer'
    :needsBasketChange()?'Changer panier'
    :retry?'Réessayer':'Nouvelle photo';
