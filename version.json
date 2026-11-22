@@ -1,6 +1,6 @@
 {
-  "version": "41.88",
+  "version": "41.89",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Contour lumineux de l’étiquette IA épaissi de 1 px (filaments et rubans) et recoloré avec la palette Gemini bleu, violet, rose et corail doux. Modification limitée au gabarit Gemini : le tracé, les couleurs et l’épaisseur du repère poids OCR classique restent inchangés. Cadrage, zones internes, flash, OCR et capture préservés."
+  "notes": "Contour animé IA revenu à l’épaisseur fine de la v41.87, sans supplément de 1px. Reflets plus saturés et lumineux, aux quatre teintes exactes du contour du bloc de pesée Gemini : rouge #ed4d55, jaune #f9c017, vert #0cb768 et bleu #3287fe. Réglages limités à Gemini ; animation et couleur de l’OCR classique inchangées."
 }
