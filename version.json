@@ -1,6 +1,6 @@
 {
-  "version": "42.19",
+  "version": "42.20",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Repère caméra Gemini réduit de 18% uniformément (ratio et cadrage centrés conservés), pour photographier de plus loin. Pendant chaque analyse, la piste vidéo est désactivée et le viseur prend l’apparence fermée de l’état initial avec « Analyse… » au centre ; la caméra se réactive automatiquement dès la fin, succès ou erreur, sans nouveau getUserMedia sur piste valide. Correction de l’indicateur « Analyse… » qui restait visible au repos (priorité CSS de [hidden]). Reprise après annulation, navigation et arrière-plan Safari protégée. Interface, modèle IA, résolution JPEG, contrôles de tare/prix/EAN et sauvegarde manuelle inchangés."
+  "notes": "Finalisation du viseur Gemini avec repère réduit de 18 %, conservation du ratio et centrage. Caméra temporairement fermée et piste vidéo désactivée durant chaque analyse : « Analyse… » visible uniquement à ce moment ; réouverture après succès ou erreur. Correctif Safari supplémentaire : réactivation du viseur au retour d'arrière-plan, récupération automatique si iOS a terminé la piste durant l'analyse. Conservation de la piste existante lorsque possible, sans nouveau getUserMedia ; caméra fermée volontairement non rouverte. Indicateur Analyse masqué au repos. Aucune modification du modèle Gemini, de la qualité photo, de la tare, de l'EAN, du prix ou de l'enregistrement."
 }
