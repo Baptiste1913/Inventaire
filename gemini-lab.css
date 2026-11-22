@@ -3785,3 +3785,50 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  border-color:rgba(93,163,216,.48)!important;
  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 0 0 1px rgba(52,147,215,.11)!important;
 }
+
+/* v41.82 — Les contours suivent désormais chaque GLYPHE ou élément,
+   sans grands cadres pour les colonnes ni lignes simulant les codes. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-rect {
+ border:1px solid rgba(255,255,255,.68)!important;
+ border-radius:2px!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > :is(
+ .iu-gemini-outline-store,.iu-gemini-outline-address,
+ .iu-gemini-outline-product,.iu-gemini-outline-rate-number,
+ .iu-gemini-outline-weight-number,.iu-gemini-outline-date-number,
+ .iu-gemini-outline-total-number) {
+ border-color:rgba(255,255,255,.78)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-barcode {
+ border:1px solid rgba(255,255,255,.5)!important;
+ border-style:solid!important;
+ border-radius:1px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-total {
+ border:1px solid rgba(255,255,255,.89)!important;
+ border-radius:0!important;
+}
+/* Flash allumé : contraste vraiment distinct du blanc neutre éteint.
+   Bleu de l'icône et fond azur, contour bleu et halo doux. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch.is-on,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch[aria-pressed="true"] {
+ background:linear-gradient(145deg,#dff2ff 0%,#a9d9fa 100%)!important;
+ color:#086cbe!important;
+ border:1px solid rgba(31,123,205,.95)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),
+  0 0 0 2px rgba(46,146,232,.31),
+  0 2px 12px rgba(26,116,196,.26)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) svg {
+ stroke-width:2.8!important;
+ filter:drop-shadow(0 0 1px rgba(255,255,255,.9));
+}
