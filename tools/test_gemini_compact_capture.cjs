@@ -23,10 +23,10 @@ assert(containerStart>=0&&gross>containerStart&&label>gross&&alert>label,
 assert(end===-1||end>alert,'Tous les éléments restent dans le cadre Gemini');
 assert(section.includes('id="iuGeminiNext"')&&section.includes('Nouvelle<br>pesée'),
  'Nouvelle pesée reste visible sous la caméra');
-assert(section.includes('id="iuGeminiCapture" class="iu-gemini-capture iu-gemini-shutter"')&&
+assert(section.includes('id="iuGeminiCapture" class="iu-weigh-scan-close iu-gemini-capture iu-gemini-shutter"')&&
  section.includes('aria-label="Photographier et analyser cette étiquette"')&&
  !section.includes('>Analyser cette étiquette</button>'),
- 'Déclencheur manuel rond sans large bouton');
+ 'Déclencheur manuel au même gabarit que Fermer/Flash, sans large bouton');
 assert(!section.includes('Capturer maintenant')&&!section.includes('Capturer cette étiquette'),
  'Aucun ancien libellé de capture');
 const rules=css.slice(css.indexOf('/* v41.72 — une SEULE surface'));
@@ -45,10 +45,10 @@ assert(rules.includes('width:min(100%,328px)!important')&&
  'Étiquette DIGI lisible, non miniaturisée');
 assert(rules.includes('data-scan-state="review"')&&
  rules.includes('#iuGeminiCapture:disabled')&&
- css.includes('/* v41.98 — Déclencheur rond')&&
- css.includes('bottom:10px!important')&&
- css.includes('border-radius:50%!important'),
- 'Déclencheur dans la caméra, même verrouillage après lecture');
+ css.includes('/* v41.99 — capture dans la colonne')&&
+ css.includes('flex:0 0 32px!important')&&
+ css.includes('border-radius:11px!important'),
+ 'Déclencheur identique à Fermer/Flash, même verrouillage après lecture');
 
 const a=js.indexOf('function refreshCaptureButton(){');
 const b=js.indexOf('function updateButton(){',a);
@@ -93,4 +93,4 @@ assert(js.includes('function resetProposal(){')&&
 assert(js.includes("if(!proposal){")&&
  js.includes('Lecture incomplète · reprends l’étiquette'),
  'Une lecture incomplète peut être réanalysée sans blocage permanent');
-console.log('Gemini v41.98 : déclencheur rond et verrouillage conservé OK.');
+console.log('Gemini v41.99 : troisième déclencheur aligné et verrouillage conservé OK.');
