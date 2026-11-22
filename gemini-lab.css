@@ -5128,3 +5128,30 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   box-shadow:none!important;
  }
 }
+
+/* v42.13 — coche réduite : 27×27px au lieu de 32×32px, sans changer
+   les marges fixes de 5px à droite et en bas dans le viseur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator {
+ right:5px!important;
+ bottom:5px!important;
+ width:27px!important;
+ min-width:27px!important;
+ max-width:27px!important;
+ height:27px!important;
+ min-height:27px!important;
+ max-height:27px!important;
+ border-radius:9px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator > svg {
+ width:17px!important;
+ min-width:17px!important;
+ max-width:17px!important;
+ height:17px!important;
+ min-height:17px!important;
+ max-height:17px!important;
+ stroke-width:2.5!important;
+}
