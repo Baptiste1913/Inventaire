@@ -1,4 +1,4 @@
-/* Inventaires U 42.13 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.14 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -19,7 +19,7 @@
   output.hidden=false;
  }
   let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
- let proposal=null,latestLabelFields=null;
+ let proposal=null,latestLabelFields=null,previewPending=false;
  const fixedModel='gemini-3.5-flash-lite';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
@@ -284,6 +284,7 @@
   })?.duplicate===true;}catch(_){return false;}
  }
  function refreshLabelAlert(){
+  if(previewPending){setLabelAlert('idle','Vérification OCR en cours…');return;}
   const raw=latestLabelFields?.weightGrams;
   if(!Number.isSafeInteger(raw)||raw<=0){
    if(latestLabelFields)setLabelAlert('warning','Lecture incomplète · reprends l’étiquette');
@@ -357,11 +358,11 @@
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const corrected=proposal&&ctx
    ?recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate):null;
-  const canSave=Boolean(corrected)&&!active;
+  const canSave=Boolean(corrected)&&!active&&!previewPending;
   if(nextWeigh){
    // Comme « Nouvelle pesée » classique, le bouton reste disponible :
    // une anomalie non corrigée bloque seulement l’enregistrement.
-   nextWeigh.disabled=active;
+   nextWeigh.disabled=active||previewPending;
    nextWeigh.classList.toggle('is-ready',canSave);
   }
   const signal=output.querySelector('.iu-gemini-result-signal');
@@ -393,7 +394,7 @@
  function resetReading(){
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
-  generation++;abort?.abort();abort=null;active=false;file=null;
+  generation++;abort?.abort();abort=null;active=false;previewPending=false;file=null;
   localCheckSource=null;localCheckPromise=null;
   photoDecodeCache=new WeakMap();
   attempts.clear();photo.value='';latestLabelFields=null;
@@ -418,7 +419,7 @@
   }
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
-  latestLabelFields=null;
+  latestLabelFields=null;previewPending=false;
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
   localCheckSource=null;localCheckPromise=null;
@@ -541,6 +542,55 @@
   panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
   if(!opening)clear();
  });
+ // v42.14 — OffscreenCanvas en Worker si Safari l'autorise.
+ // Toujours repli vers canvas.toBlob du fil principal ; le même plafond
+ // JPEG, les mêmes résolutions et les mêmes qualités sont conservés.
+ let imageEncoderWorker=null,imageEncoderUnsupported=false,imageEncoderNextId=0;
+ const imageEncoderRequests=new Map();
+ function disableImageWorker(){
+  imageEncoderUnsupported=true;
+  try{imageEncoderWorker?.terminate?.();}catch(_){}
+  imageEncoderWorker=null;
+  for(const job of imageEncoderRequests.values()){
+   clearTimeout(job.timer);job.resolve(null);
+  }
+  imageEncoderRequests.clear();
+ }
+ function prepareImageWorker(){
+  if(imageEncoderWorker)return imageEncoderWorker;
+  if(imageEncoderUnsupported||typeof Worker!=='function')return null;
+  try{
+   const worker=new Worker(new URL('gemini-image-worker.js?v=42.14',document.baseURI));
+   worker.onmessage=event=>{
+    const {id,blob}=event.data||{};
+    const job=imageEncoderRequests.get(id);
+    if(!job)return;
+    clearTimeout(job.timer);imageEncoderRequests.delete(id);
+    job.resolve(blob?.type==='image/jpeg'?blob:null);
+   };
+   worker.onerror=disableImageWorker;
+   worker.onmessageerror=disableImageWorker;
+   imageEncoderWorker=worker;
+   return worker;
+  }catch(_){imageEncoderUnsupported=true;return null;}
+ }
+ function warmImageWorker(){
+  if(imageEncoderUnsupported||imageEncoderWorker)return;
+  if(typeof window.requestIdleCallback==='function')
+   window.requestIdleCallback(()=>prepareImageWorker(),{timeout:900});
+  else setTimeout(()=>prepareImageWorker(),300);
+ }
+ function encodeOnImageWorker(source,maxBytes){
+  const worker=prepareImageWorker();
+  if(!worker)return Promise.resolve(null);
+  return new Promise(resolve=>{
+   const id=++imageEncoderNextId;
+   const timer=setTimeout(()=>{disableImageWorker();},11000);
+   imageEncoderRequests.set(id,{resolve,timer});
+   try{worker.postMessage({id,source,maxBytes});}
+   catch(_){disableImageWorker();}
+  });
+ }
  function decodePhoto(source){
   const cached=photoDecodeCache.get(source);
   if(cached)return cached;
@@ -581,7 +631,6 @@
   return Promise.resolve(null);
  }
  async function imageBase64(source){
-  // Limite Worker et qualité de v42.10 inchangées.
   const maxBase64=690000;
   const maxJpegBytes=Math.floor(maxBase64*3/4);
   if(source?.name==='etiquette-gemini.jpg'&&source.type==='image/jpeg'&&
@@ -589,7 +638,14 @@
    try{
     const encoded=await jpegBase64(source);
     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-   }catch(_){/* Repli canvas Safari. */}
+   }catch(_){/* Safari peut réclamer un traitement canvas. */}
+  }
+  // Compression lourde hors du fil UI quand OffscreenCanvas est compatible.
+  // Si le Worker local échoue, ne jamais sacrifier la photo : repli sûr.
+  const offthread=await encodeOnImageWorker(source,maxJpegBytes);
+  if(offthread&&offthread.size>=75&&offthread.size<=maxJpegBytes){
+   const encoded=await jpegBase64(offthread);
+   if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
   }
   const img=await decodePhoto(source);
   const maxSide=Math.max(img.naturalWidth,img.naturalHeight);
@@ -597,6 +653,7 @@
   const cv=document.createElement('canvas');
   const ctx=cv.getContext('2d');
   if(!ctx)throw Error('Traitement image impossible sur cet appareil');
+  const maxBytes=maxJpegBytes;
   let previousWidth=0,previousHeight=0;
   for(const side of [2400,2200,1920,1700,1500]){
    const factor=Math.min(1,side/maxSide);
@@ -610,19 +667,26 @@
    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
    ctx.drawImage(img,0,0,width,height);
-   for(const quality of [.93,.87,.81,.75]){
-    const blob=await jpegCanvasBlob(cv,quality);
-    if(blob){
-     // Base64 utilise 4*ceil(bytes/3) caractères.
-     if(blob.type&&blob.type!=='image/jpeg')continue;
-     if(blob.size<75||blob.size>maxJpegBytes)continue;
-     const encoded=await jpegBase64(blob);
-     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-    }else{
-     // Compatibilité si toBlob est indisponible.
-     const data=cv.toDataURL('image/jpeg',quality);
-     const encoded=data.slice(data.indexOf(',')+1);
-     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+   const encode=quality=>jpegCanvasBlob(cv,quality);
+   const maxAcceptable=blob=>blob&&blob.type==='image/jpeg'&&
+    blob.size>=75&&blob.size<=maxBytes;
+   // Conserver exactement la gamme historique, avec ordre adaptatif
+   // pour éviter les conversions inutilement grosses.
+   const qualities=[.93,.87,.81,.75];
+   const top=await encode(qualities[0]);
+   if(maxAcceptable(top))return jpegBase64(top);
+   if(top&&top.size>maxBytes*1.18){
+    const middle=await encode(qualities[2]);
+    if(maxAcceptable(middle)){
+     const higher=await encode(qualities[1]);
+     return jpegBase64(maxAcceptable(higher)?higher:middle);
+    }
+    const lower=await encode(qualities[3]);
+    if(maxAcceptable(lower))return jpegBase64(lower);
+   }else{
+    for(const quality of qualities.slice(1)){
+     const blob=await encode(quality);
+     if(maxAcceptable(blob))return jpegBase64(blob);
     }
    }
   }
@@ -714,7 +778,7 @@
   }
   container.replaceChildren(svg);
  }
- function display(result,wallMs){
+ function display(result,wallMs,{provisional=false}={}){
   output.replaceChildren();
   const fields=result?.fields||{},checks=result?.checks||{};
   latestLabelFields=fields;
@@ -730,7 +794,7 @@
   const ready=!verified.error&&netValid;
   const corrected=ready?recodeAfterTare(fields.ean13,gross,tare,fields.pricePerKgCents):null;
   const label=document.createElement('article');
-  label.className='iu-gemini-printed-label'+(ready?' is-ready':' is-review');
+  label.className='iu-gemini-printed-label'+(ready&&!provisional?' is-ready':' is-review');
   label.setAttribute('aria-label','Étiquette virtuelle reconstituée, à comparer à la photo avant validation');
   const add=(parent,tag,className,value)=>{
    const el=document.createElement(tag);el.className=className;el.textContent=value;
@@ -775,11 +839,11 @@
   if(emptyResult)emptyResult.hidden=false;
   // Les données reconnues restent disponibles si le panier est incorrect :
   // choisir un autre panier recalcule le net sans refaire la lecture.
-  proposal=verified.error?null:verified;
+  proposal=provisional?null:(verified.error?null:verified);
   // La coche verte est réservée à une pesée réellement validable,
   // et non à une simple lecture visuelle encore incohérente.
   resetDetectedIndicator();
-  updateCardState(ready?'review':'retry');
+  updateCardState(provisional?'working':ready?'review':'retry');
   if(!proposal)resetProposal();
   validationState();
   if(result?.source==='local'){
@@ -887,6 +951,12 @@
    // ne sera enregistré sans une action explicite.
    let result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
    if(id!==generation)return;
+   // La restitution de Gemini s'affiche immédiatement, sans la qualifier
+   // de validée. L'enregistrement et la coche restent bloqués jusqu'à
+   // la fin de la lecture indépendante et des contrôles métier.
+   previewPending=true;
+   display(result,performance.now()-start,{provisional:true});
+   say('Étiquette reconnue · vérification indépendante en cours…');
    // Si la première réponse est contradictoire/incomplète, une seconde
    // lecture IA de la même photo est autorisée (coût API supplémentaire).
    // Pas de deuxième appel pour une lecture déjà cohérente.
@@ -906,6 +976,7 @@
    // humaine demeure obligatoire (jamais d'accord fictif).
    const local=await localCheckWithin(independent,2200);
    if(id!==generation)return;
+   previewPending=false;
    const conflicting=localMismatch(result,local);
    if(conflicting){
     result.checks={...result.checks,independentMismatch:true};
@@ -923,6 +994,8 @@
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
+    // Une prévisualisation n'est pas un résultat vérifié, même après erreur.
+    previewPending=false;resetProposal();
     // Une erreur technique ne doit pas condamner la photo déjà prise :
     // sa relance reste manuelle après épuisement des réessais bornés.
     attempts.delete(selectedModel);
@@ -1056,6 +1129,7 @@
    // Charger l'OCR local en avance, pendant le cadrage manuel.
    // Évite d'attendre son démarrage après la réponse Gemini.
    if(localReader)void ensureLocalOcr();
+   warmImageWorker();
    refreshTorch();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
    else setAutoHint('Valide ou reprends la lecture en cours','waiting');
@@ -1095,6 +1169,7 @@
   startCamera();
  });
  modePhoto?.addEventListener('click',()=>{
+  warmImageWorker();
   warmGeminiConnection();
   // Charger l'OCR pendant le choix de la photo dans iOS.
   if(localReader)void ensureLocalOcr();
