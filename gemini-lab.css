@@ -3622,7 +3622,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 }
 
 
-/* v41.79 — Repère caméra : véritable clone du patron d'étiquette
+/* v41.79–41.80 — Repère caméra : véritable clone du patron d'étiquette
    mesuré depuis le DOM. Aucun second dessin libre : les 4 lignes,
    le prix encadré, la grille et le code-barres suivent la maquette DIGI. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
@@ -3634,9 +3634,9 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:not([data-scan-state="review"]):not([data-scan-state="retry"])
  .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
  box-sizing:border-box!important;
- height:auto!important;
- min-height:0!important;
- max-height:none!important;
+ height:156px!important;
+ min-height:156px!important;
+ max-height:156px!important;
  aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
@@ -3648,7 +3648,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  display:block!important;overflow:visible!important;
  max-width:none!important;max-height:none!important;
  pointer-events:none!important;
- opacity:.8!important;
+ opacity:.72!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-camera-exact-guide > .iu-gemini-printed-label {
@@ -3659,9 +3659,20 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-camera-shell[data-state="idle"] .iu-gemini-camera-exact-guide {
- opacity:.46!important;
+ opacity:.38!important;
 }
 @media(prefers-reduced-motion:reduce){
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-camera-stage .iu-gemini-camera-exact-guide {transition:none!important;}
+}
+
+/* v41.80 — Hauteur compacte sur iPhone étroit, indépendamment de la
+   taille du repère (mis à l'échelle sans modifier son ratio en JS). */
+@media(max-width:390px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:not([data-scan-state="review"]):not([data-scan-state="retry"])
+  .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+  height:142px!important;
+  min-height:142px!important;
+  max-height:142px!important;
+ }
 }
