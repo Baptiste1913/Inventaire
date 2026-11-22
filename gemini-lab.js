@@ -1,4 +1,4 @@
-/* Inventaires U 42.07 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.08 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -194,13 +194,27 @@
  };
  const formatWeight=g=>Number.isInteger(g)?(g/1000).toFixed(3).replace('.',',')+' kg':'Non reconnu';
  const money=c=>Number.isInteger(c)?(c/100).toFixed(2).replace('.',',')+' €':'Non reconnu';
- // Jour local de l'appareil pour la date de la MAQUETTE d'étiquette.
- const todayForVirtualLabel=()=>{
-  const date=new Date();
-  return [String(date.getDate()).padStart(2,'0'),
-   String(date.getMonth()+1).padStart(2,'0'),
-   String(date.getFullYear())].join('.');
- };
+ // Sécurité métier : ne jamais afficher la date d'AUJOURD'HUI
+ // comme si elle avait été reconnue sur une étiquette réelle.
+ // Si le Worker ne renvoie pas une date explicitement lue et valide,
+ // le champ reste indéterminé sur la vignette.
+ function recognizedPackagingDate(fields){
+  const candidate=fields?.packagingDate??fields?.packingDate??
+   fields?.dateEmballage??fields?.packedAt;
+  if(typeof candidate!=='string')return '—';
+  const value=candidate.trim();
+  let day,month,year;
+  const french=value.match(/^(\d{2})[.\/](\d{2})[.\/](\d{4})$/);
+  const iso=value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(french){day=Number(french[1]);month=Number(french[2]);year=Number(french[3]);}
+  else if(iso){year=Number(iso[1]);month=Number(iso[2]);day=Number(iso[3]);}
+  else return '—';
+  if(year<2000||year>2100||month<1||month>12||day<1||day>31)return '—';
+  const check=new Date(Date.UTC(year,month-1,day));
+  if(check.getUTCFullYear()!==year||check.getUTCMonth()!==month-1||
+     check.getUTCDate()!==day)return '—';
+  return [String(day).padStart(2,'0'),String(month).padStart(2,'0'),String(year)].join('.');
+ }
  // Le résultat reprend directement la carte de pesée classique.
  // Il reste visible sans étiquette ; la tare suit le panier en cours.
  // Uniquement le poids brut : les autres valeurs sont déjà sur l’étiquette.
@@ -329,7 +343,7 @@
   const bars=label.querySelector('.iu-gemini-label-bars');
   if(weight)weight.textContent=corrected?formatWeight(corrected.net):formatWeight(gross);
   const virtualDate=label.querySelector('.iu-gemini-label-date .iu-gemini-label-number');
-  if(virtualDate)virtualDate.textContent=todayForVirtualLabel();
+  if(virtualDate)virtualDate.textContent=recognizedPackagingDate(fields);
   if(total)total.textContent=money(corrected?corrected.cents:fields.totalCents).replace(/\s/g,'');
   if(digits)digits.textContent=corrected?.ean||fields.ean13||'EAN NON RECONNU';
   if(bars)renderEanBars(bars,corrected?.ean||fields.ean13);
@@ -554,10 +568,14 @@
   ctx.imageSmoothingQuality='high';
   // Préserver les détails des chiffres : réduire par paliers plutôt
   // qu'écraser une seule image à une qualité très basse.
+  // Ne pas recompresser plusieurs fois la même taille native.
+  let previousWidth=0,previousHeight=0;
   for(const side of [2400,2200,1920,1700,1500]){
    const factor=Math.min(1,side/maxSide);
    const width=Math.max(1,Math.round(img.naturalWidth*factor));
    const height=Math.max(1,Math.round(img.naturalHeight*factor));
+   if(width===previousWidth&&height===previousHeight)continue;
+   previousWidth=width;previousHeight=height;
    if(cv.width!==width||cv.height!==height){
     cv.width=width;cv.height=height;
    }
@@ -696,8 +714,8 @@
   add(grossBox,'strong','iu-gemini-label-number',formatWeight(corrected?.net??gross));
   const dateBox=add(middle,'div','iu-gemini-label-date','');
   add(dateBox,'span','iu-gemini-label-caption',"Date d’emballage");
-  // Date du jour pour l'aperçu virtuel, pas pour la photo source.
-  add(dateBox,'strong','iu-gemini-label-number',todayForVirtualLabel());
+  // Afficher uniquement une date reconnue et correctement formée.
+  add(dateBox,'strong','iu-gemini-label-number',recognizedPackagingDate(fields));
     const bottom=add(label,'div','iu-gemini-label-bottom','');
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
