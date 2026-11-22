@@ -230,5 +230,38 @@ assert(cloudCss.length>1700&&cloudCss.includes('margin-bottom:20px!important')&&
  cloudCss.includes('min-height:49px!important')&&cloudCss.includes('border-radius:14px!important')&&
  cloudCss.includes('font-size:12px!important')&&cloudCss.includes('font-size:10.5px!important'),
  'Cloudflare partage les dimensions/typographies et marges des alertes classiques');
+// v41.92 : panier Gemini rendu comme le panier classique.
+assert(section.includes('for="iuGeminiBasketSelect">Type de panier</label>')&&
+ section.includes('class="iu-basket-select-wrap iu-gemini-select-wrap"')&&
+ section.includes('class="iu-gemini-basket-display" aria-hidden="true"')&&
+ section.includes('id="iuGeminiBasketName"')&&
+ section.includes('id="iuGeminiBasketTare"'),
+ 'Nom et tare réunis dans le champ, avec select natif conservé');
+assert(!section.includes('id="iuGeminiBasketTare" class="iu-gemini-basket-tare" aria-live'),
+ 'Ancienne tare séparée du champ supprimée');
+assert(js.includes("geminiName=$('iuGeminiBasketName')")&&
+ js.includes("geminiTare=$('iuGeminiBasketTare')")&&
+ js.includes("const selected=geminiBasket?.selectedOptions?.[0]")&&
+ js.includes('geminiName.textContent=name')&&
+ js.includes('geminiTare.textContent=tare')&&
+ js.includes("classicBasket.dispatchEvent(new Event('change',{bubbles:true}))"),
+ 'Nom et tare synchronisés au panier choisi, sans modifier les calculs');
+const basketStyles=css.slice(css.indexOf('/* v41.92 — Panier Gemini'));
+assert(basketStyles.length>4000&&
+ basketStyles.includes('height:60px!important')&&
+ basketStyles.includes('height:56px!important')&&
+ basketStyles.includes('gap:11px!important')&&
+ basketStyles.includes('gap:8px!important')&&
+ basketStyles.includes('border-radius:18px!important')&&
+ basketStyles.includes('font-size:clamp(14px,3.7vw,17px)!important'),
+ 'Hauteurs, dimensions, espacements et typographies du panier OCR classique');
+assert(basketStyles.includes('opacity:0!important')&&
+ basketStyles.includes('cursor:pointer!important')&&
+ basketStyles.includes('pointer-events:none!important')&&
+ basketStyles.includes(':focus-within'),
+ 'Sélecteur iOS toujours actif, légende visuelle sans blocage tactile');
+assert(basketStyles.includes('linear-gradient(145deg,#f9fbfc,#e8eff4)')&&
+ basketStyles.includes('3px 4px 10px rgba(98,126,144,.10)'),
+ 'Boutons caméra et galerie avec le relief exact du scanner classique');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.91 : capture manuelle et Cloudflare comme Réglages d’alertes OK.');
+console.log('Gemini v41.92 : panier et deux boutons comme OCR classique, tare intégrée OK.');
