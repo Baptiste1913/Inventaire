@@ -101,9 +101,9 @@ assert(!js.includes("range.selectNodeContents(element)")&&
  !js.includes("addText('.iu-gemini-label-")&&
  !js.includes("addSample('.iu-gemini-label-"),
  'Les anciens contours autour de chaque mot ont disparu');
-assert(js.includes('const scale=Math.min((stage.width-8)/guideSize.width,')&&
+assert(js.includes('const scale=.82*Math.min((stage.width-8)/guideSize.width,')&&
  js.includes('(stage.height-8)/guideSize.height);'),
- 'Repère uniforme avec marges 4px, sans déformation');
+ 'Repère réduit de 18 % uniformément, sans déformation');
 assert(css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect')&&
  css.includes('background:transparent!important;'),
  'Les cadres sont des contours vides et translucides');
@@ -637,7 +637,7 @@ assert(section.includes('id="iuGeminiCameraStill"')&&section.includes('id="iuGem
  !section.includes('id="iuGeminiLabPreview"')&&
  section.includes('id="iuGeminiReplacePrompt"'),
  'Photo figée, miniature et détails redondants retirés');
-assert(js.includes('freezeCameraPhoto(true);')&&js.includes('freezeCameraPhoto(false);')&&
+assert(js.includes('setAnalysisCameraClosed(true);')&&js.includes('setAnalysisCameraClosed(false);')&&
  js.includes('lastReadProblem=verified.error||null;')&&
  js.includes('const unreadable=status===422||')&&
  !js.includes('window.confirm('),'Erreurs précises et pas de pop-up bloquante');
@@ -672,4 +672,18 @@ assert(server.includes('let providerAnswered=false;')&&
  server.includes('model},422,origin)')&&
  server.includes('abort.signal.aborted?504:providerAnswered?422:503'),
  'Le Worker distingue lecture non reconnue, délai et panne fournisseur');
-console.log('Gemini v42.18 : interface épurée, tare sans relire et HTTP 502 clarifié OK.');
+// v42.19 — caméra fermée uniquement durant l'analyse et reprise rapide.
+assert(js.includes('const scale=.82*Math.min(')&&
+ js.includes('setAnalysisCameraClosed(true);')&&
+ js.includes('active=false;abort=null;setAnalysisCameraClosed(false);')&&
+ js.includes("if(track?.readyState==='live')track.enabled=false;")&&
+ js.includes("track.enabled=true;")&&
+ js.includes('if(analysisCameraClosed)return;')&&
+ js.includes('setAnalysisCameraClosed(false,{resume:false});'),
+ 'Le repère est plus petit et la piste est arrêtée/reprise sans getUserMedia supplémentaire');
+assert(css.includes('/* v42.19 — viseur réellement fermé')&&
+ css.includes('[data-state="analyzing"]')&&
+ css.includes('> #iuGeminiFrameState.iu-gemini-frame-state[hidden]')&&
+ css.includes('display:none!important;visibility:hidden!important;'),
+ 'Analyse cachée au repos, état de caméra fermé en traitement');
+console.log('Gemini v42.19 : guides réduits, vidéo désactivée durant analyse et reprise automatique OK.');
