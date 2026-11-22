@@ -1,6 +1,6 @@
 {
-  "version": "41.92",
+  "version": "41.93",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Panier Gemini harmonisé avec la pesée classique : libellé « Type de panier », sélecteur et deux touches caméra/galerie à 60 px (56 px petits écrans), même contraste gris bleuté, dégradé, relief, coins et icônes. Nom du panier et tare affichés sur deux lignes dans le sélecteur, tout en conservant le menu natif Safari et la synchronisation des tares avec le panier classique. Caméra, OCR, accès Cloudflare et validation inchangés."
+  "notes": "Pesée Gemini : titre « Type de panier » strictement aligné sur la taille 12 px, la graisse 800, la couleur #323c43 et la police du panier de pesée classique. Marges réduites au-dessus (10→4 px) et légèrement en dessous (8→6 px). Le sélecteur natif iPhone reprend maintenant sans retirer les tares les mêmes options « Nom — 0,xxx kg » que le panier classique. L'affichage compact du champ reste sur deux lignes (nom puis tare), sans répétition. Synchronisation des paniers, boutons et pesées inchangés."
 }
