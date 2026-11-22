@@ -1,4 +1,4 @@
-/* Inventaires U 41.81 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.82 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -36,15 +36,14 @@
  const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText');
  const resultGross=$('iuGeminiGrossDisplay');
 
- // v41.79 : le repère est un véritable exemplaire de l'étiquette DIGI,
- // et non une maquette indépendante. Toutes les dimensions, typographies,
- // grilles et rayons sont lus depuis l'étiquette virtuelle réelle.
+ // v41.82 — Chaque cadre correspond à UN élément réellement imprimé
+ // de l'étiquette virtuelle, pas à une grande cellule englobante.
+ // Le patron reste fondé sur la géométrie DIGI réelle de la page.
  const exactGuide=$('iuGeminiExactGuide');
  const cameraStage=cameraShell?.querySelector('.iu-gemini-camera-stage');
- let guideSnapshot=null,guideSize=null,guideScheduled=false;
- // v41.81 — Silhouette rectangulaire légère, calée sur les dimensions
- // et les positions réelles de l'étiquette numérique DIGI. Aucun texte
- // ni faux code-barres sur la vidéo : seules des lignes fines restent.
+ let guideSnapshot=null,guideSize=null,guideSource=null,guideScheduled=false;
+ const guideMeasureCanvas=document.createElement('canvas');
+ const guideMeasureContext=guideMeasureCanvas.getContext('2d');
  function buildExactCameraOutline(source){
   const base=source.getBoundingClientRect();
   if(base.width<=60||base.height<=40)return null;
@@ -52,51 +51,81 @@
   wireframe.className='iu-gemini-outline-label';
   wireframe.style.width=base.width+'px';
   wireframe.style.height=base.height+'px';
-  // La surface réelle fournit la géométrie et le rayon de l'étiquette.
-  const printedStyle=getComputedStyle(source);
-  wireframe.style.borderRadius=printedStyle.borderTopLeftRadius;
-  const appendOutline=(rectangle,kind)=>{
-   if(!rectangle||rectangle.width<=0||rectangle.height<=0)return;
-   const x=Math.max(2,rectangle.left-base.left);
-   const y=Math.max(2,rectangle.top-base.top);
-   const w=Math.min(rectangle.width,base.width-x-2);
-   const h=Math.min(rectangle.height,base.height-y-2);
-   if(w<5||h<4)return;
+  wireframe.style.borderRadius=getComputedStyle(source).borderTopLeftRadius;
+  const box=(selector)=>source.querySelector(selector);
+  const appendRect=(rect,kind,padX=2,padY=2)=>{
+   if(!rect||rect.width<2||rect.height<2)return;
+   // Position d'origine mesurée sur l'étiquette numérique, en pixels.
+   // Limiter uniquement au contour du papier pour ne rien dessiner dehors.
+   const left=Math.max(1,rect.left-base.left-padX);
+   const top=Math.max(1,rect.top-base.top-padY);
+   const right=Math.min(base.width-1,rect.right-base.left+padX);
+   const bottom=Math.min(base.height-1,rect.bottom-base.top+padY);
+   if(right-left<5||bottom-top<4)return;
    const line=document.createElement('span');
    line.className='iu-gemini-outline-rect iu-gemini-outline-'+kind;
-   line.style.left=x+'px';
-   line.style.top=y+'px';
-   line.style.width=w+'px';
-   line.style.height=h+'px';
+   line.style.left=left+'px';
+   line.style.top=top+'px';
+   line.style.width=(right-left)+'px';
+   line.style.height=(bottom-top)+'px';
    wireframe.appendChild(line);
   };
-  const box=(selector)=>source.querySelector(selector)?.getBoundingClientRect()||null;
-  // En-tête : entourer les deux vrais éléments imprimés, pas une
-  // barre arbitraire qui occuperait tout le haut de la photo.
-  const store=box('.iu-gemini-label-store');
-  const address=box('.iu-gemini-label-address');
-  if(store&&address){
-   const left=Math.min(store.left,address.left)-3;
-   const top=Math.min(store.top,address.top)-2;
-   const right=Math.max(store.right,address.right)+3;
-   const bottom=Math.max(store.bottom,address.bottom)+2;
-   appendOutline({left,top,width:right-left,height:bottom-top},'store');
-  }
-  // Produit centré : rectangle vide au milieu de la même ligne.
-  const name=box('.iu-gemini-label-name');
-  if(name)appendOutline({
-   left:name.left+name.width*.25,
-   top:name.top+name.height*.30,
-   width:name.width*.50,height:name.height*.40
-  },'product');
-  // Trois groupes de mesure, aux coordonnées EXACTES de la maquette.
-  for(const [selector,kind] of [
-   ['.iu-gemini-label-rate','rate'],
-   ['.iu-gemini-label-gross','weight'],
-   ['.iu-gemini-label-date','date'],
-   ['.iu-gemini-label-barcode','barcode'],
-   ['.iu-gemini-label-total','total']
-  ])appendOutline(box(selector),kind);
+  // Les libellés réels sont mesurés à leur largeur de GLYPHES (Range),
+  // plutôt qu'à celle du bloc parent flex/grid. C'était la source
+  // principale des cadres décalés et disproportionnés.
+  const textBounds=element=>{
+   if(!element)return null;
+   const range=document.createRange();
+   range.selectNodeContents(element);
+   const rect=range.getBoundingClientRect();
+   range.detach?.();
+   return rect;
+  };
+  const addText=(selector,kind)=>appendRect(textBounds(box(selector)),kind,2.5,2);
+  // Le modèle initial a des tirets : mesurer des valeurs de référence
+  // SANS les écrire sur la photo ni modifier l'étiquette affichée.
+  const addSample=(selector,sample,kind,align='start')=>{
+   const target=box(selector);
+   if(!target)return;
+   const rect=target.getBoundingClientRect();
+   const style=getComputedStyle(target);
+   const fontSize=parseFloat(style.fontSize)||14;
+   const lineHeight=parseFloat(style.lineHeight)||fontSize*1.12;
+   let width=sample.length*fontSize*.52;
+   if(guideMeasureContext){
+    guideMeasureContext.font=style.fontStyle+' '+style.fontWeight+' '+
+     style.fontSize+' '+style.fontFamily;
+    width=guideMeasureContext.measureText(sample).width;
+    const spacing=parseFloat(style.letterSpacing);
+    if(Number.isFinite(spacing))width+=Math.max(0,sample.length-1)*spacing;
+   }
+   const left=align==='center'?rect.left+(rect.width-width)/2:
+    align==='right'?rect.right-width:rect.left;
+   const top=rect.top+(rect.height-lineHeight)/2;
+   appendRect({left,top,width,height:lineHeight},kind,2,2);
+  };
+  // En-tête : deux textes, donc deux contours séparés.
+  addText('.iu-gemini-label-store','store');
+  addText('.iu-gemini-label-address','address');
+  // Produit : la zone du tiret vide reçoit la largeur d'un vrai nom.
+  addSample('.iu-gemini-label-name','CAROTTE','product','center');
+  // Chaque légende et chaque chiffre conserve son propre emplacement.
+  addText('.iu-gemini-label-rate .iu-gemini-label-caption','rate-caption');
+  addSample('.iu-gemini-label-rate .iu-gemini-label-number','1,99€/kg','rate-number');
+  addText('.iu-gemini-label-gross .iu-gemini-label-caption','weight-caption');
+  addSample('.iu-gemini-label-gross .iu-gemini-label-number','0,504 kg','weight-number');
+  addText('.iu-gemini-label-date .iu-gemini-label-caption','date-caption');
+  addSample('.iu-gemini-label-date .iu-gemini-label-number','22.11.2026','date-number');
+  // Le code-barres est un élément graphique : un rectangle vide,
+  // sans barres simulées qui masqueraient celles de l'étiquette filmée.
+  const bars=box('.iu-gemini-label-bars');
+  if(bars)appendRect(bars.getBoundingClientRect(),'barcode',0,0);
+  // Bordure du prix (identique au modèle), puis cadres du libellé
+  // et de la valeur, sans texte ni aucun aplat sur la caméra.
+  const total=box('.iu-gemini-label-total');
+  if(total)appendRect(total.getBoundingClientRect(),'total',0,0);
+  addText('.iu-gemini-label-total-caption','total-caption');
+  addSample('.iu-gemini-label-total-number','1,00€','total-number','center');
   return {node:wireframe,width:base.width,height:base.height};
  }
  function syncExactCameraGuide(){
@@ -107,11 +136,12 @@
   if(source){
    const bounds=source.getBoundingClientRect();
    if(bounds.width>60&&bounds.height>40&&
-      (!guideSnapshot||!guideSize||
+      (!guideSnapshot||source!==guideSource||!guideSize||
        Math.abs(bounds.width-guideSize.width)>.5||
        Math.abs(bounds.height-guideSize.height)>.5)){
     const built=buildExactCameraOutline(source);
     if(built){
+     guideSource=source;
      guideSize={width:built.width,height:built.height};
      guideSnapshot=built.node;
      exactGuide.replaceChildren(guideSnapshot);
@@ -119,8 +149,7 @@
    }
   }
   if(!guideSnapshot||!guideSize)return;
-  // Une marge de 4px en haut ET en bas. L'échelle reste uniforme :
-  // si l'écran était exceptionnellement étroit, la largeur gagne.
+  // 4 px autour du patron si possible, ratio préservé sur iPhone.
   const scale=Math.min((stage.width-8)/guideSize.width,
    (stage.height-8)/guideSize.height);
   if(!(scale>0))return;
@@ -147,7 +176,7 @@
   if(output&&typeof MutationObserver==='function')
    new MutationObserver(scheduleExactCameraGuide).observe(output,{childList:true});
   window.addEventListener('resize',scheduleExactCameraGuide,{passive:true});
-  document.fonts?.ready?.then(scheduleExactCameraGuide).catch(()=>{});
+  document.fonts?.ready?.then(()=>{guideSnapshot=null;scheduleExactCameraGuide();}).catch(()=>{});
  }
 
  // La carte reste compacte en permanence : seuls les états changent.
