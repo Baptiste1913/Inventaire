@@ -519,7 +519,6 @@ assert(js.includes('function cameraCaptureCrop(')&&
  'Cadrage conservant les bords et capture caméra à meilleure résolution');
 assert(js.includes('const maxBase64=690000;')&&
  js.includes('for(const side of [2400,2200,1920,1700,1500])')&&
- js.includes('const qualities=[.93,.87,.81,.75];')&&
  js.includes("for(const quality of [.93,.87,.81,.75])"),
  'Compression par résolution/qualité inchangée et repli ancien Safari');
 assert(js.includes('const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1')&&
@@ -534,11 +533,12 @@ assert(js.includes('function independentLocalReadingFor(source)')&&
  js.includes('attempts.delete(selectedModel)')&&
  js.includes('localCheckSource=null;localCheckPromise=null;'),
  'OCR local concurrent et désaccord empêchant la validation');
-assert(js.includes("if(validateResult(result).error){")&&
- js.includes('const second=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);')&&
+assert(js.includes('const firstProblem=validateResult(result).error;')&&
+ js.includes("analyze.textContent='Réessayer l’analyse';")&&
+ !js.includes('const second=await requestGeminiWithRecovery(')&&
  js.includes('const saveReady=Boolean(validationState());')&&
  js.includes("nextWeigh?.addEventListener('click',()=>{"),
- 'Deuxième passage Gemini seulement après échec de vérification, enregistrement manuel');
+ 'Une réponse incertaine se relance à la demande sans deuxième requête automatique');
 // v42.13 : la date sur la maquette est explicitement locale, pas OCR.
 assert(js.includes('function todayForVirtualLabel()')&&
  js.includes("date.getDate()")&&
@@ -613,7 +613,6 @@ assert(js.includes('let photoDecodeCache=new WeakMap();')&&
 assert(js.includes("canvas.toBlob(blob=>blob?resolve(blob):reject(Error('JPEG indisponible'))")&&
  js.includes('const maxJpegBytes=Math.floor(maxBase64*3/4)')&&
  js.includes('for(const side of [2400,2200,1920,1700,1500])')&&
- js.includes('const qualities=[.93,.87,.81,.75];')&&
  js.includes("for(const quality of [.93,.87,.81,.75])"),
  'JPEG asynchrone sans diminuer qualité/résolution ni augmenter le payload');
 assert(js.includes('const independent=independentLocalReadingFor(file)')&&
@@ -660,12 +659,12 @@ assert(js.includes("nextWeigh?.addEventListener('click',()=>{")&&
  js.includes("const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;")&&
  css.includes('> #iuGeminiDetected.iu-weigh-scan-detected-indicator[hidden] {'),
  'Validation volontaire et masquage des étiquettes non valides conservés');
-// v42.14 — première visualisation rapide sans validation prématurée.
-const imageWorker=fs.readFileSync('gemini-image-worker.js','utf8');
+// v42.14/v42.15 — affichage anticipé conservé, chemin JPEG restauré.
 assert(html.includes('gemini-lab.js?v='+version)&&
- sw.includes('gemini-image-worker.js?v='+version)&&
- js.includes("new Worker(new URL('gemini-image-worker.js?v=42.14',document.baseURI))"),
- 'Worker image disponible et versionné avec la PWA');
+ !sw.includes('gemini-image-worker.js?v=')&&
+ !js.includes('encodeOnImageWorker(')&&
+ !js.includes('imageEncoderWorker'),
+ 'Pas de Worker JPEG expérimental dans le chemin critique');
 assert(js.includes('let proposal=null,latestLabelFields=null,previewPending=false')&&
  js.includes("display(result,performance.now()-start,{provisional:true});")&&
  js.includes('const canSave=Boolean(corrected)&&!active&&!previewPending;')&&
@@ -678,19 +677,37 @@ assert(js.includes("if(previewPending)bars.replaceChildren();")&&
  js.includes('if(!provisional)renderEanBars(')&&
  js.includes("if(previewPending){setLabelAlert('idle','Vérification OCR en cours…');return;}"),
  'Aucun code-barres visualisable ni état validé avant vérification');
-assert(js.includes('function encodeOnImageWorker(source,maxBytes)')&&
- js.includes('const offthread=await encodeOnImageWorker(source,maxJpegBytes);')&&
- js.includes("if(typeof cv.toBlob!=='function')")&&
- js.includes('const qualities=[.93,.87,.81,.75];')&&
- imageWorker.includes('new OffscreenCanvas(1,1)')&&
- imageWorker.includes('for(const side of [2400,2200,1920,1700,1500])')&&
- imageWorker.includes('const top=await encode(.93)'),
- 'JPEG adaptatif hors UI et repli avec les mêmes qualités haute résolution');
+assert(js.includes('function jpegCanvasBlob(canvas,quality)')&&
+ js.includes('for(const side of [2400,2200,1920,1700,1500])')&&
+ js.includes('const blob=await jpegCanvasBlob(cv,quality);')&&
+ js.includes("cv.toDataURL('image/jpeg',quality)")&&
+ !js.includes("const timer=setTimeout(()=>{disableImageWorker();},11000)"),
+ 'Compression de v42.13 rétablie et absence du délai de 11 s');
 assert(server.includes('const schemaUnavailableUntil=new Map();')&&
  server.includes('schemaUnavailableUntil.get(model)')&&
  server.includes('schemaUnavailableUntil.set(model,Date.now()+15*60*1000)')&&
  server.includes('res=await askGemini(false);')&&
  server.includes('providerError=String(await res.text()).slice(0,6000)'),
  'Mémoire bornée des refus de schéma JSON sans perte de compatibilité');
+// v42.15 — tester les voies de reprise et la protection des pesées.
+assert(js.includes('function hasSavableProposal(){')&&
+ js.includes('return !!(ctx&&recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate));')&&
+ js.includes('const locked=Boolean(frameCaptureBusy||(!active&&localOcrBusy));')&&
+ js.includes("capture.title=active?'Annuler cette analyse et reprendre une photo'"),
+ 'La photo est reprenable avec tare incorrecte ou analyse longue');
+assert(js.includes('if(hasSavableProposal()&&!window.confirm(')&&
+ js.includes('if(active||proposal||latestLabelFields)resetReading();')&&
+ js.includes('if(active)resetReading();')&&
+ js.includes('generation++;abort?.abort();abort=null;active=false;previewPending=false;file=null;'),
+ 'Recapture et import invalident l’ancienne requête sans perdre un brouillon correct par accident');
+assert(js.includes('const firstProblem=validateResult(result).error;')&&
+ !js.includes('const second=await requestGeminiWithRecovery(')&&
+ js.includes("analyze.textContent='Réessayer l’analyse';")&&
+ js.includes('const local=await localCheckWithin(independent,2200)'),
+ 'Deuxième appel sur demande seulement et contrôle OCR inchangé');
+assert(js.includes('eanCheck(ean.slice(0,12))!==ean[12]')&&
+ js.includes('const canSave=Boolean(corrected)&&!active&&!previewPending;')&&
+ js.includes('const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;'),
+ 'Sécurité calcul, EAN, tare et code-barres provisoire conservée');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.14 : aperçu provisoire sûr, JPEG adaptatif en Worker et schéma Gemini mémorisé OK.');
+console.log('Gemini v42.15 : JPEG stable, lecture relançable et tare invalide non bloquante OK.');
