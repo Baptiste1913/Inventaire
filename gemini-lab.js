@@ -470,7 +470,11 @@
   const fields={...(result?.fields||{})},checks={...(result?.checks||{})};
   const incoming=String(fields.ean13||'');
   const fromGemini=/^\d{13}$/.test(incoming)&&eanCheck(incoming.slice(0,12))===incoming[12];
-  const external=reading?.confirmed&&reading?.ean13&&
+  const opticalArea=reading?.source!=='optical'||(
+   reading.bounds&&reading.bounds.y>=.52&&reading.bounds.y<=.94&&
+   (reading.bounds.left+reading.bounds.right)/2<=.71&&
+   Math.abs(reading.bounds.slope||0)<=.10);
+  const external=reading?.confirmed&&reading?.ean13&&opticalArea&&
    eanCheck(reading.ean13.slice(0,12))===reading.ean13[12]
    ?reading.ean13:null;
   if(!fromGemini&&external)fields.ean13=external;
@@ -531,7 +535,7 @@
   }
   if(!/^\d{1,3}\.\d{2}$/.test(text))return null;
   const cents=Math.round(Number(text)*100);
-  return cents>=0&&cents<=1000000?cents:null;
+  return cents>=0&&cents<=(key==='total'?99999:1000000)?cents:null;
  }
  const fieldKeys={name:'name',weight:'weightGrams',rate:'pricePerKgCents',
   total:'totalCents',ean:'ean13'};
@@ -1152,7 +1156,10 @@
    // Le code optique supplée un EAN incomplet ; s'il contredit Gemini,
    // l'étiquette reste à vérifier et NE PEUT PAS être enregistrée.
    const validated=reconcileBarcode(combined,localBarcode);
-   validated.checks={...validated.checks,...fieldsChecks(validated.fields)};
+   const priorMismatch=validated.checks?.independentMismatch===true;
+   const localChecks=fieldsChecks(validated.fields);
+   validated.checks={...validated.checks,...localChecks,
+    independentMismatch:priorMismatch||localChecks.independentMismatch};
    repairFocus=null;
    display(validated,performance.now()-start);
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
