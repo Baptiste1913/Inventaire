@@ -523,10 +523,10 @@ assert(js.includes('const scale=Math.min(1,1600/Math.max(img.naturalWidth,img.na
  !js.includes('previewPending')&&
  !js.includes('warmGeminiConnection()'),
  'JPEG 42.06 restauré, OCR manuel et préchargements supplémentaires retirés');
-assert(js.includes('const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);')&&
- js.includes('display(result,performance.now()-start);')&&
+assert(js.includes('const received=await requestGeminiWithRecovery(')&&
+ js.includes('display(validated,performance.now()-start);')&&
  !js.includes('const second=await requestGeminiWithRecovery('),
- 'Lecture Gemini v42.06, sans seconde analyse automatique');
+ 'Une analyse unique avec validation et EAN indépendants');
 assert(js.includes('const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1')&&
  js.includes('eanCheck(ean.slice(0,12))!==ean[12]'),
  'Vérifications prix et EAN non diminuées');
