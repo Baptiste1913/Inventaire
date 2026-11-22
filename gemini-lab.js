@@ -1,4 +1,4 @@
-/* Inventaires U 41.98 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.02 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -387,7 +387,8 @@
   clearPreview();file=chosen;attempts.clear();generation++;
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
-  output.hidden=true;networkTime.textContent='';resetProposal();
+  // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
+  showBlankLabel();networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
   if(grossPreview)grossPreview.value='';
   refreshResultCard();
@@ -712,7 +713,8 @@
   const selectedModel=fixedModel,access=pilotKey.value.trim();
   attempts.add(selectedModel);active=true;resetDetectedIndicator();updateButton();
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
-  output.hidden=true;networkTime.textContent='';resetProposal();
+  // Laisser l'étiquette vierge affichée jusqu'au remplacement par le résultat.
+  output.hidden=false;networkTime.textContent='';resetProposal();
   updateCardState('working');
   if(cameraStream&&cameraMode==='auto')setAutoHint('Analyse en cours · une seule photo envoyée','capturing');
   const id=++generation;
@@ -755,7 +757,7 @@
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
-    if(output.hidden&&!proposal)showBlankLabel();
+    if(!proposal&&!output.querySelector('.iu-gemini-printed-label'))showBlankLabel();
     const reason=String(error?.message||'Échec réseau').slice(0,140);
     say('Essai non terminé : '+reason,true);
     updateCardState('error');
