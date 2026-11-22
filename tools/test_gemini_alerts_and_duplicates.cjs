@@ -23,8 +23,12 @@ const section=html.slice(html.indexOf('<section id="iuGeminiLab"'),
 const label=section.indexOf('id="iuGeminiLabOutput"');
 const alert=section.indexOf('id="iuGeminiLabelAlert"');
 const result=section.indexOf('id="iuGeminiEmptyResult"');
-assert(label>0&&alert>label&&result>alert,
- 'Étiquette numérique > voyant > résultat de pesée');
+assert(result>0&&label>result&&alert>label,
+ 'Poids brut + Nouvelle pesée > étiquette numérique > voyant');
+assert(!section.includes('iu-result-glow-shell')&&
+ !section.includes('iu-gemini-result-facts')&&
+ !section.includes('id="iuGeminiProductName"'),
+ 'La fiche résultat redondante est supprimée');
 assert(section.includes('class="iu-gemini-alert-led"')&&
  section.includes('data-state="idle"')&&section.includes('Aucune pesée analysée'),
  'Voyant gris présent avant la première pesée');

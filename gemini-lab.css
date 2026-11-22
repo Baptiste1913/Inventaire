@@ -2813,3 +2813,89 @@ html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   #iuGeminiLabelAlert .iu-gemini-alert-led {animation:none!important;}
 }
+
+
+/* v41.71 — suppression de la fiche résultat redondante. La rangée
+   brute/validation reste directement sous la caméra, avant l'étiquette.
+   Toutes les autres données existent déjà sur l'étiquette DIGI. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiEmptyResult {
+ display:block!important;
+ order:0!important;
+ flex:0 0 auto!important;
+ width:100%!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+ margin:2px 0 0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ overflow:visible!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiEmptyResult > .iu-gemini-gross-row {
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:stretch!important;
+ gap:8px!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiEmptyResult > .iu-gemini-gross-row > .iu-gemini-gross-panel {
+ flex:1 1 0!important;
+ min-width:0!important;
+ margin:0!important;
+ min-height:64px!important;
+ padding:9px 11px!important;
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ justify-content:center!important;
+ gap:3px!important;
+}
+html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiEmptyResult #iuGeminiNext.new-weigh-btn {
+ min-height:64px!important;
+}
+/* La vignette reste lisible et non repliée, directement sous le brut. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabOutput:not([hidden]) {
+ display:flex!important;
+ order:1!important;
+ margin:1px 0 0!important;
+ gap:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabOutput:not([hidden]) > .iu-gemini-label-frame {
+ margin:0!important;
+ padding:5px 5px 4px!important;
+}
+/* Une seule alerte lisible, après l’étiquette : ne pas répéter le même
+   diagnostic en rouge au-dessus du brut. Le statut reste accessible. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelAlert {
+ order:2!important;
+ min-height:32px!important;
+ margin:3px 0 1px!important;
+ padding:7px 10px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is([data-scan-state="review"],[data-scan-state="retry"])
+ > #iuGeminiLabStatus:not(:empty) {
+ position:absolute!important;
+ width:1px!important;height:1px!important;
+ margin:0!important;padding:0!important;border:0!important;
+ overflow:hidden!important;
+ clip-path:inset(50%)!important;
+ white-space:nowrap!important;
+}
+@media(max-width:360px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  > #iuGeminiEmptyResult > .iu-gemini-gross-row {
+  gap:6px!important;
+ }
+}

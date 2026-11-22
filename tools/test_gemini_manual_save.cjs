@@ -24,14 +24,15 @@ assert(!html.includes('id="iuGeminiCopyGross"')&&
  !js.includes("copyGross?.addEventListener('click'"),
  'Le bouton Copier et son code ont été retirés du résultat');
 assert(html.includes('Nouvelle pesée avec Gemini'),'Titre Gemini explicite');
-assert(html.includes('<small>Poids net</small><strong id="iuGeminiNetDisplay"')&&
- html.includes('<small>Tare</small><strong id="iuGeminiTareDisplay"')&&
- html.includes('<small>Prix au kilo</small><strong id="iuGeminiProductRate"'),
- 'Poids net, tare et prix au kilo composent la deuxième ligne');
+assert(!html.includes('id="iuGeminiNetDisplay"')&&
+ !html.includes('id="iuGeminiTareDisplay"')&&
+ !html.includes('id="iuGeminiProductRate"')&&
+ !html.includes('id="iuGeminiProductName"'),
+ 'Article, tare, net et tarif ne sont pas répétés dans un second bloc');
 assert(html.includes('Poids brut à vérifier')&&
  html.includes('<strong id="iuGeminiGrossDisplay">—</strong>')&&
- html.includes('<strong id="iuGeminiProductName">Article à reconnaître</strong>'),
- 'Le titre centré et le brut mis en valeur sont dans un seul résultat');
+ html.indexOf('id="iuGeminiGrossDisplay"')<html.indexOf('id="iuGeminiLabOutput"'),
+ 'Le brut contrôlé et le bouton précèdent l’étiquette numérique');
 assert(html.includes('id="iuGeminiNext"')&&html.includes('Nouvelle<br>pesée'),
  'Bouton Nouvelle pesée qui valide avant de préparer la suivante');
 assert(!html.includes('id="iuGeminiTransfer"'),'Ancien double parcours supprimé');

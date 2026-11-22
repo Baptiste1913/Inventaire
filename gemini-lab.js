@@ -1,4 +1,4 @@
-/* Inventaires U 41.70 — étiquette avant résultat, nouveau bouton pesée, alertes et doublons volontaires.
+/* Inventaires U 41.71 — rangée brut/nouvelle pesée au-dessus de l’étiquette numérique.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -25,10 +25,7 @@
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText');
- const resultGross=$('iuGeminiGrossDisplay'),resultTare=$('iuGeminiTareDisplay'),
-  resultNet=$('iuGeminiNetDisplay'),resultHint=$('iuGeminiResultHint');
- const productBar=$('iuGeminiProductBar'),productName=$('iuGeminiProductName'),
-  productRate=$('iuGeminiProductRate');
+ const resultGross=$('iuGeminiGrossDisplay');
  // La carte reste compacte en permanence : seuls les états changent.
  function updateCardState(nextState){
   panel.dataset.scanState=nextState||(!output.hidden?'review':file?'working':'search');
@@ -69,21 +66,12 @@
  };
  // Le résultat reprend directement la carte de pesée classique.
  // Il reste visible sans étiquette ; la tare suit le panier en cours.
+ // Uniquement le poids brut : les autres valeurs sont déjà sur l’étiquette.
  function refreshResultCard(){
-  const context=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
-  const gross=latestLabelFields?.weightGrams,tare=context?.tareGrams;
-  const grossValid=Number.isSafeInteger(gross)&&gross>0;
-  const tareValid=Number.isSafeInteger(tare)&&tare>=0;
-  const net=grossValid&&tareValid&&gross>tare?gross-tare:null;
-  if(resultGross)resultGross.textContent=grossValid?(gross/1000).toFixed(3).replace('.',','):'—';
-  if(resultTare)resultTare.textContent=tareValid?formatWeight(tare):'— kg';
-  if(resultNet)resultNet.textContent=net===null?'— kg':formatWeight(net);
-  emptyResult?.classList.toggle('has-reading',grossValid);
-  if(resultHint)resultHint.textContent=net!==null
-   ?'Vérifie le poids brut et l’étiquette avant de valider.'
-   :grossValid?'Poids net indisponible : vérifie le panier et sa tare.'
-   :'Présente une étiquette pour calculer le poids net.';
-  return net;
+  const gross=latestLabelFields?.weightGrams;
+  const valid=Number.isSafeInteger(gross)&&gross>0;
+  if(resultGross)resultGross.textContent=valid?(gross/1000).toFixed(3).replace('.',','):'—';
+  emptyResult?.classList.toggle('has-reading',valid);
  }
  refreshResultCard();
  function updateButton(){
@@ -209,9 +197,6 @@
   output.hidden=true;output.replaceChildren();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
   if(emptyResult)emptyResult.hidden=false;
-  if(productBar)productBar.hidden=false;
-  if(productName)productName.textContent='Article à reconnaître';
-  if(productRate)productRate.textContent='— €/kg';
   refreshResultCard();
   clearPreview();capture.disabled=false;updateButton();
   updateCardState('search');
@@ -236,9 +221,6 @@
   picture.src=url;picture.hidden=false;
   output.hidden=true;networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
-  if(productBar)productBar.hidden=false;
-  if(productName)productName.textContent='Article à reconnaître';
-  if(productRate)productRate.textContent='— €/kg';
   if(grossPreview)grossPreview.value='';
   refreshResultCard();
   refreshLabelAlert();
@@ -522,12 +504,7 @@
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
-  // Résultat permanent sous l’étiquette numérique ; même fond que la
-  // pesée classique, avec le bouton Nouvelle pesée à droite du brut.
-  if(productBar)productBar.hidden=false;
-  if(productName)productName.textContent=name;
-  if(productRate)productRate.textContent=
-   Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'Prix non reconnu';
+  // La ligne de contrôle conserve seulement le brut de l’étiquette.
   refreshResultCard();
   const frame=add(output,'div','iu-gemini-label-frame','');
   frame.setAttribute('role','group');
