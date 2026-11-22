@@ -1,4 +1,4 @@
-/* Inventaires U 42.11 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.12 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -864,7 +864,7 @@
     await waitGeminiBackoff(retryDelay(response,attempt),signal);
     continue;
    }
-   if(status===401||status===403)throw Error('Accès Gemini refusé : vérifie la clé Cloudflare.');
+   if(status===401||status===403)throw Error('Accès Gemini refusé : vérifie les clés du Worker et de Gemini.');
    if(status===429)throw Error('Limite de requêtes Gemini atteinte. Réessaie après quelques instants (429).');
    if(status===502&&/Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide/i.test(String(result?.error||''))){
     throw Error('Gemini n’a pas fourni une lecture exploitable après plusieurs essais. Tu peux réessayer avec la même photo.');
