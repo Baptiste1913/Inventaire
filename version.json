@@ -1,6 +1,6 @@
 {
-  "version": "41.86",
+  "version": "41.87",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Caméra Gemini harmonisée avec l’OCR classique : largeur 100 % du viseur, hauteur fixe de 184 px (160 px sur iPhone étroit), marges internes 9/8 px et coins 16 px. Vidéo centrée en object-fit:cover, sans déformation, ni ratio DIGI imposé à la caméra. Les sept repères DIGI, l’OCR, le flash et la capture sont préservés."
+  "notes": "Contour extérieur du repère d’étiquette Gemini animé par le même Canvas weigh-light.js que le poids de l’OCR classique : fibres nacrées, reflets bleu/émeraude/rubis et mouvement continu. Le Canvas est conservé lors des reconstructions responsive ; animation seulement en caméra active, prise en charge des mouvements réduits. Sept zones internes, format caméra OCR, flash et capture inchangés."
 }
