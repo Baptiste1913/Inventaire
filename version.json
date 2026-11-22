@@ -1,6 +1,6 @@
 {
-  "version": "42.04",
+  "version": "42.05",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Flash IA : à l'activation, seul le pictogramme éclair devient un éclair plein bleu. Le verre, le contour et l'ombre du bouton restent identiques à l'état inactif, sans halo. Espacement sous le sélecteur de paniers réduit (marge de la rangée 8→3px et marge supérieure du bloc caméra 3→1px). Dimensions du sélecteur, viseur, déclencheur rouge, analyse Gemini et fonctionnement manuel préservés."
+  "notes": "Bloc de contrôle sous l'étiquette virtuelle beaucoup plus translucide : film blanc réduit à 16–23%, trame et halos conservés, papier de l'étiquette inchangé. Rangée poids brut à vérifier et Nouvelle pesée réduite de 66 à 54 px. Nouveau bouton Nouvelle pesée au même fond, dégradé, coins 14px, contour, ombres neumorphiques et réaction tactile que les boutons Activer caméra et Import photo ; état prêt conservé, fonctionnement d'enregistrement inchangé."
 }
