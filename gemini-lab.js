@@ -1,4 +1,4 @@
-/* Inventaires U 41.67 — résultat Gemini fusionné, brut valorisé et viseur OCR constant.
+/* Inventaires U 41.68 — résultat Gemini en trois lignes et réglages Auto/Cloudflare regroupés.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -25,8 +25,7 @@
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const resultGross=$('iuGeminiGrossDisplay'),resultTare=$('iuGeminiTareDisplay'),
-  resultNet=$('iuGeminiNetDisplay'),resultHint=$('iuGeminiResultHint'),
-  copyGross=$('iuGeminiCopyGross'),copyGrossLabel=$('iuGeminiCopyGrossLabel');
+  resultNet=$('iuGeminiNetDisplay'),resultHint=$('iuGeminiResultHint');
  const productBar=$('iuGeminiProductBar'),productName=$('iuGeminiProductName'),
   productRate=$('iuGeminiProductRate');
  // La carte reste compacte en permanence : seuls les états changent.
@@ -38,7 +37,7 @@
  }
  updateCardState('search');
  const setupCallout=$('iuGeminiSetupCallout'),geminiOptions=$('iuGeminiOptions');
- const autoModeButton=$('iuGeminiAutoMode'),manualModeButton=$('iuGeminiManualMode'),
+ const autoToggle=$('iuGeminiAutoToggle'),
   autoScanState=$('iuGeminiAutoScanState'),autoReset=$('iuGeminiAutoReset');
  const autoSampleCanvas=document.createElement('canvas');
  let cameraMode='auto',autoTimer=0,autoLocked=false,autoSuspended=false,
@@ -79,21 +78,8 @@
    ?'Vérifie le poids brut et l’étiquette avant de valider.'
    :grossValid?'Poids net indisponible : vérifie le panier et sa tare.'
    :'Présente une étiquette pour calculer le poids net.';
-  if(copyGross){
-   copyGross.disabled=!grossValid;
-   copyGross.dataset.grams=grossValid?String(gross):'';
-  }
   return net;
  }
- copyGross?.addEventListener('click',async()=>{
-  const grams=Number(copyGross.dataset.grams);
-  if(copyGross.disabled||!Number.isSafeInteger(grams)||grams<=0)return;
-  try{
-   await navigator.clipboard.writeText((grams/1000).toFixed(3));
-   if(copyGrossLabel)copyGrossLabel.textContent='Copié';
-   setTimeout(()=>{if(copyGrossLabel)copyGrossLabel.textContent='Copier';},1100);
-  }catch(_){say('Impossible de copier sur cet appareil.',true);}
- });
  refreshResultCard();
  function updateButton(){
   analyze.hidden=!file;
@@ -173,9 +159,9 @@
   output.hidden=true;output.replaceChildren();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
   if(emptyResult)emptyResult.hidden=false;
-  if(productBar)productBar.hidden=true;
-  if(productName)productName.textContent='';
-  if(productRate)productRate.textContent='';
+  if(productBar)productBar.hidden=false;
+  if(productName)productName.textContent='Article à reconnaître';
+  if(productRate)productRate.textContent='— €/kg';
   refreshResultCard();
   clearPreview();capture.disabled=false;updateButton();
   updateCardState('search');
@@ -198,7 +184,9 @@
   picture.src=url;picture.hidden=false;
   output.hidden=true;networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
-  if(productBar)productBar.hidden=true;
+  if(productBar)productBar.hidden=false;
+  if(productName)productName.textContent='Article à reconnaître';
+  if(productRate)productRate.textContent='— €/kg';
   if(grossPreview)grossPreview.value='';
   refreshResultCard();
   updateCardState('working');
@@ -266,11 +254,24 @@
   pilotKey.focus({preventScroll:true});
  });
  // Le panier Gemini réutilise la sélection et les règles de tare de la pesée classique.
- const classicBasket=$('basketSelect'),geminiBasket=$('iuGeminiBasketSelect');
+ const classicBasket=$('basketSelect'),geminiBasket=$('iuGeminiBasketSelect'),
+  geminiTare=$('iuGeminiBasketTare');
+ function updateGeminiBasketTare(){
+  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  const grams=ctx?.tareGrams;
+  if(geminiTare)geminiTare.textContent=Number.isSafeInteger(grams)&&grams>=0
+   ?'Tare · '+formatWeight(grams):'Tare non définie';
+ }
  function syncGeminiBasket(){
   if(!classicBasket||!geminiBasket)return;
-  geminiBasket.replaceChildren(...Array.from(classicBasket.options,option=>option.cloneNode(true)));
+  const options=Array.from(classicBasket.options,option=>{
+   const copy=option.cloneNode(true);
+   copy.textContent=String(copy.textContent||'').replace(/\s+[—–-]\s+\d+(?:[.,]\d+)?\s*kg\s*$/i,'').trim();
+   return copy;
+  });
+  geminiBasket.replaceChildren(...options);
   geminiBasket.value=classicBasket.value;
+  updateGeminiBasketTare();
  }
  if(classicBasket&&geminiBasket){
   syncGeminiBasket();
@@ -278,6 +279,7 @@
   geminiBasket.addEventListener('change',()=>{
    classicBasket.value=geminiBasket.value;
    classicBasket.dispatchEvent(new Event('change',{bubbles:true}));
+   updateGeminiBasketTare();
   });
   new MutationObserver(()=>{syncGeminiBasket();validationState();}).observe(classicBasket,{childList:true,subtree:true});
  }
@@ -876,10 +878,7 @@
  }
  function selectCameraMode(mode){
   cameraMode=mode==='manual'?'manual':'auto';
-  autoModeButton?.setAttribute('aria-pressed',String(cameraMode==='auto'));
-  manualModeButton?.setAttribute('aria-pressed',String(cameraMode==='manual'));
-  autoModeButton?.classList.toggle('is-selected',cameraMode==='auto');
-  manualModeButton?.classList.toggle('is-selected',cameraMode==='manual');
+  if(autoToggle)autoToggle.checked=cameraMode==='auto';
   if(capture)capture.textContent=cameraMode==='auto'?'Capturer maintenant':'Capturer cette étiquette';
   if(cameraMode==='manual'){
    clearAutoTimer();setAutoHint('Capture manuelle activée','manual');
@@ -890,8 +889,15 @@
    startAutoMonitor();
   }
  }
- autoModeButton?.addEventListener('click',()=>selectCameraMode('auto'));
- manualModeButton?.addEventListener('click',()=>selectCameraMode('manual'));
+ // Choix conservé sur l'appareil, sans réouverture de la caméra.
+ const capturePreferenceKey='iu-gemini-auto-capture-v1';
+ try{if(localStorage.getItem(capturePreferenceKey)==='manual')cameraMode='manual';}catch(_){}
+ selectCameraMode(cameraMode);
+ autoToggle?.addEventListener('change',()=>{
+  const next=autoToggle.checked?'auto':'manual';
+  selectCameraMode(next);
+  try{localStorage.setItem(capturePreferenceKey,next);}catch(_){}
+ });
  autoReset?.addEventListener('click',()=>{
   if(active||proposal||!cameraStream)return;
   resetReading();armAutoScanner(false);

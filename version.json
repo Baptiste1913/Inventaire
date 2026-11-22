@@ -1,6 +1,6 @@
 {
-  "version": "41.67",
+  "version": "41.68",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Bloc Gemini : fusion du nom d’article, prix au kilo, poids net, tare et poids brut dans la même carte lumineuse classique, avec priorité visuelle au poids brut grâce à un accent coloré compact. Le bouton Copier copie le brut. Viseur Gemini aux hauteurs 184/160 px identiques à l’OCR classique, repères de gabarit et zone poids OCR, sans rétrécissement pendant/après l’analyse. Scanner automatique, validation humaine et étiquette virtuelle conservés."
+  "notes": "Gemini : carte de résultat façon pesée classique harmonisée en trois lignes (article centré, net/tare/prix au kilo, brut compact valorisé), sans bouton Copier. Réglages regroupés au-dessus du panier avec interrupteur de capture automatique mémorisé et clé Cloudflare repliable. Panier raccourci avec tare en dessous ; boutons scan et photo alignés sur le style du bouton OCR classique. Caméra, reconnaissance et validation manuelle conservées."
 }

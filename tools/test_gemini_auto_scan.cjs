@@ -10,7 +10,7 @@ const html=fs.readFileSync('index.html','utf8');
 const css=fs.readFileSync('gemini-lab.css','utf8');
 const version=JSON.parse(fs.readFileSync('version.json','utf8')).version;
 
-for(const id of ['iuGeminiAutoMode','iuGeminiManualMode','iuGeminiAutoScanState','iuGeminiAutoReset','iuGeminiCapture'])
+for(const id of ['iuGeminiAutoToggle','iuGeminiAutoScanState','iuGeminiAutoReset','iuGeminiCapture'])
  assert(html.includes('id="'+id+'"'),'Contrôle requis : '+id);
 assert(!html.includes('Mode Auto : la netteté et la stabilité'),'Texte explicatif supprimé sans modifier le scanner');
 assert(source.includes('getImageData(')&&source.includes('capture.click();'),'Le traitement local précède une seule capture');
@@ -82,9 +82,13 @@ assert(source.includes("if(cameraStream&&cameraMode==='auto')armAutoScanner(true
  'Réarmement après validation humaine uniquement');
 assert(source.includes('autoSuspended=true;autoLocked=true;lastPhotoWasAuto=false;'),
  'Import de galerie ne lance pas la capture live en parallèle');
-assert(source.includes("autoModeButton?.addEventListener('click'")&&
- source.includes("manualModeButton?.addEventListener('click'"),
- 'Basculement Auto / Manuel disponible');
+assert(source.includes("autoToggle?.addEventListener('change'")&&
+ source.includes("selectCameraMode(next)")&&
+ source.includes("localStorage.setItem(capturePreferenceKey,next)")&&
+ html.includes('type="checkbox" id="iuGeminiAutoToggle" role="switch" checked'),
+ 'Toggle Auto / Manuel dans les réglages, sélection mémorisée');
+assert(!html.includes('id="iuGeminiAutoMode"')&&!html.includes('id="iuGeminiManualMode"'),
+ 'Les boutons Auto / Manuel du viseur ont disparu');
 assert(source.includes('clearAutoTimer();clearAutoStability();'),
  'Arrêter le contrôle en fermant la caméra');
 const saveStart=source.indexOf("nextWeigh?.addEventListener('click'");

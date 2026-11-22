@@ -19,17 +19,19 @@ assert(confirm.includes('window.IUGeminiSaveWeigh('),'La sauvegarde exige le cli
 assert(confirm.indexOf('validationState()')<confirm.indexOf('window.IUGeminiSaveWeigh('),'Recalculer la tare juste avant de sauvegarder');
 assert(confirm.includes('resetReading();'),'La prochaine lecture se prépare après validation');
 assert(js.includes("if(proposal&&!window.confirm("),'Ne pas écraser silencieusement une lecture non validée');
-assert(js.includes("copyGross?.addEventListener('click'")&&
- html.includes('id="iuGeminiCopyGross"'),
- 'Le bouton Copier du résultat partage le poids brut contrôlé');
+assert(!html.includes('id="iuGeminiCopyGross"')&&
+ !html.includes('id="iuGeminiCopyNet"')&&
+ !js.includes("copyGross?.addEventListener('click'"),
+ 'Le bouton Copier et son code ont été retirés du résultat');
 assert(html.includes('Nouvelle pesée avec Gemini'),'Titre Gemini explicite');
-assert(html.includes('Poids net <strong id="iuGeminiNetDisplay"')&&
- html.includes('Tare <strong id="iuGeminiTareDisplay"'),
- 'Le net et la tare figurent dans la même carte lumineuse');
+assert(html.includes('<small>Poids net</small><strong id="iuGeminiNetDisplay"')&&
+ html.includes('<small>Tare</small><strong id="iuGeminiTareDisplay"')&&
+ html.includes('<small>Prix au kilo</small><strong id="iuGeminiProductRate"'),
+ 'Poids net, tare et prix au kilo composent la deuxième ligne');
 assert(html.includes('Poids brut à vérifier')&&
  html.includes('<strong id="iuGeminiGrossDisplay">—</strong>')&&
- html.includes('id="iuGeminiProductName"')&&html.includes('id="iuGeminiProductRate"'),
- 'Le brut mis en valeur, le nom et le prix intégrés dans le résultat');
+ html.includes('<strong id="iuGeminiProductName">Article à reconnaître</strong>'),
+ 'Le titre centré et le brut mis en valeur sont dans un seul résultat');
 assert(html.includes('id="iuGeminiNext"')&&html.includes('Valider<br>et suivante'),'Bouton unique de validation');
 assert(!html.includes('id="iuGeminiTransfer"'),'Ancien double parcours supprimé');
 assert(js.includes('iu-gemini-label-frame')&&!js.includes('iu-gemini-details'),'Étiquette miniature directement visible');
@@ -46,7 +48,9 @@ assert(photoSection.includes('!pilotKey.value.trim()'),'Sans clé pilote, aucune
 assert(js.includes('todayForVirtualLabel()'),'La date du jour est affichée sur la maquette');
 assert(!js.includes('const rawDate=fields.packagingDate'),'La date ancienne de la photo ne doit pas être recopiée');
 assert(!html.includes('class="iu-gemini-auto-disclosure"'),'Le long texte du mode Auto est retiré');
-assert(html.includes('id="iuGeminiOptions"')&&html.includes('Clé d’accès et confidentialité'),'Les réglages de confidentialité restent accessibles');
+assert(html.includes('id="iuGeminiOptions"')&&html.includes('Clé privée et confidentialité')&&
+ html.indexOf('id="iuGeminiOptions"')<html.indexOf('id="iuGeminiBasketSelect"'),
+ 'La clé Cloudflare et la confidentialité sont au-dessus du panier');
 assert(css.includes('v41.50 — Pastille Gemini restaurée')&&css.includes('display:inline-flex!important'),'Pastille Gemini restaurée');
 
 // Exécuter le traceur EAN SVG de l'application sur l'étiquette réelle de la carotte.
