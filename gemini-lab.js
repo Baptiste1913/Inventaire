@@ -1,4 +1,4 @@
-/* Inventaires U 41.92 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.93 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -464,8 +464,12 @@
  // deux lignes à l'intérieur de son cadre, sans changer les calculs.
  function updateGeminiBasketTare(){
   const selected=geminiBasket?.selectedOptions?.[0];
-  const name=String(selected?.textContent||'Choisir un panier').trim();
+  const fullText=String(selected?.textContent||'Choisir un panier').trim();
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  // Garder la tare dans chaque option native comme dans le panier
+  // classique ; l'affichage fermé reste sur deux lignes, sans doublon.
+  const name=String(ctx?.basketName||
+   fullText.replace(/\s+[—–-]\s+\d+(?:[.,]\d+)?\s*kg\s*$/i,'')).trim();
   const grams=ctx?.tareGrams;
   const tare=Number.isSafeInteger(grams)&&grams>=0
    ?'Tare : '+formatWeight(grams):'Tare non définie';
@@ -475,11 +479,9 @@
  }
  function syncGeminiBasket(){
   if(!classicBasket||!geminiBasket)return;
-  const options=Array.from(classicBasket.options,option=>{
-   const copy=option.cloneNode(true);
-   copy.textContent=String(copy.textContent||'').replace(/\s+[—–-]\s+\d+(?:[.,]\d+)?\s*kg\s*$/i,'').trim();
-   return copy;
-  });
+  // Les options (nom — 0,xxx kg) sont reprises à l'identique
+  // du sélecteur de la pesée classique, y compris le menu iOS.
+  const options=Array.from(classicBasket.options,option=>option.cloneNode(true));
   geminiBasket.replaceChildren(...options);
   geminiBasket.value=classicBasket.value;
   updateGeminiBasketTare();
