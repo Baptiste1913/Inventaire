@@ -1,6 +1,6 @@
 {
-  "version": "42.20",
+  "version": "42.21",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Finalisation du viseur Gemini avec repère réduit de 18 %, conservation du ratio et centrage. Caméra temporairement fermée et piste vidéo désactivée durant chaque analyse : « Analyse… » visible uniquement à ce moment ; réouverture après succès ou erreur. Correctif Safari supplémentaire : réactivation du viseur au retour d'arrière-plan, récupération automatique si iOS a terminé la piste durant l'analyse. Conservation de la piste existante lorsque possible, sans nouveau getUserMedia ; caméra fermée volontairement non rouverte. Indicateur Analyse masqué au repos. Aucune modification du modèle Gemini, de la qualité photo, de la tare, de l'EAN, du prix ou de l'enregistrement."
+  "notes": "Scanner Gemini enchaînement rapide : une pression sur le déclencheur capture la prochaine étiquette, enregistre la pesée précédente si elle est vérifiée et seulement si la capture réussit, puis lance la reconnaissance. Détection des doublons sur code-barres EAN13 complet, poids brut et prix imprimé, indépendamment du panier. Confirmation volontaire par le déclencheur averti ou par le bouton Confirmer doublon, option Ignorer compacte, doublons confirmés étiquetés dans l'historique. Sauvegarde renforcée contre un doublon non autorisé, et contre la même photo importée deux fois dans la session. La dernière pesée peut être enregistrée sans nouvelle photo. Échecs photo ou stockage ne perdent pas les données précédentes. Interface caméra, modèle Gemini, résolution, contrôles poids/tare/prix/EAN et sauvegarde manuelle conservés."
 }
