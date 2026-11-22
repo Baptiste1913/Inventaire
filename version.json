@@ -1,6 +1,6 @@
 {
-  "version": "41.90",
+  "version": "41.91",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Harmonisation en-tête pesée IA avec Calcul classique. Petit titre « SERVICE U / PESÉE VIA IA » sur une seule ligne, 10,5 px et gris bleuté #73818a comme la section Calcul. Titre « Nouvelle pesée via Gemini » aligné sur « Nouvelle pesée » (17 px, 16 px sur petit iPhone, #20252b), mêmes 4 px entre intitulés et 20 px sous l’en-tête. Caméra, éclairage, OCR, repères et pesées inchangés."
+  "notes": "Caméra IA à capture exclusivement manuelle sur appui du bouton, sans sélecteur Auto ni lecture de l’ancienne préférence. Bloc Réglages supprimé ; tiroir Accès Cloudflare indépendant directement sous le titre, mêmes dimensions, couleurs, typographies, coins, ombres et animation d’ouverture que Réglages d’alertes de la pesée classique. Marges harmonisées ; clé Cloudflare, photo galerie, OCR et validation préservés."
 }
