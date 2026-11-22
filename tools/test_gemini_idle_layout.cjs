@@ -71,6 +71,28 @@ assert(zones.length===7,'Exactement sept grands cadres, sans cadres par mot');
 for(const kind of ['store','product','rate','weight','date','barcode','total']){
  assert(zones.some(line=>line.includes("'"+kind+"'")),'Zone '+kind+' présente');
 }
+const outlineZone=(name)=>{
+ const match=js.match(new RegExp("\\['"+name+"'\\s*,\\s*([.0-9]+),\\s*([.0-9]+),\\s*([.0-9]+),\\s*([.0-9]+)\\]"));
+ assert(match,'Zone DIGI présente : '+name);
+ return match.slice(1).map(Number);
+};
+const [barcodeX,barcodeY,barcodeW,barcodeH]=outlineZone('barcode');
+const [totalX,totalY,totalW,totalH]=outlineZone('total');
+assert(barcodeY===totalY&&barcodeH===totalH,
+ 'Le code-barres a exactement la hauteur et le bas du prix à payer');
+for(const kind of ['rate','weight','date']){
+ const [, ,w,h]=outlineZone(kind);
+ const originals={rate:[.266,.187],weight:[.269,.187],date:[.299,.187]};
+ assert(Math.abs(w/originals[kind][0]-.67)<.008&&
+  Math.abs(h/originals[kind][1]-.67)<.008,
+  kind+' réduit de 33 % sur les deux axes');
+}
+const [productX,productY,productW,productH]=outlineZone('product');
+assert(Math.abs(productW/.895-.85)<.005&&
+ Math.abs(productH/.183-.85)<.005,'Libellé réduit de 15 %');
+assert(Math.abs((productX+productW/2)-(.058+.895/2))<.003&&
+ Math.abs((productY+productH/2)-(.271+.183/2))<.003,
+ 'Libellé toujours centré dans son ancienne zone');
 assert(!js.includes("range.selectNodeContents(element)")&&
  !js.includes("addText('.iu-gemini-label-")&&
  !js.includes("addSample('.iu-gemini-label-"),
@@ -84,4 +106,4 @@ assert(css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect')&&
 assert(css.includes('background:linear-gradient(145deg,#d9f0ff 0%,#8fcefa 100%)!important'),
  'Flash actif visuellement plus prononcé');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.83 : sept zones DIGI pleine et flash actif plus visible OK.');
+console.log('Gemini v41.84 : code-barres aligné, 3 repères -33 %, libellé -15 % OK.');
