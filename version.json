@@ -1,6 +1,6 @@
 {
-  "version": "41.80",
+  "version": "41.81",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Viseur IA plus compact (156px, 142px sur iPhone étroit), repère DIGI réduit uniformément à 88 % sans déformer ses proportions. Textes en caractères évidés, contours blancs translucides et barres EAN décoratives creuses, sans aplats ; caméra et OCR inchangés."
+  "notes": "Caméra IA pleine largeur et légèrement plus haute (194px, 182px sur iPhone étroit). Repère d’étiquette agrandi uniformément jusqu’à 4px des bords haut/bas avec simples rectangles translucides mesurés sur le modèle DIGI, sans texte ni blocs pleins. Flash monochrome à icône bleue et fond légèrement bleu lorsqu’activé. Capture, OCR et état initial inchangés."
 }
