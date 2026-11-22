@@ -1,4 +1,4 @@
-/* Inventaires U 41.91 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.92 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -458,12 +458,20 @@
  });
  // Le panier Gemini réutilise la sélection et les règles de tare de la pesée classique.
  const classicBasket=$('basketSelect'),geminiBasket=$('iuGeminiBasketSelect'),
-  geminiTare=$('iuGeminiBasketTare');
+  geminiName=$('iuGeminiBasketName'),geminiTare=$('iuGeminiBasketTare');
+ // Le <select> natif reste au premier plan pour le sélecteur Safari.
+ // Seule la légende visible superposée présente le nom et la tare sur
+ // deux lignes à l'intérieur de son cadre, sans changer les calculs.
  function updateGeminiBasketTare(){
+  const selected=geminiBasket?.selectedOptions?.[0];
+  const name=String(selected?.textContent||'Choisir un panier').trim();
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const grams=ctx?.tareGrams;
-  if(geminiTare)geminiTare.textContent=Number.isSafeInteger(grams)&&grams>=0
-   ?'Tare · '+formatWeight(grams):'Tare non définie';
+  const tare=Number.isSafeInteger(grams)&&grams>=0
+   ?'Tare : '+formatWeight(grams):'Tare non définie';
+  if(geminiName)geminiName.textContent=name;
+  if(geminiTare)geminiTare.textContent=tare;
+  if(geminiBasket)geminiBasket.setAttribute('aria-label','Type de panier : '+name+'. '+tare);
  }
  function syncGeminiBasket(){
   if(!classicBasket||!geminiBasket)return;
