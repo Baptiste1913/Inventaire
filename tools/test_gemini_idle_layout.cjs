@@ -686,4 +686,8 @@ assert(css.includes('/* v42.19 — viseur réellement fermé')&&
  css.includes('> #iuGeminiFrameState.iu-gemini-frame-state[hidden]')&&
  css.includes('display:none!important;visibility:hidden!important;'),
  'Analyse cachée au repos, état de caméra fermé en traitement');
-console.log('Gemini v42.19 : guides réduits, vidéo désactivée durant analyse et reprise automatique OK.');
+assert(js.includes("cameraShell.dataset.state='scanning';\n   video.srcObject=cameraStream;")&&
+ js.includes("void startCamera();")&&
+ js.includes('if(resume&&wasLive&&cameraStream&&track?.readyState!=='),
+ 'Reprise Safari après arrière-plan et piste terminée');
+console.log('Gemini v42.20 : guides plus petits et caméra fermée uniquement durant analyse, reprise Safari OK.');
