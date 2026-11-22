@@ -54,32 +54,30 @@ assert(added.includes('.iu-gemini-camera-idle:focus-visible')&&
 assert(added.includes('.iu-gemini-label-placeholder .iu-gemini-label-bars')&&
  added.includes('background:linear-gradient(180deg,rgba(95,107,117,.10)'),
  'EAN vierge avec guide neutre, sans fausse donnée');
-// v41.79 : le gabarit caméra vient du vrai DOM de l'étiquette.
+// v41.81 : repère construit à partir de rectangles vides et des vraies
+// positions de l'étiquette numérique, à 4px du bord de la caméra.
 assert(section.includes('id="iuGeminiExactGuide"')&&
- !section.includes('iu-gemini-camera-label-map')&&
- !section.includes('iu-gemini-map-middle'),
- 'Plus de repère indépendant aux proportions arbitraires');
+ !section.includes('iu-gemini-camera-label-map'), 'Un seul repère, sans faux dessin surimprimé');
 assert(js.includes("const source=output.querySelector('.iu-gemini-printed-label.iu-gemini-label-placeholder')")&&
- js.includes('const copy=source.cloneNode(true)')&&
- js.includes('getComputedStyle(sourceNodes[i])')&&
- js.includes("const scale=.88*Math.min((stage.width-18)/guideSize.width,"),
- 'Le repère reprend les styles et proportions exacts de l’étiquette imprimée');
-assert(css.includes('aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important')&&
- css.includes('.iu-gemini-camera-stage .iu-weigh-scan-guide {\n display:none!important;'),
- 'Le viseur conserve le ratio DIGI et retire les faux repères superposés');
-// v41.80 : scanner compact, sans aplat ni distorsion de l'étiquette.
-assert(css.includes('height:156px!important;')&&css.includes('height:142px!important;'),
- 'La caméra est plus basse sur tous les formats iPhone');
-assert(js.includes("const scale=.88*Math.min((stage.width-18)/guideSize.width,")&&
- js.includes("(stage.height-18)/guideSize.height);"),
- 'Réduction uniforme du repère à 88 % sans déformation');
-assert(js.includes("target.style.setProperty('-webkit-text-fill-color','transparent','important')")&&
- js.includes("target.style.setProperty('-webkit-text-stroke','1px rgba(255,255,255,.85)','important')")&&
- js.includes("target.style.setProperty('background','transparent','important')"),
- 'Caractères évidés et fonds supprimés sur la copie du modèle DIGI');
-assert(js.includes("bar.setAttribute('fill','none')")&&
- js.includes("bar.setAttribute('stroke','rgba(255,255,255,.72)')")&&
- !js.includes("'repeating-linear-gradient(90deg,rgba(255,255,255,.56)"),
- 'Les barres de guidage sont des contours et non des barres pleines');
+ js.includes('function buildExactCameraOutline(source)')&&
+ js.includes("const printedStyle=getComputedStyle(source)")&&
+ js.includes('source.querySelector(selector)?.getBoundingClientRect()')&&
+ js.includes("line.className='iu-gemini-outline-rect iu-gemini-outline-'+kind"),
+ 'Rectangles sans textes, positionnés depuis le véritable modèle DIGI');
+assert(js.includes('const scale=Math.min((stage.width-8)/guideSize.width,')&&
+ js.includes('(stage.height-8)/guideSize.height);'),
+ 'Repère centré à 4px en hauteur, ratio uniforme sans écrasement');
+assert(css.includes('height:194px!important')&&css.includes('height:182px!important')&&
+ css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect'),
+ 'Caméra agrandie et contours rectangulaires légers');
+assert(css.includes('background:none!important;')&&
+ css.includes('border-style:dashed!important;'),
+ 'Guidage sans aplats, code-barres discret');
+assert(css.includes('#iuGeminiTorch.iu-weigh-scan-torch.is-on')&&
+ css.includes('color:#2588c7!important')&&css.includes('background:linear-gradient(145deg,#f4faff,#ddeefa)!important'),
+ 'Bouton flash neutre et icône bleue, activation bleutée');
+assert(!js.includes('bar.setAttribute(\'fill\',\'none\')')&&
+ !js.includes("'-webkit-text-stroke','1px rgba(255,255,255,.85)'"),
+ 'Les anciens caractères détourés et pseudo-barres ont été supprimés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.80 : cadre compact, repère DIGI proportionnel et contours évidés OK.');
+console.log('Gemini v41.81 : caméra pleine largeur, repère rectangulaire à 4px, flash bleu OK.');
