@@ -1,6 +1,6 @@
 {
-  "version": "41.81",
+  "version": "41.82",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Caméra IA pleine largeur et légèrement plus haute (194px, 182px sur iPhone étroit). Repère d’étiquette agrandi uniformément jusqu’à 4px des bords haut/bas avec simples rectangles translucides mesurés sur le modèle DIGI, sans texte ni blocs pleins. Flash monochrome à icône bleue et fond légèrement bleu lorsqu’activé. Capture, OCR et état initial inchangés."
+  "notes": "Repère IA corrigé : 12 contours individuels calculés depuis les positions des vrais textes de l’étiquette virtuelle DIGI (et non les grandes colonnes). Valeurs exemples mesurées sans affichage ; cadre EAN vide, sans barres simulées. Flash activé plus visible : fond azur, anneau bleu et éclair renforcé. Caméra et OCR préservés."
 }
