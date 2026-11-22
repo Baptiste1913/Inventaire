@@ -45,10 +45,12 @@ assert(rules.includes('width:min(100%,328px)!important')&&
  'Étiquette DIGI lisible, non miniaturisée');
 assert(rules.includes('data-scan-state="review"')&&
  rules.includes('#iuGeminiCapture:disabled')&&
- css.includes('/* v41.99 — capture dans la colonne')&&
- css.includes('flex:0 0 32px!important')&&
+ css.includes('/* v42.00 — déclencheur bas gauche')&&
+ css.includes('left:5px!important')&&
+ css.includes('bottom:5px!important')&&
+ css.includes('width:20px!important')&&
  css.includes('border-radius:11px!important'),
- 'Déclencheur identique à Fermer/Flash, même verrouillage après lecture');
+ 'Déclencheur bas gauche, icône agrandie et même verrouillage');
 
 const a=js.indexOf('function refreshCaptureButton(){');
 const b=js.indexOf('function updateButton(){',a);
@@ -93,4 +95,4 @@ assert(js.includes('function resetProposal(){')&&
 assert(js.includes("if(!proposal){")&&
  js.includes('Lecture incomplète · reprends l’étiquette'),
  'Une lecture incomplète peut être réanalysée sans blocage permanent');
-console.log('Gemini v41.99 : troisième déclencheur aligné et verrouillage conservé OK.');
+console.log('Gemini v42.00 : déclencheur bas gauche et icône agrandie OK.');
