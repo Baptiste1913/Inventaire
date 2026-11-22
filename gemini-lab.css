@@ -4137,13 +4137,13 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > label.iu-gemini-basket-label {
  display:block!important;
- margin:10px 0 8px!important;
+ margin:4px 0 6px!important;
  padding:0!important;
  color:#323c43!important;
+ font-family:inherit!important;
  font-size:12px!important;
  font-weight:800!important;
  letter-spacing:0!important;
- line-height:1.35!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-basket-scan-row.iu-gemini-scan-row {
