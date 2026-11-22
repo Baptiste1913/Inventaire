@@ -266,7 +266,7 @@
  function hasSavableProposal(){
   if(!proposal)return false;
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
-  return !!(ctx&&recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate));
+  return !!(ctx&&recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate))&&!duplicateForCurrent();
  }
  function refreshCaptureButton(){
   if(!capture)return;
@@ -336,7 +336,8 @@
   if(lastAnalysisError){setLabelAlert('warning',lastAnalysisError);return;}
   const raw=latestLabelFields?.weightGrams;
   if(!Number.isSafeInteger(raw)||raw<=0){
-   if(latestLabelFields)setLabelAlert('warning','Lecture incomplète · reprends l’étiquette');
+   if(lastReadProblem)setLabelAlert('warning','Lecture non validable · '+lastReadProblem);
+   else if(latestLabelFields)setLabelAlert('warning','Poids non reconnu · relis cette photo');
    else setLabelAlert('idle','Aucune pesée analysée');
    return;
   }
@@ -893,9 +894,11 @@
    // les relances automatiques rendaient chaque échec très long.
    const nonReadable=status===502&&
     /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération/i.test(providerError);
-   const quotaBlocked=status===429||Number(result?.providerStatus)===429;
+   const providerStatus=Number(result?.providerStatus);
+   const quotaBlocked=status===429||providerStatus===429;
+   const providerRejected=[400,401,403,404].includes(providerStatus);
    const recoverable=[500,503,504].includes(status)||
-    (status===502&&!nonReadable&&!quotaBlocked);
+    (status===502&&!nonReadable&&!quotaBlocked&&!providerRejected);
    if(recoverable&&attempt<maxAttempts){
     await waitGeminiBackoff(retryDelay(response,attempt),signal);
     continue;
