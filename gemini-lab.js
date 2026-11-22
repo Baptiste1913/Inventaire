@@ -471,8 +471,10 @@
   const incoming=String(fields.ean13||'');
   const fromGemini=/^\d{13}$/.test(incoming)&&eanCheck(incoming.slice(0,12))===incoming[12];
   const opticalArea=reading?.source!=='optical'||(
-   reading.bounds&&reading.bounds.y>=.52&&reading.bounds.y<=.94&&
-   (reading.bounds.left+reading.bounds.right)/2<=.71&&
+   reading.bounds&&reading.bounds.y>=.60&&reading.bounds.y<=.93&&
+   (reading.bounds.left+reading.bounds.right)/2>=.15&&
+   (reading.bounds.left+reading.bounds.right)/2<=.60&&
+   reading.bounds.right-reading.bounds.left>=.20&&
    Math.abs(reading.bounds.slope||0)<=.10);
   const external=reading?.confirmed&&reading?.ean13&&opticalArea&&
    eanCheck(reading.ean13.slice(0,12))===reading.ean13[12]
