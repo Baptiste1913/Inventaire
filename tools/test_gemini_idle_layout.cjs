@@ -161,22 +161,27 @@ assert(css.includes('/* v41.87 — Filaments nacrés')&&
 assert(html.includes('weigh-light.js?v='+version)&&
  sw.includes('weigh-light.js?v='+version),
  'Nouveau moteur lumineux rechargé en PWA et en Safari');
-// v41.88 — épaisseur +1px et palette Gemini strictement limitée à l'IA.
-assert(lightEngine.includes("const isGemini=overlay.id==='iuGeminiCameraShell'")&&
- lightEngine.includes('const contourBoost=isGemini?1:0'),
- 'Épaississement de 1 px ciblant seulement le contour Gemini');
-assert(lightEngine.includes('ctx.lineWidth=widthPx+contourBoost')&&
+// v41.89 — retour au trait initial et contraste renforcé avec les
+// quatre couleurs EXACTES du contour du bloc de pesée Gemini.
+assert(lightEngine.includes('const contourBoost=0;')&&
+ lightEngine.includes('ctx.lineWidth=widthPx+contourBoost')&&
  (lightEngine.match(/\(widthPx\+contourBoost\)\*p\.envelope\/2/g)||[]).length===2,
- 'Filaments et deux bords des rubans animés épaissis symétriquement');
-assert(lightEngine.includes('if(isGemini){')&&
- lightEngine.includes("tint:'#4285f4'")&&
- lightEngine.includes("tint:'#9769d5'")&&
- lightEngine.includes("tint:'#e66bb8'")&&
- lightEngine.includes("tint:'#f3a36b'"),
- 'Reflets bleu, violet, rose et corail de Gemini appliqués au contour IA');
+ 'Épaisseur d’origine restaurée sur les filaments et les rubans');
+assert(lightEngine.includes('config.opacity*(isGemini?.69:.27)')&&
+ lightEngine.includes('config.opacity*(isGemini?.95:.81)')&&
+ lightEngine.includes('isGemini?3.1:2.3'),
+ 'Couleurs Gemini plus intenses avec la largeur du trait inchangée');
+for(const color of ['#ed4d55','#f9c017','#0cb768','#3287fe']){
+ assert(css.includes(color),'Couleur du bloc principal présente dans la feuille : '+color);
+ assert(lightEngine.includes("tint:'"+color+"'"),
+  'Contour animé utilise la même teinte exacte que le bloc : '+color);
+}
+assert(!lightEngine.includes("tint:'#9769d5'")&&
+ !lightEngine.includes("tint:'#e66bb8'"),
+ 'Anciennes teintes violette et rose abandonnées');
 assert(lightEngine.includes("tint:'#44d4ae'")&&
  lightEngine.includes("tint:'#c4315b'")&&
  lightEngine.includes('   return;\n  }\n  // Reflets bleu, émeraude et rubis'),
- 'Palette d’origine strictement conservée dans la branche OCR classique');
+ 'Moteur OCR classique conservé derrière la branche dédiée Gemini');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.88 : contour IA +1 px aux couleurs Gemini, OCR inchangé OK.');
+console.log('Gemini v41.89 : épaisseur rétablie et quatre couleurs du bloc Gemini renforcées OK.');
