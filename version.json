@@ -1,6 +1,6 @@
 {
-  "version": "42.02",
+  "version": "42.03",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Caméra IA : arrondis du bloc extérieur alignés exactement sur ceux de l’étiquette virtuelle (20px au lieu de 24px), marges verticales compactes conservées. Caméra inactive : pictogramme retiré, seul « Caméra désactivée » centré en 16px gras ; toucher le cadre continue d’activer la caméra. Étiquette virtuelle vierge maintenue à l’écran pendant l’envoi et l’analyse de chaque photo, remplacée directement par le résultat au retour de Gemini. Capture manuelle, flash, repères et cache PWA préservés."
+  "notes": "Caméra IA : marges intérieures uniformes sur quatre côtés (9px, 8px sur petits iPhone), marges extérieures resserrées à 3px en haut et 1px en bas. Icône du déclencheur colorée en rouge contrasté #d43e50 tout en gardant le même verre et bouton. Flash activé toujours bleu et identifiable, mais sans aucun halo/glow extérieur ni ombre lumineuse sur son icône. Cadrage, capture manuelle, étiquette virtuelle et analyse inchangés."
 }
