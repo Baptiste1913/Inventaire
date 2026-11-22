@@ -1,6 +1,6 @@
 {
-  "version": "41.87",
+  "version": "41.88",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Contour extérieur du repère d’étiquette Gemini animé par le même Canvas weigh-light.js que le poids de l’OCR classique : fibres nacrées, reflets bleu/émeraude/rubis et mouvement continu. Le Canvas est conservé lors des reconstructions responsive ; animation seulement en caméra active, prise en charge des mouvements réduits. Sept zones internes, format caméra OCR, flash et capture inchangés."
+  "notes": "Contour lumineux de l’étiquette IA épaissi de 1 px (filaments et rubans) et recoloré avec la palette Gemini bleu, violet, rose et corail doux. Modification limitée au gabarit Gemini : le tracé, les couleurs et l’épaisseur du repère poids OCR classique restent inchangés. Cadrage, zones internes, flash, OCR et capture préservés."
 }
