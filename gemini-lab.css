@@ -4725,16 +4725,16 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
  border-radius:20px!important;
- padding-top:5px!important;
- padding-bottom:5px!important;
+ padding-top:9px!important;
+ padding-bottom:9px!important;
  padding-left:9px!important;
  padding-right:9px!important;
 }
 @media(max-width:390px) {
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
-  padding-top:4px!important;
-  padding-bottom:4px!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
   padding-left:8px!important;
   padding-right:8px!important;
  }
@@ -4766,4 +4766,36 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  width:auto!important;
  max-width:100%!important;
  text-align:center!important;
+}
+
+/* v42.03 — marge intérieure uniforme autour du viseur (9px,
+   ou 8px sur petit écran), espace extérieur plus compact.
+   La taille du viseur, son ratio, les repères et les boutons restent inchangés. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
+ margin:3px 0 1px!important;
+}
+/* Rouge du déclencheur : intensité similaire au bleu du flash.
+   Ne pas recolorer le verre ou le contour partagé avec Fermer/Flash. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > button#iuGeminiCapture.iu-weigh-scan-close.iu-gemini-shutter {
+ color:#d43e50!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > button#iuGeminiCapture.iu-gemini-shutter > svg {
+ color:inherit!important;
+ stroke:currentColor!important;
+}
+/* Flash actif : conserver son bleu et son fond azur pour l'état
+   activé, supprimer uniquement la lueur extérieure / drop-shadow.
+   Le relief interne reste identique aux boutons de caméra. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) {
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),
+  inset 0 -1px 2px rgba(33,107,170,.12)!important;
+ filter:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) svg {
+ filter:none!important;
 }
