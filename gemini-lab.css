@@ -5236,7 +5236,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  min-height:35px!important;flex:1 1 125px!important;
  border:1px solid #d5dee5!important;border-radius:11px!important;
  background:linear-gradient(145deg,#fff,#ebf0f4)!important;
- color:#2b4654!important;font:750 12px/1.2 inherit!important;
+ color:#2b4654!important;font-family:inherit!important;font-size:12px!important;
+ font-weight:750!important;line-height:1.2!important;
  box-shadow:inset 0 1px 0 #fff,2px 3px 7px rgba(49,72,87,.11)!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
