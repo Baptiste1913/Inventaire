@@ -1,4 +1,4 @@
-/* Inventaires U 41.79 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.80 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -72,23 +72,46 @@
     const value=computed.getPropertyValue(property);
     if(value)target.style.setProperty(property,value,'important');
    }
-   // Le gabarit reste translucide pour voir le produit derrière.
-   // Les dimensions et les bordures proviennent toujours du vrai modèle.
+   // Les dimensions restent copiées depuis l'étiquette DIGI réelle.
+   // Seule la peinture est remplacée : fond transparent et caractères
+   // creux (WebKit/Safari), sans aplats ni fausses valeurs.
    target.style.setProperty('background','transparent','important');
    target.style.setProperty('box-shadow','none','important');
-   target.style.setProperty('color','rgba(255,255,255,.82)','important');
-   target.style.setProperty('-webkit-text-fill-color','rgba(255,255,255,.82)','important');
-   target.style.setProperty('border-color','rgba(255,255,255,.18)','important');
+   target.style.setProperty('text-shadow','none','important');
+   target.style.setProperty('color','transparent','important');
+   target.style.setProperty('-webkit-text-fill-color','transparent','important');
+   target.style.setProperty('-webkit-text-stroke','1px rgba(255,255,255,.85)','important');
+   target.style.setProperty('border-color','rgba(255,255,255,.32)','important');
    target.style.setProperty('opacity','1','important');
    target.style.setProperty('pointer-events','none','important');
    if(target.classList?.contains('iu-gemini-label-bars')){
-    // Même emprise que le vrai code DIGI, mais sans faux EAN.
-    target.style.setProperty('background',
-     'repeating-linear-gradient(90deg,rgba(255,255,255,.56) 0 1px,transparent 1px 3px,rgba(255,255,255,.35) 3px 5px,transparent 5px 8px)',
-     'important');
+    // Les barres du repère sont elles aussi creuses. Leur place et
+    // leurs dimensions proviennent du modèle, sans encoder un faux EAN.
+    const ns='http://www.w3.org/2000/svg';
+    const barOutline=document.createElementNS(ns,'svg');
+    barOutline.setAttribute('viewBox','0 0 100 40');
+    barOutline.setAttribute('preserveAspectRatio','none');
+    barOutline.setAttribute('aria-hidden','true');
+    barOutline.style.cssText='display:block;width:100%;height:100%;overflow:hidden';
+    for(const [x,w] of [[1,1.4],[5,2],[10,1.5],[14,3],[20,1.6],
+      [24,2.5],[30,1.2],[34,2.2],[39,1.4],[43,3],[49,1.8],
+      [54,1.4],[58,2.8],[64,1.5],[68,2],[73,1.5],[77,3],
+      [83,1.6],[87,2.4],[92,1.6],[96,2]]){
+     const bar=document.createElementNS(ns,'rect');
+     bar.setAttribute('x',String(x));
+     bar.setAttribute('y','1');
+     bar.setAttribute('width',String(w));
+     bar.setAttribute('height','37');
+     bar.setAttribute('fill','none');
+     bar.setAttribute('stroke','rgba(255,255,255,.72)');
+     bar.setAttribute('stroke-width','.85');
+     barOutline.append(bar);
+    }
+    target.replaceChildren(barOutline);
+    target.style.setProperty('background','transparent','important');
    }
    if(target.classList?.contains('iu-gemini-label-total'))
-    target.style.setProperty('border-color','rgba(255,255,255,.82)','important');
+    target.style.setProperty('border-color','rgba(255,255,255,.84)','important');
   }
   copy.style.setProperty('border-color','rgba(255,255,255,.87)','important');
   copy.style.setProperty('margin','0','important');
@@ -120,7 +143,8 @@
   if(!guideSnapshot||!guideSize)return;
   const ratio=guideSize.width/guideSize.height;
   cameraStage.style.setProperty('--iu-gemini-exact-aspect',ratio.toFixed(6));
-  const scale=Math.min((stage.width-18)/guideSize.width,
+  // Réduction uniforme : aucune déformation des proportions DIGI.
+  const scale=.88*Math.min((stage.width-18)/guideSize.width,
    (stage.height-18)/guideSize.height);
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';
