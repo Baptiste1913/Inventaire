@@ -1,6 +1,6 @@
 {
-  "version": "42.14",
+  "version": "42.15",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Optimisations Gemini v42.14 : aperçu immédiat dès la réponse de Gemini, marqué provisoire, validation et coche verrouillées jusqu'aux contrôles indépendants ; barres EAN masquées pendant l'attente et présentées seulement après contrôle. Images JPEG volumineuses préparées via Web Worker + OffscreenCanvas et encodage adaptatif (résolutions/qualités inchangées, repli Safari). Worker Cloudflare : cache mémoire de 15 minutes uniquement pour les incompatibilités explicites du schéma JSON, avec repli existant préservé. Aucun changement des contrôles poids/prix, EAN-13, tare ni de l'enregistrement manuel. Attention : le code Worker Cloudflare reste à déployer séparément ; publication GitHub seule n'actualise pas le Worker distant."
+  "notes": "Correction du scanner Gemini : suppression du Worker JPEG expérimental pouvant entraîner 11 s d’attente, restauration de la compression asynchrone haute fidélité v42.13 ; seconde analyse automatique supprimée lorsqu’une lecture est incertaine (réessai disponible sur la même photo). Déclencheur de caméra utilisable même avec tare >= poids brut et durant une analyse longue, confirmation avant abandon d'une pesée enregistrable. Import d’une nouvelle photo annule proprement la précédente analyse. Vérifications OCR local, prix/poids, EAN, tare, verrouillage provisoire et enregistrement manuel conservés. Worker Cloudflare distant inchangé."
 }
