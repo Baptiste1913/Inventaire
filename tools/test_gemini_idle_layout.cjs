@@ -642,7 +642,7 @@ assert(js.includes('setAnalysisCameraClosed(true);')&&js.includes('setAnalysisCa
  js.includes('lastReadProblem=verified.error||null;')&&
  js.includes('const unreadable=status===422||')&&
  !js.includes('window.confirm('),'Erreurs précises et pas de pop-up bloquante');
-assert(js.includes("const caption=active?'Analyse…':duplicate?'Confirmer doublon'")&&
+assert(js.includes("const caption=active?'…':duplicate?'Confirmer doublon'")&&
  js.includes("if(digits)digits.textContent=labelReady?corrected.ean:'CODE EN ATTENTE';")&&
  js.includes('else bars.replaceChildren();')&&
  js.includes('const canSave=Boolean(corrected)&&!active;'),
