@@ -4,15 +4,11 @@
  Aucun accès au scraper n'est actif tant que le Worker n'est pas déployé.
 */
 const STORE='superu-saintgermain';
-function reply(body,status,origin,retryAfter){
- const headers={
+function reply(body,status,origin){
+ return new Response(JSON.stringify(body),{status,headers:{
   'Content-Type':'application/json; charset=utf-8',
-  'Cache-Control':'no-store','Access-Control-Allow-Origin':origin,'Vary':'Origin',
-  'Access-Control-Expose-Headers':'Retry-After'
- };
- if(Number.isFinite(retryAfter)&&retryAfter>0)
-  headers['Retry-After']=String(Math.min(30,Math.ceil(retryAfter)));
- return new Response(JSON.stringify(body),{status,headers});
+  'Cache-Control':'no-store','Access-Control-Allow-Origin':origin,'Vary':'Origin'
+ }});
 }
 function normalize(value){
  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -301,23 +297,6 @@ function geminiLabName(value){
  const name=value.trim();
  return name.length>=2&&name.length<=70&&/^[\p{L}\d '.\-]+$/u.test(name)?name:null;
 }
-// v42.12 — Schéma de sortie DIGI strict sans modifier la photo ni la
-// consigne de ne jamais inférer les caractères ambigus.
-// Cache local à l'instance Cloudflare (pas de KV, pas de secrets).
-// Évite de retester un schéma confirmé incompatible pendant 15 minutes.
-const schemaUnavailableUntil=new Map();
-const geminiLabelJsonSchema={
- type:'object',
- properties:{
-  name:{type:['string','null']},
-  weightKg:{type:['string','null']},
-  pricePerKgEur:{type:['string','null']},
-  totalEur:{type:['string','null']},
-  ean13:{type:['string','null']}
- },
- required:['name','weightKg','pricePerKgEur','totalEur','ean13'],
- additionalProperties:false
-};
 async function geminiPilot(request,env,origin){
  const closed={type:'inventaires-u-gemini-lab',actorExecuted:false,
   inventoryUpdated:false};
@@ -355,51 +334,25 @@ async function geminiPilot(request,env,origin){
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),55000);
  const started=Date.now();
  try{
-  const content=[{role:'user',parts:[{text:prompt},
-   {inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}]}];
-  const providerUrl='https://generativelanguage.googleapis.com/v1beta/models/'
-   +model+':generateContent';
-  async function askGemini(structured){
-   // Plafond élargi seulement pour éviter que les jetons de réflexion
-   // épuisent la réponse JSON courte. Aucune baisse de résolution.
-   const generationConfig={
-    temperature:0,maxOutputTokens:2048,responseMimeType:'application/json'
-   };
-   if(structured)generationConfig.responseJsonSchema=geminiLabelJsonSchema;
-   return fetch(providerUrl,{
+  const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
+   +model+':generateContent',{
     method:'POST',signal:abort.signal,
     headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
-    body:JSON.stringify({contents:content,generationConfig})
+    body:JSON.stringify({
+     contents:[{role:'user',parts:[{text:prompt},
+      {inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}]}],
+     generationConfig:{temperature:0,maxOutputTokens:1024,responseMimeType:'application/json'}
+    })
    });
-  }
-  // Ne répéter la requête au schéma strict qu'après expiration d'une
-  // incompatibilité démontrée. Les réponses à succès restent inchangées.
-  const structured=(schemaUnavailableUntil.get(model)||0)<=Date.now();
-  let res=await askGemini(structured);
-  if(structured&&res.status===400&&!abort.signal.aborted){
-   // Le repli historique reste disponible, mais mémoriser seulement
-   // les refus qui mentionnent explicitement un schéma JSON non accepté.
-   const providerError=String(await res.text()).slice(0,6000);
-   if(/responseJsonSchema|response_json_schema|responseSchema|response_schema|json.?schema|additionalProperties/i.test(providerError))
-    schemaUnavailableUntil.set(model,Date.now()+15*60*1000);
-   res=await askGemini(false);
-  }
   if(!res.ok){
    const status=res.status;
-   // Ne jamais exposer la réponse brute du fournisseur (détails du compte).
-   // Propager les codes temporaires afin que le client puisse effectuer
-   // seulement ses réessais bornés ; ne plus renvoyer 502 pour clé invalide.
+   // Ne pas faire fuiter le corps de la réponse, qui peut contenir des données du compte.
    const diagnostic=status===401||status===403?'Clé Gemini non autorisée pour ce projet.'
-    :status===429?'Quota Gemini atteint. Réessaie après le délai indiqué.'
+    :status===429?'Quota Gemini atteint. Ne pas réessayer en boucle.'
     :status===404?'Modèle non accessible avec cette clé API.'
     :status===400?'Paramètres refusés par Gemini.'
     :'Erreur du fournisseur Gemini.';
-   const outputStatus=[429,500,502,503,504].includes(status)?status
-    :status===401||status===403?403
-    :status===404?404:400;
-   const seconds=Number(res.headers?.get?.('Retry-After'));
-   return reply({...closed,error:diagnostic,providerStatus:status,model},
-    outputStatus,origin,Number.isFinite(seconds)?seconds:null);
+   return reply({...closed,error:diagnostic,providerStatus:status,model},502,origin);
   }
   const raw=await res.text();
   if(raw.length>16000)throw Error('Réponse trop volumineuse');
@@ -446,7 +399,7 @@ async function geminiPilot(request,env,origin){
    200,origin);
  }catch(_){
   return reply({...closed,error:abort.signal.aborted?'Délai Gemini dépassé.':'Réponse Gemini non exploitable.',
-   model},abort.signal.aborted?504:502,origin);
+   model},502,origin);
  }finally{clearTimeout(timeout)}
 }
 
