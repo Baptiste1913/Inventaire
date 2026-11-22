@@ -1,6 +1,6 @@
 {
-  "version": "41.96",
+  "version": "41.97",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Pesée via IA : l’icône Galerie devient une flèche d’importation dans un bac, avec intitulés accessibles adaptés, sans changer l’ouverture du sélecteur de photos. Sélecteur de panier élargi de 8 px sur écran courant (4 px sur petit iPhone) grâce à un espacement uniforme de 4 px entre champ, caméra et import. Dimensions 60/56 px, style neumorphique, tares, actions et cache PWA conservés."
+  "notes": "Correction de l’icône d’importation Gemini : le bac sous la flèche est décalé d’un pixel vers la droite (centre x=12, comme la flèche) pour un alignement géométrique parfait sur iPhone. Épaisseur, dimensions SVG, styles, emplacement et fonctionnalité d’importation inchangés. Cache PWA renouvelé."
 }
