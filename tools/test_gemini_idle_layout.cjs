@@ -390,11 +390,11 @@ const cameraShellRules=css.slice(css.indexOf('/* v42.01 — enveloppe de la cam�
  css.indexOf('/* v42.02 — géométrie caméra'));
 assert(cameraShellRules.length>300&&
  cameraShellRules.includes('border-radius:20px!important')&&
- cameraShellRules.includes('padding-top:5px!important')&&
- cameraShellRules.includes('padding-bottom:5px!important')&&
- cameraShellRules.includes('padding-top:4px!important')&&
- cameraShellRules.includes('padding-bottom:4px!important'),
- 'Cadre extérieur de caméra : coins plus ronds et marges verticales réduites');
+ cameraShellRules.includes('padding-top:9px!important')&&
+ cameraShellRules.includes('padding-bottom:9px!important')&&
+ cameraShellRules.includes('padding-top:8px!important')&&
+ cameraShellRules.includes('padding-bottom:8px!important'),
+ 'Cadre extérieur de caméra : coins 20px et marges uniformes sur les quatre côtés');
 assert(cameraShellRules.includes('padding-left:9px!important')&&
  cameraShellRules.includes('padding-right:9px!important')&&
  cameraShellRules.includes('padding-left:8px!important')&&
@@ -423,5 +423,27 @@ assert(js.includes('showBlankLabel();networkTime.textContent=')&&
  js.includes('output.hidden=false;networkTime.textContent=')&&
  !js.includes('output.hidden=true;'),
  'Étiquette virtuelle toujours visible pendant la photo et le chargement réseau');
+// v42.03 — marge intérieure symétrique et flash sans lueur bleue.
+const cameraGeometry=css.slice(css.indexOf('/* v42.01 — enveloppe de la caméra'),css.indexOf('/* v42.02 — géométrie caméra'));
+assert(cameraGeometry.includes('padding-top:9px!important')&&
+ cameraGeometry.includes('padding-bottom:9px!important')&&
+ cameraGeometry.includes('padding-left:9px!important')&&
+ cameraGeometry.includes('padding-right:9px!important')&&
+ cameraGeometry.includes('padding-top:8px!important')&&
+ cameraGeometry.includes('padding-bottom:8px!important')&&
+ cameraGeometry.includes('padding-left:8px!important')&&
+ cameraGeometry.includes('padding-right:8px!important'),
+ 'Marges intérieures égales sur les quatre côtés, sur tous les iPhone');
+const cameraRefresh=css.slice(css.indexOf('/* v42.03 — marge intérieure uniforme'));
+assert(cameraRefresh.includes('margin:3px 0 1px!important')&&
+ cameraRefresh.includes('color:#d43e50!important')&&
+ cameraRefresh.includes('stroke:currentColor!important'),
+ 'Bloc rapproché des éléments voisins et déclencheur rouge contrasté');
+assert(cameraRefresh.includes('#iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"])')&&
+ cameraRefresh.includes('inset 0 -1px 2px rgba(33,107,170,.12)!important')&&
+ cameraRefresh.includes('filter:none!important')&&
+ !cameraRefresh.includes('0 0 0 2px rgba(40,145,235')&&
+ !cameraRefresh.includes('0 3px 14px rgba(34,122,214'),
+ 'Flash actif : fond bleu conservé, halo et lueur éliminés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.02 : mêmes coins 20px, caméra inactive épurée et étiquette visible pendant analyse OK.');
+console.log('Gemini v42.03 : marges uniformes, contour rapproché, déclencheur rouge, flash sans halo OK.');
