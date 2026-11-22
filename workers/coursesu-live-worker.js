@@ -333,6 +333,7 @@ async function geminiPilot(request,env,origin){
   +'NE déduis JAMAIS un chiffre par la somme, le prix, le code ou un article supposé.';
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),55000);
  const started=Date.now();
+ let providerAnswered=false;
  try{
   const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
    +model+':generateContent',{
@@ -352,8 +353,12 @@ async function geminiPilot(request,env,origin){
     :status===404?'Modèle non accessible avec cette clé API.'
     :status===400?'Paramètres refusés par Gemini.'
     :'Erreur du fournisseur Gemini.';
-   return reply({...closed,error:diagnostic,providerStatus:status,model},502,origin);
+   // Ne pas transformer un refus d’accès/quota en fausse panne HTTP 502.
+   const outputStatus=status===429?429:[401,403].includes(status)?403
+    :status===404?404:status===400?400:[500,502,503,504].includes(status)?503:502;
+   return reply({...closed,error:diagnostic,providerStatus:status,model},outputStatus,origin);
   }
+  providerAnswered=true;
   const raw=await res.text();
   if(raw.length>16000)throw Error('Réponse trop volumineuse');
   const data=JSON.parse(raw);
@@ -362,12 +367,12 @@ async function geminiPilot(request,env,origin){
   // interprétée comme une étiquette fiable, même si le JSON est partiel.
   if(candidate?.finishReason==='MAX_TOKENS')
    return reply({...closed,error:'Réponse Gemini incomplète (limite de génération). Recadrez l’étiquette et réessayez.',
-    model},502,origin);
+    model},422,origin);
   const parts=candidate?.content?.parts||[];
   const answer=parts.filter(p=>typeof p?.text==='string').map(p=>p.text).join('');
   if(!answer.trim())
    return reply({...closed,error:'Réponse Gemini vide. Centrez l’étiquette et réessayez.',
-    model},502,origin);
+    model},422,origin);
   if(answer.length>5000)throw Error('Réponse trop longue');
   // Certaines réponses textuelles conservent des balises Markdown malgré
   // responseMimeType. Accepter le JSON strict puis, à défaut, le bloc JSON.
@@ -377,11 +382,11 @@ async function geminiPilot(request,env,origin){
    const match=answer.trim().match(/^(?:```(?:json)?\s*)?(\{[\s\S]*\})(?:\s*```)?$/i);
    if(!match)
     return reply({...closed,error:'Réponse Gemini non exploitable. Recadrez l’étiquette et réessayez.',
-     model},502,origin);
+     model},422,origin);
    try{extracted=JSON.parse(match[1])}
    catch(_){
     return reply({...closed,error:'Réponse Gemini incomplète. Recadrez l’étiquette et réessayez.',
-     model},502,origin);
+     model},422,origin);
    }
   }
   if(!extracted||typeof extracted!=='object'||Array.isArray(extracted))throw Error('JSON non reconnu');
@@ -398,8 +403,10 @@ async function geminiPilot(request,env,origin){
    verifiedForInventory:false,warning:'Données indicatives : vérifier visuellement chaque chiffre avant toute utilisation.'},
    200,origin);
  }catch(_){
-  return reply({...closed,error:abort.signal.aborted?'Délai Gemini dépassé.':'Réponse Gemini non exploitable.',
-   model},502,origin);
+  const status=abort.signal.aborted?504:providerAnswered?422:503;
+  const message=abort.signal.aborted?'Délai Gemini dépassé.'
+   :providerAnswered?'Réponse Gemini non exploitable.':'Service Gemini indisponible.';
+  return reply({...closed,error:message,model},status,origin);
  }finally{clearTimeout(timeout)}
 }
 
