@@ -1,6 +1,6 @@
 {
-  "version": "41.93",
+  "version": "41.94",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Pesée Gemini : titre « Type de panier » strictement aligné sur la taille 12 px, la graisse 800, la couleur #323c43 et la police du panier de pesée classique. Marges réduites au-dessus (10→4 px) et légèrement en dessous (8→6 px). Le sélecteur natif iPhone reprend maintenant sans retirer les tares les mêmes options « Nom — 0,xxx kg » que le panier classique. L'affichage compact du champ reste sur deux lignes (nom puis tare), sans répétition. Synchronisation des paniers, boutons et pesées inchangés."
+  "notes": "Pesée IA : espacement « Type de panier » aligné visuellement sur le bloc classique. Cumul de 16px sous le tiroir Cloudflare supprimé ; écart au-dessus du titre fixé à 10px et marge sous le titre resserrée à 5px. Bouton Galerie rapproché du bouton Caméra de 6px (4px sur les petits écrans), sans changer leur taille ni le gap classique sélecteur/caméra ; champ panier flexible élargi de l’espace récupéré. Sélection native, tares, caméra et OCR conservés."
 }
