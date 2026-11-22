@@ -77,8 +77,10 @@ assert(capture.includes('if(frameCaptureBusy||localOcrBusy||active||proposal)ret
  'Aucune prise de vue ne démarre pendant l’étiquette courante');
 assert(!capture.includes('generation++')&&!capture.includes('abort?.abort()'),
  'Un second clic ne peut plus annuler l’analyse précédente');
-assert(js.includes("if(capture)capture.textContent='Analyser cette étiquette'"),
- 'Le texte est identique en modes Auto et Manuel');
+assert(js.includes("if(capture)capture.textContent='Analyser cette étiquette'")&&
+ js.includes("let cameraMode='manual',autoTimer=0")&&
+ !js.includes('iu-gemini-auto-capture-v1'),
+ 'Le bouton garde son libellé et capture seulement sur action manuelle');
 assert(js.includes("if(saved?.ok){\n   resetReading();"),
  'Après Nouvelle pesée, la lecture est remise à zéro');
 assert(js.includes('function resetProposal(){')&&
