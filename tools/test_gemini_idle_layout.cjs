@@ -384,5 +384,24 @@ assert(shutterStyle.includes('[data-state="idle"]')&&
  shutterStyle.includes(':disabled')&&
  shutterStyle.includes('z-index:6!important'),
  'Masquage caméra inactive, verrouillage et empilement préservés');
+// v42.01 : enveloppe caméra plus arrondie et compacte verticalement.
+const cameraShellRules=css.slice(css.indexOf('/* v42.01 — enveloppe de la caméra'));
+assert(cameraShellRules.length>300&&
+ cameraShellRules.includes('border-radius:24px!important')&&
+ cameraShellRules.includes('padding-top:5px!important')&&
+ cameraShellRules.includes('padding-bottom:5px!important')&&
+ cameraShellRules.includes('padding-top:4px!important')&&
+ cameraShellRules.includes('padding-bottom:4px!important'),
+ 'Cadre extérieur de caméra : coins plus ronds et marges verticales réduites');
+assert(cameraShellRules.includes('padding-left:9px!important')&&
+ cameraShellRules.includes('padding-right:9px!important')&&
+ cameraShellRules.includes('padding-left:8px!important')&&
+ cameraShellRules.includes('padding-right:8px!important'),
+ 'Marges horizontales et largeur utile du viseur conservées');
+assert(!cameraShellRules.includes('.iu-gemini-camera-stage')&&
+ !cameraShellRules.includes('#iuGeminiCapture')&&
+ !cameraShellRules.includes('height:184px')&&
+ !cameraShellRules.includes('height:160px'),
+ 'Dimensions, contrôles et capture de la caméra non modifiés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.00 : icône 20px et déclencheur 32px bas gauche OK.');
+console.log('Gemini v42.01 : enveloppe caméra arrondie 24px et marges verticales réduites OK.');
