@@ -54,5 +54,18 @@ assert(added.includes('.iu-gemini-camera-idle:focus-visible')&&
 assert(added.includes('.iu-gemini-label-placeholder .iu-gemini-label-bars')&&
  added.includes('background:linear-gradient(180deg,rgba(95,107,117,.10)'),
  'EAN vierge avec guide neutre, sans fausse donnée');
+// v41.79 : le gabarit caméra vient du vrai DOM de l'étiquette.
+assert(section.includes('id="iuGeminiExactGuide"')&&
+ !section.includes('iu-gemini-camera-label-map')&&
+ !section.includes('iu-gemini-map-middle'),
+ 'Plus de repère indépendant aux proportions arbitraires');
+assert(js.includes("const source=output.querySelector('.iu-gemini-printed-label.iu-gemini-label-placeholder')")&&
+ js.includes('const copy=source.cloneNode(true)')&&
+ js.includes('getComputedStyle(sourceNodes[i])')&&
+ js.includes("const scale=Math.min((stage.width-18)/guideSize.width,"),
+ 'Le repère reprend les styles et proportions exacts de l’étiquette imprimée');
+assert(css.includes('aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important')&&
+ css.includes('.iu-gemini-camera-stage .iu-weigh-scan-guide {\n display:none!important;'),
+ 'Le viseur conserve le ratio DIGI et retire les faux repères superposés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
 console.log('Gemini v41.77 : cadre affiné, halos subtils, caméra fermée mais viseur visible, étiquette vierge et réinitialisation OK.');
