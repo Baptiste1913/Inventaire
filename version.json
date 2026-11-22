@@ -1,6 +1,6 @@
 {
-  "version": "42.07",
+  "version": "42.08",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Reconnaissance haute fiabilité : capture caméra sans rognage latéral supplémentaire (ancien retrait de 12% supprimé), résolution caméra idéale 2560×1440 et JPEG de capture qualité 0,93. JPEG adaptatif jusqu’à 2400px/qualité 0,93 sans dépasser la limite base64 actuelle du Worker Cloudflare (690000 caractères). Vérification locale indépendante du prix×poids et clé EAN-13, OCR local Tesseract lancé en parallèle de Gemini si disponible, désaccord chiffré bloquant ; secondes analyses Gemini uniquement sur première réponse incohérente, sans validation automatique. Contrôle humain toujours obligatoire. Paramètres internes du Worker non modifiés (accès requis pour augmenter la limite d’image et les jetons de vision)."
+  "notes": "Reconnaissance IA haute fiabilité (suite) : aucun date fictive ne remplace une date d’emballage non reconnue. Dates affichées uniquement si fournies explicitement et calendaires valides ; sinon « — ». Compression haute fidélité accélérée en évitant les encodages JPEG redondants à la même résolution. Cadrage complet, OCR indépendant, vérifications EAN et calculs, seconde lecture ciblée conservés. Limite actuelle du Worker inchangée."
 }
