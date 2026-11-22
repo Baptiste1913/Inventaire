@@ -45,7 +45,7 @@ assert(rules.includes('width:min(100%,328px)!important')&&
  'Étiquette DIGI lisible, non miniaturisée');
 assert(rules.includes('data-scan-state="review"')&&
  rules.includes('#iuGeminiCapture:disabled')&&
- css.includes('/* v42.00 — déclencheur bas gauche')&&
+ css.includes('/* v42.00 — déclencheur en BAS GAUCHE')&&
  css.includes('left:5px!important')&&
  css.includes('bottom:5px!important')&&
  css.includes('width:20px!important')&&
