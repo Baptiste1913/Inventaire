@@ -1,6 +1,6 @@
 {
-  "version": "41.83",
+  "version": "41.84",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Gabarit IA recalibré selon les 7 zones dessinées sur l’étiquette DIGI pleine : enseigne/adresse, produit, prix unitaire, poids net, date, EAN, prix total. Référence remplie mesurée hors écran, contours vides sans textes ni barres, zoom uniforme à 4px du cadre. Flash activé plus bleu et contrasté. Caméra, OCR et pesées inchangés."
+  "notes": "Gabarit caméra DIGI : contour du code-barres aligné sur la hauteur et le bas du prix à payer ; contours prix unitaire, poids net et date réduits de 33 % ; contour du libellé produit réduit de 15 %. Zones conservées centrées, repères transparents, caméra, OCR, flash et pesées inchangés."
 }
