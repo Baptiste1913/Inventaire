@@ -1,6 +1,6 @@
 {
-  "version": "41.82",
+  "version": "41.83",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Repère IA corrigé : 12 contours individuels calculés depuis les positions des vrais textes de l’étiquette virtuelle DIGI (et non les grandes colonnes). Valeurs exemples mesurées sans affichage ; cadre EAN vide, sans barres simulées. Flash activé plus visible : fond azur, anneau bleu et éclair renforcé. Caméra et OCR préservés."
+  "notes": "Gabarit IA recalibré selon les 7 zones dessinées sur l’étiquette DIGI pleine : enseigne/adresse, produit, prix unitaire, poids net, date, EAN, prix total. Référence remplie mesurée hors écran, contours vides sans textes ni barres, zoom uniforme à 4px du cadre. Flash activé plus bleu et contrasté. Caméra, OCR et pesées inchangés."
 }
