@@ -1,6 +1,6 @@
 {
-  "version": "42.17",
+  "version": "42.18",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Scanner Gemini fluidifié pour inventaires en série : affichage de la photo exacte pendant son analyse, miniature source identifiable, état de progression visible et erreurs détaillées, bouton de réanalyse toujours disponible après refus. Code-barres, poids net et total recalculés n’apparaissent que lorsque les contrôles sont valides. Bouton Enregistrer/Reprendre photo et confirmation intégrée sans popup iOS. Réessais réseau limités à deux tentatives, sans boucles sur un résultat illisible ou quota épuisé. Qualité photo et modèle Gemini inchangés ; calculs, tare, EAN, validation manuelle conservés. Version serveur Cloudflare inchangée ; les performances du fournisseur restent dépendantes du réseau."
+  "notes": "Scanner IA épuré pour inventaire rapide : suppression miniature, statut source et second bouton de réanalyse ; une seule alerte visuelle, progression discrète dans la caméra. Action principale contextuelle Enregistrer/Changer panier/Réessayer/Nouvelle photo ; changer la tare recalculera immédiatement sans refaire Gemini. Une requête Gemini par tentative, suppression des secondes analyses automatiques à l’erreur HTTP 502 ; messages de panne et de lecture non exploitable distincts. Worker source : HTTP 422 lecture incomplète, 503 indisponibilité, 504 délai (déploiement Cloudflare distinct nécessaire). Résolution photo, sécurité EAN, prix, tare, doublons et enregistrement manuel inchangés, caméra conservée entre les pesées."
 }
