@@ -3519,3 +3519,104 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   box-shadow:none!important;
  }
 }
+
+
+/* v41.77 — contour Gemini global affiné : les deux traits colorés de
+   la carte occupent désormais moins d'un pixel optique chacun. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-frame-gradient {
+ inset:0!important;
+ border-radius:20px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-frame-surface {
+ inset:.75px!important;
+ border:.5px solid transparent!important;
+ border-radius:19.25px!important;
+}
+/* Les 4 orbes sont un simple reflet d'ambiance (environ 45 % de leur
+   intensité déjà réduite en v41.75). Conserver leurs couleurs et
+   la diffusion sans découpe au niveau du panneau. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-label-glow-field.iu-result-glow-field {
+ opacity:.45!important;
+}
+/* Le viseur est présent sur l'écran initial, mais la caméra reste
+   totalement inactive (aucun getUserMedia avant interaction). */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell[data-state="idle"] .iu-gemini-camera-stage {
+ background:linear-gradient(155deg,#1d2831 0%,#151c24 100%)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell[data-state="idle"] .iu-gemini-camera-stage video {
+ visibility:hidden!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-idle {
+ position:absolute!important;
+ inset:0!important;
+ z-index:7!important;
+ width:100%!important;height:100%!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;
+ gap:7px!important;
+ border:0!important;
+ border-radius:inherit!important;
+ background:linear-gradient(155deg,rgba(23,32,41,.84),rgba(16,23,30,.72))!important;
+ color:rgba(255,255,255,.91)!important;
+ font-size:12px!important;
+ font-weight:700!important;
+ line-height:1.4!important;
+ font-family:inherit!important;
+ cursor:pointer!important;
+ touch-action:manipulation!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-idle-icon {
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:38px!important;height:38px!important;
+ border:1px solid rgba(255,255,255,.38)!important;
+ border-radius:12px!important;
+ background:rgba(255,255,255,.10)!important;
+ font-size:26px!important;
+ line-height:1!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell:not([data-state="idle"]) .iu-gemini-camera-idle {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell[data-state="idle"] .iu-gemini-camera-header {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-idle:focus-visible {
+ outline:2px solid #fff!important;outline-offset:-5px!important;
+}
+/* Étiquette vierge dès le lancement et entre deux pesées. Conserver
+   la géométrie DIGI et le rendu monochrome exact du bouton Événements,
+   mais n'afficher aucune fausse donnée ni fausses barres EAN. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-printed-label.iu-gemini-label-placeholder {
+ opacity:.82!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-placeholder .iu-gemini-label-bars {
+ background:linear-gradient(180deg,rgba(95,107,117,.10),rgba(95,107,117,.05))!important;
+ border-radius:2px!important;
+ min-height:30px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-placeholder .iu-gemini-label-number,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-placeholder .iu-gemini-label-ean,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-placeholder .iu-gemini-label-total-number {
+ color:#8c98a0!important;
+ -webkit-text-fill-color:#8c98a0!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  .iu-gemini-label-glow-field > .iu-home-glow-orb {animation:none!important;}
+}

@@ -1,6 +1,6 @@
 {
-  "version": "41.76",
+  "version": "41.77",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Étiquette numérique entièrement neutre avec exactement le dégradé, la bordure 14 px et les ombres neumorphiques du bouton « Accéder aux événements ». Neutralisation des fonds et couleurs internes hérités des anciens styles, y compris en état prêt ou à vérifier. EAN noir, dimensions compactes et caméra/validation inchangés."
+  "notes": "Pesée Gemini : double contour extérieur aminci et halo des quatre lumières limité à 45 % de l'intensité précédente. Viseur présent au démarrage mais caméra inactive ; bouton Activer la caméra sans autorisation anticipée. Étiquette numérique vierge affichée dès le lancement et restaurée après Nouvelle pesée, sans EAN ni prix simulé. Scanner, calculs, paniers, validations et états d’alerte conservés."
 }

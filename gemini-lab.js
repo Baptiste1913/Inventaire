@@ -1,4 +1,4 @@
-/* Inventaires U 41.75 — repère OCR dans la caméra, compte-rendu visuel compact.
+/* Inventaires U 41.77 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -10,12 +10,21 @@
   forgetKey=$('iuGeminiForgetKey'),keyInfo=$('iuGeminiKeyInfo'),
   analyze=$('iuGeminiAnalyze'),status=$('iuGeminiLabStatus'),
   output=$('iuGeminiLabOutput'),networkTime=$('iuGeminiNetworkTime');
+ // Le patron de l'étiquette est conservé sans prix, poids ni code factice.
+ // Il est restauré après chaque Nouvelle pesée.
+ const blankLabelNodes=Array.from(output?.childNodes||[],node=>node.cloneNode(true));
+ function showBlankLabel(){
+  if(!output)return;
+  output.replaceChildren(...blankLabelNodes.map(node=>node.cloneNode(true)));
+  output.hidden=false;
+ }
   let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
  let proposal=null,latestLabelFields=null;
  const fixedModel='gemini-3.5-flash-lite';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
+  cameraIdle=$('iuGeminiCameraIdle'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
   torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture'),detected=$('iuGeminiDetected');
  let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false,frameCaptureBusy=false;
@@ -226,7 +235,7 @@
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
   attempts.clear();photo.value='';latestLabelFields=null;
-  output.hidden=true;output.replaceChildren();networkTime.textContent='';resetProposal();
+  showBlankLabel();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
   if(emptyResult)emptyResult.hidden=false;
   refreshResultCard();
@@ -610,6 +619,7 @@
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
+    if(output.hidden&&!proposal)showBlankLabel();
     const reason=String(error?.message||'Échec réseau').slice(0,140);
     say('Essai non terminé : '+reason,true);
     updateCardState('error');
@@ -652,11 +662,11 @@
   video.srcObject=null;
   cameraStarting=false;torchBusy=false;torchOn=false;
   cameraShell.dataset.state='idle';
-  cameraShell.hidden=true;
-  openCamera.hidden=true; // ouverture uniquement par le bouton scanner partagé
+  cameraShell.hidden=false; // viseur visible à vide, sans appeler getUserMedia
+  openCamera.hidden=true; // ouverture par le bouton scanner ou par le viseur vide
   openCamera.disabled=false;
   shortcut?.setAttribute('aria-pressed','false');
-  shortcut?.setAttribute('aria-expanded','false');
+  shortcut?.setAttribute('aria-expanded','true');
   refreshTorch();
  }
  // Comme le scanner OCR classique, demander la mise au point continue
@@ -822,6 +832,7 @@
   }
  });
  openCamera.addEventListener('click',startCamera);
+ cameraIdle?.addEventListener('click',startCamera);
  closeCamera.addEventListener('click',()=>{
   stopCamera();
   say('Viseur fermé. Aucune photo envoyée.');

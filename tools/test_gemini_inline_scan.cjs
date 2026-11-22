@@ -64,8 +64,9 @@ assert(section.includes('class="iu-gemini-alert-led"'),
  'Voyant gris/vert/rouge conservé');
 assert(!section.includes('iuGeminiCopyGross')&&!js.includes('copyGross?.addEventListener'),
  'Pas de bouton Copier');
-assert(section.includes('<div id="iuGeminiLabOutput" class="iu-gemini-lab-result" hidden>'),
- 'Étiquette virtuelle cachée avant lecture');
+assert(section.includes('<div id="iuGeminiLabOutput" class="iu-gemini-lab-result">')&&
+ section.includes('iu-gemini-printed-label iu-gemini-label-placeholder'),
+ 'Étiquette virtuelle vierge visible dès le lancement');
 const displayStart=js.indexOf('function display(result,wallMs){');
 const displayEnd=js.indexOf("analyze.addEventListener('click'",displayStart);
 const display=js.slice(displayStart,displayEnd);
