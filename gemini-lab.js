@@ -349,8 +349,13 @@
   const virtualDate=label.querySelector('.iu-gemini-label-date .iu-gemini-label-number');
   if(virtualDate)virtualDate.textContent=todayForVirtualLabel();
   if(total)total.textContent=money(corrected?corrected.cents:fields.totalCents).replace(/\s/g,'');
-  if(digits)digits.textContent=corrected?.ean||fields.ean13||'EAN NON RECONNU';
-  if(bars)renderEanBars(bars,corrected?.ean||fields.ean13);
+  // Un résultat prévisualisé n'est pas un code-barres utilisable.
+  // Attendre la fin des contrôles indépendants pour dessiner les barres.
+  if(digits)digits.textContent=previewPending?'EN VÉRIFICATION':corrected?.ean||fields.ean13||'EAN NON RECONNU';
+  if(bars){
+   if(previewPending)bars.replaceChildren();
+   else renderEanBars(bars,corrected?.ean||fields.ean13);
+  }
   // Les informations de vigilance figurent dans le voyant sous l’étiquette.
  }
  // Les contrôles sont refaits au moment du clic de validation.
@@ -667,6 +672,15 @@
    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
    ctx.drawImage(img,0,0,width,height);
+   if(typeof cv.toBlob!=='function'){
+    // Repli Safari ancien sans toBlob : même ordre qualité décroissant.
+    for(const quality of [.93,.87,.81,.75]){
+     const data=cv.toDataURL('image/jpeg',quality);
+     const encoded=data.slice(data.indexOf(',')+1);
+     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+    }
+    continue;
+   }
    const encode=quality=>jpegCanvasBlob(cv,quality);
    const maxAcceptable=blob=>blob&&blob.type==='image/jpeg'&&
     blob.size>=75&&blob.size<=maxBytes;
@@ -795,7 +809,7 @@
   const corrected=ready?recodeAfterTare(fields.ean13,gross,tare,fields.pricePerKgCents):null;
   const label=document.createElement('article');
   label.className='iu-gemini-printed-label'+(ready&&!provisional?' is-ready':' is-review');
-  label.setAttribute('aria-label','Étiquette virtuelle reconstituée, à comparer à la photo avant validation');
+  label.setAttribute('aria-label',provisional?'Aperçu provisoire en cours de vérification':'Étiquette virtuelle reconstituée, à comparer à la photo avant validation');
   const add=(parent,tag,className,value)=>{
    const el=document.createElement(tag);el.className=className;el.textContent=value;
    parent.append(el);return el;
@@ -824,8 +838,9 @@
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
   bars.setAttribute('aria-hidden','true');
-  renderEanBars(bars,corrected?.ean||fields.ean13);
-  add(barcode,'span','iu-gemini-label-ean',corrected?.ean||fields.ean13||'EAN NON RECONNU');
+  if(!provisional)renderEanBars(bars,corrected?.ean||fields.ean13);
+  add(barcode,'span','iu-gemini-label-ean',
+   provisional?'EN VÉRIFICATION':corrected?.ean||fields.ean13||'EAN NON RECONNU');
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
