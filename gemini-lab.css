@@ -3892,27 +3892,42 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  filter:drop-shadow(0 0 1px rgba(255,255,255,.95));
 }
 
-/* v41.85 — Visée plein cadre : la fenêtre caméra adopte le même ratio
-   que l'étiquette DIGI, pour que le gabarit remplisse la largeur et
-   ne laisse plus de bandes latérales inutiles. La vidéo est recadrée
-   par object-fit:cover (jamais étirée), comme les captures et l'OCR. */
+
+/* v41.86 — Mêmes dimensions, marges et cadrage que l'OCR classique.
+   OCR classique (weigh-scan-inline.css) : caméra 100%, hauteur 184px
+   (160px sur écran <=390px), bordure 16px, vidéo en object-fit:cover.
+   Ne pas imposer le ratio DIGI à la caméra : il appartient uniquement
+   aux repères superposés et non à la fenêtre vidéo. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
+ box-sizing:border-box!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ padding:9px!important;
+}
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiCameraShell.iu-gemini-camera-shell > .iu-gemini-camera-stage.iu-weigh-scan-camera {
  box-sizing:border-box!important;
  display:block!important;
  position:relative!important;
  flex:0 0 auto!important;
- width:calc(100% + 12px)!important;
- max-width:calc(100% + 12px)!important;
+ width:100%!important;
+ max-width:100%!important;
  min-width:0!important;
- margin-left:-6px!important;
- margin-right:-6px!important;
- height:auto!important;
- min-height:0!important;
- max-height:none!important;
- aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important;
+ height:184px!important;
+ min-height:184px!important;
+ max-height:184px!important;
+ margin:0!important;
+ padding:0!important;
+ aspect-ratio:auto!important;
  overflow:hidden!important;
+ border:1px solid rgba(255,255,255,.95)!important;
+ border-radius:16px!important;
+ box-shadow:0 0 0 1px rgba(102,133,152,.24),0 5px 12px rgba(65,89,104,.10)!important;
 }
+/* Le flux vidéo occupe TOUTE la fenêtre OCR, sans bandes noires
+   artificielles ni étirement ; le recadrage est central, comme en OCR. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiCameraShell .iu-gemini-camera-stage > video#iuGeminiVideo {
  position:absolute!important;
@@ -3920,12 +3935,21 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  display:block!important;
  width:100%!important;
  height:100%!important;
- max-width:none!important;
  max-height:none!important;
  object-fit:cover!important;
  object-position:center center!important;
- border-radius:inherit!important;
+ border-radius:0!important;
  transform:none!important;
 }
-/* Les réglages de caméra compacts (194/182px) ne doivent plus imposer
-   un format très panoramique : Safari calcule la hauteur par la largeur. */
+@media(max-width:390px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
+  padding:8px!important;
+ }
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiCameraShell.iu-gemini-camera-shell > .iu-gemini-camera-stage.iu-weigh-scan-camera {
+  height:160px!important;
+  min-height:160px!important;
+  max-height:160px!important;
+ }
+}
