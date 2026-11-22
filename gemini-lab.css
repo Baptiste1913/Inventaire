@@ -5083,3 +5083,48 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   box-shadow:none!important;
  }
 }
+
+/* v42.10 — témoin vert : fond historique, coche blanche affinée.
+   Correction de priorité de [hidden] par la même spécificité que
+   display:flex!important de la version 42.09. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator {
+ background:linear-gradient(145deg,rgba(34,155,115,.96),rgba(19,120,94,.95))!important;
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
+ border:1px solid rgba(226,255,242,.86)!important;
+ border-radius:11px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.22),
+  2px 3px 9px rgba(27,43,52,.19)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator > svg {
+ color:#fff!important;
+ stroke:#fff!important;
+ stroke-width:2.5!important;
+ fill:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator[hidden] {
+ display:none!important;
+ visibility:hidden!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell[data-state="idle"] .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator {
+ display:none!important;
+ visibility:hidden!important;
+}
+@media(forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator:not([hidden]) {
+  background:Highlight!important;
+  color:HighlightText!important;
+  border:1px solid HighlightText!important;
+  box-shadow:none!important;
+ }
+}
