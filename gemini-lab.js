@@ -566,8 +566,11 @@
   manualCorrectedFields=[...new Set([...manualCorrectedFields,kind])];
   repairFocus=null;
   display(next,0);
-  setLabelAlert('warning',validateResult(next).error||
-   'Correction manuelle · vérifie les chiffres avant d’enregistrer');
+  const corrected=correctedCurrentProposal();
+  const error=validateResult(next).error;
+  setLabelAlert(corrected?'success':'warning',corrected
+   ?'étiquette prête · valeur vérifiée'
+   :error||'Valeur corrigée · vérifie la tare du panier');
  });
  repairRead?.addEventListener('click',()=>{
   if(!file||!lastRawResult||active)return;
