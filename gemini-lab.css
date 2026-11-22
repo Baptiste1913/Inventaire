@@ -3891,3 +3891,41 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  stroke-width:3!important;
  filter:drop-shadow(0 0 1px rgba(255,255,255,.95));
 }
+
+/* v41.85 — Visée plein cadre : la fenêtre caméra adopte le même ratio
+   que l'étiquette DIGI, pour que le gabarit remplisse la largeur et
+   ne laisse plus de bandes latérales inutiles. La vidéo est recadrée
+   par object-fit:cover (jamais étirée), comme les captures et l'OCR. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell > .iu-gemini-camera-stage.iu-weigh-scan-camera {
+ box-sizing:border-box!important;
+ display:block!important;
+ position:relative!important;
+ flex:0 0 auto!important;
+ width:calc(100% + 12px)!important;
+ max-width:calc(100% + 12px)!important;
+ min-width:0!important;
+ margin-left:-6px!important;
+ margin-right:-6px!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important;
+ overflow:hidden!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > video#iuGeminiVideo {
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ max-width:none!important;
+ max-height:none!important;
+ object-fit:cover!important;
+ object-position:center center!important;
+ border-radius:inherit!important;
+ transform:none!important;
+}
+/* Les réglages de caméra compacts (194/182px) ne doivent plus imposer
+   un format très panoramique : Safari calcule la hauteur par la largeur. */
