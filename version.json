@@ -1,6 +1,6 @@
 {
-  "version": "41.91",
+  "version": "41.92",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Caméra IA à capture exclusivement manuelle sur appui du bouton, sans sélecteur Auto ni lecture de l’ancienne préférence. Bloc Réglages supprimé ; tiroir Accès Cloudflare indépendant directement sous le titre, mêmes dimensions, couleurs, typographies, coins, ombres et animation d’ouverture que Réglages d’alertes de la pesée classique. Marges harmonisées ; clé Cloudflare, photo galerie, OCR et validation préservés."
+  "notes": "Panier Gemini harmonisé avec la pesée classique : libellé « Type de panier », sélecteur et deux touches caméra/galerie à 60 px (56 px petits écrans), même contraste gris bleuté, dégradé, relief, coins et icônes. Nom du panier et tare affichés sur deux lignes dans le sélecteur, tout en conservant le menu natif Safari et la synchronisation des tares avec le panier classique. Caméra, OCR, accès Cloudflare et validation inchangés."
 }
