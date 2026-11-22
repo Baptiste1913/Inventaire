@@ -352,31 +352,40 @@ assert(section.includes('<path d="M12 3v11"/>')&&
  section.includes('<path d="M5 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>')&&
  !section.includes('<path d="M4 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>'),
  'Bac x5–x19 centré sur x12 comme la flèche d’importation');
-// v41.98 — bouton déclencheur rond placé dans le viseur en bas à gauche.
+// v41.99 — troisième contrôle strictement aligné sous Fermer et Flash.
+const headerStart=section.indexOf('class="iu-gemini-camera-header iu-weigh-scan-header"');
+const closeIndex=section.indexOf('id="iuGeminiCloseCamera"');
+const torchIndex=section.indexOf('id="iuGeminiTorch"');
 const shutterIndex=section.indexOf('id="iuGeminiCapture"');
-assert(shutterIndex>section.indexOf('class="iu-gemini-camera-stage iu-weigh-scan-camera"')&&
- shutterIndex<section.indexOf('class="iu-gemini-scan-controls"')&&
+const headerEnd=section.indexOf('</header>',headerStart);
+assert(headerStart>0&&closeIndex>headerStart&&torchIndex>closeIndex&&
+ shutterIndex>torchIndex&&shutterIndex<headerEnd&&
  (section.match(/id="iuGeminiCapture"/g)||[]).length===1,
- 'Déclencheur unique dans la fenêtre caméra');
-assert(section.includes('class="iu-gemini-capture iu-gemini-shutter"')&&
+ 'Ordre vertical Fermer / Flash / Déclencheur dans le même header');
+assert(section.includes('class="iu-weigh-scan-close iu-gemini-capture iu-gemini-shutter"')&&
  section.includes('aria-label="Photographier et analyser cette étiquette"')&&
  section.includes('<circle cx="12" cy="12" r="7.2"/>')&&
  section.includes('<circle cx="12" cy="12" r="3.7"')&&
  !section.includes('>Analyser cette étiquette</button>'),
- 'Déclencheur rond, label accessible, ancien gros bouton supprimé');
+ 'Même classe visuelle que Fermer, icône déclencheur et ancien gros bouton retiré');
 assert(js.includes("capture.addEventListener('click',async()=>{")&&
  !js.includes('capture.textContent=')&&
  js.includes("let cameraMode='manual',autoTimer=0"),
- 'Handler de capture réutilisé et SVG non écrasé');
-const shutterStyle=css.slice(css.indexOf('/* v41.98 — Déclencheur rond'));
-assert(shutterStyle.includes('left:10px!important')&&
- shutterStyle.includes('bottom:10px!important')&&
- shutterStyle.includes('border-radius:50%!important')&&
- shutterStyle.includes('z-index:6!important')&&
- shutterStyle.includes('background:linear-gradient(145deg,#f9fbfc,#e8eff4)!important')&&
- shutterStyle.includes('2px 3px 9px rgba(27,43,52,.19)')&&
- shutterStyle.includes('[data-state="idle"]')&&
- shutterStyle.includes(':disabled'),
- 'Même style Fermer et Flash, bas à gauche, uniquement caméra active');
+ 'Capture 100% manuelle toujours déclenchée par le même bouton JS');
+const shutterStyle=css.slice(css.indexOf('/* v41.99 — capture dans la colonne'));
+for(const val of [
+ 'position:relative!important','inset:auto!important','flex:0 0 32px!important',
+ 'width:32px!important','height:32px!important','border-radius:11px!important',
+ 'border:1px solid rgba(255,255,255,.86)!important',
+ 'background:linear-gradient(145deg,#f9fbfc,#e8eff4)!important',
+ '2px 3px 9px rgba(27,43,52,.19)','width:15px!important','height:15px!important']){
+ assert(shutterStyle.includes(val),'Capture identique aux deux contrôles : '+val);
+}
+assert(shutterStyle.includes('margin:0!important')&&
+ shutterStyle.includes(':disabled')&&
+ !shutterStyle.includes('left:10px!important')&&
+ !shutterStyle.includes('bottom:10px!important')&&
+ css.includes('gap:5px!important;width:auto!important;pointer-events:none!important'),
+ 'Déclencheur dans la colonne auto-alignée de 5px, sans placement indépendant');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.98 : déclencheur rond bas gauche et capture manuelle OK.');
+console.log('Gemini v41.99 : déclencheur identique à Fermer/Flash sous la colonne gauche OK.');
