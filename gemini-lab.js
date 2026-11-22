@@ -1,4 +1,4 @@
-/* Inventaires U 42.14 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.15 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -228,15 +228,23 @@
   emptyResult?.classList.toggle('has-reading',valid);
  }
  refreshResultCard();
- // Le bouton reste toujours affiché dans le viseur. Pendant une lecture
- // vérifiable, l'opérateur doit d'abord enregistrer avec Nouvelle pesée.
+ // Une lecture correcte ne doit pas être perdue par accident :
+ // demander confirmation avant d'écraser une pesée enregistrable.
+ // Mais la caméra doit rester accessible en cas de mauvaise tare,
+ // lecture incorrecte ou analyse interminable (annulation explicite).
+ function hasSavableProposal(){
+  if(!proposal)return false;
+  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  return !!(ctx&&recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate));
+ }
  function refreshCaptureButton(){
   if(!capture)return;
-  const locked=Boolean(frameCaptureBusy||localOcrBusy||active||proposal);
+  const locked=Boolean(frameCaptureBusy||(!active&&localOcrBusy));
   capture.disabled=locked;
   capture.setAttribute('aria-disabled',String(locked));
-  capture.title=proposal?'Valide avec Nouvelle pesée avant une autre analyse'
-   :locked?'Analyse en cours':'Analyser cette étiquette';
+  capture.title=active?'Annuler cette analyse et reprendre une photo'
+   :proposal?'Reprendre une photo d’étiquette'
+   :locked?'Préparation du scanner':'Photographier cette étiquette';
  }
  function updateButton(){
   analyze.hidden=!file;
@@ -415,11 +423,13 @@
  function clear(){stopCamera();resetReading();}
  function setPhoto(chosen){
   if(!chosen)return;
-  if(active){say('Analyse en cours : attends la réponse avant de changer de photo.',true);return false;}
+  // Une nouvelle photo explicitement choisie annule l'ancienne analyse,
+  // même si le réseau tarde ; toute ancienne réponse est invalidée.
+  if(active)resetReading();
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
   }
-  if(proposal&&!window.confirm('Cette pesée n’est pas encore validée. Abandonner ce résultat pour lire une autre étiquette ?')){
+  if(hasSavableProposal()&&!window.confirm('Cette pesée n’est pas encore validée. Abandonner ce résultat pour lire une autre étiquette ?')){
    say('Pesée conservée. Valide-la pour continuer.');return false;
   }
   resetDetectedIndicator();
@@ -547,55 +557,6 @@
   panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
   if(!opening)clear();
  });
- // v42.14 — OffscreenCanvas en Worker si Safari l'autorise.
- // Toujours repli vers canvas.toBlob du fil principal ; le même plafond
- // JPEG, les mêmes résolutions et les mêmes qualités sont conservés.
- let imageEncoderWorker=null,imageEncoderUnsupported=false,imageEncoderNextId=0;
- const imageEncoderRequests=new Map();
- function disableImageWorker(){
-  imageEncoderUnsupported=true;
-  try{imageEncoderWorker?.terminate?.();}catch(_){}
-  imageEncoderWorker=null;
-  for(const job of imageEncoderRequests.values()){
-   clearTimeout(job.timer);job.resolve(null);
-  }
-  imageEncoderRequests.clear();
- }
- function prepareImageWorker(){
-  if(imageEncoderWorker)return imageEncoderWorker;
-  if(imageEncoderUnsupported||typeof Worker!=='function')return null;
-  try{
-   const worker=new Worker(new URL('gemini-image-worker.js?v=42.14',document.baseURI));
-   worker.onmessage=event=>{
-    const {id,blob}=event.data||{};
-    const job=imageEncoderRequests.get(id);
-    if(!job)return;
-    clearTimeout(job.timer);imageEncoderRequests.delete(id);
-    job.resolve(blob?.type==='image/jpeg'?blob:null);
-   };
-   worker.onerror=disableImageWorker;
-   worker.onmessageerror=disableImageWorker;
-   imageEncoderWorker=worker;
-   return worker;
-  }catch(_){imageEncoderUnsupported=true;return null;}
- }
- function warmImageWorker(){
-  if(imageEncoderUnsupported||imageEncoderWorker)return;
-  if(typeof window.requestIdleCallback==='function')
-   window.requestIdleCallback(()=>prepareImageWorker(),{timeout:900});
-  else setTimeout(()=>prepareImageWorker(),300);
- }
- function encodeOnImageWorker(source,maxBytes){
-  const worker=prepareImageWorker();
-  if(!worker)return Promise.resolve(null);
-  return new Promise(resolve=>{
-   const id=++imageEncoderNextId;
-   const timer=setTimeout(()=>{disableImageWorker();},11000);
-   imageEncoderRequests.set(id,{resolve,timer});
-   try{worker.postMessage({id,source,maxBytes});}
-   catch(_){disableImageWorker();}
-  });
- }
  function decodePhoto(source){
   const cached=photoDecodeCache.get(source);
   if(cached)return cached;
@@ -636,6 +597,7 @@
   return Promise.resolve(null);
  }
  async function imageBase64(source){
+  // Limite Worker et qualité de v42.10 inchangées.
   const maxBase64=690000;
   const maxJpegBytes=Math.floor(maxBase64*3/4);
   if(source?.name==='etiquette-gemini.jpg'&&source.type==='image/jpeg'&&
@@ -643,14 +605,7 @@
    try{
     const encoded=await jpegBase64(source);
     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-   }catch(_){/* Safari peut réclamer un traitement canvas. */}
-  }
-  // Compression lourde hors du fil UI quand OffscreenCanvas est compatible.
-  // Si le Worker local échoue, ne jamais sacrifier la photo : repli sûr.
-  const offthread=await encodeOnImageWorker(source,maxJpegBytes);
-  if(offthread&&offthread.size>=75&&offthread.size<=maxJpegBytes){
-   const encoded=await jpegBase64(offthread);
-   if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+   }catch(_){/* Repli canvas Safari. */}
   }
   const img=await decodePhoto(source);
   const maxSide=Math.max(img.naturalWidth,img.naturalHeight);
@@ -658,7 +613,6 @@
   const cv=document.createElement('canvas');
   const ctx=cv.getContext('2d');
   if(!ctx)throw Error('Traitement image impossible sur cet appareil');
-  const maxBytes=maxJpegBytes;
   let previousWidth=0,previousHeight=0;
   for(const side of [2400,2200,1920,1700,1500]){
    const factor=Math.min(1,side/maxSide);
@@ -672,35 +626,19 @@
    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
    ctx.drawImage(img,0,0,width,height);
-   if(typeof cv.toBlob!=='function'){
-    // Repli Safari ancien sans toBlob : même ordre qualité décroissant.
-    for(const quality of [.93,.87,.81,.75]){
+   for(const quality of [.93,.87,.81,.75]){
+    const blob=await jpegCanvasBlob(cv,quality);
+    if(blob){
+     // Base64 utilise 4*ceil(bytes/3) caractères.
+     if(blob.type&&blob.type!=='image/jpeg')continue;
+     if(blob.size<75||blob.size>maxJpegBytes)continue;
+     const encoded=await jpegBase64(blob);
+     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+    }else{
+     // Compatibilité si toBlob est indisponible.
      const data=cv.toDataURL('image/jpeg',quality);
      const encoded=data.slice(data.indexOf(',')+1);
      if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-    }
-    continue;
-   }
-   const encode=quality=>jpegCanvasBlob(cv,quality);
-   const maxAcceptable=blob=>blob&&blob.type==='image/jpeg'&&
-    blob.size>=75&&blob.size<=maxBytes;
-   // Conserver exactement la gamme historique, avec ordre adaptatif
-   // pour éviter les conversions inutilement grosses.
-   const qualities=[.93,.87,.81,.75];
-   const top=await encode(qualities[0]);
-   if(maxAcceptable(top))return jpegBase64(top);
-   if(top&&top.size>maxBytes*1.18){
-    const middle=await encode(qualities[2]);
-    if(maxAcceptable(middle)){
-     const higher=await encode(qualities[1]);
-     return jpegBase64(maxAcceptable(higher)?higher:middle);
-    }
-    const lower=await encode(qualities[3]);
-    if(maxAcceptable(lower))return jpegBase64(lower);
-   }else{
-    for(const quality of qualities.slice(1)){
-     const blob=await encode(quality);
-     if(maxAcceptable(blob))return jpegBase64(blob);
     }
    }
   }
@@ -972,19 +910,13 @@
    previewPending=true;
    display(result,performance.now()-start,{provisional:true});
    say('Étiquette reconnue · vérification indépendante en cours…');
-   // Si la première réponse est contradictoire/incomplète, une seconde
-   // lecture IA de la même photo est autorisée (coût API supplémentaire).
-   // Pas de deuxième appel pour une lecture déjà cohérente.
-   if(validateResult(result).error){
-    say('Première lecture incertaine · deuxième vérification Gemini…');
-    try{
-     const second=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
-     if(id!==generation)return;
-     result=second;
-    }catch(error){
-     if(abort.signal.aborted||id!==generation||error?.name==='AbortError')throw error;
-     // Conserver le premier brouillon non validable pour diagnostic.
-    }
+   // Une réponse incomplète ne provoque plus une deuxième requête
+   // automatique (elle doublait la latence). La photo reste disponible
+   // pour une relance MANUELLE, sans nouvelle capture obligatoire.
+   const firstProblem=validateResult(result).error;
+   if(firstProblem){
+    attempts.delete(selectedModel);
+    analyze.textContent='Réessayer l’analyse';
    }
    // Au plus 2,2 s de délai APRÈS Gemini pour un contrôle OCR local.
    // Si l'OCR ne répond pas, il reste inconcluant et la vérification
@@ -1003,9 +935,11 @@
    const saveReady=Boolean(validationState());
    say(conflicting
     ?'Reconnaissances contradictoires : vérifie les chiffres sur l’étiquette et reprends la photo.'
+    :firstProblem
+    ?'Lecture incertaine : '+firstProblem+' Tu peux réessayer cette photo ou en prendre une autre.'
     :saveReady
     ?'Lecture prête : compare à l’étiquette réelle, puis touche Nouvelle pesée.'
-    :'Lecture non validable : vérifie le panier, la photo et les chiffres.',conflicting||!saveReady);
+    :'Lecture non validable : vérifie le panier ou reprends une photo.',conflicting||!saveReady);
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
@@ -1144,7 +1078,6 @@
    // Charger l'OCR local en avance, pendant le cadrage manuel.
    // Évite d'attendre son démarrage après la réponse Gemini.
    if(localReader)void ensureLocalOcr();
-   warmImageWorker();
    refreshTorch();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
    else setAutoHint('Valide ou reprends la lecture en cours','waiting');
@@ -1184,7 +1117,6 @@
   startCamera();
  });
  modePhoto?.addEventListener('click',()=>{
-  warmImageWorker();
   warmGeminiConnection();
   // Charger l'OCR pendant le choix de la photo dans iOS.
   if(localReader)void ensureLocalOcr();
@@ -1619,9 +1551,13 @@
    say('Viseur non prêt : ouvre la caméra et présente une étiquette.',true);
    return;
   }
-  // L'étiquette validable est verrouillée jusqu'à « Nouvelle pesée ».
-  // Les lectures incomplètes restent relançables pour ne pas bloquer le travail.
-  if(frameCaptureBusy||localOcrBusy||active||proposal)return;
+  // Nouvelle capture possible même après lecture d'un mauvais panier,
+  // d'une étiquette incorrecte, ou pendant une analyse réseau trop longue.
+  // Un brouillon valide est protégé par une confirmation explicite.
+  if(frameCaptureBusy||(!active&&localOcrBusy))return;
+  if(hasSavableProposal()&&!window.confirm(
+   'Cette pesée n’est pas encore validée. Abandonner ce résultat pour reprendre une photo ?'))return;
+  if(active||proposal||latestLabelFields)resetReading();
   frameCaptureBusy=true;
   refreshCaptureButton();
   const frameEpoch=cameraEpoch;
