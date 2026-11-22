@@ -4717,3 +4717,25 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   box-shadow:none!important;
  }
 }
+
+/* v42.01 — enveloppe de la caméra IA : coins davantage arrondis,
+   marges intérieures verticales resserrées. On conserve les 9 px
+   latéraux de l'OCR classique pour ne pas changer le viseur, ses
+   repères ni la position des boutons Fermer/Flash/Déclencheur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
+ border-radius:24px!important;
+ padding-top:5px!important;
+ padding-bottom:5px!important;
+ padding-left:9px!important;
+ padding-right:9px!important;
+}
+@media(max-width:390px) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
+  padding-top:4px!important;
+  padding-bottom:4px!important;
+  padding-left:8px!important;
+  padding-right:8px!important;
+ }
+}
