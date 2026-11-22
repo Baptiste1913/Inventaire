@@ -510,11 +510,11 @@ assert(js.includes("const received=await requestGeminiWithRecovery(")&&
  js.includes("if(c.arithmeticConsistent!==true")===false,
  'Une requête par tentative ; pas de validation automatique');
 // v42.16 — retour au chemin Gemini 42.06 sans perte des contrôles.
-assert(js.includes('const focused=width*.88')&&
+assert(js.includes('const focused=width*.96')&&
  js.includes('width:{ideal:1920},height:{ideal:1080}')&&
- js.includes('Math.min(1,1600/Math.max(crop.width,crop.height))')&&
- js.includes("cv.toBlob(resolve,'image/jpeg',.90)"),'Capture initiale 42.06 restaurée');
-assert(js.includes('const scale=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight))')&&
+ js.includes('Math.min(1,1920/Math.max(crop.width,crop.height))')&&
+ js.includes("cv.toBlob(resolve,'image/jpeg',.86)"),'Capture 42.23 plus détaillée, cadre élargi et qualité adaptée');
+assert(js.includes('const scale=Math.min(1,1920/Math.max(img.naturalWidth,img.naturalHeight))')&&
  js.includes('for(const quality of [.88,.80,.72,.64,.56])')&&
  !js.includes('jpegCanvasBlob(')&&
  !js.includes('photoDecodeCache')&&
@@ -734,7 +734,8 @@ assert(js.includes('const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-tota
  js.includes('reconcileBarcode(combined,localBarcode)'),
  'Tolérance d’un centime et EAN indépendamment contrôlé');
 assert(js.includes('barcodeJob=Promise.resolve().then')&&
- js.includes('window.IUGeminiEAN.cropIfSafe(file,readFast)')&&
+ js.includes('const encoded=await imageBase64(file);')&&
+ !js.includes('window.IUGeminiEAN.cropIfSafe(file,readFast)')&&
  js.includes('const received=await requestGeminiWithRecovery(')&&
  js.includes('targetField);')&&
  js.includes('repairRead?.addEventListener(')&&
@@ -758,4 +759,28 @@ assert(eanSource.includes('function decode95(bits)')&&
  eanSource.includes('function suggestLabelCrop(')&&
  eanSource.includes('if(confirmed.length>1)return {ambiguous:true'),
  'EAN optique hors-ligne, clé stricte et cadrage prudent');
-console.log('Gemini v42.22 : OCR indépendant, relecture ciblée et sécurité de pesée OK.');
+// v42.23 : priorité constante Gemini, EAN local complémentaire et
+// relecture ciblée uniquement si un champ manque.
+assert(js.includes('const canvas=liveFrameCanvas();')&&
+ js.includes('await sendOcrFallback(canvas,valid);')&&
+ !js.includes('try{parsed=await recognizeLocally(canvas)}')&&
+ js.includes("setAutoHint('Gemini · lecture de l’étiquette…','capturing');"),
+ 'En mode automatique, Gemini est désormais le premier OCR, jamais le secours');
+assert(js.includes('const encoded=await imageBase64(file);')&&
+ js.includes('barcodeJob=Promise.resolve().then')&&
+ !js.includes('readFast=await Promise.race')&&
+ js.includes('const focused=width*.96')&&
+ js.includes('Math.min(1,1920/Math.max(crop.width,crop.height))'),
+ 'Image haute définition envoyée directement à Gemini, EAN local parallèle');
+assert(js.includes('function singleMissingField(result)')&&
+ js.includes('const missing=!targetField?singleMissingField(combined):null;')&&
+ js.includes('const focused=await requestGeminiWithRecovery(')&&
+ js.includes('const key=fieldKeys[missing],value=focused?.fields?.[key];')&&
+ js.includes('combined=reconcileBarcode(combined,localBarcode);'),
+ 'Un champ seulement peut être relu ; les données d’origine restent protégées');
+assert(server.includes("const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'rate');")&&
+ server.includes("const totalCents=geminiLabValue(extracted.totalEur,'total');")&&
+ server.includes("const gram=text.match(/^(\\d{1,5})g$/i);")&&
+ server.includes("const pattern=rate"),
+ 'Worker : formats numériques typés avec kg, g, €/kg et euros');
+console.log('Gemini v42.23 : priorité Gemini et reconnaissance tolérante des formats OK.');
