@@ -1,6 +1,6 @@
 {
-  "version": "42.05",
+  "version": "42.06",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Bloc de contrôle sous l'étiquette virtuelle beaucoup plus translucide : film blanc réduit à 16–23%, trame et halos conservés, papier de l'étiquette inchangé. Rangée poids brut à vérifier et Nouvelle pesée réduite de 66 à 54 px. Nouveau bouton Nouvelle pesée au même fond, dégradé, coins 14px, contour, ombres neumorphiques et réaction tactile que les boutons Activer caméra et Import photo ; état prêt conservé, fonctionnement d'enregistrement inchangé."
+  "notes": "Fiabilisation de l'analyse Gemini : jusqu'à 2 réessais automatiques avec délai progressif uniquement sur erreurs réseau temporaires ou réponses 429/500/502/503/504, sans nouvelle capture ni enregistrement automatique. Annulation immédiate des délais lors d'une nouvelle pesée ou d'un arrêt. Réponse 401/403 non retentée ; erreurs explicites. Après échec final, la photo actuelle reste disponible et le bouton Réessayer l'analyse redevient utilisable. Validation EAN, calcul prix/poids et enregistrement manuel conservés. Aucun engagement de réussite 100 % ; Worker Cloudflare inchangé."
 }
