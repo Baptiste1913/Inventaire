@@ -1,6 +1,6 @@
 {
-  "version": "41.79",
+  "version": "41.80",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Viseur caméra IA : le gabarit transparent est désormais cloné directement depuis l’étiquette virtuelle DIGI avec ses styles calculés et ses dimensions réelles (ratio 1372/1088, placement, typographies, marges, coins, prix encadré, emplacement EAN). Mise à l’échelle sans déformation pour Safari iPhone, cadre vidéo adapté. Caméra inactive au départ, capture, OCR et pesées inchangés."
+  "notes": "Viseur IA plus compact (156px, 142px sur iPhone étroit), repère DIGI réduit uniformément à 88 % sans déformer ses proportions. Textes en caractères évidés, contours blancs translucides et barres EAN décoratives creuses, sans aplats ; caméra et OCR inchangés."
 }
