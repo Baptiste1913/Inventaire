@@ -1,4 +1,4 @@
-/* Inventaires U 41.84 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.87 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -123,7 +123,11 @@
      guideSource=source;
      guideSize={width:built.width,height:built.height};
      guideSnapshot=built.node;
-     exactGuide.replaceChildren(guideSnapshot);
+     // Garder le Canvas de l'effet OCR : il reste attaché au repère,
+     // y compris entre deux pesées et lors de son recalcul responsive.
+     const outlineLight=exactGuide.querySelector('.iu-gemini-outline-light');
+     if(outlineLight)exactGuide.replaceChildren(guideSnapshot,outlineLight);
+     else exactGuide.replaceChildren(guideSnapshot);
     }
    }
   }
