@@ -139,8 +139,11 @@ function iuGeminiDuplicate(ean,gross,rate,total){
  const match=x=>x?.source==='gemini'&&x.ean13===ean&&
   x.gross===gross&&x.pricePerKgCents===rate&&x.originalTotalCents===total;
  const session=getActiveSession();
- return (session?.entries||[]).find(match)||
-  history.find(x=>match(x)&&Date.now()-x.at<24*60*60*1000)||null;
+ // Pendant un inventaire, un doublon doit appartenir à CET inventaire.
+ // Une pesée d'hier ou d'une session terminée n'est pas un doublon actuel.
+ if(session)return (session.entries||[]).find(match)||null;
+ // Hors session : secours limité aux acquisitions très récentes.
+ return history.find(x=>match(x)&&Date.now()-x.at<15*60*1000)||null;
 }
 window.IUGeminiDuplicateInfo=payload=>({
  duplicate:Boolean(iuGeminiDuplicate(payload?.ean13,payload?.gross,
