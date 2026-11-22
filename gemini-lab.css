@@ -5360,3 +5360,40 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > #iuGeminiFrameState.iu-gemini-frame-state[hidden] {
  display:none!important;visibility:hidden!important;
 }
+
+/* v42.21 — un seul déclencheur pour enregistrer + scanner.
+   Les deux états se signalent par un petit coin, sans agrandir
+   ni déplacer les commandes de caméra Liquid Glass. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > button#iuGeminiCapture.iu-gemini-shutter[data-action="save-and-scan"]::after,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > button#iuGeminiCapture.iu-gemini-shutter[data-action="confirm-duplicate"]::after {
+ content:"✓"!important;
+ position:absolute!important;top:1px!important;right:1px!important;
+ width:12px!important;height:12px!important;line-height:12px!important;
+ border-radius:50%!important;text-align:center!important;
+ background:#348d73!important;color:#fff!important;
+ font-family:inherit!important;font-size:9px!important;font-weight:800!important;
+ border:1px solid rgba(255,255,255,.96)!important;
+ box-shadow:none!important;pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > button#iuGeminiCapture.iu-gemini-shutter[data-action="confirm-duplicate"]::after {
+ content:"!"!important;background:#bb8641!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiDuplicateSkip.iu-gemini-duplicate-skip:not([hidden]) {
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;white-space:nowrap!important;margin-left:auto!important;
+ padding:3px 8px!important;min-height:25px!important;min-width:0!important;
+ border:1px solid rgba(172,185,194,.7)!important;border-radius:8px!important;
+ font-family:inherit!important;font-size:10px!important;font-weight:700!important;line-height:1.2!important;color:#405661!important;
+ background:rgba(255,255,255,.55)!important;box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiDuplicateSkip.iu-gemini-duplicate-skip[hidden] {
+ display:none!important;
+}
