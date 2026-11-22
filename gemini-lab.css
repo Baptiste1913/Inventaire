@@ -4724,7 +4724,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
    repères ni la position des boutons Fermer/Flash/Déclencheur. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
- border-radius:24px!important;
+ border-radius:20px!important;
  padding-top:5px!important;
  padding-bottom:5px!important;
  padding-left:9px!important;
@@ -4738,4 +4738,32 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   padding-left:8px!important;
   padding-right:8px!important;
  }
+}
+
+/* v42.02 — géométrie caméra identique au bloc étiquette virtuelle
+   (20px). Caméra inactive : seulement « Caméra désactivée » au centre,
+   sans pictogramme. Le bouton entier reste tactile pour réactiver. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell[data-state="idle"] .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle {
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:0!important;
+ padding:12px!important;
+ text-align:center!important;
+ font-family:inherit!important;
+ font-size:16px!important;
+ font-weight:800!important;
+ line-height:1.3!important;
+ letter-spacing:-.01em!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > span {
+ display:block!important;
+ margin:0 auto!important;
+ padding:0!important;
+ width:auto!important;
+ max-width:100%!important;
+ text-align:center!important;
 }
