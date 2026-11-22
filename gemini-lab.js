@@ -1,4 +1,4 @@
-/* Inventaires U 41.68 — résultat Gemini en trois lignes et réglages Auto/Cloudflare regroupés.
+/* Inventaires U 41.69 — OCR vidéo local + Gemini de secours, visée tolérante et validations strictes.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -40,6 +40,10 @@
  const autoToggle=$('iuGeminiAutoToggle'),
   autoScanState=$('iuGeminiAutoScanState'),autoReset=$('iuGeminiAutoReset');
  const autoSampleCanvas=document.createElement('canvas');
+ const localReader=window.IUGeminiLocalOCR||null;
+ let localWorker=null,localWorkerPromise=null,localEngineGeneration=0,
+  localOcrDisabled=false,localOcrBusy=false,localOcrToken=0,
+  localCandidate=null,localPasses=0;
  let cameraMode='auto',autoTimer=0,autoLocked=false,autoSuspended=false,
   autoLastFrame=null,autoLastCaptured=null,autoChangeReference=null,
   autoNeedsChange=false,autoChangeCount=0,autoStableSince=0,autoStableCount=0,
@@ -154,6 +158,7 @@
   picture.hidden=true;picture.removeAttribute('src');
  }
  function resetReading(){
+  localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
   attempts.clear();photo.value='';latestLabelFields=null;
   output.hidden=true;output.replaceChildren();networkTime.textContent='';resetProposal();
@@ -177,6 +182,7 @@
   if(proposal&&!window.confirm('Cette pesée n’est pas encore validée. Abandonner ce résultat pour lire une autre étiquette ?')){
    say('Pesée conservée. Valide-la pour continuer.');return false;
   }
+  localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   latestLabelFields=null;
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
@@ -491,9 +497,14 @@
   updateCardState(proposal?'review':'retry');
   if(!proposal)resetProposal();
   validationState();
-  networkTime.textContent='Gemini : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
-   +' · total photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
-   +' · modèle '+String(result.model||fixedModel);
+  if(result?.source==='local'){
+   networkTime.textContent='OCR local · 2 lectures concordantes · aucune image envoyée'
+    +' · '+(wallMs/1000).toFixed(2)+' s';
+  }else{
+   networkTime.textContent='Gemini de secours : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
+    +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
+    +' · modèle '+String(result.model||fixedModel);
+  }
  }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
@@ -572,6 +583,8 @@
   autoLocked=false;autoSuspended=false;autoNeedsChange=false;
   autoCapturePending=false;autoLastCaptured=null;autoChangeReference=null;
   cameraEpoch++;
+  localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
+  releaseLocalOcr();
   if(cameraStream){
    for(const track of cameraStream.getTracks())track.stop();
    cameraStream=null;
@@ -618,7 +631,10 @@
     try{await video.play()}catch(_){
      say('Vidéo suspendue par iOS. Réessaie de toucher le viseur.',true);
     }
-    if(cameraMode==='auto'&&!autoSuspended&&!active&&!file&&!proposal)startAutoMonitor();
+    if(cameraMode==='auto'&&!autoSuspended&&!active&&!file&&!proposal){
+     void ensureLocalOcr();
+     startAutoMonitor();
+    }
     return;
    }
    // iOS peut terminer une piste après verrouillage. Dans ce cas
@@ -660,6 +676,7 @@
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
+   if(cameraMode==='auto')void ensureLocalOcr();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
    else setAutoHint('Valide ou reprends la lecture en cours','waiting');
    say(cameraMode==='auto'
@@ -754,6 +771,184 @@
   return {x,y,width,height};
  }
 
+
+ // Lecture vidéo locale : reconnaissance du TEXTE au fil des images canvas.
+ // Tesseract se télécharge à la première utilisation (même moteur que l'OCR
+ // classique). L'image ne sort de l'appareil qu'en cas de secours Gemini.
+ function loadTesseract(){
+  if(window.Tesseract?.createWorker)return Promise.resolve(window.Tesseract);
+  return new Promise((resolve,reject)=>{
+   let done=false,tag=Array.from(document.scripts).find(x=>
+    String(x.src||'').includes('tesseract.js@5.1.1/dist/tesseract.min.js'));
+   const finish=(error)=>{
+    if(done)return;done=true;clearTimeout(timer);
+    tag?.removeEventListener('load',check);
+    tag?.removeEventListener('error',failed);
+    if(error||!window.Tesseract?.createWorker)reject(error||Error('OCR indisponible'));
+    else resolve(window.Tesseract);
+   };
+   const check=()=>finish();
+   const failed=()=>finish(Error('Moteur OCR non chargé'));
+   const timer=setTimeout(()=>finish(Error('OCR trop long à charger')),7500);
+   if(!tag){
+    tag=document.createElement('script');
+    tag.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+    tag.async=true;
+    tag.addEventListener('load',check,{once:true});
+    tag.addEventListener('error',failed,{once:true});
+    document.head.append(tag);
+   }else{
+    tag.addEventListener('load',check,{once:true});
+    tag.addEventListener('error',failed,{once:true});
+   }
+   if(window.Tesseract?.createWorker)check();
+  });
+ }
+ function ensureLocalOcr(){
+  if(!localReader||localOcrDisabled)return Promise.resolve(null);
+  if(localWorker)return Promise.resolve(localWorker);
+  if(localWorkerPromise)return localWorkerPromise;
+  const serial=++localEngineGeneration;
+  localWorkerPromise=(async()=>{
+   const library=await loadTesseract();
+   const worker=await library.createWorker('eng',1,{});
+   if(serial!==localEngineGeneration){
+    try{await worker.terminate()}catch(_){}
+    return null;
+   }
+   localWorker=worker;
+   return worker;
+  })().catch(()=>{
+   if(serial===localEngineGeneration)localOcrDisabled=true;
+   return null;
+  });
+  return localWorkerPromise;
+ }
+ function releaseLocalOcr(){
+  ++localEngineGeneration;
+  const pending=localWorkerPromise;
+  localWorkerPromise=null;localWorker=null;localOcrDisabled=false;
+  if(pending)void pending.then(async worker=>{
+   try{await worker?.terminate?.()}catch(_){}
+  }).catch(()=>{});
+ }
+ function liveFrameCanvas(){
+  const view=video.getBoundingClientRect();
+  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,view.width,view.height);
+  const factor=Math.min(1,1450/Math.max(crop.width,crop.height));
+  const cv=document.createElement('canvas');
+  cv.width=Math.max(1,Math.round(crop.width*factor));
+  cv.height=Math.max(1,Math.round(crop.height*factor));
+  const ctx=cv.getContext('2d',{willReadFrequently:true});
+  if(!ctx)throw Error('Canvas OCR indisponible');
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
+  return cv;
+ }
+ async function decodeLocalBarcode(canvas){
+  if(typeof window.BarcodeDetector!=='function')return '';
+  try{
+   const reader=new window.BarcodeDetector({formats:['ean_13']});
+   const items=await reader.detect(canvas);
+   const codes=[...new Set((items||[]).map(x=>String(x.rawValue||'').replace(/\D/g,''))
+    .filter(x=>localReader?.eanValid(x)))];
+   return codes.length===1?codes[0]:'';
+  }catch(_){return '';}
+ }
+ async function recognizeLocally(canvas){
+  const waited=await Promise.race([ensureLocalOcr(),
+   new Promise(resolve=>setTimeout(()=>resolve(null),5200))]);
+  if(!waited)return null;
+  const reading=Promise.all([
+   waited.recognize(canvas),
+   decodeLocalBarcode(canvas)
+  ]).then(([result,barcode])=>({result,barcode}));
+  const output=await Promise.race([reading,
+   new Promise(resolve=>setTimeout(()=>resolve(null),6500))]);
+  if(!output){
+   localOcrDisabled=true;
+   releaseLocalOcr();
+   localOcrDisabled=true;
+   return null;
+  }
+  return localReader.parse(output.result?.data?.text,{
+   confidence:output.result?.data?.confidence,barcode:output.barcode
+  });
+ }
+ async function sendOcrFallback(canvas,sessionValid){
+  if(!sessionValid())return;
+  if(!pilotKey.value.trim()){
+   autoLocked=true;
+   setAutoHint('OCR incertain · clé Cloudflare nécessaire pour Gemini','error');
+   say('Lecture OCR incertaine. Aucune image envoyée : configure la clé Cloudflare ou réessaie.',true);
+   return;
+  }
+  setAutoHint('Lecture locale incomplète · secours Gemini…','capturing');
+  say('OCR incomplet : une seule image sera transmise à Gemini pour vérification.');
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.88));
+  if(!blob||!sessionValid())throw Error('Image de secours indisponible');
+  lastPhotoWasAuto=true;
+  autoCapturePending=false;
+  // Même contrôle et même validation manuelle que la photo traditionnelle.
+  setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
+ }
+ async function readLocalFrame(quality){
+  if(localOcrBusy||autoSuspended||active||file||proposal)return;
+  autoLocked=true;localOcrBusy=true;
+  const token=++localOcrToken,epoch=cameraEpoch,stream=cameraStream;
+  const valid=()=>token===localOcrToken&&epoch===cameraEpoch&&
+   cameraStream===stream&&scannerCardVisible()&&!active&&!file&&!proposal&&
+   cameraMode==='auto';
+  let canvas=null;
+  const started=performance.now();
+  try{
+   canvas=liveFrameCanvas();
+   autoLastCaptured=quality.pixels;
+   setAutoHint('OCR local · lecture de la vidéo…','framing');
+   let parsed=null;
+   try{parsed=await recognizeLocally(canvas)}catch(_){}
+   if(!valid())return;
+   if(parsed){
+    if(localCandidate&&localReader.matchTwo(localCandidate,parsed)){
+     parsed.elapsedMs=Math.round(performance.now()-started);
+     parsed.model='OCR local · 2 lectures concordantes';
+     display(parsed,parsed.elapsedMs);
+     autoLocked=true;
+     setAutoHint(proposal?'OCR local confirmé · vérifie et valide'
+      :'Lecture locale non validable · vérifie les valeurs',proposal?'ready':'error');
+     say(proposal
+      ?'Lecture OCR locale confirmée : vérifie le brut et l’étiquette, puis valide.'
+      :'Lecture locale incomplète : contrôle manuel nécessaire.',!proposal);
+     return;
+    }
+    if(!localCandidate){
+     localCandidate=parsed;
+     localPasses=1;
+     autoLocked=false;
+     autoStableCount=0;autoEarliest=performance.now()+180;
+     setAutoHint('OCR lu · vérification par une seconde lecture…','framing');
+     return;
+    }
+   }
+   // Une seule image de secours, jamais deux requêtes silencieuses.
+   await sendOcrFallback(canvas,valid);
+  }catch(_){
+   if(valid()){
+    autoLocked=true;
+    setAutoHint('Lecture incomplète · touche Reprendre ou Capturer','error');
+    say('Lecture automatique impossible. Essaie la capture manuelle.',true);
+   }
+  }finally{
+   if(token===localOcrToken){
+    localOcrBusy=false;
+    if(!autoLocked&&valid())startAutoMonitor();
+   }
+  }
+ }
+
  // Analyse locale basse résolution, sans photo transmise ni API distante.
  // Ce filtre détecte un document clair, contrasté et net au centre du viseur ;
  // Gemini reste seul responsable de la reconnaissance du texte et de l'EAN.
@@ -778,8 +973,8 @@
   const bright=light/Math.max(count,1),darkness=dark/Math.max(count,1);
   const sharpness=edges/Math.max(count,1),strongRatio=strong/Math.max(count,1);
   return {pixels:gray,bright,darkness,sharpness,strongRatio,
-   usable:bright>.25&&darkness>.015&&darkness<.60&&
-    sharpness>7&&strongRatio>.027};
+   usable:bright>.14&&darkness>.01&&darkness<.72&&
+    sharpness>5.7&&strongRatio>.018};
  }
  function autoFrameDistance(first,second){
   if(!first||!second||first.length!==second.length)return Infinity;
@@ -790,7 +985,7 @@
  function setAutoHint(message,phase='waiting'){
   if(autoScanState&&autoScanState.textContent!==message)autoScanState.textContent=message;
   if(cameraShell)cameraShell.dataset.autoPhase=phase;
-  if(autoReset)autoReset.hidden=!(cameraMode==='auto'&&cameraStream&&autoLocked&&!active&&!proposal&&Boolean(file));
+  if(autoReset)autoReset.hidden=!(cameraMode==='auto'&&cameraStream&&autoLocked&&!active&&!proposal);
  }
  function clearAutoTimer(){
   if(autoTimer){clearTimeout(autoTimer);autoTimer=0;}
@@ -799,19 +994,20 @@
   autoLastFrame=null;autoStableSince=0;autoStableCount=0;autoChangeCount=0;
  }
  function armAutoScanner(afterValidation=false){
+  localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   clearAutoStability();
   autoLocked=false;autoSuspended=false;
   autoChangeReference=afterValidation?autoLastCaptured:null;
   autoNeedsChange=Boolean(autoChangeReference);
-  autoEarliest=performance.now()+(afterValidation?650:320);
+  autoEarliest=performance.now()+(afterValidation?420:180);
   autoCapturePending=false;
   if(cameraMode==='auto'&&cameraStream){
-   setAutoHint(afterValidation?'Présente une autre étiquette':'Centre une étiquette nette','waiting');
+   setAutoHint(afterValidation?'Présente une autre étiquette':'OCR local prêt · vise une étiquette','waiting');
    startAutoMonitor();
   }
  }
  function startAutoMonitor(){
-  if(cameraMode!=='auto'||!cameraStream||!scannerCardVisible()||autoTimer)return;
+  if(cameraMode!=='auto'||!cameraStream||!scannerCardVisible()||autoTimer||autoLocked||localOcrBusy)return;
   autoTimer=setTimeout(autoTick,230);
  }
  function autoTick(){
@@ -819,9 +1015,7 @@
   if(!scannerCardVisible()||!cameraStream||cameraShell.hidden||cameraMode!=='auto')return;
   try{
    if(!autoLocked&&!autoSuspended&&!active&&!file&&!proposal&&performance.now()>=autoEarliest){
-    if(!pilotKey.value.trim()){
-     setAutoHint('Configure la clé Gemini pour le scan auto','waiting');
-    }else if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
+    if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
      const bounds=video.getBoundingClientRect();
      const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,bounds.width,bounds.height);
      if(autoSampleCanvas.width!==176)autoSampleCanvas.width=176;
@@ -834,46 +1028,45 @@
      const quality=inspectAutoFrame(ctx.getImageData(0,0,autoSampleCanvas.width,autoSampleCanvas.height));
      const now=performance.now();
      if(autoNeedsChange){
-      const changed=autoFrameDistance(quality.pixels,autoChangeReference)>11||!quality.usable;
-      autoChangeCount=changed?autoChangeCount+1:0;
+      // Une scène vraiment différente évite de reprendre la même pesée
+      // simplement parce que l'iPhone a bougé.
+      const changed=autoFrameDistance(quality.pixels,autoChangeReference)>18;
+      autoChangeCount=changed?Math.min(3,autoChangeCount+1):0;
       if(autoChangeCount<2){
-       setAutoHint('Écarte l’ancienne étiquette avant la suivante','waiting');
+       setAutoHint('Présente une étiquette différente','waiting');
        autoLastFrame=null;return;
       }
       autoNeedsChange=false;autoChangeReference=null;
       autoLastFrame=null;autoStableSince=0;autoStableCount=0;
-      autoEarliest=now+250;
-      setAutoHint('Nouvelle étiquette détectée · stabilise','framing');
+      autoEarliest=now+140;
+      setAutoHint('Nouvelle étiquette · OCR local en préparation','framing');
      }
-     if(!quality.usable){
-      clearAutoStability();
-      setAutoHint('Approche et centre une seule étiquette nette','framing');
-     }else{
-      const motion=autoFrameDistance(quality.pixels,autoLastFrame);
-      if(motion>=10.5||!autoLastFrame){
-       autoStableSince=now;autoStableCount=1;
-       setAutoHint('Maintiens l’étiquette immobile','framing');
-      }else{
-       autoStableCount++;
-       setAutoHint('Étiquette cadrée · contrôle de netteté','framing');
-      }
+     // Deux images lisibles suffisent même si elles ne sont pas immobiles.
+     // Une proposition exploitable réclame ensuite deux OCR concordants.
+     if(quality.usable){
+      autoStableCount=Math.min(3,autoStableCount+1);
+      if(!autoStableSince)autoStableSince=now;
       autoLastFrame=quality.pixels;
-      if(autoStableCount>=4&&now-autoStableSince>=650&&now>=autoEarliest){
+      if(autoStableCount>=2&&now>=autoEarliest){
        autoLocked=true;
-       autoLastCaptured=quality.pixels;
-       autoCapturePending=true;
-       setAutoHint('Photo nette · analyse Gemini…','capturing');
-       capture.click();
-      }
+       void readLocalFrame(quality);
+      }else setAutoHint('Étiquette détectée · OCR local bientôt prêt','framing');
+     }else{
+      autoStableCount=Math.max(0,autoStableCount-1);
+      if(autoStableCount===0)autoStableSince=0;
+      autoLastFrame=quality.pixels;
+      setAutoHint('Rapproche l’étiquette pour une meilleure netteté','framing');
      }
     }
    }
   }catch(_){
-   autoLocked=true;
-   setAutoHint('Détection automatique indisponible · utilise Capturer','error');
+   // Une image vidéo momentanément invalide ne bloque plus la caméra.
+   autoStableCount=0;autoStableSince=0;
+   autoEarliest=performance.now()+330;
+   setAutoHint('Visée momentanément indisponible · nouvel essai','framing');
   }finally{
-   if(scannerCardVisible()&&cameraMode==='auto'&&cameraStream&&!cameraShell.hidden)
-    startAutoMonitor();
+   if(scannerCardVisible()&&cameraMode==='auto'&&cameraStream&&!cameraShell.hidden&&
+      !autoLocked&&!localOcrBusy)startAutoMonitor();
   }
  }
  function selectCameraMode(mode){
@@ -881,7 +1074,9 @@
   if(autoToggle)autoToggle.checked=cameraMode==='auto';
   if(capture)capture.textContent=cameraMode==='auto'?'Capturer maintenant':'Capturer cette étiquette';
   if(cameraMode==='manual'){
-   clearAutoTimer();setAutoHint('Capture manuelle activée','manual');
+   localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
+   clearAutoTimer();autoLocked=false;
+   setAutoHint('Capture manuelle activée','manual');
   }else if(cameraStream&&!file&&!active&&!proposal){
    armAutoScanner(false);
   }else{
@@ -935,6 +1130,8 @@
  });
  document.addEventListener('visibilitychange',()=>{
   if(document.hidden&&cameraStream){
+   localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
+   if(!proposal&&!file)autoLocked=false;
    // Aucune image vidéo ne doit rester capturée lorsque la PWA est masquée.
    // Désactiver temporairement la piste au lieu de la détruire évite
    // de redemander l'accès lors de courts changements d'application.

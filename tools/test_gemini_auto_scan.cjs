@@ -1,6 +1,6 @@
 'use strict';
-// Régression du scanner automatique Gemini : aucun appel Gemini sur les frames,
-// au plus une capture par cycle, validation humaine et protections des doublons.
+// Régression du scanner hybride : deux lectures locales, secours Gemini
+// unique lorsque nécessaire, validation humaine et protections des doublons.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
@@ -13,7 +13,10 @@ const version=JSON.parse(fs.readFileSync('version.json','utf8')).version;
 for(const id of ['iuGeminiAutoToggle','iuGeminiAutoScanState','iuGeminiAutoReset','iuGeminiCapture'])
  assert(html.includes('id="'+id+'"'),'Contrôle requis : '+id);
 assert(!html.includes('Mode Auto : la netteté et la stabilité'),'Texte explicatif supprimé sans modifier le scanner');
-assert(source.includes('getImageData(')&&source.includes('capture.click();'),'Le traitement local précède une seule capture');
+assert(source.includes('getImageData(')&&source.includes('void readLocalFrame(quality)'),
+ 'Le flux vidéo est analysé en direct par l’OCR local, sans photo préalable');
+assert(source.includes("localReader.matchTwo(localCandidate,parsed)"),
+ 'Une pesée OCR exige deux lectures concordantes');
 assert(source.includes('nextWeigh?.addEventListener(\'click\''),'Validation manuelle conservée');
 assert(html.includes('gemini-lab.js?v='+version)&&html.includes('gemini-lab.css?v='+version),
  'Versions synchronisées dans l’application');
@@ -65,19 +68,28 @@ const tick=source.slice(tickStart,tickEnd);
 assert(tickStart>0&&tickEnd>tickStart,'Boucle automatique présente');
 assert(tick.includes("video.readyState>=2"),'Attendre la caméra prête');
 assert(tick.includes('getImageData('),'Analyse locale basse résolution');
-assert(tick.includes('autoStableCount>=4&&now-autoStableSince>=650'),
- 'Plusieurs frames stables sont nécessaires avant capture');
-assert(tick.includes('!pilotKey.value.trim()'),'Sans clé pilote, aucune capture automatique envoyée');
-assert(tick.includes('autoNeedsChange')&&tick.includes('autoFrameDistance(quality.pixels,autoChangeReference)>11'),
- 'Après validation, imposer un changement de scène');
-assert(tick.includes('autoLocked=true;')&&tick.includes('capture.click();'),
- 'Verrouiller avant de déclencher UNE capture');
+assert(tick.includes('autoStableCount>=2&&now>=autoEarliest'),
+ 'Deux vues exploitables suffisent sans imposer 650 ms d’immobilité');
+assert(!tick.includes('!pilotKey.value.trim()'),
+ 'L’OCR local fonctionne même sans clé Cloudflare');
+assert(tick.includes('autoNeedsChange')&&
+ tick.includes('autoFrameDistance(quality.pixels,autoChangeReference)>18'),
+ 'Après validation, exiger un véritable changement d’étiquette');
+assert(tick.includes('autoLocked=true;')&&tick.includes('void readLocalFrame(quality)'),
+ 'Verrouiller le scanner pendant une analyse OCR locale unique');
+assert(!tick.includes('capture.click()'),'Aucun cliché automatique avant l’OCR local');
 assert(!tick.includes('fetch(')&&!tick.includes('imageBase64(')&&!tick.includes('IUGeminiSaveWeigh('),
  'Ne jamais appeler Gemini ou enregistrer une pesée depuis la surveillance vidéo');
 const captureStart=source.indexOf("capture.addEventListener('click'");
 const captureEnd=source.indexOf("document.addEventListener('visibilitychange'",captureStart);
 assert(source.slice(captureStart,captureEnd).includes("setPhoto(new File([blob]"),
- 'Caméra auto et manuelle utilisent exactement le même parcours de photo');
+ 'La capture manuelle utilise le même parcours que l’import');
+assert(source.includes('async function sendOcrFallback(canvas,sessionValid)')&&
+ source.includes("setPhoto(new File([blob],'etiquette-gemini.jpg'"),
+ 'Le secours Gemini envoie seulement une image quand l’OCR est incomplet');
+assert(source.includes("if(!pilotKey.value.trim()){")&&
+ source.includes('Aucune image envoyée : configure la clé Cloudflare'),
+ 'Aucune image transmise sans clé Cloudflare');
 assert(source.includes("if(cameraStream&&cameraMode==='auto')armAutoScanner(true);"),
  'Réarmement après validation humaine uniquement');
 assert(source.includes('autoSuspended=true;autoLocked=true;lastPhotoWasAuto=false;'),

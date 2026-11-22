@@ -1,6 +1,6 @@
 {
-  "version": "41.68",
+  "version": "41.69",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Gemini : carte de résultat façon pesée classique harmonisée en trois lignes (article centré, net/tare/prix au kilo, brut compact valorisé), sans bouton Copier. Réglages regroupés au-dessus du panier avec interrupteur de capture automatique mémorisé et clé Cloudflare repliable. Panier raccourci avec tare en dessous ; boutons scan et photo alignés sur le style du bouton OCR classique. Caméra, reconnaissance et validation manuelle conservées."
+  "notes": "Scanner Gemini hybride : OCR local sur les images vidéo (Tesseract) et EAN décodé si disponible ; deux lectures strictement concordantes, contrôles EAN, poids×prix et encodage DIGI. Aucune image envoyée pour les lectures locales complètes ; un unique cliché est transmis à Gemini si l'OCR est incomplet et qu'une clé Cloudflare est configurée. Détection plus tolérante aux mouvements, changement réel de scène exigé après validation, caméra réutilisée et validation manuelle conservée."
 }

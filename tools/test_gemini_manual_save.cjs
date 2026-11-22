@@ -126,7 +126,7 @@ assert(retry.includes("analyze.textContent='Réessayer l’analyse'"),'Le bouton
 assert(!retry.includes('analyze.click()'),'Aucun réessai automatiquement facturable');
 const cropStart=js.indexOf('function cameraCaptureCrop(');
 const cropEnd=js.indexOf("capture.addEventListener('click'",cropStart);
-const cropFnEnd=js.indexOf('function inspectAutoFrame(frame){',cropStart);
+const cropFnEnd=js.indexOf(' // Lecture vidéo locale : reconnaissance',cropStart);
 assert(cropStart>0&&cropEnd>cropFnEnd&&cropFnEnd>cropStart,'Recadrage vidéo et lecteur automatique dédiés à la caméra');
 const cropSource=js.slice(cropStart,cropFnEnd).trim()+'\n';
 const crop=vm.runInNewContext('('+cropSource+')');

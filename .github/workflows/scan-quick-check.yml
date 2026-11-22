@@ -10,10 +10,12 @@ on:
       - 'app.js'
       - 'weigh-scan.js'
       - 'gemini-lab.js'
+      - 'gemini-local-ocr.js'
       - 'workers/coursesu-live-worker.js'
       - 'gemini-lab.css'
       - 'tools/test_gemini_manual_save.cjs'
       - 'tools/test_gemini_auto_scan.cjs'
+      - 'tools/test_gemini_local_ocr.cjs'
       - 'tools/test_gemini_camera_lifecycle.cjs'
       - 'tools/test_gemini_double_border.cjs'
       - 'tools/test_gemini_inline_scan.cjs'
@@ -36,9 +38,11 @@ jobs:
           node --check app.js
           node --check weigh-scan.js
           node --check gemini-lab.js
+          node --check gemini-local-ocr.js
           node --check workers/coursesu-live-worker.js
           node --check tools/test_gemini_manual_save.cjs
           node --check tools/test_gemini_auto_scan.cjs
+          node --check tools/test_gemini_local_ocr.cjs
           node --check tools/test_gemini_camera_lifecycle.cjs
           node --check tools/test_gemini_double_border.cjs
           node --check tools/test_gemini_inline_scan.cjs
@@ -50,6 +54,8 @@ jobs:
         run: node tools/test_gemini_manual_save.cjs
       - name: Vérifier le scanner Gemini automatique et anti-doublon
         run: node tools/test_gemini_auto_scan.cjs
+      - name: Vérifier la lecture OCR locale prudente
+        run: node tools/test_gemini_local_ocr.cjs
       - name: Vérifier le contour Gemini et la réutilisation caméra
         run: node tools/test_gemini_camera_lifecycle.cjs
       - name: Vérifier le double contour Gemini
