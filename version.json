@@ -1,6 +1,6 @@
 {
-  "version": "41.99",
+  "version": "42.00",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Le déclencheur manuel du viseur Gemini rejoint la colonne gauche Fermer / Flash : troisième bouton sous le Flash, même carré arrondi de 32×32 px, rayon 11px, bordure, fond clair, ombre, couleur, icône 15px centrée et intervalle vertical 5px. Réutilisation de la classe visuelle du bouton Fermer. Caméra au repos, verrou anti-double capture, analyse et raccourcis inchangés."
+  "notes": "Pesée IA : déclencheur photo repositionné en bas à gauche du viseur, aligné à 5 px des bords. Son bouton conserve exactement le style et les dimensions 32×32 px, les coins 11 px et les ombres de Fermer/Flash, mais l’icône de déclenchement est agrandie de 15 à 20 px. Capture manuelle, verrouillage pendant l’analyse et masquage lorsque la caméra est inactive conservés."
 }
