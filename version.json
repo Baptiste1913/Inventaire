@@ -1,6 +1,6 @@
 {
-  "version": "42.16",
+  "version": "42.17",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Retour ciblé au moteur Gemini éprouvé v42.06, avant l'augmentation des traitements : image JPEG 1600px et compression historique, capture caméra 1920×1080 et cadrage d'origine, aucun traitement OCR supplémentaire parallèle, aucun aperçu provisoire, un seul passage Gemini par tentative hors reprises réseau bornées, Worker Gemini revenu à son contrat JSON de v42.06. Les libellés, dates et styles ajoutés depuis (voyant vert 27px, disposition, fond du poids, messages doublon et « étiquette prête ») restent intacts. Les corrections permettant une nouvelle capture après tare invalide et tous les contrôles prix/poids, EAN et sauvegarde manuelle restent conservés. Source Worker sur GitHub seulement : le service Cloudflare en ligne nécessite un déploiement séparé."
+  "notes": "Scanner Gemini fluidifié pour inventaires en série : affichage de la photo exacte pendant son analyse, miniature source identifiable, état de progression visible et erreurs détaillées, bouton de réanalyse toujours disponible après refus. Code-barres, poids net et total recalculés n’apparaissent que lorsque les contrôles sont valides. Bouton Enregistrer/Reprendre photo et confirmation intégrée sans popup iOS. Réessais réseau limités à deux tentatives, sans boucles sur un résultat illisible ou quota épuisé. Qualité photo et modèle Gemini inchangés ; calculs, tare, EAN, validation manuelle conservés. Version serveur Cloudflare inchangée ; les performances du fournisseur restent dépendantes du réseau."
 }
