@@ -547,5 +547,38 @@ assert(js.includes('function recognizedPackagingDate(fields)')&&
 assert(js.includes('let previousWidth=0,previousHeight=0;')&&
  js.includes('if(width===previousWidth&&height===previousHeight)continue;'),
  'JPEG haute qualité : ne jamais encoder deux fois une même résolution');
+// v42.09 — indications entre brut et étiquette, duplicata exact, cohérence visuelle.
+const grossPos=section.indexOf('id="iuGeminiEmptyResult"');
+const alertPos=section.indexOf('id="iuGeminiLabelAlert"');
+const virtualPos=section.indexOf('id="iuGeminiLabOutput"');
+assert(grossPos>0&&grossPos<alertPos&&alertPos<virtualPos&&
+ (section.match(/id="iuGeminiLabelAlert"/g)||[]).length===1&&
+ section.includes('id="iuGeminiLabelAlertText"'),
+ 'Le statut accessible est bien placé entre le brut et l’étiquette virtuelle');
+assert(js.includes("setLabelAlert('warning','Cette étiquette a déjà été enregistrée');")&&
+ !js.includes('tu peux la valider à nouveau'),
+ 'Message de doublon remplacé exactement');
+const geminiVisuals=css.slice(css.indexOf('/* v42.09 — Indications'));
+assert(geminiVisuals.includes('order:1!important')&&
+ geminiVisuals.includes('order:2!important')&&
+ geminiVisuals.includes('font-size:13.5px!important')&&
+ geminiVisuals.includes('font-weight:850!important')&&
+ geminiVisuals.includes('color:#28343d!important')&&
+ geminiVisuals.includes('linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)'),
+ 'Même palette gris perle, alignement et typographie que Démarrer un inventaire');
+assert(geminiVisuals.includes('right:5px!important')&&
+ geminiVisuals.includes('bottom:5px!important')&&
+ geminiVisuals.includes('width:32px!important')&&
+ geminiVisuals.includes('height:32px!important')&&
+ geminiVisuals.includes('border-radius:11px!important')&&
+ geminiVisuals.includes('color:#1a9e6d!important')&&
+ geminiVisuals.includes('rgba(27,43,52,.19)')&&
+ geminiVisuals.includes('.iu-weigh-scan-detected-indicator[hidden]'),
+ 'Coche validée : même forme et relief que les trois commandes du viseur');
+assert(js.includes('const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;')&&
+ js.includes('if(detected?.hidden)revealDetectedIndicator(latestLabelFields);')&&
+ js.includes('resetDetectedIndicator();')&&
+ js.includes("nextWeigh?.addEventListener('click',()=>{"),
+ 'Le témoin ne valide jamais un résultat incomplet ni un doublon, enregistrement manuel');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.08 : haute précision, dates vérifiées, compression optimisée et garde-fous OK.');
+console.log('Gemini v42.09 : alertes avant étiquette, brut style inventaire, voyant carré vert validé OK.');
