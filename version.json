@@ -1,6 +1,6 @@
 {
-  "version": "42.12",
+  "version": "42.13",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Optimisations Gemini côté Worker : schéma JSON strict 5 champs avec repli compatible sur HTTP 400 (aucune consigne de reconnaissance ni qualité photo réduite), plafond de génération 2048 jetons pour éviter des réponses tronquées, codes d'erreur temporaires 429/500/502/503/504 transmis au client et Retry-After exposé ; clés/modèles non autorisés signalés sans réessais inutiles. Frontend : message d'accès refusé adapté. Validations EAN, prix, poids, tare, OCR local et validation manuelle inchangées. Source Worker mise à jour sur GitHub ; un déploiement Cloudflare distinct est nécessaire, non automatisé dans ce dépôt."
+  "notes": "Indicateur de validation du viseur Gemini réduit de 32×32 px à 27×27 px, symbole vert/blanc 17×17 px, mêmes marges droite et basse de 5 px ; message de réussite « étiquette prête » ; date d'emballage de la maquette virtuelle rétablie automatiquement au jour local de l'appareil, annoncée comme date ajoutée et non comme lecture Gemini. Contrôles métier et validation manuelle conservés."
 }
