@@ -137,5 +137,29 @@ assert(html.includes('gemini-lab.css?v='+version)&&
  sw.includes('gemini-lab.css?v='+version)&&
  sw.includes('gemini-lab.js?v='+version),
  'Les ressources Gemini suivent bien la version PWA active');
+// v41.87 — le même moteur Canvas anime le contour OCR et Gemini.
+const lightEngine=require('node:fs').readFileSync('weigh-light.js','utf8');
+assert(section.includes('class="iu-weight-light iu-gemini-outline-light"')&&
+ section.includes('id="iuGeminiExactGuide"'),
+ 'Canvas de lumière permanent à l’intérieur du repère DIGI');
+assert(lightEngine.includes("overlay.id==='iuGeminiCameraShell'")&&
+ lightEngine.includes("?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide'")&&
+ lightEngine.includes('function drawRibbon(')&&
+ lightEngine.includes('function illuminate('),
+ 'Un seul moteur de filaments nacrés partagé par le poids OCR et l’étiquette IA');
+assert(lightEngine.includes("overlay.dataset.state==='scanning'")&&
+ lightEngine.includes('reduceMotion?.matches'),
+ 'Animation conditionnée à la caméra active et aux préférences de mouvement');
+assert(js.includes("const outlineLight=exactGuide.querySelector('.iu-gemini-outline-light')")&&
+ js.includes('exactGuide.replaceChildren(guideSnapshot,outlineLight)'),
+ 'Le Canvas n’est pas détruit lors du rafraîchissement du gabarit');
+assert(css.includes('/* v41.87 — Filaments nacrés')&&
+ css.includes('canvas.iu-gemini-outline-light')&&
+ css.includes('inset:-6px!important')&&
+ css.includes('pointer-events:none!important'),
+ 'Canvas Retina transparent et sans interaction posé sur le contour extérieur');
+assert(html.includes('weigh-light.js?v='+version)&&
+ sw.includes('weigh-light.js?v='+version),
+ 'Nouveau moteur lumineux rechargé en PWA et en Safari');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.86 : caméra 184/160px et video cover comme l’OCR classique OK.');
+console.log('Gemini v41.87 : contour DIGI animé par le Canvas OCR existant OK.');
