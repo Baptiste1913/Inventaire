@@ -1,4 +1,4 @@
-/* Inventaires U 42.18 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.19 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -140,8 +140,9 @@
    }
   }
   if(!guideSnapshot||!guideSize)return;
-  // Marges de 4px selon la dimension contraignante, sans étirement.
-  const scale=Math.min((stage.width-8)/guideSize.width,
+  // Repère réduit de 18 % : on recule l'iPhone pour cadrer toute
+  // l'étiquette avec de l'air autour. Ratio et formes DIGI inchangés.
+  const scale=.82*Math.min((stage.width-8)/guideSize.width,
    (stage.height-8)/guideSize.height);
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';
@@ -201,18 +202,66 @@
   // réellement visible pendant une analyse plutôt que laisser « Aucune pesée ».
   if(active&&!latestLabelFields)setLabelAlert('working','Analyse…');
  };
- function freezeCameraPhoto(freeze){
-  if(!cameraStill||!cameraStage)return;
-  const visible=!!(freeze&&url&&cameraStream&&!cameraShell.hidden);
-  if(visible){
-   if(cameraStill.getAttribute('src')!==url)cameraStill.src=url;
-   cameraStill.hidden=false;
-  }else{
-   cameraStill.hidden=true;
-   cameraStill.removeAttribute('src');
+ // Le flux reste réservé à la PWA pour une reprise instantanée,
+ // mais la piste vidéo est réellement désactivée pendant chaque analyse.
+ // Le viseur reprend l'état fermé de l'écran initial, sans photo figée.
+ let analysisCameraClosed=false,restoreCameraAfterAnalysis=false;
+ function setAnalysisCameraClosed(closed,{resume=true}={}){
+  if(!cameraShell||!cameraStage)return;
+  const title=cameraIdle?.querySelector('span');
+  if(closed){
+   if(analysisCameraClosed)return;
+   analysisCameraClosed=true;
+   const track=cameraStream?.getVideoTracks?.()[0];
+   restoreCameraAfterAnalysis=Boolean(cameraStream&&
+    cameraShell.dataset.state==='scanning'&&track?.readyState==='live');
+   if(track?.readyState==='live')track.enabled=false;
+   try{video.pause();}catch(_){}
+   if(cameraStill){cameraStill.hidden=true;cameraStill.removeAttribute('src');}
+   cameraStage.classList.remove('is-photo-frozen');
+   if(frameState)frameState.hidden=true;
+   if(title)title.textContent='Analyse…';
+   if(cameraIdle){
+    cameraIdle.disabled=true;
+    cameraIdle.setAttribute('aria-label','Analyse en cours');
+   }
+   cameraShell.dataset.state='analyzing';
+   return;
   }
-  cameraStage.classList.toggle('is-photo-frozen',visible);
-  if(frameState)frameState.hidden=!visible;
+  if(!analysisCameraClosed)return;
+  analysisCameraClosed=false;
+  const wasLive=restoreCameraAfterAnalysis;
+  restoreCameraAfterAnalysis=false;
+  if(title)title.textContent='Caméra désactivée';
+  if(cameraIdle){
+   cameraIdle.disabled=false;
+   cameraIdle.setAttribute('aria-label','Activer la caméra, actuellement désactivée');
+  }
+  if(frameState)frameState.hidden=true;
+  const track=cameraStream?.getVideoTracks?.()[0];
+  const canResume=Boolean(resume&&wasLive&&track?.readyState==='live'&&
+   !cameraShell.hidden&&!panel.hidden);
+  if(!canResume){
+   cameraShell.dataset.state='idle';
+   return;
+  }
+  if(document.hidden){
+   // Reprise différée au retour sur Safari : ne jamais réactiver une
+   // caméra invisible en arrière-plan.
+   cameraPausedInBackground=true;
+   cameraShell.dataset.state='idle';
+   return;
+  }
+  cameraShell.dataset.state='scanning';
+  track.enabled=true;
+  video.srcObject=cameraStream;
+  Promise.resolve(video.play()).catch(()=>{
+   if(!analysisCameraClosed&&cameraStream&&
+      cameraShell.dataset.state==='scanning'){
+    cameraShell.dataset.state='idle';
+    say('Caméra interrompue par iOS · touche le viseur pour rouvrir.',true);
+   }
+  });
  }
  function clearReplacePrompt(){
   pendingReplacementFile=null;
@@ -450,12 +499,12 @@
   if(url){URL.revokeObjectURL(url);url=null;}
  }
  function resetReading(){
-  freezeCameraPhoto(false);
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
+  setAnalysisCameraClosed(false);
   attempts.clear();photo.value='';latestLabelFields=null;
   showBlankLabel();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
@@ -892,7 +941,7 @@
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
-  resetDetectedIndicator();updateButton();freezeCameraPhoto(true);
+  resetDetectedIndicator();updateButton();setAnalysisCameraClosed(true);
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
   // Laisser l'étiquette vierge affichée jusqu'au remplacement par le résultat.
   output.hidden=false;networkTime.textContent='';resetProposal();
@@ -930,7 +979,7 @@
    }
   }finally{
    if(id===generation){
-    active=false;abort=null;freezeCameraPhoto(false);
+    active=false;abort=null;setAnalysisCameraClosed(false);
     updateButton();validationState();
     if(cameraStream&&cameraMode==='auto'){
      setAutoHint(proposal?'Lecture prête · vérifie puis valide'
@@ -951,8 +1000,9 @@
   torch.title=torchOn?'Désactiver le flash':'Activer le flash';
  }
  function stopCamera(){
+  // Fermeture volontaire : ne surtout pas réactiver la piste vidéo.
+  setAnalysisCameraClosed(false,{resume:false});
   resetDetectedIndicator();
-  freezeCameraPhoto(false);
   cameraPausedInBackground=false;
   clearAutoTimer();clearAutoStability();
   autoLocked=false;autoSuspended=false;autoNeedsChange=false;
@@ -1555,6 +1605,9 @@
    try{video.pause()}catch(_){}
   }else if(!document.hidden&&cameraPausedInBackground&&cameraStream){
    cameraPausedInBackground=false;
+   // Le retour de l'app ne doit pas rouvrir la caméra si Gemini
+   // travaille encore ; la fin de l'analyse s'en charge.
+   if(analysisCameraClosed)return;
    const track=cameraStream.getVideoTracks?.()[0];
    if(!track||track.readyState!=='live'){
     stopCamera();
