@@ -25,10 +25,11 @@ const alert=section.indexOf('id="iuGeminiLabelAlert"');
 const result=section.indexOf('id="iuGeminiEmptyResult"');
 assert(result>0&&label>result&&alert>label,
  'Poids brut + Nouvelle pesée > étiquette numérique > voyant');
-assert(!section.includes('iu-result-glow-shell')&&
+assert((section.match(/class="iu-result-glow-shell iu-gemini-label-shell"/g)||[]).length===1&&
  !section.includes('iu-gemini-result-facts')&&
- !section.includes('id="iuGeminiProductName"'),
- 'La fiche résultat redondante est supprimée');
+ !section.includes('id="iuGeminiProductName"')&&
+ !section.includes('id="iuGeminiNetDisplay"'),
+ 'Une seule enveloppe lumineuse partagée, sans fiche résultat redondante');
 assert(section.includes('class="iu-gemini-alert-led"')&&
  section.includes('data-state="idle"')&&section.includes('Aucune pesée analysée'),
  'Voyant gris présent avant la première pesée');
