@@ -1,4 +1,4 @@
-/* Inventaires U 42.12 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.13 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -209,26 +209,14 @@
  };
  const formatWeight=g=>Number.isInteger(g)?(g/1000).toFixed(3).replace('.',',')+' kg':'Non reconnu';
  const money=c=>Number.isInteger(c)?(c/100).toFixed(2).replace('.',',')+' €':'Non reconnu';
- // Sécurité métier : ne jamais afficher la date d'AUJOURD'HUI
- // comme si elle avait été reconnue sur une étiquette réelle.
- // Si le Worker ne renvoie pas une date explicitement lue et valide,
- // le champ reste indéterminé sur la vignette.
- function recognizedPackagingDate(fields){
-  const candidate=fields?.packagingDate??fields?.packingDate??
-   fields?.dateEmballage??fields?.packedAt;
-  if(typeof candidate!=='string')return '—';
-  const value=candidate.trim();
-  let day,month,year;
-  const french=value.match(/^(\d{2})[.\/](\d{2})[.\/](\d{4})$/);
-  const iso=value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if(french){day=Number(french[1]);month=Number(french[2]);year=Number(french[3]);}
-  else if(iso){year=Number(iso[1]);month=Number(iso[2]);day=Number(iso[3]);}
-  else return '—';
-  if(year<2000||year>2100||month<1||month>12||day<1||day>31)return '—';
-  const check=new Date(Date.UTC(year,month-1,day));
-  if(check.getUTCFullYear()!==year||check.getUTCMonth()!==month-1||
-     check.getUTCDate()!==day)return '—';
-  return [String(day).padStart(2,'0'),String(month).padStart(2,'0'),String(year)].join('.');
+ // Date civile locale affichée UNIQUEMENT sur la maquette d'étiquette.
+ // Elle n'est ni déduite ni reconnue par Gemini, et n'est pas enregistrée
+ // comme une date d'emballage prouvée de l'article réel.
+ function todayForVirtualLabel(){
+  const date=new Date();
+  return [String(date.getDate()).padStart(2,'0'),
+   String(date.getMonth()+1).padStart(2,'0'),
+   String(date.getFullYear())].join('.');
  }
  // Le résultat reprend directement la carte de pesée classique.
  // Il reste visible sans étiquette ; la tare suit le panier en cours.
@@ -320,7 +308,7 @@
    setLabelAlert('warning','Cette étiquette a déjà été enregistrée');
    return;
   }
-  setLabelAlert('success','Étiquette prête · vérifie le poids brut avant de valider');
+  setLabelAlert('success','étiquette prête');
  }
  function validateResult(result){
   const f=result?.fields||{},c=result?.checks||{};
@@ -358,7 +346,7 @@
   const bars=label.querySelector('.iu-gemini-label-bars');
   if(weight)weight.textContent=corrected?formatWeight(corrected.net):formatWeight(gross);
   const virtualDate=label.querySelector('.iu-gemini-label-date .iu-gemini-label-number');
-  if(virtualDate)virtualDate.textContent=recognizedPackagingDate(fields);
+  if(virtualDate)virtualDate.textContent=todayForVirtualLabel();
   if(total)total.textContent=money(corrected?corrected.cents:fields.totalCents).replace(/\s/g,'');
   if(digits)digits.textContent=corrected?.ean||fields.ean13||'EAN NON RECONNU';
   if(bars)renderEanBars(bars,corrected?.ean||fields.ean13);
@@ -764,8 +752,10 @@
   add(grossBox,'strong','iu-gemini-label-number',formatWeight(corrected?.net??gross));
   const dateBox=add(middle,'div','iu-gemini-label-date','');
   add(dateBox,'span','iu-gemini-label-caption',"Date d’emballage");
-  // Afficher uniquement une date reconnue et correctement formée.
-  add(dateBox,'strong','iu-gemini-label-number',recognizedPackagingDate(fields));
+  // Affichage local seulement : une date du jour, pas une donnée reconnue.
+  const dateValue=add(dateBox,'strong','iu-gemini-label-number',todayForVirtualLabel());
+  dateValue.title='Date du jour — non reconnue sur la photo';
+  dateValue.setAttribute('aria-label','Date du jour, ajoutée automatiquement : '+dateValue.textContent);
     const bottom=add(label,'div','iu-gemini-label-bottom','');
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
