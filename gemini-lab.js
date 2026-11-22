@@ -1,4 +1,4 @@
-/* Inventaires U 42.21 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.22 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -24,6 +24,8 @@
  // Les erreurs ne doivent jamais laisser le scanner figé ou le bouton bloqué.
  let lastReadProblem=null,lastAnalysisError=null,retakeConfirmUntil=0;
  let pendingReplacementFile=null,lastSavedImportedPhoto=null;
+ let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
+ let manualCorrectedFields=[];
  const fixedModel='gemini-3.5-flash-lite';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
@@ -39,6 +41,10 @@
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText'),
   duplicateSkip=$('iuGeminiDuplicateSkip');
+ const repairPanel=$('iuGeminiRepair'),repairField=$('iuGeminiRepairField'),
+  repairRead=$('iuGeminiRepairRead'),repairEdit=$('iuGeminiRepairEdit'),
+  repairManual=$('iuGeminiRepairManual'),repairValue=$('iuGeminiRepairValue'),
+  repairApply=$('iuGeminiRepairApply');
  const resultGross=$('iuGeminiGrossDisplay');
  const cameraStill=$('iuGeminiCameraStill'),frameState=$('iuGeminiFrameState'),
   replacementPrompt=$('iuGeminiReplacePrompt'),
@@ -201,7 +207,8 @@
   status.classList.toggle('is-error',error);
   // Le texte de statut était masqué par les styles : réutiliser le voyant
   // réellement visible pendant une analyse plutôt que laisser « Aucune pesée ».
-  if(active&&!latestLabelFields)setLabelAlert('working','Analyse…');
+  // L'unique « Analyse… » visible est déjà au centre du viseur fermé.
+  if(active&&!latestLabelFields)setLabelAlert('idle','');
  };
  // Le flux reste réservé à la PWA pour une reprise instantanée,
  // mais la piste vidéo est réellement désactivée pendant chaque analyse.
@@ -402,7 +409,7 @@
   })?.duplicate===true;}catch(_){return false;}
  }
  function refreshLabelAlert(){
-  if(active){setLabelAlert('working','Analyse…');return;}
+  if(active){setLabelAlert('idle','');return;}
   if(lastAnalysisError){setLabelAlert('warning',lastAnalysisError);return;}
   const raw=latestLabelFields?.weightGrams;
   if(!Number.isSafeInteger(raw)||raw<=0){
@@ -445,16 +452,125 @@
      !Number.isSafeInteger(total)||total<0)return {error:'Prix au kilo ou montant manquant.'};
   // Ne jamais faire confiance aux seuls booléens produits par l'IA :
   // recalculer localement les règles métier avant toute proposition.
+  // Les arrondis de balance peuvent différer d'un centime. Cette
+  // tolérance locale est aussi appliquée au Worker. Jamais de prix inventé.
   const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1;
-  if(!arithmeticOk||c.arithmeticConsistent!==true)return {error:'Calcul prix × poids incohérent.'};
+  if(!arithmeticOk)return {error:'Calcul prix × poids incohérent.'};
   const ean=String(f.ean13||'');
-  if(c.eanChecksumValid!==true||!/^[0-9]{13}$/.test(ean)||
+  if(!/^[0-9]{13}$/.test(ean)||
      eanCheck(ean.slice(0,12))!==ean[12])
    return {error:'EAN non confirmé ou clé EAN incorrecte.'};
   if(c.independentMismatch===true)
-   return {error:'Deux lectures indépendantes donnent des chiffres différents.'};
+   return {error:'Code-barres différent de la lecture indépendante.'};
   return {name,grams,rate,total,ean};
  }
+ // Une lecture EAN13 purement optique n'est acceptée que si elle est
+ // unique, confirmée et vérifiée par checksum. Toute contradiction bloque.
+ function reconcileBarcode(result,reading){
+  const fields={...(result?.fields||{})},checks={...(result?.checks||{})};
+  const incoming=String(fields.ean13||'');
+  const fromGemini=/^\d{13}$/.test(incoming)&&eanCheck(incoming.slice(0,12))===incoming[12];
+  const external=reading?.confirmed&&reading?.ean13&&
+   eanCheck(reading.ean13.slice(0,12))===reading.ean13[12]
+   ?reading.ean13:null;
+  if(!fromGemini&&external)fields.ean13=external;
+  checks.eanChecksumValid=Boolean(/^\d{13}$/.test(String(fields.ean13||''))&&
+   eanCheck(String(fields.ean13).slice(0,12))===String(fields.ean13)[12]);
+  if(reading?.ambiguous||(external&&fromGemini&&external!==incoming))
+   checks.independentMismatch=true;
+  return {...result,fields,checks,
+   opticalEAN:external&&external===fields.ean13?reading.source:null};
+ }
+ function fieldsChecks(fields){
+  const ean=String(fields?.ean13||'');
+  const validEAN=/^\d{13}$/.test(ean)&&eanCheck(ean.slice(0,12))===ean[12];
+  return {
+   arithmeticConsistent:Number.isSafeInteger(fields?.weightGrams)&&
+    Number.isSafeInteger(fields?.pricePerKgCents)&&Number.isSafeInteger(fields?.totalCents)&&
+    Math.abs(Math.round(fields.weightGrams*fields.pricePerKgCents/1000)-fields.totalCents)<=1,
+   eanChecksumValid:validEAN,
+   independentMismatch:Boolean(localBarcode?.ambiguous||
+    (localBarcode?.confirmed&&localBarcode.ean13&&
+     validEAN&&localBarcode.ean13!==ean))
+  };
+ }
+ function fieldForProblem(error){
+  if(/EAN|code-barres|indépendante/i.test(error))return 'ean';
+  if(/Poids/i.test(error))return 'weight';
+  if(/Prix au kilo|montant manquant|Calcul prix/i.test(error))return 'rate';
+  if(/Article/i.test(error))return 'name';
+  return 'ean';
+ }
+ function refreshRepairPanel(){
+  if(!repairPanel)return;
+  const eligible=!active&&!!file&&!!lastRawResult&&!!lastReadProblem;
+  repairPanel.hidden=!eligible;
+  if(!eligible){
+   if(repairManual)repairManual.hidden=true;
+   return;
+  }
+  if(repairField&&!repairFocus)
+   repairField.value=fieldForProblem(lastReadProblem);
+ }
+ function parseManualValue(key,value){
+  const raw=String(value||'').trim();
+  if(key==='name'){
+   if(raw.length<3||raw.length>120)return null;
+   return raw;
+  }
+  if(key==='ean'){
+   const digits=raw.replace(/[\s-]/g,'');
+   return /^\d{13}$/.test(digits)&&eanCheck(digits.slice(0,12))===digits[12]
+    ?digits:null;
+  }
+  const text=raw.replace(',', '.');
+  if(key==='weight'){
+   if(!/^\d{1,2}\.\d{3}$/.test(text))return null;
+   const g=Math.round(Number(text)*1000);
+   return g>0&&g<=30000?g:null;
+  }
+  if(!/^\d{1,3}\.\d{2}$/.test(text))return null;
+  const cents=Math.round(Number(text)*100);
+  return cents>=0&&cents<=1000000?cents:null;
+ }
+ const fieldKeys={name:'name',weight:'weightGrams',rate:'pricePerKgCents',
+  total:'totalCents',ean:'ean13'};
+ repairField?.addEventListener('change',()=>{
+  repairFocus=null;
+  if(repairManual)repairManual.hidden=true;
+  if(repairValue)repairValue.value='';
+ });
+ repairEdit?.addEventListener('click',()=>{
+  if(!lastRawResult||!repairManual)return;
+  repairManual.hidden=false;
+  if(repairValue){
+   const key=fieldKeys[repairField?.value],val=latestLabelFields?.[key];
+   repairValue.value=val===null||val===undefined?''
+    :key==='ean13'||key==='name'?String(val)
+    :key==='weightGrams'?(val/1000).toFixed(3):(val/100).toFixed(2);
+   repairValue.focus();repairValue.select();
+  }
+ });
+ repairApply?.addEventListener('click',()=>{
+  if(!lastRawResult||!repairField||active)return;
+  const kind=repairField.value,key=fieldKeys[kind];
+  const value=parseManualValue(kind,repairValue?.value);
+  if(value===null){setLabelAlert('warning','Valeur invalide · vérifie l’étiquette');return;}
+  const fields={...lastRawResult.fields,[key]:value};
+  const next={...lastRawResult,fields,checks:fieldsChecks(fields),
+   source:'manual'};
+  manualCorrectedFields=[...new Set([...manualCorrectedFields,kind])];
+  repairFocus=null;
+  display(next,0);
+  setLabelAlert('warning',validateResult(next).error||
+   'Correction manuelle · vérifie les chiffres avant d’enregistrer');
+ });
+ repairRead?.addEventListener('click',()=>{
+  if(!file||!lastRawResult||active)return;
+  repairFocus=repairField?.value||fieldForProblem(lastReadProblem);
+  if(repairManual)repairManual.hidden=true;
+  if(!analyze.disabled)analyze.click();
+ });
  function refreshCorrectedLabel(){
   refreshResultCard();
   if(!latestLabelFields)return;
@@ -528,6 +644,9 @@
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
   setAnalysisCameraClosed(false);
+  lastRawResult=null;localBarcode=null;barcodeJob=null;repairFocus=null;manualCorrectedFields=[];
+  if(repairPanel)repairPanel.hidden=true;
+  if(repairManual)repairManual.hidden=true;
   attempts.clear();photo.value='';latestLabelFields=null;
   showBlankLabel();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
@@ -557,7 +676,10 @@
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
-  latestLabelFields=null;
+  latestLabelFields=null;lastRawResult=null;localBarcode=null;barcodeJob=null;
+  repairFocus=null;manualCorrectedFields=[];
+  if(repairPanel)repairPanel.hidden=true;
+  if(repairManual)repairManual.hidden=true;
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
   url=URL.createObjectURL(chosen);
@@ -820,7 +942,7 @@
  function display(result,wallMs){
   output.replaceChildren();
   const fields=result?.fields||{},checks=result?.checks||{};
-  latestLabelFields=fields;
+  latestLabelFields=fields;lastRawResult=result;
   const verified=validateResult(result);
   const context=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const tare=context?.tareGrams;
@@ -887,7 +1009,7 @@
   resetDetectedIndicator();
   updateCardState(ready?'review':'retry');
   if(!proposal)resetProposal();
-  validationState();
+  validationState();refreshRepairPanel();
   if(result?.source==='local'){
    networkTime.textContent='OCR local · 2 lectures concordantes · aucune image envoyée'
     +' · '+(wallMs/1000).toFixed(2)+' s';
@@ -1197,7 +1319,8 @@
     gross:proposal.grams,product:proposal.name,ean13:proposal.ean,
     pricePerKgCents:proposal.rate,totalCents:proposal.total,
     correctedEan13:corrected.ean,correctedTotalCents:corrected.cents,
-    confirmDuplicate:duplicate&&confirmDuplicate
+    confirmDuplicate:duplicate&&confirmDuplicate,
+    manualCorrectedFields
    });
   }catch(_){return {ok:false,reason:'Stockage indisponible'};}
   if(saved?.ok&&identity)lastSavedImportedPhoto=identity;
