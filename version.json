@@ -1,6 +1,6 @@
 {
-  "version": "41.72",
+  "version": "41.73",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Scanner Gemini : brut + bouton Nouvelle pesée + étiquette numérique complète + voyant gris/vert/rouge réunis sur un unique panneau doux, sans réduire le viseur ni la taille de l’étiquette. Marges optimisées. Bouton permanent « Analyser cette étiquette » dans le viseur, grisé pendant capture/OCR/Gemini et tant qu’une pesée reconnue reste à enregistrer ; retour disponible après Nouvelle pesée. Lecture incomplète ou échouée : nouvelle tentative possible. Doublons volontaires et sécurité de la tare conservés."
+  "notes": "Panneau étiquette Gemini : mêmes surfaces en verre translucide, trame, halo et animations que le résultat de pesée classique. Quatre lumières Gemini de même intensité que les lumières classiques : bleu large à droite, rouge haut gauche, jaune milieu gauche, vert bas gauche. Poids brut dans une petite carte à double contour dégradé exactement calqué sur le bloc IA. Caméra, taille DIGI, voyant, validation Nouvelle pesée et blocage d'Analyser cette étiquette jusqu'à validation conservés."
 }

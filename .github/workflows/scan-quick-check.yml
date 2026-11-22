@@ -21,6 +21,7 @@ on:
       - 'tools/test_gemini_double_border.cjs'
       - 'tools/test_gemini_inline_scan.cjs'
       - 'tools/test_gemini_compact_capture.cjs'
+      - 'tools/test_gemini_label_glow.cjs'
       - 'weigh-scan-inline.css'
       - 'index.html'
       - 'sw.js'
@@ -50,6 +51,7 @@ jobs:
           node --check tools/test_gemini_double_border.cjs
           node --check tools/test_gemini_inline_scan.cjs
           node --check tools/test_gemini_compact_capture.cjs
+          node --check tools/test_gemini_label_glow.cjs
           node --check sw.js
           node --check tools/test_scanner_transfer.cjs
       - name: Vérifier le transfert OCR et le calcul de tare
@@ -70,3 +72,5 @@ jobs:
         run: node tools/test_gemini_inline_scan.cjs
       - name: Vérifier le cadre compact et le verrou du bouton Analyser
         run: node tools/test_gemini_compact_capture.cjs
+      - name: Vérifier les lumières Gemini et la fidélité au résultat classique
+        run: node tools/test_gemini_label_glow.cjs

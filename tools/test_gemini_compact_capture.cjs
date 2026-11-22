@@ -30,11 +30,15 @@ assert(!section.includes('Capturer maintenant')&&!section.includes('Capturer cet
  'Aucun ancien libellé de capture');
 const rules=css.slice(css.indexOf('/* v41.72 — une SEULE surface'));
 assert(rules.length>3000,'Styles du cadre unifié présents');
-assert(rules.includes('> #iuGeminiLabelPanel.iu-gemini-label-panel')&&
- rules.includes('> #iuGeminiLabelPanel > #iuGeminiEmptyResult')&&
- rules.includes('> #iuGeminiLabelPanel > #iuGeminiLabOutput:not([hidden])')&&
- rules.includes('> #iuGeminiLabelPanel > #iuGeminiLabelAlert'),
- 'Les trois composants utilisent le même cadre extérieur');
+assert(rules.includes('> .iu-gemini-label-shell > #iuGeminiLabelPanel.iu-gemini-label-panel')&&
+ rules.includes('> .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult')&&
+ rules.includes('> .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiLabOutput:not([hidden])')&&
+ rules.includes('> .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiLabelAlert'),
+ 'Les trois composants restent dans le même cadre sous son enveloppe lumineuse');
+assert(section.includes('iu-result-glow-shell iu-gemini-label-shell')&&
+ section.includes('result iu-result-compact')&&
+ section.includes('iu-result-light-field iu-welcome-dot-wave'),
+ 'Le cadre d’étiquette partage maintenant la structure du résultat classique');
 assert(rules.includes('width:min(100%,328px)!important')&&
  rules.includes('aspect-ratio:1372/1088!important'),
  'Étiquette DIGI lisible, non miniaturisée');
@@ -83,4 +87,4 @@ assert(js.includes('function resetProposal(){')&&
 assert(js.includes("if(!proposal){")&&
  js.includes('Lecture incomplète · reprends l’étiquette'),
  'Une lecture incomplète peut être réanalysée sans blocage permanent');
-console.log('Gemini 41.72 : cadre commun, bouton permanent, verrou pendant lecture puis déverrouillage après Nouvelle pesée OK.');
+console.log('Gemini 41.73 : cadre lumineux commun, bouton permanent, verrou pendant lecture puis déverrouillage après Nouvelle pesée OK.');
