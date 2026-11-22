@@ -3689,3 +3689,99 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is(
   height:142px!important;min-height:142px!important;max-height:142px!important;
  }
 }
+
+/* v41.81 — Viseur pleine largeur, plus haut, avec patron évidé à 4px
+   des bords haut/bas (échelle calculée depuis la vraie étiquette DIGI).
+   Aucun remplissage visuel susceptible de masquer la prise de vue. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-photo-actions,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell.iu-weigh-scan-inline {
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+ box-sizing:border-box!important;
+ display:block!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ height:194px!important;
+ min-height:194px!important;
+ max-height:194px!important;
+ aspect-ratio:auto!important;
+ margin-left:0!important;
+ margin-right:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label {
+ position:relative!important;
+ box-sizing:border-box!important;
+ display:block!important;
+ padding:0!important;
+ margin:0!important;
+ border:1px solid rgba(255,255,255,.84)!important;
+ background:none!important;
+ box-shadow:none!important;
+ overflow:hidden!important;
+ transform-origin:top left!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-rect {
+ position:absolute!important;
+ display:block!important;
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.58)!important;
+ border-radius:3px!important;
+ background:none!important;
+ box-shadow:none!important;
+ opacity:1!important;
+ pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-total {
+ border-color:rgba(255,255,255,.82)!important;
+ border-radius:1px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-barcode {
+ border-style:dashed!important;
+ border-color:rgba(255,255,255,.44)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-camera-exact-guide {
+ opacity:.70!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell[data-state="idle"] .iu-gemini-camera-exact-guide {
+ opacity:.38!important;
+}
+@media(max-width:390px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+  height:182px!important;
+  min-height:182px!important;
+  max-height:182px!important;
+ }
+}
+/* Flash au repos monochrome ; icône bleue en permanence. Lorsqu'il
+   s'allume, seul le verre du bouton reçoit une teinte bleutée subtile. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch {
+ background:linear-gradient(145deg,#fafbfc,#ebeff2)!important;
+ color:#2588c7!important;
+ border-color:rgba(255,255,255,.88)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95),2px 3px 8px rgba(35,51,64,.12)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch.is-on,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch[aria-pressed="true"] {
+ background:linear-gradient(145deg,#f4faff,#ddeefa)!important;
+ color:#147ec5!important;
+ border-color:rgba(93,163,216,.48)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 0 0 1px rgba(52,147,215,.11)!important;
+}
