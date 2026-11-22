@@ -3676,3 +3676,16 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   max-height:142px!important;
  }
 }
+
+/* Le viseur ne reprend pas sa hauteur d'origine pendant l'analyse :
+   même cadre compact dans les états review/retry/working. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is([data-scan-state="review"],[data-scan-state="retry"],[data-scan-state="working"])
+ .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+ height:156px!important;min-height:156px!important;max-height:156px!important;
+}
+@media(max-width:390px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is([data-scan-state="review"],[data-scan-state="retry"],[data-scan-state="working"])
+  .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+  height:142px!important;min-height:142px!important;max-height:142px!important;
+ }
+}
