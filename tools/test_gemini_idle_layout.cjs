@@ -482,7 +482,7 @@ assert(compactPanelCss.includes('border:1px solid rgba(214,224,231,.95)!importan
  compactPanelCss.includes(':active:not(:disabled)'),
  'Nouvelle pesée identique aux boutons Caméra/Import y compris prêt et touché');
 assert(section.includes('id="iuGeminiNext"')&&
- js.includes("nextWeigh.addEventListener('click',async()=>{"),
+ js.includes("nextWeigh?.addEventListener('click',()=>{"),
  'Enregistrement de la pesée inchangé');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
 console.log('Gemini v42.05 : panneau translucide, brut et bouton 54px, Nouvelle pesée assorti aux boutons Caméra/Import OK.');
