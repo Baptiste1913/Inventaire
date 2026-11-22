@@ -1,6 +1,6 @@
 {
-  "version": "41.63",
+  "version": "41.64",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Scanner Gemini dédié en plein écran sur iPhone : grand viseur en recherche, viseur réduit au résultat, article et Brut/Tare/Net synthétiques, étiquette virtuelle DIGI complète visible sans clic, bouton Valider et suivante fixé en bas, dock masqué uniquement dans le scanner. Sortie sans relancer l'autorisation caméra tant que la piste reste active ; validation humaine et système de reconnaissance inchangés."
+  "notes": "Gemini intégré directement dans la carte d'accueil, sans écran plein écran. À la reconnaissance : viseur compact, ligne Brut/Tare/Net réduite à 36 px, grand résultat dupliqué et champ brut redondant masqués, étiquette DIGI complète sans espace vide, Valider et suivante raccourci et placé sous l'étiquette. Aucun défilement automatique entre deux pesées ; reconnaissance et validation manuelle inchangées."
 }

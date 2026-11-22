@@ -1830,222 +1830,159 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
 }
 
 
-/* v41.63 — Vue « Scanner Gemini » : une seule surface d'iPhone.
-   Recherche : la caméra est prioritaire. Résultat : les trois poids et
-   l'étiquette DIGI complète restent visibles SANS clic ni défilement.
-   L'ancienne carte et l'OCR classique ne changent pas hors de cette vue. */
+
+/* v41.64 — Scanner Gemini directement dans la carte de la page d'accueil.
+   Pas de plein écran ni de défilement forcé. Le résultat est compact,
+   l'étiquette DIGI reste ENTIÈRE et visible, et la validation reste manuelle.
+   Les deux contours colorés de la carte sont conservés intacts. */
 html body .iu-gemini-focus-exit,
-html body .iu-gemini-focus-heading {display:none!important;}
+html body .iu-gemini-focus-heading,
 html body .iu-gemini-focus-summary {display:none!important;}
-html body.iu-gemini-focus {overflow:hidden!important;overscroll-behavior:none!important;}
-html body.iu-gemini-focus #iuQuickDock.iu-quick-dock {display:none!important;}
-html body.iu-gemini-focus main.app {
- transform:none!important;
- filter:none!important;
- perspective:none!important;
-}
 html body.iu-gemini-focus main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
- position:fixed!important;
- inset:0!important;
- top:0!important;right:0!important;bottom:0!important;left:0!important;
- z-index:2147483000!important;
- box-sizing:border-box!important;
  display:flex!important;
  flex-direction:column!important;
- gap:5px!important;
- width:100%!important;min-width:0!important;max-width:none!important;
- height:100vh!important;height:100dvh!important;
- min-height:0!important;max-height:100dvh!important;
- margin:0!important;
- padding:calc(env(safe-area-inset-top,0px) + 12px) 14px
-  calc(env(safe-area-inset-bottom,0px) + 78px)!important;
- overflow:hidden!important;
- overscroll-behavior:contain!important;
- border:0!important;
- border-radius:0!important;
- background:linear-gradient(155deg,#fff 0%,#f9fbfd 45%,#edf4f8 100%)!important;
- box-shadow:none!important;
+ gap:6px!important;
+ width:auto!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ overflow:visible!important;
+ /* Le conteneur reste dans le flux d'accueil, sans position fixed. */
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-frame-gradient,
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-frame-surface {
- border-radius:0!important;
+html body.iu-gemini-focus #iuQuickDock.iu-quick-dock {
+ display:none!important; /* évite de recouvrir « Valider et suivante » */
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-frame-surface {
- inset:2px!important;
-}
-/* Entête compacte, bouton Retour accessible, badge Gemini conservé. */
 html body.iu-gemini-focus main.app > #iuGeminiLab > .card-heading {
- display:flex!important;flex:0 0 auto!important;
- flex-direction:row!important;align-items:center!important;
- gap:9px!important;min-height:39px!important;
- margin:0 0 3px!important;padding:0 96px 0 0!important;
-}
-html body.iu-gemini-focus main.app > #iuGeminiLab > .card-heading > div {
- display:block!important;flex:1 1 auto!important;min-width:0!important;
-}
-html body.iu-gemini-focus main.app > #iuGeminiLab > .card-heading .section-kicker,
-html body.iu-gemini-focus main.app > #iuGeminiLab > .card-heading #iu-gemini-section-title {
- display:none!important;
-}
-html body.iu-gemini-focus main.app > #iuGeminiLab > .card-heading .iu-gemini-focus-heading {
- display:block!important;
- font-size:17px!important;font-weight:850!important;line-height:1.2!important;
- color:#253640!important;white-space:nowrap!important;letter-spacing:-.4px!important;
-}
-html body.iu-gemini-focus main.app > #iuGeminiLab > .card-heading #iuGeminiFocusExit.iu-gemini-focus-exit {
- display:grid!important;place-items:center!important;flex:0 0 36px!important;
- box-sizing:border-box!important;
- width:36px!important;height:36px!important;min-width:36px!important;
- padding:0!important;margin:0!important;
- color:#415866!important;background:linear-gradient(145deg,#fff,#edf3f7)!important;
- border:1px solid #dce6eb!important;border-radius:50%!important;
- box-shadow:inset 0 1px 0 #fff,0 2px 7px rgba(55,77,93,.07)!important;
- cursor:pointer!important;touch-action:manipulation!important;
-}
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-title-badge {
- top:calc(env(safe-area-inset-top,0px) + 16px)!important;right:15px!important;
- z-index:7!important;
-}
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-basket-label {
- display:none!important;
-}
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-scan-row {
  flex:0 0 auto!important;
- margin:0 0 3px!important;
- gap:0!important;
- min-height:44px!important;
+ min-height:0!important;
+ margin-bottom:6px!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-scan-row #iuGeminiBasketSelect,
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-scan-row #iuGeminiCameraShortcut,
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-scan-row #iuGeminiModePhoto {
- height:44px!important;min-height:44px!important;max-height:44px!important;
+html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-basket-label {display:none!important;}
+html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-scan-row {
+ flex:0 0 auto!important;min-height:0!important;
+ margin:0 0 2px!important;gap:0!important;
 }
-/* La caméra n'est jamais détruite lors du passage à l'étiquette vérifiée. */
+html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-scan-row #iuGeminiBasketSelect,
+html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-scan-row #iuGeminiCameraShortcut,
+html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-scan-row #iuGeminiModePhoto {
+ height:42px!important;min-height:42px!important;max-height:42px!important;
+}
+/* Caméra prioritaire avant analyse ; vue courte après reconnaissance. */
 html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-photo-actions {
- display:block!important;flex:0 0 auto!important;min-width:0!important;
- margin:0!important;padding:0!important;
+ flex:0 0 auto!important;display:block!important;margin:0!important;padding:0!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-camera-shell.iu-weigh-scan-inline {
+html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell.iu-weigh-scan-inline {
  display:flex!important;flex-direction:column!important;gap:3px!important;
- margin:0!important;padding:6px!important;
- border-radius:14px!important;
+ padding:6px!important;margin:0!important;border-radius:13px!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-camera-shell[hidden] {
+html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell[hidden] {
  display:none!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-camera-shell .iu-gemini-caption {
+html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell .iu-gemini-caption {
  display:none!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
- height:clamp(160px,33dvh,290px)!important;
- min-height:0!important;max-height:33dvh!important;
- border-radius:10px!important;
- transition:height .24s cubic-bezier(.2,.8,.25,1)!important;
+html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+ height:clamp(150px,29dvh,242px)!important;
+ min-height:0!important;max-height:29dvh!important;
+ border-radius:9px!important;
+ transition:height .22s ease!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab:is([data-scan-state="review"],[data-scan-state="retry"]) .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
- height:70px!important;max-height:70px!important;
+ height:48px!important;max-height:48px!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab[data-scan-state="working"] .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
- height:115px!important;max-height:115px!important;
+ height:76px!important;max-height:76px!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-controls {
- display:flex!important;flex-wrap:nowrap!important;
- min-height:31px!important;margin:3px 0 0!important;gap:6px!important;
+ min-height:27px!important;margin:3px 0 0!important;gap:6px!important;flex-wrap:nowrap!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-modes {
  padding:2px!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-mode {
- min-height:28px!important;padding:5px 9px!important;font-size:11px!important;
+ min-height:27px!important;padding:4px 9px!important;font-size:11px!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell .iu-gemini-scan-state {
- flex:1 1 auto!important;min-width:0!important;max-width:none!important;
- overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+ flex:1 1 0!important;min-width:0!important;white-space:nowrap!important;
+ text-overflow:ellipsis!important;overflow:hidden!important;
  font-size:10px!important;justify-content:flex-end!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell #iuGeminiCapture {
- min-height:39px!important;height:39px!important;
- margin:1px 0 0!important;padding:6px 10px!important;
+ min-height:35px!important;height:35px!important;margin:2px 0 0!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab[data-scan-state="review"] #iuGeminiCapture {
+html body.iu-gemini-focus main.app > #iuGeminiLab:is([data-scan-state="review"],[data-scan-state="working"]) #iuGeminiCapture {
  display:none!important;
 }
-/* Conserver un repli manuel après une lecture réseau qui a échoué. */
+/* Le bouton de relance manuelle reste disponible si Gemini échoue. */
 html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-review-row {
  display:none!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab[data-scan-state="error"] > .iu-gemini-review-row {
- display:flex!important;flex:0 0 auto!important;margin:5px 0!important;
+ display:flex!important;flex:0 0 auto!important;margin:3px 0!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiSetupCallout:not([hidden]) {
- flex:0 0 auto!important;margin:4px 0!important;max-height:48px!important;
+html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiEmptyResult {
+ display:none!important;
+}
+html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiOptions {
+ display:none!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiLabStatus {
  display:none!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab:is([data-scan-state="working"],[data-scan-state="error"]) > #iuGeminiLabStatus:not(:empty) {
- display:block!important;
- flex:0 0 auto!important;
- margin:4px 0!important;
- max-height:44px!important;
- overflow:hidden!important;
- font-size:11px!important;line-height:1.25!important;
+ display:block!important;margin:2px 0!important;font-size:11px!important;line-height:1.3!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiEmptyResult,
-html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiOptions {
- display:none!important;
+html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiSetupCallout:not([hidden]) {
+ display:block!important;min-height:34px!important;margin:2px 0!important;
 }
-/* Panneau condensé : article + Brut/Tare/Net, puis VRAIE étiquette virtuelle. */
+/* Affichage de résultat : article, trois poids et étiquette, sans doublons. */
 html body.iu-gemini-focus main.app > #iuGeminiLab > #iuGeminiLabOutput:not([hidden]) {
  display:flex!important;flex-direction:column!important;
- flex:1 1 auto!important;min-height:0!important;max-height:none!important;
- gap:5px!important;
- box-sizing:border-box!important;
- width:100%!important;
- overflow:hidden!important;
- margin:0!important;padding:0!important;
- border:0!important;background:transparent!important;box-shadow:none!important;
+ order:1!important;gap:6px!important;
+ min-width:0!important;width:100%!important;
+ margin:0!important;padding:0!important;border:0!important;
+ overflow:visible!important;
+ background:transparent!important;box-shadow:none!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab #iuGeminiLabOutput > .iu-result-glow-shell {
  display:none!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab #iuGeminiLabOutput > .iu-gemini-focus-summary {
- display:flex!important;flex-direction:column!important;flex:0 0 auto!important;
- gap:4px!important;min-width:0!important;padding:0 1px!important;
+ display:flex!important;flex-direction:column!important;
+ gap:4px!important;padding:0 1px!important;margin:0!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-product {
  display:flex!important;align-items:baseline!important;justify-content:space-between!important;
- gap:8px!important;min-height:20px!important;
- color:#2f454f!important;
+ gap:8px!important;min-height:18px!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-name {
- font-size:14px!important;font-weight:850!important;line-height:1.2!important;
- min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ font-size:14px!important;font-weight:850!important;line-height:1.15!important;
+ color:#2b434d!important;overflow:hidden!important;text-overflow:ellipsis!important;
  white-space:nowrap!important;text-transform:uppercase!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-price-per-kg {
- font-size:11px!important;font-weight:750!important;line-height:1.2!important;
- flex:0 0 auto!important;white-space:nowrap!important;color:#57707d!important;
+ flex:0 0 auto!important;font-size:11px!important;font-weight:750!important;
+ line-height:1.15!important;white-space:nowrap!important;color:#54717f!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-metrics {
  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
- gap:6px!important;min-width:0!important;
+ gap:6px!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-metric {
- display:flex!important;flex-direction:column!important;align-items:center!important;
- justify-content:center!important;gap:2px!important;min-width:0!important;
- min-height:44px!important;padding:4px 3px!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:center!important;gap:6px!important;min-width:0!important;
+ min-height:36px!important;padding:5px 4px!important;
  border:1px solid #dce6ec!important;border-radius:10px!important;
  background:linear-gradient(145deg,#fff,#f1f7fa)!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.92)!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-metric-caption {
- font-size:10px!important;font-weight:800!important;color:#70828b!important;
+ font-size:10px!important;font-weight:750!important;color:#6a7e89!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-metric-value {
- font-size:13px!important;font-weight:850!important;
- font-variant-numeric:tabular-nums!important;white-space:nowrap!important;
- color:#294755!important;letter-spacing:-.2px!important;
+ font-size:12px!important;font-weight:850!important;line-height:1.15!important;
+ color:#294755!important;white-space:nowrap!important;
+ letter-spacing:-.25px!important;font-variant-numeric:tabular-nums!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-net-value {
  color:#137b5d!important;
@@ -2054,48 +1991,41 @@ html body.iu-gemini-focus main.app > #iuGeminiLab #iuGeminiLabOutput > .iu-gemin
  display:none!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab #iuGeminiLabOutput > .iu-gemini-result-signal.is-warning {
- display:block!important;flex:0 0 auto!important;
- margin:2px 0!important;font-size:10.5px!important;
+ display:block!important;font-size:10px!important;margin:2px 0!important;
 }
-/* L'étiquette reste visible dans son intégralité sans ouverture supplémentaire.
-   La taille de largeur diminue uniquement quand l'écran est bas. */
+/* La vraie étiquette de simulation est affichée directement, à taille utile.
+   Aucun espace vertical réservé artificiellement autour d'elle. */
 html body.iu-gemini-focus main.app > #iuGeminiLab #iuGeminiLabOutput > .iu-gemini-label-frame {
  display:flex!important;flex-direction:column!important;align-items:center!important;
  justify-content:center!important;
- flex:1 1 auto!important;min-height:0!important;
- width:100%!important;min-width:0!important;max-width:none!important;
+ flex:0 0 auto!important;width:100%!important;min-width:0!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
  box-sizing:border-box!important;
- margin:0!important;padding:6px 6px 5px!important;
- overflow:hidden!important;
- border-radius:12px!important;
+ margin:0!important;padding:7px 6px 5px!important;
+ border-radius:12px!important;overflow:visible!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-label-frame > .iu-gemini-printed-label {
+ flex:0 0 auto!important;
  display:grid!important;
- flex:0 1 auto!important;
- width:min(100%,306px,calc(100dvh - 448px))!important;
- max-width:306px!important;
- max-height:none!important;
+ width:min(100%,310px)!important;
+ max-width:310px!important;
  height:auto!important;
  aspect-ratio:1372/1088!important;
  margin:0 auto!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-label-frame > .iu-gemini-label-frame-caption {
- flex:0 0 auto!important;
- margin:3px 0 0!important;font-size:9px!important;
- line-height:1.15!important;text-align:center!important;
+ margin:3px 0 0!important;font-size:9px!important;line-height:1.15!important;
+ text-align:center!important;
 }
-/* Bouton de validation toujours fixe, à portée du pouce.
-   Il s'agit du vrai bouton, jamais d'une validation automatique. */
-html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-weigh-entry {
- display:none!important;
- position:absolute!important;
- left:14px!important;right:14px!important;
- bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;
- z-index:8!important;
- margin:0!important;padding:0!important;
+/* Déplacer le vrai bouton « Valider et suivante » sous l'étiquette.
+   En recherche, pas de faux bouton ni d'enregistrement automatique. */
+html body.iu-gemini-focus main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-weigh-entry {
+ order:2!important;display:none!important;
+ margin:2px 0 0!important;padding:0!important;
 }
-html body.iu-gemini-focus main.app > #iuGeminiLab[data-scan-state="review"] > .iu-gemini-weigh-entry {
+html body.iu-gemini-focus main.app > section#iuGeminiLab[data-scan-state="review"].card.calc-card.iu-gemini-standalone > .iu-gemini-weigh-entry {
  display:block!important;
+ position:relative!important;inset:auto!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-weigh-entry > label,
 html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-weigh-entry .weight-field {
@@ -2105,74 +2035,39 @@ html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-weigh-entry .weig
  display:block!important;width:100%!important;margin:0!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-weigh-entry #iuGeminiNext {
- box-sizing:border-box!important;
- display:flex!important;align-items:center!important;justify-content:center!important;
- gap:12px!important;
- width:100%!important;max-width:none!important;min-width:0!important;
- height:53px!important;min-height:53px!important;max-height:53px!important;
- border:1px solid #74b2a4!important;border-radius:15px!important;
- background:linear-gradient(145deg,#f3fffa,#d9f2e8)!important;
- color:#17644d!important;
- box-shadow:0 4px 14px rgba(37,127,95,.13),inset 0 1px 0 #fff!important;
- font-size:23px!important;font-weight:850!important;line-height:1!important;
+ box-sizing:border-box!important;display:flex!important;
+ align-items:center!important;justify-content:center!important;gap:10px!important;
+ width:100%!important;min-width:0!important;max-width:none!important;
+ height:46px!important;min-height:46px!important;max-height:46px!important;
+ padding:5px 9px!important;
+ border-radius:13px!important;
+ font-size:21px!important;font-weight:850!important;line-height:1!important;
 }
 html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-weigh-entry #iuGeminiNext > span {
- font-size:14px!important;line-height:1.12!important;text-align:center!important;
+ font-size:13px!important;line-height:1.1!important;
 }
-/* Les plus petits iPhone privilégient l'étiquette et la validation plutôt
-   que la hauteur du petit aperçu caméra : les chiffres EAN ne sont pas écrasés. */
-@media(max-height:760px) {
- html body.iu-gemini-focus main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
-  padding-top:calc(env(safe-area-inset-top,0px) + 7px)!important;
-  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 68px)!important;
-  gap:3px!important;
- }
- html body.iu-gemini-focus main.app > #iuGeminiLab:is([data-scan-state="review"],[data-scan-state="retry"]) .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
-  height:52px!important;max-height:52px!important;
- }
- html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-label-frame > .iu-gemini-printed-label {
-  width:min(100%,278px,calc(100dvh - 448px))!important;
- }
+/* iPhone compacts : affiner davantage plutôt que réduire les chiffres EAN. */
+@media(max-width:400px){
  html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-metric {
-  min-height:40px!important;padding:3px!important;
+  min-height:33px!important;gap:4px!important;padding:4px 2px!important;
  }
- html body.iu-gemini-focus main.app > #iuGeminiLab > .iu-gemini-weigh-entry #iuGeminiNext {
-  height:49px!important;min-height:49px!important;max-height:49px!important;
- }
-}
-@media(max-height:640px) {
- html body.iu-gemini-focus main.app > #iuGeminiLab:is([data-scan-state="review"],[data-scan-state="retry"]) .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
-  height:40px!important;max-height:40px!important;
+ html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-focus-metric-value {
+  font-size:11.5px!important;
  }
  html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-label-frame > .iu-gemini-printed-label {
-  width:min(100%,238px,calc(100dvh - 400px))!important;
+  width:min(100%,286px)!important;
+ }
+}
+@media(max-height:740px){
+ html body.iu-gemini-focus main.app > #iuGeminiLab:is([data-scan-state="review"],[data-scan-state="retry"]) .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+  height:36px!important;max-height:36px!important;
+ }
+ html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-label-frame > .iu-gemini-printed-label {
+  width:min(100%,275px)!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
  html body.iu-gemini-focus main.app > #iuGeminiLab .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
   transition:none!important;
  }
-}
-
-
-/* Surclasse le position:relative générique très spécifique de v41.60 :
-   la validation doit rester réellement ancrée au bas de l'écran. */
-html body.iu-gemini-focus main.app > section#iuGeminiLab#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-weigh-entry {
- position:absolute!important;
- left:14px!important;
- right:14px!important;
- bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;
- z-index:8!important;
-}
-
-/* Très petits écrans : préférer une zone d'étiquette défilable à des chiffres
-   de code-barres déformés. Aucun défilement sur les iPhone de hauteur standard. */
-@media(max-height:620px){
- html body.iu-gemini-focus main.app > #iuGeminiLab #iuGeminiLabOutput > .iu-gemini-label-frame {
-  overflow-y:auto!important;overscroll-behavior:contain!important;
- }
-}
-
-html body.iu-gemini-focus main.app > #iuGeminiLab[data-scan-state="working"] #iuGeminiCapture {
- display:none!important;
 }
