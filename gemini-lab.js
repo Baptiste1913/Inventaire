@@ -423,12 +423,12 @@
  function clear(){stopCamera();resetReading();}
  function setPhoto(chosen){
   if(!chosen)return;
-  // Une nouvelle photo explicitement choisie annule l'ancienne analyse,
-  // même si le réseau tarde ; toute ancienne réponse est invalidée.
-  if(active)resetReading();
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
   }
+  // Une nouvelle photo explicitement choisie annule l'ancienne analyse,
+  // même si le réseau tarde ; toute ancienne réponse est invalidée.
+  if(active)resetReading();
   if(hasSavableProposal()&&!window.confirm('Cette pesée n’est pas encore validée. Abandonner ce résultat pour lire une autre étiquette ?')){
    say('Pesée conservée. Valide-la pour continuer.');return false;
   }
