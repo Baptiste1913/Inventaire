@@ -1,4 +1,4 @@
-/* Inventaires U 42.15 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.16 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -19,23 +19,10 @@
   output.hidden=false;
  }
   let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
- let proposal=null,latestLabelFields=null,previewPending=false;
+ let proposal=null,latestLabelFields=null;
  const fixedModel='gemini-3.5-flash-lite';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
- // v42.11 : anticiper DNS/TLS sans envoyer de secret ni de photo.
- let geminiPreconnectDone=false;
- function warmGeminiConnection(){
-  if(geminiPreconnectDone)return;
-  geminiPreconnectDone=true;
-  try{
-   const hint=document.createElement('link');
-   hint.rel='preconnect';
-   hint.href=new URL(endpoint).origin;
-   hint.crossOrigin='anonymous';
-   document.head.append(hint);
-  }catch(_){/* Préconnexion purement opportuniste. */}
- }
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
   cameraIdle=$('iuGeminiCameraIdle'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
@@ -190,10 +177,6 @@
  let localWorker=null,localWorkerPromise=null,localEngineGeneration=0,
   localOcrDisabled=false,localOcrBusy=false,localOcrToken=0,
   localCandidate=null,localPasses=0;
- // Réutiliser la même vérification OCR si Gemini relit la même photo.
- let localCheckSource=null,localCheckPromise=null;
- // Une seule décompression source pour l'OCR et le JPEG réseau.
- let photoDecodeCache=new WeakMap();
  let cameraMode='manual',autoTimer=0,autoLocked=false,autoSuspended=false,
   autoLastFrame=null,autoLastCaptured=null,autoChangeReference=null,
   autoNeedsChange=false,autoChangeCount=0,autoStableSince=0,autoStableCount=0,
@@ -292,7 +275,6 @@
   })?.duplicate===true;}catch(_){return false;}
  }
  function refreshLabelAlert(){
-  if(previewPending){setLabelAlert('idle','Vérification OCR en cours…');return;}
   const raw=latestLabelFields?.weightGrams;
   if(!Number.isSafeInteger(raw)||raw<=0){
    if(latestLabelFields)setLabelAlert('warning','Lecture incomplète · reprends l’étiquette');
@@ -357,13 +339,8 @@
   const virtualDate=label.querySelector('.iu-gemini-label-date .iu-gemini-label-number');
   if(virtualDate)virtualDate.textContent=todayForVirtualLabel();
   if(total)total.textContent=money(corrected?corrected.cents:fields.totalCents).replace(/\s/g,'');
-  // Un résultat prévisualisé n'est pas un code-barres utilisable.
-  // Attendre la fin des contrôles indépendants pour dessiner les barres.
-  if(digits)digits.textContent=previewPending?'EN VÉRIFICATION':corrected?.ean||fields.ean13||'EAN NON RECONNU';
-  if(bars){
-   if(previewPending)bars.replaceChildren();
-   else renderEanBars(bars,corrected?.ean||fields.ean13);
-  }
+  if(digits)digits.textContent=corrected?.ean||fields.ean13||'EAN NON RECONNU';
+  if(bars)renderEanBars(bars,corrected?.ean||fields.ean13);
   // Les informations de vigilance figurent dans le voyant sous l’étiquette.
  }
  // Les contrôles sont refaits au moment du clic de validation.
@@ -371,11 +348,11 @@
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const corrected=proposal&&ctx
    ?recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate):null;
-  const canSave=Boolean(corrected)&&!active&&!previewPending;
+  const canSave=Boolean(corrected)&&!active;
   if(nextWeigh){
    // Comme « Nouvelle pesée » classique, le bouton reste disponible :
    // une anomalie non corrigée bloque seulement l’enregistrement.
-   nextWeigh.disabled=active||previewPending;
+   nextWeigh.disabled=active;
    nextWeigh.classList.toggle('is-ready',canSave);
   }
   const signal=output.querySelector('.iu-gemini-result-signal');
@@ -407,9 +384,7 @@
  function resetReading(){
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
-  generation++;abort?.abort();abort=null;active=false;previewPending=false;file=null;
-  localCheckSource=null;localCheckPromise=null;
-  photoDecodeCache=new WeakMap();
+  generation++;abort?.abort();abort=null;active=false;file=null;
   attempts.clear();photo.value='';latestLabelFields=null;
   showBlankLabel();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
@@ -434,12 +409,9 @@
   }
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
-  latestLabelFields=null;previewPending=false;
+  latestLabelFields=null;
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
-  localCheckSource=null;localCheckPromise=null;
-  photoDecodeCache=new WeakMap();
-  warmGeminiConnection();
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
@@ -558,91 +530,50 @@
   if(!opening)clear();
  });
  function decodePhoto(source){
-  const cached=photoDecodeCache.get(source);
-  if(cached)return cached;
-  const pending=new Promise((resolve,reject)=>{
+  return new Promise((resolve,reject)=>{
    const localUrl=URL.createObjectURL(source);
    const img=new Image();
    img.onload=()=>{URL.revokeObjectURL(localUrl);resolve(img);};
    img.onerror=()=>{URL.revokeObjectURL(localUrl);reject(Error('Format photo non pris en charge'));};
    img.src=localUrl;
-  }).catch(error=>{
-   photoDecodeCache.delete(source);
-   throw error;
   });
-  photoDecodeCache.set(source,pending);
-  return pending;
- }
- function jpegBase64(blob){
-  return new Promise((resolve,reject)=>{
-   const reader=new FileReader();
-   reader.onerror=()=>reject(Error('Lecture JPEG indisponible'));
-   reader.onload=()=>{
-    const value=String(reader.result||''),comma=value.indexOf(',');
-    if(comma<0)return reject(Error('Format JPEG invalide'));
-    resolve(value.slice(comma+1));
-   };
-   reader.readAsDataURL(blob);
-  });
- }
- function jpegCanvasBlob(canvas,quality){
-  // Ne plus produire de grosses chaînes Base64 synchrones inutiles.
-  if(typeof canvas.toBlob==='function'){
-   return new Promise((resolve,reject)=>{
-    try{canvas.toBlob(blob=>blob?resolve(blob):reject(Error('JPEG indisponible')),
-      'image/jpeg',quality);}
-    catch(error){reject(error);}
-   });
-  }
-  return Promise.resolve(null);
  }
  async function imageBase64(source){
-  // Limite Worker et qualité de v42.10 inchangées.
-  const maxBase64=690000;
-  const maxJpegBytes=Math.floor(maxBase64*3/4);
+  // Le JPEG issu du viseur est déjà recadré, redimensionné et compressé.
+  // Éviter une deuxième décompression/compression si l'image passe sous
+  // la limite Cloudflare (surtout sur Safari iPhone).
   if(source?.name==='etiquette-gemini.jpg'&&source.type==='image/jpeg'&&
-     source.size>=100&&source.size<=505000){
+     source.size>=100&&source.size<=490000){
    try{
-    const encoded=await jpegBase64(source);
-    if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-   }catch(_){/* Repli canvas Safari. */}
+    const encoded=await new Promise((resolve,reject)=>{
+     const reader=new FileReader();
+     reader.onerror=()=>reject(Error('Lecture JPEG indisponible'));
+     reader.onload=()=>{
+      const str=String(reader.result||''),index=str.indexOf(',');
+      if(index<0)return reject(Error('Format JPEG invalide'));
+      resolve(str.slice(index+1));
+     };
+     reader.readAsDataURL(source);
+    });
+    if(encoded.length>=100&&encoded.length<=690000)return encoded;
+   }catch(_){/* Safari peut nécessiter le chemin canvas habituel. */}
   }
   const img=await decodePhoto(source);
-  const maxSide=Math.max(img.naturalWidth,img.naturalHeight);
-  if(!Number.isFinite(maxSide)||maxSide<=0)throw Error('Photo vide');
+  const scale=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
+  if(!scale||!img.naturalWidth||!img.naturalHeight)throw Error('Photo vide');
   const cv=document.createElement('canvas');
+  cv.width=Math.max(1,Math.round(img.naturalWidth*scale));
+  cv.height=Math.max(1,Math.round(img.naturalHeight*scale));
   const ctx=cv.getContext('2d');
   if(!ctx)throw Error('Traitement image impossible sur cet appareil');
-  let previousWidth=0,previousHeight=0;
-  for(const side of [2400,2200,1920,1700,1500]){
-   const factor=Math.min(1,side/maxSide);
-   const width=Math.max(1,Math.round(img.naturalWidth*factor));
-   const height=Math.max(1,Math.round(img.naturalHeight*factor));
-   if(width===previousWidth&&height===previousHeight)continue;
-   previousWidth=width;previousHeight=height;
-   if(cv.width!==width||cv.height!==height){
-    cv.width=width;cv.height=height;
-   }
-   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-   ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
-   ctx.drawImage(img,0,0,width,height);
-   for(const quality of [.93,.87,.81,.75]){
-    const blob=await jpegCanvasBlob(cv,quality);
-    if(blob){
-     // Base64 utilise 4*ceil(bytes/3) caractères.
-     if(blob.type&&blob.type!=='image/jpeg')continue;
-     if(blob.size<75||blob.size>maxJpegBytes)continue;
-     const encoded=await jpegBase64(blob);
-     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-    }else{
-     // Compatibilité si toBlob est indisponible.
-     const data=cv.toDataURL('image/jpeg',quality);
-     const encoded=data.slice(data.indexOf(',')+1);
-     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-    }
-   }
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.drawImage(img,0,0,cv.width,cv.height);
+  for(const quality of [.88,.80,.72,.64,.56]){
+   const data=cv.toDataURL('image/jpeg',quality);
+   const b64=data.slice(data.indexOf(',')+1);
+   if(b64.length<=690000)return b64;
   }
-  throw Error('Photo trop détaillée pour la limite actuelle Cloudflare. Recadre-la manuellement ou réessaie.');
+  throw Error('Photo trop volumineuse après compression');
  }
  // Encodage DIGI expérimental vérifié sur 8 étiquettes :
  // 7 chiffres article + 5 chiffres prix (euros × 655,36) + clé EAN-13.
@@ -730,7 +661,7 @@
   }
   container.replaceChildren(svg);
  }
- function display(result,wallMs,{provisional=false}={}){
+ function display(result,wallMs){
   output.replaceChildren();
   const fields=result?.fields||{},checks=result?.checks||{};
   latestLabelFields=fields;
@@ -746,8 +677,8 @@
   const ready=!verified.error&&netValid;
   const corrected=ready?recodeAfterTare(fields.ean13,gross,tare,fields.pricePerKgCents):null;
   const label=document.createElement('article');
-  label.className='iu-gemini-printed-label'+(ready&&!provisional?' is-ready':' is-review');
-  label.setAttribute('aria-label',provisional?'Aperçu provisoire en cours de vérification':'Étiquette virtuelle reconstituée, à comparer à la photo avant validation');
+  label.className='iu-gemini-printed-label'+(ready?' is-ready':' is-review');
+  label.setAttribute('aria-label','Étiquette virtuelle reconstituée, à comparer à la photo avant validation');
   const add=(parent,tag,className,value)=>{
    const el=document.createElement(tag);el.className=className;el.textContent=value;
    parent.append(el);return el;
@@ -776,9 +707,8 @@
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
   bars.setAttribute('aria-hidden','true');
-  if(!provisional)renderEanBars(bars,corrected?.ean||fields.ean13);
-  add(barcode,'span','iu-gemini-label-ean',
-   provisional?'EN VÉRIFICATION':corrected?.ean||fields.ean13||'EAN NON RECONNU');
+  renderEanBars(bars,corrected?.ean||fields.ean13);
+  add(barcode,'span','iu-gemini-label-ean',corrected?.ean||fields.ean13||'EAN NON RECONNU');
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
@@ -792,11 +722,11 @@
   if(emptyResult)emptyResult.hidden=false;
   // Les données reconnues restent disponibles si le panier est incorrect :
   // choisir un autre panier recalcule le net sans refaire la lecture.
-  proposal=provisional?null:(verified.error?null:verified);
+  proposal=verified.error?null:verified;
   // La coche verte est réservée à une pesée réellement validable,
   // et non à une simple lecture visuelle encore incohérente.
   resetDetectedIndicator();
-  updateCardState(provisional?'working':ready?'review':'retry');
+  updateCardState(ready?'review':'retry');
   if(!proposal)resetProposal();
   validationState();
   if(result?.source==='local'){
@@ -895,56 +825,24 @@
   const start=performance.now();
   say('Préparation puis envoi d’une seule photo à Gemini…');
   try{
-   // OCR local en parallèle du réseau, sans retarder la première requête.
-   const independent=independentLocalReadingFor(file);
    const encoded=await imageBase64(file);
    if(id!==generation)return;
-   say('Gemini analyse l’étiquette haute qualité…');
-   // La même image est utilisée à chaque fois, et aucun résultat IA
-   // ne sera enregistré sans une action explicite.
-   let result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
+   say('Gemini analyse l’étiquette…');
+   // Une seule image encodée, au plus trois appels réseau uniquement
+   // si une indisponibilité temporaire du fournisseur est détectée.
+   const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
    if(id!==generation)return;
-   // La restitution de Gemini s'affiche immédiatement, sans la qualifier
-   // de validée. L'enregistrement et la coche restent bloqués jusqu'à
-   // la fin de la lecture indépendante et des contrôles métier.
-   previewPending=true;
-   display(result,performance.now()-start,{provisional:true});
-   say('Étiquette reconnue · vérification indépendante en cours…');
-   // Une réponse incomplète ne provoque plus une deuxième requête
-   // automatique (elle doublait la latence). La photo reste disponible
-   // pour une relance MANUELLE, sans nouvelle capture obligatoire.
-   const firstProblem=validateResult(result).error;
-   if(firstProblem){
-    attempts.delete(selectedModel);
-    analyze.textContent='Réessayer l’analyse';
-   }
-   // Au plus 2,2 s de délai APRÈS Gemini pour un contrôle OCR local.
-   // Si l'OCR ne répond pas, il reste inconcluant et la vérification
-   // humaine demeure obligatoire (jamais d'accord fictif).
-   const local=await localCheckWithin(independent,2200);
-   if(id!==generation)return;
-   previewPending=false;
-   const conflicting=localMismatch(result,local);
-   if(conflicting){
-    result.checks={...result.checks,independentMismatch:true};
-    attempts.delete(selectedModel);
-    analyze.textContent='Réessayer l’analyse';
-   }
    display(result,performance.now()-start);
-   // La validation reste MANUELLE ; pas de sauvegarde implicite.
+   // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
+   // L'utilisateur reste au même endroit, sans défilement forcé.
+   // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    const saveReady=Boolean(validationState());
-   say(conflicting
-    ?'Reconnaissances contradictoires : vérifie les chiffres sur l’étiquette et reprends la photo.'
-    :firstProblem
-    ?'Lecture incertaine : '+firstProblem+' Tu peux réessayer cette photo ou en prendre une autre.'
-    :saveReady
-    ?'Lecture prête : compare à l’étiquette réelle, puis touche Nouvelle pesée.'
-    :'Lecture non validable : vérifie le panier ou reprends une photo.',conflicting||!saveReady);
+   say(saveReady
+    ?'Lecture prête : vérifie le poids brut et touche Nouvelle pesée.'
+    :'Lecture non validable : vérifie le panier ou reprends une photo.',!saveReady);
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
-    // Une prévisualisation n'est pas un résultat vérifié, même après erreur.
-    previewPending=false;resetProposal();
     // Une erreur technique ne doit pas condamner la photo déjà prise :
     // sa relance reste manuelle après épuisement des réessais bornés.
     attempts.delete(selectedModel);
@@ -1013,7 +911,6 @@
  }
  async function startCamera(){
   if(cameraStarting||active)return;
-  warmGeminiConnection();
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
   // getUserMedia tant que la caméra fonctionne dans cette session.
   if(cameraStream){
@@ -1051,7 +948,7 @@
   let obtained=null;
   try{
    obtained=await navigator.mediaDevices.getUserMedia({
-    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2560},height:{ideal:1440}}
+    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
    });
    if(epoch!==cameraEpoch||panel.hidden){
     for(const track of obtained.getTracks())track.stop();
@@ -1075,9 +972,6 @@
    shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
-   // Charger l'OCR local en avance, pendant le cadrage manuel.
-   // Évite d'attendre son démarrage après la réponse Gemini.
-   if(localReader)void ensureLocalOcr();
    refreshTorch();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
    else setAutoHint('Valide ou reprends la lecture en cours','waiting');
@@ -1117,9 +1011,6 @@
   startCamera();
  });
  modePhoto?.addEventListener('click',()=>{
-  warmGeminiConnection();
-  // Charger l'OCR pendant le choix de la photo dans iOS.
-  if(localReader)void ensureLocalOcr();
   selectReadingMode('photo');
   autoSuspended=true;
   photo.click();
@@ -1184,9 +1075,10 @@
    ?viewW/viewH:srcW/srcH;
   if(width/height>ratio){width=height*ratio;x=(srcW-width)/2;}
   else{height=width/ratio;y=(srcH-height)/2;}
-  // Ne JAMAIS enlever les 12 % latéraux historiques : PLU, chiffres
-  // et codes EAN peuvent se trouver au bord de l'étiquette. Le seul
-  // recadrage est celui imposé par le rapport du viseur object-fit:cover.
+  // Préserver une marge pour le PLU vertical et les gardes EAN.
+  const focused=width*.88;
+  x+=(width-focused)/2;
+  width=focused;
   return {x,y,width,height};
  }
 
@@ -1295,49 +1187,6 @@
   }
   return localReader.parse(output.result?.data?.text,{
    confidence:output.result?.data?.confidence,barcode:output.barcode
-  });
- }
- // La lecture locale ne produit qu'un avis indépendant, sans enregistrement.
- // Une OCR incomplet est traité comme "non concluant", JAMAIS comme une
- // preuve de concordance ou une raison de fabriquer une valeur.
- function independentLocalReadingFor(source){
-  if(!localReader||localOcrDisabled)return Promise.resolve(null);
-  if(localCheckSource===source&&localCheckPromise)return localCheckPromise;
-  localCheckSource=source;
-  localCheckPromise=(async()=>{
-   const img=await decodePhoto(source);
-   const maxSide=Math.max(img.naturalWidth,img.naturalHeight);
-   if(!maxSide)return null;
-   const factor=Math.min(1,1700/maxSide);
-   const cv=document.createElement('canvas');
-   cv.width=Math.max(1,Math.round(img.naturalWidth*factor));
-   cv.height=Math.max(1,Math.round(img.naturalHeight*factor));
-   const ctx=cv.getContext('2d');
-   if(!ctx)return null;
-   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-   ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-   ctx.drawImage(img,0,0,cv.width,cv.height);
-   return recognizeLocally(cv);
-  })().catch(()=>null);
-  return localCheckPromise;
- }
- function localMismatch(gemini,local){
-  const a=gemini?.fields,b=local?.fields;
-  if(!a||!b)return false;
-  return ['weightGrams','pricePerKgCents','totalCents','ean13']
-   .some(key=>a[key]!==b[key]);
- }
- function localCheckWithin(check,ms){
-  return new Promise(resolve=>{
-   let settled=false;
-   const timer=setTimeout(()=>{settled=true;resolve(null);},ms);
-   Promise.resolve(check).then(value=>{
-    if(settled)return;
-    settled=true;clearTimeout(timer);resolve(value);
-   },()=>{
-    if(settled)return;
-    settled=true;clearTimeout(timer);resolve(null);
-   });
   });
  }
  async function sendOcrFallback(canvas,sessionValid){
@@ -1574,7 +1423,7 @@
    const cv=document.createElement('canvas');
    const viewport=video.getBoundingClientRect();
    const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,viewport.width,viewport.height);
-   const factor=Math.min(1,2400/Math.max(crop.width,crop.height));
+   const factor=Math.min(1,1600/Math.max(crop.width,crop.height));
    cv.width=Math.max(1,Math.round(crop.width*factor));
    cv.height=Math.max(1,Math.round(crop.height*factor));
    const ctx=cv.getContext('2d');
@@ -1582,7 +1431,7 @@
    ctx.imageSmoothingEnabled=true;
    ctx.imageSmoothingQuality='high';
    ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
-   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.93));
+   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.90));
    if(!blob)throw Error('Capture impossible');
    if(frameEpoch!==cameraEpoch||!cameraStream||cameraShell.hidden)return;
    const used=setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
