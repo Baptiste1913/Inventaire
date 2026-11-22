@@ -1,4 +1,4 @@
-/* Inventaires U 41.87 — deux filaments anthracite sous les fibres nacrées.
+/* Inventaires U 41.88 — deux filaments anthracite sous les fibres nacrées.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -6,7 +6,9 @@
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
- const guide=overlay?.querySelector(overlay.id==='iuGeminiCameraShell'
+ const isGemini=overlay.id==='iuGeminiCameraShell';
+ const contourBoost=isGemini?1:0; // +1 px seulement autour de l'étiquette IA
+ const guide=overlay?.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
  const canvas=guide?.querySelector('.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
@@ -113,7 +115,7 @@
   ctx.globalCompositeOperation='source-over';
   ctx.strokeStyle=color;
   ctx.lineJoin='round';
-  ctx.lineWidth=widthPx;
+  ctx.lineWidth=widthPx+contourBoost;
   ctx.globalAlpha=alpha;
   ctx.stroke(lanes[laneIndex].line);
   ctx.restore();
@@ -146,12 +148,12 @@
   const shape=new Path2D();
   for(let i=0;i<points.length;i++){
    const p=points[i];
-   const radius=widthPx*p.envelope/2;
+   const radius=(widthPx+contourBoost)*p.envelope/2;
    const x=p.x+p.nx*radius,y=p.y+p.ny*radius;
    if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y);
   }
   for(let i=points.length-1;i>=0;i--){
-   const p=points[i],radius=widthPx*p.envelope/2;
+   const p=points[i],radius=(widthPx+contourBoost)*p.envelope/2;
    shape.lineTo(p.x-p.nx*radius,p.y-p.ny*radius);
   }
   shape.closePath();
@@ -188,6 +190,24 @@
   baseFilament(6,.09,.20,'#edf2f4');
   baseFilament(7,.10,.23,'#eef4f6');
   baseFilament(8,.08,.19,'#edf2f4');
+  // Palette Gemini : bleu, violet, rose, corail/or pâle.
+  // Cette branche est exclusivement dédiée au gabarit IA ; l'OCR
+  // classique conserve toutes ses couleurs et largeurs d'origine.
+  if(isGemini){
+   illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.25,
+     tint:'#4285f4',core:'#dceaff',opacity:.96});
+   illuminate(t,{lane:1,start:.62,direction:-1,seconds:12.3,span:.20,
+     tint:'#9769d5',core:'#f1dfff',opacity:.91});
+   illuminate(t,{lane:2,start:.34,direction:1,seconds:17.1,span:.09,
+     tint:'#e66bb8',core:'#ffe1f4',opacity:.72});
+   illuminate(t,{lane:2,start:.11,direction:-1,seconds:13.8,span:.13,
+     tint:'#f3a36b',core:'#ffefdf',opacity:.64});
+   illuminate(t,{lane:5,start:.48,direction:1,seconds:15.4,span:.16,
+     tint:'#7582ef',core:'#e4e6ff',opacity:.72});
+   illuminate(t,{lane:6,start:.79,direction:-1,seconds:18.6,span:.12,
+     tint:'#d786d9',core:'#fcecff',opacity:.65});
+   return;
+  }
   // Reflets bleu, émeraude et rubis légèrement renforcés.
   illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.25,
     tint:'#79c7ff',core:'#f6fbff',opacity:.94});
