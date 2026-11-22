@@ -163,7 +163,11 @@ window.IUGeminiSaveWeigh=payload=>{
  // une confirmation explicite, également contrôlée au moment de la sauvegarde.
  if(duplicate&&payload?.confirmDuplicate!==true)
   return {ok:false,duplicate:true,reason:'Doublon à confirmer'};
+ const editedFields=Array.isArray(payload?.manualCorrectedFields)
+  ?[...new Set(payload.manualCorrectedFields.filter(v=>
+    ['name','weight','rate','total','ean'].includes(v)))].slice(0,5):[];
  const entry={id:uid(),at:now,name:b.name,tare:b.tare,gross,net,
+  manualCorrectedFields:editedFields,
   duplicateConfirmed:duplicate&&payload?.confirmDuplicate===true,
   source:'gemini',product,ean13:ean,correctedEan13:corrected,
   pricePerKgCents:rate,originalTotalCents:total,correctedTotalCents:payload.correctedTotalCents,
@@ -195,7 +199,10 @@ const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('a
 if(!history.length){const p=document.createElement('p');p.className='empty history-empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
 for(const entry of (historyExpanded?history:history.slice(0,5))){const row=document.createElement('article');row.className='history-item'+(entry.source==='gemini'?' history-item-gemini':'');const info=document.createElement('div');info.className='history-info';const name=document.createElement('strong');name.className='history-name';name.textContent=entry.name;const meta=document.createElement('div');meta.className='history-meta';const date=document.createElement('span');date.className='history-chip';date.textContent=new Date(entry.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit'});const detail=document.createElement('span');detail.className='history-chip history-chip-detail';detail.textContent=`Brut ${fmt(entry.gross)} kg · Tare ${fmt(entry.tare)} kg`;meta.append(date,detail);if(entry.source==='gemini'){const badge=document.createElement('span');badge.className='history-chip history-chip-gemini';badge.textContent='✧ Gemini';meta.prepend(badge);if(entry.duplicateConfirmed){
  const confirmed=document.createElement('span');confirmed.className='history-chip history-chip-detail';
- confirmed.textContent='Doublon confirmé';meta.append(confirmed);
+ confirmed.textContent='Doublon confirmé';meta.append(confirmed);if(Array.isArray(entry.manualCorrectedFields)&&entry.manualCorrectedFields.length){
+ const audit=document.createElement('span');audit.className='history-chip history-chip-detail';
+ audit.textContent='Valeur vérifiée';meta.append(audit);
+}
 }const extra=document.createElement('div');extra.className='history-gemini-extra';extra.textContent=[entry.product,entry.ean13?'EAN '+entry.ean13:null,entry.correctedEan13?'Corrigé '+entry.correctedEan13:null,Number.isInteger(entry.pricePerKgCents)?(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €/kg':null,Number.isInteger(entry.correctedTotalCents)?(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' € après tare':null].filter(Boolean).join(' · ');info.append(name,meta,extra);}else info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);if(entry.source==='gemini'){const star=document.createElement('span');star.className='iu-gemini-star-badge iu-gemini-history-star';star.setAttribute('role','img');star.setAttribute('aria-label','Pesée réalisée par Gemini');star.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiHistoryGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiHistoryGradient)"/></svg>';row.append(star);}row.append(info,result);list.append(row);}}
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
 function persist(){
