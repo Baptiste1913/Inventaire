@@ -1,4 +1,4 @@
-/* Inventaires U 41.80 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.81 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -42,81 +42,62 @@
  const exactGuide=$('iuGeminiExactGuide');
  const cameraStage=cameraShell?.querySelector('.iu-gemini-camera-stage');
  let guideSnapshot=null,guideSize=null,guideScheduled=false;
- const guideStyleProperties=[
-  'display','position','box-sizing','width','height','min-width','max-width',
-  'min-height','max-height','margin-top','margin-right','margin-bottom','margin-left',
-  'padding-top','padding-right','padding-bottom','padding-left',
-  'grid-template-columns','grid-template-rows','grid-auto-flow',
-  'grid-column','grid-row','column-gap','row-gap','gap',
-  'flex-direction','flex-wrap','flex-grow','flex-shrink','flex-basis',
-  'align-items','align-self','align-content','justify-content','justify-items',
-  'justify-self','order','top','right','bottom','left',
-  'border-top-width','border-right-width','border-bottom-width','border-left-width',
-  'border-top-style','border-right-style','border-bottom-style','border-left-style',
-  'border-top-left-radius','border-top-right-radius',
-  'border-bottom-left-radius','border-bottom-right-radius',
-  'font-family','font-size','font-weight','font-style','font-stretch',
-  'font-variant-numeric','line-height','letter-spacing','word-spacing',
-  'text-align','text-transform','text-indent','white-space','overflow-wrap',
-  'overflow','overflow-x','overflow-y','vertical-align','transform',
-  'object-fit','opacity'
- ];
- function copyExactGuideStyles(source,copy){
-  const sourceNodes=[source,...source.querySelectorAll('*')];
-  const copyNodes=[copy,...copy.querySelectorAll('*')];
-  if(sourceNodes.length!==copyNodes.length)return false;
-  for(let i=0;i<sourceNodes.length;i++){
-   const computed=getComputedStyle(sourceNodes[i]);
-   const target=copyNodes[i];
-   for(const property of guideStyleProperties){
-    const value=computed.getPropertyValue(property);
-    if(value)target.style.setProperty(property,value,'important');
-   }
-   // Les dimensions restent copiées depuis l'étiquette DIGI réelle.
-   // Seule la peinture est remplacée : fond transparent et caractères
-   // creux (WebKit/Safari), sans aplats ni fausses valeurs.
-   target.style.setProperty('background','transparent','important');
-   target.style.setProperty('box-shadow','none','important');
-   target.style.setProperty('text-shadow','none','important');
-   target.style.setProperty('color','transparent','important');
-   target.style.setProperty('-webkit-text-fill-color','transparent','important');
-   target.style.setProperty('-webkit-text-stroke','1px rgba(255,255,255,.85)','important');
-   target.style.setProperty('border-color','rgba(255,255,255,.32)','important');
-   target.style.setProperty('opacity','1','important');
-   target.style.setProperty('pointer-events','none','important');
-   if(target.classList?.contains('iu-gemini-label-bars')){
-    // Les barres du repère sont elles aussi creuses. Leur place et
-    // leurs dimensions proviennent du modèle, sans encoder un faux EAN.
-    const ns='http://www.w3.org/2000/svg';
-    const barOutline=document.createElementNS(ns,'svg');
-    barOutline.setAttribute('viewBox','0 0 100 40');
-    barOutline.setAttribute('preserveAspectRatio','none');
-    barOutline.setAttribute('aria-hidden','true');
-    barOutline.style.cssText='display:block;width:100%;height:100%;overflow:hidden';
-    for(const [x,w] of [[1,1.4],[5,2],[10,1.5],[14,3],[20,1.6],
-      [24,2.5],[30,1.2],[34,2.2],[39,1.4],[43,3],[49,1.8],
-      [54,1.4],[58,2.8],[64,1.5],[68,2],[73,1.5],[77,3],
-      [83,1.6],[87,2.4],[92,1.6],[96,2]]){
-     const bar=document.createElementNS(ns,'rect');
-     bar.setAttribute('x',String(x));
-     bar.setAttribute('y','1');
-     bar.setAttribute('width',String(w));
-     bar.setAttribute('height','37');
-     bar.setAttribute('fill','none');
-     bar.setAttribute('stroke','rgba(255,255,255,.72)');
-     bar.setAttribute('stroke-width','.85');
-     barOutline.append(bar);
-    }
-    target.replaceChildren(barOutline);
-    target.style.setProperty('background','transparent','important');
-   }
-   if(target.classList?.contains('iu-gemini-label-total'))
-    target.style.setProperty('border-color','rgba(255,255,255,.84)','important');
+ // v41.81 — Silhouette rectangulaire légère, calée sur les dimensions
+ // et les positions réelles de l'étiquette numérique DIGI. Aucun texte
+ // ni faux code-barres sur la vidéo : seules des lignes fines restent.
+ function buildExactCameraOutline(source){
+  const base=source.getBoundingClientRect();
+  if(base.width<=60||base.height<=40)return null;
+  const wireframe=document.createElement('div');
+  wireframe.className='iu-gemini-outline-label';
+  wireframe.style.width=base.width+'px';
+  wireframe.style.height=base.height+'px';
+  // La surface réelle fournit la géométrie et le rayon de l'étiquette.
+  const printedStyle=getComputedStyle(source);
+  wireframe.style.borderRadius=printedStyle.borderTopLeftRadius;
+  const appendOutline=(rectangle,kind)=>{
+   if(!rectangle||rectangle.width<=0||rectangle.height<=0)return;
+   const x=Math.max(2,rectangle.left-base.left);
+   const y=Math.max(2,rectangle.top-base.top);
+   const w=Math.min(rectangle.width,base.width-x-2);
+   const h=Math.min(rectangle.height,base.height-y-2);
+   if(w<5||h<4)return;
+   const line=document.createElement('span');
+   line.className='iu-gemini-outline-rect iu-gemini-outline-'+kind;
+   line.style.left=x+'px';
+   line.style.top=y+'px';
+   line.style.width=w+'px';
+   line.style.height=h+'px';
+   wireframe.appendChild(line);
+  };
+  const box=(selector)=>source.querySelector(selector)?.getBoundingClientRect()||null;
+  // En-tête : entourer les deux vrais éléments imprimés, pas une
+  // barre arbitraire qui occuperait tout le haut de la photo.
+  const store=box('.iu-gemini-label-store');
+  const address=box('.iu-gemini-label-address');
+  if(store&&address){
+   const left=Math.min(store.left,address.left)-3;
+   const top=Math.min(store.top,address.top)-2;
+   const right=Math.max(store.right,address.right)+3;
+   const bottom=Math.max(store.bottom,address.bottom)+2;
+   appendOutline({left,top,width:right-left,height:bottom-top},'store');
   }
-  copy.style.setProperty('border-color','rgba(255,255,255,.87)','important');
-  copy.style.setProperty('margin','0','important');
-  copy.style.setProperty('filter','none','important');
-  return true;
+  // Produit centré : rectangle vide au milieu de la même ligne.
+  const name=box('.iu-gemini-label-name');
+  if(name)appendOutline({
+   left:name.left+name.width*.25,
+   top:name.top+name.height*.30,
+   width:name.width*.50,height:name.height*.40
+  },'product');
+  // Trois groupes de mesure, aux coordonnées EXACTES de la maquette.
+  for(const [selector,kind] of [
+   ['.iu-gemini-label-rate','rate'],
+   ['.iu-gemini-label-gross','weight'],
+   ['.iu-gemini-label-date','date'],
+   ['.iu-gemini-label-barcode','barcode'],
+   ['.iu-gemini-label-total','total']
+  ])appendOutline(box(selector),kind);
+  return {node:wireframe,width:base.width,height:base.height};
  }
  function syncExactCameraGuide(){
   if(!cameraStage||!exactGuide||!output)return;
@@ -129,28 +110,24 @@
       (!guideSnapshot||!guideSize||
        Math.abs(bounds.width-guideSize.width)>.5||
        Math.abs(bounds.height-guideSize.height)>.5)){
-    const copy=source.cloneNode(true);
-    if(copyExactGuideStyles(source,copy)){
-     guideSize={width:bounds.width,height:bounds.height};
-     copy.style.setProperty('width',bounds.width+'px','important');
-     copy.style.setProperty('height',bounds.height+'px','important');
-     copy.setAttribute('aria-hidden','true');
-     guideSnapshot=copy;
-     exactGuide.replaceChildren(copy);
+    const built=buildExactCameraOutline(source);
+    if(built){
+     guideSize={width:built.width,height:built.height};
+     guideSnapshot=built.node;
+     exactGuide.replaceChildren(guideSnapshot);
     }
    }
   }
   if(!guideSnapshot||!guideSize)return;
-  const ratio=guideSize.width/guideSize.height;
-  cameraStage.style.setProperty('--iu-gemini-exact-aspect',ratio.toFixed(6));
-  // Réduction uniforme : aucune déformation des proportions DIGI.
-  const scale=.88*Math.min((stage.width-18)/guideSize.width,
-   (stage.height-18)/guideSize.height);
+  // Une marge de 4px en haut ET en bas. L'échelle reste uniforme :
+  // si l'écran était exceptionnellement étroit, la largeur gagne.
+  const scale=Math.min((stage.width-8)/guideSize.width,
+   (stage.height-8)/guideSize.height);
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';
   exactGuide.style.height=(guideSize.height*scale)+'px';
-  guideSnapshot.style.setProperty('transform','scale('+scale+')','important');
-  guideSnapshot.style.setProperty('transform-origin','top left','important');
+  guideSnapshot.style.setProperty('transform','scale('+scale+')');
+  guideSnapshot.style.setProperty('transform-origin','top left');
  }
  function scheduleExactCameraGuide(){
   if(guideScheduled)return;
