@@ -3437,3 +3437,85 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   width:min(100%,260px)!important;max-width:260px!important;
  }
 }
+
+
+/* v41.76 — papier DIGI : exactement la surface du bouton
+   « Accéder aux événements » (#eventsOpenPage), mêmes fond, bordure,
+   rayon et ombres. Neutraliser les anciennes teintes de l'étiquette
+   sans toucher aux 4 lumières Gemini qui entourent la carte. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-frame > article.iu-gemini-printed-label,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-frame > article.iu-gemini-printed-label.is-ready,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-frame > article.iu-gemini-printed-label.is-review {
+ box-sizing:border-box!important;
+ width:min(100%,286px)!important;
+ max-width:286px!important;
+ border:1px solid #d2dbe2!important;
+ border-radius:14px!important;
+ background:#f8fafb!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ background-clip:border-box!important;
+ color:#171b1e!important;
+ -webkit-text-fill-color:#171b1e!important;
+ filter:none!important;
+ box-shadow:
+  -3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+   4px 5px 11px rgba(156,173,189,.35),
+   1px 2px 4px rgba(156,173,189,.18),
+   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+/* Même palette gris/noir sur les parties de l'étiquette, sans
+   gris chaud, vert, rouge ou zones colorées qui trahissent le papier. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-printed-label
+ :is(.iu-gemini-label-top,.iu-gemini-label-middle,.iu-gemini-label-bottom,
+ .iu-gemini-label-rate,.iu-gemini-label-gross,.iu-gemini-label-date,
+ .iu-gemini-label-barcode,.iu-gemini-label-total,
+ .iu-gemini-label-name,.iu-gemini-label-store,.iu-gemini-label-address,
+ .iu-gemini-label-caption,.iu-gemini-label-number,
+ .iu-gemini-label-total-caption,.iu-gemini-label-total-number) {
+ color:#171b1e!important;
+ -webkit-text-fill-color:#171b1e!important;
+ background-color:transparent!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-printed-label .iu-gemini-label-brand {
+ background:#343a40!important;
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
+}
+/* EAN : barres véritablement noires, pas grisées par opacity/filter.
+   Le SVG imprimé et le texte conservent leur forme et leur taille. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-ean-svg {
+ filter:none!important;
+ opacity:1!important;
+ background:transparent!important;
+}
+@media(max-width:360px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-frame > article.iu-gemini-printed-label {
+  width:min(100%,272px)!important;
+  max-width:272px!important;
+ }
+}
+@media(max-width:350px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-frame > article.iu-gemini-printed-label {
+  width:min(100%,260px)!important;
+  max-width:260px!important;
+ }
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel #iuGeminiLabOutput .iu-gemini-label-frame > article.iu-gemini-printed-label {
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  color:CanvasText!important;
+  -webkit-text-fill-color:CanvasText!important;
+  box-shadow:none!important;
+ }
+}

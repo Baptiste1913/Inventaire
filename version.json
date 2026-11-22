@@ -1,6 +1,6 @@
 {
-  "version": "41.75",
+  "version": "41.76",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Lumières du panneau étiquette Gemini réduites de 60 % en intensité (rouge, jaune, vert, bleu). Étiquette numérique réduite à 286 px et passée en noir et blanc neutre avec relief neumorphique. Viseur Gemini : même coche verte de reconnaissance que l’OCR classique ; suppression visuelle de la ligne « analyse en cours » pour économiser de la hauteur, avec états accessibles et erreurs conservées. Verrouillage Analyser / Nouvelle pesée, contrôles et calculs inchangés."
+  "notes": "Étiquette numérique entièrement neutre avec exactement le dégradé, la bordure 14 px et les ombres neumorphiques du bouton « Accéder aux événements ». Neutralisation des fonds et couleurs internes hérités des anciens styles, y compris en état prêt ou à vérifier. EAN noir, dimensions compactes et caméra/validation inchangés."
 }

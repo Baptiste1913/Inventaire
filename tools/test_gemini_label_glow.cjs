@@ -151,4 +151,30 @@ assert(js.includes('function revealDetectedIndicator(fields)')&&
 assert(js.includes('resetDetectedIndicator();\n  localOcrToken++')&&
  js.includes('function stopCamera(){\n  resetDetectedIndicator();'),
  'Pas de coche persistante sur l’étiquette suivante ou caméra fermée');
-console.log('Gemini 41.75 : halo -60 %, étiquette noir et blanc compacte, badge OCR et progression sans hauteur OK.');
+const surface=css.slice(css.indexOf('/* v41.76 — papier DIGI'));
+assert(surface.length>2000,'Style évènement exact chargé');
+assert(surface.includes('article.iu-gemini-printed-label.is-ready')&&
+ surface.includes('article.iu-gemini-printed-label.is-review'),
+ 'Même surface pour les états validé et à vérifier');
+const expectedEvent=[
+ 'border:1px solid #d2dbe2!important',
+ 'border-radius:14px!important',
+ 'linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important',
+ '-3px -3px 7px rgba(255,255,255,.98)',
+ '-6px -6px 13px rgba(255,255,255,.60)',
+ '4px 5px 11px rgba(156,173,189,.35)',
+ '1px 2px 4px rgba(156,173,189,.18)',
+ 'inset 1px 1px 0 rgba(255,255,255,.96)'
+];
+for(const value of expectedEvent)assert(surface.includes(value),
+ 'Fond, contour et relief repris du bouton Événements : '+value);
+assert(surface.includes('background-color:transparent!important')&&
+ surface.includes('background:#343a40!important')&&
+ surface.includes('color:#171b1e!important'),
+ 'Fonds des zones internes neutralisés, marque U en gris anthracite');
+assert(surface.includes('.iu-gemini-ean-svg')&&surface.includes('filter:none!important'),
+ 'EAN toujours net, sans filtre de couleur');
+assert(surface.includes('width:min(100%,286px)!important')&&
+ surface.includes('width:min(100%,260px)!important'),
+ 'Taille compacte et responsive conservée');
+console.log('Gemini v41.76 : étiquette style exact Accéder aux événements, 100 % neutre, EAN net et ancienne logique inchangée.');
