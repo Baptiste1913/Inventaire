@@ -1,6 +1,6 @@
 {
-  "version": "41.77",
+  "version": "41.78",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Pesée Gemini : double contour extérieur aminci et halo des quatre lumières limité à 45 % de l'intensité précédente. Viseur présent au démarrage mais caméra inactive ; bouton Activer la caméra sans autorisation anticipée. Étiquette numérique vierge affichée dès le lancement et restaurée après Nouvelle pesée, sans EAN ni prix simulé. Scanner, calculs, paniers, validations et états d’alerte conservés."
+  "notes": "Viseur IA : repères de cadrage fidèles à la géométrie de l’étiquette virtuelle DIGI (en-tête, produit, prix unitaire, poids net, date, code-barres et prix total). Repères monochromes fins, adaptés au petit écran ; reconnaissance, caméra inactive au lancement, contrôles et données inchangés."
 }
