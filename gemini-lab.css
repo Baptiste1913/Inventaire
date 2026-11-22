@@ -3622,95 +3622,46 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 }
 
 
-/* v41.78 — cartographie du viseur sur la même étiquette virtuelle DIGI.
-   Les cellules suivent l'en-tête, le nom, 3 colonnes puis code-barres/prix.
-   Repère purement décoratif : aucun changement de détection ni de capture. */
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-stage .iu-weigh-label-template {
+/* v41.79 — Repère caméra : véritable clone du patron d'étiquette
+   mesuré depuis le DOM. Aucun second dessin libre : les 4 lignes,
+   le prix encadré, la grille et le code-barres suivent la maquette DIGI. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-weigh-label-template,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-weigh-scan-guide {
  display:none!important;
 }
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-stage .iu-weigh-scan-guide {
- inset:12% 8% 12% 8%!important;
- width:84%!important;height:76%!important;min-height:0!important;
- border:1px solid rgba(255,255,255,.65)!important;
- border-radius:8px!important;
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:not([data-scan-state="review"]):not([data-scan-state="retry"])
+ .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+ box-sizing:border-box!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-camera-exact-guide {
+ position:absolute!important;z-index:3!important;
+ left:50%!important;top:50%!important;
+ transform:translate(-50%,-50%)!important;
+ transform-origin:center!important;
+ display:block!important;overflow:visible!important;
+ max-width:none!important;max-height:none!important;
+ pointer-events:none!important;
+ opacity:.8!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-exact-guide > .iu-gemini-printed-label {
+ transform-origin:top left!important;
+ box-shadow:none!important;
  background:transparent!important;
- box-shadow:0 0 0 100vmax rgba(0,0,0,.08)!important;
+ pointer-events:none!important;
 }
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-stage .iu-gemini-camera-label-map {
- position:absolute;z-index:3;pointer-events:none;
- box-sizing:border-box;left:8%;top:12%;width:84%;height:76%;
- display:grid;grid-template-rows:16% 19% 28% 37%;
- padding:6px 9px 7px;gap:0;
- color:rgba(255,255,255,.76);border:1px solid rgba(255,255,255,.18);
- border-radius:8px;background:rgba(255,255,255,.018);
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell[data-state="idle"] .iu-gemini-camera-exact-guide {
+ opacity:.46!important;
 }
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-label-map * {box-sizing:border-box;min-width:0;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-label-map i,
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-label-map b,
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-label-map small {
- display:block;font-size:0;height:3px;border-radius:2px;
- background:rgba(255,255,255,.43);box-shadow:0 0 5px rgba(255,255,255,.09);
-}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-top {
- display:flex;align-items:start;justify-content:space-between;gap:10px;
- border-bottom:1px solid rgba(255,255,255,.23);padding-top:2px;
-}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-top i:first-child {width:24%;height:4px;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-top i:last-child {width:31%;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-name {display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.22);}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-name i {width:62%;height:5px;background:rgba(255,255,255,.62);}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-middle {
- display:grid;grid-template-columns:31% 29% 40%;
- align-items:center;border-bottom:1px solid rgba(255,255,255,.22);
-}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-middle > div {display:flex;flex-direction:column;gap:7px;align-items:flex-start;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-middle i {width:72%;height:3px;opacity:.7;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-middle b {width:49%;height:6px;background:rgba(255,255,255,.56);}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-weight {padding-left:9%;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-date {justify-self:end;width:88%;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-date i {width:100%;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-bottom {display:grid;grid-template-columns:61% 39%;align-items:end;padding-top:5px;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-barcode {height:82%;width:88%;display:flex;flex-direction:column;justify-content:end;gap:3px;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-barcode i {
- height:65%;width:100%;border-radius:1px;
- background:repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 1px,transparent 1px 4px,rgba(255,255,255,.36) 4px 6px,transparent 6px 9px);
- box-shadow:none;
-}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-barcode small {width:64%;height:3px;opacity:.7;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-total {
- height:82%;display:flex;flex-direction:column;align-items:center;
- justify-content:center;gap:5px;border:1px solid rgba(255,255,255,.59);
- border-radius:3px;background:rgba(255,255,255,.035);
-}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-total i {width:66%;height:3px;}
-html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-map-total b {width:58%;height:8px;background:rgba(255,255,255,.65);}
-@media(max-width:390px){
- html body main.app > section#iuGeminiLab.iu-gemini-standalone
- .iu-gemini-camera-stage .iu-gemini-camera-label-map {padding:5px 7px 6px;}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-camera-exact-guide {transition:none!important;}
 }
