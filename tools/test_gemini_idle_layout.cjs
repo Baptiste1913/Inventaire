@@ -54,37 +54,34 @@ assert(added.includes('.iu-gemini-camera-idle:focus-visible')&&
 assert(added.includes('.iu-gemini-label-placeholder .iu-gemini-label-bars')&&
  added.includes('background:linear-gradient(180deg,rgba(95,107,117,.10)'),
  'EAN vierge avec guide neutre, sans fausse donnée');
-// v41.82 : les cadres utilisent la position des vrais textes de l'étiquette,
- // et non les zones à largeur imposée par les colonnes.
+// v41.83 : sept grandes zones relevées sur une étiquette DIGI complète.
 assert(section.includes('id="iuGeminiExactGuide"')&&
  !section.includes('iu-gemini-camera-label-map'),
- 'Un seul repère visible au-dessus de la caméra');
-assert(js.includes('function buildExactCameraOutline(source)')&&
- js.includes('range.selectNodeContents(element)')&&
- js.includes('range.getBoundingClientRect()')&&
- js.includes("const line=document.createElement('span')"),
- 'Position des cadres mesurée sur les glyphes et non sur les colonnes');
-for(const field of ['store','address','product','rate-caption','rate-number',
- 'weight-caption','weight-number','date-caption','date-number','barcode',
- 'total','total-caption','total-number']){
- assert(js.includes("'"+field+"'"),'Repère individuel pour '+field);
+ 'Le repère est toujours le calque léger unique au-dessus de la vidéo');
+assert(js.includes("const fullLabel=source.cloneNode(true)")&&
+ js.includes("fullLabel.classList.remove('iu-gemini-label-placeholder')")&&
+ js.includes("source.parentElement.appendChild(fullLabel)")&&
+ js.includes("fullLabel.remove()"),
+ 'Les proportions proviennent d’une étiquette virtuelle pleine, cachée puis nettoyée');
+for(const field of ['CAROTTE','1,99€/kg','0,504 kg','22.11.2026','0203476006556','1,00€']){
+ assert(js.includes(field),'Référence DIGI complétée : '+field);
 }
-assert(js.includes("addSample('.iu-gemini-label-name','CAROTTE'")&&
- js.includes("addSample('.iu-gemini-label-total-number','1,00€'"),
- 'Les tirets virtuels sont remplacés uniquement pour la mesure, pas affichés');
+const zones=js.match(/^\s*\['(?:store|product|rate|weight|date|barcode|total)',\s*\.[0-9]+,\.[0-9]+,\.[0-9]+,\.[0-9]+\],?$/gm)||[];
+assert(zones.length===7,'Exactement sept grands cadres, sans cadres par mot');
+for(const kind of ['store','product','rate','weight','date','barcode','total']){
+ assert(zones.some(line=>line.includes("'"+kind+"'")),'Zone '+kind+' présente');
+}
+assert(!js.includes("range.selectNodeContents(element)")&&
+ !js.includes("addText('.iu-gemini-label-")&&
+ !js.includes("addSample('.iu-gemini-label-"),
+ 'Les anciens contours autour de chaque mot ont disparu');
 assert(js.includes('const scale=Math.min((stage.width-8)/guideSize.width,')&&
  js.includes('(stage.height-8)/guideSize.height);'),
- 'Marge de quatre pixels et échelle uniforme conservées');
-assert(css.includes('height:194px!important')&&
- css.includes('height:182px!important')&&
- css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect'),
- 'Taille du viseur et contours fins conservés');
-assert(css.includes('background:linear-gradient(145deg,#dff2ff 0%,#a9d9fa 100%)!important')&&
- css.includes('0 0 0 2px rgba(46,146,232,.31)')&&
- css.includes('stroke-width:2.8!important'),
- 'Flash actif bleu bien différencié du flash inactif');
-assert(!js.includes("appendOutline(box(selector),kind)")&&
- !js.includes('width:name.width*.50'),
- 'Les anciens cadres englobants mal placés ont été retirés');
+ 'Repère uniforme avec marges 4px, sans déformation');
+assert(css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect')&&
+ css.includes('background:transparent!important;'),
+ 'Les cadres sont des contours vides et translucides');
+assert(css.includes('background:linear-gradient(145deg,#d9f0ff 0%,#8fcefa 100%)!important'),
+ 'Flash actif visuellement plus prononcé');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.82 : vrais contours d’éléments DIGI et flash actif bien visible OK.');
+console.log('Gemini v41.83 : sept zones DIGI pleine et flash actif plus visible OK.');
