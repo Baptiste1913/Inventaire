@@ -5274,3 +5274,51 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   animation:none!important;
  }
 }
+
+/* v42.18 — parcours rapide : une alerte et une seule action affichées,
+   sans miniature photo, confirmation répétée ou bouton bleu supplémentaire. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiAnalyze,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-review-row {display:none!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabStatus.iu-gemini-lab-status {
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;border:0!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-scan-controls {
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:0!important;border:0!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiFrameState.iu-gemini-frame-state {
+ left:auto!important;top:auto!important;right:8px!important;bottom:8px!important;
+ transform:none!important;min-width:0!important;max-width:70%!important;
+ display:flex!important;flex-direction:row!important;gap:6px!important;
+ padding:6px 9px!important;border-radius:11px!important;
+ font-size:11px!important;font-weight:700!important;
+ background:rgba(247,250,252,.91)!important;
+ box-shadow:0 2px 9px rgba(27,43,52,.12)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiFrameState .iu-gemini-progress-spinner {
+ width:12px!important;height:12px!important;
+ min-width:12px!important;min-height:12px!important;border-width:1.5px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel
+ > #iuGeminiLabelAlert.iu-gemini-label-alert[hidden] {display:none!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiReplacePrompt.iu-gemini-replace-prompt {
+ gap:6px!important;padding:8px 10px!important;
+ font-size:11px!important;font-weight:650!important;box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiReplacePrompt .iu-gemini-replace-actions button {
+ min-height:32px!important;font-size:11px!important;
+ border-radius:10px!important;box-shadow:none!important;
+}
