@@ -1,5 +1,5 @@
 /* Inventaires U V32.3 — application shell hors ligne */
-const CACHE = 'inventaires-u-offline-v41-96';
+const CACHE = 'inventaires-u-offline-v41-97';
 const CORE = [
   './', './index.html', './version.json', './market-watch.js?v=40.72', './market-watch.json', './admin-categories.js?v=40.72', './technical-log.js?v=33.93', './update-manager.js?v=40.72', './error-journal.js?v=33.93', './site-operations.js?v=40.72', './push.js?v=33.75', './planning-admin.js?v=40.72', './events-data.js?v=33.19', './events.js?v=40.72', './style.css?v=40.72', './app.js?v=41.70', './fast-weight-core.js?v=40.74', './weigh-scan.js?v=41.25', './gemini-local-ocr.js?v=41.69', './gemini-lab.js?v=41.93', './gemini-lab.css?v=41.96', './haptic-test.js?v=41.11', './weigh-light.js?v=41.89', './weigh-scan-inline.css?v=41.25', './result-card.css?v=41.21', './digi-weight.js?v=40.72', './coursesu-releve.js?v=40.72', './ean-prices.js?v=40.72', './barcode-catalog.js?v=41.23', './coursesu-online.js?v=41.24', './coursesu-online.css?v=41.23', './auth-config.js?v=32.0', './idb.js?v=33.0', './auth.js?v=40.72', './manifest.webmanifest?v=40.72', './icon.png?v=40.72',
   './google-logo.png?v=32.0', './user-icon.png?v=33.1', './icon-512.png?v=40.72', './apple-touch-icon.png?v=40.72', './logo-u.png', './favicon-32.png?v=40.72', './favicon-16.png?v=40.72',
