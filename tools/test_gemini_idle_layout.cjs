@@ -297,5 +297,29 @@ assert(!compactBasketCss.includes('width:60px')&&
  !compactBasketCss.includes('flex-basis:60px')&&
  css.includes('flex:1 1 0!important'),
  'Boutons gardent leur taille, largeur libérée attribuée au select flexible');
+// v41.95 : Caméra/Galerie et sélecteur ont exactement le même relief.
+const buttonVisuals=css.slice(css.indexOf('/* v41.95 — boutons identiques'));
+const selectStyle=css.slice(css.indexOf('/* v41.92 — Panier Gemini'),css.indexOf('/* v41.94 — Marges du libellé'));
+for(const visual of [
+ 'border:1px solid rgba(214,224,231,.95)!important',
+ 'border-radius:14px!important',
+ 'background-color:#f5f8fa!important',
+ 'linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)',
+ '-2px -2px 5px rgba(255,255,255,.88)',
+ '2px 3px 7px rgba(146,166,179,.16)',
+ 'inset 1px 1px 0 rgba(255,255,255,.96)'
+]){
+ assert(selectStyle.includes(visual)&&buttonVisuals.includes(visual),
+  'Même style de base pour le panier et les deux boutons : '+visual);
+}
+assert(buttonVisuals.includes(':is(#iuGeminiCameraShortcut,#iuGeminiModePhoto)')&&
+ buttonVisuals.includes(':is(:focus-visible,:active)')&&
+ buttonVisuals.includes('border-color:#87949d!important')&&
+ buttonVisuals.includes('inset 1px 1px 3px rgba(121,140,152,.08)'),
+ 'Les deux boutons reprennent aussi les reflets du champ actif');
+assert(!buttonVisuals.includes('width:')&&!buttonVisuals.includes('height:')&&
+ !buttonVisuals.includes('margin-left:')&&
+ !buttonVisuals.includes('gap:'),
+ 'Alignement, dimensions et espacement inchangés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.94 : marges du panier harmonisées et galerie rapprochée OK.');
+console.log('Gemini v41.95 : Caméra et Galerie avec le style exact du panier OK.');
