@@ -157,6 +157,63 @@
    if(objectUrl)URL.revokeObjectURL(objectUrl);
   }
  }
+ // Repositionnement conservateur sur une SEULE étiquette lisible.
+ // On n'enlève jamais un bord par supposition : sinon on garde la photo.
+ // Le code-barres occupe environ la moitié de la largeur DIGI ; la
+ // zone candidate est suffisamment agrandie pour préserver entête/prix.
+ function suggestLabelCrop(reading,width,height){
+  const box=reading?.bounds;
+  if(!reading?.confirmed||reading.ambiguous||!box||!(width>0&&height>0))return null;
+  if(Math.abs(box.slope||0)>.075)return null; // Pas de perspective certaine.
+  const barW=box.right-box.left;
+  if(!(barW>.24&&barW<.48))return null;
+  const lw=barW/.51;
+  const lh=lw*width/(height*1.26);
+  const paddingX=lw*.12,paddingY=lh*.12;
+  const x=box.left-.025*lw-paddingX;
+  const y=box.y-.79*lh-paddingY;
+  const rw=lw+paddingX*2,rh=lh+paddingY*2;
+  if(rw>=.94||rh>=.94||rw<.48||rh<.38)return null;
+  // Refuser les étiquettes coupées ou proches des bords.
+  if(x<.015||y<.015||x+rw>.985||y+rh>.985)return null;
+  return {x:Math.floor(x*width),y:Math.floor(y*height),
+   width:Math.ceil(rw*width),height:Math.ceil(rh*height)};
+ }
+ async function cropIfSafe(source,reading){
+  if(!source||typeof document==='undefined'||!reading?.bounds)return null;
+  let bitmap=null,image=null,objectUrl=null;
+  try{
+   if(typeof createImageBitmap==='function')bitmap=await createImageBitmap(source);
+   else{
+    objectUrl=URL.createObjectURL(source);
+    image=await new Promise((resolve,reject)=>{
+     const im=new Image();
+     im.onload=()=>resolve(im);im.onerror=()=>reject(Error('Image absente'));
+     im.src=objectUrl;
+    });
+   }
+   const original=bitmap||image;
+   const width=original.width||original.naturalWidth;
+   const height=original.height||original.naturalHeight;
+   const rect=suggestLabelCrop(reading,width,height);
+   if(!rect)return null;
+   const cv=document.createElement('canvas');
+   const scale=Math.min(1,1600/Math.max(rect.width,rect.height));
+   cv.width=Math.round(rect.width*scale);cv.height=Math.round(rect.height*scale);
+   const ctx=cv.getContext('2d');
+   if(!ctx||!cv.toBlob)return null;
+   ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+   ctx.drawImage(original,rect.x,rect.y,rect.width,rect.height,0,0,cv.width,cv.height);
+   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.90));
+   if(!blob||blob.size<100)return null;
+   return new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'});
+  }catch(_){return null;}
+  finally{
+   try{bitmap?.close?.()}catch(_){}
+   if(objectUrl)URL.revokeObjectURL(objectUrl);
+  }
+ }
  async function read(source){
   if(!source)return null;
   const native=await nativeRead(source);
@@ -165,5 +222,5 @@
   if(native?.ean13)return native;
   return rasterRead(source);
  }
- window.IUGeminiEAN={read,decode95,lineCode,valid};
+ window.IUGeminiEAN={read,decode95,lineCode,valid,suggestLabelCrop,cropIfSafe};
 })();
