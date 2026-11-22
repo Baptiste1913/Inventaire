@@ -23,9 +23,10 @@ assert(containerStart>=0&&gross>containerStart&&label>gross&&alert>label,
 assert(end===-1||end>alert,'Tous les éléments restent dans le cadre Gemini');
 assert(section.includes('id="iuGeminiNext"')&&section.includes('Nouvelle<br>pesée'),
  'Nouvelle pesée reste visible sous la caméra');
-assert(section.includes('id="iuGeminiCapture"')&&
- section.includes('>Analyser cette étiquette</button>'),
- 'Le bouton manuel a le libellé demandé');
+assert(section.includes('id="iuGeminiCapture" class="iu-gemini-capture iu-gemini-shutter"')&&
+ section.includes('aria-label="Photographier et analyser cette étiquette"')&&
+ !section.includes('>Analyser cette étiquette</button>'),
+ 'Déclencheur manuel rond sans large bouton');
 assert(!section.includes('Capturer maintenant')&&!section.includes('Capturer cette étiquette'),
  'Aucun ancien libellé de capture');
 const rules=css.slice(css.indexOf('/* v41.72 — une SEULE surface'));
@@ -42,10 +43,12 @@ assert(section.includes('iu-result-glow-shell iu-gemini-label-shell')&&
 assert(rules.includes('width:min(100%,328px)!important')&&
  rules.includes('aspect-ratio:1372/1088!important'),
  'Étiquette DIGI lisible, non miniaturisée');
-assert(rules.includes('min-height:41px!important')&&
- rules.includes('data-scan-state="review"')&&
- rules.includes('#iuGeminiCapture:disabled'),
- 'Le bouton est visible et tactilement accessible lorsque disponible, même après lecture');
+assert(rules.includes('data-scan-state="review"')&&
+ rules.includes('#iuGeminiCapture:disabled')&&
+ css.includes('/* v41.98 — Déclencheur rond')&&
+ css.includes('bottom:10px!important')&&
+ css.includes('border-radius:50%!important'),
+ 'Déclencheur dans la caméra, même verrouillage après lecture');
 
 const a=js.indexOf('function refreshCaptureButton(){');
 const b=js.indexOf('function updateButton(){',a);
@@ -77,10 +80,11 @@ assert(capture.includes('if(frameCaptureBusy||localOcrBusy||active||proposal)ret
  'Aucune prise de vue ne démarre pendant l’étiquette courante');
 assert(!capture.includes('generation++')&&!capture.includes('abort?.abort()'),
  'Un second clic ne peut plus annuler l’analyse précédente');
-assert(js.includes("if(capture)capture.textContent='Analyser cette étiquette'")&&
+assert(js.includes("if(capture)capture.setAttribute('aria-label','Photographier et analyser cette étiquette')")&&
+ !js.includes('capture.textContent=')&&
  js.includes("let cameraMode='manual',autoTimer=0")&&
  !js.includes('iu-gemini-auto-capture-v1'),
- 'Le bouton garde son libellé et capture seulement sur action manuelle');
+ 'SVG conservé et prise de photo toujours manuelle');
 assert(js.includes("if(saved?.ok){\n   resetReading();"),
  'Après Nouvelle pesée, la lecture est remise à zéro');
 assert(js.includes('function resetProposal(){')&&
@@ -89,4 +93,4 @@ assert(js.includes('function resetProposal(){')&&
 assert(js.includes("if(!proposal){")&&
  js.includes('Lecture incomplète · reprends l’étiquette'),
  'Une lecture incomplète peut être réanalysée sans blocage permanent');
-console.log('Gemini 41.73 : cadre lumineux commun, bouton permanent, verrou pendant lecture puis déverrouillage après Nouvelle pesée OK.');
+console.log('Gemini v41.98 : déclencheur rond et verrouillage conservé OK.');
