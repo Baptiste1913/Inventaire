@@ -1,4 +1,4 @@
-/* Inventaires U 41.87 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.91 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -171,14 +171,13 @@
  }
  updateCardState('search');
  const setupCallout=$('iuGeminiSetupCallout'),geminiOptions=$('iuGeminiOptions');
- const autoToggle=$('iuGeminiAutoToggle'),
-  autoScanState=$('iuGeminiAutoScanState'),autoReset=$('iuGeminiAutoReset');
+ const autoScanState=$('iuGeminiAutoScanState'),autoReset=null;
  const autoSampleCanvas=document.createElement('canvas');
  const localReader=window.IUGeminiLocalOCR||null;
  let localWorker=null,localWorkerPromise=null,localEngineGeneration=0,
   localOcrDisabled=false,localOcrBusy=false,localOcrToken=0,
   localCandidate=null,localPasses=0;
- let cameraMode='auto',autoTimer=0,autoLocked=false,autoSuspended=false,
+ let cameraMode='manual',autoTimer=0,autoLocked=false,autoSuspended=false,
   autoLastFrame=null,autoLastCaptured=null,autoChangeReference=null,
   autoNeedsChange=false,autoChangeCount=0,autoStableSince=0,autoStableCount=0,
   autoEarliest=0,autoCapturePending=false,lastPhotoWasAuto=false;
@@ -1283,35 +1282,16 @@
       !autoLocked&&!localOcrBusy)startAutoMonitor();
   }
  }
- function selectCameraMode(mode){
-  cameraMode=mode==='manual'?'manual':'auto';
-  if(autoToggle)autoToggle.checked=cameraMode==='auto';
+ // Mode unique : déclenchement explicite avec « Analyser cette étiquette ».
+ // Les préférences Auto historiques ne sont plus lues ni sauvegardées.
+ function selectCameraMode(){
+  cameraMode='manual';
   if(capture)capture.textContent='Analyser cette étiquette';
-  if(cameraMode==='manual'){
-   localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
-   clearAutoTimer();autoLocked=false;
-   setAutoHint('Capture manuelle activée','manual');
-  }else if(cameraStream&&!file&&!active&&!proposal){
-   armAutoScanner(false);
-  }else{
-   setAutoHint('Valide ou reprends la lecture en cours','waiting');
-   startAutoMonitor();
-  }
+  localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
+  clearAutoTimer();autoLocked=false;autoCapturePending=false;
+  setAutoHint('Cadre prêt · appuie pour analyser','manual');
  }
- // Choix conservé sur l'appareil, sans réouverture de la caméra.
- const capturePreferenceKey='iu-gemini-auto-capture-v1';
- try{if(localStorage.getItem(capturePreferenceKey)==='manual')cameraMode='manual';}catch(_){}
- selectCameraMode(cameraMode);
- autoToggle?.addEventListener('change',()=>{
-  const next=autoToggle.checked?'auto':'manual';
-  selectCameraMode(next);
-  try{localStorage.setItem(capturePreferenceKey,next);}catch(_){}
- });
- autoReset?.addEventListener('click',()=>{
-  if(active||proposal||!cameraStream)return;
-  resetReading();armAutoScanner(false);
-  say('Détection automatique reprise : centre une étiquette nette.');
- });
+ selectCameraMode();
 
  capture.addEventListener('click',async()=>{
   if(!cameraStream||cameraShell.hidden||!video.videoWidth||!video.videoHeight){
