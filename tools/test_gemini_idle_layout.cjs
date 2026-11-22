@@ -14,7 +14,8 @@ assert(section.includes('id="iuGeminiCameraShell" class="iu-gemini-camera-shell 
  'Le viseur est ouvert mais ne demande pas la permission caméra');
 assert(!section.includes('id="iuGeminiCameraShell" class="iu-gemini-camera-shell iu-weigh-scan-inline" hidden'),
  'Le cadre vidéo n’est plus caché au démarrage');
-assert(section.includes('id="iuGeminiCameraIdle"')&&section.includes('Activer la caméra'),
+assert(section.includes('id="iuGeminiCameraIdle"')&&section.includes('Caméra désactivée')&&
+ !section.includes('iu-gemini-camera-idle-icon'),
  'Bouton explicite dans le cadre vide, activation volontaire');
 assert(section.includes('id="iuGeminiLabOutput" class="iu-gemini-lab-result"')&&
  section.includes('iu-gemini-label-placeholder'),
@@ -36,7 +37,7 @@ assert(js.includes('function stopCamera(){')&&js.includes("cameraShell.dataset.s
 assert(js.includes("cameraIdle?.addEventListener('click',startCamera)")&&
  js.includes("shortcut?.addEventListener('click',()=>{"),
  'La caméra ne démarre que par un appui explicite');
-assert(js.includes('if(output.hidden&&!proposal)showBlankLabel();'),
+assert(js.includes("if(!proposal&&!output.querySelector('.iu-gemini-printed-label'))showBlankLabel();"),
  'Échec de reconnaissance : retrouver une étiquette vierge');
 assert(js.includes('if(cameraStream&&cameraMode===\'auto\')armAutoScanner(true)'),
  'L’enchaînement automatique des pesées reste fonctionnel');
@@ -385,9 +386,10 @@ assert(shutterStyle.includes('[data-state="idle"]')&&
  shutterStyle.includes('z-index:6!important'),
  'Masquage caméra inactive, verrouillage et empilement préservés');
 // v42.01 : enveloppe caméra plus arrondie et compacte verticalement.
-const cameraShellRules=css.slice(css.indexOf('/* v42.01 — enveloppe de la caméra'));
+const cameraShellRules=css.slice(css.indexOf('/* v42.01 — enveloppe de la caméra'),
+ css.indexOf('/* v42.02 — géométrie caméra'));
 assert(cameraShellRules.length>300&&
- cameraShellRules.includes('border-radius:24px!important')&&
+ cameraShellRules.includes('border-radius:20px!important')&&
  cameraShellRules.includes('padding-top:5px!important')&&
  cameraShellRules.includes('padding-bottom:5px!important')&&
  cameraShellRules.includes('padding-top:4px!important')&&
@@ -403,5 +405,23 @@ assert(!cameraShellRules.includes('.iu-gemini-camera-stage')&&
  !cameraShellRules.includes('height:184px')&&
  !cameraShellRules.includes('height:160px'),
  'Dimensions, contrôles et capture de la caméra non modifiés');
+// v42.02 — même rayon que l'étiquette, état inactif épuré, modèle visible en chargement.
+assert(css.includes('> .iu-gemini-label-shell > #iuGeminiLabelPanel.iu-gemini-label-panel {')&&
+ css.includes('border-radius:20px!important'),
+ 'Le modèle de l’étiquette virtuelle utilise bien 20px');
+const cameraIdleCss=css.slice(css.indexOf('/* v42.02 — géométrie caméra'));
+assert(cameraIdleCss.includes('font-size:16px!important')&&
+ cameraIdleCss.includes('font-weight:800!important')&&
+ cameraIdleCss.includes('justify-content:center!important')&&
+ cameraIdleCss.includes('text-align:center!important'),
+ 'Caméra désactivée centré, plus grand et gras');
+assert(section.includes('<span>Caméra désactivée</span>')&&
+ !section.includes('iu-gemini-camera-idle-icon')&&
+ js.includes("cameraIdle?.addEventListener('click',startCamera)"),
+ 'Aucune icône au repos et zone tactile d’activation préservée');
+assert(js.includes('showBlankLabel();networkTime.textContent=')&&
+ js.includes('output.hidden=false;networkTime.textContent=')&&
+ !js.includes('output.hidden=true;'),
+ 'Étiquette virtuelle toujours visible pendant la photo et le chargement réseau');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.01 : enveloppe caméra arrondie 24px et marges verticales réduites OK.');
+console.log('Gemini v42.02 : mêmes coins 20px, caméra inactive épurée et étiquette visible pendant analyse OK.');
