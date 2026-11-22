@@ -263,5 +263,24 @@ assert(basketStyles.includes('opacity:0!important')&&
 assert(basketStyles.includes('linear-gradient(145deg,#f9fbfc,#e8eff4)')&&
  basketStyles.includes('3px 4px 10px rgba(98,126,144,.10)'),
  'Boutons caméra et galerie avec le relief exact du scanner classique');
+// v41.93 — le menu iOS garde exactement les tares du panier classique.
+assert(js.includes('const options=Array.from(classicBasket.options,option=>option.cloneNode(true));')&&
+ !js.includes("copy.textContent=String(copy.textContent||'').replace("),
+ 'Options Gemini clonées intégralement, suffixes de tares compris');
+assert(js.includes('const fullText=String(selected?.textContent')&&
+ js.includes('ctx?.basketName||')&&
+ js.includes('fullText.replace(/\\s+[—–-]\\s+\\d+')&&
+ js.includes('geminiName.textContent=name')&&
+ js.includes('geminiTare.textContent=tare'),
+ 'Nom affiché sans tare dupliquée, tare conservée sous le nom');
+const labelRules=css.slice(css.indexOf('/* v41.92 — Panier Gemini'));
+assert(labelRules.includes('margin:4px 0 6px!important')&&
+ labelRules.includes('font-family:inherit!important')&&
+ labelRules.includes('font-size:12px!important')&&
+ labelRules.includes('font-weight:800!important')&&
+ labelRules.includes('color:#323c43!important')&&
+ labelRules.includes('letter-spacing:0!important')&&
+ !labelRules.includes('line-height:1.35!important'),
+ 'Label panier copie le classique avec marges resserrées 4px/6px');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.92 : panier et deux boutons comme OCR classique, tare intégrée OK.');
+console.log('Gemini v41.93 : titre identique, marges réduites et tares dans le menu iOS OK.');
