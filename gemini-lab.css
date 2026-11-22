@@ -4799,3 +4799,46 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiCameraShell .iu-gemini-camera-header > #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) svg {
  filter:none!important;
 }
+
+/* v42.04 — Flash actif : seul le pictogramme éclair se remplit de
+   bleu. Le bouton, son fond gris clair et son relief sont rigoureusement
+   identiques à l'état repos ; aucun halo. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) {
+ background:linear-gradient(145deg,#fafbfc,#ebeff2)!important;
+ color:#2588c7!important;
+ border:1px solid rgba(255,255,255,.88)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95),
+  2px 3px 8px rgba(35,51,64,.12)!important;
+ filter:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > #iuGeminiTorch.iu-weigh-scan-torch > svg {
+ fill:none!important;
+ filter:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) > svg {
+ fill:currentColor!important;
+ stroke:currentColor!important;
+ filter:none!important;
+}
+/* Réduire seulement l'espace ENTRE les contrôles du panier et la
+   caméra, sans toucher aux hauteurs des boutons ou au viseur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-basket-scan-row.iu-gemini-scan-row {
+ margin-bottom:3px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell.iu-weigh-scan-inline {
+ margin-top:1px!important;
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-header > #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) {
+  background:ButtonFace!important;
+  color:ButtonText!important;
+  border:1px solid ButtonText!important;
+  box-shadow:none!important;
+ }
+}
