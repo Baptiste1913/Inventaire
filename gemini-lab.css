@@ -3832,3 +3832,62 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  stroke-width:2.8!important;
  filter:drop-shadow(0 0 1px rgba(255,255,255,.9));
 }
+
+/* v41.83 — Sept zones DIGI, ajustées au croquis rouge.
+   Les dessins de v41.82 (un cadre par libellé et valeur) sont remplacés
+   par des rectangles cohérents entourant le groupe imprimé entier. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label {
+ background:transparent!important;
+ border:1px solid rgba(255,255,255,.76)!important;
+ overflow:hidden!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-rect {
+ display:block!important;
+ box-sizing:border-box!important;
+ border:1px solid rgba(255,255,255,.68)!important;
+ border-radius:6px!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ opacity:1!important;
+ pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-store {
+ border-radius:8px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-product {
+ border-radius:10px!important;
+ border-color:rgba(255,255,255,.75)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-barcode {
+ border-style:solid!important;
+ border-radius:6px!important;
+ border-color:rgba(255,255,255,.64)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-stage .iu-gemini-outline-label > .iu-gemini-outline-total {
+ border-style:solid!important;
+ border-radius:4px!important;
+ border-color:rgba(255,255,255,.84)!important;
+}
+/* Le bleu du flash actif est plus franc, sans colorer le bouton au repos. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch.is-on,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch[aria-pressed="true"] {
+ background:linear-gradient(145deg,#d9f0ff 0%,#8fcefa 100%)!important;
+ color:#056fc6!important;
+ border:1px solid rgba(20,120,210,.98)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.96),
+  0 0 0 2px rgba(40,145,235,.36),
+  0 3px 14px rgba(34,122,214,.34)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-header #iuGeminiTorch.iu-weigh-scan-torch:is(.is-on,[aria-pressed="true"]) svg {
+ stroke-width:3!important;
+ filter:drop-shadow(0 0 1px rgba(255,255,255,.95));
+}
