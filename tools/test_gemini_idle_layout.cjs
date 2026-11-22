@@ -352,5 +352,31 @@ assert(section.includes('<path d="M12 3v11"/>')&&
  section.includes('<path d="M5 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>')&&
  !section.includes('<path d="M4 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>'),
  'Bac x5–x19 centré sur x12 comme la flèche d’importation');
+// v41.98 — bouton déclencheur rond placé dans le viseur en bas à gauche.
+const shutterIndex=section.indexOf('id="iuGeminiCapture"');
+assert(shutterIndex>section.indexOf('class="iu-gemini-camera-stage iu-weigh-scan-camera"')&&
+ shutterIndex<section.indexOf('class="iu-gemini-scan-controls"')&&
+ (section.match(/id="iuGeminiCapture"/g)||[]).length===1,
+ 'Déclencheur unique dans la fenêtre caméra');
+assert(section.includes('class="iu-gemini-capture iu-gemini-shutter"')&&
+ section.includes('aria-label="Photographier et analyser cette étiquette"')&&
+ section.includes('<circle cx="12" cy="12" r="7.2"/>')&&
+ section.includes('<circle cx="12" cy="12" r="3.7"')&&
+ !section.includes('>Analyser cette étiquette</button>'),
+ 'Déclencheur rond, label accessible, ancien gros bouton supprimé');
+assert(js.includes("capture.addEventListener('click',async()=>{")&&
+ !js.includes('capture.textContent=')&&
+ js.includes("let cameraMode='manual',autoTimer=0"),
+ 'Handler de capture réutilisé et SVG non écrasé');
+const shutterStyle=css.slice(css.indexOf('/* v41.98 — Déclencheur rond'));
+assert(shutterStyle.includes('left:10px!important')&&
+ shutterStyle.includes('bottom:10px!important')&&
+ shutterStyle.includes('border-radius:50%!important')&&
+ shutterStyle.includes('z-index:6!important')&&
+ shutterStyle.includes('background:linear-gradient(145deg,#f9fbfc,#e8eff4)!important')&&
+ shutterStyle.includes('2px 3px 9px rgba(27,43,52,.19)')&&
+ shutterStyle.includes('[data-state="idle"]')&&
+ shutterStyle.includes(':disabled'),
+ 'Même style Fermer et Flash, bas à gauche, uniquement caméra active');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.97 : bac de l’icône Import centré sous la flèche OK.');
+console.log('Gemini v41.98 : déclencheur rond bas gauche et capture manuelle OK.');
