@@ -3132,8 +3132,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  width:clamp(195px,60%,320px)!important;
  height:clamp(190px,59%,315px)!important;
  background:radial-gradient(ellipse at 47% 49%,
-  rgba(237,77,85,.57) 0%,rgba(237,77,85,.28) 33%,
-  rgba(237,77,85,.086) 63%,transparent 91%)!important;
+  rgba(237,77,85,.228) 0%,rgba(237,77,85,.112) 33%,
+  rgba(237,77,85,.0344) 63%,transparent 91%)!important;
  animation:iuHomeBackdropRed 10s ease-in-out -2s infinite!important;
 }
 /* Jaune Gemini au milieu du côté gauche : puissance identique au bleu
@@ -3145,8 +3145,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  width:clamp(185px,59%,300px)!important;
  height:clamp(170px,49%,295px)!important;
  background:radial-gradient(ellipse at 47% 51%,
-  rgba(249,192,23,.55) 0%,rgba(249,192,23,.27) 37%,
-  rgba(249,192,23,.083) 65%,transparent 94%)!important;
+  rgba(249,192,23,.22) 0%,rgba(249,192,23,.108) 37%,
+  rgba(249,192,23,.0332) 65%,transparent 94%)!important;
  animation:iuHomeBackdropBlue 13s ease-in-out -9s infinite!important;
 }
 /* Vert Gemini en bas du côté gauche, même diffusion .54/.28/.086. */
@@ -3157,8 +3157,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  width:clamp(190px,63%,325px)!important;
  height:clamp(195px,58%,320px)!important;
  background:radial-gradient(ellipse at 50% 51%,
-  rgba(12,183,104,.54) 0%,rgba(12,183,104,.28) 37%,
-  rgba(12,183,104,.086) 65%,transparent 92%)!important;
+  rgba(12,183,104,.216) 0%,rgba(12,183,104,.112) 37%,
+  rgba(12,183,104,.0344) 65%,transparent 92%)!important;
  animation:iuHomeBackdropGreen 17s ease-in-out -11s infinite!important;
 }
 /* Bleu Gemini dominant sur la droite, .55/.27/.083 comme le bleu
@@ -3170,8 +3170,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  width:clamp(270px,79%,480px)!important;
  height:115%!important;
  background:radial-gradient(ellipse at 58% 53%,
-  rgba(50,135,254,.55) 0%,rgba(50,135,254,.27) 37%,
-  rgba(50,135,254,.083) 65%,transparent 94%)!important;
+  rgba(50,135,254,.22) 0%,rgba(50,135,254,.108) 37%,
+  rgba(50,135,254,.0332) 65%,transparent 94%)!important;
  animation:iuHomeBackdropBlue 13s ease-in-out -6s infinite!important;
 }
 /* result-card.css applique déjà exactement le verre/translucidité,
@@ -3382,5 +3382,58 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   color:CanvasText!important;
   border:1px solid CanvasText!important;
   box-shadow:none!important;
+ }
+}
+
+
+/* v41.75 — reprendre le voyant OCR classique dans le viseur.
+   L'état reste annoncé via aria-live mais ne prend plus de hauteur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-scan-controls {
+ position:absolute!important;
+ width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;
+ overflow:hidden!important;
+ clip-path:inset(50%)!important;
+ white-space:nowrap!important;
+ border:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabStatus:not(.is-error) {
+ position:absolute!important;
+ width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;
+ overflow:hidden!important;
+ clip-path:inset(50%)!important;
+ white-space:nowrap!important;
+ border:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-stage #iuGeminiDetected {
+ z-index:8!important;
+}
+/* Papier numérique N&B : gris neutres, relief neumorphique conservé. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+ width:min(100%,286px)!important;max-width:286px!important;
+ background:linear-gradient(148deg,#f3f3f3 0%,#ebebeb 53%,#e2e2e2 100%)!important;
+ border-color:rgba(110,110,110,.27)!important;
+ color:#191919!important;
+ filter:none!important;
+ box-shadow:-4px -4px 10px rgba(255,255,255,.77),
+             5px 6px 13px rgba(85,85,85,.13),
+             inset 1px 1px 0 rgba(255,255,255,.75),
+             inset -1px -1px 2px rgba(140,140,140,.12)!important;
+}
+@media(max-width:360px) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+  width:min(100%,272px)!important;max-width:272px!important;
+ }
+}
+@media(max-width:350px) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+  width:min(100%,260px)!important;max-width:260px!important;
  }
 }

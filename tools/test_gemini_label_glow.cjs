@@ -42,15 +42,15 @@ assert(custom.includes('iuHomeBackdropRed 10s')&&
 assert(custom.includes('blur(25px)')&&classic.includes('blur(25px)'),
  'Même diffusion des orbes');
 assert(classic.includes('rgba(243,65,124,.57)')&&
- custom.includes('rgba(237,77,85,.57)'),
- 'Rouge Gemini en haut gauche : puissance 0,57 du rouge classique');
+ custom.includes('rgba(237,77,85,.228)'),
+ 'Rouge Gemini : 40 % de la puissance du rouge classique');
 assert(classic.includes('rgba(48,155,238,.55)')&&
- custom.includes('rgba(50,135,254,.55)')&&
- custom.includes('rgba(249,192,23,.55)'),
- 'Bleu Gemini à droite et jaune à gauche : puissance 0,55 du bleu classique');
+ custom.includes('rgba(50,135,254,.22)')&&
+ custom.includes('rgba(249,192,23,.22)'),
+ 'Bleu et jaune Gemini : 40 % de la puissance du bleu classique');
 assert(classic.includes('rgba(21,184,150,.54)')&&
- custom.includes('rgba(12,183,104,.54)'),
- 'Vert en bas gauche : puissance 0,54 du vert classique');
+ custom.includes('rgba(12,183,104,.216)'),
+ 'Vert Gemini : 40 % de la puissance du vert classique');
 for(const selector of ['.iu-home-glow-red','.iu-gemini-glow-yellow',
  '.iu-home-glow-green','.iu-home-glow-blue']){
  assert(custom.includes(' > '+selector+' {')||custom.includes(' '+selector+' {'),
@@ -133,4 +133,22 @@ assert(section.includes('id="iuGeminiGrossDisplay"')&&
  section.includes('id="iuGeminiLabOutput"'),
  'La capture, la validation, l’étiquette et les alertes restent intactes');
 
-console.log('Gemini 41.74 : halo débordant uniquement à l’intérieur du bloc, contour fin, étiquette ivoire neumorphique OK.');
+const finalCss=css.slice(css.indexOf('/* v41.75 — reprendre le voyant OCR classique'));
+assert(finalCss.includes('width:min(100%,286px)!important')&&
+ finalCss.includes('width:min(100%,272px)!important')&&
+ finalCss.includes('#f3f3f3')&&finalCss.includes('#ebebeb')&&finalCss.includes('#e2e2e2'),
+ 'Papier réduit et noir et blanc avec relief conservé');
+assert(finalCss.includes('.iu-gemini-scan-controls {')&&
+ finalCss.includes('#iuGeminiLabStatus:not(.is-error)'),
+ 'La ligne de progression est retirée visuellement, les erreurs restent affichées');
+assert(section.includes('id="iuGeminiDetected"')&&
+ section.includes('class="iu-weigh-scan-detected-indicator"'),
+ 'Badge de reconnaissance identique à l’OCR classique');
+assert(js.includes('function revealDetectedIndicator(fields)')&&
+ js.includes('function resetDetectedIndicator()')&&
+ js.includes('if(!verified.error&&Number.isSafeInteger(gross)&&gross>0)revealDetectedIndicator(fields)'),
+ 'Le badge n’apparaît qu’après lecture correcte et disparaît au réarmement');
+assert(js.includes('resetDetectedIndicator();\n  localOcrToken++')&&
+ js.includes('function stopCamera(){\n  resetDetectedIndicator();'),
+ 'Pas de coche persistante sur l’étiquette suivante ou caméra fermée');
+console.log('Gemini 41.75 : halo -60 %, étiquette noir et blanc compacte, badge OCR et progression sans hauteur OK.');

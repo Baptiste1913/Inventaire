@@ -1,6 +1,6 @@
 {
-  "version": "41.74",
+  "version": "41.75",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Lumières Gemini de même intensité mais sans coupure autour du panneau étiquette : orbes diffusant au-delà du verre, limitées par le bloc IA complet. Poids brut : filet Gemini plus fin et intérieur monochrome neumorphique. Étiquette numérique ramenée à 300 px (adaptative), teinte ivoire grisée avec ombres neumorphiques et barres EAN intactes. Capture, panier, voyant, Nouvelle pesée et blocage jusqu'à validation inchangés."
+  "notes": "Lumières du panneau étiquette Gemini réduites de 60 % en intensité (rouge, jaune, vert, bleu). Étiquette numérique réduite à 286 px et passée en noir et blanc neutre avec relief neumorphique. Viseur Gemini : même coche verte de reconnaissance que l’OCR classique ; suppression visuelle de la ligne « analyse en cours » pour économiser de la hauteur, avec états accessibles et erreurs conservées. Verrouillage Analyser / Nouvelle pesée, contrôles et calculs inchangés."
 }

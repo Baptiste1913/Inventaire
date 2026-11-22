@@ -1,4 +1,4 @@
-/* Inventaires U 41.72 — commandes intégrées au cadre DIGI, nouvelle analyse après validation.
+/* Inventaires U 41.75 — repère OCR dans la caméra, compte-rendu visuel compact.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -17,7 +17,7 @@
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
-  torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture');
+  torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture'),detected=$('iuGeminiDetected');
  let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false,frameCaptureBusy=false;
  let cameraPausedInBackground=false;
  const modeCamera=$('iuGeminiModeCamera'),modePhoto=$('iuGeminiModePhoto');
@@ -88,6 +88,24 @@
   analyze.hidden=!file;
   analyze.disabled=!file||!pilotKey.value.trim()||active||attempts.has(fixedModel);
   refreshCaptureButton();
+ }
+ // Réutilisation exacte de l'indicateur OCR classique : une coche verte
+ // apparaît dans le viseur lorsqu'une étiquette a été reconnue.
+ function resetDetectedIndicator(){
+  if(!detected)return;
+  detected.hidden=true;
+  detected.classList.remove('is-visible');
+  detected.removeAttribute('title');
+ }
+ function revealDetectedIndicator(fields){
+  if(!detected||cameraShell.hidden)return;
+  const name=typeof fields?.name==='string'&&fields.name.trim()?fields.name.trim():'Étiquette';
+  detected.title=name+' reconnu';
+  detected.setAttribute('aria-label',name+' reconnu');
+  detected.hidden=false;
+  detected.classList.remove('is-visible');
+  void detected.offsetWidth;
+  detected.classList.add('is-visible');
  }
  function resetProposal(){
   proposal=null;
@@ -204,6 +222,7 @@
   picture.hidden=true;picture.removeAttribute('src');
  }
  function resetReading(){
+  resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
   attempts.clear();photo.value='';latestLabelFields=null;
@@ -226,6 +245,7 @@
   if(proposal&&!window.confirm('Cette pesée n’est pas encore validée. Abandonner ce résultat pour lire une autre étiquette ?')){
    say('Pesée conservée. Valide-la pour continuer.');return false;
   }
+  resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   latestLabelFields=null;
   analyze.textContent='Analyser l’étiquette';
@@ -528,6 +548,8 @@
   // Les données reconnues restent disponibles si le panier est incorrect :
   // choisir un autre panier recalcule le net sans refaire la lecture.
   proposal=verified.error?null:verified;
+  if(!verified.error&&Number.isSafeInteger(gross)&&gross>0)revealDetectedIndicator(fields);
+  else resetDetectedIndicator();
   updateCardState(ready?'review':'retry');
   if(!proposal)resetProposal();
   validationState();
@@ -543,7 +565,7 @@
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
-  attempts.add(selectedModel);active=true;updateButton();
+  attempts.add(selectedModel);active=true;resetDetectedIndicator();updateButton();
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
   output.hidden=true;networkTime.textContent='';resetProposal();
   updateCardState('working');
@@ -614,6 +636,7 @@
   torch.title=torchOn?'Désactiver le flash':'Activer le flash';
  }
  function stopCamera(){
+  resetDetectedIndicator();
   cameraPausedInBackground=false;
   clearAutoTimer();clearAutoStability();
   autoLocked=false;autoSuspended=false;autoNeedsChange=false;
