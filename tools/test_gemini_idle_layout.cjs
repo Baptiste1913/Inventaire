@@ -370,7 +370,7 @@ assert(js.includes("capture.addEventListener('click',async()=>{")&&
  !js.includes('capture.textContent=')&&
  js.includes("let cameraMode='manual',autoTimer=0"),
  'Aucune modification de la logique de déclenchement');
-const shutterStyle=css.slice(css.indexOf('/* v42.00 — déclencheur bas gauche'));
+const shutterStyle=css.slice(css.indexOf('/* v42.00 — déclencheur en BAS GAUCHE'));
 for(const value of [
  'position:absolute!important','left:5px!important','bottom:5px!important',
  'width:32px!important','height:32px!important','border-radius:11px!important',
