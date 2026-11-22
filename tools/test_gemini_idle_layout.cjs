@@ -327,7 +327,7 @@ assert(section.includes('id="iuGeminiModePhoto"')&&
  section.includes('title="Importer une photo"')&&
  section.includes('<path d="M12 3v11"/>')&&
  section.includes('<path d="m7 9 5 5 5-5"/>')&&
- section.includes('<path d="M4 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>'),
+ section.includes('<path d="M5 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>'),
  'Le bouton Galerie devient Import : flèche vers le bas dans le bac');
 assert(!section.includes('aria-label="Choisir une photo dans la galerie"')&&
  section.includes('id="iuGeminiCameraShortcut"')&&
@@ -346,5 +346,11 @@ assert(!widthCss.includes('width:60px')&&
  !widthCss.includes('height:60px')&&
  !widthCss.includes('height:56px'),
  'Aucune modification des hauteurs et tailles des deux boutons');
+// v41.97 — centres géométriques communs des deux parties de l'icône.
+assert(section.includes('<path d="M12 3v11"/>')&&
+ section.includes('<path d="m7 9 5 5 5-5"/>')&&
+ section.includes('<path d="M5 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>')&&
+ !section.includes('<path d="M4 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>'),
+ 'Bac x5–x19 centré sur x12 comme la flèche d’importation');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.96 : icône Import et sélecteur élargi avec espacement 4px OK.');
+console.log('Gemini v41.97 : bac de l’icône Import centré sous la flèche OK.');
