@@ -1,6 +1,6 @@
 {
-  "version": "41.66",
+  "version": "41.67",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Gemini : même carte de résultat lumineux que la pesée classique, visible dès l’accueil avec Brut, Tare du panier et Poids net en grand ; nom et étiquette virtuelle visibles seulement après reconnaissance. La caméra garde le même flux entre les pesées, réarme l'analyse après validation et demande la mise au point continue quand elle est prise en charge. Aucun enregistrement ni répétition Gemini sans validation humaine."
+  "notes": "Bloc Gemini : fusion du nom d’article, prix au kilo, poids net, tare et poids brut dans la même carte lumineuse classique, avec priorité visuelle au poids brut grâce à un accent coloré compact. Le bouton Copier copie le brut. Viseur Gemini aux hauteurs 184/160 px identiques à l’OCR classique, repères de gabarit et zone poids OCR, sans rétrécissement pendant/après l’analyse. Scanner automatique, validation humaine et étiquette virtuelle conservés."
 }

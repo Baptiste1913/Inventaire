@@ -1,4 +1,4 @@
-/* Inventaires U 41.66 — résultat classique prêt, caméra Gemini en continu.
+/* Inventaires U 41.67 — résultat Gemini fusionné, brut valorisé et viseur OCR constant.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -26,7 +26,7 @@
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const resultGross=$('iuGeminiGrossDisplay'),resultTare=$('iuGeminiTareDisplay'),
   resultNet=$('iuGeminiNetDisplay'),resultHint=$('iuGeminiResultHint'),
-  copyNet=$('iuGeminiCopyNet'),copyNetLabel=$('iuGeminiCopyNetLabel');
+  copyGross=$('iuGeminiCopyGross'),copyGrossLabel=$('iuGeminiCopyGrossLabel');
  const productBar=$('iuGeminiProductBar'),productName=$('iuGeminiProductName'),
   productRate=$('iuGeminiProductRate');
  // La carte reste compacte en permanence : seuls les états changent.
@@ -71,26 +71,27 @@
   const grossValid=Number.isSafeInteger(gross)&&gross>0;
   const tareValid=Number.isSafeInteger(tare)&&tare>=0;
   const net=grossValid&&tareValid&&gross>tare?gross-tare:null;
-  if(resultGross)resultGross.textContent=grossValid?formatWeight(gross):'— kg';
+  if(resultGross)resultGross.textContent=grossValid?(gross/1000).toFixed(3).replace('.',','):'—';
   if(resultTare)resultTare.textContent=tareValid?formatWeight(tare):'— kg';
-  if(resultNet)resultNet.textContent=net===null?'—':(net/1000).toFixed(3).replace('.',',');
+  if(resultNet)resultNet.textContent=net===null?'— kg':formatWeight(net);
+  emptyResult?.classList.toggle('has-reading',grossValid);
   if(resultHint)resultHint.textContent=net!==null
-   ?'Vérifie le poids net et l’étiquette avant de valider.'
+   ?'Vérifie le poids brut et l’étiquette avant de valider.'
    :grossValid?'Poids net indisponible : vérifie le panier et sa tare.'
    :'Présente une étiquette pour calculer le poids net.';
-  if(copyNet){
-   copyNet.disabled=net===null;
-   copyNet.dataset.grams=net===null?'':String(net);
+  if(copyGross){
+   copyGross.disabled=!grossValid;
+   copyGross.dataset.grams=grossValid?String(gross):'';
   }
   return net;
  }
- copyNet?.addEventListener('click',async()=>{
-  const grams=Number(copyNet.dataset.grams);
-  if(copyNet.disabled||!Number.isSafeInteger(grams)||grams<=0)return;
+ copyGross?.addEventListener('click',async()=>{
+  const grams=Number(copyGross.dataset.grams);
+  if(copyGross.disabled||!Number.isSafeInteger(grams)||grams<=0)return;
   try{
    await navigator.clipboard.writeText((grams/1000).toFixed(3));
-   if(copyNetLabel)copyNetLabel.textContent='Copié';
-   setTimeout(()=>{if(copyNetLabel)copyNetLabel.textContent='Copier';},1100);
+   if(copyGrossLabel)copyGrossLabel.textContent='Copié';
+   setTimeout(()=>{if(copyGrossLabel)copyGrossLabel.textContent='Copier';},1100);
   }catch(_){say('Impossible de copier sur cet appareil.',true);}
  });
  refreshResultCard();

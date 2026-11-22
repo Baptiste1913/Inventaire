@@ -1881,38 +1881,6 @@ html body main.app > #iuGeminiLab > #iuGeminiEmptyResult {
  margin:2px 0 0!important;
  min-width:0!important;
 }
-/* Nom et prix n'apparaissent qu'après une lecture, juste au-dessus du résultat. */
-html body main.app > #iuGeminiLab > #iuGeminiProductBar {
- display:flex!important;
- align-items:baseline!important;
- justify-content:space-between!important;
- gap:8px!important;
- order:0!important;
- min-width:0!important;
- padding:2px 2px 0!important;
- margin:0!important;
-}
-html body main.app > #iuGeminiLab > #iuGeminiProductBar[hidden]{
- display:none!important;
-}
-html body main.app > #iuGeminiLab > #iuGeminiProductBar > strong {
- font-size:14px!important;
- font-weight:850!important;
- line-height:1.15!important;
- color:#2b434d!important;
- text-transform:uppercase!important;
- overflow:hidden!important;
- white-space:nowrap!important;
- text-overflow:ellipsis!important;
- min-width:0!important;
-}
-html body main.app > #iuGeminiLab > #iuGeminiProductBar > span {
- flex:0 0 auto!important;
- font-size:11px!important;
- font-weight:750!important;
- color:#54717f!important;
- white-space:nowrap!important;
-}
 html body main.app > #iuGeminiLab > #iuGeminiOptions {
  order:3!important;
  margin:7px 0 0!important;
@@ -2098,3 +2066,178 @@ html body main.app > #iuGeminiLab > #iuGeminiEmptyResult[hidden]{
 }
 /* L'étiquette complète et le vrai bouton Valider restent après cette carte,
    et le viseur conserve la piste vidéo entre deux validations comme l'OCR. */
+
+
+/* v41.67 — Gemini : même géométrie et mêmes repères que le scanner
+   OCR classique, y compris APRÈS reconnaissance. Le flux reste en vie.
+   OCR référence : weigh-scan-inline.css v40.85 (184px, 160px <=390px)
+   + cadrage v40.97 (zone de poids 37/52/26/16) et gabarit DIGI. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is([data-scan-state="review"],[data-scan-state="retry"],[data-scan-state="working"])
+ .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+ width:100%!important;
+ height:184px!important;
+ min-height:184px!important;
+ max-height:184px!important;
+ border-radius:13px!important;
+ transition:none!important;
+}
+@media(max-width:390px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera,
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is([data-scan-state="review"],[data-scan-state="retry"],[data-scan-state="working"])
+  .iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera {
+  height:160px!important;min-height:160px!important;max-height:160px!important;
+ }
+}
+/* Retirer le cadrage Gemini plein écran de v41.59 pour retrouver la même
+   fenêtre lumineuse poids net que l'OCR, sans changer la prise de photo. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-stage .iu-weigh-scan-guide {
+ position:absolute!important;
+ inset:52% auto auto 37%!important;
+ width:26%!important;
+ height:16%!important;
+ min-height:0!important;
+ max-height:none!important;
+ border:1.5px solid rgba(255,255,255,.98)!important;
+ border-radius:7px!important;
+ background:rgba(255,255,255,.035)!important;
+ box-shadow:0 0 0 1px rgba(26,49,61,.34),0 0 9px rgba(255,255,255,.15)!important;
+ z-index:3!important;
+ pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-stage .iu-weigh-label-template {
+ inset:6% 14% 6%!important;
+ border:1px dashed rgba(255,255,255,.53)!important;
+ border-radius:9px!important;
+ outline:0!important;
+ box-shadow:0 0 0 1px rgba(18,37,49,.13)!important;
+ opacity:.47!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell .iu-gemini-camera-stage .iu-weigh-scan-guide .iu-weight-light {
+ position:absolute!important;
+ inset:-6px!important;
+ width:calc(100% + 12px)!important;
+ height:calc(100% + 12px)!important;
+ max-width:none!important;max-height:none!important;
+ image-rendering:auto!important;
+ filter:none!important;transform:none!important;
+}
+/* Un SEUL panneau, fond animé partagé avec le bloc de pesée classique. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .iu-result-glow-shell {margin:0!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact {
+ min-height:0!important;
+ padding:10px 12px 9px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact #iuGeminiProductBar {
+ display:flex!important;
+ align-items:baseline!important;
+ justify-content:space-between!important;
+ gap:8px!important;
+ margin:0 0 5px!important;
+ padding:0 0 5px!important;
+ border-bottom:1px solid rgba(128,159,171,.20)!important;
+ position:relative!important;z-index:1!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact #iuGeminiProductBar[hidden] {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiProductName {
+ min-width:0!important;
+ font-size:14px!important;
+ line-height:1.2!important;
+ font-weight:850!important;
+ color:#283e49!important;
+ text-transform:uppercase!important;
+ overflow:hidden!important;
+ white-space:nowrap!important;
+ text-overflow:ellipsis!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiProductRate {
+ flex:0 0 auto!important;
+ font-size:11px!important;
+ line-height:1.2!important;
+ font-weight:750!important;
+ color:#597480!important;
+ white-space:nowrap!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .iu-result-weights {
+ margin-bottom:5px!important;
+ padding-bottom:5px!important;
+ gap:8px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .iu-result-weights > span {
+ gap:2px!important;
+ font-size:10px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .iu-result-weights strong {
+ font-size:14px!important;
+ font-weight:780!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .result-heading {
+ margin:0 0 2px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .result-heading > span {
+ font-size:12px!important;letter-spacing:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .net-line.iu-gemini-gross-line {
+ display:flex!important;
+ align-items:center!important;
+ gap:5px!important;
+ width:100%!important;
+ box-sizing:border-box!important;
+ margin:2px 0!important;
+ padding:6px 11px!important;
+ border-radius:10px!important;
+ border:1px solid rgba(44,153,148,.30)!important;
+ border-left:3px solid rgba(18,138,133,.88)!important;
+ background:linear-gradient(100deg,rgba(55,166,158,.13),rgba(250,254,254,.60))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.82)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .net-line.iu-gemini-gross-line strong {
+ font-size:clamp(25px,6.8vw,32px)!important;
+ line-height:1.08!important;
+ letter-spacing:-.65px!important;
+ font-weight:860!important;
+ color:#185d64!important;
+ -webkit-text-fill-color:#185d64!important;
+ font-variant-numeric:tabular-nums!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .net-line.iu-gemini-gross-line > span {
+ font-size:13px!important;
+ font-weight:750!important;
+ color:#286570!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-empty-result .result.iu-result-compact .result-subtitle {
+ margin:3px 0 0!important;
+ font-size:10px!important;
+ line-height:1.25!important;
+}
+/* En attente l'accent reste léger ; seule une lecture réussie le renforce. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiEmptyResult:not(.has-reading) .net-line.iu-gemini-gross-line {
+ background:rgba(248,251,252,.60)!important;
+ border-left-color:rgba(134,168,175,.50)!important;
+ border-color:rgba(168,196,204,.34)!important;
+}
+/* La réussite ne répète plus « Lecture prête » au-dessus du résultat.
+   Les problèmes et l'analyse en cours restent annoncés. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone[data-scan-state="review"]
+ > #iuGeminiLabStatus:not(.is-error) {display:none!important;}
