@@ -1026,7 +1026,7 @@
    networkTime.textContent='OCR local · 2 lectures concordantes · aucune image envoyée'
     +' · '+(wallMs/1000).toFixed(2)+' s';
   }else{
-   networkTime.textContent='Gemini de secours : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
+   networkTime.textContent='Gemini · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +' · modèle '+String(result.model||fixedModel);
   }
@@ -1482,7 +1482,7 @@
 
  // Lecture vidéo locale : reconnaissance du TEXTE au fil des images canvas.
  // Tesseract se télécharge à la première utilisation (même moteur que l'OCR
- // classique). L'image ne sort de l'appareil qu'en cas de secours Gemini.
+ // classique). Le module reste disponible pour une vérification secondaire.
  function loadTesseract(){
   if(window.Tesseract?.createWorker)return Promise.resolve(window.Tesseract);
   return new Promise((resolve,reject)=>{
