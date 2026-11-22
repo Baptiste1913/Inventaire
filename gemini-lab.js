@@ -1104,7 +1104,7 @@
    !Number.isSafeInteger(f.weightGrams)||f.weightGrams<=0?'weight':null,
    !Number.isSafeInteger(f.pricePerKgCents)||f.pricePerKgCents<=0?'rate':null,
    !Number.isSafeInteger(f.totalCents)||f.totalCents<0?'total':null,
-   !(typeof f.ean13==='string'&&/^\\d{13}$/.test(f.ean13)&&
+   !(typeof f.ean13==='string'&&/^\d{13}$/.test(f.ean13)&&
       eanCheck(f.ean13.slice(0,12))===f.ean13[12])?'ean':null
   ].filter(Boolean);
   return missing.length===1&&!result?.checks?.independentMismatch
