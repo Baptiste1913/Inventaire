@@ -4842,3 +4842,108 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   box-shadow:none!important;
  }
 }
+
+/* v42.05 — Le panneau commun sous/derrière l’étiquette virtuelle
+   est bien plus translucide : sa trame reste visible, mais le verre
+   blanc laisse nettement mieux passer les quatre halos animés.
+   On ne modifie pas le papier monochrome de l’étiquette elle-même. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+ background-color:transparent!important;
+ background-image:
+  radial-gradient(circle,rgba(92,121,147,.042) .40px,rgba(92,121,147,.026) .96px,rgba(92,121,147,.009) 1.55px,transparent 2.15px),
+  linear-gradient(122deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.23) 54%,rgba(255,255,255,.16) 100%)!important;
+ background-size:28px 28px,100% 100%!important;
+ background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
+ background-repeat:repeat,no-repeat!important;
+ -webkit-backdrop-filter:blur(18px) saturate(105%)!important;
+ backdrop-filter:blur(18px) saturate(105%)!important;
+}
+/* Même hauteur compacte pour le brut et Nouvelle pesée.
+   Conserver des valeurs lisibles et les cibles tactiles >44px. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult
+ > .iu-gemini-gross-row > .iu-gemini-gross-panel {
+ box-sizing:border-box!important;
+ flex:1 1 0!important;
+ height:54px!important;
+ min-height:54px!important;
+ max-height:54px!important;
+ padding:5px 10px!important;
+ gap:2px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult
+ > .iu-gemini-gross-row > button#iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next {
+ box-sizing:border-box!important;
+ height:54px!important;
+ min-height:54px!important;
+ max-height:54px!important;
+ padding:4px 6px!important;
+ gap:3px!important;
+ border:1px solid rgba(214,224,231,.95)!important;
+ border-radius:14px!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important;
+ color:#303d46!important;
+ box-shadow:-2px -2px 5px rgba(255,255,255,.88),
+  2px 3px 7px rgba(146,166,179,.16),
+  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ transform:none!important;
+ transition:border-color .28s ease,box-shadow .28s ease,transform .17s ease!important;
+}
+/* La validation conserve le MÊME relief que Caméra et Import,
+   y compris lorsque l’IA indique que la pesée est prête. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult
+ > .iu-gemini-gross-row > button#iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next.is-ready:not(:disabled) {
+ border:1px solid rgba(214,224,231,.95)!important;
+ border-radius:14px!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important;
+ color:#303d46!important;
+ box-shadow:-2px -2px 5px rgba(255,255,255,.88),
+  2px 3px 7px rgba(146,166,179,.16),
+  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult
+ > .iu-gemini-gross-row > button#iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next:active:not(:disabled) {
+ border-color:#87949d!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important;
+ box-shadow:0 0 0 3px rgba(101,115,125,.10),
+  inset 1px 1px 3px rgba(121,140,152,.08)!important;
+ transform:scale(.97)!important;
+}
+/* Garder le signe + et les deux lignes du bouton parfaitement lisibles
+   malgré les 12px récupérés en hauteur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next {
+ font-size:18px!important;
+ line-height:1!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next > span {
+ font-size:10.5px!important;
+ line-height:1.05!important;
+}
+/* Réduction régulière également sur les petits iPhone,
+   et restitution des contrastes lorsque les couleurs sont forcées. */
+@media(max-width:360px) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult
+  > .iu-gemini-gross-row > .iu-gemini-gross-panel {
+  padding:4px 7px!important;
+ }
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult
+ > .iu-gemini-gross-row > button#iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next {
+  background:ButtonFace!important;
+  color:ButtonText!important;
+  border:1px solid ButtonText!important;
+  box-shadow:none!important;
+ }
+}
