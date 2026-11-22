@@ -6,8 +6,11 @@ const js=fs.readFileSync('gemini-lab.js','utf8');
 const css=fs.readFileSync('gemini-lab.css','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const version=JSON.parse(fs.readFileSync('version.json','utf8')).version;
-assert(html.includes('gemini-lab.js?v='+version)&&html.includes('gemini-lab.css?v='+version));
-assert(sw.includes('gemini-lab.js?v='+version)&&sw.includes('gemini-lab.css?v='+version));
+// La version JS suit la version PWA ; les autres actifs (CSS notamment)
+ // gardent leur cachebuster indépendant tant que leur contenu ne change pas.
+const cssAssetVersion=(html.match(/gemini-lab\.css\?v=([\d.]+)/)||[])[1];
+assert(html.includes('gemini-lab.js?v='+version)&&Boolean(cssAssetVersion));
+assert(sw.includes('gemini-lab.js?v='+version)&&sw.includes('gemini-lab.css?v='+cssAssetVersion));
 const section=html.slice(html.indexOf('<section id="iuGeminiLab"'),
  html.indexOf('</section>',html.indexOf('<section id="iuGeminiLab"')));
 assert(section.includes('id="iuGeminiCameraShell" class="iu-gemini-camera-shell iu-weigh-scan-inline" data-state="idle"'),
@@ -108,7 +111,7 @@ assert(css.includes('background:linear-gradient(145deg,#d9f0ff 0%,#8fcefa 100%)!
  'Flash actif visuellement plus prononcé');
 // v41.86 : mêmes dimensions et recadrage que le scanner OCR classique.
 const classicCss=require('node:fs').readFileSync('weigh-scan-inline.css','utf8');
-const cameraMatch=css.slice(css.indexOf('/* v41.86 — Mêmes dimensions'));
+const cameraMatch=css.slice(css.indexOf('/* v41.86 — Mêmes dimensions'),css.indexOf('/* v41.87 — Filaments'));
 assert(cameraMatch.length>1200,'Correctif OCR chargé en fin de feuille Gemini');
 assert(classicCss.includes('height:184px !important')&&
  classicCss.includes('height:160px !important'),
@@ -133,9 +136,9 @@ assert(cameraMatch.includes('video#iuGeminiVideo')&&
  cameraMatch.includes('object-fit:cover!important')&&
  cameraMatch.includes('object-position:center center!important'),
  'Caméra cadrée et remplie comme le flux de l’OCR classique');
-assert(html.includes('gemini-lab.css?v='+version)&&
+assert(html.includes('gemini-lab.css?v='+cssAssetVersion)&&
  html.includes('gemini-lab.js?v='+version)&&
- sw.includes('gemini-lab.css?v='+version)&&
+ sw.includes('gemini-lab.css?v='+cssAssetVersion)&&
  sw.includes('gemini-lab.js?v='+version),
  'Les ressources Gemini suivent bien la version PWA active');
 // v41.87 — le même moteur Canvas anime le contour OCR et Gemini.
@@ -159,8 +162,9 @@ assert(css.includes('/* v41.87 — Filaments nacrés')&&
  css.includes('inset:-6px!important')&&
  css.includes('pointer-events:none!important'),
  'Canvas Retina transparent et sans interaction posé sur le contour extérieur');
-assert(html.includes('weigh-light.js?v='+version)&&
- sw.includes('weigh-light.js?v='+version),
+const lightAssetVersion=(html.match(/weigh-light\.js\?v=([\d.]+)/)||[])[1];
+assert(html.includes('weigh-light.js?v='+lightAssetVersion)&&
+ sw.includes('weigh-light.js?v='+lightAssetVersion),
  'Nouveau moteur lumineux rechargé en PWA et en Safari');
 // v41.89 — retour au trait initial et contraste renforcé avec les
 // quatre couleurs EXACTES du contour du bloc de pesée Gemini.
@@ -299,7 +303,7 @@ assert(!compactBasketCss.includes('width:60px')&&
  css.includes('flex:1 1 0!important'),
  'Boutons gardent leur taille, largeur libérée attribuée au select flexible');
 // v41.95 : Caméra/Galerie et sélecteur ont exactement le même relief.
-const buttonVisuals=css.slice(css.indexOf('/* v41.95 — boutons identiques'));
+const buttonVisuals=css.slice(css.indexOf('/* v41.95 — boutons Caméra/Galerie'),css.indexOf('/* v41.96 — Sélecteur élargi'));
 const selectStyle=css.slice(css.indexOf('/* v41.92 — Panier Gemini'),css.indexOf('/* v41.94 — Marges du libellé'));
 for(const visual of [
  'border:1px solid rgba(214,224,231,.95)!important',
