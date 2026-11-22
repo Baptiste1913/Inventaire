@@ -5206,7 +5206,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-review-row > #iuGeminiPhotoContext.iu-gemini-photo-context:not([hidden]) {
  display:block!important;flex:1 1 auto!important;
  min-width:0!important;margin:0!important;font-size:11.5px!important;
- line-height:1.35!important;letter-spacing:.005em!important;
+ line-height:1.3!important;letter-spacing:.005em!important;
  font-weight:700!important;color:#536876!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
