@@ -303,6 +303,9 @@ function geminiLabName(value){
 }
 // v42.12 — Schéma de sortie DIGI strict sans modifier la photo ni la
 // consigne de ne jamais inférer les caractères ambigus.
+// Cache local à l'instance Cloudflare (pas de KV, pas de secrets).
+// Évite de retester un schéma confirmé incompatible pendant 15 minutes.
+const schemaUnavailableUntil=new Map();
 const geminiLabelJsonSchema={
  type:'object',
  properties:{
@@ -369,10 +372,18 @@ async function geminiPilot(request,env,origin){
     body:JSON.stringify({contents:content,generationConfig})
    });
   }
-  let res=await askGemini(true);
-  // Certains modèles peuvent refuser responseJsonSchema : repli
-  // vers le contrat JSON historique, uniquement en cas de HTTP 400.
-  if(res.status===400&&!abort.signal.aborted)res=await askGemini(false);
+  // Ne répéter la requête au schéma strict qu'après expiration d'une
+  // incompatibilité démontrée. Les réponses à succès restent inchangées.
+  const structured=(schemaUnavailableUntil.get(model)||0)<=Date.now();
+  let res=await askGemini(structured);
+  if(structured&&res.status===400&&!abort.signal.aborted){
+   // Le repli historique reste disponible, mais mémoriser seulement
+   // les refus qui mentionnent explicitement un schéma JSON non accepté.
+   const providerError=String(await res.text()).slice(0,6000);
+   if(/responseJsonSchema|response_json_schema|responseSchema|response_schema|json.?schema|additionalProperties/i.test(providerError))
+    schemaUnavailableUntil.set(model,Date.now()+15*60*1000);
+   res=await askGemini(false);
+  }
   if(!res.ok){
    const status=res.status;
    // Ne jamais exposer la réponse brute du fournisseur (détails du compte).
