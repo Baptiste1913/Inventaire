@@ -105,5 +105,20 @@ assert(css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect')&&
  'Les cadres sont des contours vides et translucides');
 assert(css.includes('background:linear-gradient(145deg,#d9f0ff 0%,#8fcefa 100%)!important'),
  'Flash actif visuellement plus prononcé');
+// v41.85 : cadrage au ratio DIGI, flux vidéo jusqu'aux bords du bloc.
+const fullBleed=css.slice(css.indexOf('/* v41.85 — Visée plein cadre'));
+assert(fullBleed.length>900,'Correctif terminal chargé après les anciennes hauteurs caméra');
+assert(fullBleed.includes('#iuGeminiCameraShell.iu-gemini-camera-shell > .iu-gemini-camera-stage.iu-weigh-scan-camera')&&
+ fullBleed.includes('width:calc(100% + 12px)!important')&&
+ fullBleed.includes('margin-left:-6px!important')&&
+ fullBleed.includes('margin-right:-6px!important'),
+ 'Vidéo étendue jusqu’aux bords internes du bloc Gemini');
+assert(fullBleed.includes('height:auto!important')&&
+ fullBleed.includes('aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important'),
+ 'Hauteur proportionnelle au papier DIGI plutôt qu’une barre panoramique');
+assert(fullBleed.includes('video#iuGeminiVideo')&&
+ fullBleed.includes('object-fit:cover!important')&&
+ fullBleed.includes('object-position:center center!important'),
+ 'Flux vidéo centré sans étirement, pleine surface du viseur');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.84 : code-barres aligné, 3 repères -33 %, libellé -15 % OK.');
+console.log('Gemini v41.85 : viseur pleine largeur au ratio DIGI, capture intacte OK.');
