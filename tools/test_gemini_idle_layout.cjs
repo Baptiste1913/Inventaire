@@ -321,5 +321,30 @@ assert(!buttonVisuals.includes('width:')&&!buttonVisuals.includes('height:')&&
  !buttonVisuals.includes('margin-left:')&&
  !buttonVisuals.includes('gap:'),
  'Alignement, dimensions et espacement inchangés');
+// v41.96 — nouvel import et place rendue au sélecteur flexible.
+assert(section.includes('id="iuGeminiModePhoto"')&&
+ section.includes('aria-label="Importer une photo depuis l’appareil"')&&
+ section.includes('title="Importer une photo"')&&
+ section.includes('<path d="M12 3v11"/>')&&
+ section.includes('<path d="m7 9 5 5 5-5"/>')&&
+ section.includes('<path d="M4 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>'),
+ 'Le bouton Galerie devient Import : flèche vers le bas dans le bac');
+assert(!section.includes('aria-label="Choisir une photo dans la galerie"')&&
+ section.includes('id="iuGeminiCameraShortcut"')&&
+ section.includes('id="iuGeminiBasketSelect"'),
+ 'Commande caméra et champ panier préservés et Import accessible');
+const widthCss=css.slice(css.indexOf('/* v41.96 — Sélecteur élargi'));
+assert(widthCss.length>650&&
+ widthCss.includes('column-gap:4px!important')&&
+ widthCss.includes('gap:4px!important')&&
+ widthCss.includes('margin-left:0!important')&&
+ widthCss.includes('flex:1 1 0%!important')&&
+ widthCss.includes('min-width:0!important'),
+ 'Espacement 4px, largeur récupérée par le champ flex');
+assert(!widthCss.includes('width:60px')&&
+ !widthCss.includes('width:56px')&&
+ !widthCss.includes('height:60px')&&
+ !widthCss.includes('height:56px'),
+ 'Aucune modification des hauteurs et tailles des deux boutons');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.95 : Caméra et Galerie avec le style exact du panier OK.');
+console.log('Gemini v41.96 : icône Import et sélecteur élargi avec espacement 4px OK.');
