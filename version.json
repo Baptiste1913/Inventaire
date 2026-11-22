@@ -1,6 +1,6 @@
 {
-  "version": "42.01",
+  "version": "42.02",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Bloc extérieur de caméra IA : arrondis augmentés à 24 px, marges intérieures haute et basse réduites de 9 à 5 px (8 à 4 px sur iPhone étroit), en conservant les marges latérales. Viseur OCR, 7 repères DIGI, boutons et capture manuelle inchangés."
+  "notes": "Caméra IA : arrondis du bloc extérieur alignés exactement sur ceux de l’étiquette virtuelle (20px au lieu de 24px), marges verticales compactes conservées. Caméra inactive : pictogramme retiré, seul « Caméra désactivée » centré en 16px gras ; toucher le cadre continue d’activer la caméra. Étiquette virtuelle vierge maintenue à l’écran pendant l’envoi et l’analyse de chaque photo, remplacée directement par le résultat au retour de Gemini. Capture manuelle, flash, repères et cache PWA préservés."
 }
