@@ -4364,3 +4364,29 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   .iu-gemini-select-wrap .iu-gemini-basket-display > :is(strong,small) {color:CanvasText!important;}
 }
+
+/* v41.94 — Marges du libellé Type de panier et boutons rapprochés.
+   Le bloc classique donne une marge de 10px au-dessus du label.
+   Gemini cumulait 16px sous Cloudflare + 4px au-dessus du label :
+   remettre cet écart visible à 10px, puis resserrer la marge basse.
+   Garder 11px entre sélecteur et caméra comme dans le classique ;
+   rapprocher uniquement Galerie de Caméra de 6px pour que le select
+   flexible récupère exactement ces 6px sur l'espace libéré. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > details#iuGeminiOptions.weigh-preferences-alerts.iu-gemini-options {
+ margin-bottom:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > label.iu-gemini-basket-label {
+ margin:10px 0 5px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-basket-scan-row.iu-gemini-scan-row > .iu-weigh-scan-option.iu-gemini-photo-option {
+ margin-left:-6px!important;
+}
+@media(max-width:375px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-basket-scan-row.iu-gemini-scan-row > .iu-weigh-scan-option.iu-gemini-photo-option {
+  margin-left:-4px!important;
+ }
+}
