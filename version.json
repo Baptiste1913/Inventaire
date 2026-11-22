@@ -1,6 +1,6 @@
 {
-  "version": "42.00",
+  "version": "42.01",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Pesée IA : déclencheur photo repositionné en bas à gauche du viseur, aligné à 5 px des bords. Son bouton conserve exactement le style et les dimensions 32×32 px, les coins 11 px et les ombres de Fermer/Flash, mais l’icône de déclenchement est agrandie de 15 à 20 px. Capture manuelle, verrouillage pendant l’analyse et masquage lorsque la caméra est inactive conservés."
+  "notes": "Bloc extérieur de caméra IA : arrondis augmentés à 24 px, marges intérieures haute et basse réduites de 9 à 5 px (8 à 4 px sur iPhone étroit), en conservant les marges latérales. Viseur OCR, 7 repères DIGI, boutons et capture manuelle inchangés."
 }
