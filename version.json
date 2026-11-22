@@ -1,6 +1,6 @@
 {
-  "version": "41.71",
+  "version": "41.72",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Gemini : suppression du grand récapitulatif qui doublonnait le contenu de l'étiquette DIGI. Seule la rangée poids brut + Nouvelle pesée reste sous le scanner et au-dessus de l'étiquette numérique. Étiquette pleine et témoin gris/vert/rouge conservés ; espaces verticaux resserrés. Capture automatique, contrôle de panier, validation manuelle et doublons volontaires conservés."
+  "notes": "Scanner Gemini : brut + bouton Nouvelle pesée + étiquette numérique complète + voyant gris/vert/rouge réunis sur un unique panneau doux, sans réduire le viseur ni la taille de l’étiquette. Marges optimisées. Bouton permanent « Analyser cette étiquette » dans le viseur, grisé pendant capture/OCR/Gemini et tant qu’une pesée reconnue reste à enregistrer ; retour disponible après Nouvelle pesée. Lecture incomplète ou échouée : nouvelle tentative possible. Doublons volontaires et sécurité de la tare conservés."
 }

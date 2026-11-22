@@ -2899,3 +2899,185 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is(
   gap:6px!important;
  }
 }
+
+
+/* v41.72 — une SEULE surface pour contrôler le brut, valider la pesée,
+   consulter l'étiquette DIGI et lire son éventuel avertissement.
+   On récupère les marges inutiles, sans rétrécir l'étiquette ni le viseur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel.iu-gemini-label-panel {
+ position:relative!important;
+ z-index:2!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ gap:7px!important;
+ order:0!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ height:auto!important;
+ margin:5px 0 0!important;
+ padding:10px 11px 9px!important;
+ border:1px solid rgba(198,214,223,.84)!important;
+ border-radius:15px!important;
+ background:linear-gradient(145deg,#fafcfd,#eff4f7)!important;
+ box-shadow:inset 0 1px 0 #fff,2px 3px 9px rgba(87,120,140,.055)!important;
+ overflow:visible!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiEmptyResult {
+ display:block!important;
+ order:0!important;
+ box-sizing:border-box!important;
+ flex:0 0 auto!important;
+ min-width:0!important;
+ width:100%!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiEmptyResult > .iu-gemini-gross-row {
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:stretch!important;
+ justify-content:stretch!important;
+ gap:9px!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiEmptyResult > .iu-gemini-gross-row > .iu-gemini-gross-panel {
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex:1 1 0!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ justify-content:center!important;
+ gap:3px!important;
+ min-width:0!important;
+ min-height:66px!important;
+ margin:0!important;
+ padding:9px 13px!important;
+}
+html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next {
+ min-height:66px!important;
+ height:auto!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiLabOutput:not([hidden]) {
+ display:flex!important;
+ flex-direction:column!important;
+ order:1!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ gap:0!important;
+ border:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiLabOutput:not([hidden]) > .iu-gemini-label-frame {
+ display:flex!important;
+ flex-direction:column!important;
+ justify-content:center!important;
+ align-items:center!important;
+ width:100%!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+ min-height:0!important;
+ height:auto!important;
+ margin:0!important;
+ padding:1px 0 2px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+ box-sizing:border-box!important;
+ display:grid!important;
+ flex:0 0 auto!important;
+ width:min(100%,328px)!important;
+ max-width:328px!important;
+ height:auto!important;
+ min-height:0!important;
+ aspect-ratio:1372/1088!important;
+ margin:0 auto!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiLabelAlert {
+ order:2!important;
+ display:flex!important;
+ align-items:center!important;
+ gap:9px!important;
+ width:100%!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+ margin:0!important;
+ padding:7px 9px!important;
+ min-height:32px!important;
+ border:1px solid rgba(255,255,255,.95)!important;
+ border-radius:11px!important;
+ background:rgba(255,255,255,.61)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.92),1px 2px 5px rgba(73,103,119,.055)!important;
+ color:#758893!important;
+ font-size:11px!important;
+ font-weight:690!important;
+ line-height:1.35!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiLabelAlert.is-warning {color:#b33d4c!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabelPanel > #iuGeminiLabelAlert.is-success {color:#267a61!important;}
+/* Le bouton reste visible même après l'analyse. Verrouillé tant que
+   la pesée reconnue n'a pas été validée avec Nouvelle pesée. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell #iuGeminiCapture {
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-height:41px!important;
+ height:41px!important;
+ margin:5px 0 0!important;
+ padding:8px 12px!important;
+ font-size:12px!important;
+ font-weight:750!important;
+ letter-spacing:0!important;
+ opacity:1!important;
+ visibility:visible!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:is([data-scan-state="search"],[data-scan-state="working"],[data-scan-state="review"],[data-scan-state="retry"],[data-scan-state="error"])
+ .iu-gemini-camera-shell #iuGeminiCapture {
+ display:block!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell #iuGeminiCapture:disabled {
+ display:block!important;
+ opacity:.67!important;
+ cursor:not-allowed!important;
+ filter:saturate(.72)!important;
+}
+/* Gratter les interstices sans toucher aux tailles de l'OCR ni de la DIGI. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-photo-actions {margin-bottom:0!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-camera-shell {margin-bottom:0!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabStatus:empty {display:none!important;}
+@media(max-width:360px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  > #iuGeminiLabelPanel.iu-gemini-label-panel {padding:8px 9px!important;gap:6px!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  > #iuGeminiLabelPanel > #iuGeminiEmptyResult > .iu-gemini-gross-row {gap:6px!important;}
+}

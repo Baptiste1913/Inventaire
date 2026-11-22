@@ -1,4 +1,4 @@
-/* Inventaires U 41.71 — rangée brut/nouvelle pesée au-dessus de l’étiquette numérique.
+/* Inventaires U 41.72 — commandes intégrées au cadre DIGI, nouvelle analyse après validation.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -18,7 +18,7 @@
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
   torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture');
- let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false;
+ let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false,frameCaptureBusy=false;
  let cameraPausedInBackground=false;
  const modeCamera=$('iuGeminiModeCamera'),modePhoto=$('iuGeminiModePhoto');
  const modeControl=$('iuGeminiModeCamera')?.closest('.iu-gemini-mode-control');
@@ -74,13 +74,25 @@
   emptyResult?.classList.toggle('has-reading',valid);
  }
  refreshResultCard();
+ // Le bouton reste toujours affiché dans le viseur. Pendant une lecture
+ // vérifiable, l'opérateur doit d'abord enregistrer avec Nouvelle pesée.
+ function refreshCaptureButton(){
+  if(!capture)return;
+  const locked=Boolean(frameCaptureBusy||localOcrBusy||active||proposal);
+  capture.disabled=locked;
+  capture.setAttribute('aria-disabled',String(locked));
+  capture.title=proposal?'Valide avec Nouvelle pesée avant une autre analyse'
+   :locked?'Analyse en cours':'Analyser cette étiquette';
+ }
  function updateButton(){
   analyze.hidden=!file;
   analyze.disabled=!file||!pilotKey.value.trim()||active||attempts.has(fixedModel);
+  refreshCaptureButton();
  }
  function resetProposal(){
   proposal=null;
   if(nextWeigh){nextWeigh.disabled=active;nextWeigh.classList.remove('is-ready');}
+  refreshCaptureButton();
  }
  function setLabelAlert(state,message){
   if(!labelAlert||!labelAlertText)return;
@@ -183,6 +195,7 @@
   }
   refreshCorrectedLabel();
   refreshLabelAlert();
+  refreshCaptureButton();
   return canSave?corrected:null;
  }
  $('basketSelect')?.addEventListener('change',validationState);
@@ -198,7 +211,7 @@
   if(grossPreview)grossPreview.value='';
   if(emptyResult)emptyResult.hidden=false;
   refreshResultCard();
-  clearPreview();capture.disabled=false;updateButton();
+  clearPreview();updateButton();
   updateCardState('search');
   refreshLabelAlert();
   say('');
@@ -530,7 +543,8 @@
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
-  attempts.add(selectedModel);active=true;updateButton();capture.disabled=true;
+  attempts.add(selectedModel);active=true;updateButton();
+   // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
   output.hidden=true;networkTime.textContent='';resetProposal();
   updateCardState('working');
   if(cameraStream&&cameraMode==='auto')setAutoHint('Analyse en cours · une seule photo envoyée','capturing');
@@ -580,7 +594,7 @@
    }
   }finally{
    if(id===generation){
-    active=false;abort=null;capture.disabled=false;updateButton();validationState();
+    active=false;abort=null;updateButton();validationState();
     if(cameraStream&&cameraMode==='auto'){
      setAutoHint(proposal?'Lecture prête · vérifie puis valide'
       :'Lecture à reprendre · recadre et relance','waiting');
@@ -934,6 +948,7 @@
  async function readLocalFrame(quality){
   if(localOcrBusy||autoSuspended||active||file||proposal)return;
   autoLocked=true;localOcrBusy=true;
+  refreshCaptureButton();
   const token=++localOcrToken,epoch=cameraEpoch,stream=cameraStream;
   const valid=()=>token===localOcrToken&&epoch===cameraEpoch&&
    cameraStream===stream&&scannerCardVisible()&&!active&&!file&&!proposal&&
@@ -981,6 +996,7 @@
   }finally{
    if(token===localOcrToken){
     localOcrBusy=false;
+    refreshCaptureButton();
     if(!autoLocked&&valid())startAutoMonitor();
    }
   }
@@ -1109,7 +1125,7 @@
  function selectCameraMode(mode){
   cameraMode=mode==='manual'?'manual':'auto';
   if(autoToggle)autoToggle.checked=cameraMode==='auto';
-  if(capture)capture.textContent=cameraMode==='auto'?'Capturer maintenant':'Capturer cette étiquette';
+  if(capture)capture.textContent='Analyser cette étiquette';
   if(cameraMode==='manual'){
    localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
    clearAutoTimer();autoLocked=false;
@@ -1137,13 +1153,25 @@
  });
 
  capture.addEventListener('click',async()=>{
-  if(!cameraStream||active||!video.videoWidth||!video.videoHeight)return;
+  if(!cameraStream||cameraShell.hidden||!video.videoWidth||!video.videoHeight){
+   say('Viseur non prêt : ouvre la caméra et présente une étiquette.',true);
+   return;
+  }
+  // L'étiquette validable est verrouillée jusqu'à « Nouvelle pesée ».
+  // Les lectures incomplètes restent relançables pour ne pas bloquer le travail.
+  if(frameCaptureBusy||localOcrBusy||active||proposal)return;
+  frameCaptureBusy=true;
+  refreshCaptureButton();
+  const frameEpoch=cameraEpoch;
   const automatic=autoCapturePending;
-  autoCapturePending=false;autoLocked=true;
+  autoCapturePending=false;
+  autoLocked=true;autoSuspended=true;
+  localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
+  clearAutoTimer();
   lastPhotoWasAuto=automatic;
   if(!automatic)autoLastCaptured=autoLastFrame;
-  setAutoHint(automatic?'Capture automatique · analyse en cours':'Capture manuelle · analyse en cours','capturing');
-  capture.disabled=true;
+  setAutoHint(automatic?'Analyse automatique de l’étiquette…'
+   :'Analyse manuelle de l’étiquette…','capturing');
   try{
    const cv=document.createElement('canvas');
    const viewport=video.getBoundingClientRect();
@@ -1158,12 +1186,19 @@
    ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
    const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.90));
    if(!blob)throw Error('Capture impossible');
-   setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
+   if(frameEpoch!==cameraEpoch||!cameraStream||cameraShell.hidden)return;
+   const used=setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
+   if(used===false){
+    // Une pesée non validée reste en place si l'utilisateur annule.
+    setAutoHint('Résultat conservé · valide ou relance l’analyse','ready');
+   }
   }catch(_){
-   say('Capture impossible. Réessaie.',true);
-   setAutoHint('Capture impossible · utilise le bouton manuel','error');
+   say('Analyse impossible : vérifie la caméra et réessaie.',true);
+   setAutoHint('Capture impossible · réessaie','error');
+  }finally{
+   frameCaptureBusy=false;
+   refreshCaptureButton();
   }
-  finally{capture.disabled=active;}
  });
  document.addEventListener('visibilitychange',()=>{
   if(document.hidden&&cameraStream){
