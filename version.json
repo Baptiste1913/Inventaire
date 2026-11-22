@@ -1,6 +1,6 @@
 {
-  "version": "42.10",
+  "version": "42.11",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Témoin de reconnaissance caméra : retour au fond vert avec coche blanche plus fine (2,5), gabarit identique aux commandes caméra. Correctif de priorité des styles CSS pour qu'il n'apparaisse pas au repos, durant la reconnaissance, ni sans lecture validable. Le traitement métier, les vérifications anti-doublons et l'enregistrement manuel restent inchangés."
+  "notes": "Optimisation des analyses IA : préconnexion DNS/TLS au Worker lors de l'ouverture caméra ou de l'import, sans transmission de secrets ; préchauffage Tesseract durant le choix d'une photo ; décodage unique réutilisé par OCR et JPEG Gemini, cache effacé à la pesée suivante. Compression de galerie avec canvas.toBlob asynchrone, rejet précoce des JPEG dépassant la limite Base64, mêmes résolutions, qualités et limite de 690000 caractères que précédemment. OCR indépendant, EAN, prix, tare, analyse de secours et validation manuelle inchangés. Worker Cloudflare conservé tel quel faute de code source / accès déploiement."
 }
