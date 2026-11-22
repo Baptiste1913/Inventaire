@@ -504,7 +504,7 @@ assert(js.includes("signal.addEventListener('abort',onAbort,{once:true})")&&
  js.includes("id!==generation")&&
  js.includes("body=JSON.stringify({type:'iu-gemini-label-test'"),
  'Même photo réutilisée, délais annulables et générations protégées');
-assert(js.includes("const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id)")&&
+assert(js.includes("const received=await requestGeminiWithRecovery(")&&
  js.includes("const saveReady=Boolean(validationState());")&&
  js.includes("nextWeigh?.addEventListener('click',()=>{")&&
  js.includes("if(c.arithmeticConsistent!==true")===false,
@@ -718,4 +718,44 @@ assert(section.includes('id="iuGeminiDuplicateSkip"')&&
  css.includes('/* v42.21 — un seul déclencheur')&&
  css.includes('#iuGeminiDuplicateSkip.iu-gemini-duplicate-skip[hidden]'),
  'Alerte doublon discrète et compacte');
-console.log('Gemini v42.21 : déclencheur combiné et doublons confirmés OK.');
+// v42.22 — lecture EAN indépendant, ciblage et cohérence arithmétique.
+const eanSource=fs.readFileSync('gemini-ean.js','utf8');
+assert(html.includes('gemini-ean.js?v='+version)&&
+ sw.includes('gemini-ean.js?v='+version)&&
+ css.includes('/* v42.22 — récupération ciblée')&&
+ section.includes('id="iuGeminiRepair"')&&
+ section.includes('id="iuGeminiRepairRead"')&&
+ section.includes('id="iuGeminiRepairValue"'),
+ 'Décodeur local précaché, correcteur à champs compact disponible');
+assert(js.includes('const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1;')&&
+ !js.includes('if(!arithmeticOk||c.arithmeticConsistent!==true)')&&
+ js.includes('function reconcileBarcode(result,reading)')&&
+ js.includes('function fieldsChecks(fields)')&&
+ js.includes('reconcileBarcode(combined,localBarcode)'),
+ 'Tolérance d’un centime et EAN indépendamment contrôlé');
+assert(js.includes('barcodeJob=Promise.resolve().then')&&
+ js.includes('window.IUGeminiEAN.cropIfSafe(file,readFast)')&&
+ js.includes('const received=await requestGeminiWithRecovery(')&&
+ js.includes('targetField);')&&
+ js.includes('repairRead?.addEventListener(')&&
+ js.includes('repairApply?.addEventListener('),
+ 'Photo inchangée en fallback, relecture ciblée et correction manuelle');
+assert(js.includes("setLabelAlert('success','étiquette prête');")&&
+ js.includes("const caption=active?'…':duplicate?'Confirmer doublon'")&&
+ js.includes("if(active){setLabelAlert('idle','');return;}")&&
+ !js.includes("if(active){setLabelAlert('working','Analyse…');return;}"),
+ 'Un seul indicateur Analyse dans le viseur');
+assert(app.includes('manualCorrectedFields:editedFields')&&
+ app.includes("audit.textContent='Valeur vérifiée'")&&
+ app.includes('if(session)return (session.entries||[]).find(match)||null;'),
+ 'Correction tracée, doublons limités à l’inventaire en cours');
+assert(server.includes('RELECTURE CIBLÉE')&&
+ server.includes('Math.abs(Math.round(weightGrams*pricePerKgCents/1000)-totalCents)<=1')&&
+ server.includes('focusField:focus'),
+ 'Worker source supporte relecture ciblée et tolérance un centime');
+assert(eanSource.includes('function decode95(bits)')&&
+ eanSource.includes('function lineCode(values)')&&
+ eanSource.includes('function suggestLabelCrop(')&&
+ eanSource.includes('if(confirmed.length>1)return {ambiguous:true'),
+ 'EAN optique hors-ligne, clé stricte et cadrage prudent');
+console.log('Gemini v42.22 : OCR indépendant, relecture ciblée et sécurité de pesée OK.');
