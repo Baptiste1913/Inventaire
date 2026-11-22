@@ -5155,3 +5155,121 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  max-height:17px!important;
  stroke-width:2.5!important;
 }
+
+/* v42.17 — reconnaissance fluide. Styles localisés au scanner, sans
+   modifier le Liquid Glass général ni les commandes caméra existantes. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage {
+ position:relative!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > #iuGeminiCameraStill.iu-gemini-camera-still {
+ position:absolute!important;inset:0!important;
+ z-index:3!important;width:100%!important;height:100%!important;
+ max-width:none!important;object-fit:cover!important;object-position:center!important;
+ border-radius:inherit!important;pointer-events:none!important;opacity:1!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > #iuGeminiCameraStill[hidden] {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > #iuGeminiFrameState.iu-gemini-frame-state {
+ position:absolute!important;
+ left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ gap:8px!important;min-width:132px!important;max-width:75%!important;
+ padding:12px 16px!important;border-radius:15px!important;
+ background:rgba(251,253,255,.92)!important;
+ color:#31444f!important;border:1px solid rgba(255,255,255,.9)!important;
+ box-shadow:0 4px 18px rgba(31,44,56,.15)!important;
+ -webkit-backdrop-filter:blur(14px)!important;backdrop-filter:blur(14px)!important;
+ font-size:12px!important;font-weight:700!important;text-align:center!important;
+ z-index:9!important;pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > #iuGeminiFrameState[hidden] {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiFrameState .iu-gemini-progress-spinner {
+ width:18px!important;height:18px!important;border:2px solid #d9e5eb!important;
+ border-top-color:#487f9b!important;border-radius:50%!important;
+ animation:iu-gemini-fast-spin .9s linear infinite!important;
+}
+@keyframes iu-gemini-fast-spin {to{transform:rotate(360deg)}}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-review-row:has(> #iuGeminiLabPreview:not([hidden])) {
+ display:flex!important;align-items:center!important;gap:9px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-review-row > #iuGeminiPhotoContext.iu-gemini-photo-context:not([hidden]) {
+ display:block!important;flex:1 1 auto!important;
+ min-width:0!important;margin:0!important;font-size:11.5px!important;
+ line-height:1.35!important;letter-spacing:.005em!important;
+ font-weight:700!important;color:#536876!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-review-row > #iuGeminiPhotoContext[hidden] {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-review-row > #iuGeminiAnalyze:not([hidden]) {
+ flex:0 1 auto!important;min-width:110px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiReplacePrompt.iu-gemini-replace-prompt {
+ display:grid!important;gap:8px!important;padding:11px 12px!important;
+ border:1px solid rgba(173,189,200,.65)!important;border-radius:13px!important;
+ background:linear-gradient(145deg,#fff,#eef3f6)!important;
+ color:#334755!important;font-size:12px!important;font-weight:650!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.93)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiReplacePrompt[hidden] {display:none!important;}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiReplacePrompt .iu-gemini-replace-actions {
+ display:flex!important;flex-wrap:wrap!important;gap:8px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiReplacePrompt .iu-gemini-replace-actions button {
+ min-height:35px!important;flex:1 1 125px!important;
+ border:1px solid #d5dee5!important;border-radius:11px!important;
+ background:linear-gradient(145deg,#fff,#ebf0f4)!important;
+ color:#2b4654!important;font:750 12px/1.2 inherit!important;
+ box-shadow:inset 0 1px 0 #fff,2px 3px 7px rgba(49,72,87,.11)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabelAlert.is-working {
+ background:rgba(233,241,246,.76)!important;
+ color:#486579!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabelAlert.is-working .iu-gemini-alert-led {
+ background:#608caa!important;
+ box-shadow:0 0 0 3px rgba(96,140,170,.12)!important;
+ animation:iu-gemini-working-pulse 1.2s ease-in-out infinite!important;
+}
+@keyframes iu-gemini-working-pulse{50%{opacity:.45;transform:scale(.76)}}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel .iu-gemini-confirm-next span {
+ overflow-wrap:anywhere!important;white-space:normal!important;
+}
+@media(max-width:360px) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-review-row:has(> #iuGeminiLabPreview:not([hidden])) {
+  flex-wrap:wrap!important;
+ }
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-review-row > #iuGeminiAnalyze:not([hidden]) {
+  flex:1 1 100%!important;
+ }
+}
+@media(prefers-reduced-motion:reduce) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiFrameState .iu-gemini-progress-spinner,
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiLabelAlert.is-working .iu-gemini-alert-led {
+  animation:none!important;
+ }
+}
