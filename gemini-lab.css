@@ -3995,3 +3995,67 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   opacity:.72!important;
  }
 }
+
+/* v41.90 — même hiérarchie que le bloc Calcul classique :
+   « SERVICES U / CALCUL » et « Nouvelle pesée » sont la référence.
+   On annule les limites héritées des anciennes pastilles Gemini et
+   la marge réduite v41.65. Aucune modification du scanner ni du titre Calcul. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .card-heading {
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ margin:0 0 20px!important;
+ padding:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .card-heading > div {
+ display:grid!important;
+ align-content:center!important;
+ gap:4px!important;
+ width:100%!important;
+ min-width:0!important;
+}
+/* V38.20 + V35.08 : valeurs réelles du kicker du bloc Calcul,
+   même couleur gris bleuté, taille, graisse et espacement.
+   Le texte SERVICE U / PESÉE VIA IA reste toujours sur une ligne. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .card-heading .section-kicker {
+ display:block!important;
+ box-sizing:border-box!important;
+ width:max-content!important;
+ max-width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ font-family:inherit!important;
+ font-size:10.5px!important;
+ line-height:1.35!important;
+ letter-spacing:.087em!important;
+ font-weight:800!important;
+ color:#73818a!important;
+ -webkit-text-fill-color:#73818a!important;
+ background-image:none!important;
+ white-space:nowrap!important;
+ text-transform:none!important;
+}
+/* V34.28 : titre de la pesée classique, mêmes dimensions, couleur
+   et espacement. L'ancienne règle Gemini à 21–27px est neutralisée. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .card-heading h2#iu-gemini-section-title {
+ margin:0!important;
+ padding:0!important;
+ font-family:inherit!important;
+ font-size:17px!important;
+ line-height:1.25!important;
+ letter-spacing:-.45px!important;
+ font-weight:850!important;
+ color:#20252b!important;
+}
+@media(max-width:380px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  > .card-heading h2#iu-gemini-section-title {
+  font-size:16px!important;
+ }
+}
