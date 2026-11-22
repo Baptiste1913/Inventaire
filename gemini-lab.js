@@ -1,4 +1,4 @@
-/* Inventaires U 42.06 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.07 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -177,6 +177,8 @@
  let localWorker=null,localWorkerPromise=null,localEngineGeneration=0,
   localOcrDisabled=false,localOcrBusy=false,localOcrToken=0,
   localCandidate=null,localPasses=0;
+ // Réutiliser la même vérification OCR si Gemini relit la même photo.
+ let localCheckSource=null,localCheckPromise=null;
  let cameraMode='manual',autoTimer=0,autoLocked=false,autoSuspended=false,
   autoLastFrame=null,autoLastCaptured=null,autoChangeReference=null,
   autoNeedsChange=false,autoChangeCount=0,autoStableSince=0,autoStableCount=0,
@@ -299,10 +301,17 @@
   if(!Number.isSafeInteger(grams)||grams<=0||grams>30000)return {error:'Poids lu sur l’étiquette manquant ou invalide.'};
   if(!Number.isSafeInteger(rate)||rate<=0||rate>1000000||
      !Number.isSafeInteger(total)||total<0)return {error:'Prix au kilo ou montant manquant.'};
-  if(Math.abs(Math.round(grams*rate/1000)-total)>1||
-     c.arithmeticConsistent!==true)return {error:'Calcul prix × poids incohérent.'};
-  if(c.eanChecksumValid!==true||!/^[0-9]{13}$/.test(f.ean13||''))return {error:'EAN non confirmé ou invalide.'};
-  return {name,grams,rate,total,ean:f.ean13};
+  // Ne jamais faire confiance aux seuls booléens produits par l'IA :
+  // recalculer localement les règles métier avant toute proposition.
+  const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1;
+  if(!arithmeticOk||c.arithmeticConsistent!==true)return {error:'Calcul prix × poids incohérent.'};
+  const ean=String(f.ean13||'');
+  if(c.eanChecksumValid!==true||!/^[0-9]{13}$/.test(ean)||
+     eanCheck(ean.slice(0,12))!==ean[12])
+   return {error:'EAN non confirmé ou clé EAN incorrecte.'};
+  if(c.independentMismatch===true)
+   return {error:'Deux lectures indépendantes donnent des chiffres différents.'};
+  return {name,grams,rate,total,ean};
  }
  function refreshCorrectedLabel(){
   refreshResultCard();
@@ -360,6 +369,7 @@
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
+  localCheckSource=null;localCheckPromise=null;
   attempts.clear();photo.value='';latestLabelFields=null;
   showBlankLabel();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
@@ -385,6 +395,7 @@
   latestLabelFields=null;
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
+  localCheckSource=null;localCheckPromise=null;
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
@@ -512,41 +523,54 @@
   });
  }
  async function imageBase64(source){
-  // Le JPEG issu du viseur est déjà recadré, redimensionné et compressé.
-  // Éviter une deuxième décompression/compression si l'image passe sous
-  // la limite Cloudflare (surtout sur Safari iPhone).
+  // Le Worker Cloudflare actuel impose encore un budget d'environ
+  // 690000 caractères base64. Augmenter les pixels utiles À L’INTÉRIEUR
+  // de ce budget avant de toucher à la qualité JPEG. Une mise à niveau
+  // côté Worker sera nécessaire pour envoyer davantage d'octets.
+  const maxBase64=690000;
   if(source?.name==='etiquette-gemini.jpg'&&source.type==='image/jpeg'&&
-     source.size>=100&&source.size<=490000){
+     source.size>=100&&source.size<=505000){
    try{
     const encoded=await new Promise((resolve,reject)=>{
      const reader=new FileReader();
      reader.onerror=()=>reject(Error('Lecture JPEG indisponible'));
      reader.onload=()=>{
-      const str=String(reader.result||''),index=str.indexOf(',');
-      if(index<0)return reject(Error('Format JPEG invalide'));
-      resolve(str.slice(index+1));
+      const value=String(reader.result||''),comma=value.indexOf(',');
+      if(comma<0)return reject(Error('Format JPEG invalide'));
+      resolve(value.slice(comma+1));
      };
      reader.readAsDataURL(source);
     });
-    if(encoded.length>=100&&encoded.length<=690000)return encoded;
-   }catch(_){/* Safari peut nécessiter le chemin canvas habituel. */}
+    if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+   }catch(_){/* Safari peut exiger le chemin canvas. */}
   }
   const img=await decodePhoto(source);
-  const scale=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));
-  if(!scale||!img.naturalWidth||!img.naturalHeight)throw Error('Photo vide');
+  const maxSide=Math.max(img.naturalWidth,img.naturalHeight);
+  if(!Number.isFinite(maxSide)||maxSide<=0)throw Error('Photo vide');
   const cv=document.createElement('canvas');
-  cv.width=Math.max(1,Math.round(img.naturalWidth*scale));
-  cv.height=Math.max(1,Math.round(img.naturalHeight*scale));
   const ctx=cv.getContext('2d');
   if(!ctx)throw Error('Traitement image impossible sur cet appareil');
-  ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-  ctx.drawImage(img,0,0,cv.width,cv.height);
-  for(const quality of [.88,.80,.72,.64,.56]){
-   const data=cv.toDataURL('image/jpeg',quality);
-   const b64=data.slice(data.indexOf(',')+1);
-   if(b64.length<=690000)return b64;
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  // Préserver les détails des chiffres : réduire par paliers plutôt
+  // qu'écraser une seule image à une qualité très basse.
+  for(const side of [2400,2200,1920,1700,1500]){
+   const factor=Math.min(1,side/maxSide);
+   const width=Math.max(1,Math.round(img.naturalWidth*factor));
+   const height=Math.max(1,Math.round(img.naturalHeight*factor));
+   if(cv.width!==width||cv.height!==height){
+    cv.width=width;cv.height=height;
+   }
+   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+   ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+   ctx.drawImage(img,0,0,width,height);
+   for(const quality of [.93,.87,.81,.75]){
+    const data=cv.toDataURL('image/jpeg',quality);
+    const encoded=data.slice(data.indexOf(',')+1);
+    if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+   }
   }
-  throw Error('Photo trop volumineuse après compression');
+  throw Error('Photo trop détaillée pour la limite actuelle Cloudflare. Recadre-la manuellement ou réessaie.');
  }
  // Encodage DIGI expérimental vérifié sur 8 étiquettes :
  // 7 chiffres article + 5 chiffres prix (euros × 655,36) + clé EAN-13.
@@ -795,21 +819,48 @@
   const start=performance.now();
   say('Préparation puis envoi d’une seule photo à Gemini…');
   try{
+   // OCR local en parallèle du réseau, sans retarder la première requête.
+   const independent=independentLocalReadingFor(file);
    const encoded=await imageBase64(file);
    if(id!==generation)return;
-   say('Gemini analyse l’étiquette…');
-   // Une seule image encodée, au plus trois appels réseau uniquement
-   // si une indisponibilité temporaire du fournisseur est détectée.
-   const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
+   say('Gemini analyse l’étiquette haute qualité…');
+   // La même image est utilisée à chaque fois, et aucun résultat IA
+   // ne sera enregistré sans une action explicite.
+   let result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
    if(id!==generation)return;
+   // Si la première réponse est contradictoire/incomplète, une seconde
+   // lecture IA de la même photo est autorisée (coût API supplémentaire).
+   // Pas de deuxième appel pour une lecture déjà cohérente.
+   if(validateResult(result).error){
+    say('Première lecture incertaine · deuxième vérification Gemini…');
+    try{
+     const second=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
+     if(id!==generation)return;
+     result=second;
+    }catch(error){
+     if(abort.signal.aborted||id!==generation||error?.name==='AbortError')throw error;
+     // Conserver le premier brouillon non validable pour diagnostic.
+    }
+   }
+   // Au plus 2,2 s de délai APRÈS Gemini pour un contrôle OCR local.
+   // Si l'OCR ne répond pas, il reste inconcluant et la vérification
+   // humaine demeure obligatoire (jamais d'accord fictif).
+   const local=await localCheckWithin(independent,2200);
+   if(id!==generation)return;
+   const conflicting=localMismatch(result,local);
+   if(conflicting){
+    result.checks={...result.checks,independentMismatch:true};
+    attempts.delete(selectedModel);
+    analyze.textContent='Réessayer l’analyse';
+   }
    display(result,performance.now()-start);
-   // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
-   // L'utilisateur reste au même endroit, sans défilement forcé.
-   // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
+   // La validation reste MANUELLE ; pas de sauvegarde implicite.
    const saveReady=Boolean(validationState());
-   say(saveReady
-    ?'Lecture prête : vérifie le poids brut et touche Nouvelle pesée.'
-    :'Lecture non validable : vérifie le panier ou reprends une photo.',!saveReady);
+   say(conflicting
+    ?'Reconnaissances contradictoires : vérifie les chiffres sur l’étiquette et reprends la photo.'
+    :saveReady
+    ?'Lecture prête : compare à l’étiquette réelle, puis touche Nouvelle pesée.'
+    :'Lecture non validable : vérifie le panier, la photo et les chiffres.',conflicting||!saveReady);
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
@@ -918,7 +969,7 @@
   let obtained=null;
   try{
    obtained=await navigator.mediaDevices.getUserMedia({
-    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
+    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2560},height:{ideal:1440}}
    });
    if(epoch!==cameraEpoch||panel.hidden){
     for(const track of obtained.getTracks())track.stop();
@@ -942,6 +993,9 @@
    shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
+   // Charger l'OCR local en avance, pendant le cadrage manuel.
+   // Évite d'attendre son démarrage après la réponse Gemini.
+   if(localReader)void ensureLocalOcr();
    refreshTorch();
    if(cameraMode==='auto')void ensureLocalOcr();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
@@ -1046,10 +1100,9 @@
    ?viewW/viewH:srcW/srcH;
   if(width/height>ratio){width=height*ratio;x=(srcW-width)/2;}
   else{height=width/ratio;y=(srcH-height)/2;}
-  // Préserver une marge pour le PLU vertical et les gardes EAN.
-  const focused=width*.88;
-  x+=(width-focused)/2;
-  width=focused;
+  // Ne JAMAIS enlever les 12 % latéraux historiques : PLU, chiffres
+  // et codes EAN peuvent se trouver au bord de l'étiquette. Le seul
+  // recadrage est celui imposé par le rapport du viseur object-fit:cover.
   return {x,y,width,height};
  }
 
@@ -1158,6 +1211,49 @@
   }
   return localReader.parse(output.result?.data?.text,{
    confidence:output.result?.data?.confidence,barcode:output.barcode
+  });
+ }
+ // La lecture locale ne produit qu'un avis indépendant, sans enregistrement.
+ // Une OCR incomplet est traité comme "non concluant", JAMAIS comme une
+ // preuve de concordance ou une raison de fabriquer une valeur.
+ function independentLocalReadingFor(source){
+  if(!localReader||localOcrDisabled)return Promise.resolve(null);
+  if(localCheckSource===source&&localCheckPromise)return localCheckPromise;
+  localCheckSource=source;
+  localCheckPromise=(async()=>{
+   const img=await decodePhoto(source);
+   const maxSide=Math.max(img.naturalWidth,img.naturalHeight);
+   if(!maxSide)return null;
+   const factor=Math.min(1,1700/maxSide);
+   const cv=document.createElement('canvas');
+   cv.width=Math.max(1,Math.round(img.naturalWidth*factor));
+   cv.height=Math.max(1,Math.round(img.naturalHeight*factor));
+   const ctx=cv.getContext('2d');
+   if(!ctx)return null;
+   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+   ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+   ctx.drawImage(img,0,0,cv.width,cv.height);
+   return recognizeLocally(cv);
+  })().catch(()=>null);
+  return localCheckPromise;
+ }
+ function localMismatch(gemini,local){
+  const a=gemini?.fields,b=local?.fields;
+  if(!a||!b)return false;
+  return ['weightGrams','pricePerKgCents','totalCents','ean13']
+   .some(key=>a[key]!==b[key]);
+ }
+ function localCheckWithin(check,ms){
+  return new Promise(resolve=>{
+   let settled=false;
+   const timer=setTimeout(()=>{settled=true;resolve(null);},ms);
+   Promise.resolve(check).then(value=>{
+    if(settled)return;
+    settled=true;clearTimeout(timer);resolve(value);
+   },()=>{
+    if(settled)return;
+    settled=true;clearTimeout(timer);resolve(null);
+   });
   });
  }
  async function sendOcrFallback(canvas,sessionValid){
@@ -1390,7 +1486,7 @@
    const cv=document.createElement('canvas');
    const viewport=video.getBoundingClientRect();
    const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,viewport.width,viewport.height);
-   const factor=Math.min(1,1600/Math.max(crop.width,crop.height));
+   const factor=Math.min(1,2400/Math.max(crop.width,crop.height));
    cv.width=Math.max(1,Math.round(crop.width*factor));
    cv.height=Math.max(1,Math.round(crop.height*factor));
    const ctx=cv.getContext('2d');
@@ -1398,7 +1494,7 @@
    ctx.imageSmoothingEnabled=true;
    ctx.imageSmoothingQuality='high';
    ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
-   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.90));
+   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.93));
    if(!blob)throw Error('Capture impossible');
    if(frameEpoch!==cameraEpoch||!cameraStream||cameraShell.hidden)return;
    const used=setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
