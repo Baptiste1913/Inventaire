@@ -1,12 +1,15 @@
-/* Inventaires U 41.12 — deux filaments anthracite sous les fibres nacrées.
+/* Inventaires U 41.87 — deux filaments anthracite sous les fibres nacrées.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
  for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell')]){
  if(!overlay)continue;
- const guide=overlay?.querySelector('.iu-weigh-scan-guide');
+ // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
+ // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
+ const guide=overlay?.querySelector(overlay.id==='iuGeminiCameraShell'
+   ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
  const canvas=guide?.querySelector('.iu-weight-light');
- if(!overlay||!guide||!canvas||typeof Path2D==='undefined')return;
+ if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
  const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
  if(!ctx)return;
  const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
