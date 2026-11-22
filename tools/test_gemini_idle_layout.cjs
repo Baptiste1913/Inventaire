@@ -580,5 +580,21 @@ assert(js.includes('const confirmed=canSave&&!duplicateForCurrent()&&!cameraShel
  js.includes('resetDetectedIndicator();')&&
  js.includes("nextWeigh?.addEventListener('click',()=>{"),
  'Le témoin ne valide jamais un résultat incomplet ni un doublon, enregistrement manuel');
+// v42.10 — témoin caché avant lecture, fond vert et coche blanche.
+const badgeV4210=css.slice(css.indexOf('/* v42.10 — témoin vert'));
+assert(section.includes('id="iuGeminiDetected"')&&
+ section.includes('role="status" hidden')&&
+ section.includes('stroke-width="2.5"'),
+ 'Témoin par défaut caché et trait plus fin');
+assert(badgeV4210.includes('rgba(34,155,115,.96)')&&
+ badgeV4210.includes('rgba(19,120,94,.95)')&&
+ badgeV4210.includes('stroke:#fff!important')&&
+ badgeV4210.includes('stroke-width:2.5!important'),
+ 'Fond vert historique et coche blanche fine');
+assert(badgeV4210.includes('> #iuGeminiDetected.iu-weigh-scan-detected-indicator[hidden] {')&&
+ badgeV4210.includes('display:none!important')&&
+ badgeV4210.includes('visibility:hidden!important')&&
+ badgeV4210.includes('[data-state="idle"] .iu-gemini-camera-stage.iu-weigh-scan-camera'),
+ 'Masquage de priorité identique au display:flex initial');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.09 : alertes avant étiquette, brut style inventaire, voyant carré vert validé OK.');
+console.log('Gemini v42.10 : témoin vert et coche affinée, réellement cachée avant lecture OK.');
