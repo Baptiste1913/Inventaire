@@ -1,4 +1,4 @@
-/* Inventaires U 42.02 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.06 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -708,6 +708,79 @@
     +' · modèle '+String(result.model||fixedModel);
   }
  }
+ // v42.06 — réessais limités pour indisponibilités TRANSITOIRES seulement.
+ // La même photo est utilisée, jamais de nouvelle prise de vue automatique.
+ // Un refus d’accès / une clé erronée n'est jamais renvoyé au fournisseur.
+ function waitGeminiBackoff(milliseconds,signal){
+  return new Promise((resolve,reject)=>{
+   if(signal.aborted)return reject(new DOMException('Analyse annulée','AbortError'));
+   const onAbort=()=>{
+    clearTimeout(timer);
+    signal.removeEventListener('abort',onAbort);
+    reject(new DOMException('Analyse annulée','AbortError'));
+   };
+   const timer=setTimeout(()=>{
+    signal.removeEventListener('abort',onAbort);
+    resolve();
+   },milliseconds);
+   signal.addEventListener('abort',onAbort,{once:true});
+  });
+ }
+ function retryDelay(response,attempt){
+  // Plafond court pour ne pas bloquer l’inventaire après une saturation.
+  const seconds=Number(response?.headers?.get('Retry-After'));
+  if(Number.isFinite(seconds)&&seconds>0)return Math.min(8000,Math.max(1000,Math.ceil(seconds*1000)));
+  return attempt===1?1100:2600;
+ }
+ async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id){
+  const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,
+   mimeType:'image/jpeg',imageBase64:encoded});
+  const maxAttempts=3;
+  for(let attempt=1;attempt<=maxAttempts;attempt++){
+   if(signal.aborted||id!==generation)throw new DOMException('Analyse annulée','AbortError');
+   if(attempt>1)say('Service momentanément indisponible · nouvelle tentative '+attempt+'/'+maxAttempts+'…');
+   let response;
+   try{
+    response=await fetch(endpoint,{
+     method:'POST',signal,
+     headers:{'Content-Type':'application/json','X-IU-Pilot-Key':access},
+     body
+    });
+   }catch(error){
+    if(signal.aborted||id!==generation||error?.name==='AbortError')throw error;
+    // Échec de transport : une brève coupure Safari/Worker peut se résoudre.
+    if(attempt<maxAttempts&&error instanceof TypeError){
+     await waitGeminiBackoff(retryDelay(null,attempt),signal);
+     continue;
+    }
+    throw Error('Connexion au service indisponible. Vérifie le réseau puis réessaie.');
+   }
+   if(signal.aborted||id!==generation)throw new DOMException('Analyse annulée','AbortError');
+   let result;
+   try{result=await response.json()}catch(_){
+    if(attempt<maxAttempts&&[500,502,503,504].includes(response.status)){
+     await waitGeminiBackoff(retryDelay(response,attempt),signal);
+     continue;
+    }
+    throw Error('Réponse du service illisible (HTTP '+response.status+').');
+   }
+   if(response.ok)return result;
+   const status=response.status;
+   const recoverable=[429,500,502,503,504].includes(status);
+   if(recoverable&&attempt<maxAttempts){
+    await waitGeminiBackoff(retryDelay(response,attempt),signal);
+    continue;
+   }
+   if(status===401||status===403)throw Error('Accès Gemini refusé : vérifie la clé Cloudflare.');
+   if(status===429)throw Error('Limite de requêtes Gemini atteinte. Réessaie après quelques instants (429).');
+   if(status===502&&/Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide/i.test(String(result?.error||''))){
+    throw Error('Gemini n’a pas fourni une lecture exploitable après plusieurs essais. Tu peux réessayer avec la même photo.');
+   }
+   if(recoverable)throw Error('Service Gemini temporairement indisponible après '+maxAttempts+' tentatives (HTTP '+status+').');
+   throw Error(String(result?.error||'Erreur du service Gemini (HTTP '+status+').').slice(0,140));
+  }
+  throw Error('Analyse indisponible. Réessaie avec la même photo.');
+ }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
@@ -725,27 +798,10 @@
    const encoded=await imageBase64(file);
    if(id!==generation)return;
    say('Gemini analyse l’étiquette…');
-   const response=await fetch(endpoint,{
-    method:'POST',signal:abort.signal,
-    headers:{'Content-Type':'application/json','X-IU-Pilot-Key':access},
-    body:JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,
-      mimeType:'image/jpeg',imageBase64:encoded})
-   });
-   // La photo n'est pas enregistrée ; la clé n'est conservée que si l'utilisateur l'a mémorisée.
+   // Une seule image encodée, au plus trois appels réseau uniquement
+   // si une indisponibilité temporaire du fournisseur est détectée.
+   const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);
    if(id!==generation)return;
-   let result;
-   try{result=await response.json()}catch(_){throw Error('Réponse JSON invalide');}
-   if(!response.ok){
-    const message=String(result?.error||'Réponse du Worker impossible');
-    // Une réponse 502 non exploitable permet une NOUVELLE tentative manuelle,
-    // sans deuxième requête cachée ni sauvegarde automatique.
-    if(response.status===502&&/Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide/i.test(message)){
-     attempts.delete(selectedModel);
-     analyze.textContent='Réessayer l’analyse';
-     throw Error('Gemini n’a pas fourni de lecture utilisable. Recadre l’étiquette ou touche « Réessayer l’analyse ».');
-    }
-    throw Error(message);
-   }
    display(result,performance.now()-start);
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
    // L'utilisateur reste au même endroit, sans défilement forcé.
@@ -757,9 +813,13 @@
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
+    // Une erreur technique ne doit pas condamner la photo déjà prise :
+    // sa relance reste manuelle après épuisement des réessais bornés.
+    attempts.delete(selectedModel);
+    analyze.textContent='Réessayer l’analyse';
     if(!proposal&&!output.querySelector('.iu-gemini-printed-label'))showBlankLabel();
     const reason=String(error?.message||'Échec réseau').slice(0,140);
-    say('Essai non terminé : '+reason,true);
+    say('Analyse non terminée : '+reason,true);
     updateCardState('error');
    }
   }finally{
