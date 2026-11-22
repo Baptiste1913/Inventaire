@@ -204,5 +204,31 @@ assert(headingCss.includes('font-size:17px!important')&&
  headingCss.includes('color:#20252b!important')&&
  headingCss.includes('letter-spacing:-.45px!important'),
  'Titre principal Gemini calqué sur Nouvelle pesée, y compris petit écran');
+// v41.91 : capture exclusivement manuelle et tiroir Cloudflare natif.
+assert(!section.includes('id="iuGeminiAutoToggle"')&&
+ !section.includes('class="weigh-preferences iu-gemini-preferences"')&&
+ !section.includes('id="iuGeminiAutoReset"'),
+ 'Choix Auto et cadre de réglages disparus du bloc Gemini');
+assert(section.includes('id="iuGeminiOptions" class="v22-settings calc-alerts weigh-preferences-alerts iu-gemini-options"')&&
+ section.indexOf('id="iuGeminiOptions"')>section.indexOf('id="iu-gemini-section-title"')&&
+ section.indexOf('id="iuGeminiOptions"')<section.indexOf('id="iuGeminiBasketSelect"'),
+ 'Accès Cloudflare remonté entre titre et panier');
+assert(section.includes('La caméra ne prend aucune photo automatiquement')&&
+ section.includes('id="iuGeminiPilotKey"')&&section.includes('id="iuGeminiForgetKey"'),
+ 'Description exacte du mode manuel et gestion clé préservées');
+assert(js.includes("let cameraMode='manual',autoTimer=0")&&
+ js.includes('function selectCameraMode(){')&&js.includes("cameraMode='manual';")&&
+ js.includes('selectCameraMode();')&&!js.includes('iu-gemini-auto-capture-v1')&&
+ !js.includes("autoToggle?.addEventListener('change'"),
+ 'Préférence Auto historique ignorée et capture manuelle forcée');
+assert(js.includes("capture.addEventListener('click',async()=>{")&&
+ js.includes('const used=setPhoto(new File([blob]')&&js.includes('if(!analyze.disabled){'),
+ 'La prise de photo et l’analyse restent déclenchées volontairement');
+const cloudCss=css.slice(css.indexOf('/* v41.91 — Cloudflare'));
+assert(cloudCss.length>1700&&cloudCss.includes('margin-bottom:20px!important')&&
+ cloudCss.includes('margin:0 0 16px!important')&&cloudCss.includes('order:0!important')&&
+ cloudCss.includes('min-height:49px!important')&&cloudCss.includes('border-radius:14px!important')&&
+ cloudCss.includes('font-size:12px!important')&&cloudCss.includes('font-size:10.5px!important'),
+ 'Cloudflare partage les dimensions/typographies et marges des alertes classiques');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.90 : titres et espacements harmonisés avec Calcul classique OK.');
+console.log('Gemini v41.91 : capture manuelle et Cloudflare comme Réglages d’alertes OK.');
