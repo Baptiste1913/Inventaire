@@ -1,6 +1,6 @@
 'use strict';
-// 41.73 : l'étiquette Gemini réutilise la carte de résultat classique
-// (verre, ombre, trame, halos animés), mais réorganise leurs 4 couleurs.
+// 41.74 : halos diffusés au-delà du panneau mais bornés au bloc Gemini,
+// étiquette ivoire neumorphique et filet Gemini amincis.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const html=fs.readFileSync('index.html','utf8');
@@ -88,4 +88,49 @@ assert(js.includes('frameCaptureBusy||localOcrBusy||active||proposal')&&
  js.includes('capture.disabled=locked')&&
  js.includes('if(saved?.ok){\n   resetReading();'),
  'Analyse verrouillée jusqu’à Nouvelle pesée');
-console.log('Gemini 41.73 : carte classique, halos RGBY d’intensité identique et double contour du brut conformes.');
+
+/* Régressions v41.74 : ces règles terminales doivent primer sur v41.73. */
+const latest=css.slice(css.indexOf('/* v41.74 — diffusion'));
+assert(latest.length>2600,'Les styles v41.74 doivent être présents');
+assert(latest.includes('section#iuGeminiLab.card.calc-card.iu-gemini-standalone {\n overflow:hidden!important;'),
+ 'Seul le bloc Gemini complet doit limiter les halos');
+assert(latest.includes('> .iu-result-glow-shell.iu-gemini-label-shell {\n overflow:visible!important;'),
+ 'La coque interne ne coupe pas les couleurs');
+assert(latest.includes('inset:-26px -26px -32px!important')&&
+ latest.includes('overflow:visible!important')&&
+ latest.includes('-webkit-mask-image:none!important')&&
+ latest.includes('mask-image:none!important'),
+ 'Le masque et la découpe abrupte du calque des halos ont disparu');
+assert(latest.includes('> #iuGeminiLabelPanel.result.iu-result-compact {\n overflow:hidden!important;'),
+ 'Les contenus de la surface verre restent bien contenus');
+
+const grossSection=latest.slice(latest.indexOf('/* Cadre du brut'),latest.indexOf('/* Papier numérique'));
+assert(grossSection.includes('border-radius:12px!important')&&
+ grossSection.includes('inset:1.25px!important'),
+ 'Contour Gemini légèrement affiné, sans modifier les poids et boutons');
+assert(grossSection.includes('border:1px solid rgba(255,255,255,.80)')&&
+ grossSection.includes('background:linear-gradient(145deg,#f7f9fa 0%,#eff3f6 56%,#e9eef2 100%)'),
+ 'Le poids brut possède un cœur monochrome, non coloré');
+
+const labelSection=latest.slice(latest.indexOf('/* Papier numérique'));
+assert(labelSection.includes('width:min(100%,300px)!important')&&
+ labelSection.includes('max-width:300px!important'),
+ 'Étiquette légèrement réduite sans effacer les informations');
+assert(labelSection.includes('max-width:280px!important')&&
+ labelSection.includes('max-width:270px!important'),
+ 'Largeur adaptée aux petits écrans');
+assert(labelSection.includes('#f3f0ea')&&labelSection.includes('#e5e2dc')&&
+ labelSection.includes('inset 1px 1px 0 rgba(255,255,255,.73)'),
+ 'Étiquette monochrome ivoire avec relief neumorphique');
+assert(labelSection.includes('filter:none!important')&&
+ labelSection.includes('@media(forced-colors:active)'),
+ 'Les barres EAN restent nettes et le contraste forcé accessible');
+assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,
+ 'CSS syntaxiquement équilibré');
+assert(section.includes('id="iuGeminiGrossDisplay"')&&
+ section.includes('id="iuGeminiNext"')&&
+ section.includes('id="iuGeminiLabelAlert"')&&
+ section.includes('id="iuGeminiLabOutput"'),
+ 'La capture, la validation, l’étiquette et les alertes restent intactes');
+
+console.log('Gemini 41.74 : halo débordant uniquement à l’intérieur du bloc, contour fin, étiquette ivoire neumorphique OK.');

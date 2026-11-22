@@ -1,6 +1,6 @@
 {
-  "version": "41.73",
+  "version": "41.74",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Panneau étiquette Gemini : mêmes surfaces en verre translucide, trame, halo et animations que le résultat de pesée classique. Quatre lumières Gemini de même intensité que les lumières classiques : bleu large à droite, rouge haut gauche, jaune milieu gauche, vert bas gauche. Poids brut dans une petite carte à double contour dégradé exactement calqué sur le bloc IA. Caméra, taille DIGI, voyant, validation Nouvelle pesée et blocage d'Analyser cette étiquette jusqu'à validation conservés."
+  "notes": "Lumières Gemini de même intensité mais sans coupure autour du panneau étiquette : orbes diffusant au-delà du verre, limitées par le bloc IA complet. Poids brut : filet Gemini plus fin et intérieur monochrome neumorphique. Étiquette numérique ramenée à 300 px (adaptative), teinte ivoire grisée avec ombres neumorphiques et barres EAN intactes. Capture, panier, voyant, Nouvelle pesée et blocage jusqu'à validation inchangés."
 }

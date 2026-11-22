@@ -3289,3 +3289,98 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   animation:none!important;
  }
 }
+
+
+/* v41.74 — diffusion naturelle des quatre halos au-delà de la carte DIGI,
+   limitée par le bloc Gemini entier. Aucun changement des couleurs ni
+   de l'intensité des orbes du résultat classique. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
+ overflow:hidden!important;
+ border-radius:20px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-result-glow-shell.iu-gemini-label-shell {
+ overflow:visible!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-label-glow-field.iu-result-glow-field {
+ /* La coupure venait du overflow:hidden + masque sur CE calque.
+    Chaque halo est déjà un dégradé radial transparent avec flou. */
+ inset:-26px -26px -32px!important;
+ overflow:visible!important;
+ -webkit-mask-image:none!important;
+ mask-image:none!important;
+ clip-path:none!important;
+ background:transparent!important;
+}
+/* Le verre du panneau reste un rectangle arrondi distinct des halos :
+   les lumières diffusent en dehors, jusqu'aux bords du bloc Gemini. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+ overflow:hidden!important;
+}
+/* Cadre du brut : même signature Gemini mais un SEUL fin filet coloré.
+   Intérieur purement neutre et relief doux. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel {
+ border-radius:12px!important;
+ padding:8px 10px!important;
+ background:#f0f4f6!important;
+ box-shadow:-2px -2px 5px rgba(255,255,255,.84),
+             2px 3px 6px rgba(88,105,118,.10)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel::before {
+ border-radius:12px!important;
+ opacity:.92!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel::after {
+ inset:1.25px!important;
+ border:1px solid rgba(255,255,255,.80)!important;
+ border-radius:10.75px!important;
+ background:linear-gradient(145deg,#f7f9fa 0%,#eff3f6 56%,#e9eef2 100%)!important;
+ box-shadow:inset 1px 1px 0 rgba(255,255,255,.86),
+            inset -1px -1px 2px rgba(131,146,157,.10)!important;
+}
+/* Papier numérique légèrement plus petit ; gris ivoire monochrome,
+   avec deux ombres opposées et un relief interne neumorphique.
+   Ne pas filtrer le texte ni les barres : EAN et chiffres restent nets. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+ width:min(100%,300px)!important;
+ max-width:300px!important;
+ margin:3px auto 5px!important;
+ border:1px solid rgba(143,138,127,.27)!important;
+ border-radius:9px!important;
+ background:linear-gradient(148deg,#f3f0ea 0%,#ece9e2 53%,#e5e2dc 100%)!important;
+ color:#191b1d!important;
+ filter:none!important;
+ box-shadow:-4px -4px 10px rgba(255,255,255,.76),
+             5px 6px 13px rgba(84,91,95,.13),
+             inset 1px 1px 0 rgba(255,255,255,.73),
+             inset -1px -1px 2px rgba(145,138,126,.13)!important;
+}
+@media(max-width:360px) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+  width:min(100%,280px)!important;
+  max-width:280px!important;
+ }
+}
+@media(max-width:350px) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+  width:min(100%,270px)!important;
+  max-width:270px!important;
+ }
+}
+@media(forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelPanel .iu-gemini-label-frame > .iu-gemini-printed-label {
+  background:Canvas!important;
+  color:CanvasText!important;
+  border:1px solid CanvasText!important;
+  box-shadow:none!important;
+ }
+}
