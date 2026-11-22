@@ -1,6 +1,6 @@
 {
-  "version": "41.89",
+  "version": "41.90",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Contour animé IA revenu à l’épaisseur fine de la v41.87, sans supplément de 1px. Reflets plus saturés et lumineux, aux quatre teintes exactes du contour du bloc de pesée Gemini : rouge #ed4d55, jaune #f9c017, vert #0cb768 et bleu #3287fe. Réglages limités à Gemini ; animation et couleur de l’OCR classique inchangées."
+  "notes": "Harmonisation en-tête pesée IA avec Calcul classique. Petit titre « SERVICE U / PESÉE VIA IA » sur une seule ligne, 10,5 px et gris bleuté #73818a comme la section Calcul. Titre « Nouvelle pesée via Gemini » aligné sur « Nouvelle pesée » (17 px, 16 px sur petit iPhone, #20252b), mêmes 4 px entre intitulés et 20 px sous l’en-tête. Caméra, éclairage, OCR, repères et pesées inchangés."
 }
