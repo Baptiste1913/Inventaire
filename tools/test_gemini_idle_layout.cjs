@@ -282,5 +282,20 @@ assert(labelRules.includes('margin:4px 0 6px!important')&&
  labelRules.includes('letter-spacing:0!important')&&
  !labelRules.includes('line-height:1.35!important'),
  'Label panier copie le classique avec marges resserrées 4px/6px');
+// v41.94 : même marge haute perçue que le classique et galerie
+// rapprochée, avec gain automatique de largeur pour le select.
+const compactBasketCss=css.slice(css.indexOf('/* v41.94 — Marges du libellé'));
+assert(compactBasketCss.length>450&&
+ compactBasketCss.includes('margin-bottom:0!important')&&
+ compactBasketCss.includes('margin:10px 0 5px!important'),
+ 'Tiroir Cloudflare sans cumul des marges ; 10px avant le libellé et 5px après');
+assert(compactBasketCss.includes('> .iu-weigh-scan-option.iu-gemini-photo-option')&&
+ compactBasketCss.includes('margin-left:-6px!important')&&
+ compactBasketCss.includes('margin-left:-4px!important'),
+ 'Galerie rapprochée de Caméra de 6px ou 4px sur petit écran');
+assert(!compactBasketCss.includes('width:60px')&&
+ !compactBasketCss.includes('flex-basis:60px')&&
+ css.includes('flex:1 1 0!important'),
+ 'Boutons gardent leur taille, largeur libérée attribuée au select flexible');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.93 : titre identique, marges réduites et tares dans le menu iOS OK.');
+console.log('Gemini v41.94 : marges du panier harmonisées et galerie rapprochée OK.');
