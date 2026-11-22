@@ -4422,3 +4422,25 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   border:1px solid ButtonText!important;box-shadow:none!important;
  }
 }
+
+/* v41.96 — Sélecteur élargi et espace égal entre les trois éléments.
+   Caméra et import gardent leur taille de 60px (56px sur iPhone étroit).
+   Ancien espace : 11 + 11 - 6 = 16px (12px sur <376px).
+   Nouvel espace : 4 + 4 = 8px ; les 8px libérés (4px sur
+   petit écran) reviennent au sélecteur grâce à flex:1.
+   Même relief et même hauteur pour les trois contrôles. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-basket-scan-row.iu-gemini-scan-row {
+ column-gap:4px!important;
+ gap:4px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-basket-scan-row.iu-gemini-scan-row > .iu-gemini-basket-stack {
+ flex:1 1 0%!important;
+ min-width:0!important;
+ max-width:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-basket-scan-row.iu-gemini-scan-row > .iu-weigh-scan-option.iu-gemini-photo-option {
+ margin-left:0!important;
+}
