@@ -1,6 +1,6 @@
 {
-  "version": "42.06",
+  "version": "42.07",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Fiabilisation de l'analyse Gemini : jusqu'à 2 réessais automatiques avec délai progressif uniquement sur erreurs réseau temporaires ou réponses 429/500/502/503/504, sans nouvelle capture ni enregistrement automatique. Annulation immédiate des délais lors d'une nouvelle pesée ou d'un arrêt. Réponse 401/403 non retentée ; erreurs explicites. Après échec final, la photo actuelle reste disponible et le bouton Réessayer l'analyse redevient utilisable. Validation EAN, calcul prix/poids et enregistrement manuel conservés. Aucun engagement de réussite 100 % ; Worker Cloudflare inchangé."
+  "notes": "Reconnaissance haute fiabilité : capture caméra sans rognage latéral supplémentaire (ancien retrait de 12% supprimé), résolution caméra idéale 2560×1440 et JPEG de capture qualité 0,93. JPEG adaptatif jusqu’à 2400px/qualité 0,93 sans dépasser la limite base64 actuelle du Worker Cloudflare (690000 caractères). Vérification locale indépendante du prix×poids et clé EAN-13, OCR local Tesseract lancé en parallèle de Gemini si disponible, désaccord chiffré bloquant ; secondes analyses Gemini uniquement sur première réponse incohérente, sans validation automatique. Contrôle humain toujours obligatoire. Paramètres internes du Worker non modifiés (accès requis pour augmenter la limite d’image et les jetons de vision)."
 }
