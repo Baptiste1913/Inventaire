@@ -500,10 +500,39 @@ assert(js.includes("signal.addEventListener('abort',onAbort,{once:true})")&&
  js.includes("id!==generation")&&
  js.includes("body=JSON.stringify({type:'iu-gemini-label-test'"),
  'Même photo réutilisée, délais annulables et générations protégées');
-assert(js.includes("const result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id)")&&
+assert(js.includes("let result=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id)")&&
  js.includes("const saveReady=Boolean(validationState());")&&
  js.includes("nextWeigh?.addEventListener('click',()=>{")&&
  js.includes("if(c.arithmeticConsistent!==true")===false,
  'Une requête par tentative ; pas de validation automatique');
+// v42.07 — sécurité des données, capture moins destructrice et vérification hybride.
+assert(js.includes('function cameraCaptureCrop(')&&
+ !js.includes('const focused=width*.88')&&
+ js.includes('return {x,y,width,height};')&&
+ js.includes("width:{ideal:2560},height:{ideal:1440}")&&
+ js.includes("Math.min(1,2400/Math.max(crop.width,crop.height))")&&
+ js.includes("cv.toBlob(resolve,'image/jpeg',.93)"),
+ 'Cadrage conservant les bords et capture caméra à meilleure résolution');
+assert(js.includes('const maxBase64=690000;')&&
+ js.includes('for(const side of [2400,2200,1920,1700,1500])')&&
+ js.includes('for(const quality of [.93,.87,.81,.75])'),
+ 'Compression par résolution/qualité avec budget Cloudflare préservé');
+assert(js.includes('const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1')&&
+ js.includes('eanCheck(ean.slice(0,12))!==ean[12]')&&
+ js.includes('c.independentMismatch===true'),
+ 'Contrôles mathématique et EAN indépendants des drapeaux Gemini');
+assert(js.includes('function independentLocalReadingFor(source)')&&
+ js.includes('function localMismatch(gemini,local)')&&
+ js.includes('function localCheckWithin(check,ms)')&&
+ js.includes('const independent=independentLocalReadingFor(file)')&&
+ js.includes('const local=await localCheckWithin(independent,2200)')&&
+ js.includes('attempts.delete(selectedModel)')&&
+ js.includes('localCheckSource=null;localCheckPromise=null;'),
+ 'OCR local concurrent et désaccord empêchant la validation');
+assert(js.includes("if(validateResult(result).error){")&&
+ js.includes('const second=await requestGeminiWithRecovery(encoded,access,selectedModel,abort.signal,id);')&&
+ js.includes('const saveReady=Boolean(validationState());')&&
+ js.includes("nextWeigh?.addEventListener('click',()=>{"),
+ 'Deuxième passage Gemini seulement après échec de vérification, enregistrement manuel');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.06 : reprises réseau bornées, photo conservée, validation manuelle OK.');
+console.log('Gemini v42.07 : photo haute précision, OCR contradictoire bloquant, EAN/math locaux, seconde lecture ciblée OK.');
