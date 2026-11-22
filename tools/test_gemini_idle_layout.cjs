@@ -490,15 +490,15 @@ assert(section.includes('id="iuGeminiNext"')&&
  'Enregistrement de la pesée inchangé');
 // v42.06 — réessais transitoires bornés : pas d'écritures ni de capture ajoutées.
 assert(js.includes('async function requestGeminiWithRecovery(')&&
- js.includes('const maxAttempts=2;')&&
- js.includes('const nonReadable=status===502&&')&&
- js.includes('attempt<maxAttempts')&&
- js.includes('waitGeminiBackoff('),
- 'Gemini : maximum 3 tentatives avec temporisation seulement pour erreurs transitoires');
-assert(js.includes("if(status===401||status===403)throw Error(")&&
+ js.includes('const unreadable=status===422||')&&
+ !js.includes('maxAttempts=2;')&&
+ !js.includes('attempt<maxAttempts')&&
+ js.includes("throw Error('Étiquette non lue · réessaie cette photo')"),
+ 'Une seule requête par tentative et erreurs de lecture distinctes');
+assert(js.includes("if([401,403].includes(status)||[401,403].includes(providerStatus))")&&
  js.includes("attempts.delete(selectedModel);")&&
  js.includes('analyze.disabled=!file||!pilotKey.value.trim()||active;'),
- 'Clé non réessayée et photo manuellement réanalysable après erreur');
+ 'Refus d’accès sans deuxième appel, photo conservée');
 assert(js.includes("signal.addEventListener('abort',onAbort,{once:true})")&&
  js.includes("signal.removeEventListener('abort',onAbort)")&&
  js.includes("id!==generation")&&
@@ -590,9 +590,9 @@ assert(server.includes("generationConfig:{temperature:0,maxOutputTokens:1024,res
  !server.includes('schemaUnavailableUntil')&&
  !server.includes('responseJsonSchema'),
  'Worker Gemini v42.06 restauré sans format expérimental');
-assert(js.includes('const maxAttempts=2;')&&
+assert(js.includes('const unreadable=status===422||')&&
  js.includes('const saveReady=Boolean(validationState());'),
- 'Relance réseau bornée et enregistrement uniquement sur clic conservés');
+ 'Réseau traité en une seule requête et enregistrement manuel');
 // v42.13 : voyant compact, mêmes marges et marqueurs de sécurité conservés.
 const compactGreen=css.slice(css.indexOf('/* v42.13 — coche réduite'));
 assert(compactGreen.includes('right:5px!important')&&
@@ -633,19 +633,43 @@ assert(js.includes("nextWeigh?.addEventListener('click',()=>{")&&
  'Contrôle métier et validation manuelle préservés');
 // v42.17 — capture réelle, échec relançable et validation bloquée.
 assert(section.includes('id="iuGeminiCameraStill"')&&section.includes('id="iuGeminiFrameState"')&&
- section.includes('id="iuGeminiPhotoContext"')&&section.includes('id="iuGeminiReplacePrompt"'),
- 'Photo figée, état de traitement et confirmation dans le scanner');
+ !section.includes('id="iuGeminiPhotoContext"')&&
+ !section.includes('id="iuGeminiLabPreview"')&&
+ section.includes('id="iuGeminiReplacePrompt"'),
+ 'Photo figée, miniature et détails redondants retirés');
 assert(js.includes('freezeCameraPhoto(true);')&&js.includes('freezeCameraPhoto(false);')&&
  js.includes('lastReadProblem=verified.error||null;')&&
- js.includes('const nonReadable=status===502&&')&&
+ js.includes('const unreadable=status===422||')&&
  !js.includes('window.confirm('),'Erreurs précises et pas de pop-up bloquante');
 assert(js.includes("const caption=canSave?'Enregistrer'")&&
  js.includes("if(digits)digits.textContent=labelReady?corrected.ean:'CODE EN ATTENTE';")&&
  js.includes('else bars.replaceChildren();')&&
  js.includes('const canSave=Boolean(corrected)&&!active&&!duplicateForCurrent();'),
  'Bouton explicite et absence de code-barres fictif en cas de tare incorrecte');
-assert(css.includes('/* v42.17 — reconnaissance fluide')&&
- css.includes('#iuGeminiFrameState[hidden]')&&css.includes('#iuGeminiReplacePrompt[hidden]'),
- 'États visuels révisés');
+assert(css.includes('/* v42.18 — parcours rapide')&&
+ css.includes('> #iuGeminiAnalyze,')&&
+ css.includes('#iuGeminiFrameState .iu-gemini-progress-spinner')&&
+ css.includes('#iuGeminiReplacePrompt[hidden]'),
+ 'Scanner simplifié à une action principale et progression discrète');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.17 : reconnaissance fluide, erreurs explicites, photo source fiable OK.');
+// v42.18 — correction de la tare et classification des erreurs de reconnaissance.
+assert(!section.includes('id="iuGeminiLabPreview"')&&
+ section.includes('id="iuGeminiAnalyze" hidden disabled')&&
+ js.includes('analyze.hidden=true;')&&
+ js.includes("labelAlert.hidden=type==='idle'&&!message;"),
+ 'Miniature supprimée, bouton caché, aucune alerte par défaut');
+assert(js.includes('function needsBasketChange(){')&&
+ js.includes("geminiBasket.showPicker?.();")&&
+ js.includes("needsBasketChange()?'Changer panier'")&&
+ js.includes("if(file&&(lastReadProblem||lastAnalysisError||(!proposal&&latestLabelFields)))"),
+ 'Corriger la tare sans nouvelle analyse ou relire la photo en échec');
+assert(js.includes("setLabelAlert('success','Pesée enregistrée');")&&
+ js.includes('const canSave=Boolean(corrected)&&!active&&!duplicateForCurrent();')&&
+ js.includes('if(labelReady)renderEanBars(bars,corrected.ean);')&&
+ js.includes('else bars.replaceChildren();'),
+ 'Enregistrement volontaire et code-barres après validation');
+assert(server.includes('let providerAnswered=false;')&&
+ server.includes('model},422,origin)')&&
+ server.includes('abort.signal.aborted?504:providerAnswered?422:503'),
+ 'Le Worker distingue lecture non reconnue, délai et panne fournisseur');
+console.log('Gemini v42.18 : interface épurée, tare sans relire et HTTP 502 clarifié OK.');
