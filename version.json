@@ -1,6 +1,6 @@
 {
-  "version": "42.09",
+  "version": "42.10",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Indications d'état déplacées juste au-dessus de l'étiquette virtuelle (sous le contrôle du poids), sans perturber les alertes et leurs annonces accessibles. Texte doublon exact : « Cette étiquette a déjà été enregistrée ». Intérieur du bloc Poids brut à vérifier : fond perle, relief et typographie 13,5px graphite gras identiques à Démarrer un inventaire, filet coloré extérieur conservé. Indicateur de validation : même gabarit carré 32×32px, rayon 11px, verre et relief que Fermer/Flash/Déclencheur, coche verte sans halo en bas à droite ; affiché uniquement lorsque les données, la tare et l'absence de doublon ont permis de préparer une pesée validable. Enregistrement toujours manuel."
+  "notes": "Témoin de reconnaissance caméra : retour au fond vert avec coche blanche plus fine (2,5), gabarit identique aux commandes caméra. Correctif de priorité des styles CSS pour qu'il n'apparaisse pas au repos, durant la reconnaissance, ni sans lecture validable. Le traitement métier, les vérifications anti-doublons et l'enregistrement manuel restent inchangés."
 }
