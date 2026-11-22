@@ -490,14 +490,14 @@ assert(section.includes('id="iuGeminiNext"')&&
  'Enregistrement de la pesée inchangé');
 // v42.06 — réessais transitoires bornés : pas d'écritures ni de capture ajoutées.
 assert(js.includes('async function requestGeminiWithRecovery(')&&
- js.includes('const maxAttempts=3;')&&
- js.includes('const recoverable=[429,500,502,503,504].includes(status);')&&
+ js.includes('const maxAttempts=2;')&&
+ js.includes('const nonReadable=status===502&&')&&
  js.includes('attempt<maxAttempts')&&
  js.includes('waitGeminiBackoff('),
  'Gemini : maximum 3 tentatives avec temporisation seulement pour erreurs transitoires');
 assert(js.includes("if(status===401||status===403)throw Error(")&&
  js.includes("attempts.delete(selectedModel);")&&
- js.includes("analyze.textContent='Réessayer l’analyse';"),
+ js.includes('analyze.disabled=!file||!pilotKey.value.trim()||active;'),
  'Clé non réessayée et photo manuellement réanalysable après erreur');
 assert(js.includes("signal.addEventListener('abort',onAbort,{once:true})")&&
  js.includes("signal.removeEventListener('abort',onAbort)")&&
@@ -590,7 +590,7 @@ assert(server.includes("generationConfig:{temperature:0,maxOutputTokens:1024,res
  !server.includes('schemaUnavailableUntil')&&
  !server.includes('responseJsonSchema'),
  'Worker Gemini v42.06 restauré sans format expérimental');
-assert(js.includes('const maxAttempts=3;')&&
+assert(js.includes('const maxAttempts=2;')&&
  js.includes('const saveReady=Boolean(validationState());'),
  'Relance réseau bornée et enregistrement uniquement sur clic conservés');
 // v42.13 : voyant compact, mêmes marges et marqueurs de sécurité conservés.
@@ -623,13 +623,29 @@ assert(html.includes('gemini-lab.js?v='+version)&&
  !js.includes('imageEncoderWorker'), 'Cache PWA avec lecteur stable');
 assert(js.includes('function hasSavableProposal(){')&&
  js.includes('const locked=Boolean(frameCaptureBusy||(!active&&localOcrBusy));')&&
- js.includes('if(hasSavableProposal()&&!window.confirm(')&&
- js.includes('if(active||proposal||latestLabelFields)resetReading();')&&
+ js.includes('if(hasSavableProposal()&&performance.now()>retakeConfirmUntil')&&
+ js.includes('if(proposal||latestLabelFields||file)resetReading();')&&
  js.includes('generation++;abort?.abort();abort=null;active=false;file=null;'),
  'Correction du blocage de la reprise avec tare invalide préservée');
 assert(js.includes("nextWeigh?.addEventListener('click',()=>{")&&
- js.includes('const canSave=Boolean(corrected)&&!active;')&&
+ js.includes('const canSave=Boolean(corrected)&&!active&&!duplicateForCurrent();')&&
  js.includes('const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;'),
  'Contrôle métier et validation manuelle préservés');
+// v42.17 — capture réelle, échec relançable et validation bloquée.
+assert(section.includes('id="iuGeminiCameraStill"')&&section.includes('id="iuGeminiFrameState"')&&
+ section.includes('id="iuGeminiPhotoContext"')&&section.includes('id="iuGeminiReplacePrompt"'),
+ 'Photo figée, état de traitement et confirmation dans le scanner');
+assert(js.includes('freezeCameraPhoto(true);')&&js.includes('freezeCameraPhoto(false);')&&
+ js.includes('lastReadProblem=verified.error||null;')&&
+ js.includes('const nonReadable=status===502&&')&&
+ !js.includes('window.confirm('),'Erreurs précises et pas de pop-up bloquante');
+assert(js.includes("const caption=canSave?'Enregistrer'")&&
+ js.includes("if(digits)digits.textContent=labelReady?corrected.ean:'CODE EN ATTENTE';")&&
+ js.includes('else bars.replaceChildren();')&&
+ js.includes('const canSave=Boolean(corrected)&&!active&&!duplicateForCurrent();'),
+ 'Bouton explicite et absence de code-barres fictif en cas de tare incorrecte');
+assert(css.includes('/* v42.17 — reconnaissance fluide')&&
+ css.includes('#iuGeminiFrameState[hidden]')&&css.includes('#iuGeminiReplacePrompt[hidden]'),
+ 'États visuels révisés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.16 : moteur v42.06 restauré, interface récente préservée OK.');
+console.log('Gemini v42.17 : reconnaissance fluide, erreurs explicites, photo source fiable OK.');
