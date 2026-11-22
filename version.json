@@ -1,6 +1,6 @@
 {
-  "version": "42.03",
+  "version": "42.04",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Caméra IA : marges intérieures uniformes sur quatre côtés (9px, 8px sur petits iPhone), marges extérieures resserrées à 3px en haut et 1px en bas. Icône du déclencheur colorée en rouge contrasté #d43e50 tout en gardant le même verre et bouton. Flash activé toujours bleu et identifiable, mais sans aucun halo/glow extérieur ni ombre lumineuse sur son icône. Cadrage, capture manuelle, étiquette virtuelle et analyse inchangés."
+  "notes": "Flash IA : à l'activation, seul le pictogramme éclair devient un éclair plein bleu. Le verre, le contour et l'ombre du bouton restent identiques à l'état inactif, sans halo. Espacement sous le sélecteur de paniers réduit (marge de la rangée 8→3px et marge supérieure du bloc caméra 3→1px). Dimensions du sélecteur, viseur, déclencheur rouge, analyse Gemini et fonctionnement manuel préservés."
 }
