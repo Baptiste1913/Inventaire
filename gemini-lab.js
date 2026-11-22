@@ -1,4 +1,4 @@
-/* Inventaires U 41.77 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.79 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -35,6 +35,120 @@
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText');
  const resultGross=$('iuGeminiGrossDisplay');
+
+ // v41.79 : le repère est un véritable exemplaire de l'étiquette DIGI,
+ // et non une maquette indépendante. Toutes les dimensions, typographies,
+ // grilles et rayons sont lus depuis l'étiquette virtuelle réelle.
+ const exactGuide=$('iuGeminiExactGuide');
+ const cameraStage=cameraShell?.querySelector('.iu-gemini-camera-stage');
+ let guideSnapshot=null,guideSize=null,guideScheduled=false;
+ const guideStyleProperties=[
+  'display','position','box-sizing','width','height','min-width','max-width',
+  'min-height','max-height','margin-top','margin-right','margin-bottom','margin-left',
+  'padding-top','padding-right','padding-bottom','padding-left',
+  'grid-template-columns','grid-template-rows','grid-auto-flow',
+  'grid-column','grid-row','column-gap','row-gap','gap',
+  'flex-direction','flex-wrap','flex-grow','flex-shrink','flex-basis',
+  'align-items','align-self','align-content','justify-content','justify-items',
+  'justify-self','order','top','right','bottom','left',
+  'border-top-width','border-right-width','border-bottom-width','border-left-width',
+  'border-top-style','border-right-style','border-bottom-style','border-left-style',
+  'border-top-left-radius','border-top-right-radius',
+  'border-bottom-left-radius','border-bottom-right-radius',
+  'font-family','font-size','font-weight','font-style','font-stretch',
+  'font-variant-numeric','line-height','letter-spacing','word-spacing',
+  'text-align','text-transform','text-indent','white-space','overflow-wrap',
+  'overflow','overflow-x','overflow-y','vertical-align','transform',
+  'object-fit','opacity'
+ ];
+ function copyExactGuideStyles(source,copy){
+  const sourceNodes=[source,...source.querySelectorAll('*')];
+  const copyNodes=[copy,...copy.querySelectorAll('*')];
+  if(sourceNodes.length!==copyNodes.length)return false;
+  for(let i=0;i<sourceNodes.length;i++){
+   const computed=getComputedStyle(sourceNodes[i]);
+   const target=copyNodes[i];
+   for(const property of guideStyleProperties){
+    const value=computed.getPropertyValue(property);
+    if(value)target.style.setProperty(property,value,'important');
+   }
+   // Le gabarit reste translucide pour voir le produit derrière.
+   // Les dimensions et les bordures proviennent toujours du vrai modèle.
+   target.style.setProperty('background','transparent','important');
+   target.style.setProperty('box-shadow','none','important');
+   target.style.setProperty('color','rgba(255,255,255,.82)','important');
+   target.style.setProperty('-webkit-text-fill-color','rgba(255,255,255,.82)','important');
+   target.style.setProperty('border-color','rgba(255,255,255,.18)','important');
+   target.style.setProperty('opacity','1','important');
+   target.style.setProperty('pointer-events','none','important');
+   if(target.classList?.contains('iu-gemini-label-bars')){
+    // Même emprise que le vrai code DIGI, mais sans faux EAN.
+    target.style.setProperty('background',
+     'repeating-linear-gradient(90deg,rgba(255,255,255,.56) 0 1px,transparent 1px 3px,rgba(255,255,255,.35) 3px 5px,transparent 5px 8px)',
+     'important');
+   }
+   if(target.classList?.contains('iu-gemini-label-total'))
+    target.style.setProperty('border-color','rgba(255,255,255,.82)','important');
+  }
+  copy.style.setProperty('border-color','rgba(255,255,255,.87)','important');
+  copy.style.setProperty('margin','0','important');
+  copy.style.setProperty('filter','none','important');
+  return true;
+ }
+ function syncExactCameraGuide(){
+  if(!cameraStage||!exactGuide||!output)return;
+  const source=output.querySelector('.iu-gemini-printed-label.iu-gemini-label-placeholder');
+  const stage=cameraStage.getBoundingClientRect();
+  if(stage.width<40||stage.height<40)return;
+  if(source){
+   const bounds=source.getBoundingClientRect();
+   if(bounds.width>60&&bounds.height>40&&
+      (!guideSnapshot||!guideSize||
+       Math.abs(bounds.width-guideSize.width)>.5||
+       Math.abs(bounds.height-guideSize.height)>.5)){
+    const copy=source.cloneNode(true);
+    if(copyExactGuideStyles(source,copy)){
+     guideSize={width:bounds.width,height:bounds.height};
+     copy.style.setProperty('width',bounds.width+'px','important');
+     copy.style.setProperty('height',bounds.height+'px','important');
+     copy.setAttribute('aria-hidden','true');
+     guideSnapshot=copy;
+     exactGuide.replaceChildren(copy);
+    }
+   }
+  }
+  if(!guideSnapshot||!guideSize)return;
+  const ratio=guideSize.width/guideSize.height;
+  cameraStage.style.setProperty('--iu-gemini-exact-aspect',ratio.toFixed(6));
+  const scale=Math.min((stage.width-18)/guideSize.width,
+   (stage.height-18)/guideSize.height);
+  if(!(scale>0))return;
+  exactGuide.style.width=(guideSize.width*scale)+'px';
+  exactGuide.style.height=(guideSize.height*scale)+'px';
+  guideSnapshot.style.setProperty('transform','scale('+scale+')','important');
+  guideSnapshot.style.setProperty('transform-origin','top left','important');
+ }
+ function scheduleExactCameraGuide(){
+  if(guideScheduled)return;
+  guideScheduled=true;
+  requestAnimationFrame(()=>{
+   guideScheduled=false;
+   syncExactCameraGuide();
+  });
+ }
+ if(cameraStage&&exactGuide){
+  scheduleExactCameraGuide();
+  if(typeof ResizeObserver==='function'){
+   const observer=new ResizeObserver(scheduleExactCameraGuide);
+   observer.observe(cameraStage);
+   if(output)observer.observe(output);
+  }
+  if(output&&typeof MutationObserver==='function')
+   new MutationObserver(scheduleExactCameraGuide).observe(output,{childList:true});
+  window.addEventListener('resize',scheduleExactCameraGuide,{passive:true});
+  document.fonts?.ready?.then(scheduleExactCameraGuide).catch(()=>{});
+ }
+
  // La carte reste compacte en permanence : seuls les états changent.
  function updateCardState(nextState){
   panel.dataset.scanState=nextState||(!output.hidden?'review':file?'working':'search');
