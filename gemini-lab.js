@@ -1,4 +1,4 @@
-/* Inventaires U 42.09 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.11 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -23,6 +23,19 @@
  const fixedModel='gemini-3.5-flash-lite';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
+ // v42.11 : anticiper DNS/TLS sans envoyer de secret ni de photo.
+ let geminiPreconnectDone=false;
+ function warmGeminiConnection(){
+  if(geminiPreconnectDone)return;
+  geminiPreconnectDone=true;
+  try{
+   const hint=document.createElement('link');
+   hint.rel='preconnect';
+   hint.href=new URL(endpoint).origin;
+   hint.crossOrigin='anonymous';
+   document.head.append(hint);
+  }catch(_){/* Préconnexion purement opportuniste. */}
+ }
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
   cameraIdle=$('iuGeminiCameraIdle'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
@@ -179,6 +192,8 @@
   localCandidate=null,localPasses=0;
  // Réutiliser la même vérification OCR si Gemini relit la même photo.
  let localCheckSource=null,localCheckPromise=null;
+ // Une seule décompression source pour l'OCR et le JPEG réseau.
+ let photoDecodeCache=new WeakMap();
  let cameraMode='manual',autoTimer=0,autoLocked=false,autoSuspended=false,
   autoLastFrame=null,autoLastCaptured=null,autoChangeReference=null,
   autoNeedsChange=false,autoChangeCount=0,autoStableSince=0,autoStableCount=0,
@@ -392,6 +407,7 @@
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
   localCheckSource=null;localCheckPromise=null;
+  photoDecodeCache=new WeakMap();
   attempts.clear();photo.value='';latestLabelFields=null;
   showBlankLabel();networkTime.textContent='';resetProposal();
   if(grossPreview)grossPreview.value='';
@@ -418,6 +434,8 @@
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
   localCheckSource=null;localCheckPromise=null;
+  photoDecodeCache=new WeakMap();
+  warmGeminiConnection();
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
@@ -536,35 +554,54 @@
   if(!opening)clear();
  });
  function decodePhoto(source){
-  return new Promise((resolve,reject)=>{
+  const cached=photoDecodeCache.get(source);
+  if(cached)return cached;
+  const pending=new Promise((resolve,reject)=>{
    const localUrl=URL.createObjectURL(source);
    const img=new Image();
    img.onload=()=>{URL.revokeObjectURL(localUrl);resolve(img);};
    img.onerror=()=>{URL.revokeObjectURL(localUrl);reject(Error('Format photo non pris en charge'));};
    img.src=localUrl;
+  }).catch(error=>{
+   photoDecodeCache.delete(source);
+   throw error;
+  });
+  photoDecodeCache.set(source,pending);
+  return pending;
+ }
+ function jpegBase64(blob){
+  return new Promise((resolve,reject)=>{
+   const reader=new FileReader();
+   reader.onerror=()=>reject(Error('Lecture JPEG indisponible'));
+   reader.onload=()=>{
+    const value=String(reader.result||''),comma=value.indexOf(',');
+    if(comma<0)return reject(Error('Format JPEG invalide'));
+    resolve(value.slice(comma+1));
+   };
+   reader.readAsDataURL(blob);
   });
  }
+ function jpegCanvasBlob(canvas,quality){
+  // Ne plus produire de grosses chaînes Base64 synchrones inutiles.
+  if(typeof canvas.toBlob==='function'){
+   return new Promise((resolve,reject)=>{
+    try{canvas.toBlob(blob=>blob?resolve(blob):reject(Error('JPEG indisponible')),
+      'image/jpeg',quality);}
+    catch(error){reject(error);}
+   });
+  }
+  return Promise.resolve(null);
+ }
  async function imageBase64(source){
-  // Le Worker Cloudflare actuel impose encore un budget d'environ
-  // 690000 caractères base64. Augmenter les pixels utiles À L’INTÉRIEUR
-  // de ce budget avant de toucher à la qualité JPEG. Une mise à niveau
-  // côté Worker sera nécessaire pour envoyer davantage d'octets.
+  // Limite Worker et qualité de v42.10 inchangées.
   const maxBase64=690000;
+  const maxJpegBytes=Math.floor(maxBase64*3/4);
   if(source?.name==='etiquette-gemini.jpg'&&source.type==='image/jpeg'&&
      source.size>=100&&source.size<=505000){
    try{
-    const encoded=await new Promise((resolve,reject)=>{
-     const reader=new FileReader();
-     reader.onerror=()=>reject(Error('Lecture JPEG indisponible'));
-     reader.onload=()=>{
-      const value=String(reader.result||''),comma=value.indexOf(',');
-      if(comma<0)return reject(Error('Format JPEG invalide'));
-      resolve(value.slice(comma+1));
-     };
-     reader.readAsDataURL(source);
-    });
+    const encoded=await jpegBase64(source);
     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
-   }catch(_){/* Safari peut exiger le chemin canvas. */}
+   }catch(_){/* Repli canvas Safari. */}
   }
   const img=await decodePhoto(source);
   const maxSide=Math.max(img.naturalWidth,img.naturalHeight);
@@ -572,11 +609,6 @@
   const cv=document.createElement('canvas');
   const ctx=cv.getContext('2d');
   if(!ctx)throw Error('Traitement image impossible sur cet appareil');
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality='high';
-  // Préserver les détails des chiffres : réduire par paliers plutôt
-  // qu'écraser une seule image à une qualité très basse.
-  // Ne pas recompresser plusieurs fois la même taille native.
   let previousWidth=0,previousHeight=0;
   for(const side of [2400,2200,1920,1700,1500]){
    const factor=Math.min(1,side/maxSide);
@@ -591,9 +623,19 @@
    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
    ctx.drawImage(img,0,0,width,height);
    for(const quality of [.93,.87,.81,.75]){
-    const data=cv.toDataURL('image/jpeg',quality);
-    const encoded=data.slice(data.indexOf(',')+1);
-    if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+    const blob=await jpegCanvasBlob(cv,quality);
+    if(blob){
+     // Base64 utilise 4*ceil(bytes/3) caractères.
+     if(blob.type&&blob.type!=='image/jpeg')continue;
+     if(blob.size<75||blob.size>maxJpegBytes)continue;
+     const encoded=await jpegBase64(blob);
+     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+    }else{
+     // Compatibilité si toBlob est indisponible.
+     const data=cv.toDataURL('image/jpeg',quality);
+     const encoded=data.slice(data.indexOf(',')+1);
+     if(encoded.length>=100&&encoded.length<=maxBase64)return encoded;
+    }
    }
   }
   throw Error('Photo trop détaillée pour la limite actuelle Cloudflare. Recadre-la manuellement ou réessaie.');
@@ -959,6 +1001,7 @@
  }
  async function startCamera(){
   if(cameraStarting||active)return;
+  warmGeminiConnection();
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
   // getUserMedia tant que la caméra fonctionne dans cette session.
   if(cameraStream){
@@ -1024,7 +1067,6 @@
    // Évite d'attendre son démarrage après la réponse Gemini.
    if(localReader)void ensureLocalOcr();
    refreshTorch();
-   if(cameraMode==='auto')void ensureLocalOcr();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
    else setAutoHint('Valide ou reprends la lecture en cours','waiting');
    say(cameraMode==='auto'
@@ -1063,6 +1105,9 @@
   startCamera();
  });
  modePhoto?.addEventListener('click',()=>{
+  warmGeminiConnection();
+  // Charger l'OCR pendant le choix de la photo dans iOS.
+  if(localReader)void ensureLocalOcr();
   selectReadingMode('photo');
   autoSuspended=true;
   photo.click();
