@@ -161,5 +161,22 @@ assert(css.includes('/* v41.87 — Filaments nacrés')&&
 assert(html.includes('weigh-light.js?v='+version)&&
  sw.includes('weigh-light.js?v='+version),
  'Nouveau moteur lumineux rechargé en PWA et en Safari');
+// v41.88 — épaisseur +1px et palette Gemini strictement limitée à l'IA.
+assert(lightEngine.includes("const isGemini=overlay.id==='iuGeminiCameraShell'")&&
+ lightEngine.includes('const contourBoost=isGemini?1:0'),
+ 'Épaississement de 1 px ciblant seulement le contour Gemini');
+assert(lightEngine.includes('ctx.lineWidth=widthPx+contourBoost')&&
+ (lightEngine.match(/\(widthPx\+contourBoost\)\*p\.envelope\/2/g)||[]).length===2,
+ 'Filaments et deux bords des rubans animés épaissis symétriquement');
+assert(lightEngine.includes('if(isGemini){')&&
+ lightEngine.includes("tint:'#4285f4'")&&
+ lightEngine.includes("tint:'#9769d5'")&&
+ lightEngine.includes("tint:'#e66bb8'")&&
+ lightEngine.includes("tint:'#f3a36b'"),
+ 'Reflets bleu, violet, rose et corail de Gemini appliqués au contour IA');
+assert(lightEngine.includes("tint:'#44d4ae'")&&
+ lightEngine.includes("tint:'#c4315b'")&&
+ lightEngine.includes('   return;\n  }\n  // Reflets bleu, émeraude et rubis'),
+ 'Palette d’origine strictement conservée dans la branche OCR classique');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.87 : contour DIGI animé par le Canvas OCR existant OK.');
+console.log('Gemini v41.88 : contour IA +1 px aux couleurs Gemini, OCR inchangé OK.');
