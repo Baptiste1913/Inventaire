@@ -1,6 +1,6 @@
 {
-  "version": "41.85",
+  "version": "41.86",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Viseur Gemini pleine largeur : suppression du format vidéo très panoramique qui laissait de grandes bandes latérales autour du gabarit DIGI. Fenêtre calée sur le ratio réel 1372/1088, étendue jusqu'aux bords internes du bloc et flux vidéo recadré avec object-fit:cover sans étirement. Les sept zones, l'OCR, les captures et le flash sont conservés."
+  "notes": "Caméra Gemini harmonisée avec l’OCR classique : largeur 100 % du viseur, hauteur fixe de 184 px (160 px sur iPhone étroit), marges internes 9/8 px et coins 16 px. Vidéo centrée en object-fit:cover, sans déformation, ni ratio DIGI imposé à la caméra. Les sept repères DIGI, l’OCR, le flash et la capture sont préservés."
 }
