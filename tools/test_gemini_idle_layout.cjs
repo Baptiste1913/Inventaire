@@ -519,8 +519,9 @@ assert(js.includes('function cameraCaptureCrop(')&&
  'Cadrage conservant les bords et capture caméra à meilleure résolution');
 assert(js.includes('const maxBase64=690000;')&&
  js.includes('for(const side of [2400,2200,1920,1700,1500])')&&
- js.includes('for(const quality of [.93,.87,.81,.75])'),
- 'Compression par résolution/qualité avec budget Cloudflare préservé');
+ js.includes('const qualities=[.93,.87,.81,.75];')&&
+ js.includes("for(const quality of [.93,.87,.81,.75])"),
+ 'Compression par résolution/qualité inchangée et repli ancien Safari');
 assert(js.includes('const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1')&&
  js.includes('eanCheck(ean.slice(0,12))!==ean[12]')&&
  js.includes('c.independentMismatch===true'),
@@ -612,7 +613,8 @@ assert(js.includes('let photoDecodeCache=new WeakMap();')&&
 assert(js.includes("canvas.toBlob(blob=>blob?resolve(blob):reject(Error('JPEG indisponible'))")&&
  js.includes('const maxJpegBytes=Math.floor(maxBase64*3/4)')&&
  js.includes('for(const side of [2400,2200,1920,1700,1500])')&&
- js.includes('for(const quality of [.93,.87,.81,.75])'),
+ js.includes('const qualities=[.93,.87,.81,.75];')&&
+ js.includes("for(const quality of [.93,.87,.81,.75])"),
  'JPEG asynchrone sans diminuer qualité/résolution ni augmenter le payload');
 assert(js.includes('const independent=independentLocalReadingFor(file)')&&
  js.includes('const local=await localCheckWithin(independent,2200)')&&
@@ -623,7 +625,7 @@ assert(js.includes('const independent=independentLocalReadingFor(file)')&&
 const server=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
 assert(server.includes('const geminiLabelJsonSchema={')&&
  server.includes("required:['name','weightKg','pricePerKgEur','totalEur','ean13']")&&
- server.includes('if(res.status===400&&!abort.signal.aborted)res=await askGemini(false);')&&
+ server.includes('if(structured&&res.status===400&&!abort.signal.aborted){')&&
  server.includes('if(structured)generationConfig.responseJsonSchema=geminiLabelJsonSchema;'),
  'Schéma JSON contrôlé et repli compatible seulement sur rejet 400');
 assert(server.includes('maxOutputTokens:2048')&&
@@ -658,5 +660,37 @@ assert(js.includes("nextWeigh?.addEventListener('click',()=>{")&&
  js.includes("const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;")&&
  css.includes('> #iuGeminiDetected.iu-weigh-scan-detected-indicator[hidden] {'),
  'Validation volontaire et masquage des étiquettes non valides conservés');
+// v42.14 — première visualisation rapide sans validation prématurée.
+const imageWorker=fs.readFileSync('gemini-image-worker.js','utf8');
+assert(html.includes('gemini-lab.js?v='+version)&&
+ sw.includes('gemini-image-worker.js?v='+version)&&
+ js.includes("new Worker(new URL('gemini-image-worker.js?v=42.14',document.baseURI))"),
+ 'Worker image disponible et versionné avec la PWA');
+assert(js.includes('let proposal=null,latestLabelFields=null,previewPending=false')&&
+ js.includes("display(result,performance.now()-start,{provisional:true});")&&
+ js.includes('const canSave=Boolean(corrected)&&!active&&!previewPending;')&&
+ js.includes('nextWeigh.disabled=active||previewPending;')&&
+ js.includes('proposal=provisional?null:(verified.error?null:verified);')&&
+ js.includes('previewPending=false;'),
+ 'Affichage précoce séparé de la validation manuelle');
+assert(js.includes("if(previewPending)bars.replaceChildren();")&&
+ js.includes("provisional?'EN VÉRIFICATION':")&&
+ js.includes('if(!provisional)renderEanBars(')&&
+ js.includes("if(previewPending){setLabelAlert('idle','Vérification OCR en cours…');return;}"),
+ 'Aucun code-barres visualisable ni état validé avant vérification');
+assert(js.includes('function encodeOnImageWorker(source,maxBytes)')&&
+ js.includes('const offthread=await encodeOnImageWorker(source,maxJpegBytes);')&&
+ js.includes("if(typeof cv.toBlob!=='function')")&&
+ js.includes('const qualities=[.93,.87,.81,.75];')&&
+ imageWorker.includes('new OffscreenCanvas(1,1)')&&
+ imageWorker.includes('for(const side of [2400,2200,1920,1700,1500])')&&
+ imageWorker.includes('const top=await encode(.93)'),
+ 'JPEG adaptatif hors UI et repli avec les mêmes qualités haute résolution');
+assert(server.includes('const schemaUnavailableUntil=new Map();')&&
+ server.includes('schemaUnavailableUntil.get(model)')&&
+ server.includes('schemaUnavailableUntil.set(model,Date.now()+15*60*1000)')&&
+ server.includes('res=await askGemini(false);')&&
+ server.includes('providerError=String(await res.text()).slice(0,6000)'),
+ 'Mémoire bornée des refus de schéma JSON sans perte de compatibilité');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.13 : voyant 27px, étiquette prête et date du jour locale OK.');
+console.log('Gemini v42.14 : aperçu provisoire sûr, JPEG adaptatif en Worker et schéma Gemini mémorisé OK.');
