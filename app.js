@@ -131,17 +131,21 @@ function persistHistory(){try{safeSetItem(HISTORY_KEY,JSON.stringify(history));r
 // Recherche d'un doublon dans l'inventaire courant et dans l'historique récent.
 // C'est une information de vigilance, jamais un blocage de validation volontaire.
 // Le même EAN et le même poids peuvent correspondre à deux produits physiques.
-function iuGeminiDuplicate(ean,gross,tare){
- if(!/^\d{13}$/.test(ean||'')||!Number.isSafeInteger(gross)||!Number.isSafeInteger(tare))return null;
- const match=x=>x?.source==='gemini'&&x.ean13===ean&&x.gross===gross&&x.tare===tare;
+function iuGeminiDuplicate(ean,gross,rate,total){
+ // Étiquette imprimée identique = EAN complet, poids, prix/kg et total.
+ // La tare dépend du panier sélectionné et ne doit pas masquer un doublon.
+ if(!/^\d{13}$/.test(ean||'')||!Number.isSafeInteger(gross)||
+    !Number.isSafeInteger(rate)||!Number.isSafeInteger(total))return null;
+ const match=x=>x?.source==='gemini'&&x.ean13===ean&&
+  x.gross===gross&&x.pricePerKgCents===rate&&x.originalTotalCents===total;
  const session=getActiveSession();
  return (session?.entries||[]).find(match)||
   history.find(x=>match(x)&&Date.now()-x.at<24*60*60*1000)||null;
 }
-window.IUGeminiDuplicateInfo=payload=>{
- const basket=baskets.find(x=>x.id===$('basketSelect').value);
- return {duplicate:Boolean(basket&&iuGeminiDuplicate(payload?.ean13,payload?.gross,basket.tare))};
-};
+window.IUGeminiDuplicateInfo=payload=>({
+ duplicate:Boolean(iuGeminiDuplicate(payload?.ean13,payload?.gross,
+  payload?.pricePerKgCents,payload?.totalCents))
+});
 // Gemini utilise les mêmes historiques et sessions que la pesée classique.
 window.IUGeminiSaveWeigh=payload=>{
  const gross=payload?.gross,rate=payload?.pricePerKgCents,total=payload?.totalCents;
@@ -154,10 +158,13 @@ window.IUGeminiSaveWeigh=payload=>{
  const net=gross-b.tare;
  if(Math.abs(Math.round(gross*rate/1000)-total)>1)return {ok:false,reason:'Prix original incohérent'};
  const now=Date.now();
- const duplicate=Boolean(iuGeminiDuplicate(ean,gross,b.tare));
- // L'utilisateur a explicitement touché « Nouvelle pesée » :
- // conserver son choix d'enregistrer même lorsque l'alerte signalait un doublon.
+ const duplicate=Boolean(iuGeminiDuplicate(ean,gross,rate,total));
+ // Deux étiquettes identiques peuvent être deux vrais articles. Exiger
+ // une confirmation explicite, également contrôlée au moment de la sauvegarde.
+ if(duplicate&&payload?.confirmDuplicate!==true)
+  return {ok:false,duplicate:true,reason:'Doublon à confirmer'};
  const entry={id:uid(),at:now,name:b.name,tare:b.tare,gross,net,
+  duplicateConfirmed:duplicate&&payload?.confirmDuplicate===true,
   source:'gemini',product,ean13:ean,correctedEan13:corrected,
   pricePerKgCents:rate,originalTotalCents:total,correctedTotalCents:payload.correctedTotalCents,
   model:'gemini-3.5-flash-lite'};
@@ -186,7 +193,10 @@ window.IUGeminiSaveWeigh=payload=>{
 function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
 const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('aria-expanded',String(historyExpanded));const label=btn.querySelector('.history-toggle-label');if(label)label.textContent=historyExpanded?'Réduire l’historique':`Voir les ${history.length} pesées`;
 if(!history.length){const p=document.createElement('p');p.className='empty history-empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
-for(const entry of (historyExpanded?history:history.slice(0,5))){const row=document.createElement('article');row.className='history-item'+(entry.source==='gemini'?' history-item-gemini':'');const info=document.createElement('div');info.className='history-info';const name=document.createElement('strong');name.className='history-name';name.textContent=entry.name;const meta=document.createElement('div');meta.className='history-meta';const date=document.createElement('span');date.className='history-chip';date.textContent=new Date(entry.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit'});const detail=document.createElement('span');detail.className='history-chip history-chip-detail';detail.textContent=`Brut ${fmt(entry.gross)} kg · Tare ${fmt(entry.tare)} kg`;meta.append(date,detail);if(entry.source==='gemini'){const badge=document.createElement('span');badge.className='history-chip history-chip-gemini';badge.textContent='✧ Gemini';meta.prepend(badge);const extra=document.createElement('div');extra.className='history-gemini-extra';extra.textContent=[entry.product,entry.ean13?'EAN '+entry.ean13:null,entry.correctedEan13?'Corrigé '+entry.correctedEan13:null,Number.isInteger(entry.pricePerKgCents)?(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €/kg':null,Number.isInteger(entry.correctedTotalCents)?(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' € après tare':null].filter(Boolean).join(' · ');info.append(name,meta,extra);}else info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);if(entry.source==='gemini'){const star=document.createElement('span');star.className='iu-gemini-star-badge iu-gemini-history-star';star.setAttribute('role','img');star.setAttribute('aria-label','Pesée réalisée par Gemini');star.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiHistoryGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiHistoryGradient)"/></svg>';row.append(star);}row.append(info,result);list.append(row);}}
+for(const entry of (historyExpanded?history:history.slice(0,5))){const row=document.createElement('article');row.className='history-item'+(entry.source==='gemini'?' history-item-gemini':'');const info=document.createElement('div');info.className='history-info';const name=document.createElement('strong');name.className='history-name';name.textContent=entry.name;const meta=document.createElement('div');meta.className='history-meta';const date=document.createElement('span');date.className='history-chip';date.textContent=new Date(entry.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit'});const detail=document.createElement('span');detail.className='history-chip history-chip-detail';detail.textContent=`Brut ${fmt(entry.gross)} kg · Tare ${fmt(entry.tare)} kg`;meta.append(date,detail);if(entry.source==='gemini'){const badge=document.createElement('span');badge.className='history-chip history-chip-gemini';badge.textContent='✧ Gemini';meta.prepend(badge);if(entry.duplicateConfirmed){
+ const confirmed=document.createElement('span');confirmed.className='history-chip history-chip-detail';
+ confirmed.textContent='Doublon confirmé';meta.append(confirmed);
+}const extra=document.createElement('div');extra.className='history-gemini-extra';extra.textContent=[entry.product,entry.ean13?'EAN '+entry.ean13:null,entry.correctedEan13?'Corrigé '+entry.correctedEan13:null,Number.isInteger(entry.pricePerKgCents)?(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €/kg':null,Number.isInteger(entry.correctedTotalCents)?(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' € après tare':null].filter(Boolean).join(' · ');info.append(name,meta,extra);}else info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);if(entry.source==='gemini'){const star=document.createElement('span');star.className='iu-gemini-star-badge iu-gemini-history-star';star.setAttribute('role','img');star.setAttribute('aria-label','Pesée réalisée par Gemini');star.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiHistoryGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiHistoryGradient)"/></svg>';row.append(star);}row.append(info,result);list.append(row);}}
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
 function persist(){
  try{safeSetItem(STORAGE_KEY,JSON.stringify(baskets));render();return true;}
