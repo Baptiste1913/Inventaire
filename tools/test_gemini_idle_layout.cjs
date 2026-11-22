@@ -183,5 +183,26 @@ assert(lightEngine.includes("tint:'#44d4ae'")&&
  lightEngine.includes("tint:'#c4315b'")&&
  lightEngine.includes('   return;\n  }\n  // Reflets bleu, émeraude et rubis'),
  'Moteur OCR classique conservé derrière la branche dédiée Gemini');
+// v41.90 : en-tête Gemini strictement aligné sur le bloc Calcul.
+assert(section.includes('<span class="section-kicker">SERVICE U / PESÉE VIA IA</span>')&&
+ section.includes('<h2 id="iu-gemini-section-title">Nouvelle pesée via Gemini</h2>'),
+ 'Les deux nouveaux titres Gemini sont exacts');
+assert(html.includes('<span class="section-kicker">SERVICES U / CALCUL</span><h2 id="calc-title">Nouvelle pesée</h2>'),
+ 'L’en-tête du calcul classique reste inchangé');
+const headingCss=css.slice(css.indexOf('/* v41.90 — même hiérarchie'));
+assert(headingCss.length>1000&&headingCss.includes('margin:0 0 20px!important')&&
+ headingCss.includes('gap:4px!important'),
+ 'Marges verticales et espacement identiques aux titres Calcul');
+assert(headingCss.includes('font-size:10.5px!important')&&
+ headingCss.includes('color:#73818a!important')&&
+ headingCss.includes('-webkit-text-fill-color:#73818a!important')&&
+ headingCss.includes('white-space:nowrap!important')&&
+ headingCss.includes('max-width:100%!important'),
+ 'Service U / Pesée via IA sur une ligne avec la taille et teinte du Calcul');
+assert(headingCss.includes('font-size:17px!important')&&
+ headingCss.includes('font-size:16px!important')&&
+ headingCss.includes('color:#20252b!important')&&
+ headingCss.includes('letter-spacing:-.45px!important'),
+ 'Titre principal Gemini calqué sur Nouvelle pesée, y compris petit écran');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.89 : épaisseur rétablie et quatre couleurs du bloc Gemini renforcées OK.');
+console.log('Gemini v41.90 : titres et espacements harmonisés avec Calcul classique OK.');
