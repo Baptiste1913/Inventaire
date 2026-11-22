@@ -1,6 +1,6 @@
 {
-  "version": "42.15",
+  "version": "42.16",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Correction du scanner Gemini : suppression du Worker JPEG expérimental pouvant entraîner 11 s d’attente, restauration de la compression asynchrone haute fidélité v42.13 ; seconde analyse automatique supprimée lorsqu’une lecture est incertaine (réessai disponible sur la même photo). Déclencheur de caméra utilisable même avec tare >= poids brut et durant une analyse longue, confirmation avant abandon d'une pesée enregistrable. Import d’une nouvelle photo annule proprement la précédente analyse. Vérifications OCR local, prix/poids, EAN, tare, verrouillage provisoire et enregistrement manuel conservés. Worker Cloudflare distant inchangé."
+  "notes": "Retour ciblé au moteur Gemini éprouvé v42.06, avant l'augmentation des traitements : image JPEG 1600px et compression historique, capture caméra 1920×1080 et cadrage d'origine, aucun traitement OCR supplémentaire parallèle, aucun aperçu provisoire, un seul passage Gemini par tentative hors reprises réseau bornées, Worker Gemini revenu à son contrat JSON de v42.06. Les libellés, dates et styles ajoutés depuis (voyant vert 27px, disposition, fond du poids, messages doublon et « étiquette prête ») restent intacts. Les corrections permettant une nouvelle capture après tare invalide et tous les contrôles prix/poids, EAN et sauvegarde manuelle restent conservés. Source Worker sur GitHub seulement : le service Cloudflare en ligne nécessite un déploiement séparé."
 }
