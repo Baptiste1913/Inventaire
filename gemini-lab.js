@@ -493,7 +493,6 @@
   clearPreview();file=chosen;attempts.clear();generation++;
   url=URL.createObjectURL(chosen);
   picture.src=url;picture.hidden=false;
-  freezeCameraPhoto(true);
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
   showBlankLabel();networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
