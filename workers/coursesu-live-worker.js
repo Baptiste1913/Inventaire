@@ -322,7 +322,9 @@ async function geminiPilot(request,env,origin){
   return reply({...closed,error:'Modèle ou image JPEG incorrect.'},400,origin);
  const photoBytes=payload.imageBase64.length*3/4;
  if(photoBytes>525000)return reply({...closed,error:'Photo trop volumineuse.'},413,origin);
- const prompt='Tu es un lecteur visuel d’étiquettes DIGI du rayon fruits et légumes. '
+ const focus=['name','weight','rate','total','ean'].includes(payload?.focusField)
+  ?payload.focusField:null;
+ const generalPrompt='Tu es un lecteur visuel d’étiquettes DIGI du rayon fruits et légumes. '
   +'Lis uniquement les informations VISIBLES sur cette seule photo, sans inventer, déduire ou compléter. '
   +'Rends un objet JSON uniquement avec les clés name, weightKg, pricePerKgEur, totalEur, ean13. '
   +'Chaque valeur est une chaîne exacte ou null si texte non visible, ambigu ou illisible. '
@@ -331,6 +333,14 @@ async function geminiPilot(request,env,origin){
   +'totalEur = prix affiché dans Prix à payer (ex. "2,11"); '
   +'ean13 = exactement 13 chiffres lisibles, sinon null. '
   +'NE déduis JAMAIS un chiffre par la somme, le prix, le code ou un article supposé.';
+ const focusNames={name:'le nom du produit',weight:'le poids net imprimé',rate:'le prix unitaire en €/kg',
+  total:'le prix à payer',ean:'les 13 chiffres sous le code-barres EAN-13'};
+ const focusKeys={name:'name',weight:'weightKg',rate:'pricePerKgEur',total:'totalEur',ean:'ean13'};
+ const prompt=focus?generalPrompt+
+  ' Cette requête est une RELECTURE CIBLÉE : concentre-toi uniquement sur '+focusNames[focus]+
+  '. Renseigne uniquement la propriété '+focusKeys[focus]+
+  ' dans les 5 clés JSON. Mets les quatre autres propriétés à null. Aucune supposition.'
+  :generalPrompt;
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),55000);
  const started=Date.now();
  let providerAnswered=false;
@@ -396,8 +406,8 @@ async function geminiPilot(request,env,origin){
   const ean13=typeof extracted.ean13==='string'&&validEAN13(extracted.ean13)
     ?extracted.ean13:null;
   const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
-    &&Math.round(weightGrams*pricePerKgCents/1000)===totalCents;
-  return reply({...closed,model,elapsedMs:Date.now()-started,
+    &&Math.abs(Math.round(weightGrams*pricePerKgCents/1000)-totalCents)<=1;
+  return reply({...closed,model,focusField:focus,elapsedMs:Date.now()-started,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null},
    verifiedForInventory:false,warning:'Données indicatives : vérifier visuellement chaque chiffre avant toute utilisation.'},
