@@ -16,6 +16,7 @@ on:
       - 'tools/test_gemini_manual_save.cjs'
       - 'tools/test_gemini_auto_scan.cjs'
       - 'tools/test_gemini_local_ocr.cjs'
+      - 'tools/test_gemini_alerts_and_duplicates.cjs'
       - 'tools/test_gemini_camera_lifecycle.cjs'
       - 'tools/test_gemini_double_border.cjs'
       - 'tools/test_gemini_inline_scan.cjs'
@@ -43,6 +44,7 @@ jobs:
           node --check tools/test_gemini_manual_save.cjs
           node --check tools/test_gemini_auto_scan.cjs
           node --check tools/test_gemini_local_ocr.cjs
+          node --check tools/test_gemini_alerts_and_duplicates.cjs
           node --check tools/test_gemini_camera_lifecycle.cjs
           node --check tools/test_gemini_double_border.cjs
           node --check tools/test_gemini_inline_scan.cjs
@@ -56,6 +58,8 @@ jobs:
         run: node tools/test_gemini_auto_scan.cjs
       - name: Vérifier la lecture OCR locale prudente
         run: node tools/test_gemini_local_ocr.cjs
+      - name: Vérifier les alertes, les paniers et les doublons volontaires
+        run: node tools/test_gemini_alerts_and_duplicates.cjs
       - name: Vérifier le contour Gemini et la réutilisation caméra
         run: node tools/test_gemini_camera_lifecycle.cjs
       - name: Vérifier le double contour Gemini

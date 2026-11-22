@@ -42,8 +42,7 @@ assert(!section.includes('id="iuGeminiAutoMode"')&&!section.includes('id="iuGemi
  'Les boutons Auto/Manuel ne prennent plus de place sous la caméra');
 assert(section.includes('id="iuGeminiAutoScanState"'),'État de capture toujours visible');
 
-const result=section.slice(section.indexOf('<div id="iuGeminiEmptyResult"'),
- section.indexOf('<div id="iuGeminiLabOutput"'));
+const result=section.slice(section.indexOf('<div id="iuGeminiEmptyResult"'));
 const ids=['iuGeminiProductName','iuGeminiNetDisplay','iuGeminiTareDisplay',
  'iuGeminiProductRate','iuGeminiGrossDisplay'];
 for(const id of ids){
@@ -54,6 +53,12 @@ const l1=result.indexOf('id="iuGeminiProductName"');
 const l2=result.indexOf('class="iu-gemini-result-facts"');
 const l3=result.indexOf('class="iu-gemini-gross-panel"');
 assert(l1>0&&l2>l1&&l3>l2,'Article centré, valeurs secondaires, puis brut');
+assert(section.indexOf('id="iuGeminiLabOutput"')<
+ section.indexOf('id="iuGeminiLabelAlert"')&&
+ section.indexOf('id="iuGeminiLabelAlert"')<section.indexOf('id="iuGeminiEmptyResult"'),
+ 'L’étiquette numérique et le voyant précèdent le résultat');
+assert(result.includes('id="iuGeminiNext"')&&result.includes('Nouvelle<br>pesée'),
+ 'Même bouton Nouvelle pesée à droite du brut');
 assert(result.includes('Prix au kilo')&&result.includes('Poids net')&&result.includes('Tare')&&
  result.includes('Poids brut à vérifier'),'Trois lignes de résultat présentes');
 assert(result.includes('iu-result-glow-shell')&&result.includes('result iu-result-compact'),

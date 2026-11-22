@@ -128,7 +128,21 @@ let baskets=loadBaskets(),editingId=null,netGrams=null,dragId=null;
 function loadHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.net)&&Number.isFinite(x.gross)&&Number.isFinite(x.tare)&&typeof x.at==='number').slice(0,15):[];}catch{return [];}}
 let history=loadHistory(),historyExpanded=false,autoSaveTimer=null,currentWeighId=null;
 function persistHistory(){try{safeSetItem(HISTORY_KEY,JSON.stringify(history));renderHistory();return true;}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';return false;}}
-// Gemini utilise exactement les mêmes clés d'historique et de session que la pesée classique.
+// Recherche d'un doublon dans l'inventaire courant et dans l'historique récent.
+// C'est une information de vigilance, jamais un blocage de validation volontaire.
+// Le même EAN et le même poids peuvent correspondre à deux produits physiques.
+function iuGeminiDuplicate(ean,gross,tare){
+ if(!/^\d{13}$/.test(ean||'')||!Number.isSafeInteger(gross)||!Number.isSafeInteger(tare))return null;
+ const match=x=>x?.source==='gemini'&&x.ean13===ean&&x.gross===gross&&x.tare===tare;
+ const session=getActiveSession();
+ return (session?.entries||[]).find(match)||
+  history.find(x=>match(x)&&Date.now()-x.at<24*60*60*1000)||null;
+}
+window.IUGeminiDuplicateInfo=payload=>{
+ const basket=baskets.find(x=>x.id===$('basketSelect').value);
+ return {duplicate:Boolean(basket&&iuGeminiDuplicate(payload?.ean13,payload?.gross,basket.tare))};
+};
+// Gemini utilise les mêmes historiques et sessions que la pesée classique.
 window.IUGeminiSaveWeigh=payload=>{
  const gross=payload?.gross,rate=payload?.pricePerKgCents,total=payload?.totalCents;
  const ean=payload?.ean13,corrected=payload?.correctedEan13;
@@ -140,8 +154,9 @@ window.IUGeminiSaveWeigh=payload=>{
  const net=gross-b.tare;
  if(Math.abs(Math.round(gross*rate/1000)-total)>1)return {ok:false,reason:'Prix original incohérent'};
  const now=Date.now();
- const duplicate=history.find(x=>x.source==='gemini'&&x.ean13===ean&&x.gross===gross&&x.tare===b.tare&&now-x.at<120000);
- if(duplicate)return {ok:false,duplicate:true,reason:'Cette étiquette a déjà été enregistrée récemment'};
+ const duplicate=Boolean(iuGeminiDuplicate(ean,gross,b.tare));
+ // L'utilisateur a explicitement touché « Nouvelle pesée » :
+ // conserver son choix d'enregistrer même lorsque l'alerte signalait un doublon.
  const entry={id:uid(),at:now,name:b.name,tare:b.tare,gross,net,
   source:'gemini',product,ean13:ean,correctedEan13:corrected,
   pricePerKgCents:rate,originalTotalCents:total,correctedTotalCents:payload.correctedTotalCents,
@@ -166,7 +181,7 @@ window.IUGeminiSaveWeigh=payload=>{
  renderHistory();
  if(trackSession)renderLiveSessionStats();
  if($('backupCard')?.open)renderBackupSummary();
- return {ok:true,id:entry.id,net};
+ return {ok:true,id:entry.id,net,duplicate};
 };
 function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
 const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('aria-expanded',String(historyExpanded));const label=btn.querySelector('.history-toggle-label');if(label)label.textContent=historyExpanded?'Réduire l’historique':`Voir les ${history.length} pesées`;

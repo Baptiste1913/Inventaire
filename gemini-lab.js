@@ -1,4 +1,4 @@
-/* Inventaires U 41.69 — OCR vidéo local + Gemini de secours, visée tolérante et validations strictes.
+/* Inventaires U 41.70 — étiquette avant résultat, nouveau bouton pesée, alertes et doublons volontaires.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -24,6 +24,7 @@
  const modeControl=$('iuGeminiModeCamera')?.closest('.iu-gemini-mode-control');
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
+ const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText');
  const resultGross=$('iuGeminiGrossDisplay'),resultTare=$('iuGeminiTareDisplay'),
   resultNet=$('iuGeminiNetDisplay'),resultHint=$('iuGeminiResultHint');
  const productBar=$('iuGeminiProductBar'),productName=$('iuGeminiProductName'),
@@ -91,7 +92,51 @@
  }
  function resetProposal(){
   proposal=null;
-  if(nextWeigh){nextWeigh.disabled=true;nextWeigh.classList.remove('is-ready');}
+  if(nextWeigh){nextWeigh.disabled=active;nextWeigh.classList.remove('is-ready');}
+ }
+ function setLabelAlert(state,message){
+  if(!labelAlert||!labelAlertText)return;
+  const type=['idle','success','warning'].includes(state)?state:'warning';
+  if(labelAlert.dataset.state!==type){
+   labelAlert.dataset.state=type;
+   labelAlert.classList.toggle('is-idle',type==='idle');
+   labelAlert.classList.toggle('is-success',type==='success');
+   labelAlert.classList.toggle('is-warning',type==='warning');
+  }
+  labelAlertText.textContent=message;
+ }
+ function duplicateForCurrent(){
+  if(!proposal||typeof window.IUGeminiDuplicateInfo!=='function')return false;
+  try{return window.IUGeminiDuplicateInfo({
+   ean13:proposal.ean,gross:proposal.grams
+  })?.duplicate===true;}catch(_){return false;}
+ }
+ function refreshLabelAlert(){
+  const raw=latestLabelFields?.weightGrams;
+  if(!Number.isSafeInteger(raw)||raw<=0){
+   if(latestLabelFields)setLabelAlert('warning','Lecture incomplète · reprends l’étiquette');
+   else setLabelAlert('idle','Aucune pesée analysée');
+   return;
+  }
+  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
+  const tare=ctx?.tareGrams;
+  if(Number.isSafeInteger(tare)&&tare>=raw){
+   setLabelAlert('warning','Mauvais panier · tare supérieure ou égale au poids brut');
+   return;
+  }
+  if(!Number.isSafeInteger(tare)||tare<0){
+   setLabelAlert('warning','Tare non disponible · choisis un panier');
+   return;
+  }
+  if(!proposal){
+   setLabelAlert('warning','Étiquette non validable · reprends la lecture');
+   return;
+  }
+  if(duplicateForCurrent()){
+   setLabelAlert('warning','Cette étiquette a déjà été enregistrée · tu peux la valider à nouveau');
+   return;
+  }
+  setLabelAlert('success','Étiquette prête · vérifie le poids brut avant de valider');
  }
  function validateResult(result){
   const f=result?.fields||{},c=result?.checks||{};
@@ -120,16 +165,13 @@
   const total=label.querySelector('.iu-gemini-label-total-number');
   const digits=label.querySelector('.iu-gemini-label-ean');
   const bars=label.querySelector('.iu-gemini-label-bars');
-  const caption=output.querySelector('.iu-gemini-label-frame-caption');
   if(weight)weight.textContent=corrected?formatWeight(corrected.net):formatWeight(gross);
   const virtualDate=label.querySelector('.iu-gemini-label-date .iu-gemini-label-number');
   if(virtualDate)virtualDate.textContent=todayForVirtualLabel();
   if(total)total.textContent=money(corrected?corrected.cents:fields.totalCents).replace(/\s/g,'');
   if(digits)digits.textContent=corrected?.ean||fields.ean13||'EAN NON RECONNU';
   if(bars)renderEanBars(bars,corrected?.ean||fields.ean13);
-  if(caption)caption.textContent=corrected
-   ?'Aperçu simulé · EAN recalculé non vérifié sur Zebra'
-   :'Aperçu simulé · EAN original';
+  // Les informations de vigilance figurent dans le voyant sous l’étiquette.
  }
  // Les contrôles sont refaits au moment du clic de validation.
  function validationState(){
@@ -138,7 +180,9 @@
    ?recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate):null;
   const canSave=Boolean(corrected)&&!active;
   if(nextWeigh){
-   nextWeigh.disabled=!canSave;
+   // Comme « Nouvelle pesée » classique, le bouton reste disponible :
+   // une anomalie non corrigée bloque seulement l’enregistrement.
+   nextWeigh.disabled=active;
    nextWeigh.classList.toggle('is-ready',canSave);
   }
   const signal=output.querySelector('.iu-gemini-result-signal');
@@ -150,6 +194,7 @@
    signal.classList.toggle('is-warning',!corrected);
   }
   refreshCorrectedLabel();
+  refreshLabelAlert();
   return canSave?corrected:null;
  }
  $('basketSelect')?.addEventListener('change',validationState);
@@ -170,6 +215,7 @@
   refreshResultCard();
   clearPreview();capture.disabled=false;updateButton();
   updateCardState('search');
+  refreshLabelAlert();
   say('');
  }
  function clear(){stopCamera();resetReading();}
@@ -195,6 +241,7 @@
   if(productRate)productRate.textContent='— €/kg';
   if(grossPreview)grossPreview.value='';
   refreshResultCard();
+  refreshLabelAlert();
   updateCardState('working');
   updateButton();
   if(!analyze.disabled){
@@ -475,26 +522,23 @@
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
   add(total,'strong','iu-gemini-label-total-number',money(fields.totalCents).replace(/\s/g,''));
-  // Le résultat permanent au-dessus de l'étiquette est exactement
-  // celui de la pesée classique : Brut, Tare et Net dans une seule carte.
+  // Résultat permanent sous l’étiquette numérique ; même fond que la
+  // pesée classique, avec le bouton Nouvelle pesée à droite du brut.
   if(productBar)productBar.hidden=false;
   if(productName)productName.textContent=name;
   if(productRate)productRate.textContent=
    Number.isInteger(fields.pricePerKgCents)?money(fields.pricePerKgCents)+'/kg':'Prix non reconnu';
   refreshResultCard();
-  const signal=add(output,'p','iu-gemini-result-signal'+(ready?' is-ready':' is-warning'),
-   verified.error?'Enregistrement bloqué · '+verified.error
-   :!netValid?'Enregistrement bloqué · la tare dépasse le poids lu.'
-   :'Vérifie les valeurs avant validation.');
   const frame=add(output,'div','iu-gemini-label-frame','');
   frame.setAttribute('role','group');
   frame.setAttribute('aria-label','Aperçu réduit de l’étiquette virtuelle');
   frame.append(label);
-  add(frame,'p','iu-gemini-label-frame-caption','Aperçu simulé · EAN non vérifié sur Zebra');
   output.hidden=false;
   if(emptyResult)emptyResult.hidden=false;
-  proposal=ready?verified:null;
-  updateCardState(proposal?'review':'retry');
+  // Les données reconnues restent disponibles si le panier est incorrect :
+  // choisir un autre panier recalcule le net sans refaire la lecture.
+  proposal=verified.error?null:verified;
+  updateCardState(ready?'review':'retry');
   if(!proposal)resetProposal();
   validationState();
   if(result?.source==='local'){
@@ -546,9 +590,10 @@
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
-   say(proposal
-    ?'Lecture prête : vérifie le poids brut et l’étiquette, puis valide.'
-    :'Lecture non validable. Vérifie l’étiquette ou reprends une photo.',!proposal);
+   const saveReady=Boolean(validationState());
+   say(saveReady
+    ?'Lecture prête : vérifie le poids brut et touche Nouvelle pesée.'
+    :'Lecture non validable : vérifie le panier ou reprends une photo.',!saveReady);
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
@@ -726,9 +771,23 @@
   startCamera();
  });
  nextWeigh?.addEventListener('click',()=>{
-  if(active||!proposal)return;
+  if(active)return;
+  if(!proposal){
+   if(latestLabelFields){
+    refreshLabelAlert();
+    say('Cette lecture est incomplète : corrige le panier ou reprends l’étiquette.',true);
+    return;
+   }
+   // Nouvelle pesée classique : sans brouillon, préparer le scanner suivant.
+   resetReading();
+   if(cameraStream&&cameraMode==='auto')armAutoScanner(false);
+   return;
+  }
   const corrected=validationState();
-  if(!corrected){say('Validation impossible : vérifie les données et le panier.',true);return;}
+  if(!corrected){
+   say('Pesée non enregistrée : vérifie le poids brut et la tare du panier.',true);
+   return;
+  }
   if(typeof window.IUGeminiSaveWeigh!=='function'){
    say('Enregistrement indisponible sur cette version.',true);return;
   }
@@ -740,11 +799,11 @@
   if(saved?.ok){
    resetReading();
    if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
-   say('Pesée validée et enregistrée · '+formatWeight(saved.net)+' net. Prêt pour la suivante.');
-   // Le scanner reste sur la même carte, sans saut de page.
-  }else if(saved?.duplicate){
-   say('Cette étiquette a déjà été enregistrée : aucun doublon ajouté.',true);
+   say(saved.duplicate
+    ?'Doublon volontaire enregistré · '+formatWeight(saved.net)+' net. Prêt pour la suivante.'
+    :'Pesée enregistrée · '+formatWeight(saved.net)+' net. Prêt pour la suivante.');
   }else{
+   refreshLabelAlert();
    say('Pesée non enregistrée : '+String(saved?.reason||'erreur de sauvegarde'),true);
   }
  });
@@ -917,11 +976,12 @@
      parsed.model='OCR local · 2 lectures concordantes';
      display(parsed,parsed.elapsedMs);
      autoLocked=true;
-     setAutoHint(proposal?'OCR local confirmé · vérifie et valide'
-      :'Lecture locale non validable · vérifie les valeurs',proposal?'ready':'error');
-     say(proposal
-      ?'Lecture OCR locale confirmée : vérifie le brut et l’étiquette, puis valide.'
-      :'Lecture locale incomplète : contrôle manuel nécessaire.',!proposal);
+     const saveReady=Boolean(validationState());
+     setAutoHint(saveReady?'OCR local confirmé · vérifie et valide'
+      :'Lecture locale non validable · vérifie les valeurs',saveReady?'ready':'error');
+     say(saveReady
+      ?'Lecture OCR locale confirmée : vérifie le brut, puis touche Nouvelle pesée.'
+      :'Lecture locale incomplète : contrôle manuel nécessaire.',!saveReady);
      return;
     }
     if(!localCandidate){

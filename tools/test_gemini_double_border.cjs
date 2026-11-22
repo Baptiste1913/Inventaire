@@ -70,7 +70,7 @@ assert(frame.includes('pointer-events:none!important;'),
  'Les couches sont non interactives');
 assert(frame.includes('@media(forced-colors:active)'),
  'Bordure compatible avec les contrastes renforcés');
-assert(!frame.includes('animation:'),'Aucune animation inutile n’est ajoutée au contour');
+assert(!outer.includes('animation:')&&!inner.includes('animation:'),'Les contours restent fixes ; seul le voyant d’alerte est animé');
 const badge=html.match(/<span class="iu-gemini-star-badge iu-gemini-title-badge"[^>]*>([\s\S]*?)<span class="iu-gemini-title-text">Gemini<\/span><\/span>/);
 assert(badge,'Pastille Gemini présente dans la section');
 const svg=badge[1];

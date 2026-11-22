@@ -32,7 +32,8 @@ assert(html.includes('Poids brut à vérifier')&&
  html.includes('<strong id="iuGeminiGrossDisplay">—</strong>')&&
  html.includes('<strong id="iuGeminiProductName">Article à reconnaître</strong>'),
  'Le titre centré et le brut mis en valeur sont dans un seul résultat');
-assert(html.includes('id="iuGeminiNext"')&&html.includes('Valider<br>et suivante'),'Bouton unique de validation');
+assert(html.includes('id="iuGeminiNext"')&&html.includes('Nouvelle<br>pesée'),
+ 'Bouton Nouvelle pesée qui valide avant de préparer la suivante');
 assert(!html.includes('id="iuGeminiTransfer"'),'Ancien double parcours supprimé');
 assert(js.includes('iu-gemini-label-frame')&&!js.includes('iu-gemini-details'),'Étiquette miniature directement visible');
 assert(html.includes('gemini-lab.js?v='+version)&&html.includes('gemini-lab.css?v='+version),'Assets versionnés dans la page');

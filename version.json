@@ -1,6 +1,6 @@
 {
-  "version": "41.69",
+  "version": "41.70",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Scanner Gemini hybride : OCR local sur les images vidéo (Tesseract) et EAN décodé si disponible ; deux lectures strictement concordantes, contrôles EAN, poids×prix et encodage DIGI. Aucune image envoyée pour les lectures locales complètes ; un unique cliché est transmis à Gemini si l'OCR est incomplet et qu'une clé Cloudflare est configurée. Détection plus tolérante aux mouvements, changement réel de scène exigé après validation, caméra réutilisée et validation manuelle conservée."
+  "notes": "Gemini : étiquette numérique affichée entre le viseur et le résultat. Poids brut moins large, bouton Nouvelle pesée de même style que celui du bloc classique à droite : validation puis préparation de la suivante sur la même caméra. Témoin animé gris (pas de pesée), vert (lecture contrôlée), rouge (doublon ou mauvais panier) remplaçant la légende de l’étiquette. Doublon autorisé uniquement après validation manuelle ; tare >= poids brut toujours bloquante. Changer de panier peut corriger la lecture sans la refaire."
 }

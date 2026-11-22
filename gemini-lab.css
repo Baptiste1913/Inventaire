@@ -2634,3 +2634,182 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   transition:none!important;
  }
 }
+
+
+/* v41.70 — l'étiquette DIGI se trouve entre le viseur et le résultat ;
+   le témoin de vigilance reste visible même sans pesée. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabOutput:not([hidden]){
+ order:0!important;
+ margin:2px 0 0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabelAlert {
+ order:1!important;
+ display:flex!important;
+ align-items:center!important;
+ gap:10px!important;
+ min-width:0!important;
+ min-height:36px!important;
+ box-sizing:border-box!important;
+ margin:6px 0 9px!important;
+ padding:9px 11px!important;
+ border:1px solid rgba(255,255,255,.95)!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,#fff 0%,#f5f8fa 50%,#eaf0f4 100%)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9),1px 3px 7px rgba(73,103,119,.08)!important;
+ color:#758893!important;
+ font-size:11px!important;
+ font-weight:690!important;
+ line-height:1.35!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelAlert .iu-gemini-alert-led {
+ display:inline-block!important;
+ position:relative!important;
+ flex:0 0 9px!important;
+ width:9px!important;height:9px!important;
+ border-radius:50%!important;
+ background:#a6b4bc!important;
+ border:1px solid rgba(109,129,142,.32)!important;
+ box-shadow:0 0 0 3px rgba(162,180,190,.12)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelAlert.is-success {
+ color:#267a61!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelAlert.is-success .iu-gemini-alert-led {
+ background:#25b881!important;
+ border-color:#1c9e6c!important;
+ box-shadow:0 0 0 3px rgba(37,184,129,.14),0 0 9px rgba(28,158,108,.28)!important;
+ animation:iu-gemini-led-success 2.3s ease-in-out infinite!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelAlert.is-warning {
+ color:#b33d4c!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelAlert.is-warning .iu-gemini-alert-led {
+ background:#e45465!important;
+ border-color:#d34756!important;
+ box-shadow:0 0 0 3px rgba(228,84,101,.14),0 0 9px rgba(211,71,86,.28)!important;
+ animation:iu-gemini-led-warning 1.8s ease-in-out infinite!important;
+}
+@keyframes iu-gemini-led-success {
+ 0%,100%{box-shadow:0 0 0 3px rgba(37,184,129,.12),0 0 5px rgba(28,158,108,.19);opacity:.8}
+ 50%{box-shadow:0 0 0 5px rgba(37,184,129,.09),0 0 12px rgba(28,158,108,.46);opacity:1}
+}
+@keyframes iu-gemini-led-warning {
+ 0%,100%{box-shadow:0 0 0 3px rgba(228,84,101,.12),0 0 5px rgba(211,71,86,.2);opacity:.8}
+ 50%{box-shadow:0 0 0 5px rgba(228,84,101,.10),0 0 12px rgba(211,71,86,.46);opacity:1}
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiEmptyResult {
+ order:2!important;
+ margin:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiEmptyResult .iu-gemini-gross-row {
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:stretch!important;
+ justify-content:stretch!important;
+ gap:8px!important;
+ min-width:0!important;
+ width:100%!important;
+ margin:10px 0 0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiEmptyResult .iu-gemini-gross-row > .iu-gemini-gross-panel {
+ box-sizing:border-box!important;
+ flex:1 1 0!important;
+ min-width:0!important;
+ min-height:67px!important;
+ margin:0!important;
+ padding:8px 11px!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ justify-content:center!important;
+ gap:2px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiEmptyResult .iu-gemini-gross-row > .iu-gemini-gross-panel > span {
+ font-size:11px!important;line-height:1.2!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiEmptyResult .iu-gemini-gross-row > .iu-gemini-gross-panel .iu-gemini-gross-number {
+ width:100%!important;
+ justify-content:flex-start!important;
+ line-height:1.1!important;
+}
+html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next {
+ box-sizing:border-box!important;
+ display:flex!important;
+ align-items:center!important;justify-content:center!important;
+ flex:0 0 100px!important;
+ width:100px!important;
+ min-width:100px!important;
+ max-width:100px!important;
+ min-height:67px!important;
+ height:auto!important;
+ margin:0!important;
+ padding:7px 4px!important;
+ gap:4px!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+ border-radius:14px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#425965!important;
+ font-family:inherit!important;
+ font-size:20px!important;
+ font-weight:850!important;
+ line-height:1.1!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.98),
+            -6px -6px 13px rgba(255,255,255,.60),
+             4px 5px 11px rgba(156,173,189,.35),
+             1px 2px 4px rgba(156,173,189,.18),
+             inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ transition:box-shadow .22s ease,background .22s ease,transform .17s cubic-bezier(.22,.61,.36,1)!important;
+}
+html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next > span {
+ font-family:inherit!important;
+ font-size:11px!important;
+ font-weight:780!important;
+ line-height:1.14!important;
+}
+html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next.is-ready:not(:disabled) {
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#425965!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.98),
+            -6px -6px 13px rgba(255,255,255,.60),
+             4px 5px 11px rgba(156,173,189,.35),
+             1px 2px 4px rgba(156,173,189,.18),
+             inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next:active:not(:disabled) {
+ background:linear-gradient(145deg,#eff3f6,#e7edf1)!important;
+ box-shadow:inset 2px 3px 6px rgba(150,166,181,.24),
+            inset -2px -2px 5px rgba(255,255,255,.60),
+             1px 1px 3px rgba(156,173,189,.12)!important;
+ transform:translateY(1px) scale(.992)!important;
+}
+html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next:focus-visible {
+ outline:2px solid #87949d!important;
+ outline-offset:3px!important;
+}
+@media(max-width:360px){
+ html body .app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiNext.new-weigh-btn.iu-gemini-confirm-next {
+  flex-basis:88px!important;width:88px!important;min-width:88px!important;max-width:88px!important;
+ }
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiEmptyResult .iu-gemini-gross-row > .iu-gemini-gross-panel {padding:7px 8px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  #iuGeminiLabelAlert .iu-gemini-alert-led {animation:none!important;}
+}
