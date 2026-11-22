@@ -16,6 +16,7 @@ on:
       - 'tools/test_gemini_auto_scan.cjs'
       - 'tools/test_gemini_camera_lifecycle.cjs'
       - 'tools/test_gemini_double_border.cjs'
+      - 'tools/test_gemini_immersive_scan.cjs'
       - 'weigh-scan-inline.css'
       - 'index.html'
       - 'sw.js'
@@ -40,6 +41,7 @@ jobs:
           node --check tools/test_gemini_auto_scan.cjs
           node --check tools/test_gemini_camera_lifecycle.cjs
           node --check tools/test_gemini_double_border.cjs
+          node --check tools/test_gemini_immersive_scan.cjs
           node --check sw.js
           node --check tools/test_scanner_transfer.cjs
       - name: Vérifier le transfert OCR et le calcul de tare
@@ -52,3 +54,5 @@ jobs:
         run: node tools/test_gemini_camera_lifecycle.cjs
       - name: Vérifier le double contour Gemini
         run: node tools/test_gemini_double_border.cjs
+      - name: Vérifier la vue Gemini sans défilement
+        run: node tools/test_gemini_immersive_scan.cjs

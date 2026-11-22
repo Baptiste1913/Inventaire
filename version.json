@@ -1,6 +1,6 @@
 {
-  "version": "41.62",
+  "version": "41.63",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Interface Gemini : retrait de l'explication longue du mode Auto ; titre Nouvelle pesée avec Gemini harmonisé avec Nouvelle pesée (17 px, 16 px sous 380 px, mêmes marges, graisse, interlignage et espacement). Pastille Gemini à droite et reconnaissance inchangées."
+  "notes": "Scanner Gemini dédié en plein écran sur iPhone : grand viseur en recherche, viseur réduit au résultat, article et Brut/Tare/Net synthétiques, étiquette virtuelle DIGI complète visible sans clic, bouton Valider et suivante fixé en bas, dock masqué uniquement dans le scanner. Sortie sans relancer l'autorisation caméra tant que la piste reste active ; validation humaine et système de reconnaissance inchangés."
 }
