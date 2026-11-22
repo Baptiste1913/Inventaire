@@ -1,4 +1,4 @@
-/* Inventaires U 42.08 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 42.09 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -302,7 +302,7 @@
    return;
   }
   if(duplicateForCurrent()){
-   setLabelAlert('warning','Cette étiquette a déjà été enregistrée · tu peux la valider à nouveau');
+   setLabelAlert('warning','Cette étiquette a déjà été enregistrée');
    return;
   }
   setLabelAlert('success','Étiquette prête · vérifie le poids brut avant de valider');
@@ -371,6 +371,14 @@
   }
   refreshCorrectedLabel();
   refreshLabelAlert();
+  // Réutiliser la coche du viseur seulement lorsque tous les calculs
+  // métier sont validés, la tare correcte et sans doublon signalé.
+  const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;
+  if(confirmed){
+   if(detected?.hidden)revealDetectedIndicator(latestLabelFields);
+  }else if(detected&&!detected.hidden){
+   resetDetectedIndicator();
+  }
   refreshCaptureButton();
   return canSave?corrected:null;
  }
@@ -736,8 +744,9 @@
   // Les données reconnues restent disponibles si le panier est incorrect :
   // choisir un autre panier recalcule le net sans refaire la lecture.
   proposal=verified.error?null:verified;
-  if(!verified.error&&Number.isSafeInteger(gross)&&gross>0)revealDetectedIndicator(fields);
-  else resetDetectedIndicator();
+  // La coche verte est réservée à une pesée réellement validable,
+  // et non à une simple lecture visuelle encore incohérente.
+  resetDetectedIndicator();
   updateCardState(ready?'review':'retry');
   if(!proposal)resetProposal();
   validationState();
