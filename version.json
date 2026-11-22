@@ -1,6 +1,6 @@
 {
-  "version": "42.08",
+  "version": "42.09",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Reconnaissance IA haute fiabilité (suite) : aucun date fictive ne remplace une date d’emballage non reconnue. Dates affichées uniquement si fournies explicitement et calendaires valides ; sinon « — ». Compression haute fidélité accélérée en évitant les encodages JPEG redondants à la même résolution. Cadrage complet, OCR indépendant, vérifications EAN et calculs, seconde lecture ciblée conservés. Limite actuelle du Worker inchangée."
+  "notes": "Indications d'état déplacées juste au-dessus de l'étiquette virtuelle (sous le contrôle du poids), sans perturber les alertes et leurs annonces accessibles. Texte doublon exact : « Cette étiquette a déjà été enregistrée ». Intérieur du bloc Poids brut à vérifier : fond perle, relief et typographie 13,5px graphite gras identiques à Démarrer un inventaire, filet coloré extérieur conservé. Indicateur de validation : même gabarit carré 32×32px, rayon 11px, verre et relief que Fermer/Flash/Déclencheur, coche verte sans halo en bas à droite ; affiché uniquement lorsque les données, la tare et l'absence de doublon ont permis de préparer une pesée validable. Enregistrement toujours manuel."
 }
