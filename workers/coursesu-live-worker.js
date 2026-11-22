@@ -279,17 +279,28 @@ async function htmlCheck(request,env,origin){
 // Activation opt-in GEMINI_LAB_ENABLED + clef utilisateur TEST jamais publiée.
 // Les appels Gemini sont susceptibles de consommer des quotas ou d'être facturés.
 function geminiLabValue(raw,kind){
+ // Les réponses Gemini utilisent parfois les unités imprimées :
+ // « 0,714 kg », « 5,99 €/kg » ou « 4,28 € ». Ne jamais perdre ces
+ // valeurs valides pour une simple différence de présentation.
  if(typeof raw!=='string')return null;
- const text=raw.replace(/\s+/g,'').replace(',','.').replace(/€/g,'');
+ const text=raw.trim().replace(/[\u00a0\u202f\s]+/g,'')
+  .replace(/,/g,'.').replace(/€/g,'€');
  if(kind==='weight'){
-  const m=text.match(/^(\d{1,2})\.(\d{3})(?:kg)?$/i);
-  if(!m)return null;
-  const grams=Number(m[1])*1000+Number(m[2]);
-  return grams>=1&&grams<=30000?grams:null;
+  let grams=null;
+  const kg=text.match(/^(\d{1,2})\.(\d{3})(?:kg)?$/i);
+  const gram=text.match(/^(\d{1,5})g$/i);
+  if(kg)grams=Number(kg[1])*1000+Number(kg[2]);
+  else if(gram)grams=Number(gram[1]);
+  return Number.isSafeInteger(grams)&&grams>=1&&grams<=30000?grams:null;
  }
- const m=text.match(/^(\d{1,3})\.(\d{2})$/);
- if(!m)return null;
- const cents=Number(m[1])*100+Number(m[2]);
+ // €/kg ne peut s'appliquer qu'au prix unitaire ; jamais au prix total.
+ const rate=kind==='rate'||kind==='money';
+ const pattern=rate
+  ?/^(\d{1,3})\.(\d{2})(?:€(?:\/kg|\/kilo|kg)?)?$/i
+  :/^(\d{1,3})\.(\d{2})(?:€)?$/i;
+ const match=text.match(pattern);
+ if(!match)return null;
+ const cents=Number(match[1])*100+Number(match[2]);
  return cents>0&&cents<=99999?cents:null;
 }
 function geminiLabName(value){
@@ -401,8 +412,8 @@ async function geminiPilot(request,env,origin){
   }
   if(!extracted||typeof extracted!=='object'||Array.isArray(extracted))throw Error('JSON non reconnu');
   const weightGrams=geminiLabValue(extracted.weightKg,'weight');
-  const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'money');
-  const totalCents=geminiLabValue(extracted.totalEur,'money');
+  const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'rate');
+  const totalCents=geminiLabValue(extracted.totalEur,'total');
   const ean13=typeof extracted.ean13==='string'&&validEAN13(extracted.ean13)
     ?extracted.ean13:null;
   const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
