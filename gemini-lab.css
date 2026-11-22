@@ -3953,3 +3953,45 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   max-height:160px!important;
  }
 }
+
+/* v41.87 — Filaments nacrés du repère de poids OCR réutilisés autour
+   de l'étiquette complète IA. Uniquement le contour extérieur bouge ;
+   les sept repères internes restent stables et complètement transparents. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-exact-guide {
+ isolation:isolate!important;
+ pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-exact-guide > canvas.iu-gemini-outline-light {
+ position:absolute!important;
+ display:block!important;
+ box-sizing:content-box!important;
+ inset:-6px!important;
+ width:calc(100% + 12px)!important;
+ height:calc(100% + 12px)!important;
+ max-width:none!important;
+ max-height:none!important;
+ margin:0!important;
+ padding:0!important;
+ z-index:2!important;
+ opacity:1!important;
+ background:transparent!important;
+ border:none!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ filter:none!important;
+ transform:none!important;
+ image-rendering:auto!important;
+ pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell[data-state="scanning"] .iu-gemini-camera-exact-guide {
+ opacity:1!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-exact-guide > canvas.iu-gemini-outline-light {
+  opacity:.72!important;
+ }
+}
