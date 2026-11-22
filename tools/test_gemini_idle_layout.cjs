@@ -783,4 +783,35 @@ assert(server.includes("const pricePerKgCents=geminiLabValue(extracted.pricePerK
  server.includes("const gram=text.match(/^(\\d{1,5})g$/i);")&&
  server.includes("const pattern=rate"),
  'Worker : formats numériques typés avec kg, g, €/kg et euros');
+// Régression fonctionnelle : la clé EAN valide ne doit pas provoquer
+// systématiquement une deuxième demande Gemini.
+const eanStart=js.indexOf(' function eanCheck(first12){');
+const eanEnd=js.indexOf(' function recodeAfterTare(',eanStart);
+const focusStart=js.indexOf(' function singleMissingField(result){');
+const focusEnd=js.indexOf(" analyze.addEventListener('click'",focusStart);
+assert(eanStart>0&&eanEnd>eanStart&&focusStart>0&&focusEnd>focusStart,
+ 'Accès aux validateurs isolés');
+const focusTools=new Function(js.slice(eanStart,eanEnd)+
+ js.slice(focusStart,focusEnd)+'return {eanCheck,singleMissingField};')();
+const ean12='020347600655',fullEan=ean12+focusTools.eanCheck(ean12);
+const complete={fields:{name:'POIVRON JAUNE',weightGrams:714,
+ pricePerKgCents:599,totalCents:428,ean13:fullEan}};
+assert(focusTools.singleMissingField(complete)===null&&
+ focusTools.singleMissingField({fields:{...complete.fields,ean13:null}})==='ean'&&
+ focusTools.singleMissingField({fields:{...complete.fields,weightGrams:null}})==='weight'&&
+ focusTools.singleMissingField({fields:{...complete.fields,ean13:null,weightGrams:null}})===null&&
+ focusTools.singleMissingField({fields:{...complete.fields,ean13:null},
+  checks:{independentMismatch:true}})===null,
+ 'Relecture ciblée seulement pour une seule valeur manquante, EAN valide respecté');
+const parserStart=server.indexOf('function geminiLabValue(');
+const parserEnd=server.indexOf('\nfunction geminiLabName(',parserStart);
+assert(parserStart>=0&&parserEnd>parserStart,'Fonction de normalisation conservée');
+const parseWeightPrice=new Function(server.slice(parserStart,parserEnd)+
+ 'return geminiLabValue;')();
+assert(parseWeightPrice('0,714 kg','weight')===714&&
+ parseWeightPrice('714 g','weight')===714&&
+ parseWeightPrice('5,99 €/kg','rate')===599&&
+ parseWeightPrice('4,28 €','total')===428&&
+ parseWeightPrice('4,28 €/kg','total')===null,
+ 'Unités imprimées acceptées sans valider un montant ambigu');
 console.log('Gemini v42.23 : priorité Gemini et reconnaissance tolérante des formats OK.');
