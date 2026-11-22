@@ -1,6 +1,6 @@
 {
-  "version": "41.94",
+  "version": "41.95",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Pesée IA : espacement « Type de panier » aligné visuellement sur le bloc classique. Cumul de 16px sous le tiroir Cloudflare supprimé ; écart au-dessus du titre fixé à 10px et marge sous le titre resserrée à 5px. Bouton Galerie rapproché du bouton Caméra de 6px (4px sur les petits écrans), sans changer leur taille ni le gap classique sélecteur/caméra ; champ panier flexible élargi de l’espace récupéré. Sélection native, tares, caméra et OCR conservés."
+  "notes": "Les deux boutons Caméra et Galerie du bloc Pesée via IA reprennent exactement le fond, les couleurs, les bordures de 1px, le rayon de 14px et les ombres neumorphiques du sélecteur « Type de panier ». Les états de focus/appui suivent aussi le même style que le sélecteur. Taille, position, espacement rapproché, saisie du panier, tares et fonctionnalités inchangés."
 }
