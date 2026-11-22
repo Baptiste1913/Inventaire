@@ -4947,3 +4947,139 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   box-shadow:none!important;
  }
 }
+
+/* v42.09 — Indications placées AVANT le papier virtuel, et non après.
+   Ne rien changer aux alarmes métier ni à l'accessibilité aria-live. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiLabelAlert.iu-gemini-label-alert {
+ order:1!important;
+ margin:1px 0 2px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiLabOutput.iu-gemini-lab-result:not([hidden]) {
+ order:2!important;
+}
+
+/* L'intérieur du contrôle « Poids brut à vérifier » copie la surface
+   et la typographie du bouton Démarrer un inventaire (style.css :
+   #startSession v35.47). Conserver son MINCE filet extérieur coloré,
+   qui différencie les contrôles métiers de cette zone. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel
+ #iuGeminiEmptyResult .iu-gemini-gross-row > .iu-gemini-gross-panel {
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:center!important;
+ text-align:center!important;
+ gap:2px!important;
+ font-family:inherit!important;
+ font-size:13.5px!important;
+ font-weight:850!important;
+ line-height:1.25!important;
+ letter-spacing:.005em!important;
+ color:#28343d!important;
+ -webkit-text-fill-color:#28343d!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.98),
+  -6px -6px 13px rgba(255,255,255,.60),
+  4px 5px 11px rgba(156,173,189,.35),
+  1px 2px 4px rgba(156,173,189,.18),
+  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel::after {
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ border:1px solid #d4dce2!important;
+ box-shadow:inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel > span,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel .iu-gemini-gross-number,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel .iu-gemini-gross-number > strong,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel .iu-gemini-gross-number > span {
+ color:#28343d!important;
+ -webkit-text-fill-color:#28343d!important;
+ font-family:inherit!important;
+ font-size:13.5px!important;
+ font-weight:850!important;
+ letter-spacing:.005em!important;
+ line-height:1.25!important;
+ text-align:center!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel .iu-gemini-gross-number {
+ display:flex!important;
+ align-items:baseline!important;
+ justify-content:center!important;
+ width:100%!important;
+ gap:4px!important;
+}
+
+/* Témoin validé : exactement le même carré 32×32, rayon 11px,
+   verre, bord et relief que Fermer/Flash/Déclencheur. Seule la coche
+   reste verte, sans halo, pour ne pas confondre lecture et validation. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator {
+ position:absolute!important;
+ box-sizing:border-box!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ left:auto!important;
+ top:auto!important;
+ right:5px!important;
+ bottom:5px!important;
+ z-index:8!important;
+ width:32px!important;
+ height:32px!important;
+ min-width:32px!important;
+ max-width:32px!important;
+ min-height:32px!important;
+ max-height:32px!important;
+ margin:0!important;
+ padding:0!important;
+ border:1px solid rgba(255,255,255,.86)!important;
+ border-radius:11px!important;
+ background:linear-gradient(145deg,#f9fbfc,#e8eff4)!important;
+ color:#1a9e6d!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94),
+  2px 3px 9px rgba(27,43,52,.19)!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ filter:none!important;
+ opacity:1!important;
+ pointer-events:none!important;
+ transform:none!important;
+ animation:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator > svg {
+ display:block!important;
+ width:20px!important;
+ height:20px!important;
+ min-width:20px!important;
+ min-height:20px!important;
+ stroke:currentColor!important;
+ filter:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator[hidden] {
+ display:none!important;
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator {
+  background:ButtonFace!important;
+  color:ButtonText!important;
+  border:1px solid ButtonText!important;
+  box-shadow:none!important;
+ }
+}
