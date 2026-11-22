@@ -54,30 +54,37 @@ assert(added.includes('.iu-gemini-camera-idle:focus-visible')&&
 assert(added.includes('.iu-gemini-label-placeholder .iu-gemini-label-bars')&&
  added.includes('background:linear-gradient(180deg,rgba(95,107,117,.10)'),
  'EAN vierge avec guide neutre, sans fausse donnée');
-// v41.81 : repère construit à partir de rectangles vides et des vraies
-// positions de l'étiquette numérique, à 4px du bord de la caméra.
+// v41.82 : les cadres utilisent la position des vrais textes de l'étiquette,
+ // et non les zones à largeur imposée par les colonnes.
 assert(section.includes('id="iuGeminiExactGuide"')&&
- !section.includes('iu-gemini-camera-label-map'), 'Un seul repère, sans faux dessin surimprimé');
-assert(js.includes("const source=output.querySelector('.iu-gemini-printed-label.iu-gemini-label-placeholder')")&&
- js.includes('function buildExactCameraOutline(source)')&&
- js.includes("const printedStyle=getComputedStyle(source)")&&
- js.includes('source.querySelector(selector)?.getBoundingClientRect()')&&
- js.includes("line.className='iu-gemini-outline-rect iu-gemini-outline-'+kind"),
- 'Rectangles sans textes, positionnés depuis le véritable modèle DIGI');
+ !section.includes('iu-gemini-camera-label-map'),
+ 'Un seul repère visible au-dessus de la caméra');
+assert(js.includes('function buildExactCameraOutline(source)')&&
+ js.includes('range.selectNodeContents(element)')&&
+ js.includes('range.getBoundingClientRect()')&&
+ js.includes("const line=document.createElement('span')"),
+ 'Position des cadres mesurée sur les glyphes et non sur les colonnes');
+for(const field of ['store','address','product','rate-caption','rate-number',
+ 'weight-caption','weight-number','date-caption','date-number','barcode',
+ 'total','total-caption','total-number']){
+ assert(js.includes("'"+field+"'"),'Repère individuel pour '+field);
+}
+assert(js.includes("addSample('.iu-gemini-label-name','CAROTTE'")&&
+ js.includes("addSample('.iu-gemini-label-total-number','1,00€'"),
+ 'Les tirets virtuels sont remplacés uniquement pour la mesure, pas affichés');
 assert(js.includes('const scale=Math.min((stage.width-8)/guideSize.width,')&&
  js.includes('(stage.height-8)/guideSize.height);'),
- 'Repère centré à 4px en hauteur, ratio uniforme sans écrasement');
-assert(css.includes('height:194px!important')&&css.includes('height:182px!important')&&
+ 'Marge de quatre pixels et échelle uniforme conservées');
+assert(css.includes('height:194px!important')&&
+ css.includes('height:182px!important')&&
  css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect'),
- 'Caméra agrandie et contours rectangulaires légers');
-assert(css.includes('background:none!important;')&&
- css.includes('border-style:dashed!important;'),
- 'Guidage sans aplats, code-barres discret');
-assert(css.includes('#iuGeminiTorch.iu-weigh-scan-torch.is-on')&&
- css.includes('color:#2588c7!important')&&css.includes('background:linear-gradient(145deg,#f4faff,#ddeefa)!important'),
- 'Bouton flash neutre et icône bleue, activation bleutée');
-assert(!js.includes('bar.setAttribute(\'fill\',\'none\')')&&
- !js.includes("'-webkit-text-stroke','1px rgba(255,255,255,.85)'"),
- 'Les anciens caractères détourés et pseudo-barres ont été supprimés');
+ 'Taille du viseur et contours fins conservés');
+assert(css.includes('background:linear-gradient(145deg,#dff2ff 0%,#a9d9fa 100%)!important')&&
+ css.includes('0 0 0 2px rgba(46,146,232,.31)')&&
+ css.includes('stroke-width:2.8!important'),
+ 'Flash actif bleu bien différencié du flash inactif');
+assert(!js.includes("appendOutline(box(selector),kind)")&&
+ !js.includes('width:name.width*.50'),
+ 'Les anciens cadres englobants mal placés ont été retirés');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.81 : caméra pleine largeur, repère rectangulaire à 4px, flash bleu OK.');
+console.log('Gemini v41.82 : vrais contours d’éléments DIGI et flash actif bien visible OK.');
