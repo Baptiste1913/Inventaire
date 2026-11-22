@@ -1,6 +1,6 @@
 {
-  "version": "41.98",
+  "version": "41.99",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Pesée via IA : déplacement du déclencheur photo dans la caméra, coin inférieur gauche. Petit bouton rond de 36px avec même relief gris/bleu, contour et ombre que Fermer et Flash. Le gros bouton Analyser cette étiquette disparaît sous le viseur, tandis que l'élément de capture et sa logique de sécurité sont conservés. Déclenchement volontaire uniquement ; bouton absent caméra inactive, verrouillé pendant l’analyse et avant la validation Nouvelle pesée. Icône SVG, accessibilité, cache et tests adaptés."
+  "notes": "Le déclencheur manuel du viseur Gemini rejoint la colonne gauche Fermer / Flash : troisième bouton sous le Flash, même carré arrondi de 32×32 px, rayon 11px, bordure, fond clair, ombre, couleur, icône 15px centrée et intervalle vertical 5px. Réutilisation de la classe visuelle du bouton Fermer. Caméra au repos, verrou anti-double capture, analyse et raccourcis inchangés."
 }
