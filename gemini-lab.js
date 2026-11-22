@@ -1,4 +1,4 @@
-/* Inventaires U 41.83 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.84 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -54,11 +54,14 @@
  // 3 mesures, EAN, prix. Les zones ne se chevauchent pas.
  const labelOutlineZones=[
   ['store',  .510,.014,.430,.209],
-  ['product',.058,.271,.895,.183],
-  ['rate',   .055,.472,.266,.187],
-  ['weight', .338,.472,.269,.187],
-  ['date',   .647,.472,.299,.187],
-  ['barcode',.025,.677,.510,.301],
+  // Libellé : -15 % en largeur et en hauteur, centré.
+  ['product',.125,.285,.761,.156],
+  // Prix unitaire, poids net, date : -33 % sur les deux axes.
+  ['rate',   .099,.503,.178,.125],
+  ['weight', .382,.503,.180,.125],
+  ['date',   .696,.503,.200,.125],
+  // EAN : même hauteur et même position verticale que le bloc prix.
+  ['barcode',.025,.687,.510,.291],
   ['total',  .547,.687,.404,.291]
  ];
  function buildExactCameraOutline(source){
