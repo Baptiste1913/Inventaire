@@ -1,6 +1,6 @@
 {
-  "version": "42.13",
+  "version": "42.14",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Indicateur de validation du viseur Gemini réduit de 32×32 px à 27×27 px, symbole vert/blanc 17×17 px, mêmes marges droite et basse de 5 px ; message de réussite « étiquette prête » ; date d'emballage de la maquette virtuelle rétablie automatiquement au jour local de l'appareil, annoncée comme date ajoutée et non comme lecture Gemini. Contrôles métier et validation manuelle conservés."
+  "notes": "Optimisations Gemini v42.14 : aperçu immédiat dès la réponse de Gemini, marqué provisoire, validation et coche verrouillées jusqu'aux contrôles indépendants ; barres EAN masquées pendant l'attente et présentées seulement après contrôle. Images JPEG volumineuses préparées via Web Worker + OffscreenCanvas et encodage adaptatif (résolutions/qualités inchangées, repli Safari). Worker Cloudflare : cache mémoire de 15 minutes uniquement pour les incompatibilités explicites du schéma JSON, avec repli existant préservé. Aucun changement des contrôles poids/prix, EAN-13, tare ni de l'enregistrement manuel. Attention : le code Worker Cloudflare reste à déployer séparément ; publication GitHub seule n'actualise pas le Worker distant."
 }
