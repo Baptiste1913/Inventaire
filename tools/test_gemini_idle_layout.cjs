@@ -62,7 +62,7 @@ assert(section.includes('id="iuGeminiExactGuide"')&&
 assert(js.includes("const source=output.querySelector('.iu-gemini-printed-label.iu-gemini-label-placeholder')")&&
  js.includes('const copy=source.cloneNode(true)')&&
  js.includes('getComputedStyle(sourceNodes[i])')&&
- js.includes("const scale=Math.min((stage.width-18)/guideSize.width,"),
+ js.includes("const scale=.88*Math.min((stage.width-18)/guideSize.width,"),
  'Le repère reprend les styles et proportions exacts de l’étiquette imprimée');
 assert(css.includes('aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important')&&
  css.includes('.iu-gemini-camera-stage .iu-weigh-scan-guide {\n display:none!important;'),
@@ -82,4 +82,4 @@ assert(js.includes("bar.setAttribute('fill','none')")&&
  !js.includes("'repeating-linear-gradient(90deg,rgba(255,255,255,.56)"),
  'Les barres de guidage sont des contours et non des barres pleines');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.77 : cadre affiné, halos subtils, caméra fermée mais viseur visible, étiquette vierge et réinitialisation OK.');
+console.log('Gemini v41.80 : cadre compact, repère DIGI proportionnel et contours évidés OK.');
