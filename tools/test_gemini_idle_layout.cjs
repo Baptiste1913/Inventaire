@@ -67,5 +67,19 @@ assert(js.includes("const source=output.querySelector('.iu-gemini-printed-label.
 assert(css.includes('aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important')&&
  css.includes('.iu-gemini-camera-stage .iu-weigh-scan-guide {\n display:none!important;'),
  'Le viseur conserve le ratio DIGI et retire les faux repères superposés');
+// v41.80 : scanner compact, sans aplat ni distorsion de l'étiquette.
+assert(css.includes('height:156px!important;')&&css.includes('height:142px!important;'),
+ 'La caméra est plus basse sur tous les formats iPhone');
+assert(js.includes("const scale=.88*Math.min((stage.width-18)/guideSize.width,")&&
+ js.includes("(stage.height-18)/guideSize.height);"),
+ 'Réduction uniforme du repère à 88 % sans déformation');
+assert(js.includes("target.style.setProperty('-webkit-text-fill-color','transparent','important')")&&
+ js.includes("target.style.setProperty('-webkit-text-stroke','1px rgba(255,255,255,.85)','important')")&&
+ js.includes("target.style.setProperty('background','transparent','important')"),
+ 'Caractères évidés et fonds supprimés sur la copie du modèle DIGI');
+assert(js.includes("bar.setAttribute('fill','none')")&&
+ js.includes("bar.setAttribute('stroke','rgba(255,255,255,.72)')")&&
+ !js.includes("'repeating-linear-gradient(90deg,rgba(255,255,255,.56)"),
+ 'Les barres de guidage sont des contours et non des barres pleines');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
 console.log('Gemini v41.77 : cadre affiné, halos subtils, caméra fermée mais viseur visible, étiquette vierge et réinitialisation OK.');
