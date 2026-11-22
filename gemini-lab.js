@@ -1,4 +1,4 @@
-/* Inventaires U 41.93 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
+/* Inventaires U 41.98 — viseur prêt mais caméra inactive et étiquette vierge au démarrage.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -1296,7 +1296,8 @@
  // Les préférences Auto historiques ne sont plus lues ni sauvegardées.
  function selectCameraMode(){
   cameraMode='manual';
-  if(capture)capture.textContent='Analyser cette étiquette';
+  // Conserver l'icône SVG du déclencheur flottant.
+  if(capture)capture.setAttribute('aria-label','Photographier et analyser cette étiquette');
   localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
   clearAutoTimer();autoLocked=false;autoCapturePending=false;
   setAutoHint('Cadre prêt · appuie pour analyser','manual');
