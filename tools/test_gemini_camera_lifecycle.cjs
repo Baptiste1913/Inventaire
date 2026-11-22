@@ -41,8 +41,9 @@ const obtain=startCode.indexOf('navigator.mediaDevices.getUserMedia(');
 assert(reuse>=0&&obtain>reuse,'La réutilisation est testée avant toute demande getUserMedia');
 assert(startCode.includes("track?.readyState==='live'")&&startCode.includes('video.srcObject=cameraStream;'),
  'Piste vidéo existante reprise sans redemander la permission');
-assert(startCode.includes('cameraShell.scrollIntoView(')&&startCode.includes('return;'),
- 'Le raccourci affiche directement le viseur conservé');
+assert(startCode.includes('cameraShell.hidden=false;')&&startCode.includes('return;')&&
+ !startCode.includes('cameraShell.scrollIntoView('),
+ 'Le raccourci réutilise le viseur sans déplacement automatique de la page');
 assert(startCode.includes('stopCamera();'),'Piste terminée nettoyée avant éventuelle réouverture');
 const shortcutStart=js.indexOf("shortcut?.addEventListener('click'");
 const shortcutEnd=js.indexOf("nextWeigh?.addEventListener('click'",shortcutStart);

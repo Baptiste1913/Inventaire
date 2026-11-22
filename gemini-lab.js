@@ -1,4 +1,4 @@
-/* Inventaires U 41.63 — scanner Gemini plein écran, résultat compact et étiquette virtuelle toujours visible.
+/* Inventaires U 41.65 — carte Gemini compacte native, sans mode séparé.
    Clé pilote mémorisable uniquement sur cet appareil ; aucune photo conservée. */
 (()=>{
  'use strict';
@@ -24,37 +24,14 @@
  const modeControl=$('iuGeminiModeCamera')?.closest('.iu-gemini-mode-control');
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
- const focusExit=$('iuGeminiFocusExit');
- let focusActive=false;
- function updateFocusState(nextState){
-  if(!focusActive)return;
+ // La carte reste compacte en permanence : seuls les états changent.
+ function updateCardState(nextState){
   panel.dataset.scanState=nextState||(!output.hidden?'review':file?'working':'search');
  }
- function enterFocus(){
-  if(!focusActive){
-   focusActive=true;
-   document.body.classList.add('iu-gemini-focus');
-  }
-  updateFocusState();
+ function scannerCardVisible(){
+  return !document.hidden&&!panel.hidden&&panel.isConnected&&panel.getClientRects().length>0;
  }
- function leaveFocus(){
-  if(!focusActive)return;
-  focusActive=false;
-  document.body.classList.remove('iu-gemini-focus');
-  delete panel.dataset.scanState;
-  // Annuler aussi une demande de caméra encore en attente (promesse iOS).
-  // Si une piste arrive après la sortie, son epoch différent la libère.
-  if(cameraStarting){cameraEpoch++;cameraStarting=false;openCamera.disabled=false;}
-  // Conserver la permission caméra pendant cette session, mais ne jamais
-  // filmer ni analyser lorsque l'utilisateur a quitté la vue du scanner.
-  clearAutoTimer();
-  if(cameraStream){
-   for(const track of cameraStream.getVideoTracks())track.enabled=false;
-   try{video.pause()}catch(_){}
-   cameraShell.hidden=true;
-  }
- }
- focusExit?.addEventListener('click',leaveFocus);
+ updateCardState('search');
  const setupCallout=$('iuGeminiSetupCallout'),geminiOptions=$('iuGeminiOptions');
  const autoModeButton=$('iuGeminiAutoMode'),manualModeButton=$('iuGeminiManualMode'),
   autoScanState=$('iuGeminiAutoScanState'),autoReset=$('iuGeminiAutoReset');
@@ -171,10 +148,10 @@
   if(grossPreview)grossPreview.value='';
   if(emptyResult)emptyResult.hidden=false;
   clearPreview();capture.disabled=false;updateButton();
-  updateFocusState('search');
+  updateCardState('search');
   say('');
  }
- function clear(){stopCamera();resetReading();leaveFocus();}
+ function clear(){stopCamera();resetReading();}
  function setPhoto(chosen){
   if(!chosen)return;
   if(active){say('Analyse en cours : attends la réponse avant de changer de photo.',true);return false;}
@@ -192,8 +169,7 @@
   output.hidden=true;networkTime.textContent='';resetProposal();
   if(emptyResult)emptyResult.hidden=false;
   if(grossPreview)grossPreview.value='';
-  enterFocus();
-  updateFocusState('working');
+  updateCardState('working');
   updateButton();
   if(!analyze.disabled){
    // Une seule analyse par capture/import. Enregistrement toujours manuel.
@@ -252,9 +228,7 @@
  keyState();
  setupCallout?.addEventListener('click',()=>{
   if(!geminiOptions)return;
-  // La clé est configurée hors du scanner immersif ; réutiliser ensuite
-  // la caméra déjà autorisée au retour.
-  leaveFocus();
+  // La clé reste configurable dans la carte Gemini.
   geminiOptions.open=true;
   geminiOptions.scrollIntoView({block:'nearest',behavior:'smooth'});
   pilotKey.focus({preventScroll:true});
@@ -279,7 +253,6 @@
   const opening=panel.hidden;
   panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
   if(!opening)clear();
-  else if(!focusActive)panel.scrollIntoView({behavior:'smooth',block:'nearest'});
  });
  function decodePhoto(source){
   return new Promise((resolve,reject)=>{
@@ -523,7 +496,7 @@
   output.hidden=false;
   if(emptyResult)emptyResult.hidden=true;
   proposal=ready?verified:null;
-  updateFocusState(proposal?'review':'retry');
+  updateCardState(proposal?'review':'retry');
   if(!proposal)resetProposal();
   validationState();
   networkTime.textContent='Gemini : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
@@ -535,7 +508,7 @@
   const selectedModel=fixedModel,access=pilotKey.value.trim();
   attempts.add(selectedModel);active=true;updateButton();capture.disabled=true;
   output.hidden=true;networkTime.textContent='';resetProposal();
-  updateFocusState('working');
+  updateCardState('working');
   if(cameraStream&&cameraMode==='auto')setAutoHint('Analyse en cours · une seule photo envoyée','capturing');
   const id=++generation;
   abort=new AbortController();
@@ -568,8 +541,7 @@
    }
    display(result,performance.now()-start);
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
-   if(lastPhotoWasAuto&&proposal&&!focusActive)
-    requestAnimationFrame(()=>nextWeigh?.scrollIntoView({block:'nearest',behavior:'smooth'}));
+   // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    say(proposal
     ?'Lecture prête : vérifie le poids brut et l’étiquette, puis valide.'
@@ -579,7 +551,7 @@
    if(id===generation&&error?.name!=='AbortError'){
     const reason=String(error?.message||'Échec réseau').slice(0,140);
     say('Essai non terminé : '+reason,true);
-    updateFocusState('error');
+    updateCardState('error');
    }
   }finally{
    if(id===generation){
@@ -631,7 +603,6 @@
    const track=cameraStream.getVideoTracks?.()[0];
    if(track?.readyState==='live'){
     if(document.hidden)return;
-    enterFocus();
     cameraPausedInBackground=false;
     track.enabled=true;
     video.srcObject=cameraStream;
@@ -644,7 +615,6 @@
      say('Vidéo suspendue par iOS. Réessaie de toucher le viseur.',true);
     }
     if(cameraMode==='auto'&&!autoSuspended&&!active&&!file&&!proposal)startAutoMonitor();
-    if(!focusActive)cameraShell.scrollIntoView({block:'nearest',behavior:'smooth'});
     return;
    }
    // iOS peut terminer une piste après verrouillage. Dans ce cas
@@ -654,7 +624,6 @@
   if(!navigator.mediaDevices?.getUserMedia){
    say('Caméra en direct indisponible : autorise la caméra ou utilise la galerie.',true);return;
   }
-  enterFocus();
   cameraStarting=true;
   const epoch=++cameraEpoch;
   openCamera.disabled=true;
@@ -686,7 +655,6 @@
   }catch(_){
    if(epoch===cameraEpoch){
     stopCamera();
-    leaveFocus();
     say('Caméra indisponible ou accès refusé. Tu peux utiliser la galerie.',true);
    }
   }finally{
@@ -743,11 +711,7 @@
    resetReading();
    if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
    say('Pesée validée et enregistrée · '+formatWeight(saved.net)+' net. Prêt pour la suivante.');
-   // Après validation, les commandes du prochain scan reviennent à portée de vue.
-   if(!focusActive)requestAnimationFrame(()=>{
-    const target=cameraStream&&!cameraShell.hidden?cameraShell:shortcut;
-    target?.scrollIntoView({block:'nearest',behavior:'smooth'});
-   });
+   // Le scanner reste sur la même carte, sans saut de page.
   }else if(saved?.duplicate){
    say('Cette étiquette a déjà été enregistrée : aucun doublon ajouté.',true);
   }else{
@@ -756,7 +720,7 @@
  });
  openCamera.addEventListener('click',startCamera);
  closeCamera.addEventListener('click',()=>{
-  stopCamera();leaveFocus();
+  stopCamera();
   say('Viseur fermé. Aucune photo envoyée.');
  });
  torch.addEventListener('click',()=>setTorch(!torchOn));
@@ -834,12 +798,12 @@
   }
  }
  function startAutoMonitor(){
-  if(cameraMode!=='auto'||!cameraStream||!focusActive||autoTimer)return;
+  if(cameraMode!=='auto'||!cameraStream||!scannerCardVisible()||autoTimer)return;
   autoTimer=setTimeout(autoTick,230);
  }
  function autoTick(){
   autoTimer=0;
-  if(!focusActive||!cameraStream||cameraShell.hidden||document.hidden||cameraMode!=='auto')return;
+  if(!scannerCardVisible()||!cameraStream||cameraShell.hidden||cameraMode!=='auto')return;
   try{
    if(!autoLocked&&!autoSuspended&&!active&&!file&&!proposal&&performance.now()>=autoEarliest){
     if(!pilotKey.value.trim()){
@@ -895,7 +859,7 @@
    autoLocked=true;
    setAutoHint('Détection automatique indisponible · utilise Capturer','error');
   }finally{
-   if(focusActive&&cameraMode==='auto'&&cameraStream&&!cameraShell.hidden&&!document.hidden)
+   if(scannerCardVisible()&&cameraMode==='auto'&&cameraStream&&!cameraShell.hidden)
     startAutoMonitor();
   }
  }

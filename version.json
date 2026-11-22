@@ -1,6 +1,6 @@
 {
-  "version": "41.64",
+  "version": "41.65",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Gemini intégré directement dans la carte d'accueil, sans écran plein écran. À la reconnaissance : viseur compact, ligne Brut/Tare/Net réduite à 36 px, grand résultat dupliqué et champ brut redondant masqués, étiquette DIGI complète sans espace vide, Valider et suivante raccourci et placé sous l'étiquette. Aucun défilement automatique entre deux pesées ; reconnaissance et validation manuelle inchangées."
+  "notes": "La carte de pesée Gemini adopte directement la présentation compacte dans la page d'accueil, sans mode d'affichage séparé, bascule du body, sous-page ni bouton retour. Recherche, analyse et résultat sont des états internes à la même carte ; caméra, Brut/Tare/Net, étiquette DIGI visible, validation explicite et options Gemini conservées. La navigation de l'accueil demeure accessible ; aucun défilement automatique."
 }
