@@ -105,20 +105,37 @@ assert(css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect')&&
  'Les cadres sont des contours vides et translucides');
 assert(css.includes('background:linear-gradient(145deg,#d9f0ff 0%,#8fcefa 100%)!important'),
  'Flash actif visuellement plus prononcé');
-// v41.85 : cadrage au ratio DIGI, flux vidéo jusqu'aux bords du bloc.
-const fullBleed=css.slice(css.indexOf('/* v41.85 — Visée plein cadre'));
-assert(fullBleed.length>900,'Correctif terminal chargé après les anciennes hauteurs caméra');
-assert(fullBleed.includes('#iuGeminiCameraShell.iu-gemini-camera-shell > .iu-gemini-camera-stage.iu-weigh-scan-camera')&&
- fullBleed.includes('width:calc(100% + 12px)!important')&&
- fullBleed.includes('margin-left:-6px!important')&&
- fullBleed.includes('margin-right:-6px!important'),
- 'Vidéo étendue jusqu’aux bords internes du bloc Gemini');
-assert(fullBleed.includes('height:auto!important')&&
- fullBleed.includes('aspect-ratio:var(--iu-gemini-exact-aspect, 1372 / 1088)!important'),
- 'Hauteur proportionnelle au papier DIGI plutôt qu’une barre panoramique');
-assert(fullBleed.includes('video#iuGeminiVideo')&&
- fullBleed.includes('object-fit:cover!important')&&
- fullBleed.includes('object-position:center center!important'),
- 'Flux vidéo centré sans étirement, pleine surface du viseur');
+// v41.86 : mêmes dimensions et recadrage que le scanner OCR classique.
+const classicCss=require('node:fs').readFileSync('weigh-scan-inline.css','utf8');
+const cameraMatch=css.slice(css.indexOf('/* v41.86 — Mêmes dimensions'));
+assert(cameraMatch.length>1200,'Correctif OCR chargé en fin de feuille Gemini');
+assert(classicCss.includes('height:184px !important')&&
+ classicCss.includes('height:160px !important'),
+ 'Le scanner OCR utilise effectivement les hauteurs 184 et 160 pixels');
+assert(cameraMatch.includes('height:184px!important')&&
+ cameraMatch.includes('height:160px!important')&&
+ cameraMatch.includes('max-height:160px!important'),
+ 'Même hauteur de caméra que l’OCR classique en standard et sur iPhone');
+assert(classicCss.includes('border-radius:16px !important')&&
+ cameraMatch.includes('border-radius:16px!important'),
+ 'Même rayon des coins que la fenêtre OCR');
+assert(cameraMatch.includes('width:100%!important')&&
+ cameraMatch.includes('padding:9px!important')&&
+ cameraMatch.includes('padding:8px!important')&&
+ cameraMatch.includes('margin:0!important'),
+ 'Largeur et marges intérieures calquées sur l’OCR classique');
+assert(cameraMatch.includes('aspect-ratio:auto!important')&&
+ !cameraMatch.includes('width:calc(100% + 12px)')&&
+ !cameraMatch.includes('aspect-ratio:var(--iu-gemini-exact-aspect'),
+ 'Fin de la caméra forcée au ratio DIGI et du débordement artificiel');
+assert(cameraMatch.includes('video#iuGeminiVideo')&&
+ cameraMatch.includes('object-fit:cover!important')&&
+ cameraMatch.includes('object-position:center center!important'),
+ 'Caméra cadrée et remplie comme le flux de l’OCR classique');
+assert(html.includes('gemini-lab.css?v='+version)&&
+ html.includes('gemini-lab.js?v='+version)&&
+ sw.includes('gemini-lab.css?v='+version)&&
+ sw.includes('gemini-lab.js?v='+version),
+ 'Les ressources Gemini suivent bien la version PWA active');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v41.85 : viseur pleine largeur au ratio DIGI, capture intacte OK.');
+console.log('Gemini v41.86 : caméra 184/160px et video cover comme l’OCR classique OK.');
