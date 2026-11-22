@@ -538,5 +538,14 @@ assert(js.includes("if(validateResult(result).error){")&&
  js.includes('const saveReady=Boolean(validationState());')&&
  js.includes("nextWeigh?.addEventListener('click',()=>{"),
  'Deuxième passage Gemini seulement après échec de vérification, enregistrement manuel');
+// v42.08 — dates non inventées et encodages inutiles éliminés.
+assert(js.includes('function recognizedPackagingDate(fields)')&&
+ js.includes("if(typeof candidate!=='string')return '—'")&&
+ !js.includes('todayForVirtualLabel')&&
+ js.includes('recognizedPackagingDate(fields));'),
+ 'Date de la vignette jamais fabriquée depuis l’heure système');
+assert(js.includes('let previousWidth=0,previousHeight=0;')&&
+ js.includes('if(width===previousWidth&&height===previousHeight)continue;'),
+ 'JPEG haute qualité : ne jamais encoder deux fois une même résolution');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.07 : photo haute précision, OCR contradictoire bloquant, EAN/math locaux, seconde lecture ciblée OK.');
+console.log('Gemini v42.08 : haute précision, dates vérifiées, compression optimisée et garde-fous OK.');
