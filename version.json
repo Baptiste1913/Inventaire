@@ -1,6 +1,6 @@
 {
-  "version": "41.78",
+  "version": "41.79",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Viseur IA : repères de cadrage fidèles à la géométrie de l’étiquette virtuelle DIGI (en-tête, produit, prix unitaire, poids net, date, code-barres et prix total). Repères monochromes fins, adaptés au petit écran ; reconnaissance, caméra inactive au lancement, contrôles et données inchangés."
+  "notes": "Viseur caméra IA : le gabarit transparent est désormais cloné directement depuis l’étiquette virtuelle DIGI avec ses styles calculés et ses dimensions réelles (ratio 1372/1088, placement, typographies, marges, coins, prix encadré, emplacement EAN). Mise à l’échelle sans déformation pour Safari iPhone, cadre vidéo adapté. Caméra inactive au départ, capture, OCR et pesées inchangés."
 }
