@@ -618,5 +618,21 @@ assert(js.includes('const independent=independentLocalReadingFor(file)')&&
  js.includes('eanCheck(ean.slice(0,12))!==ean[12]')&&
  js.includes("nextWeigh?.addEventListener('click',()=>{"),
  'Tous contrôles métiers et validation manuelle conservés');
+// v42.12 — API Worker et réessais compatibles, sans affaiblir l'OCR.
+const server=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
+assert(server.includes('const geminiLabelJsonSchema={')&&
+ server.includes("required:['name','weightKg','pricePerKgEur','totalEur','ean13']")&&
+ server.includes('if(res.status===400&&!abort.signal.aborted)res=await askGemini(false);')&&
+ server.includes('if(structured)generationConfig.responseJsonSchema=geminiLabelJsonSchema;'),
+ 'Schéma JSON contrôlé et repli compatible seulement sur rejet 400');
+assert(server.includes('maxOutputTokens:2048')&&
+ server.includes('const outputStatus=[429,500,502,503,504].includes(status)?status')&&
+ server.includes("'Access-Control-Expose-Headers':'Retry-After'")&&
+ server.includes('abort.signal.aborted?504:502'),
+ 'Réponse non tronquée et erreurs fournisseur triées');
+assert(js.includes('Accès Gemini refusé : vérifie les clés du Worker et de Gemini.')&&
+ js.includes('const local=await localCheckWithin(independent,2200)')&&
+ js.includes('const saveReady=Boolean(validationState());'),
+ 'Analyse locale indépendante et validation manuelle conservées');
 assert((css.match(/\{/g)||[]).length===(css.match(/\}/g)||[]).length,'CSS équilibré');
-console.log('Gemini v42.11 : préconnexion, OCR anticipé, décompression unique et JPEG asynchrone OK.');
+console.log('Gemini v42.12 : Worker Gemini JSON strict, états d’erreur conservés et OCR validé OK.');
