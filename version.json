@@ -1,6 +1,6 @@
 {
-  "version": "41.97",
+  "version": "41.98",
   "published": "2026-11-22",
   "assets": 54,
-  "notes": "Correction de l’icône d’importation Gemini : le bac sous la flèche est décalé d’un pixel vers la droite (centre x=12, comme la flèche) pour un alignement géométrique parfait sur iPhone. Épaisseur, dimensions SVG, styles, emplacement et fonctionnalité d’importation inchangés. Cache PWA renouvelé."
+  "notes": "Pesée via IA : déplacement du déclencheur photo dans la caméra, coin inférieur gauche. Petit bouton rond de 36px avec même relief gris/bleu, contour et ombre que Fermer et Flash. Le gros bouton Analyser cette étiquette disparaît sous le viseur, tandis que l'élément de capture et sa logique de sécurité sont conservés. Déclenchement volontaire uniquement ; bouton absent caméra inactive, verrouillé pendant l’analyse et avant la validation Nouvelle pesée. Icône SVG, accessibilité, cache et tests adaptés."
 }
