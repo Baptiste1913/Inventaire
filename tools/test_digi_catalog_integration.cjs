@@ -28,7 +28,7 @@ function source(a,b){
 const ctx=vm.createContext({window:{IUDigiCatalogLookup:digi},localBarcode:null});
 vm.runInContext(
  'function eanCheck(first){let s=0;for(let i=0;i<12;i++)s+=Number(first[i])*(i%2?3:1);return String((10-s%10)%10)};'+
- source('function fieldsChecks(fields){','function fieldForProblem(')+
+ source('function trustedBarcodeEvidence(reading){','function fieldForProblem(')+
  source('function validateResult(result){',' // Une lecture EAN13 purement optique')+
  'globalThis.validateResult=validateResult;',ctx);
 const read=ctx.validateResult({fields,checks:{}});
