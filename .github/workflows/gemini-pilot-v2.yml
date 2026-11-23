@@ -7,6 +7,8 @@ on:
       - 'gemini-lab.js'
       - 'gemini-parallel.js'
       - 'gemini-image-worker.js'
+      - 'gemini-zxing.js'
+      - 'tools/test_mistral_zxing.mjs'
       - 'tools/test_gemini_parallel.cjs'
       - 'tools/test_gemini_worker_pixels.cjs'
       - 'gemini-ean.js'
@@ -44,6 +46,8 @@ jobs:
           node --check gemini-lab.js
           node --check gemini-parallel.js
           node --check gemini-image-worker.js
+          node --check gemini-zxing.js
+          node --check tools/test_mistral_zxing.mjs
           node --check tools/test_gemini_parallel.cjs
           node --check tools/test_gemini_worker_pixels.cjs
           node --check gemini-ean.js
@@ -82,6 +86,7 @@ jobs:
         run: |
           node tools/test_gemini_parallel.cjs
           node tools/test_gemini_worker_pixels.cjs
+          node tools/test_mistral_zxing.mjs
           node tools/test_gemini_ean_focus.cjs
           node tools/test_gemini_ean_printed.cjs
       - name: Vérifier la netteté EAN, poids, prix et la sélection de la photo

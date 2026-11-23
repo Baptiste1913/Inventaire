@@ -338,3 +338,60 @@ domaine et ses origines autorisées. Vérifier que les journaux
 d'observabilité sont activés. Seules les nouvelles requêtes exécutées
 après le déploiement disposeront de ces diagnostics ; les anciens
 journaux 503 ne permettent pas de reconstruire le statut Google.
+
+## v42.35 — pilote Mistral OCR 4.1 + ZXing WebAssembly
+
+Mistral OCR 4.0 (`mistral-ocr-4-0`) a été retiré le 30 septembre
+2026. Le pilote utilise le successeur encore disponible, **OCR 4.1**
+(`mistral-ocr-4-1`). Documentation :
+https://docs.mistral.ai/studio/document-processing/basic_ocr
+
+**Choisir explicitement** le moteur « Mistral OCR 4.1 (essai) » dans
+la section repliable *Accès Cloudflare* du scanner. Gemini Flash-Lite
+reste le réglage par défaut, conservé pour comparer sur les mêmes photos.
+Le jeton d'accès utilisateur actuel reste le même, séparé du secret
+fournisseur. Si le backend Cloudflare n'a pas encore été déployé,
+Mistral indiquera un message de configuration, sans fausse pesée.
+
+Le même Worker Cloudflare `workers/coursesu-live-worker.js` supporte
+désormais `provider:mistral` avec `model:mistral-ocr-4-1`, utilise
+`https://api.mistral.ai/v1/ocr` et envoie la photo en Base64.
+Il faut **configurer MISTRAL_API_KEY en secret Cloudflare** et déployer
+le code Worker actualisé sur `inventaires-u-prix`. Ne jamais placer
+le secret Mistral dans le site public, GitHub ou le localStorage iPhone.
+Le modèle OCR produit du Markdown ; seules les mesures avec unités
+visibles et intitulés corrects sont extraites (kg, €/kg, prix à payer),
+avec clé EAN-13 valide. Une mesure incertaine reste nulle. Nom et PLU
+restent exclusivement issus du catalogue local DIGI. Les contrôles
+montant × poids, EAN/prix, panier/tare et validation manuelle restent
+obligatoires. Pas de deuxième appel Mistral automatique.
+
+La lecture EAN existante reste le premier passage en Web Worker. Si
+elle ne renvoie pas de code, la bibliothèque **ZXing-C++ WebAssembly**
+`zxing-wasm@3.1.2` est chargée à la demande dans le même Worker.
+Le CDN épinglé est
+`https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.2/dist/iife/reader/index.js`.
+Le binaire `.wasm` provient du CDN configuré par ce paquet. Le
+chargement initial peut donc être plus lent et nécessite un réseau
+accessible. En cas de blocage par VPN, absence de réseau ou erreur
+WASM, l'ancien lecteur continue seul : ZXing n'est pas requis pour
+fonctionner hors ligne. Les codes validés doivent avoir leur clé EAN,
+au moins deux lignes concordantes, une position géométrique compatible,
+et aucune contradiction avec une autre étiquette. En cas de codes
+différents : aucune validation arbitraire.
+
+La fonction OCR Mistral requiert un compte Mistral Studio avec
+facturation/API et la configuration du secret serveur. Ces comptes et
+secrets ne peuvent pas être créés par un simple commit GitHub. Une
+publication GitHub Pages ne déploie pas automatiquement Cloudflare.
+
+Tests sans coûts fournisseur :
+`node tools/test_mistral_zxing.mjs`,
+`node tools/test_gemini_worker_only.mjs`,
+`node tools/test_gemini_parallel.cjs`.
+
+**Essai terrain** : mesurer des photos IDENTIQUES dans les deux modes
+avant de changer le fournisseur par défaut. Une CI verte ne démontre
+pas une lecture fiable en rayon. Aucune image ne doit être enregistrée
+sans validation après vérification des chiffres, du catalogue et de
+la tare.
