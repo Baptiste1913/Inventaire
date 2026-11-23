@@ -89,3 +89,41 @@ Tests automatiques :
 Mesurer sur l'iPhone le taux de scans réussis sans nouvelle photo,
 le temps de la capture au code-barres et l'échauffement sur
 50 à 100 étiquettes à différentes distances.
+
+## v42.31 — EAN plus robuste et détail recadré sans régression
+
+1. La table du décodeur EAN local comportait un motif de chiffre manquant
+   dans les barres de droite. Le jeu des dix chiffres est désormais complet.
+   Des tests parcourent les chiffres 7, 8 et 9 et vérifient les clés EAN.
+2. La lecture historique 1 100 px (50 trajectoires) est conservée en
+   PREMIÈRE intention. Seulement si elle échoue, une seconde lecture locale
+   bornée (1 500 px, 2 seuils et angles un peu plus ouverts) est essayée.
+   Un EAN exige au moins deux lignes distinctes, un checksum valide
+   et aucune autre lecture contradictoire. Aucun EAN n'est inventé.
+3. Le JPEG complet d'origine reste toujours la première image envoyée.
+   Pour la vue secondaire optionnelle, le scanner peut détecter une zone
+   de papier claire entourée de marges contrastées, ou utiliser une position
+   de code-barres optique confirmée. Si la zone est incertaine, trop proche
+   des bords ou trop petite, il utilise EXACTEMENT le recadrage central
+   de la v42.30. Aucune rectification déformante de perspective
+   n'est imposée.
+4. Si Gemini et la lecture optique locale confirment le même EAN, aucune
+   deuxième requête Gemini de confirmation d'EAN n'est effectuée.
+   Lorsque seul l'EAN nécessite une confirmation et que le lecteur
+   local tourne encore, 165 ms additionnelles au maximum peuvent éviter
+   une demande IA complète. Tous les autres contrôles restent stricts.
+
+Toutes ces améliorations sont dans la PWA : **pas de mise à jour Cloudflare
+nécessaire pour cette version**. Le code du Worker doit néanmoins prendre
+en charge l'image secondaire (pipeline v2) pour bénéficier de son effet.
+Un ancien Worker continue à recevoir la photo principale comme avant.
+
+Tests :
+`node tools/test_gemini_ean_rescue.cjs`,
+`node tools/test_gemini_label_geometry.cjs`,
+`node tools/test_gemini_label_detail.cjs`.
+
+Le gain réel doit être mesuré sur les étiquettes du magasin : taux de
+première reconnaissance, temps entre clic et étiquette virtuelle, nombre
+de relectures IA et température de l'iPhone. Les tests simulés ne
+garantissent pas la performance des photos réelles.

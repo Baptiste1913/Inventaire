@@ -47,10 +47,17 @@ const changed=mergeRecoveredReading({fields:{...label,ean13:priceEAN(900)},
  checks:{independentMismatch:true}},{fields:{ean13:label.ean13}},['ean']);
 assert.equal(changed.fields.ean13,label.ean13);
 assert.equal(changed.checks.independentMismatch,false);
+const trustedOpticalTargets=recoveryTargets({fields:label,checks:{}});
+assert.equal(trustedOpticalTargets.length,0,
+ 'Ne pas relire Gemini lorsque le code-barres local confirme le même EAN');
 assert(worker.includes('responseSchema')&&worker.includes('pipelineVersion:2'));
 assert(worker.includes('focusFields')&&worker.includes('detailImageBase64'));
 assert(js.includes('const selectedProvider=\'gemini\''));
-assert(js.includes('const targets=!targetField?recoveryTargets(combined):[]'));
+assert(js.includes('let targets=!targetField?recoveryTargets(combined):[]'));
+assert(js.includes("targets.length===1&&targets[0]==='ean'"),
+ 'Attente bornée pour éviter un appel Gemini si la lecture EAN locale est imminente');
+assert(js.includes('prepareLabelDetail(file,localBarcode)'),
+ 'Recadrage optique réservé à la vue secondaire sur la même photo');
 assert(js.includes('clearTimeout(guard)'));
 assert(!slice("analyze.addEventListener('click'","function refreshTorch()").includes('IUGeminiSaveWeigh('));
 console.log('OK : Gemini photo unique, relecture groupée, anti-hallucination et EAN sûr');

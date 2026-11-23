@@ -10,6 +10,11 @@ on:
       - 'app.js'
       - 'weigh-scan.js'
       - 'gemini-lab.js'
+      - 'gemini-ean.js'
+      - 'gemini-label-geometry.js'
+      - 'tools/test_gemini_ean_rescue.cjs'
+      - 'tools/test_gemini_label_geometry.cjs'
+      - 'tools/test_gemini_label_detail.cjs'
       - 'gemini-frame-quality.js'
       - 'tools/test_gemini_frame_quality.cjs'
       - 'tools/test_gemini_capture_selection.cjs'
@@ -53,6 +58,11 @@ jobs:
           node --check app.js
           node --check weigh-scan.js
           node --check gemini-lab.js
+          node --check gemini-ean.js
+          node --check gemini-label-geometry.js
+          node --check tools/test_gemini_ean_rescue.cjs
+          node --check tools/test_gemini_label_geometry.cjs
+          node --check tools/test_gemini_label_detail.cjs
           node --check gemini-frame-quality.js
           node --check tools/test_gemini_frame_quality.cjs
           node --check tools/test_gemini_capture_selection.cjs
@@ -90,6 +100,11 @@ jobs:
         run: node tools/test_gemini_worker_v2.mjs
       - name: Vérifier la reprise caméra iPhone sans bandes noires après lecture
         run: node tools/test_gemini_video_resume.cjs
+      - name: Confirmer le décodage EAN-13 et la géométrie de l'étiquette
+        run: |
+          node tools/test_gemini_ean_rescue.cjs
+          node tools/test_gemini_label_geometry.cjs
+          node tools/test_gemini_label_detail.cjs
       - name: Vérifier la photo optimale et les 3 zones DIGI
         run: |
           node tools/test_gemini_frame_quality.cjs
