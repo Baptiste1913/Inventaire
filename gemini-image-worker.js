@@ -1,9 +1,10 @@
-/* Inventaires U 42.33 — travail image hors du thread de la caméra.
+/* Inventaires U 42.35 — travail image hors du thread de la caméra.
  * Classic Worker Safari ; aucune requête HTTP externe ni accès au stockage.
  */
 'use strict';
 importScripts('./gemini-ean.js?v=42.33');
 importScripts('./gemini-label-geometry.js?v=42.33');
+importScripts('./gemini-zxing.js?v=42.35');
 function zoneToPixels(rect,w,h){
  if(!rect)return null;
  return {
@@ -155,7 +156,10 @@ self.onmessage=async event=>{
    self.postMessage({id,error:'unsupported'});return;
   }
   let result=null;
-  if(kind==='barcode')result=await self.IUGeminiEAN.read(photo);
+  if(kind==='barcode'){
+   result=await self.IUGeminiEAN.read(photo);
+   if(!result)result=await self.IUZxingEAN?.read(photo)||null;
+  }
   else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading);
   self.postMessage({id,result});
  }catch(_){
