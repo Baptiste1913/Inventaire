@@ -209,3 +209,11 @@ Tests : `node tools/test_gemini_parallel.cjs` et
 `node tools/test_gemini_ean_rescue.cjs`, en plus des vérifications
 caméra, catalogue DIGI et Gemini. Le bénéfice réel de délai reste
 à vérifier sur un iPhone et sur les étiquettes réelles.
+
+Le flux caméra demande désormais une définition **idéale** de 2304×1296
+(sans contrainte obligatoire). La sélection et la sortie restent
+plafonnées à 2160 px ; si l'appareil négocie 1920×1080 ou moins,
+**aucun agrandissement artificiel** n'est effectué. Ce choix peut
+faire augmenter légèrement la consommation pendant la prise de vue :
+comparer la fluidité et l'échauffement sur un inventaire réel avant
+de conserver définitivement la résolution idéale.

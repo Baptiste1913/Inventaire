@@ -1551,7 +1551,9 @@
   let obtained=null;
   try{
    obtained=await navigator.mediaDevices.getUserMedia({
-    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
+    // Cible seulement idéale : Safari peut continuer en 1080p si
+    // le capteur ou ses contraintes ne permettent pas davantage.
+    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2304},height:{ideal:1296}}
    });
    if(epoch!==cameraEpoch||panel.hidden){
     for(const track of obtained.getTracks())track.stop();

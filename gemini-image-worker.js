@@ -20,9 +20,9 @@ function sampleContrast(data){
   hist[(77*data[i]+150*data[i+1]+29*data[i+2])>>>8]++;n++;
  }
  let cum=0,low=0,high=255;
- for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.1){low=i;break;}}
+ for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.05){low=i;break;}}
  cum=0;
- for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.9){high=i;break;}}
+ for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.95){high=i;break;}}
  return {low,high,range:high-low};
 }
 // CLAHE grayscale sur le SEUL détail d'une relecture ; jamais sur
@@ -109,8 +109,8 @@ async function enhancedDetail(photo,reading){
   const slope=reading?.confirmed&&reading?.bounds?Number(reading.bounds.slope)||0:0;
   const rotate=Math.abs(slope)>.035&&Math.abs(slope)<.12;
   // Ne jamais retoucher une image suffisamment contrastée et droite.
-  if((contrast.range>=94||contrast.range<16)&&!rotate)return null;
-  if(contrast.range>=16&&contrast.range<94){
+  if((contrast.range>=110||contrast.range<12)&&!rotate)return null;
+  if(contrast.range>=12&&contrast.range<110){
    clahe(img);
    ctx.putImageData(img,0,0);
   }
