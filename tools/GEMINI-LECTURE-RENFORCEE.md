@@ -58,3 +58,34 @@ réseau additionnel.
 Tests sans appel facturé :
 `node tools/test_digi_catalog_lookup.cjs`,
 `node tools/test_digi_catalog_integration.cjs`.
+
+## v42.30 — photo optimisée contre les tremblements
+
+Le scanner inspecte à basse résolution (maximum 360 px) les trois zones
+critiques de la maquette réelle : barres EAN, poids et prix au kilogramme.
+La netteté et les contours sont mesurés localement, sans moteur OCR ni
+API supplémentaire. Les anciennes zones de netteté du scanner automatique
+restent disponibles sans influencer cette nouvelle sélection manuelle.
+
+Une seule image pleine résolution est conservée temporairement en RAM,
+renouvelée au plus toutes les 360 ms et invalidée si la scène change.
+Au clic, le viseur compare sa photo instantanée à ce tampon, puis, si
+les trois zones ne semblent pas assez nettes, prend une image 85 ms plus
+tard au maximum. La sélection empêche l'utilisation d'une image
+d'une autre session caméra, trop ancienne ou visuellement différente.
+
+Une seule photo JPEG finale (max. 1920 px comme avant) est transmise à
+Gemini. Aucune confirmation ni nouveau bouton, aucune pause native
+de la vidéo Safari, et aucune sauvegarde de photo sur l'appareil.
+En cas de capteur ou API non compatible, retour à la capture classique.
+Le calcul de netteté n'est pas un score de confiance OCR ; il ne
+prouve pas que tous les chiffres sont corrects. La validation DIGI
+continue de bloquer les pesées incohérentes.
+
+Tests automatiques :
+`node tools/test_gemini_frame_quality.cjs`,
+`node tools/test_gemini_capture_selection.cjs`.
+
+Mesurer sur l'iPhone le taux de scans réussis sans nouvelle photo,
+le temps de la capture au code-barres et l'échauffement sur
+50 à 100 étiquettes à différentes distances.

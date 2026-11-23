@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'gemini-lab.js'
+      - 'gemini-frame-quality.js'
+      - 'tools/test_gemini_frame_quality.cjs'
+      - 'tools/test_gemini_capture_selection.cjs'
       - 'digi-catalog-lookup.js'
       - 'barcode-catalog.js'
       - 'app.js'
@@ -23,6 +26,9 @@ jobs:
       - name: Vérification JavaScript
         run: |
           node --check gemini-lab.js
+          node --check gemini-frame-quality.js
+          node --check tools/test_gemini_frame_quality.cjs
+          node --check tools/test_gemini_capture_selection.cjs
           node --check digi-catalog-lookup.js
           node --check barcode-catalog.js
           node --check app.js
@@ -35,6 +41,10 @@ jobs:
         run: |
           node tools/test_digi_catalog_lookup.cjs
           node tools/test_digi_catalog_integration.cjs
+      - name: Vérifier la netteté EAN, poids, prix et la sélection de la photo
+        run: |
+          node tools/test_gemini_frame_quality.cjs
+          node tools/test_gemini_capture_selection.cjs
       - name: Validation du Worker Gemini simulé
         run: node tools/test_gemini_worker_v2.mjs
       - name: Contrôles EAN et relecture depuis une photo unique

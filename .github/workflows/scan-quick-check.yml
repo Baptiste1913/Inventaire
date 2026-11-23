@@ -10,6 +10,9 @@ on:
       - 'app.js'
       - 'weigh-scan.js'
       - 'gemini-lab.js'
+      - 'gemini-frame-quality.js'
+      - 'tools/test_gemini_frame_quality.cjs'
+      - 'tools/test_gemini_capture_selection.cjs'
       - 'digi-catalog-lookup.js'
       - 'barcode-catalog.js'
       - 'tools/test_digi_catalog_lookup.cjs'
@@ -50,6 +53,9 @@ jobs:
           node --check app.js
           node --check weigh-scan.js
           node --check gemini-lab.js
+          node --check gemini-frame-quality.js
+          node --check tools/test_gemini_frame_quality.cjs
+          node --check tools/test_gemini_capture_selection.cjs
           node --check digi-catalog-lookup.js
           node --check barcode-catalog.js
           node --check tools/test_digi_catalog_lookup.cjs
@@ -84,6 +90,10 @@ jobs:
         run: node tools/test_gemini_worker_v2.mjs
       - name: Vérifier la reprise caméra iPhone sans bandes noires après lecture
         run: node tools/test_gemini_video_resume.cjs
+      - name: Vérifier la photo optimale et les 3 zones DIGI
+        run: |
+          node tools/test_gemini_frame_quality.cjs
+          node tools/test_gemini_capture_selection.cjs
       - name: Vérifier le transfert OCR et le calcul de tare
         run: node tools/test_scanner_transfer.cjs
       - name: Vérifier la validation manuelle Gemini
