@@ -455,3 +455,43 @@ Important : GitHub Pages ne déploie pas le Worker Cloudflare.
 Le nouveau code `workers/coursesu-live-worker.js` doit être déployé
 séparément sur le Worker `inventaires-u-prix` pour bénéficier de la
 réponse 402, de la durée `Retry-After` et des diagnostics Mistral.
+
+## Diagnostics détaillés d'erreur OCR Mistral — 23 novembre 2026
+
+Dans `workers/coursesu-live-worker.js`, toute réponse HTTP d'erreur de
+`https://api.mistral.ai/v1/ocr` est inspectée en mémoire, uniquement
+pour en extraire les identifiants machine officiels `type` et `code`.
+Les champs facultatifs dans les logs Cloudflare s'appellent
+`providerErrorType` et `providerErrorCode` :
+
+```text
+IU_GEMINI_DIAGNOSTIC {"event":"iu_gemini_failure","stage":"mistral_http",
+"reason":"provider_http_error","model":"mistral-ocr-4-1","providerStatus":429,
+"httpStatus":429,"elapsedMs":102,"providerErrorType":"rate_limited",
+"providerErrorCode":"1300"}
+```
+
+Cet exemple est **fictif** : il ne constitue pas un diagnostic du
+refus réel du compte. Chercher `IU_GEMINI_DIAGNOSTIC` dans
+**Cloudflare > Workers & Pages > inventaires-u-prix >
+Observability > Logs**, après un nouvel essai.
+
+La réponse brute de Mistral ne sera jamais écrite dans les logs, pas
+plus que les photos, informations du produit, messages humains,
+paramètres, headers ou secrets. Les identifiants non conformes au
+format alphanumérique court sont écartés. Si Mistral renvoie un JSON
+malformé ou un contenu absent, les champs optionnels sont omis sans
+modifier le code HTTP renvoyé à l'application ni déclencher de nouvel
+appel payant. Les informations ne sont pas non plus transmises au
+navigateur par cette modification.
+
+**Déploiement nécessaire** : ce changement ne concerne que le Worker
+Cloudflare. Publier sur GitHub ne déploie pas le script `inventaires-u-prix`
+et ne réinitialise pas les restrictions du fournisseur. Après publication
+sur GitHub, déployer `workers/coursesu-live-worker.js` dans Cloudflare,
+en conservant tous les secrets et réglages existants. Aucun ancien
+journal ne permet de retrouver les champs qui n'étaient pas enregistrés.
+
+Test sans API : `node tools/test_mistral_error_diagnostics.mjs`.
+Documentation Mistral :
+https://docs.mistral.ai/resources/error-glossary

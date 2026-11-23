@@ -9,6 +9,7 @@ on:
       - 'gemini-image-worker.js'
       - 'gemini-zxing.js'
       - 'tools/test_mistral_zxing.mjs'
+      - 'tools/test_mistral_error_diagnostics.mjs'
       - 'tools/test_zxing_primary.cjs'
       - 'vendor/zxing/**'
       - 'tools/test_gemini_parallel.cjs'
@@ -50,6 +51,7 @@ jobs:
           node --check gemini-image-worker.js
           node --check gemini-zxing.js
           node --check tools/test_mistral_zxing.mjs
+          node --check tools/test_mistral_error_diagnostics.mjs
           node --check tools/test_zxing_primary.cjs
           node --check tools/test_gemini_parallel.cjs
           node --check tools/test_gemini_worker_pixels.cjs
@@ -90,6 +92,7 @@ jobs:
           node tools/test_gemini_parallel.cjs
           node tools/test_gemini_worker_pixels.cjs
           node tools/test_mistral_zxing.mjs
+          node tools/test_mistral_error_diagnostics.mjs
           node tools/test_zxing_primary.cjs
           node tools/test_gemini_ean_focus.cjs
           node tools/test_gemini_ean_printed.cjs

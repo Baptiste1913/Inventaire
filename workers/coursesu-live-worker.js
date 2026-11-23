@@ -10,13 +10,40 @@ function reply(body,status,origin){
  }});
 }
 // Traces d'erreurs uniquement. Aucun contenu utilisateur, photo, en-tête,
-// adresse, jeton, réponse Google ou message d'exception n'est enregistré.
-function geminiDiagnostic({stage,reason,model=null,providerStatus=null,httpStatus,elapsedMs=0}){
+// adresse, jeton, réponse brute ou message d'exception n'est enregistré.
+// Les identifiants d'erreur fournisseur sont filtrés avant journalisation.
+function safeProviderErrorToken(value,maxLength){
+ if(typeof value==='number'&&Number.isSafeInteger(value)&&value>=0&&value<=9999999)
+  value=String(value);
+ return typeof value==='string'&&value.length>=1&&value.length<=maxLength&&
+  /^[A-Za-z0-9_]+$/.test(value)?value.toLowerCase():null;
+}
+function mistralErrorDetails(raw){
+ if(typeof raw!=='string'||raw.length<2||raw.length>4096)return {};
+ try{
+  const json=JSON.parse(raw);
+  if(!json||typeof json!=='object'||Array.isArray(json))return {};
+  const data=json.error&&typeof json.error==='object'&&!Array.isArray(json.error)
+   ?json.error:json;
+  return {
+   providerErrorType:safeProviderErrorToken(data.type,48),
+   providerErrorCode:safeProviderErrorToken(data.code,32)
+  };
+ }catch(_){return {};}
+}
+function geminiDiagnostic({stage,reason,model=null,providerStatus=null,httpStatus,
+ elapsedMs=0,providerErrorType=null,providerErrorCode=null}){
  const safeModel=['gemini-3.8-flash','gemini-3.5-flash-lite','mistral-ocr-4-1'].includes(model)?model:null;
+ const safeType=safeModel==='mistral-ocr-4-1'?
+  safeProviderErrorToken(providerErrorType,48):null;
+ const safeCode=safeModel==='mistral-ocr-4-1'?
+  safeProviderErrorToken(providerErrorCode,32):null;
  console.error('IU_GEMINI_DIAGNOSTIC '+JSON.stringify({
   event:'iu_gemini_failure',stage,reason,model:safeModel,
   providerStatus:Number.isInteger(providerStatus)?providerStatus:null,
-  httpStatus,elapsedMs:Math.max(0,Math.round(elapsedMs))
+  httpStatus,elapsedMs:Math.max(0,Math.round(elapsedMs)),
+  ...(safeType?{providerErrorType:safeType}:{}),
+  ...(safeCode?{providerErrorCode:safeCode}:{})
  }));
 }
 function validEAN13(code){
@@ -112,8 +139,18 @@ async function mistralPilot(payload,env,origin,closed){
    const retryRaw=Number(res.headers?.get('retry-after'));
    const retryAfterSeconds=status===429&&Number.isFinite(retryRaw)&&
     retryRaw>=1&&retryRaw<=180?Math.ceil(retryRaw):null;
+   // La réponse d'erreur Mistral peut préciser pourquoi elle refuse un
+   // appel (ex. type=rate_limited, code=1300). On ne conserve JAMAIS
+   // "message", "param", le corps brut ni des données de requête.
+   let providerError={};
+   try{
+    const length=Number(res.headers?.get('content-length'));
+    if(!Number.isFinite(length)||length<=4096)
+     providerError=mistralErrorDetails(await res.text());
+   }catch(_){/* Un corps illisible ne doit pas transformer le HTTP 429. */}
    geminiDiagnostic({stage,reason:'provider_http_error',model,
-    providerStatus:status,httpStatus:outgoing,elapsedMs:Date.now()-started});
+    providerStatus:status,httpStatus:outgoing,elapsedMs:Date.now()-started,
+    ...providerError});
    return reply({...closed,provider:'mistral',model,providerStatus:status,
     ...(retryAfterSeconds?{retryAfterSeconds}:{}),
     error:status===429?'Limite API Mistral atteinte.':
