@@ -1,6 +1,6 @@
 {
-  "version": "42.38",
+  "version": "42.39",
   "published": "2026-11-23",
   "assets": 60,
-  "notes": "Pilote opt-in Gemini 4 Hydrogen (gemini-4-hydrogen) en thinking LOW pour l'OCR DIGI : une seule requête IA par capture, sans relecture automatique coûteuse. Gemini 3.5 Flash-Lite reste le moteur stable par défaut, Mistral retiré du sélecteur du scanner suite aux refus 429. Le Worker retourne un relevé indicatif des tokens/coûts Hydrogen ; les règles EAN, catalogue DIGI, tare et validation manuelle restent inchangées. Déployer le Worker Cloudflare pour activer Hydrogen ; fixer un plafond de dépenses dans Google AI Studio car l'application n'est pas un plafond de facturation."
+  "notes": "Hydrogen 503 : test diagnostique explicite texte seul pour Hydrogen et Flash-Lite en parallèle, sans photo ; secours unique Flash-Lite sur la même photo si Google répond 503 à Hydrogen ; pause Hydrogen 2 min, sans secours sur 429/401/403/504/connexion. Réglage temperature supprimé pour Hydrogen selon Google. Validation DIGI/ZXing/tare inchangée. Publication GitHub ne déploie pas Cloudflare : publier le Worker séparément."
 }

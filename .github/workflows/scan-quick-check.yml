@@ -44,6 +44,8 @@ on:
       - 'tools/test_gemini_video_resume.cjs'
       - 'tools/test_gemini_single_photo.cjs'
       - 'tools/test_gemini_service_errors.cjs'
+      - 'tools/test_gemini_hydrogen_failover.cjs'
+      - 'tools/test_gemini_health.mjs'
       - 'tools/test_gemini_worker_v2.mjs'
       - 'tools/test_gemini_auto_scan.cjs'
       - 'tools/test_gemini_local_ocr.cjs'
@@ -125,10 +127,12 @@ jobs:
         run: |
           node tools/test_gemini_worker_only.mjs
           node tools/test_gemini_diagnostics.mjs
+          node tools/test_gemini_health.mjs
       - name: Vérifier la lecture Gemini renforcée à partir d’une seule photo
         run: |
           node tools/test_gemini_single_photo.cjs
           node tools/test_gemini_service_errors.cjs
+          node tools/test_gemini_hydrogen_failover.cjs
       - name: Vérifier les validations Gemini et les images structurées
         run: node tools/test_gemini_worker_v2.mjs
       - name: Vérifier la reprise caméra iPhone sans bandes noires après lecture

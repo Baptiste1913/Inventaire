@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const source=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
 const archived=fs.readFileSync('workers/coursesu-apify-worker.js','utf8');
-assert(source.length<25000,'Worker Gemini + Mistral doit rester compact');
+assert(source.length<30000,'Worker Gemini + Mistral et diagnostic santé doivent rester compacts');
 for(const token of ['APIFY_TOKEN','OPENAI_API_KEY','api.apify.com','api.openai.com',
  'COURSESU_LIVE_ENABLED','function lookup(','function authCheck(','function htmlCheck('])
  assert(!source.includes(token),'Code historique dans Gemini : '+token);
@@ -106,6 +106,8 @@ const hydrogen=await call('/gemini-lab',body({model:'gemini-4-hydrogen'}));
 assert.equal(hydrogen.status,200);
 assert.equal(hydrogen.json.model,'gemini-4-hydrogen');
 const hydrogenRequest=JSON.parse(calls.at(-1).options.body);
+assert.equal(hydrogenRequest.generationConfig.temperature,undefined,
+ 'Pas de température personnalisée sur Gemini 4 (dépréciée)');
 assert.equal(hydrogenRequest.generationConfig.thinkingConfig.thinkingLevel,'LOW',
  'Hydrogen doit éviter HIGH par défaut');
 assert.equal(hydrogenRequest.generationConfig.maxOutputTokens,2048);

@@ -8,6 +8,7 @@
  const photo=$('iuGeminiLabPhoto'),providerSelect=$('iuAiProvider'),
   pilotKey=$('iuGeminiPilotKey'),saveKey=$('iuGeminiSaveKey'),
   forgetKey=$('iuGeminiForgetKey'),keyInfo=$('iuGeminiKeyInfo'),
+  healthButton=$('iuGeminiHealthTest'),healthStatus=$('iuGeminiHealthStatus'),
   analyze=$('iuGeminiAnalyze'),status=$('iuGeminiLabStatus'),
   output=$('iuGeminiLabOutput'),networkTime=$('iuGeminiNetworkTime');
  // Le patron de l'étiquette est conservé sans prix, poids ni code factice.
@@ -31,6 +32,9 @@
  const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
+ const healthEndpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-health';
+ // Après un vrai 503 Google Hydrogen, ne pas échouer à chaque pesée.
+ let hydrogenCooldownUntil=0,lastHealthTestAt=0;
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
   cameraIdle=$('iuGeminiCameraIdle'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
@@ -836,6 +840,52 @@
  pilotKey.addEventListener('input',keyState);
  pilotKey.value=readStoredKey();
  keyState();
+ healthButton?.addEventListener('click',async()=>{
+  if(!pilotKey.value.trim()){
+   healthStatus.hidden=false;
+   healthStatus.textContent='Renseigne la clé privée Cloudflare pour tester les modèles.';
+   return;
+  }
+  if(Date.now()-lastHealthTestAt<30000){
+   healthStatus.hidden=false;
+   healthStatus.textContent='Test déjà lancé récemment. Réessaie dans 30 secondes.';
+   return;
+  }
+  lastHealthTestAt=Date.now();
+  healthButton.disabled=true;
+  healthStatus.hidden=false;
+  healthStatus.textContent='Connexion aux deux modèles en cours (texte seulement)…';
+  try{
+   const response=await fetch(healthEndpoint,{
+    method:'POST',
+    headers:{'Content-Type':'application/json',
+     'X-IU-Pilot-Key':pilotKey.value.trim()},
+    body:'{}'
+   });
+   const result=await response.json();
+   if(!response.ok||!Array.isArray(result?.checks)){
+    healthStatus.textContent=response.status===404
+     ?'Le diagnostic n’est pas encore déployé sur Cloudflare.'
+     :'Test impossible (HTTP '+response.status+'). Vérifie Cloudflare.';
+    return;
+   }
+   const names={'gemini-4-hydrogen':'Hydrogen',
+    'gemini-3.5-flash-lite':'Flash-Lite'};
+   healthStatus.textContent='Test texte, pas OCR : '+
+    result.checks.map(check=>{
+     const name=names[check?.model]||'Modèle inconnu';
+     const ms=Number.isFinite(check?.elapsedMs)?' · '+Math.round(check.elapsedMs)+' ms':'';
+     return name+' : '+(check?.ok?'disponible':'échec HTTP '+(check?.httpStatus||'réseau')+
+      (check?.providerErrorType?' ('+check.providerErrorType+')':''))+ms;
+    }).join(' | ');
+   const hydrogen=result.checks.find(check=>check?.model===hydrogenModel);
+   if(hydrogen?.ok)hydrogenCooldownUntil=0;
+   else if(hydrogen?.httpStatus===503)
+    hydrogenCooldownUntil=Date.now()+120000;
+  }catch(_){
+   healthStatus.textContent='Test interrompu : vérifie le réseau ou le VPN.';
+  }finally{healthButton.disabled=false;}
+ });
  setupCallout?.addEventListener('click',()=>{
   if(!geminiOptions)return;
   // La clé reste configurable dans la carte Gemini.
@@ -1192,6 +1242,7 @@
    networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +' · modèle '+usedModel
+    +(result?.fallbackFrom===hydrogenModel?' · secours après indisponibilité Hydrogen':'')
     +(Number.isFinite(result?.usage?.estimatedUsd)
       ?' · coût IA estimé '+result.usage.estimatedUsd.toFixed(4)+' $':'')
     +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser');
@@ -1306,14 +1357,35 @@
    throw Error(providerName+' a renvoyé une erreur de délai (504) · conserve cette photo');
   if(status===504)
    throw Error(providerName+' ne répond pas dans le délai Cloudflare (504) · conserve cette photo');
-  if(status===503||providerStatus===503)
-   throw Error(providerStatus
+  if(status===503||providerStatus===503){
+   const failure=Error(providerStatus
     ?providerName+' temporairement indisponible ('+providerStatus+') · conserve cette photo'
     :'Liaison Cloudflare–'+providerName+' indisponible (503) · conserve cette photo');
+   // Secours seulement pour un vrai 503 Google, jamais sur quota/clé/VPN.
+   failure.upstream503=provider==='gemini'&&providerStatus===503;
+   throw failure;
+  }
   if(status>=500&&status<=599)
    throw Error('Erreur '+providerName+' (HTTP '+status+
     (Number.isFinite(providerStatus)?' / fournisseur '+providerStatus:'')+') · conserve cette photo');
   throw Error('Service IA : réponse inattendue (HTTP '+status+') · réessaie cette photo');
+ }
+ async function requestWithHydrogenFallback(encoded,access,selectedModel,signal,id,
+  focusField,provider,detailImageBase64,focusFields){
+  try{
+   return await requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,
+    focusField,provider,detailImageBase64,focusFields);
+  }catch(error){
+   if(selectedModel!==hydrogenModel||provider!=='gemini'||
+      error?.upstream503!==true||signal.aborted||id!==generation)
+    throw error;
+   hydrogenCooldownUntil=Date.now()+120000;
+   say('Google refuse Hydrogen (503) · essai Flash-Lite sur la même photo…');
+   // Un seul secours, même photo, et aucune boucle.
+   const backup=await requestGeminiWithRecovery(encoded,access,fixedModel,signal,id,
+    focusField,provider,detailImageBase64,focusFields);
+   return {...backup,fallbackFrom:hydrogenModel,fallbackReason:'google_503'};
+  }
  }
  // Une seule relecture groupée de la photo existante, y compris quand
  // plusieurs champs manquent ; jamais de nouvelle prise automatique.
@@ -1374,10 +1446,13 @@
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedProvider='gemini';
-  const selectedModel=providerSelect?.value==='hydrogen'?hydrogenModel:fixedModel;
+  const hydrogenRequested=providerSelect?.value==='hydrogen';
+  const hydrogenPaused=hydrogenRequested&&Date.now()<hydrogenCooldownUntil;
+  const selectedModel=hydrogenRequested&&!hydrogenPaused?hydrogenModel:fixedModel;
   const access=pilotKey.value.trim();
   // Hydrogen ne relit pas automatiquement la même photo par réseau.
-  const providerName=selectedModel===hydrogenModel?'Gemini 4 Hydrogen':'Gemini Flash-Lite';
+  const providerName=hydrogenPaused?'Gemini Flash-Lite (secours temporaire)'
+   :selectedModel===hydrogenModel?'Gemini 4 Hydrogen':'Gemini Flash-Lite';
   const targetField=repairFocus&&lastRawResult?repairFocus:null;
   const oldResult=targetField?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
@@ -1411,9 +1486,11 @@
     new Promise(resolve=>setTimeout(()=>resolve(null),180))]);
    const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
    say(providerName+' analyse l’étiquette…');
-   const received=await requestGeminiWithRecovery(
+   let received=await requestWithHydrogenFallback(
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
     safeDetail(firstDetail),targetField?[targetField]:null);
+   if(hydrogenPaused)
+    received={...received,fallbackFrom:hydrogenModel,fallbackReason:'cooldown'};
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.

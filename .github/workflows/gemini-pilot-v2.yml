@@ -33,6 +33,8 @@ on:
       - 'workers/coursesu-live-worker.js'
       - 'tools/test_gemini_single_photo.cjs'
       - 'tools/test_gemini_service_errors.cjs'
+      - 'tools/test_gemini_hydrogen_failover.cjs'
+      - 'tools/test_gemini_health.mjs'
       - 'tools/test_gemini_worker_v2.mjs'
       - 'tools/test_gemini_worker_only.mjs'
       - 'tools/test_gemini_diagnostics.mjs'
@@ -104,9 +106,11 @@ jobs:
         run: |
           node tools/test_gemini_worker_only.mjs
           node tools/test_gemini_diagnostics.mjs
+          node tools/test_gemini_health.mjs
       - name: Validation du Worker Gemini simulé
         run: node tools/test_gemini_worker_v2.mjs
       - name: Contrôles EAN et relecture depuis une photo unique
         run: |
           node tools/test_gemini_single_photo.cjs
           node tools/test_gemini_service_errors.cjs
+          node tools/test_gemini_hydrogen_failover.cjs

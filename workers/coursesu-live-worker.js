@@ -294,9 +294,10 @@ async function geminiPilot(request,env,origin){
     headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
     body:JSON.stringify({
      contents:[{role:'user',parts:[{text:prompt},...imageParts]}],
-     generationConfig:{temperature:0,
-      // Hydrogen doit rester en raisonnement LOW : le mode HIGH par
-      // défaut est trop lent et coûteux pour une petite étiquette DIGI.
+     generationConfig:{
+      // Hydrogen ignore temperature (et ce champ sera refusé à terme).
+      ...(model==='gemini-4-hydrogen'?{}:{temperature:0}),
+      // Raisonnement LOW : ne pas surconsommer pour les chiffres DIGI.
       ...(model==='gemini-4-hydrogen'?{thinkingConfig:{thinkingLevel:'LOW'}}:{}),
       maxOutputTokens:model==='gemini-4-hydrogen'?2048:1024,
       responseMimeType:'application/json',responseSchema}
@@ -413,6 +414,56 @@ async function geminiPilot(request,env,origin){
  }finally{clearTimeout(timeout)}
 }
 
+
+/*
+ * Vérification demandée explicitement depuis Accès Cloudflare.
+ * Deux appels TEXTE-SEUL en parallèle, courts et facturables ;
+ * jamais de photo, texte libre ni code-barres du client dans cette route.
+ */
+async function geminiHealth(request,env,origin){
+ const closed={type:'inventaires-u-gemini-health'};
+ if(env.GEMINI_LAB_ENABLED!=='true')
+  return reply({...closed,error:'Pilote Gemini désactivé.'},503,origin);
+ if(!env.COURSESU_TEST_TOKEN||
+    request.headers.get('X-IU-Pilot-Key')!==env.COURSESU_TEST_TOKEN)
+  return reply({...closed,error:'Clé privée de pilote requise.'},401,origin);
+ if(!env.GEMINI_API_KEY)
+  return reply({...closed,error:'GEMINI_API_KEY non configurée.'},503,origin);
+ const models=['gemini-4-hydrogen','gemini-3.5-flash-lite'];
+ const checks=await Promise.all(models.map(async model=>{
+  const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),6500);
+  const started=Date.now();
+  try{
+   const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
+    +model+':generateContent',{
+    method:'POST',signal:abort.signal,
+    headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
+    body:JSON.stringify({
+     contents:[{role:'user',parts:[{text:'Réponds uniquement OK.'}]}],
+     generationConfig:{maxOutputTokens:128,
+      ...(model==='gemini-4-hydrogen'?{thinkingConfig:{thinkingLevel:'LOW'}}:{})}
+    })
+   });
+   const elapsedMs=Date.now()-started;
+   let details={};
+   if(!res.ok){
+    try{details=googleErrorDetails(await res.text())}catch(_){}
+    geminiDiagnostic({stage:'google_health_http',reason:'provider_http_error',
+     model,providerStatus:res.status,httpStatus:res.status,elapsedMs,...details});
+   }
+   return {model,ok:res.ok,httpStatus:res.status,elapsedMs,
+    ...(details.providerErrorType?{providerErrorType:details.providerErrorType}:{}),
+    ...(details.providerErrorCode?{providerErrorCode:details.providerErrorCode}:{})};
+  }catch(_){
+   const reason=abort.signal.aborted?'timeout':'transport_error';
+   geminiDiagnostic({stage:'google_health_fetch',reason,model,
+    httpStatus:abort.signal.aborted?504:503,elapsedMs:Date.now()-started});
+   return {model,ok:false,httpStatus:null,reason,elapsedMs:Date.now()-started};
+  }finally{clearTimeout(timer)}
+ }));
+ return reply({...closed,checks,warning:'Tests texte seulement : la lecture de photos peut avoir une disponibilité différente.'},200,origin);
+}
+
 export default {
  async fetch(request,env){
   const origin=request.headers.get('Origin')||'';
@@ -429,10 +480,11 @@ export default {
   }
 
   const path=new URL(request.url).pathname;
-  if(path!=='/gemini-lab')
+  if(path!=='/gemini-lab'&&path!=='/gemini-health')
    return reply({error:'Route indisponible sur le Worker Gemini'},404,origin);
   if(request.method!=='POST')
    return reply({error:'Méthode non autorisée'},405,origin);
-  return geminiPilot(request,env,origin);
+  return path==='/gemini-health'
+   ?geminiHealth(request,env,origin):geminiPilot(request,env,origin);
  }
 };

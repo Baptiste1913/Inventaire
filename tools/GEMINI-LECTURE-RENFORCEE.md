@@ -559,3 +559,36 @@ ne modifie pas la version de production Cloudflare. Après déploiement,
 reproduire une fois l'erreur et consulter `IU_GEMINI_DIAGNOSTIC`.
 Comparer le `providerErrorType` et un éventuel `providerErrorCode`
 avant d'ajouter un secours.
+
+
+## v42.39 — Diagnostic et résilience Hydrogen
+
+- `gemini-4-hydrogen` confirmé par le journal Google :
+  `503 UNAVAILABLE` en 1,455 s, hors timeout Cloudflare.
+  D'après la documentation Google, il s'agit généralement d'une
+  saturation du fournisseur, **pas d'une preuve d'erreur de clé**.
+- `Accès Cloudflare > Tester Hydrogen et Flash-Lite` appelle
+  `POST /gemini-health`, authentifié comme `/gemini-lab`.
+  Deux requêtes **texte seulement**, en parallèle, pour comparer les
+  disponibilités sur le même compte/réseau, durée maximale 6,5 s.
+  Aucun texte OCR, image ou code-barres n'est transmis par le test.
+  Le test peut être facturé (faible volume), lancé manuellement
+  et limité côté interface à une fois par 30 secondes.
+- **Si le fournisseur Google** retourne un 503 pour Hydrogen pendant
+  une pesée, l'application retente une seule fois sur la **même photo**
+  avec Gemini 3.5 Flash-Lite, sans réessai sur 429, 401, 403, 504,
+  erreur Cloudflare ni perte de connexion. Hydrogen est ensuite mis
+  en pause 120 secondes pour éviter un 503 répété à chaque article.
+  Le modèle de secours est affiché dans la zone de métriques, et
+  les contrôles DIGI/poids/€-kg/EAN/tare/validation restent inchangés.
+  **Un refus Google n'est pas corrigible depuis le code** : c'est une
+  mesure de continuité en attendant le retour du service.
+- Hydrogen n'envoie plus `temperature:0` (paramètre ignoré et voué
+  à devenir invalide sur Gemini 4). `thinkingLevel:LOW` conservé.
+- Une publication sur GitHub ne met PAS à jour le Worker Cloudflare.
+  Déployer `workers/coursesu-live-worker.js` dans `inventaires-u-prix`.
+  Puis lancer une fois le test du menu Accès Cloudflare et comparer
+  Hydrogen / Flash-Lite avant de retester une photo.
+- Budget **10 €/mois** : le secours peut engendrer un appel
+  supplémentaire ; la limite doit être imposée côté Google AI Studio,
+  l'affichage estimé par scan n'est pas un plafond financier.
