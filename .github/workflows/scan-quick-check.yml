@@ -37,6 +37,7 @@ on:
       - 'workers/coursesu-apify-worker.js'
       - 'tools/test_gemini_video_resume.cjs'
       - 'tools/test_gemini_single_photo.cjs'
+      - 'tools/test_gemini_service_errors.cjs'
       - 'tools/test_gemini_worker_v2.mjs'
       - 'tools/test_gemini_auto_scan.cjs'
       - 'tools/test_gemini_local_ocr.cjs'
@@ -91,6 +92,7 @@ jobs:
           node --check workers/coursesu-apify-worker.js
           node --check tools/test_gemini_video_resume.cjs
           node --check tools/test_gemini_single_photo.cjs
+          node --check tools/test_gemini_service_errors.cjs
           node --check tools/test_gemini_worker_v2.mjs
           node --check tools/test_gemini_manual_save.cjs
           node --check tools/test_gemini_auto_scan.cjs
@@ -111,7 +113,9 @@ jobs:
       - name: Vérifier la sécurité et les routes du Worker Gemini dédié
         run: node tools/test_gemini_worker_only.mjs
       - name: Vérifier la lecture Gemini renforcée à partir d’une seule photo
-        run: node tools/test_gemini_single_photo.cjs
+        run: |
+          node tools/test_gemini_single_photo.cjs
+          node tools/test_gemini_service_errors.cjs
       - name: Vérifier les validations Gemini et les images structurées
         run: node tools/test_gemini_worker_v2.mjs
       - name: Vérifier la reprise caméra iPhone sans bandes noires après lecture

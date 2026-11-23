@@ -264,3 +264,29 @@ Tests sans frais : `node tools/test_gemini_ean_focus.cjs`,
 La reconnaissance et la latence réelles devront encore être mesurées
 sur l'iPhone, avec et sans VPN, sans attribuer les coupures réseau
 aux échecs d'EAN.
+
+## v42.34 — erreurs réseau distinctes de la tare (23 novembre 2026)
+
+La vidéo de test montre des lectures réussies puis des erreurs
+« Service IA indisponible » sur d'autres photos lisibles. Une
+tare excessive est normalement une erreur métier traitée localement :
+elle ne provoque pas à elle seule une réponse HTTP 503.
+
+La PWA précise désormais les catégories HTTP de Cloudflare / Gemini
+(503, 504, 429, 401/403, 422) et conserve la photo pour un réessai
+manuel. Lorsque les champs de la même photo ont déjà été reconnus,
+un panier trop lourd affiche prioritairement
+« Tare trop élevée · change de panier ». Changer de panier recalcule
+le résultat sans nouvel appel IA.
+
+Si le premier résultat est obtenu mais que la relecture complémentaire
+est interrompue par le délai global, l'étiquette partielle reste
+visible. Une vérification de sécurité `recoveryInterrupted` empêche
+toute validation avant confirmation.
+
+**Attention :** cette correction n'efface pas une vraie panne Google,
+Cloudflare ou VPN. Sans journaux serveur, son origine précise ne peut
+pas être attribuée. Aucune analyse IA supplémentaire automatique n'a
+été introduite, pour ne pas augmenter les coûts ni ralentir le parcours.
+
+Test : `node tools/test_gemini_service_errors.cjs`.

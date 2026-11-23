@@ -1,6 +1,6 @@
 {
-  "version": "42.33",
+  "version": "42.34",
   "published": "2026-11-23",
   "assets": 60,
-  "notes": "Renforcement EAN DIGI non intrusif : l'ancien décodage pleine image reste prioritaire ; zone réelle du code-barres et balayage local haute définition seulement si les deux passes échouent ; autorisation des EAN décentrés uniquement dans une étiquette réellement identifiée. Rattrapage de l'ancien lecteur après résultat nul ou timeout du Web Worker, sans double analyse de la même photo. Vérification OCR facultative des 13 chiffres imprimés avec un moteur local déjà disponible ; jamais de téléchargements supplémentaires ni d'EAN inventé. Contrôles checksum, prix, PLU, poids, tare et doublons maintenus. Cloudflare et interface inchangés."
+  "notes": "Différencier tare trop élevée et indisponibilité Gemini/Cloudflare (503, 504, quota, accès, réponse vide). Si une relecture supplémentaire dépasse son délai, conserver les valeurs déjà lues, sans autoriser l’enregistrement tant que les vérifications sont incomplètes. Photo conservée pour réessai manuel, aucun nouvel appel API automatique. Correction d’après vidéo du 23 novembre 2026 ; cause exacte des retours 503 à confirmer dans les journaux Cloudflare."
 }

@@ -27,6 +27,7 @@ on:
       - 'tools/test_digi_catalog_integration.cjs'
       - 'workers/coursesu-live-worker.js'
       - 'tools/test_gemini_single_photo.cjs'
+      - 'tools/test_gemini_service_errors.cjs'
       - 'tools/test_gemini_worker_v2.mjs'
       - 'tools/test_gemini_worker_only.mjs'
       - 'workers/coursesu-apify-worker.js'
@@ -65,6 +66,7 @@ jobs:
           node --check tools/test_gemini_worker_only.mjs
           node --check workers/coursesu-apify-worker.js
           node --check tools/test_gemini_single_photo.cjs
+          node --check tools/test_gemini_service_errors.cjs
       - name: Valider nom/PLU DIGI et blocage des erreurs
         run: |
           node tools/test_digi_catalog_lookup.cjs
@@ -89,4 +91,6 @@ jobs:
       - name: Validation du Worker Gemini simulé
         run: node tools/test_gemini_worker_v2.mjs
       - name: Contrôles EAN et relecture depuis une photo unique
-        run: node tools/test_gemini_single_photo.cjs
+        run: |
+          node tools/test_gemini_single_photo.cjs
+          node tools/test_gemini_service_errors.cjs
