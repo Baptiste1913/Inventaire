@@ -1,4 +1,4 @@
-/* Inventaires U 42.32 — une file locale sur Web Worker.
+/* Inventaires U 42.33 — Web Worker EAN avec repli sans perte.
  * Charge l'EAN hors du fil Safari ; repli sur le lecteur historique si
  * Web Worker ou OffscreenCanvas indisponible. Aucun réseau ni donnée stockée.
  */
@@ -11,17 +11,34 @@
  'use strict';
  let worker=null,unavailable=false,nextId=0;
  const pending=new Map();
+ // Le même JPEG ne doit jamais déclencher plusieurs relectures historiques
+ // lorsqu'un Worker échoue pendant que Gemini est en cours.
+ let legacyCache=new WeakMap();
  function legacyEAN(photo){
-  return Promise.resolve().then(()=>root?.IUGeminiEAN?.read(photo)||null)
-   .catch(()=>null);
+  if(!photo)return Promise.resolve(null);
+  let task=legacyCache.get(photo);
+  if(!task){
+   task=Promise.resolve().then(()=>root?.IUGeminiEAN?.read(photo)||null)
+    .catch(()=>null);
+   legacyCache.set(photo,task);
+  }
+  return task;
+ }
+ function settle(item,result){
+  // Une ambiguïté optique ne peut jamais être remplacée silencieusement
+  // par une lecture d'une autre méthode.
+  if(item.kind!=='barcode'||result?.confirmed||result?.ambiguous)
+   return item.resolve(result||null);
+  // Le code du Worker peut retourner null sur iOS alors que le
+  // BarcodeDetector du fil principal aurait reconnu les barres.
+  legacyEAN(item.photo).then(item.resolve);
  }
  function dispose(unsupported=false){
   if(worker){try{worker.terminate()}catch(_){}worker=null;}
   if(unsupported)unavailable=true;
   for(const item of pending.values()){
    clearTimeout(item.timeout);
-   if(item.kind==='barcode'&&unsupported)
-    legacyEAN(item.photo).then(item.resolve);
+   if(unsupported)settle(item,null);
    else item.resolve(null);
   }
   pending.clear();
@@ -30,19 +47,20 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.32');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.33');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
     if(!item)return;
     pending.delete(id);clearTimeout(item.timeout);
     if(error==='unsupported'){
+     // L'erreur de capacité désactive le Worker pour la session.
+     // settle() est appelé une seule fois par dispose().
+     pending.set(id,item);
      dispose(true);
-     if(item.kind==='barcode')legacyEAN(item.photo).then(item.resolve);
-     else item.resolve(null);
      return;
     }
-    item.resolve(result||null);
+    settle(item,result);
    };
    instance.onerror=()=>{
     // La prise de vue et l'analyse Gemini restent disponibles.
@@ -59,14 +77,13 @@
   return new Promise(resolve=>{
    const timeout=setTimeout(()=>{
     pending.delete(id);
-    resolve(null);
-   },kind==='barcode'?5800:1400);
+    settle({kind,photo,resolve},null);
+   },kind==='barcode'?4500:1400);
    pending.set(id,{kind,photo,resolve,timeout});
    try{engine.postMessage({id,kind,photo,reading});}
    catch(_){
     clearTimeout(timeout);pending.delete(id);
-    if(kind==='barcode')legacyEAN(photo).then(resolve);
-    else resolve(null);
+    settle({kind,photo,resolve},null);
    }
   });
  }
@@ -79,7 +96,10 @@
      !root?.createImageBitmap)return Promise.resolve(null);
   return dispatch('enhanced-detail',photo,reading);
  }
- function close(){dispose(false);}
+ function close(){
+  dispose(false);
+  legacyCache=new WeakMap();
+ }
  function available(){return !unavailable&&Boolean(root?.Worker&&root?.OffscreenCanvas);}
  return Object.freeze({barcode,enhancedDetail,close,available});
 });
