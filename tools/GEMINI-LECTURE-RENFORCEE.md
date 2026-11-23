@@ -217,3 +217,50 @@ plafonnées à 2160 px ; si l'appareil négocie 1920×1080 ou moins,
 faire augmenter légèrement la consommation pendant la prise de vue :
 comparer la fluidité et l'échauffement sur un inventaire réel avant
 de conserver définitivement la résolution idéale.
+
+## v42.33 — reconnaissance EAN localisée et secours sans perte
+
+Cette mise à jour ne modifie pas le Worker Cloudflare et ne rajoute
+aucune requête IA obligatoire.
+
+1. Les deux passages plein format du décodeur EAN (1 100 px puis
+   1 500 px en cas d'échec) sont conservés. **Uniquement si les deux
+   échouent**, le Web Worker cherche un contour de papier clair et tente
+   un décodage des barres dans sa partie basse, jusqu'à 1 700 pixels
+   d'origine, sans créer artificiellement des pixels. Plusieurs
+   inclinaisons, seuils et la correction locale de luminosité sont
+   essayés dans cette zone de secours. Chaque EAN reste soumis à sa
+   clé de contrôle et à deux lignes de lecture distinctes.
+2. La détection du contour accepte les traits noirs du code-barres sans
+   relier deux zones séparées par un véritable fond sombre. Un EAN
+   décentré n'est fiable que si les barres appartiennent physiquement
+   au **même contour de papier** détecté. En l'absence de contour
+   fiable, les critères de position historiques restent en place.
+3. Si le Web Worker renvoie null, manque de capacité, échoue ou
+   dépasse son délai, le gestionnaire peut relancer le lecteur
+   historique sur la **même photo** ; une promesse mémoïsée évite de
+   le refaire plusieurs fois. Une lecture ambiguë conserve son
+   état ambigu, sans être masquée par un second lecteur.
+4. Une vérification optique des **13 chiffres imprimés** est proposée
+   seulement lorsqu'une confirmation EAN est déjà nécessaire et
+   lorsqu'un moteur OCR local (Tesseract déjà prêt ou TextDetector
+   natif) est disponible. Le traitement n'effectue aucun téléchargement
+   de dépendance et n'ajoute aucun nouvel appel Gemini. L'OCR vérifie
+   le format numérique exact, les 13 caractères et la clé ; il
+   ne peut ni inventer des chiffres, ni remplacer un code-barres
+   confirmé. Une contradiction fiable entre OCR et Gemini, en absence
+   de code-barres confirmé, impose une vérification manuelle.
+   L'application continue de fonctionner si aucun OCR local n'est prêt.
+5. Les recadrages conservent leurs coordonnées dans la photo entière.
+   La photo principale et le comportement de sauvegarde ne changent
+   pas. Le catalogue DIGI, le prix encodé dans l'EAN, la tare,
+   les règles anti-doublon et la validation humaine demeurent obligatoires.
+
+Tests sans frais : `node tools/test_gemini_ean_focus.cjs`,
+`node tools/test_gemini_ean_printed.cjs`,
+`node tools/test_gemini_parallel.cjs`,
+`node tools/test_gemini_single_photo.cjs`.
+
+La reconnaissance et la latence réelles devront encore être mesurées
+sur l'iPhone, avec et sans VPN, sans attribuer les coupures réseau
+aux échecs d'EAN.

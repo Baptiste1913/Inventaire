@@ -1,6 +1,6 @@
 {
-  "version": "42.32",
+  "version": "42.33",
   "published": "2026-11-23",
-  "assets": 59,
-  "notes": "Parallélisme prudent Safari : décodage EAN hors du thread principal via Web Worker + OffscreenCanvas, repli automatique sur le lecteur historique ; contraste adaptatif CLAHE et léger redressement uniquement sur un détail facultatif lors des relectures Gemini. Résolution utile améliorée au clic jusqu'à 2160 px si la photo reste sous 490 Ko, sinon fallback JPEG 1920 px ; détail jusqu'à 1700 px sans suréchantillonnage. Aucune modification du Worker Cloudflare ou des contrôles de sécurité DIGI, poids, prix et doublons."
+  "assets": 60,
+  "notes": "Renforcement EAN DIGI non intrusif : l'ancien décodage pleine image reste prioritaire ; zone réelle du code-barres et balayage local haute définition seulement si les deux passes échouent ; autorisation des EAN décentrés uniquement dans une étiquette réellement identifiée. Rattrapage de l'ancien lecteur après résultat nul ou timeout du Web Worker, sans double analyse de la même photo. Vérification OCR facultative des 13 chiffres imprimés avec un moteur local déjà disponible ; jamais de téléchargements supplémentaires ni d'EAN inventé. Contrôles checksum, prix, PLU, poids, tare et doublons maintenus. Cloudflare et interface inchangés."
 }
