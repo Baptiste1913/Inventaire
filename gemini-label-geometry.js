@@ -46,7 +46,20 @@
    }
    row.push(bright/Math.max(total,1));
   }
-  const yrun=longestRun(row,.48,Math.ceil(h*.33),h/2);
+  // Les lignes noires des barres traversent momentanément le papier
+  // clair. Combler UNIQUEMENT ces creux encore lumineux, jamais une
+  // vraie séparation sombre entre deux étiquettes voisines.
+  const softened=row.slice();
+  for(let y=1;y<h-1;){
+   if(row[y]>=.48){y++;continue;}
+   const from=y;
+   while(y<h-1&&row[y]<.48)y++;
+   const gap=y-from;
+   if(gap<=Math.ceil(h*.13)&&row[from-1]>=.48&&row[y]>=.48&&
+      row.slice(from,y).every(value=>value>=.22))
+    for(let j=from;j<y;j++)softened[j]=.49;
+  }
+  const yrun=longestRun(softened,.48,Math.ceil(h*.33),h/2);
   if(!yrun)return null;
   const col=[];
   const top=Math.max(0,yrun.from+Math.floor((yrun.to-yrun.from)*.12));
