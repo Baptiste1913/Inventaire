@@ -187,8 +187,21 @@ window.IUGeminiSaveWeigh=payload=>{
  const editedFields=Array.isArray(payload?.manualCorrectedFields)
   ?[...new Set(payload.manualCorrectedFields.filter(v=>
     ['name','weight','rate','total','ean'].includes(v)))].slice(0,5):[];
+ // Traçabilité informative uniquement : ne peut ni autoriser une pesée,
+ // ni court-circuiter la comparaison exacte DIGI ci-dessus.
+ const allowedEvidence={
+  name:['catalog'],plu:['catalog'],ean:['read','calculated-verified','confirmed-by-user'],
+  weight:['read'],rate:['read'],total:['read','calculated']
+ };
+ const evidence=payload?.digiEvidence&&typeof payload.digiEvidence==='object'
+  ?Object.fromEntries(Object.entries(allowedEvidence).map(([key,values])=>[
+    key,values.includes(payload.digiEvidence[key])?payload.digiEvidence[key]:null
+   ]).filter(([,value])=>value!==null)):null;
+ const recoveryKind=['matched','calculated','reconstructed','confirmed']
+  .includes(payload?.digiRecoveryKind)?payload.digiRecoveryKind:null;
  const entry={id:uid(),at:now,name:b.name,tare:b.tare,gross,net,
   manualCorrectedFields:editedFields,
+  digiEvidence:evidence,digiRecoveryKind:recoveryKind,
   duplicateConfirmed:duplicate&&payload?.confirmDuplicate===true,
   source:'gemini',product,plu,catalogPrefix:prefix,ean13:ean,correctedEan13:corrected,
   pricePerKgCents:rate,originalTotalCents:total,correctedTotalCents:payload.correctedTotalCents,

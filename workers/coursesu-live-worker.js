@@ -1,4 +1,4 @@
-/* Inventaires U — Worker Cloudflare dédié uniquement à Gemini.
+/* Inventaires U v42.44 — Worker Cloudflare dédié à Gemini et contexte DIGI minimal.
  * Route : POST /gemini-lab, authentifiée par COURSESU_TEST_TOKEN.
  * Images et contrôles stricts du moteur Gemini inchangés.
  * Les opérations Courses U / Apify sont désormais un fichier séparé.
@@ -81,6 +81,19 @@ async function geminiPilot(request,env,origin){
     new Set(requested).size!==requested.length))
   return reply({...closed,error:'Champs de relecture incorrects.'},400,origin);
  const focusFields=Array.isArray(requested)?requested:(focus?[focus]:[]);
+ // Le catalogue complet, les prix et l'historique restent sur l'appareil.
+ // Au plus cinq entrées officielles neutres, fournies UNIQUEMENT comme
+ // indices de lecture et jamais comme une vérité ni une instruction.
+ const suggestions=payload?.catalogCandidates;
+ if(suggestions!==undefined&&(!Array.isArray(suggestions)||suggestions.length>5||
+    suggestions.some(c=>!c||typeof c!=='object'||
+      !/^(?:02|2\d)\d{5}$/.test(c.eanPrefix||'')||
+      !/^\d{1,8}$/.test(c.plu||'')||
+      typeof c.name!=='string'||c.name.length<3||c.name.length>90||
+      !/^[\p{L}\d .'\-(),/]+$/u.test(c.name))))
+  return reply({...closed,error:'Références DIGI incorrectes.'},400,origin);
+ const catalogCandidates=Array.isArray(suggestions)?
+  suggestions.map(c=>({eanPrefix:c.eanPrefix,plu:c.plu,name:c.name})):[];
  // Vue centrale issue de la même photo, limitée pour ne pas pénaliser Safari.
  const detail=payload?.detailImageBase64;
  if(detail!==undefined&&(typeof detail!=='string'||
@@ -93,19 +106,33 @@ async function geminiPilot(request,env,origin){
   +'du CENTRE de la même photo et jamais une deuxième étiquette. '
   +'Ne mélange aucune information de deux étiquettes différentes. '
   +'Lis uniquement les données VISIBLES, sans déduire par calcul ni inventer : '
-  +'name = null (le catalogue DIGI local fournit le nom officiel) ; '
+  +'name = nom IMPRIMÉ visible (null si illisible, ne PAS le copier du catalogue) ; '
   +'weightKg = poids net imprimé (ex. "1,058"), '
   +'pricePerKgEur = prix imprimé €/kg (ex. "1,99"), totalEur = prix à payer '
-  +'imprimé (ex. "2,11"), ean13 = les 13 chiffres imprimés sous les barres. '
+  +'imprimé (ex. "2,11"), ean13 = les 13 chiffres si TOUS visibles et certains. '
+  +'eanObserved = 13 positions EXACTES, chiffres réellement visibles et ? pour '
+  +'chaque position incertaine, sans ajouter, supprimer ni déplacer un chiffre ; '
+  +'null si l alignement des 13 positions ne peut être établi. '
   +'Si un caractère est ambigu, retourne null pour ce champ. '
+  +'Le catalogue n est qu une liste de candidats, JAMAIS une preuve : '
+  +'ne complète pas les chiffres EAN par le catalogue, par le montant '
+  +'ou par le nom ; chaque caractère observé doit venir des pixels. '
   +'Ne soustrais pas la tare, ne génère jamais un EAN depuis le prix. '
-  +'Retourne seulement un objet JSON avec les cinq propriétés exactes.';
+  +'Retourne seulement un objet JSON avec les six propriétés exactes.';
  const focusNames={name:'nom',weight:'poids net',rate:'prix au kilo',
   total:'prix total',ean:'les 13 chiffres sous le code-barres'};
- const prompt=focusFields.length?generalPrompt+
+ const candidateContext=catalogCandidates.length
+  ?' AIDE DIGI : ces références locales sont des OPTIONS, pas le résultat. '
+   +'Vérifie sur la photo si un préfixe et un libellé correspondent '
+   +'mais ne recopie jamais un nombre non visible. '
+   +'Si aucune ne correspond, ignore-les. '
+   +JSON.stringify(catalogCandidates)
+  :'';
+ const prompt=(focusFields.length?generalPrompt+
   ' RELECTURE CIBLÉE : relis uniquement '+focusFields.map(k=>focusNames[k]).join(', ')+
-  '. Mets tous les autres champs à null. En cas de doute, retourne null.'
-  :generalPrompt;
+  '. Mets tous les autres champs à null sauf eanObserved si l EAN est ciblé. '
+  +'En cas de doute, retourne null.'
+  :generalPrompt)+candidateContext;
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),13000);
  const started=Date.now();
  let providerAnswered=false;
@@ -115,9 +142,9 @@ async function geminiPilot(request,env,origin){
   const nullableField={type:'STRING',nullable:true};
   const responseSchema={type:'OBJECT',properties:{
    name:nullableField,weightKg:nullableField,pricePerKgEur:nullableField,
-   totalEur:nullableField,ean13:nullableField},
-   required:['name','weightKg','pricePerKgEur','totalEur','ean13'],
-   propertyOrdering:['name','weightKg','pricePerKgEur','totalEur','ean13']};
+   totalEur:nullableField,ean13:nullableField,eanObserved:nullableField},
+   required:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved'],
+   propertyOrdering:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved']};
   const imageParts=[{inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}];
   if(detail)imageParts.push(
    {text:'Image 2 : agrandissement central de la MEME photo, pour relire les chiffres fins.'},
@@ -181,6 +208,12 @@ async function geminiPilot(request,env,origin){
   const totalCents=geminiLabValue(extracted.totalEur,'total');
   const ean13=typeof extracted.ean13==='string'&&validEAN13(extracted.ean13)
     ?extracted.ean13:null;
+  // Une lecture partielle reste un MASQUE, pas une référence inventée.
+  const rawObserved=typeof extracted.eanObserved==='string'?
+   extracted.eanObserved.replace(/[ \u00a0\u202f-]/g,''):null;
+  const eanObserved=rawObserved&&/^[0-9?]{13}$/.test(rawObserved)&&
+   [...rawObserved.slice(0,7)].filter(d=>d!=='?').length>=5
+   ?rawObserved:null;
   const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
     &&Math.abs(Math.round(weightGrams*pricePerKgCents/1000)-totalCents)<=1;
   const priceFromEAN=ean13?.startsWith('02')
@@ -190,6 +223,7 @@ async function geminiPilot(request,env,origin){
   return reply({...closed,provider,model,pipelineVersion:2,
    focusField:focus,focusFields,elapsedMs:Date.now()-started,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
+   eanObserved,contextCandidates:catalogCandidates.length,
    checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null,
     barcodePriceConsistent},
    verifiedForInventory:false,warning:'Données indicatives : vérifier visuellement chaque chiffre avant toute utilisation.'},

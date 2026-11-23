@@ -1,6 +1,6 @@
 {
-  "version": "42.43",
+  "version": "42.44",
   "published": "2026-11-23",
   "assets": 63,
-  "notes": "EAN à distance sur iPhone : caméra arrière jusqu'à 4K si Safari l'autorise, pixels haute définition conservés localement pour ZXing, formats EAN-13 uniquement, OCR Tesseract des chiffres imprimés en secours après échec optique, deux bandes concordantes + checksum + catalogue DIGI + contrôle du montant. Gemini et Worker Cloudflare inchangés."
+  "notes": "Assistance DIGI : recherche locale de candidats par EAN partiel et libellé, montant calculé depuis poids/prix réellement lus, EAN 02 reconstruit uniquement avec majorité de chiffres concordants et confirmation pour préfixe incomplet. Popup de validation probable. Gemini contextualisé (5 candidats au maximum et masque de chiffres réellement observés) via Worker Cloudflare à redéployer. Aucune donnée de pesée ni catalogue complet transmise ; ZXing inchangé."
 }

@@ -54,9 +54,9 @@ assert(js.includes('plu:proposal.plu'),'PLU transmis au suivi');
 assert(app.includes('digi.plu!==plu||digi.name!==product'),'Nom forgé bloqué au stockage');
 assert(app.includes("if(x.source==='gemini')"),'Conserver les informations dans les bilans');
 const version=JSON.parse(fs.readFileSync('version.json','utf8')).version;
-assert(html.includes('digi-catalog-lookup.js?v=42.29'));
-assert(html.indexOf('digi-catalog-lookup.js?v=42.29')<
+assert(html.includes('digi-catalog-lookup.js?v='+version));
+assert(html.indexOf('digi-catalog-lookup.js?v='+version)<
  html.indexOf('gemini-lab.js?v='+version));
-assert(sw.includes('digi-catalog-lookup.js?v=42.29'));
+assert(sw.includes('digi-catalog-lookup.js?v='+version));
 assert(!html.includes('<option value="name">Article</option>'));
 console.log('OK : EAN lu complet, nom/PLU DIGI uniques, aucune identité déduite');

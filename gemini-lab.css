@@ -5510,10 +5510,10 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 /* v42.42 — reprise exacte du panneau de fin d'inventaire.
    Le popup est ancré 12px au-dessus du dock (70px, bas à 3px/safe-area).
    Aucun redimensionnement ni décalage des cinq icônes du dock. */
-html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay[hidden]{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm).iu-gemini-duplicate-overlay[hidden]{
  display:none!important;
 }
-html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]){
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm).iu-gemini-duplicate-overlay:not([hidden]){
  position:fixed!important;
  inset:0!important;
  z-index:2147483001!important;
@@ -5527,7 +5527,7 @@ html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]){
  backdrop-filter:none!important;
  pointer-events:auto!important;
 }
-html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .focus-confirm.iu-gemini-duplicate-confirm{
  position:relative!important;
  inset:auto!important;
  box-sizing:border-box!important;
@@ -5550,7 +5550,7 @@ html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm{
  from{opacity:0;transform:translate3d(0,calc(100% + 105px),0);}
  to{opacity:1;transform:translate3d(0,0,0);}
 }
-html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > p{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > p{
  margin:0 0 11px!important;
  font-family:inherit!important;
  font-size:14px!important;
@@ -5562,7 +5562,7 @@ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > p{
 }
 /* Le détail reste lisible par les lecteurs d'écran, sans alourdir
    les dimensions de ce panneau calquées sur Fin d'inventaire. */
-html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > small{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > small{
  position:absolute!important;
  width:1px!important;
  height:1px!important;
@@ -5573,14 +5573,14 @@ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > small{
  white-space:nowrap!important;
  border:0!important;
 }
-html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div{
  display:grid!important;
  grid-template-columns:repeat(2,minmax(0,1fr))!important;
  gap:10px!important;
  width:100%!important;
  margin:0!important;
 }
-html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div > button{
  -webkit-appearance:none!important;
  appearance:none!important;
  box-sizing:border-box!important;
@@ -5607,33 +5607,33 @@ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{
  touch-action:manipulation!important;
  -webkit-tap-highlight-color:transparent!important;
 }
-html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button#iuGeminiDuplicateAccept{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div > button#iuGeminiDuplicateAccept{
  border-color:#f3dfe3!important;
  background:linear-gradient(145deg,#fffafa 0%,#fff4f6 35%,#f6e8ed 100%)!important;
  color:#a84253!important;
  box-shadow:-2px -2px 6px rgba(255,255,255,.82),3px 4px 9px rgba(167,110,122,.14),inset 1px 1px 0 rgba(255,255,255,.94)!important;
 }
-html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button:active{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div > button:active{
  transform:scale(.975)!important;
  box-shadow:inset 2px 3px 6px rgba(126,148,164,.15),inset -1px -1px 2px rgba(255,255,255,.93)!important;
 }
-html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button:focus-visible{
+html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div > button:focus-visible{
  outline:2px solid #4d9bae!important;
  outline-offset:3px!important;
 }
 @media(max-width:380px){
- html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm{padding:11px!important;}
- html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > p{font-size:13px!important;}
- html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div{gap:8px!important;}
- html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{font-size:12px!important;padding:9px 8px!important;}
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .focus-confirm.iu-gemini-duplicate-confirm{padding:11px!important;}
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > p{font-size:13px!important;}
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div{gap:8px!important;}
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div > button{font-size:12px!important;padding:9px 8px!important;}
 }
 @media(prefers-reduced-motion:reduce){
- html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm{animation:none!important;}
- html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{transition:none!important;}
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .focus-confirm.iu-gemini-duplicate-confirm{animation:none!important;}
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div > button{transition:none!important;}
 }
 @media(forced-colors:active){
- html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm,
- html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .focus-confirm.iu-gemini-duplicate-confirm,
+ html body :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm) .iu-gemini-duplicate-confirm > div > button{
   border:1px solid CanvasText!important;
   color:CanvasText!important;
   background:Canvas!important;
@@ -5665,11 +5665,17 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 /* Lorsque la barre d'accueil est masquée (sous-pages ou inventaire actif),
    le panneau reste accessible près du bas, sans laisser une bande vide. */
 html body:is(.is-focus-mode,.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode)
- #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]){
+ :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm).iu-gemini-duplicate-overlay:not([hidden]){
  padding-bottom:max(14px,env(safe-area-inset-bottom,0px))!important;
 }
-html body.is-focus-mode .app > #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]){
+html body.is-focus-mode .app > :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm).iu-gemini-duplicate-overlay:not([hidden]){
  display:flex!important;
  visibility:visible!important;
  pointer-events:auto!important;
+}
+
+/* v42.44 — Popup DIGI : mêmes rayons, contour, fond, boutons et
+   animation de remontée que la confirmation de doublon. */
+html body #iuGeminiCatalogConfirm .iu-gemini-duplicate-confirm > p{
+ overflow-wrap:anywhere!important;
 }

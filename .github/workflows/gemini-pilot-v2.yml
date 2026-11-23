@@ -30,6 +30,7 @@ on:
       - 'app.js'
       - 'tools/test_digi_catalog_lookup.cjs'
       - 'tools/test_digi_catalog_integration.cjs'
+      - 'tools/test_digi_catalog_recovery.cjs'
       - 'workers/coursesu-live-worker.js'
       - 'tools/test_gemini_single_photo.cjs'
       - 'tools/test_gemini_service_errors.cjs'
@@ -70,6 +71,7 @@ jobs:
           node --check app.js
           node --check tools/test_digi_catalog_lookup.cjs
           node --check tools/test_digi_catalog_integration.cjs
+          node --check tools/test_digi_catalog_recovery.cjs
           node --check workers/coursesu-live-worker.js
           node --check tools/test_gemini_worker_v2.mjs
           node --check tools/test_gemini_worker_only.mjs
@@ -80,6 +82,7 @@ jobs:
         run: |
           node tools/test_digi_catalog_lookup.cjs
           node tools/test_digi_catalog_integration.cjs
+          node tools/test_digi_catalog_recovery.cjs
       - name: Vérifier le code-barres et le détail Gemini à recadrage sûr
         run: |
           node tools/test_gemini_ean_rescue.cjs

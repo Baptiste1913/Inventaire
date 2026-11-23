@@ -26,6 +26,11 @@
  let pendingReplacementFile=null,lastSavedImportedPhoto=null;
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
+ let catalogDialogOpen=false,lastCatalogPromptGeneration=-1;
+ const catalogDialog=$('iuGeminiCatalogConfirm'),
+  catalogTitle=$('iuGeminiCatalogTitle'),
+  catalogCancel=$('iuGeminiCatalogCancel'),
+  catalogAccept=$('iuGeminiCatalogAccept');
  const fixedModel='gemini-3.5-flash-lite';
  const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
@@ -481,7 +486,9 @@
    return;
   }
   if(lastReadProblem){
-   setLabelAlert('warning','Lecture non validable · '+lastReadProblem);
+   if(lastRawResult?.digiRecovery?.kind==='confirmation')
+    setLabelAlert('warning','Référence DIGI probable · confirmation requise');
+   else setLabelAlert('warning','Lecture non validable · '+lastReadProblem);
    return;
   }
   if(proposal&&!catalogProposalCurrent()){
@@ -496,7 +503,10 @@
    setLabelAlert('warning','Doublon détecté · validation nécessaire');
    return;
   }
-  setLabelAlert('success','DIGI · PLU '+proposal.plu+' · étiquette prête');
+  const note=lastRawResult?.digiRecovery?.kind==='reconstructed'
+   ?' · EAN reconstitué':lastRawResult?.digiRecovery?.sources?.total==='calculated'
+   ?' · montant calculé':'';
+  setLabelAlert('success','DIGI · PLU '+proposal.plu+' · étiquette prête'+note);
  }
  function validateResult(result){
   const f=result?.fields||{},checks=result?.checks||{};
@@ -560,6 +570,36 @@
    checks.independentMismatch=true;
   return {...result,fields,checks,
    opticalEAN:external&&external===fields.ean13?reading.source:null};
+ }
+ // Le catalogue reste la source officielle des identités. Il ne doit
+ // pas servir à inventer un poids, un prix/kg ou un EAN non corroboré.
+ function catalogHints(result,reading=null){
+  const catalog=window.IUDigiCatalogLookup;
+  if(!catalog?.candidates)return [];
+  const eanObserved=String(result?.eanObserved||
+    (trustedBarcodeEvidence(reading)?reading.ean13:
+     result?.fields?.ean13||''));
+  const name=String(result?.fields?.name||'');
+  return catalog.candidates({eanObserved,name,limit:5})
+   .filter(c=>c.name.length<=90&&/^[\p{L}\d .'\-(),/]+$/u.test(c.name))
+   .map(c=>({eanPrefix:c.eanPrefix,plu:c.plu,name:c.name}));
+ }
+ function applyCatalogRecovery(result){
+  const catalog=window.IUDigiCatalogLookup;
+  if(!result||!catalog?.reconstruct||result.checks?.independentMismatch||
+     localBarcode?.ambiguous||
+     result.digiRecovery?.kind==='reconstructed'||
+     result.digiRecovery?.kind==='confirmed')return result;
+  const recovered=catalog.reconstruct(result);
+  if(!recovered||!recovered.result)return result;
+  const info={kind:recovered.kind,sources:recovered.sources,
+   candidates:recovered.candidates||[],proposedEAN:recovered.proposedEAN||null,
+   reason:recovered.reason||null};
+  if(recovered.kind==='conflict'){
+   return {...result,digiRecovery:info,
+    checks:{...(result.checks||{}),readingConflict:true}};
+  }
+  return {...recovered.result,digiRecovery:info};
  }
  function fieldsChecks(fields){
   const ean=String(fields?.ean13||'');
@@ -704,8 +744,12 @@
   setPrimaryAction(canSave);
   const signal=output.querySelector('.iu-gemini-result-signal');
   if(signal&&proposal){
+   const recovered=lastRawResult?.digiRecovery;
    signal.textContent=corrected
-    ?'Vérifie l’article, le brut et la tare avant de valider.'
+    ?(recovered?.kind==='reconstructed'?'EAN reconstitué · chiffres et calcul DIGI vérifiés.'
+      :recovered?.kind==='confirmed'?'Article confirmé · vérifie le brut et le panier.'
+      :recovered?.sources?.total==='calculated'?'Montant recalculé · vérifie le brut et le prix/kg.'
+      :'Vérifie l’article, le brut et la tare avant de valider.')
     :'Validation impossible : vérifie le panier et sa tare.';
    signal.classList.toggle('is-ready',Boolean(corrected));
    signal.classList.toggle('is-warning',!corrected);
@@ -734,7 +778,7 @@
   if(url){URL.revokeObjectURL(url);url=null;}
  }
  function resetReading(){
-  closeDuplicateConfirm();
+  closeDuplicateConfirm();closeCatalogConfirm();
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
   resetDetectedIndicator();
@@ -769,6 +813,7 @@
    return false;
   }
   if(active)resetReading();
+  closeCatalogConfirm();
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
   resetDetectedIndicator();
@@ -1222,7 +1267,11 @@
    networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +' · modèle '+usedModel
-    +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser');
+    +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser')
+    +(result?.digiRecovery?.kind==='reconstructed'?' · EAN récupéré par DIGI'
+      :result?.digiRecovery?.kind==='confirmed'?' · article confirmé'
+      :result?.digiRecovery?.kind==='confirmation'?' · confirmation DIGI requise'
+      :result?.digiRecovery?.sources?.total==='calculated'?' · montant calculé':'');
   }
  }
  window.addEventListener('iu-digi-catalog-updated',()=>{
@@ -1257,12 +1306,13 @@
   return attempt===1?1100:2600;
  }
  async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,
-  provider='gemini',detailImageBase64=null,focusFields=null){
+  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null){
   const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,provider,
    mimeType:'image/jpeg',imageBase64:encoded,
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
-   ...(focusFields?.length?{focusFields}:{})});
+   ...(focusFields?.length?{focusFields}:{}),
+   ...(catalogCandidates?.length?{catalogCandidates:catalogCandidates.slice(0,5)}:{})});
   // Une seule requête par pression : HTTP 502 peut cacher un échec de
   // lecture et ne doit jamais provoquer une deuxième analyse automatique.
   if(signal.aborted||id!==generation)
@@ -1340,7 +1390,8 @@
   // deuxième lecture Gemini vérifie ces 13 chiffres sans nouvelle photo.
   // Un EAN contradictoire bloque l'enregistrement au lieu de choisir
   // arbitrairement une lecture cohérente par hasard.
-  if(!trustedBarcodeEvidence(localBarcode)&&readableValue('ean',f.ean13))
+  if(!trustedBarcodeEvidence(localBarcode)&&readableValue('ean',f.ean13)&&
+     result?.digiRecovery?.kind!=='reconstructed')
    targets.push('ean');
   return [...new Set(targets)];
  }
@@ -1431,6 +1482,10 @@
      Promise.resolve().then(()=>window.IUGeminiEAN?.read(file)||null))
      .catch(()=>null);
    barcodeJob=job;
+   // Lorsqu'un EAN est déjà disponible avant Gemini, envoyer sa SEULE
+   // référence officielle sans attendre ZXing ni retarder le réseau.
+   let opticalReady=null;
+   void job.then(reading=>{if(id===generation)opticalReady=reading;});
    const detailTask=prepareLabelDetail(file).catch(()=>null);
    const encoded=await imageBase64(file);
    if(id!==generation)return;
@@ -1442,7 +1497,8 @@
    say(providerName+' analyse l’étiquette…');
    const received=await requestGeminiWithRecovery(
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
-    safeDetail(firstDetail),targetField?[targetField]:null);
+    safeDetail(firstDetail),targetField?[targetField]:null,
+    catalogHints(null,opticalReady));
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
@@ -1464,6 +1520,7 @@
    // Comparer les chiffres indépendamment, sans jamais remplacer un
    // EAN Gemini confirmé et contradictoire par simple supposition.
    combined=reconcileBarcode(combined,localBarcode);
+   combined=applyCatalogRecovery(combined);
    let targets=!targetField?recoveryTargets(combined):[];
    // Seulement après l'échec du lecteur EAN optique. Tesseract est
    // chargé à la demande, dans son propre Worker ; aucune photo envoyée.
@@ -1500,6 +1557,7 @@
     if(finalOptical){
      localBarcode=finalOptical;
      combined=reconcileBarcode(combined,localBarcode);
+     combined=applyCatalogRecovery(combined);
      targets=recoveryTargets(combined);
     }
    }
@@ -1529,10 +1587,12 @@
      if(id!==generation)return;
      const focused=await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
-      safeDetail(pendingDetail),targets);
+      safeDetail(pendingDetail),targets,
+      catalogHints(combined,localBarcode));
      if(id!==generation)return;
      combined=mergeRecoveredReading(combined,focused,targets);
      combined=reconcileBarcode(combined,localBarcode);
+     combined=applyCatalogRecovery(combined);
     }catch(error){
      if(error?.name==='AbortError'&&id!==generation)throw error;
      // L'expiration globale de 15 s peut arriver pendant la SECONDE
@@ -1552,6 +1612,7 @@
     if(id!==generation)return;
     if(printed?.ean13)validated=applyPrintedEAN(validated,printed);
    }
+   validated=applyCatalogRecovery(validated);
    const priorMismatch=validated.checks?.independentMismatch===true;
    const localChecks=fieldsChecks(validated.fields);
    const opticalResolved=trustedBarcodeEvidence(localBarcode)&&
@@ -1590,6 +1651,9 @@
    if(id===generation){
     active=false;abort=null;setAnalysisCameraClosed(false);
     updateButton();validationState();refreshRepairPanel();
+    if(lastRawResult?.digiRecovery?.kind==='confirmation'&&
+       generation!==lastCatalogPromptGeneration)
+     openCatalogConfirm();
     if(cameraStream&&cameraMode==='auto'){
      setAutoHint(proposal?'Lecture prête · vérifie puis valide'
       :'Lecture à reprendre · recadre et relance','waiting');
@@ -1807,6 +1871,8 @@
     pricePerKgCents:proposal.rate,totalCents:proposal.total,
     correctedEan13:corrected.ean,correctedTotalCents:corrected.cents,
     confirmDuplicate:duplicate&&confirmDuplicate,
+    digiEvidence:lastRawResult?.digiRecovery?.sources||null,
+    digiRecoveryKind:lastRawResult?.digiRecovery?.kind||null,
     manualCorrectedFields
    });
   }catch(_){return {ok:false,reason:'Stockage indisponible'};}
@@ -1821,6 +1887,73 @@
   setLabelAlert('warning',msg);
   say('Pesée non enregistrée · '+msg,true);
  }
+ // Référence DIGI probable : aucune validation silencieuse.
+ // Il faut avoir lu six des sept chiffres du préfixe, au moins neuf
+ // des douze chiffres utiles, ainsi qu'un nom réellement concordant.
+ function openCatalogConfirm(){
+  const info=lastRawResult?.digiRecovery;
+  if(catalogDialogOpen||duplicateDialogOpen||active||!catalogDialog||
+     info?.kind!=='confirmation'||!info.proposedEAN)return false;
+  const item=info.candidates?.[0];
+  if(!item||item.ambiguous)return false;
+  catalogDialogOpen=true;
+  lastCatalogPromptGeneration=generation;
+  if(catalogTitle)catalogTitle.textContent=
+   'Référence DIGI proposée · '+item.name;
+  catalogDialog.hidden=false;
+  catalogCancel?.focus({preventScroll:true});
+  return true;
+ }
+ function closeCatalogConfirm(){
+  if(!catalogDialogOpen)return;
+  catalogDialogOpen=false;
+  if(catalogDialog)catalogDialog.hidden=true;
+ }
+ function cancelCatalogConfirm(){
+  if(!catalogDialogOpen)return;
+  closeCatalogConfirm();
+  setLabelAlert('warning','Référence DIGI incertaine · vérifie l’étiquette');
+  say('Proposition non confirmée · relis ou corrige le code-barres.');
+  nextWeigh?.focus({preventScroll:true});
+ }
+ catalogCancel?.addEventListener('click',cancelCatalogConfirm);
+ catalogAccept?.addEventListener('click',()=>{
+  if(!catalogDialogOpen||!lastRawResult)return;
+  // Un import concurrent peut avoir changé le catalogue : revalider
+  // la proposition et tous ses chiffres AU MOMENT du choix.
+  const accepted=window.IUDigiCatalogLookup?.reconstruct(
+   lastRawResult,{allowProbable:true});
+  if(accepted?.kind!=='confirmation'||!accepted.result?.fields?.ean13){
+   closeCatalogConfirm();
+   setLabelAlert('warning','Référence DIGI modifiée · nouvelle lecture nécessaire');
+   say('Le catalogue ou les valeurs ont changé · relis cette photo.',true);
+   return;
+  }
+  closeCatalogConfirm();
+  manualCorrectedFields=[...new Set([...manualCorrectedFields,'ean'])];
+  const confirmed={...accepted.result,digiRecovery:{
+   kind:'confirmed',sources:accepted.sources,candidates:accepted.candidates,
+   confirmedByUser:true,proposedEAN:accepted.proposedEAN}};
+  display(confirmed,0);
+  validationState();
+  if(!proposal){
+   say('Confirmation reçue, mais la pesée comporte encore des données incertaines.',true);
+   return;
+  }
+  say('Référence DIGI confirmée · vérifie la pesée avant de l’enregistrer.');
+ });
+ document.addEventListener('keydown',event=>{
+  if(!catalogDialogOpen)return;
+  if(event.key==='Escape'){event.preventDefault();cancelCatalogConfirm();}
+  else if(event.key==='Tab'){
+   const current=document.activeElement;
+   if(event.shiftKey&&current===catalogCancel){
+    event.preventDefault();catalogAccept?.focus();
+   }else if(!event.shiftKey&&current===catalogAccept){
+    event.preventDefault();catalogCancel?.focus();
+   }
+  }
+ });
  // Doublon : même confirmation explicite que la fin d'inventaire.
  function openDuplicateConfirm(){
   if(duplicateDialogOpen||active||!duplicateDialog||
