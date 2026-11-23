@@ -338,26 +338,39 @@ async function geminiPilot(request,env,origin){
   return reply({...closed,provider,error:'GEMINI_API_KEY non configurée.'},503,origin);
  const photoBytes=payload.imageBase64.length*3/4;
  if(photoBytes>525000)return reply({...closed,error:'Photo trop volumineuse.'},413,origin);
- const focus=['name','weight','rate','total','ean'].includes(payload?.focusField)
-  ?payload.focusField:null;
- const generalPrompt='Tu es un lecteur visuel d’étiquettes DIGI du rayon fruits et légumes. '
-  +'Lis uniquement les informations VISIBLES sur cette seule photo, sans inventer, déduire ou compléter. '
-  +'Rends un objet JSON uniquement avec les clés name, weightKg, pricePerKgEur, totalEur, ean13. '
-  +'Chaque valeur est une chaîne exacte ou null si texte non visible, ambigu ou illisible. '
-  +'weightKg = nombre imprimé devant kg sous Poids net (ex. "1,058"); '
-  +'pricePerKgEur = prix imprimé devant €/kg (ex. "1,99"); '
-  +'totalEur = prix affiché dans Prix à payer (ex. "2,11"); '
-  +'ean13 = exactement 13 chiffres lisibles, sinon null. '
-  +'NE déduis JAMAIS un chiffre par la somme, le prix, le code ou un article supposé.';
- const focusNames={name:'le nom du produit',weight:'le poids net imprimé',rate:'le prix unitaire en €/kg',
-  total:'le prix à payer',ean:'les 13 chiffres sous le code-barres EAN-13'};
- const focusKeys={name:'name',weight:'weightKg',rate:'pricePerKgEur',total:'totalEur',ean:'ean13'};
- const prompt=focus?generalPrompt+
-  ' Cette requête est une RELECTURE CIBLÉE : concentre-toi uniquement sur '+focusNames[focus]+
-  '. Renseigne uniquement la propriété '+focusKeys[focus]+
-  ' dans les 5 clés JSON. Mets les quatre autres propriétés à null. Aucune supposition.'
+ const permitted=['name','weight','rate','total','ean'];
+ const focus=permitted.includes(payload?.focusField)?payload.focusField:null;
+ const requested=payload?.focusFields;
+ if(requested!==undefined&&(!Array.isArray(requested)||requested.length<1||
+    requested.length>5||requested.some(field=>!permitted.includes(field))||
+    new Set(requested).size!==requested.length))
+  return reply({...closed,error:'Champs de relecture incorrects.'},400,origin);
+ const focusFields=Array.isArray(requested)?requested:(focus?[focus]:[]);
+ // Vue centrale issue de la même photo, limitée pour ne pas pénaliser Safari.
+ const detail=payload?.detailImageBase64;
+ if(detail!==undefined&&(provider!=='gemini'||typeof detail!=='string'||
+    detail.length<100||detail.length>170000||
+    !/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(detail)||
+    detail.length+payload.imageBase64.length>750000))
+  return reply({...closed,error:'Agrandissement JPEG invalide ou trop volumineux.'},400,origin);
+ const generalPrompt='Lis UNE étiquette DIGI centrale de fruits et légumes Super U. '
+  +'Image 1 = photo entière. Une éventuelle image 2 est un agrandissement '
+  +'du CENTRE de la même photo et jamais une deuxième étiquette. '
+  +'Ne mélange aucune information de deux étiquettes différentes. '
+  +'Lis uniquement les données VISIBLES, sans déduire par calcul ni inventer : '
+  +'name = nom imprimé du produit ; weightKg = poids net imprimé (ex. "1,058"), '
+  +'pricePerKgEur = prix imprimé €/kg (ex. "1,99"), totalEur = prix à payer '
+  +'imprimé (ex. "2,11"), ean13 = les 13 chiffres imprimés sous les barres. '
+  +'Si un caractère est ambigu, retourne null pour ce champ. '
+  +'Ne soustrais pas la tare, ne génère jamais un EAN depuis le prix. '
+  +'Retourne seulement un objet JSON avec les cinq propriétés exactes.';
+ const focusNames={name:'nom',weight:'poids net',rate:'prix au kilo',
+  total:'prix total',ean:'les 13 chiffres sous le code-barres'};
+ const prompt=focusFields.length?generalPrompt+
+  ' RELECTURE CIBLÉE : relis uniquement '+focusFields.map(k=>focusNames[k]).join(', ')+
+  '. Mets tous les autres champs à null. En cas de doute, retourne null.'
   :generalPrompt;
- const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),55000);
+ const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),13000);
  const started=Date.now();
  let providerAnswered=false;
  try{
@@ -418,14 +431,24 @@ async function geminiPilot(request,env,origin){
    catch(_){return reply({...closed,provider,model,
     error:'Réponse OpenAI non exploitable.'},422,origin)}
   }else{
+  const nullableField={type:'STRING',nullable:true};
+  const responseSchema={type:'OBJECT',properties:{
+   name:nullableField,weightKg:nullableField,pricePerKgEur:nullableField,
+   totalEur:nullableField,ean13:nullableField},
+   required:['name','weightKg','pricePerKgEur','totalEur','ean13'],
+   propertyOrdering:['name','weightKg','pricePerKgEur','totalEur','ean13']};
+  const imageParts=[{inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}];
+  if(detail)imageParts.push(
+   {text:'Image 2 : agrandissement central de la MEME photo, pour relire les chiffres fins.'},
+   {inline_data:{mime_type:'image/jpeg',data:detail}});
   const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
    +model+':generateContent',{
     method:'POST',signal:abort.signal,
     headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
     body:JSON.stringify({
-     contents:[{role:'user',parts:[{text:prompt},
-      {inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}]}],
-     generationConfig:{temperature:0,maxOutputTokens:1024,responseMimeType:'application/json'}
+     contents:[{role:'user',parts:[{text:prompt},...imageParts]}],
+     generationConfig:{temperature:0,maxOutputTokens:1024,
+      responseMimeType:'application/json',responseSchema}
     })
    });
   if(!res.ok){
@@ -480,9 +503,15 @@ async function geminiPilot(request,env,origin){
     ?extracted.ean13:null;
   const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
     &&Math.abs(Math.round(weightGrams*pricePerKgCents/1000)-totalCents)<=1;
-  return reply({...closed,provider,model,focusField:focus,elapsedMs:Date.now()-started,
+  const priceFromEAN=ean13?.startsWith('02')
+   ?Math.round(Number(ean13.slice(7,12))*100/655.36):null;
+  const barcodePriceConsistent=priceFromEAN!==null&&totalCents!==null
+   ?Math.abs(priceFromEAN-totalCents)<=1:null;
+  return reply({...closed,provider,model,pipelineVersion:2,
+   focusField:focus,focusFields,elapsedMs:Date.now()-started,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
-   checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null},
+   checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null,
+    barcodePriceConsistent},
    verifiedForInventory:false,warning:'Données indicatives : vérifier visuellement chaque chiffre avant toute utilisation.'},
    200,origin);
  }catch(_){
