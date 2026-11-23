@@ -395,3 +395,34 @@ avant de changer le fournisseur par défaut. Une CI verte ne démontre
 pas une lecture fiable en rayon. Aucune image ne doit être enregistrée
 sans validation après vérification des chiffres, du catalogue et de
 la tare.
+
+## v42.36 — ZXing premier choix, embarqué avec la PWA
+
+Le véritable moteur ZXing-C++ `zxing-wasm@3.1.2` est maintenant
+auto-hébergé dans `vendor/zxing/reader.js` (JS) et
+`vendor/zxing/zxing_reader.wasm` (moteur WASM). Le workflow
+`.github/workflows/vendor-zxing.yml` récupère uniquement cette version
+exacte depuis npm et la publie avec sa licence. Aucun CDN n'est utilisé
+pour la lecture EAN.
+
+Le moteur est préparé sans photo dans le Web Worker à l'ouverture de
+la caméra (`preloadBarcode`), en parallèle de la demande d'autorisation
+caméra iOS, sans bloquer la vidéo. La première photo utilise donc ZXing
+en priorité, puis l'ancien décodeur optique DIGI en secours si aucun
+résultat n'est obtenu. Une ambiguïté (plusieurs EAN valides) bloque
+la proposition, sans choisir arbitrairement. Les validations sont
+inchangées : EAN avec checksum, zone géométrique de l'étiquette,
+catalogue DIGI, cohérence poids/prix et tare. Gemini/Mistral ne
+changent pas.
+
+Les deux fichiers ZXing auto-hébergés figurent dans les ressources
+optionnelles du cache PWA pour l'usage hors ligne après une préparation
+réussie. Le téléchargement initial (~1 Mo de WASM) exige que les
+ressources du site soient accessibles ; il n'est jamais exigé pour
+l'ouverture de la caméra ni pour le parcours historique. En cas de
+fichier manquant, d'incompatibilité Safari ou de compilateur WASM
+indisponible, l'ancien décodeur reste actif.
+
+Tests : `node tools/test_gemini_parallel.cjs`,
+`node tools/test_mistral_zxing.mjs`,
+`node tools/test_zxing_primary.cjs`.

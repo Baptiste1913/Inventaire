@@ -1,4 +1,4 @@
-/* Inventaires U 42.33 — Web Worker EAN avec repli sans perte.
+/* Inventaires U 42.36 — Web Worker EAN avec repli sans perte.
  * Charge l'EAN hors du fil Safari ; repli sur le lecteur historique si
  * Web Worker ou OffscreenCanvas indisponible. Aucun réseau ni donnée stockée.
  */
@@ -9,7 +9,7 @@
  if(root)root.IUGeminiParallel=api;
 })(typeof window!=='undefined'?window:null,function(root){
  'use strict';
- let worker=null,unavailable=false,nextId=0;
+ let worker=null,unavailable=false,nextId=0,warmStarted=false;
  const pending=new Map();
  // Le même JPEG ne doit jamais déclencher plusieurs relectures historiques
  // lorsqu'un Worker échoue pendant que Gemini est en cours.
@@ -34,6 +34,7 @@
   legacyEAN(item.photo).then(item.resolve);
  }
  function dispose(unsupported=false){
+  warmStarted=false;
   if(worker){try{worker.terminate()}catch(_){}worker=null;}
   if(unsupported)unavailable=true;
   for(const item of pending.values()){
@@ -47,7 +48,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.35');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.36');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
@@ -87,6 +88,17 @@
    }
   });
  }
+ // Précharger hors du fil Safari dès l'ouverture de la caméra.
+ function preloadBarcode(){
+  if(warmStarted||unavailable)return false;
+  const engine=connect();
+  if(!engine)return false;
+  try{
+   engine.postMessage({id:++nextId,kind:'warm-zxing'});
+   warmStarted=true;
+   return true;
+  }catch(_){return false;}
+ }
  function barcode(photo){
   if(!photo)return Promise.resolve(null);
   return dispatch('barcode',photo);
@@ -101,5 +113,5 @@
   legacyCache=new WeakMap();
  }
  function available(){return !unavailable&&Boolean(root?.Worker&&root?.OffscreenCanvas);}
- return Object.freeze({barcode,enhancedDetail,close,available});
+ return Object.freeze({barcode,preloadBarcode,enhancedDetail,close,available});
 });

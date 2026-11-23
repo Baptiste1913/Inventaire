@@ -97,7 +97,10 @@ const outside={...candidate,position:{topLeft:point(720,220),topRight:point(920,
  bottomLeft:point(720,235),bottomRight:point(920,235)}};
 assert.equal(api.evaluate([outside],1000,900),null,'Pas d’EAN pris sur une autre zone');
 const w=fs.readFileSync('gemini-image-worker.js','utf8');
-assert(w.indexOf('self.IUGeminiEAN.read(photo)')<
- w.indexOf('self.IUZxingEAN?.read(photo)'),'Le lecteur actuel est prioritaire');
-assert(w.includes("importScripts('./gemini-zxing.js?v=42.35')"));
+assert(w.indexOf('self.IUZxingEAN?.read(photo)')<
+ w.indexOf('self.IUGeminiEAN.read(photo)'),'ZXing est désormais prioritaire');
+assert(w.includes("importScripts('./gemini-zxing.js?v=42.36')"));
+assert(zx.includes("LOCAL_JS='./vendor/zxing/reader.js'"));
+assert(zx.includes("LOCAL_WASM='./vendor/zxing/zxing_reader.wasm'"));
+assert(!zx.includes('cdn.jsdelivr.net'),'ZXing ne dépend plus d’un CDN');
 console.log('OK : ZXing EAN valide, vérification géométrique et ambiguïtés bloquées');

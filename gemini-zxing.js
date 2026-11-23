@@ -1,10 +1,30 @@
-/* Inventaires U 42.35 — ZXing-C++ WASM de secours, uniquement en Worker.
- * L'ancienne lecture EAN reste prioritaire. CDN épinglé, échec sans blocage.
+/* Inventaires U 42.36 — ZXing-C++ WASM principal, strictement local.
+ * Distribution 3.1.2 hébergée par Inventaires U, aucun CDN.
+ * Préparation non bloquante à l'ouverture caméra, secours EAN historique.
  */
 (function(root){
  'use strict';
- const PIN='3.1.2',url='https://cdn.jsdelivr.net/npm/zxing-wasm@'+PIN+'/dist/iife/reader/index.js';
- let loaded=false,unavailable=false;
+ const PIN='3.1.2',LOCAL_JS='./vendor/zxing/reader.js';
+ const LOCAL_WASM='./vendor/zxing/zxing_reader.wasm';
+ let warming=null,unavailable=false;
+ function warm(){
+  if(unavailable)return Promise.resolve(false);
+  if(warming)return warming;
+  warming=(async()=>{
+   if(typeof root.ZXingWASM?.readBarcodes!=='function')root.importScripts(LOCAL_JS);
+   const engine=root.ZXingWASM;
+   if(typeof engine?.readBarcodes!=='function'||
+      typeof engine?.prepareZXingModule!=='function')
+    throw Error('ZXing local indisponible');
+   await engine.prepareZXingModule({
+    overrides:{locateFile:(name,prefix)=>name.endsWith('.wasm')
+     ?new URL(LOCAL_WASM,root.location.href).href:prefix+name},
+    fireImmediately:true
+   });
+   return true;
+  })().catch(()=>{unavailable=true;return false;});
+  return warming;
+ }
  function valid(code){
   if(!/^\d{13}$/.test(String(code||'')))return false;
   let sum=0;for(let i=0;i<12;i++)sum+=Number(code[i])*(i%2?3:1);
@@ -43,14 +63,10 @@
   return evidence;
  }
  async function read(photo){
-  if(unavailable||!photo||typeof root.OffscreenCanvas!=='function'||
+  if(!photo||typeof root.OffscreenCanvas!=='function'||
      typeof root.createImageBitmap!=='function')return null;
+  if(!await warm())return null;
   try{
-   if(!loaded){
-    root.importScripts(url);
-    loaded=typeof root.ZXingWASM?.readBarcodes==='function';
-    if(!loaded){unavailable=true;return null;}
-   }
    const bitmap=await root.createImageBitmap(photo);
    try{
     const results=await root.ZXingWASM.readBarcodes(photo,{
@@ -58,6 +74,9 @@
      tryInvert:false,tryDownscale:false,minLineCount:2,
      maxNumberOfSymbols:3,returnErrors:false
     });
+    // Pas de second canvas ni de géométrie si aucune barre valide.
+    if(!results?.some(r=>r?.format==='EAN13'&&r.isValid===true&&
+       r.lineCount>=2&&valid(r.text)))return null;
     let paper=null;
     const geo=root.IUGeminiLabelGeometry;
     if(geo?.detect){
@@ -73,13 +92,11 @@
     return evaluate(results,bitmap.width,bitmap.height,paper,geo);
    }finally{bitmap.close?.();}
   }catch(_){
-   // La première utilisation peut échouer (CDN ou VPN) : ne jamais
-   // compromettre ni les scans locaux historiques ni Gemini.
-   if(!loaded)unavailable=true;
+   // Un problème avec l'image ou WASM laisse toujours le secours EAN agir.
    return null;
   }
  }
- const api=Object.freeze({read,evaluate,bounds,valid,version:PIN});
+ const api=Object.freeze({read,warm,evaluate,bounds,valid,version:PIN});
  if(root)root.IUZxingEAN=api;
  if(typeof module==='object'&&module.exports)module.exports=api;
 })(typeof self!=='undefined'?self:null);

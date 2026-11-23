@@ -16,10 +16,12 @@ assert(imgWorker.includes('importScripts('),'Web Worker classique Safari');
 assert(imgWorker.includes('function clahe('),'CLAHE conditionnel présent');
 assert(imgWorker.includes('if((contrast.range>=110||contrast.range<12)&&!rotate)return null;'),
  'Aucun CLAHE pour les images déjà suffisamment contrastées');
-assert(imgWorker.includes("result=await self.IUGeminiEAN.read(photo);"),
- 'Le décodeur historique EAN reste prioritaire dans le Web Worker');
-assert(imgWorker.includes("self.IUZxingEAN?.read(photo)"),
- 'ZXing est uniquement appelé en secours du décodeur EAN');
+assert(imgWorker.indexOf("self.IUZxingEAN?.read(photo)")<
+ imgWorker.indexOf("self.IUGeminiEAN.read(photo)"),
+ 'ZXing EAN prioritaire dans le Web Worker');
+assert(imgWorker.includes("if(!result)result=await self.IUGeminiEAN.read(photo);"),
+ 'L’ancien lecteur EAN reste un secours');
+assert(imgWorker.includes("kind==='warm-zxing'"),'Préchauffage sans photo pris en charge');
 assert(imgWorker.includes("jpeg.size<=122000"),'Détail JPEG respectant le budget');
 assert(ean.includes("typeof OffscreenCanvas==='function'"),
  'Décodage des lignes via canvas hors thread');
@@ -64,13 +66,15 @@ vm.runInContext(script,ctx);
 const api=window.IUGeminiParallel;
 (async()=>{
  assert(api&&api.available());
+ assert.equal(api.preloadBarcode(),true,'Préchargement initial non bloquant');
+ assert.equal(api.preloadBarcode(),false,'Éviter deux préchargements');
  const results=await Promise.all([
   api.barcode(photo),api.enhancedDetail(photo,{confirmed:true})
  ]);
  assert.equal(results[0].ean13,'0203476013844');
  assert.equal(results[1].size,4500);
  assert.equal(created,1,'Un seul Web Worker réutilisé');
- assert.deepEqual(messages.map(x=>x.kind),['barcode','enhanced-detail']);
+ assert.deepEqual(messages.map(x=>x.kind),['warm-zxing','barcode','enhanced-detail']);
  assert.equal(fallbackCalls.length,0,'Ne pas lancer le vieux lecteur en doublon');
  api.close();
  assert.equal(terminated,1,'Arrêt propre du Worker');

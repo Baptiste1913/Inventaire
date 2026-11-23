@@ -1594,6 +1594,9 @@
  }
  async function startCamera(){
   if(cameraStarting||active)return;
+  // Initialisation ZXing en Web Worker avant la première capture.
+  // L'accès caméra continue immédiatement, aucun await supplémentaire.
+  try{window.IUGeminiParallel?.preloadBarcode?.();}catch(_){};
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
   // getUserMedia tant que la caméra fonctionne dans cette session.
   if(cameraStream){

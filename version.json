@@ -1,6 +1,6 @@
 {
-  "version": "42.35",
+  "version": "42.36",
   "published": "2026-11-23",
   "assets": 60,
-  "notes": "Pilote de comparaison Mistral OCR 4.1 (OCR 4.0 retiré) et Gemini, avec sélection explicite dans les réglages Cloudflare. ZXing-C++ WebAssembly en secours du lecteur EAN actuel dans le Web Worker, via CDN JS/WASM épinglé 3.1.2, uniquement après échec local. Les controles EAN/DIGI, prix, tare, validation et données restent sécurisés. L'API Mistral requiert un secret MISTRAL_API_KEY et le déploiement séparé du Worker Cloudflare. Aucune analyse Mistral live sans cette configuration."
+  "notes": "ZXing-C++ WASM 3.1.2 devient le premier lecteur EAN-13 : bibliothèques JS/WASM auto-hébergées, mise en cache hors ligne et préchargement silencieux à l'ouverture caméra. L'ancien décodeur DIGI reste en secours si ZXing échoue. Un EAN ambigu n'est jamais accepté. Aucune modification aux contrôles DIGI, prix, tare et à la reconnaissance Gemini/Mistral."
 }
