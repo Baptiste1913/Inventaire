@@ -1,6 +1,6 @@
 {
-  "version": "42.23",
-  "published": "2026-11-22",
+  "version": "42.24",
+  "published": "2026-11-23",
   "assets": 55,
-  "notes": "Gemini devient le premier moteur de lecture dans tous les modes : l'auto prend directement la photo haute définition, sans passer d'abord par Tesseract, et le code-barres EAN-13 local reste une vérification indépendante en parallèle. La photo principale préserve une marge plus large (96% du cadre, au lieu de 88%), jusqu'à 1920px au lieu de 1600px, sans recadrage optique avant Gemini ; compression JPEG adaptative pour rester sous la limite Cloudflare. Une relecture ciblée (au maximum un appel additionnel sur la même photo) est effectuée uniquement lorsqu'un seul champ est manquant après rapprochement avec le décodeur EAN ; les autres valeurs Gemini restent inchangées et aucune contradiction de poids/prix n'est inventée. Le Worker source accepte les formes numériques imprimées avec unités (0,714 kg, 714 g, 5,99 €/kg, 4,28 €) et continue de contrôler poids, prix, EAN et clé. Son déploiement Cloudflare est indépendant du commit GitHub."
+  "notes": "Essai OpenAI GPT-6.1 Terra en mode Fast ajouté au Worker Cloudflare, avec reconnaissance JSON stricte, vérification poids/prix/EAN, et sélection OpenAI/Gemini dans les réglages de la pesée IA. Gemini reste le moteur par défaut pour ne rien interrompre avant la mise en place du secret OPENAI_API_KEY et le déploiement Cloudflare. La réponse affiche le modèle réellement utilisé ; aucune clé API n'est placée dans GitHub. La sauvegarde d'une pesée reste manuelle."
 }
