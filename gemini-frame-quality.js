@@ -74,12 +74,41 @@
   const score=clamp(.46*ean.score+.29*weight.score+.25*rate.score-
    (Number.isFinite(motion)?Math.max(0,motion-9)*.0017:0));
   const regional={ean:ean.score,weight:weight.score,rate:rate.score};
-  return {score,regions:regional,gray,motion,
+  return {score,regions:regional,gray,motion,width,height,zones:boxes,
    usable:score>=.30&&ean.score>=.20&&weight.score>=.15&&rate.score>=.15};
  }
+ // Deux étiquettes peuvent avoir le même fond blanc : le changement de
+ // barres EAN ou de chiffres doit compter plus que le fond hors étiquette.
+ function regionDistance(left,right,box){
+  const width=left.width,height=left.height;
+  if(width!==right.width||height!==right.height||
+     !Number.isInteger(width)||!Number.isInteger(height))return Infinity;
+  const x0=Math.max(0,Math.floor(box.x*width)),x1=Math.min(width,Math.ceil((box.x+box.w)*width));
+  const y0=Math.max(0,Math.floor(box.y*height)),y1=Math.min(height,Math.ceil((box.y+box.h)*height));
+  let difference=0,count=0;
+  for(let y=y0;y<y1;y+=2)for(let x=x0;x<x1;x+=2){
+   const i=y*width+x;
+   difference+=Math.abs(left.gray[i]-right.gray[i]);count++;
+  }
+  return count?difference/count:Infinity;
+ }
  function sameScene(left,right,limit=23){
-  return Boolean(left?.gray&&right?.gray&&
-   frameDistance(left.gray,right.gray)<=limit);
+  if(!left?.gray||!right?.gray||
+     frameDistance(left.gray,right.gray)>limit)return false;
+  // Un fond blanc peut masquer le retrait complet de l'étiquette :
+  // la disparition de ses contours invalide immédiatement la comparaison.
+  for(const key of ['ean','weight','rate']){
+   if(Math.abs((left.regions?.[key]||0)-(right.regions?.[key]||0))>.55)
+    return false;
+  }
+  if(Number.isInteger(left.width)&&Number.isInteger(right.width)&&
+     left.zones&&right.zones){
+   const regional=.46*regionDistance(left,right,left.zones.ean)+
+    .29*regionDistance(left,right,left.zones.weight)+
+    .25*regionDistance(left,right,left.zones.rate);
+   if(!Number.isFinite(regional)||regional>31)return false;
+  }
+  return true;
  }
  // L'option de secours n'utilise une capture antérieure que très récente
  // et visuellement proche de la photo actuelle. Une autre étiquette,
