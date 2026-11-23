@@ -88,7 +88,7 @@ async function simulate(frames,cache,settings={}){
   'Résolution réelle JPEG inchangée');
  assert(js.includes('stopQualityMonitor();\n   analysisCameraClosed=true;'),
   'Aucune sélection permanente pendant une analyse Gemini');
- const qualityAssetVersion=(html.match(/gemini-frame-quality\\.js\\?v=([\\d.]+)/)||[])[1];
+ const qualityAssetVersion=(html.match(/gemini-frame-quality\.js\?v=([\d.]+)/)||[])[1];
  assert(qualityAssetVersion&&sw.includes('gemini-frame-quality.js?v='+qualityAssetVersion),
   'Le module de netteté est présent dans la page et le cache PWA');
  assert(html.indexOf('gemini-frame-quality.js?v='+qualityAssetVersion)<
