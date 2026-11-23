@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const source=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
 const archived=fs.readFileSync('workers/coursesu-apify-worker.js','utf8');
-assert(source.length<15000,'Worker Gemini doit rester minimal');
+assert(source.length<22000,'Worker Gemini + Mistral doit rester compact');
 for(const token of ['APIFY_TOKEN','OPENAI_API_KEY','api.apify.com','api.openai.com',
  'COURSESU_LIVE_ENABLED','function lookup(','function authCheck(','function htmlCheck('])
  assert(!source.includes(token),'Code historique dans Gemini : '+token);

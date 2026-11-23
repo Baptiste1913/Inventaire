@@ -71,7 +71,8 @@ assert.equal(trustedBarcodeEvidence(ctx.localBarcode),false,
 ctx.localBarcode={confirmed:true,ean13:label.ean13,ambiguous:false,source:'native'};
 assert(worker.includes('responseSchema')&&worker.includes('pipelineVersion:2'));
 assert(worker.includes('focusFields')&&worker.includes('detailImageBase64'));
-assert(js.includes('const selectedProvider=\'gemini\''));
+assert(js.includes("providerSelect?.value==='mistral'?'mistral':'gemini'"),
+ 'Gemini reste sélectionné par défaut, Mistral est un test explicite');
 assert(js.includes('let targets=!targetField?recoveryTargets(combined):[]'));
 assert(js.includes("targets.length===1&&targets[0]==='ean'"),
  'Attente bornée pour éviter un appel Gemini si la lecture EAN locale est imminente');

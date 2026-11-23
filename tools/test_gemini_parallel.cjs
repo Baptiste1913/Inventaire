@@ -16,8 +16,10 @@ assert(imgWorker.includes('importScripts('),'Web Worker classique Safari');
 assert(imgWorker.includes('function clahe('),'CLAHE conditionnel présent');
 assert(imgWorker.includes('if((contrast.range>=110||contrast.range<12)&&!rotate)return null;'),
  'Aucun CLAHE pour les images déjà suffisamment contrastées');
-assert(imgWorker.includes("if(kind==='barcode')result=await self.IUGeminiEAN.read(photo);"),
- 'Même décodeur indépendant dans le Web Worker');
+assert(imgWorker.includes("result=await self.IUGeminiEAN.read(photo);"),
+ 'Le décodeur historique EAN reste prioritaire dans le Web Worker');
+assert(imgWorker.includes("self.IUZxingEAN?.read(photo)"),
+ 'ZXing est uniquement appelé en secours du décodeur EAN');
 assert(imgWorker.includes("jpeg.size<=122000"),'Détail JPEG respectant le budget');
 assert(ean.includes("typeof OffscreenCanvas==='function'"),
  'Décodage des lignes via canvas hors thread');
