@@ -734,8 +734,9 @@
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
   // Lire l'EAN en local en parallèle du réseau, sans envoi ni bibliothèque.
-  barcodeJob=Promise.resolve().then(()=>
-   window.IUGeminiEAN?.read(chosen)||null).catch(()=>null);
+  barcodeJob=(window.IUGeminiParallel?.barcode(chosen)||
+   Promise.resolve().then(()=>window.IUGeminiEAN?.read(chosen)||null))
+   .catch(()=>null);
   url=URL.createObjectURL(chosen);
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
   showBlankLabel();networkTime.textContent='';resetProposal();
@@ -923,7 +924,8 @@
   }
   if(cropW<450||cropH<230)return null;
   const canvas=document.createElement('canvas');
-  const scale=Math.min(1,1500/Math.max(cropW,cropH));
+  // Préserver jusqu'à 1 700 px de détails sans aucune interpolation.
+  const scale=Math.min(1,1700/Math.max(cropW,cropH));
   canvas.width=Math.max(1,Math.round(cropW*scale));
   canvas.height=Math.max(1,Math.round(cropH*scale));
   const ctx=canvas.getContext('2d');
@@ -931,7 +933,7 @@
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
   ctx.drawImage(img,cropX,cropY,cropW,cropH,0,0,canvas.width,canvas.height);
-  for(const quality of [.79,.68,.57]){
+  for(const quality of [.84,.77,.69,.57]){
    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));
    if(!blob||blob.size<100||blob.size>122000)continue;
    const encoded=await new Promise((resolve,reject)=>{
@@ -943,6 +945,18 @@
    if(encoded.length>=100&&encoded.length<=165000)return encoded;
   }
   return null;
+ }
+ // Le filtre tourne dans le Worker, seule la conversion du Blob final
+ // en base64 reste ici ; jamais plus de 122 Ko par vue secondaire.
+ async function readParallelDetail(blob){
+  if(!blob||blob.size<100||blob.size>122000)return null;
+  const encoded=await new Promise((resolve,reject)=>{
+   const reader=new FileReader();
+   reader.onerror=()=>reject(Error('Détail amélioré illisible'));
+   reader.onload=()=>resolve(String(reader.result||'').split(',')[1]||'');
+   reader.readAsDataURL(blob);
+  });
+  return encoded.length>=100&&encoded.length<=165000?encoded:null;
  }
  async function imageBase64(source){
   // Le JPEG issu du viseur est déjà recadré, redimensionné et compressé.
@@ -1314,8 +1328,10 @@
    // Gemini reçoit immédiatement l'image la plus complète possible.
    // Le décodeur EAN-13 travaille EN PARALLÈLE, sans retarder l'appel
    // réseau ni recadrer la photo pour ne pas couper les chiffres.
-   const job=barcodeJob||Promise.resolve().then(()=>
-    window.IUGeminiEAN?.read(file)||null).catch(()=>null);
+   const job=barcodeJob||
+    (window.IUGeminiParallel?.barcode(file)||
+     Promise.resolve().then(()=>window.IUGeminiEAN?.read(file)||null))
+     .catch(()=>null);
    barcodeJob=job;
    const detailTask=prepareLabelDetail(file).catch(()=>null);
    const encoded=await imageBase64(file);
@@ -1372,10 +1388,22 @@
      say(providerName+' · vérification de '+targets.length+' champ(s)…');
      // Si un code-barres indépendant a localisé l'étiquette, la seconde
      // vue exploite sa géométrie. Sinon, garder le détail habituel.
-     const opticalDetail=localBarcode?.confirmed&&localBarcode?.bounds?
+     const opticalDetail=trustedBarcodeEvidence(localBarcode)&&localBarcode?.bounds?
       prepareLabelDetail(file,localBarcode).catch(()=>null):detailTask;
-     const pendingDetail=await Promise.race([opticalDetail,
-      new Promise(resolve=>setTimeout(()=>resolve(null),240))]);
+     // CLAHE et redressement uniquement après un premier résultat
+     // incomplet, avec le recadrage historique toujours disponible.
+     const enhancedTask=(window.IUGeminiParallel?.enhancedDetail(file,
+      trustedBarcodeEvidence(localBarcode)?localBarcode:null)||Promise.resolve(null))
+      .then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
+     let normalDetail=null,filteredDetail=null;
+     const normalReady=opticalDetail.then(value=>{normalDetail=value||null;});
+     const filteredReady=enhancedTask.then(value=>{filteredDetail=value||null;});
+     await Promise.race([
+      Promise.all([normalReady,filteredReady]),
+      normalReady.then(()=>new Promise(resolve=>setTimeout(resolve,45))),
+      new Promise(resolve=>setTimeout(resolve,220))
+     ]);
+     const pendingDetail=filteredDetail||normalDetail;
      if(id!==generation)return;
      const focused=await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
@@ -1751,11 +1779,11 @@
   return qualityEngine.evaluate(ctx.getImageData(0,0,w,h),
    qualityZones(view),qualityPrevious?.gray);
  }
- function fullResolutionCameraFrame(){
+ function fullResolutionCameraFrame(maxEdge=1920){
   const bounds=video.getBoundingClientRect();
   const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,
    bounds.width,bounds.height);
-  const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
+  const factor=Math.min(1,maxEdge/Math.max(crop.width,crop.height));
   const cv=document.createElement('canvas');
   cv.width=Math.max(1,Math.round(crop.width*factor));
   cv.height=Math.max(1,Math.round(crop.height*factor));
@@ -1830,7 +1858,9 @@
  }
  function qualityCandidate(epoch){
   const rating=sampleCameraQuality();
-  return {canvas:fullResolutionCameraFrame(),rating,
+  // La vidéo n'a pas de DPI physique : jusqu'à +12,5 % de pixels
+  // pour la capture du clic ; le tampon reste limité à 1 920 px.
+  return {canvas:fullResolutionCameraFrame(2160),rating,
    at:performance.now(),epoch};
  }
  async function chooseSharpCameraFrame(epoch){
@@ -2171,7 +2201,21 @@
    const cv=chosen.canvas;
    if(chosen.rating&&!chosen.rating.usable)
     setAutoHint('Meilleure image disponible · vérification Gemini','waiting');
-   const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.86));
+   let blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.88));
+   // Au-delà de l'ancien budget de transfert, repli vers le
+   // JPEG 1 920 px historique avant d'envoyer quoi que ce soit.
+   if(blob?.size>490000&&Math.max(cv.width,cv.height)>1920){
+    const fallback=document.createElement('canvas');
+    const factor=1920/Math.max(cv.width,cv.height);
+    fallback.width=Math.max(1,Math.round(cv.width*factor));
+    fallback.height=Math.max(1,Math.round(cv.height*factor));
+    const ctx=fallback.getContext('2d');
+    if(ctx){
+     ctx.imageSmoothingQuality='high';
+     ctx.drawImage(cv,0,0,fallback.width,fallback.height);
+     blob=await new Promise(resolve=>fallback.toBlob(resolve,'image/jpeg',.86));
+    }
+   }
    if(!blob)throw Error('Capture impossible');
    // Si le panier, la session, le flux caméra ou la lecture a changé
    // pendant toBlob, n'enregistrer ni ne remplacer quoi que ce soit.
