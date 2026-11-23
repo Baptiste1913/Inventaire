@@ -339,8 +339,12 @@
  // lecture incorrecte ou analyse interminable (annulation explicite).
  // Seules les données vérifiées et recalculables sont enregistrables.
  // Contrairement à l'ancien flux, un doublon valide peut être confirmé.
+ function catalogProposalCurrent(){
+  return Boolean(proposal&&window.IUDigiCatalogLookup?.verify(
+   proposal.ean,proposal.plu,proposal.name));
+ }
  function correctedCurrentProposal(){
-  if(!proposal||active)return null;
+  if(!proposal||active||!catalogProposalCurrent())return null;
   const ctx=typeof window.IUWeighScanContext==='function'
    ?window.IUWeighScanContext():null;
   return ctx?recodeAfterTare(proposal.ean,proposal.grams,
@@ -439,6 +443,10 @@
    setLabelAlert('warning','Lecture non validable · '+lastReadProblem);
    return;
   }
+  if(proposal&&!catalogProposalCurrent()){
+   setLabelAlert('warning','Catalogue DIGI modifié · relis cette photo');
+   return;
+  }
   if(!proposal){
    setLabelAlert('warning','Lecture incomplète · réessaie');
    return;
@@ -447,33 +455,33 @@
    setLabelAlert('warning','Doublon détecté · confirme ou ignore');
    return;
   }
-  setLabelAlert('success','étiquette prête');
+  setLabelAlert('success','DIGI · PLU '+proposal.plu+' · étiquette prête');
  }
  function validateResult(result){
-  const f=result?.fields||{},c=result?.checks||{};
+  const f=result?.fields||{},checks=result?.checks||{};
   const grams=f.weightGrams,rate=f.pricePerKgCents,total=f.totalCents;
-  const name=typeof f.name==='string'?f.name.trim():'';
-  if(!name||name.length<3||name.length>120)return {error:'Article non reconnu avec certitude.'};
-  if(!Number.isSafeInteger(grams)||grams<=0||grams>30000)return {error:'Poids lu sur l’étiquette manquant ou invalide.'};
+  if(!Number.isSafeInteger(grams)||grams<=0||grams>30000)
+   return {error:'Poids lu sur l’étiquette manquant ou invalide.'};
   if(!Number.isSafeInteger(rate)||rate<=0||rate>1000000||
-     !Number.isSafeInteger(total)||total<0)return {error:'Prix au kilo ou montant manquant.'};
-  // Ne jamais faire confiance aux seuls booléens produits par l'IA :
-  // recalculer localement les règles métier avant toute proposition.
-  // Les arrondis de balance peuvent différer d'un centime. Cette
-  // tolérance locale est aussi appliquée au Worker. Jamais de prix inventé.
-  const arithmeticOk=Math.abs(Math.round(grams*rate/1000)-total)<=1;
-  if(!arithmeticOk)return {error:'Calcul prix × poids incohérent.'};
+     !Number.isSafeInteger(total)||total<0)
+   return {error:'Prix au kilo ou montant manquant.'};
   const ean=String(f.ean13||'');
-  if(!/^[0-9]{13}$/.test(ean)||
-     eanCheck(ean.slice(0,12))!==ean[12])
-   return {error:'EAN non confirmé ou clé EAN incorrecte.'};
-  if(c.independentMismatch===true)
+  if(!/^\d{13}$/.test(ean)||eanCheck(ean.slice(0,12))!==ean[12])
+   return {error:'EAN complet non reconnu ou clé EAN incorrecte.'};
+  // Identité officielle UNIQUEMENT depuis un préfixe unique du catalogue DIGI.
+  const digi=window.IUDigiCatalogLookup?.resolve(ean);
+  if(!digi?.ok)return {error:'Catalogue DIGI · '+(digi?.reason||
+   'module indisponible sur cet appareil')};
+  if(Math.abs(Math.round(grams*rate/1000)-total)>1)
+   return {error:'Calcul prix × poids incohérent.'};
+  if(checks.independentMismatch===true)
    return {error:'Code-barres différent de la lecture indépendante.'};
-  if(c.readingConflict===true)
+  if(checks.readingConflict===true)
    return {error:'Lectures contradictoires · vérifie les chiffres imprimés.'};
   if(fieldsChecks(f).barcodePriceConsistent===false)
    return {error:'Prix de l’EAN différent du prix imprimé.'};
-  return {name,grams,rate,total,ean};
+  return {name:digi.name,plu:digi.plu,catalogPrefix:digi.eanPrefix,
+   grams,rate,total,ean};
  }
  // Une lecture EAN13 purement optique n'est acceptée que si elle est
  // unique, confirmée et vérifiée par checksum. Toute contradiction bloque.
@@ -522,7 +530,7 @@
   if(/EAN|code-barres|indépendante/i.test(error))return 'ean';
   if(/Poids/i.test(error))return 'weight';
   if(/Prix au kilo|montant manquant|Calcul prix/i.test(error))return 'rate';
-  if(/Article/i.test(error))return 'name';
+  if(/Article|Catalogue DIGI/i.test(error))return 'ean';
   return 'ean';
  }
  function refreshRepairPanel(){
@@ -612,7 +620,7 @@
   const total=label.querySelector('.iu-gemini-label-total-number');
   const digits=label.querySelector('.iu-gemini-label-ean');
   const bars=label.querySelector('.iu-gemini-label-bars');
-  const labelReady=Boolean(corrected&&proposal&&!lastReadProblem);
+  const labelReady=Boolean(corrected&&proposal&&!lastReadProblem&&catalogProposalCurrent());
   label.classList.toggle('is-ready',labelReady);
   label.classList.toggle('is-review',!labelReady);
   if(weight)weight.textContent=labelReady?formatWeight(corrected.net):'—';
@@ -621,7 +629,7 @@
   if(total)total.textContent=labelReady?money(corrected.cents).replace(/\s/g,''):'—';
   if(digits)digits.textContent=labelReady?corrected.ean:'CODE EN ATTENTE';
   if(bars){
-   if(labelReady)renderEanBars(bars,corrected.ean);
+   if(labelReady)renderEanBars(bars,corrected.ean,proposal.plu);
    else bars.replaceChildren();
   }
   // Les informations de vigilance figurent dans le voyant sous l’étiquette.
@@ -629,7 +637,7 @@
  // Les contrôles sont refaits au moment du clic de validation.
  function validationState(){
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
-  const corrected=proposal&&ctx
+  const corrected=proposal&&ctx&&catalogProposalCurrent()
    ?recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate):null;
   const canSave=Boolean(corrected)&&!active;
   if(nextWeigh){
@@ -945,7 +953,7 @@
   return {ean:first12+eanCheck(first12),net,cents,encoded};
  }
  // Barres EAN-13 exactes, SVG local sans bibliothèque ni réseau.
- function renderEanBars(container,ean){
+ function renderEanBars(container,ean,officialPLU){
   container.replaceChildren();
   if(!/^\d{13}$/.test(ean||'')||eanCheck(ean.slice(0,12))!==ean[12])return;
   const L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
@@ -997,12 +1005,13 @@
    addDigit(ean[i+1],15+(3+7*i+3.5)*1.38,58,'iu-gemini-ean-digit');
    addDigit(ean[i+7],15+(50+7*i+3.5)*1.38,58,'iu-gemini-ean-digit');
   }
-  // Le code 0203476... de la photo porte le PLU 3476 sur le bord gauche.
-  if(ean.startsWith('020')){
-   const plu=addDigit(ean.slice(3,7),0,0,'iu-gemini-ean-plu');
+  // Le PLU vient exclusivement du catalogue importé : aucune déduction
+  // à partir de chiffres du préfixe ou d'une association apprise.
+  if(/^\d{1,8}$/.test(String(officialPLU||''))){
+   const plu=addDigit(String(officialPLU),0,0,'iu-gemini-ean-plu');
    plu.setAttribute('text-anchor','middle');
    plu.setAttribute('dominant-baseline','middle');
-   plu.setAttribute('font-size','12');
+   plu.setAttribute('font-size',String(officialPLU.length<=4?12:officialPLU.length<=6?9:6.5));
    plu.setAttribute('font-weight','700');
    // Centre du PLU calé sur la hauteur des vraies barres noires.
    plu.setAttribute('transform','translate(5.6 28) rotate(90)');
@@ -1037,8 +1046,14 @@
   const top=add(label,'div','iu-gemini-label-top','');
   add(top,'span','iu-gemini-label-store','SUPER U');
   add(top,'span','iu-gemini-label-address','10120 ST GERMAIN');
-  const name=typeof fields.name==='string'&&fields.name.trim()?fields.name.trim():'ARTICLE NON RECONNU';
-  add(label,'div','iu-gemini-label-name',name);
+  const digiMatch=window.IUDigiCatalogLookup?.resolve(String(fields.ean13||''));
+  const name=digiMatch?.ok?digiMatch.name:'ARTICLE NON IDENTIFIÉ';
+  const nameNode=add(label,'div','iu-gemini-label-name',name);
+  if(digiMatch?.ok){
+   nameNode.title='Catalogue DIGI · PLU '+digiMatch.plu;
+   label.setAttribute('aria-label','Étiquette virtuelle · '+digiMatch.name+
+    ' · PLU '+digiMatch.plu+' · à comparer à la photo');
+  }
   const middle=add(label,'div','iu-gemini-label-middle','');
   const rate=add(middle,'div','iu-gemini-label-rate','');
   add(rate,'span','iu-gemini-label-caption','Prix unitaire');
@@ -1056,7 +1071,7 @@
   const barcode=add(bottom,'div','iu-gemini-label-barcode','');
   const bars=add(barcode,'div','iu-gemini-label-bars','');
   bars.setAttribute('aria-hidden','true');
-  if(ready)renderEanBars(bars,corrected.ean);
+  if(ready)renderEanBars(bars,corrected.ean,verified.plu);
   add(barcode,'span','iu-gemini-label-ean',ready?corrected.ean:'CODE EN ATTENTE');
   const total=add(bottom,'div','iu-gemini-label-total','');
   add(total,'span','iu-gemini-label-total-caption','PRIX A PAYER');
@@ -1092,6 +1107,13 @@
     +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser');
   }
  }
+ window.addEventListener('iu-digi-catalog-updated',()=>{
+  if(!active&&lastRawResult)display(lastRawResult,0);
+ });
+ window.addEventListener('storage',event=>{
+  if(event.key==='iu-plu-catalogue-local-v1'&&!active&&lastRawResult)
+   display(lastRawResult,0);
+ });
  // v42.06 — réessais limités pour indisponibilités TRANSITOIRES seulement.
  // La même photo est utilisée, jamais de nouvelle prise de vue automatique.
  // Un refus d’accès / une clé erronée n'est jamais renvoyé au fournisseur.
@@ -1171,8 +1193,14 @@
  }
  function recoveryTargets(result){
   const f=result?.fields||{},checks=fieldsChecks(f),targets=[];
-  for(const [kind,key] of Object.entries(fieldKeys))
+  for(const [kind,key] of Object.entries(fieldKeys)){
+   if(kind==='name')continue; // Nom exclusivement depuis le catalogue DIGI.
    if(!readableValue(kind,f[key]))targets.push(kind);
+  }
+  if(readableValue('ean',f.ean13)){
+   const ref=window.IUDigiCatalogLookup?.resolve(f.ean13);
+   if(ref?.status==='unknown')targets.push('ean');
+  }
   const allAmounts=['weight','rate','total'].every(k=>readableValue(k,f[fieldKeys[k]]));
   if(allAmounts&&!checks.arithmeticConsistent)targets.push('weight','rate','total');
   if(checks.barcodePriceConsistent===false)targets.push('ean','total');
@@ -1508,7 +1536,8 @@
   if(active||(!fromCapture&&frameCaptureBusy))
    return {ok:false,reason:'Une capture est déjà en cours'};
   const corrected=correctedCurrentProposal();
-  if(!corrected)return {ok:false,reason:'Corrige le panier ou la lecture'};
+  if(!corrected)return {ok:false,reason:'Corrige le panier ou la référence DIGI'};
+  if(!catalogProposalCurrent())return {ok:false,reason:'Catalogue DIGI modifié · relis cette photo'};
   if(typeof window.IUGeminiSaveWeigh!=='function')
    return {ok:false,reason:'Enregistrement indisponible'};
   const identity=importedPhotoIdentity(file);
@@ -1520,7 +1549,8 @@
   let saved;
   try{
    saved=window.IUGeminiSaveWeigh({
-    gross:proposal.grams,product:proposal.name,ean13:proposal.ean,
+    gross:proposal.grams,product:proposal.name,plu:proposal.plu,
+    catalogPrefix:proposal.catalogPrefix,ean13:proposal.ean,
     pricePerKgCents:proposal.rate,totalCents:proposal.total,
     correctedEan13:corrected.ean,correctedTotalCents:corrected.cents,
     confirmDuplicate:duplicate&&confirmDuplicate,
