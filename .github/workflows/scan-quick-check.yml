@@ -10,6 +10,10 @@ on:
       - 'app.js'
       - 'weigh-scan.js'
       - 'gemini-lab.js'
+      - 'digi-catalog-lookup.js'
+      - 'barcode-catalog.js'
+      - 'tools/test_digi_catalog_lookup.cjs'
+      - 'tools/test_digi_catalog_integration.cjs'
       - 'gemini-local-ocr.js'
       - 'workers/coursesu-live-worker.js'
       - 'gemini-lab.css'
@@ -46,6 +50,10 @@ jobs:
           node --check app.js
           node --check weigh-scan.js
           node --check gemini-lab.js
+          node --check digi-catalog-lookup.js
+          node --check barcode-catalog.js
+          node --check tools/test_digi_catalog_lookup.cjs
+          node --check tools/test_digi_catalog_integration.cjs
           node --check gemini-local-ocr.js
           node --check workers/coursesu-live-worker.js
           node --check tools/test_openai_scanner.mjs
@@ -64,6 +72,10 @@ jobs:
           node --check tools/test_gemini_idle_layout.cjs
           node --check sw.js
           node --check tools/test_scanner_transfer.cjs
+      - name: Vérifier les identités DIGI sans appel facturé
+        run: |
+          node tools/test_digi_catalog_lookup.cjs
+          node tools/test_digi_catalog_integration.cjs
       - name: Vérifier les moteurs OpenAI et Gemini sans frais réseau
         run: node tools/test_openai_scanner.mjs
       - name: Vérifier la lecture Gemini renforcée à partir d’une seule photo

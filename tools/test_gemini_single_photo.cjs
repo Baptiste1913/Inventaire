@@ -11,7 +11,7 @@ function slice(start,end){
 }
 const helpers=slice('function fieldsChecks(fields){','function fieldForProblem(')+
  slice('function readableValue(kind,value){',"analyze.addEventListener('click'");
-const ctx=vm.createContext({localBarcode:null});
+const ctx=vm.createContext({localBarcode:null,window:{IUDigiCatalogLookup:{resolve:()=>({ok:true,status:'matched',plu:'3476',name:'CITRON PRIMOFIORI'})}}});
 vm.runInContext('const fieldKeys={name:"name",weight:"weightGrams",rate:"pricePerKgCents",total:"totalCents",ean:"ean13"};'+
  'function eanCheck(e){let s=0;for(let i=0;i<12;i++)s+=Number(e[i])*(i%2?3:1);return String((10-s%10)%10)}'+
  helpers+'globalThis.test={fieldsChecks,recoveryTargets,mergeRecoveredReading};',ctx);

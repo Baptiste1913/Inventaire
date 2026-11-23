@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - 'gemini-lab.js'
+      - 'digi-catalog-lookup.js'
+      - 'barcode-catalog.js'
+      - 'app.js'
+      - 'tools/test_digi_catalog_lookup.cjs'
+      - 'tools/test_digi_catalog_integration.cjs'
       - 'workers/coursesu-live-worker.js'
       - 'tools/test_gemini_single_photo.cjs'
       - 'tools/test_gemini_worker_v2.mjs'
@@ -18,9 +23,18 @@ jobs:
       - name: Vérification JavaScript
         run: |
           node --check gemini-lab.js
+          node --check digi-catalog-lookup.js
+          node --check barcode-catalog.js
+          node --check app.js
+          node --check tools/test_digi_catalog_lookup.cjs
+          node --check tools/test_digi_catalog_integration.cjs
           node --check workers/coursesu-live-worker.js
           node --check tools/test_gemini_worker_v2.mjs
           node --check tools/test_gemini_single_photo.cjs
+      - name: Valider nom/PLU DIGI et blocage des erreurs
+        run: |
+          node tools/test_digi_catalog_lookup.cjs
+          node tools/test_digi_catalog_integration.cjs
       - name: Validation du Worker Gemini simulé
         run: node tools/test_gemini_worker_v2.mjs
       - name: Contrôles EAN et relecture depuis une photo unique
