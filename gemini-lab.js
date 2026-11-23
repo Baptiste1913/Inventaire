@@ -533,6 +533,9 @@
   if(!reading?.confirmed||reading?.ambiguous||
      !/^\d{13}$/.test(ean)||eanCheck(ean.slice(0,12))!==ean[12])
    return false;
+  // Un OCR chiffre seul n'est pas équivalent à des barres décodées :
+  // exiger deux bandes concordantes avant de l'utiliser comme preuve.
+  if(reading.source==='printed-ocr')return reading.evidenceCount>=2;
   if(reading.source!=='optical')return true;
   const b=reading.bounds;
   // Le gabarit historique est prioritaire. Une étiquette décentrée peut
@@ -752,7 +755,7 @@
   say('');
  }
  function clear(){stopCamera();resetReading();}
- function setPhoto(chosen,{confirmed=false}={}){
+ function setPhoto(chosen,{confirmed=false,barcodePhoto=null}={}){
   if(!chosen)return false;
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
@@ -777,8 +780,11 @@
   analyze.textContent='Analyser l’étiquette';
   clearPreview();file=chosen;attempts.clear();generation++;
   // Lire l'EAN en local en parallèle du réseau, sans envoi ni bibliothèque.
-  barcodeJob=(window.IUGeminiParallel?.barcode(chosen)||
-   Promise.resolve().then(()=>window.IUGeminiEAN?.read(chosen)||null))
+  // La pleine résolution reste réservée à l'EAN LOCAL si le JPEG
+  // envoyé à Gemini a été réduit pour respecter le budget Cloudflare.
+  const barcodeSource=barcodePhoto||chosen;
+  barcodeJob=(window.IUGeminiParallel?.barcode(barcodeSource)||
+   Promise.resolve().then(()=>window.IUGeminiEAN?.read(barcodeSource)||null))
    .catch(()=>null);
   url=URL.createObjectURL(chosen);
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
@@ -1338,6 +1344,37 @@
    targets.push('ean');
   return [...new Set(targets)];
  }
+ // OCR des chiffres imprimés : deux bandes, checksum, catalogue DIGI
+ // et cohérence du montant. Une seule lecture OCR non confirmée ne doit
+ // jamais transformer un EAN supposé en identité d'article.
+ function applyPrintedEAN(result,printed){
+  if(!result||!printed?.ean13||printed.ambiguous)return result;
+  const incoming=String(result.fields?.ean13||'');
+  const conflict=readableValue('ean',incoming)&&
+   incoming!==printed.ean13;
+  const opticalTrusted=trustedBarcodeEvidence(localBarcode);
+  const checks={...(result.checks||{}),
+   printedEANChecked:true,printedEANConflict:conflict};
+  if(conflict&&!opticalTrusted&&printed.confidence>=88)
+   checks.independentMismatch=true;
+  const inspected={...result,checks};
+  // Le code optique confirmé reste prioritaire. Une contradiction
+  // ne peut être tranchée par l'OCR seul.
+  if(opticalTrusted||localBarcode?.ambiguous||conflict||
+     printed.confirmed!==true||printed.evidenceCount<2||
+     !readableValue('ean',printed.ean13))return inspected;
+  const digi=window.IUDigiCatalogLookup?.resolve(printed.ean13);
+  if(!digi?.ok)return inspected;
+  // Pour le code DIGI à prix variable, vérifier aussi les 5 chiffres
+  // du montant encodé : un checksum seul ne suffit pas.
+  const cents=result.fields?.totalCents;
+  if(printed.ean13.startsWith('02')&&Number.isSafeInteger(cents)&&
+     Math.abs(Math.round(Number(printed.ean13.slice(7,12))*100/655.36)
+      -cents)>1)return inspected;
+  localBarcode={ean13:printed.ean13,source:'printed-ocr',
+   confirmed:true,ambiguous:false,evidenceCount:2};
+  return reconcileBarcode(inspected,localBarcode);
+ }
  function mergeRecoveredReading(original,recheck,targets){
   const fields={...(original?.fields||{})};
   let conflict=false,opticallyConfirmed=false;
@@ -1428,17 +1465,29 @@
    // EAN Gemini confirmé et contradictoire par simple supposition.
    combined=reconcileBarcode(combined,localBarcode);
    let targets=!targetField?recoveryTargets(combined):[];
-   // Seules les étiquettes encore incertaines bénéficient de la lecture
-   // OCR locale des chiffres imprimés. Le moteur doit déjà être chargé :
-   // aucun téléchargement Tesseract supplémentaire ni délai à la capture.
+   // Seulement après l'échec du lecteur EAN optique. Tesseract est
+   // chargé à la demande, dans son propre Worker ; aucune photo envoyée.
+   // Ni le premier appel Gemini ni la caméra ne l'attendent.
    let printedJob=null;
-   if(targets.includes('ean')&&window.IUGeminiPrintedEAN&&
-      (!localOcrBusy&&localWorker||window.TextDetector)){
-    printedJob=window.IUGeminiPrintedEAN.read(file,{
-     engine:localOcrBusy?null:localWorker,
-     TextDetector:window.TextDetector||null,
-     hint:localBarcode
-    }).catch(()=>null);
+   if(targets.includes('ean')&&!localBarcode?.ambiguous&&
+      !trustedBarcodeEvidence(localBarcode)&&window.IUGeminiPrintedEAN){
+    printedJob=(async()=>{
+     const TextDetector=window.TextDetector||null;
+     const engine=TextDetector?null:localOcrBusy?null:await ensureLocalOcr();
+     if(!engine&&!TextDetector)return null;
+     return window.IUGeminiPrintedEAN.read(file,{
+      engine,TextDetector,hint:localBarcode,verifyTwice:true
+     });
+    })().catch(()=>null);
+    // Si l'OCR est déjà chaud, éviter la seconde requête Gemini.
+    // Premier chargement : au plus 110 ms d'attente facultative.
+    const printedFast=await Promise.race([printedJob,
+     new Promise(resolve=>setTimeout(()=>resolve(null),110))]);
+    if(id!==generation)return;
+    if(printedFast?.ean13){
+     combined=applyPrintedEAN(combined,printedFast);
+     targets=recoveryTargets(combined);
+    }
    }
    // Le décodage local travaille déjà en parallèle depuis la capture.
    // S'il est presque terminé et que seul l'EAN nécessite confirmation,
@@ -1494,27 +1543,14 @@
       recoveryInterrupted:true}};
     }
    }
-   const validated=combined;
+   let validated=combined;
    if(printedJob){
-    // Le Tesseract local est facultatif. Il n'ajoute jamais un EAN
-    // inconnu au résultat et ne contourne pas la seconde lecture Gemini.
+    // Après la récupération Gemini, reprendre le résultat OCR déjà
+    // lancé, uniquement s'il est prêt : aucun traitement illimité.
     const printed=await Promise.race([printedJob,
-     new Promise(resolve=>setTimeout(()=>resolve(null),65))]);
+     new Promise(resolve=>setTimeout(()=>resolve(null),110))]);
     if(id!==generation)return;
-    if(printed?.ean13){
-     const visualEAN=String(validated.fields?.ean13||'');
-     const independentTrusted=trustedBarcodeEvidence(localBarcode);
-     const printedMismatch=readableValue('ean',visualEAN)&&
-      visualEAN!==printed.ean13;
-     validated.checks={...validated.checks,
-      printedEANChecked:true,
-      printedEANConflict:printedMismatch};
-     // Une vérification de caractères indépendamment acquise peut
-     // signaler une contradiction seulement si aucun code-barres
-     // confirmé ne concorde déjà avec Gemini et que l'OCR est net.
-     if(printedMismatch&&!independentTrusted&&printed.confidence>=88)
-      validated.checks.independentMismatch=true;
-    }
+    if(printed?.ean13)validated=applyPrintedEAN(validated,printed);
    }
    const priorMismatch=validated.checks?.independentMismatch===true;
    const localChecks=fieldsChecks(validated.fields);
@@ -1652,9 +1688,14 @@
   let obtained=null;
   try{
    obtained=await navigator.mediaDevices.getUserMedia({
-    // Cible seulement idéale : Safari peut continuer en 1080p si
-    // le capteur ou ses contraintes ne permettent pas davantage.
-    audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2304},height:{ideal:1296}}
+    // Priorité au capteur arrière et aux pixels natifs pour les EAN vus
+    // à distance. « ideal » n'est PAS une obligation iOS : le flux réel
+    // est celui rapporté par getSettings(), sans boucle de renégociation.
+    audio:false,video:{
+     facingMode:{ideal:'environment'},
+     width:{ideal:3840},height:{ideal:2160},
+     frameRate:{ideal:24,max:30}
+    }
    });
    if(epoch!==cameraEpoch||panel.hidden){
     for(const track of obtained.getTracks())track.stop();
@@ -1664,6 +1705,12 @@
    cameraPausedInBackground=false;
    requestContinuousFocus(obtained);
    const liveTrack=obtained.getVideoTracks?.()[0];
+   // Mesurer la résolution réellement obtenue sans interrompre Safari.
+   try{
+    const settings=liveTrack?.getSettings?.();
+    if(settings?.width>0&&settings?.height>0)
+     cameraShell.dataset.videoResolution=settings.width+'x'+settings.height;
+   }catch(_){}
    liveTrack?.addEventListener('ended',()=>{
     if(cameraStream!==obtained||cameraShell.hidden||document.hidden)return;
     clearAutoTimer();
@@ -2010,9 +2057,10 @@
  }
  function qualityCandidate(epoch){
   const rating=sampleCameraQuality();
-  // La vidéo n'a pas de DPI physique : jusqu'à +12,5 % de pixels
-  // pour la capture du clic ; le tampon reste limité à 1 920 px.
-  return {canvas:fullResolutionCameraFrame(2160),rating,
+  // 4K si le capteur l'autorise : conserver jusqu'à 2 880 px sur le
+  // cliché du clic pour l'EAN. Le tampon de visée reste à 1 920 px.
+  const localEdge=Math.max(video.videoWidth,video.videoHeight)>=2880?2880:2160;
+  return {canvas:fullResolutionCameraFrame(localEdge),rating,
    at:performance.now(),epoch};
  }
  async function chooseSharpCameraFrame(epoch){
@@ -2355,6 +2403,9 @@
    if(chosen.rating&&!chosen.rating.usable)
     setAutoHint('Meilleure image disponible · vérification Gemini','waiting');
    let blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.88));
+   // Conserver les pixels originaux uniquement pour ZXing local.
+   // Gemini reçoit la variante 1 920 px si le JPEG dépasse le budget.
+   const barcodeOriginal=blob;
    // Au-delà de l'ancien budget de transfert, repli vers le
    // JPEG 1 920 px historique avant d'envoyer quoi que ce soit.
    if(blob?.size>490000&&Math.max(cv.width,cv.height)>1920){
@@ -2391,7 +2442,8 @@
     // sauvegarde. Les données existantes ne sont pas altérées.
     resetReading();
    }
-   const used=setPhoto(nextPhoto,{confirmed:true});
+   const used=setPhoto(nextPhoto,{confirmed:true,
+    barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null});
    if(used===false)setAutoHint('Capture non utilisée · réessaie','waiting');
   }catch(_){
    say('Photo impossible · recommence la capture.',true);

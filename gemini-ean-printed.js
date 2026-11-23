@@ -1,7 +1,7 @@
-/* Inventaires U 42.33 — vérification OCR facultative des chiffres EAN imprimés.
- * Ne charge aucune dépendance OCR : utilise une instance locale déjà prête
- * (Tesseract) ou TextDetector si disponible. Ne remplace JAMAIS le décodage
- * optique des barres ni une seconde lecture Gemini obligatoire.
+/* Inventaires U 42.43 — chiffres EAN locaux en secours des barres.
+ * Ne charge aucune dépendance : moteur Tesseract fourni par l'appelant
+ * ou TextDetector natif. Deux découpes concordantes, contrôle EAN-13.
+ * L'appelant vérifie le catalogue DIGI et les montants avant validation.
  */
 (function(root,factory){
  'use strict';
@@ -41,7 +41,24 @@
   // l'ancienne étiquette DIGI est proposée, sans autre agrandissement.
   return {x:.025,y:.67,w:.67,h:.315};
  }
- async function read(photo,{engine=null,TextDetector=null,hint=null}={}){
+ function promote(first,second){
+  // Une seule OCR, même avec une clé EAN correcte, est une piste non
+  // confirmée : ne jamais compléter des chiffres par déduction.
+  if(first?.ambiguous||second?.ambiguous)
+   return {source:'printed-ocr',confirmed:false,ambiguous:true};
+  if(first?.ean13&&second?.ean13&&first.ean13!==second.ean13)
+   return {source:'printed-ocr',confirmed:false,ambiguous:true};
+  const one=first?.ean13?first:second;
+  if(!one?.ean13)return null;
+  const consistent=first?.ean13===second?.ean13&&
+   first?.confidence>=80&&second?.confidence>=80;
+  return {...one,source:'printed-ocr',confirmed:Boolean(consistent),
+   ambiguous:false,evidenceCount:consistent?2:1,
+   confidence:consistent?Math.min(first.confidence,second.confidence):
+    one.confidence};
+ }
+ async function read(photo,{engine=null,TextDetector=null,hint=null,
+   verifyTwice=false}={}){
   if(!photo||!engine&&!TextDetector)return null;
   if(typeof createImageBitmap!=='function'||
      typeof document==='undefined')return null;
@@ -53,25 +70,70 @@
    const x=Math.round(z.x*bmp.width),y=Math.round(z.y*bmp.height);
    const cw=Math.round(z.w*bmp.width),ch=Math.round(z.h*bmp.height);
    if(x<0||y<0||cw<200||ch<50||x+cw>bmp.width||y+ch>bmp.height)return null;
-   const scale=Math.min(1,1500/Math.max(cw,ch));
    const cv=document.createElement('canvas');
-   cv.width=Math.max(1,Math.round(cw*scale));
-   cv.height=Math.max(1,Math.round(ch*scale));
    const ctx=cv.getContext('2d');
    if(!ctx)return null;
-   ctx.drawImage(bmp,x,y,cw,ch,0,0,cv.width,cv.height);
-   if(engine?.recognize){
-    const result=await engine.recognize(cv);
-    return parse(result?.data?.text,result?.data?.confidence);
+   const detector=!engine&&TextDetector?new TextDetector():null;
+   async function recognizeBand(topFraction,heightFraction,enhance=false){
+    const top=Math.round(ch*topFraction);
+    const sourceHeight=Math.round(ch*heightFraction);
+    const scale=Math.min(2,1700/cw);
+    cv.width=Math.max(1,Math.round(cw*scale));
+    cv.height=Math.max(1,Math.round(sourceHeight*scale));
+    // Les chiffres sont imprimés SOUS les barres : une bande basse
+    // évite de demander à l'OCR de décoder les traits verticaux.
+    if('filter' in ctx)ctx.filter=enhance?'grayscale(1) contrast(1.6)':'none';
+    ctx.drawImage(bmp,x,y+top,cw,sourceHeight,0,0,cv.width,cv.height);
+    if('filter' in ctx)ctx.filter='none';
+    if(engine?.recognize){
+     const result=await engine.recognize(cv);
+     return parse(result?.data?.text,result?.data?.confidence);
+    }
+    if(detector){
+     const lines=await detector.detect(cv);
+     return parse((lines||[]).map(item=>item.rawValue||'').join('\n'));
+    }
+    return null;
    }
-   if(TextDetector){
-    const detector=new TextDetector();
-    const lines=await detector.detect(cv);
-    return parse((lines||[]).map(item=>item.rawValue||'').join('\n'));
+   if(!verifyTwice){
+    // API d'origine conservée pour les consommateurs existants.
+    cv.width=Math.max(1,Math.round(cw*Math.min(1,1500/Math.max(cw,ch))));
+    cv.height=Math.max(1,Math.round(ch*Math.min(1,1500/Math.max(cw,ch))));
+    ctx.drawImage(bmp,x,y,cw,ch,0,0,cv.width,cv.height);
+    if(engine?.recognize){
+     const result=await engine.recognize(cv);
+     return parse(result?.data?.text,result?.data?.confidence);
+    }
+    if(detector){
+     const lines=await detector.detect(cv);
+     return parse((lines||[]).map(item=>item.rawValue||'').join('\n'));
+    }
+    return null;
    }
-   return null;
-  }catch(_){return null}
+   // La reconnaissance en deux bandes n'est utilisée qu'après échec
+   // du décodage optique, sur UNE seule photo, jamais en rafale.
+   let configured=false;
+   if(engine?.setParameters){
+    try{
+     await engine.setParameters({tessedit_char_whitelist:'0123456789',
+      tessedit_pageseg_mode:'7'});
+     configured=true;
+    }catch(_){/* Ne jamais bloquer la lecture pour ce paramètre. */}
+   }
+   try{
+    const first=await recognizeBand(.45,.53);
+    const second=await recognizeBand(.27,.71,true);
+    return promote(first,second);
+   }finally{
+    // Ce moteur est partagé avec l'OCR local de l'application.
+    // Réinitialiser avant toute nouvelle reconnaissance d'étiquette.
+    if(configured)try{
+     await engine.setParameters({tessedit_char_whitelist:'',
+      tessedit_pageseg_mode:'3'});
+    }catch(_){}
+   }
+  }catch(_){return null;}
   finally{try{bmp?.close?.()}catch(_){}}
  }
- return Object.freeze({valid,parse,roi,read});
+ return Object.freeze({valid,parse,roi,read,promote});
 });

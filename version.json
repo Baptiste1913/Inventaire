@@ -1,6 +1,6 @@
 {
-  "version": "42.42",
+  "version": "42.43",
   "published": "2026-11-23",
   "assets": 63,
-  "notes": "UI Gemini : Données incertaines à la place de l'erreur de poids non validable, titres SERVICE U / CALCUL IA et Nouvelle pesée via Gemini, pastille Gemini, poids brut plus lisible. Fenêtre doublon style Fin d'inventaire, montée du bas au-dessus de la navigation. Reconnaissance, ZXing et Worker Cloudflare inchangés."
+  "notes": "EAN à distance sur iPhone : caméra arrière jusqu'à 4K si Safari l'autorise, pixels haute définition conservés localement pour ZXing, formats EAN-13 uniquement, OCR Tesseract des chiffres imprimés en secours après échec optique, deux bandes concordantes + checksum + catalogue DIGI + contrôle du montant. Gemini et Worker Cloudflare inchangés."
 }
