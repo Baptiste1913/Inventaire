@@ -22,3 +22,11 @@ Le déploiement GitHub Pages ne déploie **pas** le Worker Cloudflare.
 - Test sans coût réel : `node tools/test_openai_scanner.mjs` ; vérifications GitHub Actions dans `.github/workflows/scan-quick-check.yml`.
 
 Le code est **prêt pour configuration**, pas validé en conditions réelles tant que le secret et le déploiement Cloudflare ne sont pas opérationnels.
+
+---
+**Archive historique** — Ce document décrit l'essai OpenAI v42.24.
+Après nettoyage du Worker Cloudflare, le fichier principal
+`workers/coursesu-live-worker.js` n'intègre plus OpenAI ni
+`OPENAI_API_KEY`. Les instructions ci-dessus ne s'appliquent plus
+au nouveau Worker Gemini. L'ancien code reste consultable dans
+l'historique Git.

@@ -127,3 +127,42 @@ Le gain réel doit être mesuré sur les étiquettes du magasin : taux de
 première reconnaissance, temps entre clic et étiquette virtuelle, nombre
 de relectures IA et température de l'iPhone. Les tests simulés ne
 garantissent pas la performance des photos réelles.
+
+## Nettoyage Worker Cloudflare : Gemini uniquement (23 novembre 2026)
+
+Le fichier de déploiement **`workers/coursesu-live-worker.js`** contient
+désormais uniquement la route `POST /gemini-lab`, son contrôle d’origine,
+son authentification, ses conversions et les appels Gemini.
+
+**La reconnaissance reste strictement inchangée** : le prompt, les modèles
+Gemini acceptés, le schéma JSON, les paramètres de génération, la vue
+JPEG secondaire, les limites de taille, les délais et les validations
+sont conservés. Le navigateur n’a pas besoin de mise à jour.
+
+La passerelle de prix Courses U / Apify, précédemment accessible via
+`/lookup`, `/auth-check` et `/html-check`, a été isolée dans
+`workers/coursesu-apify-worker.js`. Ce fichier **n’est pas déployé**
+automatiquement. Si une adresse `/lookup` est encore utilisée dans
+l’espace Administrateur, déployer ce fichier dans **un Worker séparé**
+puis renseigner sa propre adresse pour le service de prix.
+
+Après déploiement du Worker Gemini seul sur `inventaires-u-prix`,
+les anciennes routes de prix retourneront HTTP 404. Leurs sources ne
+sont pas perdues, mais il ne faut pas utiliser le Worker Gemini pour
+ces recherches.
+
+**GitHub ne déploie pas Cloudflare.** Déployer le fichier nettoyé
+séparément depuis Cloudflare, sans modifier `GEMINI_API_KEY`,
+`COURSESU_TEST_TOKEN`, `GEMINI_LAB_ENABLED=true` ou les origines
+autorisées. Les anciens secrets Apify/OpenAI, s’ils existent encore,
+peuvent être retirés des réglages uniquement après vérification qu’ils
+ne sont plus nécessaires à d’autres Workers.
+
+Tests sans coût fournisseur :
+`node tools/test_gemini_worker_only.mjs` et
+`node tools/test_gemini_worker_v2.mjs`.
+
+Le gain de rapidité sera probablement très faible, car les branches
+Apify/OpenAI n’étaient déjà pas exécutées lors d’une analyse Gemini.
+L’objectif de ce changement est un Worker plus simple, plus léger et
+moins risqué à maintenir.
