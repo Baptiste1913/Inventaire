@@ -1,6 +1,6 @@
 {
-  "version": "42.34",
+  "version": "42.40",
   "published": "2026-11-23",
-  "assets": 60,
-  "notes": "Différencier tare trop élevée et indisponibilité Gemini/Cloudflare (503, 504, quota, accès, réponse vide). Si une relecture supplémentaire dépasse son délai, conserver les valeurs déjà lues, sans autoriser l’enregistrement tant que les vérifications sont incomplètes. Photo conservée pour réessai manuel, aucun nouvel appel API automatique. Correction d’après vidéo du 23 novembre 2026 ; cause exacte des retours 503 à confirmer dans les journaux Cloudflare."
+  "assets": 63,
+  "notes": "Base v42.34 conservée : ZXing-C++ WebAssembly local en priorité pour EAN-13, préchargement non bloquant, ancien lecteur en secours, validation stricte de la clé, de la position et des ambiguïtés. Aucun retour des changements Hydrogen, Mistral ni du Worker Cloudflare."
 }

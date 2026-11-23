@@ -1587,6 +1587,8 @@
  }
  async function startCamera(){
   if(cameraStarting||active)return;
+  // Préchauffer ZXing dans le Web Worker sans retarder la caméra.
+  try{window.IUGeminiParallel?.preloadBarcode?.();}catch(_){}
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
   // getUserMedia tant que la caméra fonctionne dans cette session.
   if(cameraStream){

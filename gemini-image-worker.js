@@ -1,9 +1,10 @@
-/* Inventaires U 42.33 — travail image hors du thread de la caméra.
+/* Inventaires U 42.36 — travail image hors du thread de la caméra.
  * Classic Worker Safari ; aucune requête HTTP externe ni accès au stockage.
  */
 'use strict';
 importScripts('./gemini-ean.js?v=42.33');
 importScripts('./gemini-label-geometry.js?v=42.33');
+importScripts('./gemini-zxing.js?v=42.36');
 function zoneToPixels(rect,w,h){
  if(!rect)return null;
  return {
@@ -148,14 +149,25 @@ async function enhancedDetail(photo,reading){
 }
 self.onmessage=async event=>{
  const {id,kind,photo,reading}=event.data||{};
- if(!Number.isSafeInteger(id)||!photo)return;
+ if(!Number.isSafeInteger(id))return;
+ if(kind==='warm-zxing'){
+  // Compiler le moteur sans photo et sans retarder le viseur.
+  try{await self.IUZxingEAN?.warm?.();}catch(_){}
+  return;
+ }
+ if(!photo)return;
  try{
   if(typeof OffscreenCanvas!=='function'||
      typeof createImageBitmap!=='function'){
    self.postMessage({id,error:'unsupported'});return;
   }
   let result=null;
-  if(kind==='barcode')result=await self.IUGeminiEAN.read(photo);
+  if(kind==='barcode'){
+   // ZXing est le premier choix. Pas de second décodage si validé.
+   // Une ambiguïté optique n'est jamais écrasée par une supposition.
+   try{result=await self.IUZxingEAN?.read(photo)||null;}catch(_){}
+   if(!result)result=await self.IUGeminiEAN.read(photo);
+  }
   else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading);
   self.postMessage({id,result});
  }catch(_){
