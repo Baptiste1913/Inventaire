@@ -1177,6 +1177,12 @@
   if(allAmounts&&!checks.arithmeticConsistent)targets.push('weight','rate','total');
   if(checks.barcodePriceConsistent===false)targets.push('ean','total');
   if(checks.independentMismatch)targets.push('ean');
+  // Quand Safari ne décode pas le code-barres indépendamment, la
+  // deuxième lecture Gemini vérifie ces 13 chiffres sans nouvelle photo.
+  // Un EAN contradictoire bloque l'enregistrement au lieu de choisir
+  // arbitrairement une lecture cohérente par hasard.
+  if(!localBarcode?.confirmed&&readableValue('ean',f.ean13))
+   targets.push('ean');
   return [...new Set(targets)];
  }
  function mergeRecoveredReading(original,recheck,targets){

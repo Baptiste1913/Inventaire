@@ -28,6 +28,9 @@ assert.equal(fieldsChecks(label).barcodePriceConsistent,true);
 assert.equal(fieldsChecks({...label,totalCents:1189}).barcodePriceConsistent,false);
 const incomplete={fields:{...label,ean13:null,weightGrams:null},checks:{}};
 assert.deepEqual(Array.from(recoveryTargets(incomplete)),['weight','ean']);
+const noOptical=recoveryTargets({fields:label,checks:{}});
+assert.deepEqual(Array.from(noOptical),['ean'],
+ 'Sans lecture optique, confirmer l’EAN par une seconde lecture de la même photo');
 const recovered=mergeRecoveredReading(incomplete,{fields:label},['weight','ean']);
 assert.equal(recovered.fields.weightGrams,3960);
 assert.equal(recovered.fields.ean13,label.ean13);
@@ -35,6 +38,10 @@ const mismatch=mergeRecoveredReading({fields:label,checks:{}},
  {fields:{...label,weightGrams:3000}},['weight']);
 assert.equal(mismatch.checks.readingConflict,true);
 assert.equal(mismatch.fields.weightGrams,3960,'Conserver premier poids en cas de divergence');
+const eanConflict=mergeRecoveredReading({fields:label,checks:{}},
+ {fields:{ean13:priceEAN(900)}},['ean']);
+assert.equal(eanConflict.checks.readingConflict,true,
+ 'Deux lectures Gemini avec EAN distincts bloquent le code-barres');
 ctx.localBarcode={confirmed:true,ean13:label.ean13,ambiguous:false};
 const changed=mergeRecoveredReading({fields:{...label,ean13:priceEAN(900)},
  checks:{independentMismatch:true}},{fields:{ean13:label.ean13}},['ean']);

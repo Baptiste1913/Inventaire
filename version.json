@@ -1,6 +1,6 @@
 {
-  "version": "42.27",
+  "version": "42.28",
   "published": "2026-11-23",
   "assets": 55,
-  "notes": "Pilote Gemini unique : photo globale et agrandissement central facultatif dans une requête JSON structurée ; EAN indépendant en parallèle ; contrôle des prix DIGI encodés ; une seule relecture automatique groupée des champs manquants/incohérents sur la même photo, sans écraser de valeurs contradictoires. Attente limitée à 15 s côté iPhone et validation des pesées toujours manuelle. Le Worker Cloudflare source doit être déployé séparément pour la reconnaissance renforcée."
+  "notes": "Pilote Gemini unique : photo globale et agrandissement central facultatif dans une requête JSON structurée ; EAN indépendant en parallèle ; contrôle des prix DIGI encodés ; une seule relecture automatique groupée des champs manquants/incohérents sur la même photo, sans écraser de valeurs contradictoires. Attente limitée à 15 s côté iPhone et validation des pesées toujours manuelle. Le Worker Cloudflare source doit être déployé séparément pour la reconnaissance renforcée. Renforcement de sécurité : si l’EAN n’est pas reconnu optiquement, une seconde lecture Gemini du même cliché en confirme les 13 chiffres avant la génération du code-barres."
 }
