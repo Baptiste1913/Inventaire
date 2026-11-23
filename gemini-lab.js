@@ -22,7 +22,7 @@
  let proposal=null,latestLabelFields=null;
  // La dernière photo et son résultat appartiennent à une même lecture.
  // Les erreurs ne doivent jamais laisser le scanner figé ou le bouton bloqué.
- let lastReadProblem=null,lastAnalysisError=null,retakeConfirmUntil=0;
+ let lastReadProblem=null,lastAnalysisError=null,lastSaveError=null,retakeConfirmUntil=0;
  let pendingReplacementFile=null,lastSavedImportedPhoto=null;
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
@@ -458,6 +458,7 @@
    return;
   }
   if(lastAnalysisError){setLabelAlert('warning',lastAnalysisError);return;}
+  if(lastSaveError){setLabelAlert('warning','Enregistrement impossible · '+lastSaveError);return;}
   const raw=latestLabelFields?.weightGrams;
   if(!Number.isSafeInteger(raw)||raw<=0){
    if(lastReadProblem)setLabelAlert('warning','Lecture non validable · '+lastReadProblem);
@@ -707,8 +708,8 @@
   // Indicateur unique du viseur : valide, doublon ou erreur.
   const duplicate=canSave&&duplicateForCurrent();
   if(!active&&!cameraShell.hidden&&cameraShell.dataset.state==='scanning'){
-   if(lastAnalysisError||lastReadProblem||(file&&!canSave)){
-    showDetectedIndicator('error',lastAnalysisError||lastReadProblem||'Pesée non validable');
+   if(lastAnalysisError||lastReadProblem||lastSaveError||(file&&!canSave)){
+    showDetectedIndicator('error',lastAnalysisError||lastReadProblem||lastSaveError||'Pesée non validable');
    }else if(duplicate){
     showDetectedIndicator('duplicate','Doublon détecté · confirmation requise');
    }else if(canSave){
@@ -716,7 +717,7 @@
    }else resetDetectedIndicator();
   }else resetDetectedIndicator();
   refreshCaptureButton();
-  if(duplicate&&!lastAnalysisError&&!lastReadProblem&&!duplicateDialogOpen&&
+  if(duplicate&&!lastAnalysisError&&!lastReadProblem&&!lastSaveError&&!duplicateDialogOpen&&
      generation!==lastDuplicatePromptGeneration)
    openDuplicateConfirm();
   return canSave?corrected:null;
@@ -728,7 +729,7 @@
  function resetReading(){
   closeDuplicateConfirm();
   clearReplacePrompt();
-  retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;
+  retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
@@ -762,7 +763,7 @@
   }
   if(active)resetReading();
   clearReplacePrompt();
-  retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;
+  retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
   resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   latestLabelFields=null;lastRawResult=null;localBarcode=null;barcodeJob=null;
@@ -1758,12 +1759,13 @@
     manualCorrectedFields
    });
   }catch(_){return {ok:false,reason:'Stockage indisponible'};}
-  if(saved?.ok&&identity)lastSavedImportedPhoto=identity;
+  if(saved?.ok){lastSaveError=null;if(identity)lastSavedImportedPhoto=identity;}
   return saved?.ok?saved:{ok:false,duplicate:!!saved?.duplicate,
    reason:String(saved?.reason||'Enregistrement impossible')};
  }
  function announceSaveError(saved){
   const msg=String(saved?.reason||'Enregistrement impossible');
+  lastSaveError=msg;
   showDetectedIndicator('error',msg);
   setLabelAlert('warning',msg);
   say('Pesée non enregistrée · '+msg,true);
