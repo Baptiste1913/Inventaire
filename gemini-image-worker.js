@@ -13,11 +13,17 @@ function zoneToPixels(rect,w,h){
   h:Math.min(h,Math.ceil(rect.h*h))
  };
 }
-function sampleContrast(data){
+function sampleContrast(image){
+ const {width:w,height:h,data}=image;
  const hist=new Uint32Array(256);
  let n=0;
- for(let i=0;i<data.length;i+=40){
-  hist[(77*data[i]+150*data[i+1]+29*data[i+2])>>>8]++;n++;
+ // Échantillonnage 2D décalé, sans aliasing avec l'espacement périodique
+ // des traits EAN. Un pas fixe de dix pixels peut ne voir QUE les barres.
+ for(let y=0;y<h;y+=7){
+  for(let x=(y*5)%11;x<w;x+=11){
+   const i=(y*w+x)*4;
+   hist[(77*data[i]+150*data[i+1]+29*data[i+2])>>>8]++;n++;
+  }
  }
  let cum=0,low=0,high=255;
  for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.05){low=i;break;}}
@@ -105,7 +111,7 @@ async function enhancedDetail(photo,reading){
   ctx.imageSmoothingQuality='high';
   ctx.drawImage(bitmap,box.x,box.y,box.w,box.h,0,0,w,h);
   const img=ctx.getImageData(0,0,w,h);
-  const contrast=sampleContrast(img.data);
+  const contrast=sampleContrast(img);
   const slope=reading?.confirmed&&reading?.bounds?Number(reading.bounds.slope)||0:0;
   const rotate=Math.abs(slope)>.035&&Math.abs(slope)<.12;
   // Ne jamais retoucher une image suffisamment contrastée et droite.
