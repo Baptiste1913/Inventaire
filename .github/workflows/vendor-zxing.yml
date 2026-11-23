@@ -1,0 +1,53 @@
+name: Fournir ZXing-C++ local (JS et WASM)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vendor-zxing.yml'
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Installer le lecteur ZXing-WASM épinglé (3.1.2)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p vendor/zxing "$RUNNER_TEMP/zxing-package"
+          cd "$RUNNER_TEMP"
+          npm pack zxing-wasm@3.1.2 --ignore-scripts --pack-destination "$RUNNER_TEMP"
+          tar -xzf zxing-wasm-3.1.2.tgz -C "$RUNNER_TEMP/zxing-package"
+          cd "$GITHUB_WORKSPACE"
+          test -s "$RUNNER_TEMP/zxing-package/package/dist/iife/reader/index.js"
+          test -s "$RUNNER_TEMP/zxing-package/package/dist/reader/zxing_reader.wasm"
+          cp "$RUNNER_TEMP/zxing-package/package/dist/iife/reader/index.js" vendor/zxing/reader.js
+          cp "$RUNNER_TEMP/zxing-package/package/dist/reader/zxing_reader.wasm" vendor/zxing/zxing_reader.wasm
+          if test -f "$RUNNER_TEMP/zxing-package/package/LICENSE"; then
+            cp "$RUNNER_TEMP/zxing-package/package/LICENSE" vendor/zxing/LICENSE
+          fi
+          node --check vendor/zxing/reader.js
+          test "$(wc -c < vendor/zxing/zxing_reader.wasm)" -gt 100000
+          printf 'Bundled ZXing: '
+          du -h vendor/zxing/*
+      - name: Publier les fichiers de ZXing dans le dépôt pour GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/zxing/
+          if git diff --cached --quiet; then
+            echo "ZXing 3.1.2 déjà embarqué."
+          else
+            git commit -m "Ajouter ZXing WebAssembly 3.1.2 local pour le scanner hors réseau"
+            git push origin HEAD:main
+          fi
