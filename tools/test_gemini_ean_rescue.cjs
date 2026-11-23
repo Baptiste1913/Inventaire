@@ -43,5 +43,9 @@ assert(js.includes('scanRaster(original,iw,ih,1100)'),
 assert(js.includes('scanRaster(original,iw,ih,1500,true)'),
  'Seconde passe uniquement quand la première est insuffisante');
 assert(js.includes('v.rows.size>=2'),'Deux lignes réelles confirment l’EAN');
-assert(js.includes("if(usual)return usual;"),'Ne pas ralentir les cas déjà reconnus');
+assert(js.includes("if(usual){")&&
+ js.indexOf("if(usual){")<js.indexOf("const enhanced=scanRaster(original,iw,ih,1500,true)"),
+ 'Si la lecture initiale réussit, ne pas exécuter de balayage supplémentaire');
+assert(js.indexOf("if(enhanced){")<js.indexOf("const paper=detectPaper(original,iw,ih);"),
+ 'La localisation renforcée ne s’exécute qu’après deux échecs');
 console.log('OK : EAN-13 chiffres 0 à 9, clés, seuils, première passe puis secours conditionnel');
