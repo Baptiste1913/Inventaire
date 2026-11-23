@@ -275,9 +275,9 @@ async function htmlCheck(request,env,origin){
 }
 
 
-// Essai privé Gemini, distinct du moteur de pesée. Aucune écriture en inventaire.
-// Activation opt-in GEMINI_LAB_ENABLED + clef utilisateur TEST jamais publiée.
-// Les appels Gemini sont susceptibles de consommer des quotas ou d'être facturés.
+// Pilote privé de reconnaissance IA (Gemini ou OpenAI), sans écriture d'inventaire.
+// Le secret fournisseur reste exclusivement dans l'environnement Cloudflare.
+// Le jeton d'accès du pilote, les quotas et la validation humaine sont conservés.
 function geminiLabValue(raw,kind){
  // Les réponses Gemini utilisent parfois les unités imprimées :
  // « 0,714 kg », « 5,99 €/kg » ou « 4,28 € ». Ne jamais perdre ces
@@ -315,7 +315,6 @@ async function geminiPilot(request,env,origin){
   return reply({...closed,error:'Pilote Gemini désactivé. Aucun appel lancé.'},503,origin);
  if(!env.COURSESU_TEST_TOKEN||request.headers.get('X-IU-Pilot-Key')!==env.COURSESU_TEST_TOKEN)
   return reply({...closed,error:'Clé privée de pilote requise. Aucun appel lancé.'},401,origin);
- if(!env.GEMINI_API_KEY)return reply({...closed,error:'GEMINI_API_KEY non configurée.'},503,origin);
  let payload;
  try{
   const length=Number(request.headers.get('content-length')||0);
@@ -324,13 +323,19 @@ async function geminiPilot(request,env,origin){
   if(text.length>800000)throw Error('Image trop volumineuse');
   payload=JSON.parse(text);
  }catch(_){return reply({...closed,error:'Image ou JSON invalide.'},400,origin)}
- const model=payload?.model;
- if(!['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model)||
+ const provider=payload?.provider==='openai'?'openai':'gemini';
+ const model=provider==='openai'?'gpt-6.1-terra':payload?.model;
+ if((payload?.provider&&!['openai','gemini'].includes(payload.provider))||
+    (provider==='gemini'&&!['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model))||
     payload?.type!=='iu-gemini-label-test'||
     payload?.mimeType!=='image/jpeg'||
     typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
     payload.imageBase64.length<100||!/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(payload.imageBase64))
   return reply({...closed,error:'Modèle ou image JPEG incorrect.'},400,origin);
+ if(provider==='openai'&&!env.OPENAI_API_KEY)
+  return reply({...closed,provider,error:'OPENAI_API_KEY non configurée dans Cloudflare.'},503,origin);
+ if(provider==='gemini'&&!env.GEMINI_API_KEY)
+  return reply({...closed,provider,error:'GEMINI_API_KEY non configurée.'},503,origin);
  const photoBytes=payload.imageBase64.length*3/4;
  if(photoBytes>525000)return reply({...closed,error:'Photo trop volumineuse.'},413,origin);
  const focus=['name','weight','rate','total','ean'].includes(payload?.focusField)
@@ -356,6 +361,63 @@ async function geminiPilot(request,env,origin){
  const started=Date.now();
  let providerAnswered=false;
  try{
+
+  let extracted;
+  if(provider==='openai'){
+   // Le serveur choisit un modèle fixe : aucune sélection libre depuis le navigateur.
+   const nullableString={anyOf:[{type:'string'},{type:'null'}]};
+   const schema={
+    type:'object',additionalProperties:false,
+    properties:{name:nullableString,weightKg:nullableString,
+     pricePerKgEur:nullableString,totalEur:nullableString,ean13:nullableString},
+    required:['name','weightKg','pricePerKgEur','totalEur','ean13']
+   };
+   const res=await fetch('https://api.openai.com/v1/responses',{
+    method:'POST',signal:abort.signal,
+    headers:{'Content-Type':'application/json',
+     'Authorization':'Bearer '+env.OPENAI_API_KEY},
+    body:JSON.stringify({
+     model,service_tier:'fast',reasoning:{effort:'none'},
+     store:false,max_output_tokens:300,
+     input:[{role:'user',content:[
+      {type:'input_text',text:prompt},
+      {type:'input_image',image_url:'data:image/jpeg;base64,'+payload.imageBase64,
+       detail:'high'}
+     ]}],
+     text:{format:{type:'json_schema',name:'digi_label',strict:true,schema}}
+    })
+   });
+   if(!res.ok){
+    const status=res.status;
+    // Ne jamais exposer à l'iPhone la réponse brute du fournisseur ni sa clé.
+    const diagnostic=[401,403].includes(status)?'Clé OpenAI non autorisée pour ce projet.'
+     :status===429?'Quota OpenAI atteint.'
+     :status===404?'Modèle OpenAI indisponible avec cette clé.'
+     :status===400?'Paramètres refusés par OpenAI.'
+     :'Service OpenAI indisponible.';
+    const outputStatus=status===429?429:[401,403].includes(status)?403
+     :status===404?404:status===400?400:503;
+    return reply({...closed,provider,error:diagnostic,providerStatus:status,model},
+     outputStatus,origin);
+   }
+   providerAnswered=true;
+   const raw=await res.text();
+   if(raw.length>18000)throw Error('Réponse trop volumineuse');
+   const data=JSON.parse(raw);
+   if(data?.status!=='completed')
+    return reply({...closed,provider,model,
+     error:'Lecture OpenAI incomplète. Recadrez l’étiquette et réessayez.'},422,origin);
+   const answer=(data.output||[]).filter(item=>item?.type==='message')
+    .flatMap(item=>item.content||[])
+    .filter(part=>part?.type==='output_text'&&typeof part.text==='string')
+    .map(part=>part.text).join('');
+   if(!answer.trim()||answer.length>5000)
+    return reply({...closed,provider,model,
+     error:'Réponse OpenAI vide ou trop longue.'},422,origin);
+   try{extracted=JSON.parse(answer)}
+   catch(_){return reply({...closed,provider,model,
+    error:'Réponse OpenAI non exploitable.'},422,origin)}
+  }else{
   const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
    +model+':generateContent',{
     method:'POST',signal:abort.signal,
@@ -397,7 +459,6 @@ async function geminiPilot(request,env,origin){
   if(answer.length>5000)throw Error('Réponse trop longue');
   // Certaines réponses textuelles conservent des balises Markdown malgré
   // responseMimeType. Accepter le JSON strict puis, à défaut, le bloc JSON.
-  let extracted;
   try{extracted=JSON.parse(answer)}
   catch(_){
    const match=answer.trim().match(/^(?:```(?:json)?\s*)?(\{[\s\S]*\})(?:\s*```)?$/i);
@@ -410,6 +471,7 @@ async function geminiPilot(request,env,origin){
      model},422,origin);
    }
   }
+  }
   if(!extracted||typeof extracted!=='object'||Array.isArray(extracted))throw Error('JSON non reconnu');
   const weightGrams=geminiLabValue(extracted.weightKg,'weight');
   const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'rate');
@@ -418,16 +480,17 @@ async function geminiPilot(request,env,origin){
     ?extracted.ean13:null;
   const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
     &&Math.abs(Math.round(weightGrams*pricePerKgCents/1000)-totalCents)<=1;
-  return reply({...closed,model,focusField:focus,elapsedMs:Date.now()-started,
+  return reply({...closed,provider,model,focusField:focus,elapsedMs:Date.now()-started,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null},
    verifiedForInventory:false,warning:'Données indicatives : vérifier visuellement chaque chiffre avant toute utilisation.'},
    200,origin);
  }catch(_){
   const status=abort.signal.aborted?504:providerAnswered?422:503;
-  const message=abort.signal.aborted?'Délai Gemini dépassé.'
-   :providerAnswered?'Réponse Gemini non exploitable.':'Service Gemini indisponible.';
-  return reply({...closed,error:message,model},status,origin);
+  const label=provider==='openai'?'OpenAI':'Gemini';
+  const message=abort.signal.aborted?'Délai '+label+' dépassé.'
+   :providerAnswered?'Réponse '+label+' non exploitable.':'Service '+label+' indisponible.';
+  return reply({...closed,provider,error:message,model},status,origin);
  }finally{clearTimeout(timeout)}
 }
 
