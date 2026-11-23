@@ -31,6 +31,8 @@ assert(validation.includes("showDetectedIndicator('duplicate'"));
 assert(validation.includes("showDetectedIndicator('error'"));
 assert(validation.includes('revealDetectedIndicator(latestLabelFields)'));
 assert(validation.includes('openDuplicateConfirm()'));
+assert(validation.includes('generation!==lastDuplicatePromptGeneration'),
+ 'Une erreur de stockage ne doit pas rouvrir la popup automatiquement');
 const next=between(" nextWeigh?.addEventListener('click'", " openCamera.addEventListener('click'");
 assert(next.includes('if(duplicateForCurrent()){openDuplicateConfirm();return;}'));
 assert(!next.includes('confirmDuplicate:true'),'Aucun passage en force depuis Nouvelle photo');
@@ -46,7 +48,8 @@ assert(app.includes('if(duplicate&&payload?.confirmDuplicate!==true)'),
  'Le stockage refuse encore les doublons sans confirmation');
 let focusCount=0,resetCount=0,saveCount=0;
 const context={
- active:false,duplicateDialogOpen:false,duplicateDialog:{hidden:true},
+ active:false,duplicateDialogOpen:false,generation:1,lastDuplicatePromptGeneration:-1,
+ duplicateDialog:{hidden:true},
  correctedCurrentProposal:()=>({ean:'ok'}),duplicateForCurrent:()=>true,
  refreshCaptureButton:()=>{},duplicateCancel:{focus:()=>focusCount++},
  resetReading:()=>resetCount++,say:()=>{},cameraStream:null,
@@ -58,11 +61,14 @@ vm.runInContext(functions+"\nthis.openPrompt=openDuplicateConfirm;this.cancelPro
 assert.equal(context.openPrompt(),true,'La fenêtre s’ouvre sur un doublon prêt');
 assert.equal(context.duplicateDialog.hidden,false);
 assert.equal(focusCount,1,'Le choix le plus sûr reçoit le focus');
+assert.equal(context.lastDuplicatePromptGeneration,1,'Un seul affichage automatique par photo');
 assert.equal(context.openPrompt(),false,'Pas de seconde fenêtre simultanée');
 context.cancelPrompt();
 assert.equal(context.duplicateDialog.hidden,true,'Annuler referme la fenêtre');
 assert.equal(resetCount,1,'Annuler efface le brouillon courant');
 assert.equal(saveCount,0,'Annuler ne sauvegarde aucune pesée');
+assert(html.indexOf('id="iuGeminiDuplicateConfirm"')<html.indexOf('id="iuGeminiLab"'),
+ 'La fenêtre doit être hors de la carte caméra pour éviter le clipping');
 context.correctedCurrentProposal=()=>null;
 assert.equal(context.openPrompt(),false,'Pas de dialogue si pesée invalide');
 context.correctedCurrentProposal=()=>({ean:'ok'});

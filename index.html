@@ -895,6 +895,16 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  <div class="focus-actions"><button id="focusPause" type="button" class="focus-pause"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg> Pause</button><button id="focusStop" type="button" class="focus-stop"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Arrêter</button></div>
  <div class="focus-confirm" id="focusConfirm" hidden><p>Terminer l’inventaire ?</p><div><button id="focusCancelStop" type="button">Continuer</button><button id="focusConfirmStop" type="button">Terminer</button></div></div>
 </section>
+<div id="iuGeminiDuplicateConfirm" class="iu-gemini-duplicate-overlay" role="dialog" aria-modal="true" aria-labelledby="iuGeminiDuplicateTitle" aria-describedby="iuGeminiDuplicateDescription" hidden>
+  <div class="focus-confirm iu-gemini-duplicate-confirm">
+   <p id="iuGeminiDuplicateTitle">Doublon détecté</p>
+   <small id="iuGeminiDuplicateDescription">Cette étiquette semble déjà enregistrée. Veux-tu conserver cette nouvelle pesée ou l’annuler ?</small>
+   <div>
+    <button type="button" id="iuGeminiDuplicateCancel">Annuler</button>
+    <button type="button" id="iuGeminiDuplicateAccept">Valider la pesée</button>
+   </div>
+  </div>
+ </div>
 <section aria-labelledby="session-title" class="card session-card">
 <div class="session-top"><div class="session-heading"><span class="section-kicker">SERVICES U / INVENTAIRE</span><h2 id="session-title">Ma session</h2></div><span class="session-pill" id="sessionBadge">Aucune session</span></div>
 <div id="iuActiveReference" class="iu-active-reference" hidden></div><div id="sessionQualityReview" class="session-quality-review" hidden aria-live="polite"></div><p class="muted" id="sessionHelp">Démarre une session pour obtenir tes statistiques d'inventaire, sans nommer les produits.</p>
@@ -998,16 +1008,6 @@ inventaire;;;15/02/2027;</pre><button type="button" class="planning-secondary pl
  
 </div>
 </div>
-<div id="iuGeminiDuplicateConfirm" class="iu-gemini-duplicate-overlay" role="dialog" aria-modal="true" aria-labelledby="iuGeminiDuplicateTitle" aria-describedby="iuGeminiDuplicateDescription" hidden>
-  <div class="focus-confirm iu-gemini-duplicate-confirm">
-   <p id="iuGeminiDuplicateTitle">Doublon détecté</p>
-   <small id="iuGeminiDuplicateDescription">Cette étiquette semble déjà enregistrée. Veux-tu conserver cette nouvelle pesée ou l’annuler ?</small>
-   <div>
-    <button type="button" id="iuGeminiDuplicateCancel">Annuler</button>
-    <button type="button" id="iuGeminiDuplicateAccept">Valider la pesée</button>
-   </div>
-  </div>
- </div>
  <button type="button" id="iuGeminiAnalyze" hidden disabled aria-label="Relire la même photo">Relire cette photo</button>
 <div id="iuGeminiReplacePrompt" class="iu-gemini-replace-prompt" role="group" aria-label="Remplacer une pesée prête" hidden>
  <span>Pesée prête à enregistrer</span>

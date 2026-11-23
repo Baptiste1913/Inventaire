@@ -44,7 +44,7 @@
   duplicateDialog=$('iuGeminiDuplicateConfirm'),
   duplicateCancel=$('iuGeminiDuplicateCancel'),
   duplicateAccept=$('iuGeminiDuplicateAccept');
- let duplicateDialogOpen=false;
+ let duplicateDialogOpen=false,lastDuplicatePromptGeneration=-1;
  const repairPanel=$('iuGeminiRepair'),repairField=$('iuGeminiRepairField'),
   repairRead=$('iuGeminiRepairRead'),repairEdit=$('iuGeminiRepairEdit'),
   repairManual=$('iuGeminiRepairManual'),repairValue=$('iuGeminiRepairValue'),
@@ -432,6 +432,10 @@
   }
   labelAlertText.textContent=message;
   labelAlert.hidden=type==='idle'&&!message;
+  // Les erreurs visibles utilisent systématiquement le carré rouge.
+  if(type==='warning'&&!active&&
+     /erreur|invalide|impossible|indisponible|incomplet|non reconn|incorrect|échec|trop élev|manquant|incohér|non valid|non conforme|réessaie|choisis un panier/i.test(message))
+   showDetectedIndicator('error',message);
  }
  function duplicateForCurrent(){
   if(!proposal||typeof window.IUGeminiDuplicateInfo!=='function')return false;
@@ -712,7 +716,8 @@
    }else resetDetectedIndicator();
   }else resetDetectedIndicator();
   refreshCaptureButton();
-  if(duplicate&&!lastAnalysisError&&!lastReadProblem&&!duplicateDialogOpen)
+  if(duplicate&&!lastAnalysisError&&!lastReadProblem&&!duplicateDialogOpen&&
+     generation!==lastDuplicatePromptGeneration)
    openDuplicateConfirm();
   return canSave?corrected:null;
  }
@@ -1768,6 +1773,7 @@
   if(duplicateDialogOpen||active||!duplicateDialog||
      !correctedCurrentProposal()||!duplicateForCurrent())return false;
   duplicateDialogOpen=true;
+  lastDuplicatePromptGeneration=generation;
   duplicateDialog.hidden=false;
   refreshCaptureButton();
   duplicateCancel?.focus({preventScroll:true});
