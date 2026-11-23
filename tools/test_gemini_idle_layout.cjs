@@ -673,15 +673,21 @@ assert(server.includes('let providerAnswered=false;')&&
  server.includes('model},422,origin)')&&
  server.includes('abort.signal.aborted?504:providerAnswered?422:503'),
  'Le Worker distingue lecture non reconnue, délai et panne fournisseur');
-// v42.19 — caméra fermée uniquement durant l'analyse et reprise rapide.
+// v42.26 — ne pas suspendre le flux pendant les analyses : Safari iOS
+// peut sinon afficher des bandes noires lors des prises de vue suivantes.
+const analysisLifecycle=js.slice(js.indexOf('function setAnalysisCameraClosed('),
+ js.indexOf('function clearReplacePrompt()',js.indexOf('function setAnalysisCameraClosed(')));
 assert(js.includes('const scale=.70*Math.min(')&&
  js.includes('setAnalysisCameraClosed(true);')&&
  js.includes('active=false;abort=null;setAnalysisCameraClosed(false);')&&
- js.includes("if(track?.readyState==='live')track.enabled=false;")&&
- js.includes("track.enabled=true;")&&
+ !analysisLifecycle.includes("track.enabled=false;")&&
+ !analysisLifecycle.includes("video.pause();")&&
+ analysisLifecycle.includes('if(!track.enabled)track.enabled=true;')&&
+ analysisLifecycle.includes('if(video.paused)Promise.resolve(video.play())')&&
+ analysisLifecycle.includes('if(video.srcObject!==cameraStream)video.srcObject=cameraStream;')&&
  js.includes('if(analysisCameraClosed)return;')&&
  js.includes('setAnalysisCameraClosed(false,{resume:false});'),
- 'Le repère est plus petit et la piste est arrêtée/reprise sans getUserMedia supplémentaire');
+ 'Le flux reste actif pendant l’analyse et n’est relancé qu’après une vraie suspension Safari');
 assert(css.includes('/* v42.19 — viseur réellement fermé')&&
  css.includes('[data-state="analyzing"]')&&
  css.includes('> #iuGeminiFrameState.iu-gemini-frame-state[hidden]')&&

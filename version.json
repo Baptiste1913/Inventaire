@@ -1,6 +1,6 @@
 {
-  "version": "42.25",
+  "version": "42.26",
   "published": "2026-11-23",
   "assets": 55,
-  "notes": "Repère visuel de l'étiquette DIGI réduit de 82 % à 70 % de sa taille maximale pour tester la prise de photo d'un peu plus loin. Centrage, ratio, sept zones de guidage, flash, capture photo haute résolution (jusqu'à 1920 px), reconnaissance Gemini/OpenAI, panier et enregistrement restent inchangés. Le déploiement Cloudflare est indépendant du site GitHub Pages."
+  "notes": "Correctif de reprise de la caméra sur iPhone Safari : le flux vidéo reste actif mais masqué pendant chaque analyse IA, évitant les pauses et réinitialisations susceptibles d'afficher des bandes noires latérales après une pesée. La vraie mise en arrière-plan coupe toujours la piste, les commandes Fermer/Flash restent intactes. Repère DIGI à 70%, capture JPEG 1920px max, Gemini/OpenAI, validations et protections anti-doublons inchangés."
 }

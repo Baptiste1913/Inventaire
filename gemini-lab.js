@@ -212,9 +212,11 @@
   // L'unique « Analyse… » visible est déjà au centre du viseur fermé.
   if(active&&!latestLabelFields)setLabelAlert('idle','');
  };
- // Le flux reste réservé à la PWA pour une reprise instantanée,
- // mais la piste vidéo est réellement désactivée pendant chaque analyse.
- // Le viseur reprend l'état fermé de l'écran initial, sans photo figée.
+ // Safari iOS peut afficher des bandes noires après pause()/play() ou
+ // track.enabled=false/true sur un MediaStream. Pendant l'analyse, masquer
+ // seulement le viseur par son état CSS, sans débrancher la vidéo : la capture
+ // suivante conserve le flux natif et son cadrage de départ.
+ // L'arrêt volontaire et le passage en arrière-plan restent gérés séparément.
  let analysisCameraClosed=false,restoreCameraAfterAnalysis=false;
  function setAnalysisCameraClosed(closed,{resume=true}={}){
   if(!cameraShell||!cameraStage)return;
@@ -225,8 +227,8 @@
    const track=cameraStream?.getVideoTracks?.()[0];
    restoreCameraAfterAnalysis=Boolean(cameraStream&&
     cameraShell.dataset.state==='scanning'&&track?.readyState==='live');
-   if(track?.readyState==='live')track.enabled=false;
-   try{video.pause();}catch(_){}
+   // Ne pas mettre en pause / désactiver la piste sur une analyse ordinaire.
+   // Le CSS [data-state="analyzing"] masque déjà la vidéo pendant le traitement.
    if(cameraStill){cameraStill.hidden=true;cameraStill.removeAttribute('src');}
    cameraStage.classList.remove('is-photo-frozen');
    if(frameState)frameState.hidden=true;
@@ -269,9 +271,12 @@
    return;
   }
   cameraShell.dataset.state='scanning';
-  track.enabled=true;
-  video.srcObject=cameraStream;
-  Promise.resolve(video.play()).catch(()=>{
+  // Une analyse normale n'a pas interrompu le flux : ne pas relancer
+  // le lecteur vidéo Safari, ce qui pourrait ajouter des bandes latérales.
+  // Seule une mise en arrière-plan effective peut nécessiter une reprise.
+  if(!track.enabled)track.enabled=true;
+  if(video.srcObject!==cameraStream)video.srcObject=cameraStream;
+  if(video.paused)Promise.resolve(video.play()).catch(()=>{
    if(!analysisCameraClosed&&cameraStream&&
       cameraShell.dataset.state==='scanning'){
     cameraShell.dataset.state='idle';
