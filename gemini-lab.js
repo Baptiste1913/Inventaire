@@ -191,6 +191,13 @@
  const setupCallout=$('iuGeminiSetupCallout'),geminiOptions=$('iuGeminiOptions');
  const autoScanState=$('iuGeminiAutoScanState'),autoReset=null;
  const autoSampleCanvas=document.createElement('canvas');
+ const qualityEngine=window.IUGeminiFrameQuality||null;
+ // Un seul tampon pleine résolution en RAM ; jamais de sauvegarde disque
+ // ni de seconde image envoyée à Gemini.
+ const qualitySampleCanvas=document.createElement('canvas');
+ let qualityMonitorId=0,qualityMonitorKind='',qualityMonitorToken=0,
+  qualityLastSampleAt=0,qualityLastCachedAt=0,qualityPrevious=null,
+  qualityCached=null,lastSelectedQuality=null;
  const localReader=window.IUGeminiLocalOCR||null;
  let localWorker=null,localWorkerPromise=null,localEngineGeneration=0,
   localOcrDisabled=false,localOcrBusy=false,localOcrToken=0,
@@ -223,6 +230,7 @@
   const title=cameraIdle?.querySelector('span');
   if(closed){
    if(analysisCameraClosed)return;
+   stopQualityMonitor();
    analysisCameraClosed=true;
    const track=cameraStream?.getVideoTracks?.()[0];
    restoreCameraAfterAnalysis=Boolean(cameraStream&&
@@ -276,13 +284,16 @@
   // Seule une mise en arrière-plan effective peut nécessiter une reprise.
   if(!track.enabled)track.enabled=true;
   if(video.srcObject!==cameraStream)video.srcObject=cameraStream;
-  if(video.paused)Promise.resolve(video.play()).catch(()=>{
+  if(video.paused)Promise.resolve(video.play()).then(()=>{
+   startQualityMonitor();
+  }).catch(()=>{
    if(!analysisCameraClosed&&cameraStream&&
       cameraShell.dataset.state==='scanning'){
     cameraShell.dataset.state='idle';
     say('Caméra interrompue par iOS · touche le viseur pour rouvrir.',true);
    }
   });
+  else startQualityMonitor();
  }
  function clearReplacePrompt(){
   pendingReplacementFile=null;
@@ -1378,6 +1389,7 @@
   torch.title=torchOn?'Désactiver le flash':'Activer le flash';
  }
  function stopCamera(){
+  stopQualityMonitor();
   // Fermeture volontaire : ne surtout pas réactiver la piste vidéo.
   setAnalysisCameraClosed(false,{resume:false});
   resetDetectedIndicator();
@@ -1437,6 +1449,7 @@
     if(cameraMode==='auto'&&!autoSuspended&&!active&&!file&&!proposal){
      startAutoMonitor();
     }
+    startQualityMonitor();
     return;
    }
    // iOS peut terminer une piste après verrouillage. Dans ce cas
@@ -1478,6 +1491,7 @@
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    refreshTorch();
+   startQualityMonitor();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
    else setAutoHint('Valide ou reprends la lecture en cours','waiting');
    say(cameraMode==='auto'
@@ -1507,7 +1521,11 @@
     say('Flash indisponible sur cette caméra.',true);
     torchOn=false;
    }
-  }finally{torchBusy=false;refreshTorch();}
+  }finally{
+   torchBusy=false;refreshTorch();
+   // Le changement de lumière invalide l'ancien tampon.
+   stopQualityMonitor();startQualityMonitor();
+  }
  }
  modeCamera?.addEventListener('click',()=>{
   selectReadingMode('camera');
@@ -1629,6 +1647,155 @@
  }
 
 
+ // v42.30 — Capture intelligente iPhone Safari, sans photo supplémentaire
+ // envoyée à Gemini. Le contrôle basse résolution vise seulement
+ // les barres EAN, les chiffres du poids et ceux du prix au kilo.
+ function canMonitorQuality(){
+  return Boolean(qualityEngine&&cameraStream&&!cameraShell.hidden&&
+   cameraShell.dataset.state==='scanning'&&!document.hidden&&!panel.hidden&&
+   video.readyState>=2&&video.videoWidth>0&&video.videoHeight>0);
+ }
+ function qualityZones(view){
+  const outline=exactGuide?.getBoundingClientRect();
+  if(!outline||outline.width<40||outline.height<30||!view.width||!view.height)
+   return qualityEngine.expectedZones;
+  const components={
+   ean:labelOutlineZones.find(z=>z[0]==='barcode'),
+   weight:labelOutlineZones.find(z=>z[0]==='weight'),
+   rate:labelOutlineZones.find(z=>z[0]==='rate')
+  };
+  const mapped={};
+  for(const [kind,z] of Object.entries(components)){
+   const centerX=(outline.left-view.left+outline.width*(z[1]+z[3]/2))/view.width;
+   const centerY=(outline.top-view.top+outline.height*(z[2]+z[4]/2))/view.height;
+   // Les zones sont volontairement élargies : une étiquette légèrement
+   // décalée dans le guide ne doit pas être prise pour du fond vide.
+   const w=Math.min(.48,outline.width*z[3]*(kind==='ean'?1.16:1.55)/view.width);
+   const h=Math.min(.35,outline.height*z[4]*(kind==='ean'?1.15:1.65)/view.height);
+   const x=Math.max(0,Math.min(1-w,((centerX-.02)/.96)-w/2));
+   const y=Math.max(0,Math.min(1-h,centerY-h/2));
+   mapped[kind]={x,y,w,h};
+  }
+  return mapped;
+ }
+ function sampleCameraQuality(){
+  if(!qualityEngine||video.readyState<2||!video.videoWidth)return null;
+  const view=video.getBoundingClientRect();
+  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,view.width,view.height);
+  // Maximum 360 pixels, mémoire et CPU bornés ; le JPEG reste à 1 920 px.
+  const scale=Math.min(1,360/Math.max(crop.width,crop.height));
+  const w=Math.max(1,Math.round(crop.width*scale));
+  const h=Math.max(1,Math.round(crop.height*scale));
+  if(qualitySampleCanvas.width!==w)qualitySampleCanvas.width=w;
+  if(qualitySampleCanvas.height!==h)qualitySampleCanvas.height=h;
+  const ctx=qualitySampleCanvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx)return null;
+  ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,w,h);
+  return qualityEngine.evaluate(ctx.getImageData(0,0,w,h),
+   qualityZones(view),qualityPrevious?.gray);
+ }
+ function fullResolutionCameraFrame(){
+  const bounds=video.getBoundingClientRect();
+  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,
+   bounds.width,bounds.height);
+  const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
+  const cv=document.createElement('canvas');
+  cv.width=Math.max(1,Math.round(crop.width*factor));
+  cv.height=Math.max(1,Math.round(crop.height*factor));
+  const ctx=cv.getContext('2d');
+  if(!ctx)throw Error('Capture caméra impossible');
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
+  return cv;
+ }
+ function clearQualityBuffer(){
+  qualityPrevious=null;qualityCached=null;qualityLastSampleAt=0;
+  qualityLastCachedAt=0;
+ }
+ function stopQualityMonitor(){
+  qualityMonitorToken++;
+  if(qualityMonitorId){
+   if(qualityMonitorKind==='video')try{video.cancelVideoFrameCallback?.(qualityMonitorId)}catch(_){}
+   else clearTimeout(qualityMonitorId);
+  }
+  qualityMonitorId=0;qualityMonitorKind='';
+  clearQualityBuffer();
+ }
+ function startQualityMonitor(){
+  if(!canMonitorQuality()||qualityMonitorId)return;
+  const token=qualityMonitorToken;
+  if(typeof video.requestVideoFrameCallback==='function'){
+   qualityMonitorKind='video';
+   qualityMonitorId=video.requestVideoFrameCallback(()=>{
+    qualityMonitorId=0;
+    if(token!==qualityMonitorToken)return;
+    scanQualityPreview();
+    startQualityMonitor();
+   });
+  }else{
+   // Fallback Safari : 6 échantillons/s maximum.
+   qualityMonitorKind='timer';
+   qualityMonitorId=setTimeout(()=>{
+    qualityMonitorId=0;
+    if(token!==qualityMonitorToken)return;
+    scanQualityPreview();
+    startQualityMonitor();
+   },155);
+  }
+ }
+ function scanQualityPreview(){
+  if(!canMonitorQuality()||frameCaptureBusy||active)return;
+  const now=performance.now();
+  if(now-qualityLastSampleAt<145)return;
+  qualityLastSampleAt=now;
+  try{
+   const rating=sampleCameraQuality();
+   if(!rating?.gray)return;
+   const moved=qualityPrevious&&
+    qualityEngine.frameDistance(qualityPrevious.gray,rating.gray)>28;
+   if(moved)qualityCached=null;
+   qualityPrevious=rating;
+   if(!rating.usable||now-qualityLastCachedAt<360)return;
+   // Aucune rafale encodée en arrière-plan : un unique canvas récent
+   // est remplacé au maximum toutes les 360 ms.
+   if(!qualityCached||now-qualityCached.at>320||
+      rating.score>qualityCached.rating.score+.055){
+    const canvas=fullResolutionCameraFrame();
+    qualityCached={canvas,rating,at:now,epoch:cameraEpoch};
+    qualityLastCachedAt=now;
+   }
+  }catch(_){
+   // Le filtre est facultatif : un iPhone peu puissant conserve le
+   // déclencheur normal sans erreur ou permission supplémentaire.
+   qualityPrevious=null;qualityCached=null;
+  }
+ }
+ function qualityCandidate(epoch){
+  const rating=sampleCameraQuality();
+  return {canvas:fullResolutionCameraFrame(),rating,
+   at:performance.now(),epoch};
+ }
+ async function chooseSharpCameraFrame(epoch){
+  // Le flux a déjà été échantillonné pendant la visée, puis on teste
+  // l'image du clic. Si nécessaire, une nouvelle image après ~85 ms.
+  // Aucun traitement de rendu ne redémarre le MediaStream Safari.
+  const current=qualityCandidate(epoch);
+  if(!qualityEngine)return current;
+  let selected=qualityEngine.choose(qualityCached?[qualityCached]:[],current,current.at);
+  // Les trois zones comptent : la netteté du seul nom ne suffit pas.
+  // L'éventuelle nouvelle frame coûte 85 ms, jamais un délai infini.
+  if(!selected.rating?.usable||selected.rating.score<.49){
+   await new Promise(resolve=>setTimeout(resolve,85));
+   if(epoch===cameraEpoch&&!document.hidden&&cameraStream&&
+      cameraShell.dataset.state==='scanning'&&video.readyState>=2){
+    const later=qualityCandidate(epoch);
+    selected=qualityEngine.choose([selected,later],current,later.at)||current;
+   }
+  }
+  lastSelectedQuality=selected.rating?.regions||null;
+  return selected;
+ }
  // Lecture vidéo locale : reconnaissance du TEXTE au fil des images canvas.
  // Tesseract se télécharge à la première utilisation (même moteur que l'OCR
  // classique). Le module reste disponible pour une vérification secondaire.
@@ -1942,19 +2109,11 @@
   lastPhotoWasAuto=automatic;
   if(!automatic)autoLastCaptured=autoLastFrame;
   try{
-   const cv=document.createElement('canvas');
-   const viewport=video.getBoundingClientRect();
-   const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,
-    viewport.width,viewport.height);
-   const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
-   cv.width=Math.max(1,Math.round(crop.width*factor));
-   cv.height=Math.max(1,Math.round(crop.height*factor));
-   const ctx=cv.getContext('2d');
-   if(!ctx)throw Error('Capture impossible');
-   ctx.imageSmoothingEnabled=true;
-   ctx.imageSmoothingQuality='high';
-   ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,
-    0,0,cv.width,cv.height);
+   if(qualityEngine)setAutoHint('Sélection de l’image la plus nette…','capturing');
+   const chosen=await chooseSharpCameraFrame(frameEpoch);
+   const cv=chosen.canvas;
+   if(chosen.rating&&!chosen.rating.usable)
+    setAutoHint('Meilleure image disponible · vérification Gemini','waiting');
    const blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.86));
    if(!blob)throw Error('Capture impossible');
    // Si le panier, la session, le flux caméra ou la lecture a changé
@@ -1988,6 +2147,7 @@
  });
  document.addEventListener('visibilitychange',()=>{
   if(document.hidden&&cameraStream){
+   stopQualityMonitor();
    localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
    if(!proposal&&!file)autoLocked=false;
    // Aucune image vidéo ne doit rester capturée lorsque la PWA est masquée.
@@ -2012,6 +2172,7 @@
    cameraShell.dataset.state='scanning';
    video.srcObject=cameraStream;
    Promise.resolve(video.play()).then(()=>{
+    startQualityMonitor();
     if(cameraMode==='auto'&&!autoLocked&&!autoSuspended&&
        !active&&!file&&!proposal)startAutoMonitor();
    }).catch(()=>{
