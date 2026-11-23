@@ -1,4 +1,4 @@
-/* Inventaires U v42.22 — EAN-13 optique indépendant.
+/* Inventaires U v42.31 — EAN-13 optique indépendant, secours haute précision.
  * Pur JavaScript sans chargement distant ; fallback iOS lorsque
  * BarcodeDetector n'existe pas. Jamais de code créé par déduction.
  * Les clés EAN et deux lignes optiques concordantes sont requises. */
@@ -38,14 +38,14 @@
   const code=first+digits+right;
   return valid(code)?code:null;
  }
- function lineCode(values){
+ function lineCode(values,thresholdMix=.5){
   const width=values.length;
   // P5/P85 atténue les reflets et les petits points noirs.
   const sorted=[...values].sort((a,b)=>a-b);
   const light=sorted[Math.min(width-1,Math.floor(width*.88))];
   const dark=sorted[Math.floor(width*.07)];
   if(light-dark<38)return [];
-  const threshold=(light+dark)*.5;
+  const threshold=dark+(light-dark)*thresholdMix;
   const binary=values.map(value=>value<threshold?1:0);
   const runs=[];
   for(let x=0;x<width;x++){
@@ -92,6 +92,63 @@
   }catch(_){/* Lecture optique pure JS ci-dessous. */}
   return null;
  }
+ // La lecture d'origine (1100 px, 50 lignes inclinées) reste la
+ // première tentative. Une seconde passe un peu plus détaillée n'est
+ // tentée QUE si aucune lecture fiable n'a été obtenue.
+ function scanRaster(original,iw,ih,targetWidth,enhanced=false){
+  const scale=Math.min(1,targetWidth/iw);
+  const w=Math.max(1,Math.round(iw*scale)),h=Math.max(1,Math.round(ih*scale));
+  if(w<220||h<120)return null;
+  const canvas=document.createElement('canvas');
+  canvas.width=w;canvas.height=h;
+  const context=canvas.getContext('2d',{willReadFrequently:true});
+  if(!context)return null;
+  context.drawImage(original,0,0,w,h);
+  const pixels=context.getImageData(0,0,w,h).data;
+  const line=(y,slope)=>{
+   const a=new Array(w);
+   for(let x=0;x<w;x++){
+    const yy=Math.max(0,Math.min(h-1,Math.round(y+slope*(x-w*.5))));
+    const index=(yy*w+x)*4;
+    a[x]=(pixels[index]*299+pixels[index+1]*587+pixels[index+2]*114)/1000;
+   }
+   return a;
+  };
+  const votes=new Map();
+  const fractions=enhanced
+   ?[.49,.55,.60,.65,.70,.75,.80,.84,.88,.92]
+   :[.47,.53,.59,.65,.70,.75,.79,.83,.87,.91];
+  const slopes=enhanced?[0,-.055,.055,-.11,.11]:[0,-.045,.045,-.09,.09];
+  const thresholds=enhanced?[.43,.57]:[.5];
+  for(const fraction of fractions){
+   const y=Math.floor(h*fraction);
+   for(const slope of slopes){
+    const values=line(y,slope);
+    for(const threshold of thresholds){
+     for(const item of lineCode(values,threshold)){
+      const key=item.code,record=votes.get(key)||
+       {rows:new Set(),xs:[],ys:[],slopes:[]};
+      record.rows.add(fraction);
+      record.xs.push([item.start,item.end]);
+      record.ys.push(y);record.slopes.push(slope);
+      votes.set(key,record);
+     }
+    }
+   }
+  }
+  // Des seuils différents sur la MÊME rangée ne comptent pas comme
+  // confirmations indépendantes. Deux lignes physiques sont requises.
+  const confirmed=[...votes.entries()].filter(([,v])=>v.rows.size>=2);
+  if(confirmed.length>1)return {ambiguous:true,source:'optical'};
+  if(confirmed.length!==1)return null;
+  const [ean13,data]=confirmed[0],ranges=data.xs;
+  const pos=Math.floor(ranges.length/2),rect=ranges[pos];
+  return {ean13,source:'optical',confirmed:true,
+   pass:enhanced?'enhanced':'standard',
+   bounds:{left:rect[0]/w,right:rect[1]/w,
+    y:data.ys[Math.min(pos,data.ys.length-1)]/h,
+    slope:data.slopes[Math.min(pos,data.slopes.length-1)]}};
+ }
  async function rasterRead(source){
   if(typeof document==='undefined')return null;
   let bitmap=null,img=null,objectUrl=null;
@@ -108,49 +165,14 @@
     });
    }
    const original=bitmap||img;
-   const iw=original.width||original.naturalWidth,ih=original.height||original.naturalHeight;
+   const iw=original.width||original.naturalWidth;
+   const ih=original.height||original.naturalHeight;
    if(!(iw>0&&ih>0))return null;
-   const scale=Math.min(1,1100/iw);
-   const w=Math.max(1,Math.round(iw*scale)),h=Math.max(1,Math.round(ih*scale));
-   if(w<220||h<120)return null;
-   const canvas=document.createElement('canvas');
-   canvas.width=w;canvas.height=h;
-   const context=canvas.getContext('2d',{willReadFrequently:true});
-   if(!context)return null;
-   context.drawImage(original,0,0,w,h);
-   const pixels=context.getImageData(0,0,w,h).data;
-   const line=(y,slope)=>{
-    const a=new Array(w);
-    for(let x=0;x<w;x++){
-     const yy=Math.max(0,Math.min(h-1,Math.round(y+slope*(x-w*.5))));
-     const index=(yy*w+x)*4;
-     a[x]=(pixels[index]*299+pixels[index+1]*587+pixels[index+2]*114)/1000;
-    }
-    return a;
-   };
-   const votes=new Map();
-   // Sur une étiquette DIGI, le code est généralement en bas à gauche,
-   // mais scanner aussi le centre pour les importations recadrées.
-   for(const fraction of [.47,.53,.59,.65,.70,.75,.79,.83,.87,.91]){
-    for(const slope of [0,-.045,.045,-.09,.09]){
-     const y=Math.floor(h*fraction);
-     for(const item of lineCode(line(y,slope))){
-      const key=item.code,v=votes.get(key)||{rows:new Set(),xs:[],ys:[],slopes:[]};
-      v.rows.add(fraction);v.xs.push([item.start,item.end]);v.ys.push(y);v.slopes.push(slope);
-      votes.set(key,v);
-     }
-    }
-   }
-   // Un seul résultat confirmé sur >=2 lignes différentes ; sinon abstention.
-   const confirmed=[...votes.entries()].filter(([,v])=>v.rows.size>=2);
-   if(confirmed.length>1)return {ambiguous:true,source:'optical'};
-   if(confirmed.length!==1)return null;
-   const [ean13,data]=confirmed[0],ranges=data.xs;
-   const rect=ranges[Math.floor(ranges.length/2)];
-   return {ean13,source:'optical',confirmed:true,
-    bounds:{left:rect[0]/w,right:rect[1]/w,
-     y:data.ys[Math.floor(data.ys.length/2)]/h,
-     slope:data.slopes[Math.floor(data.slopes.length/2)]}};
+   const usual=scanRaster(original,iw,ih,1100);
+   if(usual)return usual;
+   // Rester borné (1500 px) : pas de bibliothèque supplémentaire et pas
+   // de troisième passe pour ne pas dégrader la vitesse de l'inventaire.
+   return scanRaster(original,iw,ih,1500,true);
   }catch(_){return null;}
   finally{
    try{bitmap?.close?.();}catch(_){}
