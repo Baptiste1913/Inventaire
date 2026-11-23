@@ -496,19 +496,24 @@
  }
  // Une lecture EAN13 purement optique n'est acceptée que si elle est
  // unique, confirmée et vérifiée par checksum. Toute contradiction bloque.
+ function trustedBarcodeEvidence(reading){
+  const ean=String(reading?.ean13||'');
+  if(!reading?.confirmed||reading?.ambiguous||
+     !/^\d{13}$/.test(ean)||eanCheck(ean.slice(0,12))!==ean[12])
+   return false;
+  if(reading.source!=='optical')return true;
+  const b=reading.bounds;
+  // Une barre trouvée sur une autre étiquette ou en bordure ne doit
+  // pas éviter la seconde vérification Gemini de l'EAN.
+  return Boolean(b&&b.y>=.60&&b.y<=.93&&
+   (b.left+b.right)/2>=.15&&(b.left+b.right)/2<=.60&&
+   b.right-b.left>=.20&&Math.abs(b.slope||0)<=.10);
+ }
  function reconcileBarcode(result,reading){
   const fields={...(result?.fields||{})},checks={...(result?.checks||{})};
   const incoming=String(fields.ean13||'');
   const fromGemini=/^\d{13}$/.test(incoming)&&eanCheck(incoming.slice(0,12))===incoming[12];
-  const opticalArea=reading?.source!=='optical'||(
-   reading.bounds&&reading.bounds.y>=.60&&reading.bounds.y<=.93&&
-   (reading.bounds.left+reading.bounds.right)/2>=.15&&
-   (reading.bounds.left+reading.bounds.right)/2<=.60&&
-   reading.bounds.right-reading.bounds.left>=.20&&
-   Math.abs(reading.bounds.slope||0)<=.10);
-  const external=reading?.confirmed&&reading?.ean13&&opticalArea&&
-   eanCheck(reading.ean13.slice(0,12))===reading.ean13[12]
-   ?reading.ean13:null;
+  const external=trustedBarcodeEvidence(reading)?reading.ean13:null;
   if(!fromGemini&&external)fields.ean13=external;
   checks.eanChecksumValid=Boolean(/^\d{13}$/.test(String(fields.ean13||''))&&
    eanCheck(String(fields.ean13).slice(0,12))===String(fields.ean13)[12]);
@@ -533,7 +538,7 @@
     Math.abs(Math.round(fields.weightGrams*fields.pricePerKgCents/1000)-fields.totalCents)<=1,
    eanChecksumValid:validEAN,
    independentMismatch:Boolean(localBarcode?.ambiguous||
-    (localBarcode?.confirmed&&localBarcode.ean13&&
+    (trustedBarcodeEvidence(localBarcode)&&
      validEAN&&localBarcode.ean13!==ean))
   };
  }
@@ -1254,7 +1259,7 @@
   // deuxième lecture Gemini vérifie ces 13 chiffres sans nouvelle photo.
   // Un EAN contradictoire bloque l'enregistrement au lieu de choisir
   // arbitrairement une lecture cohérente par hasard.
-  if(!localBarcode?.confirmed&&readableValue('ean',f.ean13))
+  if(!trustedBarcodeEvidence(localBarcode)&&readableValue('ean',f.ean13))
    targets.push('ean');
   return [...new Set(targets)];
  }
@@ -1269,7 +1274,7 @@
    if(current===next)continue;
    // Remplacer un EAN seulement si la seconde lecture Gemini ET le
    // décodeur optique indépendant confirment les mêmes 13 chiffres.
-   if(kind==='ean'&&localBarcode?.confirmed&&!localBarcode.ambiguous&&
+   if(kind==='ean'&&trustedBarcodeEvidence(localBarcode)&&
       localBarcode.ean13===next){
     fields[key]=next;opticallyConfirmed=true;
    }else{
@@ -1386,7 +1391,7 @@
    const validated=combined;
    const priorMismatch=validated.checks?.independentMismatch===true;
    const localChecks=fieldsChecks(validated.fields);
-   const opticalResolved=localBarcode?.confirmed&&!localBarcode?.ambiguous&&
+   const opticalResolved=trustedBarcodeEvidence(localBarcode)&&
     validated.fields?.ean13===localBarcode.ean13;
    validated.checks={...validated.checks,...localChecks,
     independentMismatch:localChecks.independentMismatch||

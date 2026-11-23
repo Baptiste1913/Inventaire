@@ -9,13 +9,13 @@ function slice(start,end){
  assert(a>=0&&b>a,'Code manquant : '+start);
  return js.slice(a,b);
 }
-const helpers=slice('function fieldsChecks(fields){','function fieldForProblem(')+
+const helpers=slice('function trustedBarcodeEvidence(reading){','function fieldForProblem(')+
  slice('function readableValue(kind,value){',"analyze.addEventListener('click'");
 const ctx=vm.createContext({localBarcode:null,window:{IUDigiCatalogLookup:{resolve:()=>({ok:true,status:'matched',plu:'3476',name:'CITRON PRIMOFIORI'})}}});
 vm.runInContext('const fieldKeys={name:"name",weight:"weightGrams",rate:"pricePerKgCents",total:"totalCents",ean:"ean13"};'+
  'function eanCheck(e){let s=0;for(let i=0;i<12;i++)s+=Number(e[i])*(i%2?3:1);return String((10-s%10)%10)}'+
- helpers+'globalThis.test={fieldsChecks,recoveryTargets,mergeRecoveredReading};',ctx);
-const {fieldsChecks,recoveryTargets,mergeRecoveredReading}=ctx.test;
+ helpers+'globalThis.test={fieldsChecks,recoveryTargets,mergeRecoveredReading,trustedBarcodeEvidence};',ctx);
+const {fieldsChecks,recoveryTargets,mergeRecoveredReading,trustedBarcodeEvidence}=ctx.test;
 function priceEAN(cents){
  const digits='0206632'+String(Math.round(cents*655.36/100)).padStart(5,'0');
  let s=0;for(let i=0;i<12;i++)s+=Number(digits[i])*(i%2?3:1);
@@ -50,6 +50,13 @@ assert.equal(changed.checks.independentMismatch,false);
 const trustedOpticalTargets=recoveryTargets({fields:label,checks:{}});
 assert.equal(trustedOpticalTargets.length,0,
  'Ne pas relire Gemini lorsque le code-barres local confirme le même EAN');
+ctx.localBarcode={confirmed:true,ean13:label.ean13,source:'optical',
+ bounds:{left:.1,right:.24,y:.4,slope:0}};
+assert.equal(trustedBarcodeEvidence(ctx.localBarcode),false,
+ 'Un code optique hors de la zone DIGI n’est pas une preuve suffisante');
+assert.deepEqual(Array.from(recoveryTargets({fields:label,checks:{}})),['ean'],
+ 'Si la lecture locale est mal placée, conserver la relecture Gemini de sécurité');
+ctx.localBarcode={confirmed:true,ean13:label.ean13,ambiguous:false,source:'native'};
 assert(worker.includes('responseSchema')&&worker.includes('pipelineVersion:2'));
 assert(worker.includes('focusFields')&&worker.includes('detailImageBase64'));
 assert(js.includes('const selectedProvider=\'gemini\''));
