@@ -290,3 +290,51 @@ pas être attribuée. Aucune analyse IA supplémentaire automatique n'a
 été introduite, pour ne pas augmenter les coûts ni ralentir le parcours.
 
 Test : `node tools/test_gemini_service_errors.cjs`.
+
+## Diagnostics Cloudflare Gemini sans données personnelles — 23 novembre 2026
+
+Après plusieurs erreurs HTTP 503 du service `inventaires-u-prix`, le
+Worker `workers/coursesu-live-worker.js` ajoute un **journal d'erreur
+structuré uniquement lors des échecs**. Chercher le texte
+`IU_GEMINI_DIAGNOSTIC` dans **Cloudflare > Workers & Pages >
+inventaires-u-prix > Observability > Logs** (l'intitulé peut varier).
+
+Exemple fictif :
+
+```text
+IU_GEMINI_DIAGNOSTIC {"event":"iu_gemini_failure","stage":"google_http",
+"reason":"provider_http_error","model":"gemini-3.5-flash-lite",
+"providerStatus":502,"httpStatus":503,"elapsedMs":1127}
+```
+
+- `providerStatus` : statut HTTP **réellement reçu de Google**.
+  Un `httpStatus:503` avec `providerStatus:502` signifie que le 503
+  est la conversion du 502 Google effectuée par le Worker.
+- `stage: google_fetch` + `reason: transport_error` :
+  la passerelle n'a obtenu aucune réponse HTTP exploitable de Google.
+- `stage: google_response_parse` : Google a répondu, mais son JSON
+  n'a pas pu être analysé, indépendamment de la validité d'une étiquette.
+- `stage: configuration` + `reason: pilot_disabled` ou
+  `api_key_missing` : configuration Cloudflare incomplète.
+- `reason: timeout` : délai d'appel dépassé.
+- `elapsedMs` : durée mesurée **côté Worker** uniquement, en millisecondes.
+  Elle n'inclut ni la capture ni le réseau iPhone–Cloudflare.
+
+**Confidentialité** : les diagnostics ne contiennent que le modèle
+autorisé, l'étape, un motif technique prédéfini, les codes HTTP et la durée.
+Aucune clé API, aucun jeton d'accès, photo, EAN, prix, poids, IP,
+en-tête HTTP ni message brut Google n'est logué par ce code.
+
+**Aucun changement du parcours de reconnaissance** : mêmes modèles,
+prompt, schéma JSON, délais, limites, validations et nombre d'appels.
+Les statuts externes existants restent inchangés pour compatibilité.
+Tests : `node tools/test_gemini_diagnostics.mjs` et les tests Worker.
+
+**Déploiement obligatoire et séparé** : publier sur GitHub ne met pas à
+jour Cloudflare. Copier / déployer le contenu mis à jour de
+`workers/coursesu-live-worker.js` dans le Worker existant
+`inventaires-u-prix`. Garder ses variables secrètes, ses routes, son
+domaine et ses origines autorisées. Vérifier que les journaux
+d'observabilité sont activés. Seules les nouvelles requêtes exécutées
+après le déploiement disposeront de ces diagnostics ; les anciens
+journaux 503 ne permettent pas de reconstruire le statut Google.
