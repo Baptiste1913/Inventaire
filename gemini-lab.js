@@ -1255,18 +1255,36 @@
    // illisible. Montrer le code HTTP sans exposer de données sensibles.
    throw Error('Réponse Cloudflare illisible (HTTP '+response.status+') · réessaie cette photo');
   }
-  if(response.ok)return result;
+  const actualProvider=result?.provider==='mistral'?'mistral':
+   result?.provider==='gemini'?'gemini':null;
+  // Ne jamais afficher comme une lecture Mistral une réponse Gemini
+  // issue d'un Worker ancien ou d'un fournisseur mal routé.
+  if(actualProvider&&actualProvider!==provider)
+   throw Error('Cloudflare a répondu via '+(actualProvider==='gemini'?'Gemini':'Mistral')+
+    ' au lieu du moteur choisi · mets à jour le Worker');
+  if(response.ok){
+   if(provider==='mistral'&&
+      (result?.provider!=='mistral'||result?.model!==selectedModel))
+    throw Error('Mistral non activé sur Cloudflare · déploie le nouveau Worker');
+   return result;
+  }
   const status=response.status,providerStatus=Number(result?.providerStatus);
   const diagnostic=String(result?.error||'');
+  const providerName=provider==='mistral'?'Mistral':'Gemini';
   const unreadable=status===422||
    /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération|JSON non reconnu/i.test(diagnostic);
   if(unreadable)throw Error('Étiquette non lue · réessaie cette photo');
-  if(provider==='openai'&&diagnostic.includes('OPENAI_API_KEY'))
-   throw Error('OpenAI non configuré sur Cloudflare · utilise Gemini en attendant');
   if([401,403].includes(status)||[401,403].includes(providerStatus))
-   throw Error(provider==='openai'?'Accès OpenAI refusé · vérifie la clé API dans Cloudflare':'Accès Gemini refusé · vérifie la clé');
-  if(status===429||providerStatus===429)
-   throw Error('Quota '+(provider==='openai'?'OpenAI':'Gemini')+' atteint · réessaie plus tard');
+   throw Error('Accès '+providerName+' refusé · vérifie la clé du fournisseur');
+  if(status===402||providerStatus===402)
+   throw Error(providerName+' · facturation ou crédits API insuffisants (402)');
+  if(status===429||providerStatus===429){
+   const cooldown=Number(result?.retryAfterSeconds);
+   const wait=Number.isFinite(cooldown)&&cooldown>=1&&cooldown<=180
+    ?' · attends '+Math.ceil(cooldown)+' s':'';
+   throw Error('Limite API '+providerName+' atteinte (429)'+wait+
+    (provider==='mistral'?' · vérifie Mistral Studio':' · vérifie Google AI Studio'));
+  }
   if(provider==='mistral'&&diagnostic.includes('Modèle ou image JPEG incorrect'))
    throw Error('Mistral OCR non déployé sur Cloudflare · utilise Gemini en attendant');
   if(provider==='mistral'&&diagnostic.includes('MISTRAL_API_KEY'))
@@ -1275,16 +1293,17 @@
    throw Error('Photo non acceptée · reprends une photo');
   if(status===404||providerStatus===404)
    throw Error('Modèle '+(provider==='mistral'?'Mistral':'Gemini')+' indisponible');
-  if(status===504||providerStatus===504)
-   throw Error('Délai '+(provider==='mistral'?'Mistral':'Gemini')+
-    ' dépassé (504) · conserve cette photo et réessaie');
+  if(providerStatus===504)
+   throw Error(providerName+' a renvoyé une erreur de délai (504) · conserve cette photo');
+  if(status===504)
+   throw Error(providerName+' ne répond pas dans le délai Cloudflare (504) · conserve cette photo');
   if(status===503||providerStatus===503)
    throw Error(providerStatus
-    ?(provider==='mistral'?'Mistral':'Gemini')+' temporairement indisponible (503) · réessaie cette photo'
-    :'Liaison Cloudflare–'+(provider==='mistral'?'Mistral':'Gemini')+' indisponible (503) · réessaie cette photo');
+    ?providerName+' temporairement indisponible ('+providerStatus+') · conserve cette photo'
+    :'Liaison Cloudflare–'+providerName+' indisponible (503) · conserve cette photo');
   if(status>=500&&status<=599)
-   throw Error('Erreur du service Gemini (HTTP '+status+
-    (providerStatus?' / fournisseur '+providerStatus:'')+') · réessaie cette photo');
+   throw Error('Erreur '+providerName+' (HTTP '+status+
+    (Number.isFinite(providerStatus)?' / fournisseur '+providerStatus:'')+') · conserve cette photo');
   throw Error('Service IA : réponse inattendue (HTTP '+status+') · réessaie cette photo');
  }
  // Une seule relecture groupée de la photo existante, y compris quand
@@ -1510,10 +1529,9 @@
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    const saveReady=Boolean(validationState());
-   const usedLegacyGemini=false;
-   say(usedLegacyGemini?'Lecture faite par Gemini · Worker Cloudflare à mettre à jour'
-    :saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),
-    usedLegacyGemini||!saveReady);
+   say(saveReady?'Étiquette prête':
+    ('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),
+    !saveReady);
 
   }catch(error){
    if(id===generation){

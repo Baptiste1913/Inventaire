@@ -44,7 +44,7 @@ assert(checkCtx.validate({...value,checks:{recoveryInterrupted:true}}).error
 
 const request=segment('async function requestGeminiWithRecovery(',
  ' // Une seule relecture groupée de la photo');
-async function errorFor(status,payload={}){
+async function errorFor(status,payload={},provider='gemini'){
  let count=0;
  const netCtx=vm.createContext({
   endpoint:'https://example.invalid/gemini-lab',
@@ -56,8 +56,9 @@ async function errorFor(status,payload={}){
  vm.runInContext(request+';globalThis.request=requestGeminiWithRecovery;',netCtx);
  let message=null;
  try{
-  await netCtx.request('A'.repeat(128),'test-key','gemini-3.5-flash-lite',
-   new AbortController().signal,13);
+  await netCtx.request('A'.repeat(128),'test-key',
+   provider==='mistral'?'mistral-ocr-4-1':'gemini-3.5-flash-lite',
+   new AbortController().signal,13,null,provider);
  }catch(error){message=error.message;}
  assert.equal(count,1,'Pas de nouvel appel Gemini automatique');
  return message;
@@ -68,11 +69,21 @@ async function errorFor(status,payload={}){
  assert((await errorFor(503,{error:'Erreur fournisseur',providerStatus:503}))
   .includes('Gemini temporairement indisponible'));
  assert((await errorFor(504,{error:'Délai Gemini dépassé.'}))
-  .includes('Délai Gemini dépassé'));
+  .includes('délai Cloudflare'));
  assert((await errorFor(422,{error:'Réponse Gemini vide'}))
   .includes('Étiquette non lue'));
  assert((await errorFor(429,{error:'Quota Gemini atteint.'}))
-  .includes('Quota Gemini atteint'));
+  .includes('Limite API Gemini atteinte (429)'));
+ assert((await errorFor(429,{error:'Limite API Mistral atteinte.',provider:'mistral',providerStatus:429},
+  'mistral')).includes('Limite API Mistral atteinte (429)'));
+ assert((await errorFor(429,{error:'Limite API Mistral atteinte.',provider:'mistral',
+  providerStatus:429,retryAfterSeconds:15},'mistral')).includes('attends 15 s'));
+ assert((await errorFor(402,{error:'Paiement requis',provider:'mistral',
+  providerStatus:402},'mistral')).includes('facturation ou crédits API'));
+ assert((await errorFor(503,{error:'Erreur Gemini',providerStatus:504}))
+  .includes('Gemini a renvoyé une erreur de délai'));
+ assert((await errorFor(429,{error:'Quota Gemini atteint.',provider:'gemini',
+  providerStatus:429},'mistral')).includes('Cloudflare a répondu via Gemini'));
  assert((await errorFor(400,{error:'Modèle ou image JPEG incorrect.'}))
   .includes('Photo non acceptée'));
  assert(js.includes("if(error?.name==='AbortError'&&id!==generation)throw error;"),

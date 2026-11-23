@@ -426,3 +426,32 @@ indisponible, l'ancien décodeur reste actif.
 Tests : `node tools/test_gemini_parallel.cjs`,
 `node tools/test_mistral_zxing.mjs`,
 `node tools/test_zxing_primary.cjs`.
+
+## v42.37 — erreurs Mistral/Gemini sans confusion de fournisseur
+
+Un HTTP 429 reçu en mode Mistral affichait par erreur « Quota Gemini
+atteint » à cause d'un message client historique (`provider!=='openai'`).
+Le message se base désormais sur le moteur sélectionné et vérifie
+l'identité de l'API renvoyée par Cloudflare : une réponse Gemini en
+mode Mistral est rejetée explicitement et ne crée aucune pesée.
+
+Mistral OCR : 429 = limite de requêtes/tokens/pages atteinte (ce n'est
+pas forcément un quota mensuel) ; vérifier Mistral Studio /
+Usage & Limits et la facturation. HTTP 402 = paiement/crédits API
+nécessaires. Un `Retry-After` inférieur à 180 s est transmis
+sous forme de durée bornée, sans données sensibles ni retries
+automatiques.
+
+Gemini : le Worker arrête un appel qui dépasse 13 secondes. Le
+client distingue maintenant **le 504 provoqué par notre délai
+Cloudflare** d'un **504 réellement renvoyé par Google**, à l'aide
+de `providerStatus`. Cela améliore le diagnostic mais **ne répare
+pas à lui seul la lenteur de Google** : examiner
+`IU_GEMINI_DIAGNOSTIC` pour identifier `timeout` à
+`google_fetch` ou `provider_http_error` avec `providerStatus:504`.
+Les photos restent sur l'appareil et les essais restent manuels.
+
+Important : GitHub Pages ne déploie pas le Worker Cloudflare.
+Le nouveau code `workers/coursesu-live-worker.js` doit être déployé
+séparément sur le Worker `inventaires-u-prix` pour bénéficier de la
+réponse 402, de la durée `Retry-After` et des diagnostics Mistral.

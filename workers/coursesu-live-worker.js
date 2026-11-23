@@ -106,12 +106,19 @@ async function mistralPilot(payload,env,origin,closed){
   stage='mistral_http';
   if(!res.ok){
    const status=res.status;
-   const outgoing=[400,401,403,404,413,429].includes(status)
+   const outgoing=[400,401,402,403,404,413,429].includes(status)
     ?(status===401?403:status):[500,502,503,504].includes(status)?503:502;
+   // Retry-After est une durée publique et bornée, pas une réponse brute.
+   const retryRaw=Number(res.headers?.get('retry-after'));
+   const retryAfterSeconds=status===429&&Number.isFinite(retryRaw)&&
+    retryRaw>=1&&retryRaw<=180?Math.ceil(retryRaw):null;
    geminiDiagnostic({stage,reason:'provider_http_error',model,
     providerStatus:status,httpStatus:outgoing,elapsedMs:Date.now()-started});
    return reply({...closed,provider:'mistral',model,providerStatus:status,
-    error:'Erreur OCR Mistral (HTTP '+status+').'},outgoing,origin);
+    ...(retryAfterSeconds?{retryAfterSeconds}:{}),
+    error:status===429?'Limite API Mistral atteinte.':
+     status===402?'Paiement requis pour l’API Mistral.':
+     'Erreur OCR Mistral (HTTP '+status+').'},outgoing,origin);
   }
   stage='mistral_response';
   const data=await res.json(),pages=data?.pages;

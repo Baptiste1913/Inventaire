@@ -1,6 +1,6 @@
 {
-  "version": "42.36",
+  "version": "42.37",
   "published": "2026-11-23",
   "assets": 60,
-  "notes": "ZXing-C++ WASM 3.1.2 devient le premier lecteur EAN-13 : bibliothèques JS/WASM auto-hébergées, mise en cache hors ligne et préchargement silencieux à l'ouverture caméra. L'ancien décodeur DIGI reste en secours si ZXing échoue. Un EAN ambigu n'est jamais accepté. Aucune modification aux contrôles DIGI, prix, tare et à la reconnaissance Gemini/Mistral."
+  "notes": "Correction des diagnostics IA : messages de quota adaptés au fournisseur réellement sélectionné (Mistral ou Gemini), refus des réponses serveur provenant d'un moteur différent, distinction HTTP 402/429, délai Cloudflare 504 contre HTTP 504 renvoyé directement par Google, et information facultative Retry-After Mistral. Aucun retry automatique, changement de modèle, d'images ou de validations DIGI. La correction des réponses Mistral nécessite un déploiement Cloudflare séparé."
 }
