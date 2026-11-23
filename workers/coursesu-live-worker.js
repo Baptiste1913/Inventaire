@@ -12,7 +12,7 @@ function reply(body,status,origin){
 // Traces d'erreurs uniquement. Aucun contenu utilisateur, photo, en-tête,
 // adresse, jeton, réponse Google ou message d'exception n'est enregistré.
 function geminiDiagnostic({stage,reason,model=null,providerStatus=null,httpStatus,elapsedMs=0}){
- const safeModel=['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model)?model:null;
+ const safeModel=['gemini-3.8-flash','gemini-3.5-flash-lite','mistral-ocr-4-1'].includes(model)?model:null;
  console.error('IU_GEMINI_DIAGNOSTIC '+JSON.stringify({
   event:'iu_gemini_failure',stage,reason,model:safeModel,
   providerStatus:Number.isInteger(providerStatus)?providerStatus:null,
@@ -56,6 +56,92 @@ function geminiLabName(value){
  const name=value.trim();
  return name.length>=2&&name.length<=70&&/^[\p{L}\d '.\-]+$/u.test(name)?name:null;
 }
+
+// Version de test OCR 4.1 : les valeurs ambiguës restent null.
+function mistralLabelText(markdown){
+ if(typeof markdown!=='string'||markdown.length>16000)return null;
+ const raw=markdown.normalize('NFKC').replace(/<[^>]{0,120}>/g,' ')
+  .replace(/[\u00a0\u202f]/g,' ');
+ const one=(pattern,convert)=>{
+  const found=new Set();
+  for(const m of raw.matchAll(pattern)){
+   const value=convert(m);
+   if(value!==null&&value!==undefined)found.add(value);
+  }
+  return found.size===1?[...found][0]:null;
+ };
+ // Le poids doit avoir trois décimales ET l'unité kg.
+ const weightGrams=one(/(\d{1,2}[,.]\d{3})\s*(?:kg|kilos?)\b/gi,m=>
+  geminiLabValue(m[1]+'kg','weight'));
+ // €/kg obligatoire : un prix total ne peut pas devenir prix/kg.
+ const pricePerKgCents=one(/(\d{1,3}[,.]\d{2})\s*(?:€|euros?)\s*(?:\/\s*kg|kg|\/\s*kilo)\b/gi,m=>
+  geminiLabValue(m[1]+'€','rate'));
+ // Le total n'est accepté que s'il suit son intitulé.
+ const totalCents=one(/(?:prix\s*(?:à|a)\s*payer|montant\s*(?:à|a)\s*payer|total\s*(?:ttc)?)[^\d]{0,55}(\d{1,3}[,.]\d{2})\s*(?:€|eur)?/gi,m=>
+  geminiLabValue(m[1]+'€','total'));
+ // EAN isolé de 13 chiffres, contrôle de clé, pas de concaténation.
+ const ean13=one(/(?:^|[^\d])((?:\d[ \t-]?){12}\d)(?!\d)/gm,m=>{
+  const e=m[1].replace(/\D/g,'');
+  return validEAN13(e)?e:null;
+ });
+ return {name:null,weightGrams,pricePerKgCents,totalCents,ean13};
+}
+async function mistralPilot(payload,env,origin,closed){
+ const model='mistral-ocr-4-1',started=Date.now();
+ if(!env.MISTRAL_API_KEY){
+  geminiDiagnostic({stage:'configuration',reason:'mistral_key_missing',model,httpStatus:503});
+  return reply({...closed,provider:'mistral',model,
+   error:'Mistral non configuré sur Cloudflare (MISTRAL_API_KEY).'},503,origin);
+ }
+ const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),13000);
+ let stage='mistral_fetch';
+ try{
+  const res=await fetch('https://api.mistral.ai/v1/ocr',{
+   method:'POST',signal:abort.signal,
+   headers:{'Content-Type':'application/json','Authorization':'Bearer '+env.MISTRAL_API_KEY},
+   body:JSON.stringify({model,document:{
+    type:'image_url',image_url:'data:image/jpeg;base64,'+payload.imageBase64
+   },include_image_base64:false})
+  });
+  stage='mistral_http';
+  if(!res.ok){
+   const status=res.status;
+   const outgoing=[400,401,403,404,413,429].includes(status)
+    ?(status===401?403:status):[500,502,503,504].includes(status)?503:502;
+   geminiDiagnostic({stage,reason:'provider_http_error',model,
+    providerStatus:status,httpStatus:outgoing,elapsedMs:Date.now()-started});
+   return reply({...closed,provider:'mistral',model,providerStatus:status,
+    error:'Erreur OCR Mistral (HTTP '+status+').'},outgoing,origin);
+  }
+  stage='mistral_response';
+  const data=await res.json(),pages=data?.pages;
+  if(!Array.isArray(pages)||pages.length!==1)throw Error('OCR inattendu');
+  const fields=mistralLabelText(pages[0]?.markdown);
+  if(!fields)throw Error('OCR non exploitable');
+  const {weightGrams,pricePerKgCents,totalCents,ean13}=fields;
+  const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
+   &&Math.abs(Math.round(weightGrams*pricePerKgCents/1000)-totalCents)<=1;
+  const priceEAN=ean13?.startsWith('02')
+   ?Math.round(Number(ean13.slice(7,12))*100/655.36):null;
+  return reply({...closed,provider:'mistral',source:'mistral-ocr',model,
+   pipelineVersion:3,elapsedMs:Date.now()-started,fields,
+   checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null,
+    barcodePriceConsistent:priceEAN!==null&&totalCents!==null
+     ?Math.abs(priceEAN-totalCents)<=1:null},
+   verifiedForInventory:false,
+   warning:'OCR indicatif : contrôler le code-barres, le prix et la tare avant validation.'},200,origin);
+ }catch(_){
+  const status=abort.signal.aborted?504:stage==='mistral_fetch'?503:422;
+  geminiDiagnostic({stage,reason:abort.signal.aborted?'timeout':
+   stage==='mistral_fetch'?'transport_error':'response_parse_error',
+   model,httpStatus:status,elapsedMs:Date.now()-started});
+  return reply({...closed,provider:'mistral',model,
+   error:status===504?'Délai Mistral dépassé.':
+    status===503?'Service Mistral injoignable.':'Réponse Mistral non exploitable.'},
+    status,origin);
+ }finally{clearTimeout(timer);}
+}
+
 async function geminiPilot(request,env,origin){
  const closed={type:'inventaires-u-gemini-lab',actorExecuted:false,
   inventoryUpdated:false};
@@ -73,15 +159,16 @@ async function geminiPilot(request,env,origin){
   if(text.length>800000)throw Error('Image trop volumineuse');
   payload=JSON.parse(text);
  }catch(_){return reply({...closed,error:'Image ou JSON invalide.'},400,origin)}
- const provider='gemini',model=payload?.model;
- if((payload?.provider&&payload.provider!=='gemini')||
-    !['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model)||
+ const provider=payload?.provider==='mistral'?'mistral':'gemini',model=payload?.model;
+ if((payload?.provider&&!['gemini','mistral'].includes(payload.provider))||
+    !(provider==='mistral'?model==='mistral-ocr-4-1':
+     ['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model))||
     payload?.type!=='iu-gemini-label-test'||
     payload?.mimeType!=='image/jpeg'||
     typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
     payload.imageBase64.length<100||!/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(payload.imageBase64))
   return reply({...closed,error:'Modèle ou image JPEG incorrect.'},400,origin);
- if(!env.GEMINI_API_KEY){
+ if(provider==='gemini'&&!env.GEMINI_API_KEY){
   geminiDiagnostic({stage:'configuration',reason:'api_key_missing',model,httpStatus:503});
   return reply({...closed,provider,error:'GEMINI_API_KEY non configurée.'},503,origin);
  }
@@ -95,6 +182,8 @@ async function geminiPilot(request,env,origin){
     new Set(requested).size!==requested.length))
   return reply({...closed,error:'Champs de relecture incorrects.'},400,origin);
  const focusFields=Array.isArray(requested)?requested:(focus?[focus]:[]);
+ // Un seul appel OCR Mistral par demande, aucune relecture distante forcée.
+ if(provider==='mistral')return mistralPilot(payload,env,origin,closed);
  // Vue centrale issue de la même photo, limitée pour ne pas pénaliser Safari.
  const detail=payload?.detailImageBase64;
  if(detail!==undefined&&(typeof detail!=='string'||
