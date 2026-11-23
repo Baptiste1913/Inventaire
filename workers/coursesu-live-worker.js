@@ -9,6 +9,16 @@ function reply(body,status,origin){
   'Cache-Control':'no-store','Access-Control-Allow-Origin':origin,'Vary':'Origin'
  }});
 }
+// Traces d'erreurs uniquement. Aucun contenu utilisateur, photo, en-tête,
+// adresse, jeton, réponse Google ou message d'exception n'est enregistré.
+function geminiDiagnostic({stage,reason,model=null,providerStatus=null,httpStatus,elapsedMs=0}){
+ const safeModel=['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model)?model:null;
+ console.error('IU_GEMINI_DIAGNOSTIC '+JSON.stringify({
+  event:'iu_gemini_failure',stage,reason,model:safeModel,
+  providerStatus:Number.isInteger(providerStatus)?providerStatus:null,
+  httpStatus,elapsedMs:Math.max(0,Math.round(elapsedMs))
+ }));
+}
 function validEAN13(code){
  if(!/^\d{13}$/.test(String(code||'')))return false;
  let sum=0;
@@ -49,8 +59,10 @@ function geminiLabName(value){
 async function geminiPilot(request,env,origin){
  const closed={type:'inventaires-u-gemini-lab',actorExecuted:false,
   inventoryUpdated:false};
- if(env.GEMINI_LAB_ENABLED!=='true')
+ if(env.GEMINI_LAB_ENABLED!=='true'){
+  geminiDiagnostic({stage:'configuration',reason:'pilot_disabled',httpStatus:503});
   return reply({...closed,error:'Pilote Gemini désactivé. Aucun appel lancé.'},503,origin);
+ }
  if(!env.COURSESU_TEST_TOKEN||request.headers.get('X-IU-Pilot-Key')!==env.COURSESU_TEST_TOKEN)
   return reply({...closed,error:'Clé privée de pilote requise. Aucun appel lancé.'},401,origin);
  let payload;
@@ -69,8 +81,10 @@ async function geminiPilot(request,env,origin){
     typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
     payload.imageBase64.length<100||!/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(payload.imageBase64))
   return reply({...closed,error:'Modèle ou image JPEG incorrect.'},400,origin);
- if(!env.GEMINI_API_KEY)
+ if(!env.GEMINI_API_KEY){
+  geminiDiagnostic({stage:'configuration',reason:'api_key_missing',model,httpStatus:503});
   return reply({...closed,provider,error:'GEMINI_API_KEY non configurée.'},503,origin);
+ }
  const photoBytes=payload.imageBase64.length*3/4;
  if(photoBytes>525000)return reply({...closed,error:'Photo trop volumineuse.'},413,origin);
  const permitted=['name','weight','rate','total','ean'];
@@ -109,8 +123,9 @@ async function geminiPilot(request,env,origin){
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),13000);
  const started=Date.now();
  let providerAnswered=false;
+ // Stades exclusivement techniques : aucun texte d'exception n'est logué.
+ let stage='google_fetch';
  try{
-
   let extracted;
   const nullableField={type:'STRING',nullable:true};
   const responseSchema={type:'OBJECT',properties:{
@@ -132,6 +147,7 @@ async function geminiPilot(request,env,origin){
       responseMimeType:'application/json',responseSchema}
     })
    });
+  stage='google_http';
   if(!res.ok){
    const status=res.status;
    // Ne pas faire fuiter le corps de la réponse, qui peut contenir des données du compte.
@@ -143,39 +159,55 @@ async function geminiPilot(request,env,origin){
    // Ne pas transformer un refus d’accès/quota en fausse panne HTTP 502.
    const outputStatus=status===429?429:[401,403].includes(status)?403
     :status===404?404:status===400?400:[500,502,503,504].includes(status)?503:502;
+   geminiDiagnostic({stage,reason:'provider_http_error',model,
+    providerStatus:status,httpStatus:outputStatus,elapsedMs:Date.now()-started});
    return reply({...closed,error:diagnostic,providerStatus:status,model},outputStatus,origin);
   }
   providerAnswered=true;
+  stage='google_response_read';
   const raw=await res.text();
+  stage='google_response_parse';
   if(raw.length>16000)throw Error('Réponse trop volumineuse');
   const data=JSON.parse(raw);
   const candidate=data?.candidates?.[0];
   // Une réponse interrompue par la limite de tokens ne peut pas être
   // interprétée comme une étiquette fiable, même si le JSON est partiel.
-  if(candidate?.finishReason==='MAX_TOKENS')
+  if(candidate?.finishReason==='MAX_TOKENS'){
+   geminiDiagnostic({stage,reason:'max_tokens',model,
+    httpStatus:422,elapsedMs:Date.now()-started});
    return reply({...closed,error:'Réponse Gemini incomplète (limite de génération). Recadrez l’étiquette et réessayez.',
     model},422,origin);
+  }
   const parts=candidate?.content?.parts||[];
   const answer=parts.filter(p=>typeof p?.text==='string').map(p=>p.text).join('');
-  if(!answer.trim())
+  if(!answer.trim()){
+   geminiDiagnostic({stage,reason:'empty_response',model,
+    httpStatus:422,elapsedMs:Date.now()-started});
    return reply({...closed,error:'Réponse Gemini vide. Centrez l’étiquette et réessayez.',
     model},422,origin);
+  }
   if(answer.length>5000)throw Error('Réponse trop longue');
   // Certaines réponses textuelles conservent des balises Markdown malgré
   // responseMimeType. Accepter le JSON strict puis, à défaut, le bloc JSON.
   try{extracted=JSON.parse(answer)}
   catch(_){
    const match=answer.trim().match(/^(?:```(?:json)?\s*)?(\{[\s\S]*\})(?:\s*```)?$/i);
-   if(!match)
+   if(!match){
+    geminiDiagnostic({stage,reason:'malformed_response',model,
+     httpStatus:422,elapsedMs:Date.now()-started});
     return reply({...closed,error:'Réponse Gemini non exploitable. Recadrez l’étiquette et réessayez.',
      model},422,origin);
+   }
    try{extracted=JSON.parse(match[1])}
    catch(_){
+    geminiDiagnostic({stage,reason:'malformed_response',model,
+     httpStatus:422,elapsedMs:Date.now()-started});
     return reply({...closed,error:'Réponse Gemini incomplète. Recadrez l’étiquette et réessayez.',
      model},422,origin);
    }
   }
   if(!extracted||typeof extracted!=='object'||Array.isArray(extracted))throw Error('JSON non reconnu');
+  stage='result_validation';
   const weightGrams=geminiLabValue(extracted.weightKg,'weight');
   const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'rate');
   const totalCents=geminiLabValue(extracted.totalEur,'total');
@@ -199,6 +231,11 @@ async function geminiPilot(request,env,origin){
   const label='Gemini';
   const message=abort.signal.aborted?'Délai '+label+' dépassé.'
    :providerAnswered?'Réponse '+label+' non exploitable.':'Service '+label+' indisponible.';
+  geminiDiagnostic({stage,reason:abort.signal.aborted?'timeout'
+   :stage==='google_fetch'?'transport_error'
+   :stage==='google_response_read'?'response_read_error'
+   :stage==='result_validation'?'result_validation_error':'response_parse_error',
+   model,httpStatus:status,elapsedMs:Date.now()-started});
   return reply({...closed,provider,error:message,model},status,origin);
  }finally{clearTimeout(timeout)}
 }
