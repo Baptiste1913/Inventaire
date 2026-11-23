@@ -503,11 +503,15 @@
    return false;
   if(reading.source!=='optical')return true;
   const b=reading.bounds;
-  // Une barre trouvée sur une autre étiquette ou en bordure ne doit
-  // pas éviter la seconde vérification Gemini de l'EAN.
-  return Boolean(b&&b.y>=.60&&b.y<=.93&&
+  // Le gabarit historique est prioritaire. Une étiquette décentrée peut
+  // être reconnue seulement si le contour RÉEL détecté contient les
+  // barres dans la partie basse. Aucun assouplissement sur simple EAN.
+  const legacy=Boolean(b&&b.y>=.60&&b.y<=.93&&
    (b.left+b.right)/2>=.15&&(b.left+b.right)/2<=.60&&
    b.right-b.left>=.20&&Math.abs(b.slope||0)<=.10);
+  if(legacy)return true;
+  return window.IUGeminiLabelGeometry?.barcodeWithinLabel?.(
+   reading,reading.labelRect)===true;
  }
  function reconcileBarcode(result,reading){
   const fields={...(result?.fields||{})},checks={...(result?.checks||{})};
@@ -895,7 +899,12 @@
   if(geometry){
    let rect=null;
    try{
-    rect=geometry.opticalCrop(confirmedOptical,width,height);
+    // Un cadre de papier déjà confirmé par le lecteur EAN peut
+    // repositionner aussi l'agrandissement sans seconde détection.
+    rect=confirmedOptical?.labelRect&&
+     geometry.barcodeWithinLabel?.(confirmedOptical,confirmedOptical.labelRect)
+     ?confirmedOptical.labelRect:null;
+    if(!rect)rect=geometry.opticalCrop(confirmedOptical,width,height);
     if(!rect){
      const thumb=document.createElement('canvas');
      const factor=Math.min(1,240/width);
