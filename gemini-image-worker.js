@@ -1,67 +1,157 @@
-/* Inventaires U 42.14 — encodage JPEG haute définition hors du fil UI.
-   Aucune donnée n'est envoyée vers un autre domaine ; cette tâche locale
-   renvoie seulement un Blob à la page qui l'a demandé. */
+/* Inventaires U 42.32 — travail image hors du thread de la caméra.
+ * Classic Worker Safari ; aucune requête HTTP externe ni accès au stockage.
+ */
 'use strict';
-self.onmessage=async event=>{
- const {id,source,maxBytes}=event.data||{};
- if(!Number.isSafeInteger(id)||!source||!Number.isSafeInteger(maxBytes)){
-  self.postMessage({id,error:'invalid-input'});return;
+importScripts('./gemini-ean.js?v=42.32');
+importScripts('./gemini-label-geometry.js?v=42.32');
+function zoneToPixels(rect,w,h){
+ if(!rect)return null;
+ return {
+  x:Math.max(0,Math.floor(rect.x*w)),
+  y:Math.max(0,Math.floor(rect.y*h)),
+  w:Math.min(w,Math.ceil(rect.w*w)),
+  h:Math.min(h,Math.ceil(rect.h*h))
+ };
+}
+function sampleContrast(data){
+ const hist=new Uint32Array(256);
+ let n=0;
+ for(let i=0;i<data.length;i+=40){
+  hist[(77*data[i]+150*data[i+1]+29*data[i+2])>>>8]++;n++;
  }
- let bitmap=null;
+ let cum=0,low=0,high=255;
+ for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.1){low=i;break;}}
+ cum=0;
+ for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.9){high=i;break;}}
+ return {low,high,range:high-low};
+}
+// CLAHE grayscale sur le SEUL détail d'une relecture ; jamais sur
+// l'image entière envoyée à Gemini, et seulement si le contraste est
+// réellement insuffisant. Luminance traitée à 1400px max hors Safari UI.
+function clahe(image,clipFactor=2.2,grid=8){
+ const {width:w,height:h,data}=image;
+ const maps=[],histSize=256;
+ for(let ty=0;ty<grid;ty++)for(let tx=0;tx<grid;tx++){
+  const x0=Math.floor(w*tx/grid),x1=Math.floor(w*(tx+1)/grid);
+  const y0=Math.floor(h*ty/grid),y1=Math.floor(h*(ty+1)/grid);
+  const hist=new Uint32Array(histSize);
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+   const i=(y*w+x)*4;
+   hist[(77*data[i]+150*data[i+1]+29*data[i+2])>>>8]++;
+  }
+  const n=Math.max(1,(x1-x0)*(y1-y0));
+  const clip=Math.max(1,Math.round(n*clipFactor/256));
+  let extra=0;
+  for(let k=0;k<256;k++)if(hist[k]>clip){
+   extra+=hist[k]-clip;hist[k]=clip;
+  }
+  const share=Math.floor(extra/256),rest=extra%256;
+  for(let k=0;k<256;k++)hist[k]+=share+(k<rest?1:0);
+  const lookup=new Uint8Array(256);
+  let cumul=0;
+  for(let k=0;k<256;k++){
+   cumul+=hist[k];
+   lookup[k]=Math.min(255,Math.round(cumul*255/n));
+  }
+  maps.push(lookup);
+ }
+ for(let y=0;y<h;y++){
+  const fy=(y+.5)*grid/h-.5;
+  const y0=Math.max(0,Math.min(grid-1,Math.floor(fy))),y1=Math.min(grid-1,y0+1);
+  const wy=Math.max(0,Math.min(1,fy-y0));
+  for(let x=0;x<w;x++){
+   const fx=(x+.5)*grid/w-.5;
+   const x0=Math.max(0,Math.min(grid-1,Math.floor(fx))),x1=Math.min(grid-1,x0+1);
+   const wx=Math.max(0,Math.min(1,fx-x0));
+   const i=(y*w+x)*4,v=(77*data[i]+150*data[i+1]+29*data[i+2])>>>8;
+   const upper=maps[y0*grid+x0][v]*(1-wx)+maps[y0*grid+x1][v]*wx;
+   const lower=maps[y1*grid+x0][v]*(1-wx)+maps[y1*grid+x1][v]*wx;
+   // Garder un peu de la source pour ne pas noircir les chiffres fins.
+   const enhanced=upper*(1-wy)+lower*wy;
+   const pixel=Math.min(255,Math.round(v*.28+enhanced*.72));
+   data[i]=data[i+1]=data[i+2]=pixel;
+  }
+ }
+ return image;
+}
+async function enhancedDetail(photo,reading){
+ if(typeof OffscreenCanvas!=='function'||
+    typeof createImageBitmap!=='function'||!self.IUGeminiLabelGeometry)
+  return null;
+ const bitmap=await createImageBitmap(photo);
  try{
-  if(typeof createImageBitmap!=='function'||typeof OffscreenCanvas!=='function')
-   throw Error('unsupported');
-  // Le comportement par défaut conserve l'orientation EXIF de la photo.
-  bitmap=await createImageBitmap(source);
-  const longest=Math.max(bitmap.width,bitmap.height);
-  if(!(longest>0))throw Error('empty');
-  const canvas=new OffscreenCanvas(1,1);
-  const ctx=canvas.getContext('2d');
-  if(!ctx||typeof canvas.convertToBlob!=='function')throw Error('unsupported');
-  let prevWidth=0,prevHeight=0;
-  for(const side of [2400,2200,1920,1700,1500]){
-   const scale=Math.min(1,side/longest);
-   const width=Math.max(1,Math.round(bitmap.width*scale));
-   const height=Math.max(1,Math.round(bitmap.height*scale));
-   if(prevWidth===width&&prevHeight===height)continue;
-   prevWidth=width;prevHeight=height;
-   canvas.width=width;canvas.height=height;
-   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-   ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
-   ctx.drawImage(bitmap,0,0,width,height);
-   const encode=quality=>canvas.convertToBlob({type:'image/jpeg',quality});
-   const top=await encode(.93);
-   if(top.type==='image/jpeg'&&top.size>=75&&top.size<=maxBytes){
-    self.postMessage({id,blob:top});return;
-   }
-   // Recherche adaptative sans baisser les seuils de qualité historiques.
-   // Tester .81 avant .87 uniquement si .93 dépasse largement le plafond.
-   if(top.size>maxBytes*1.18){
-    const middle=await encode(.81);
-    if(middle.type==='image/jpeg'&&middle.size>=75&&middle.size<=maxBytes){
-     const higher=await encode(.87);
-     self.postMessage({id,blob:higher.size>=75&&higher.size<=maxBytes&&
-      higher.type==='image/jpeg'?higher:middle});return;
-    }
-    const lower=await encode(.75);
-    if(lower.type==='image/jpeg'&&lower.size>=75&&lower.size<=maxBytes){
-     self.postMessage({id,blob:lower});return;
-    }
-   }else{
-    for(const quality of [.87,.81,.75]){
-     const blob=await encode(quality);
-     if(blob.type==='image/jpeg'&&blob.size>=75&&blob.size<=maxBytes){
-      self.postMessage({id,blob});return;
-     }
-    }
+  const iw=bitmap.width,ih=bitmap.height;
+  if(!(iw>=650&&ih>=350))return null;
+  const geometry=self.IUGeminiLabelGeometry;
+  let rect=geometry.opticalCrop(reading,iw,ih);
+  if(!rect){
+   const thumb=new OffscreenCanvas(Math.max(1,Math.round(iw*Math.min(1,240/iw))),
+    Math.max(1,Math.round(ih*Math.min(1,240/iw))));
+   const tc=thumb.getContext('2d',{willReadFrequently:true});
+   if(tc){
+    tc.drawImage(bitmap,0,0,thumb.width,thumb.height);
+    rect=geometry.detect(tc.getImageData(0,0,thumb.width,thumb.height));
    }
   }
-  self.postMessage({id,error:'too-large'});
+  if(!rect||rect.x<.008||rect.y<.008||
+     rect.x+rect.w>.992||rect.y+rect.h>.992)return null;
+  const box=zoneToPixels(rect,iw,ih);
+  if(box.w<480||box.h<260||box.x+box.w>iw||box.y+box.h>ih)return null;
+  const factor=Math.min(1,1400/Math.max(box.w,box.h));
+  const w=Math.round(box.w*factor),h=Math.round(box.h*factor);
+  const canvas=new OffscreenCanvas(w,h);
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  if(!ctx)return null;
+  ctx.imageSmoothingQuality='high';
+  ctx.drawImage(bitmap,box.x,box.y,box.w,box.h,0,0,w,h);
+  const img=ctx.getImageData(0,0,w,h);
+  const contrast=sampleContrast(img.data);
+  const slope=reading?.confirmed&&reading?.bounds?Number(reading.bounds.slope)||0:0;
+  const rotate=Math.abs(slope)>.035&&Math.abs(slope)<.12;
+  // Ne jamais retoucher une image suffisamment contrastée et droite.
+  if((contrast.range>=94||contrast.range<16)&&!rotate)return null;
+  if(contrast.range>=16&&contrast.range<94){
+   clahe(img);
+   ctx.putImageData(img,0,0);
+  }
+  if(rotate){
+   const clone=new OffscreenCanvas(w,h);
+   const rc=clone.getContext('2d');
+   if(!rc)return null;
+   rc.fillStyle='#fff';rc.fillRect(0,0,w,h);
+   rc.translate(w/2,h/2);
+   rc.rotate(-Math.atan(slope));
+   // Préserver une marge pour ne pas couper chiffres et gardes EAN.
+   rc.scale(.94,.94);
+   rc.drawImage(canvas,-w/2,-h/2);
+   const contents=clone;
+   for(const quality of [.84,.75,.65,.55]){
+    const jpeg=await contents.convertToBlob({type:'image/jpeg',quality});
+    if(jpeg.size>=100&&jpeg.size<=122000)return jpeg;
+   }
+   return null;
+  }
+  for(const quality of [.84,.75,.65,.55]){
+   const jpeg=await canvas.convertToBlob({type:'image/jpeg',quality});
+   if(jpeg.size>=100&&jpeg.size<=122000)return jpeg;
+  }
+  return null;
+ }finally{bitmap.close?.();}
+}
+self.onmessage=async event=>{
+ const {id,kind,photo,reading}=event.data||{};
+ if(!Number.isSafeInteger(id)||!photo)return;
+ try{
+  if(typeof OffscreenCanvas!=='function'||
+     typeof createImageBitmap!=='function'){
+   self.postMessage({id,error:'unsupported'});return;
+  }
+  let result=null;
+  if(kind==='barcode')result=await self.IUGeminiEAN.read(photo);
+  else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading);
+  self.postMessage({id,result});
  }catch(_){
-  // L'iPhone peut ne pas fournir OffscreenCanvas/convertToBlob : le
-  // script principal reprend automatiquement avec son Canvas classique.
-  self.postMessage({id,error:'unavailable'});
- }finally{
-  try{bitmap?.close?.();}catch(_){}
+  // Les échecs du prétraitement ne compromettent jamais Gemini.
+  self.postMessage({id,result:null});
  }
 };
