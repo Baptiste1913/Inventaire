@@ -26,7 +26,7 @@
  let pendingReplacementFile=null,lastSavedImportedPhoto=null;
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
- const fixedModel='gemini-3.5-flash-lite';
+ const fixedModel='gemini-3.5-flash-lite',mistralModel='mistral-ocr-4-1';
  const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
@@ -796,7 +796,7 @@
  });
  pilotKey.addEventListener('input',updateButton);
  if(providerSelect){
-  try{providerSelect.value=localStorage.getItem(providerPreferenceKey)==='openai'?'openai':'gemini';}
+  try{providerSelect.value=localStorage.getItem(providerPreferenceKey)==='mistral'?'mistral':'gemini';}
   catch(_){providerSelect.value='gemini';}
   providerSelect.addEventListener('change',()=>{
    try{localStorage.setItem(providerPreferenceKey,providerSelect.value)}catch(_){}
@@ -1186,7 +1186,7 @@
     +' · '+(wallMs/1000).toFixed(2)+' s';
   }else{
    const usedModel=String(result?.model||fixedModel);
-   const usedProvider=usedModel.startsWith('gpt-')?'OpenAI':'Gemini';
+   const usedProvider=result?.provider==='mistral'?'Mistral OCR':'Gemini';
    networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +' · modèle '+usedModel
@@ -1267,16 +1267,21 @@
    throw Error(provider==='openai'?'Accès OpenAI refusé · vérifie la clé API dans Cloudflare':'Accès Gemini refusé · vérifie la clé');
   if(status===429||providerStatus===429)
    throw Error('Quota '+(provider==='openai'?'OpenAI':'Gemini')+' atteint · réessaie plus tard');
+  if(provider==='mistral'&&diagnostic.includes('Modèle ou image JPEG incorrect'))
+   throw Error('Mistral OCR non déployé sur Cloudflare · utilise Gemini en attendant');
+  if(provider==='mistral'&&diagnostic.includes('MISTRAL_API_KEY'))
+   throw Error('Clé Mistral absente de Cloudflare · configure MISTRAL_API_KEY');
   if(status===400||status===413)
    throw Error('Photo non acceptée · reprends une photo');
   if(status===404||providerStatus===404)
-   throw Error('Modèle '+(provider==='openai'?'OpenAI':'Gemini')+' indisponible');
+   throw Error('Modèle '+(provider==='mistral'?'Mistral':'Gemini')+' indisponible');
   if(status===504||providerStatus===504)
-   throw Error('Délai Gemini dépassé (504) · conserve cette photo et réessaie');
+   throw Error('Délai '+(provider==='mistral'?'Mistral':'Gemini')+
+    ' dépassé (504) · conserve cette photo et réessaie');
   if(status===503||providerStatus===503)
    throw Error(providerStatus
-    ?'Gemini temporairement indisponible (503) · réessaie cette photo'
-    :'Liaison Cloudflare–Gemini indisponible (503) · réessaie cette photo');
+    ?(provider==='mistral'?'Mistral':'Gemini')+' temporairement indisponible (503) · réessaie cette photo'
+    :'Liaison Cloudflare–'+(provider==='mistral'?'Mistral':'Gemini')+' indisponible (503) · réessaie cette photo');
   if(status>=500&&status<=599)
    throw Error('Erreur du service Gemini (HTTP '+status+
     (providerStatus?' / fournisseur '+providerStatus:'')+') · réessaie cette photo');
@@ -1340,10 +1345,11 @@
  }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
-  const selectedModel=fixedModel,access=pilotKey.value.trim();
-  // Ce pilote de rapidité/fiabilité n'utilise qu'un seul moteur IA.
-  const selectedProvider='gemini';
-  const providerName=selectedProvider==='openai'?'OpenAI':'Gemini';
+  const selectedProvider=providerSelect?.value==='mistral'?'mistral':'gemini';
+  const selectedModel=selectedProvider==='mistral'?mistralModel:fixedModel;
+  const access=pilotKey.value.trim();
+  // Mistral est un mode d'essai explicite. Une capture, un fournisseur.
+  const providerName=selectedProvider==='mistral'?'Mistral OCR':'Gemini';
   const targetField=repairFocus&&lastRawResult?repairFocus:null;
   const oldResult=targetField?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
@@ -1385,7 +1391,8 @@
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
    if(!localBarcode){
     const independent=await Promise.race([job,
-     new Promise(resolve=>setTimeout(()=>resolve(null),350))]);
+     new Promise(resolve=>setTimeout(()=>resolve(null),
+      selectedProvider==='mistral'?850:350))]);
     if(id!==generation)return;
     if(independent)localBarcode=independent;
    }
@@ -1428,7 +1435,7 @@
      targets=recoveryTargets(combined);
     }
    }
-   if(targets.length){
+   if(targets.length&&selectedProvider==='gemini'){
     // Une seule relecture de tous les champs problématiques sur cette
     // MEME photo. Ne pas perdre les valeurs fiables de la première.
     try{
@@ -1503,7 +1510,7 @@
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    const saveReady=Boolean(validationState());
-   const usedLegacyGemini=selectedProvider==='openai'&&!String(received?.model||'').startsWith('gpt-');
+   const usedLegacyGemini=false;
    say(usedLegacyGemini?'Lecture faite par Gemini · Worker Cloudflare à mettre à jour'
     :saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),
     usedLegacyGemini||!saveReady);
