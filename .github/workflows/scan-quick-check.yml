@@ -15,6 +15,9 @@ on:
       - 'tools/test_gemini_parallel.cjs'
       - 'tools/test_gemini_worker_pixels.cjs'
       - 'gemini-ean.js'
+      - 'gemini-ean-printed.js'
+      - 'tools/test_gemini_ean_focus.cjs'
+      - 'tools/test_gemini_ean_printed.cjs'
       - 'gemini-label-geometry.js'
       - 'tools/test_gemini_ean_rescue.cjs'
       - 'tools/test_gemini_label_geometry.cjs'
@@ -68,6 +71,9 @@ jobs:
           node --check tools/test_gemini_parallel.cjs
           node --check tools/test_gemini_worker_pixels.cjs
           node --check gemini-ean.js
+          node --check gemini-ean-printed.js
+          node --check tools/test_gemini_ean_focus.cjs
+          node --check tools/test_gemini_ean_printed.cjs
           node --check gemini-label-geometry.js
           node --check tools/test_gemini_ean_rescue.cjs
           node --check tools/test_gemini_label_geometry.cjs
@@ -119,6 +125,8 @@ jobs:
         run: |
           node tools/test_gemini_parallel.cjs
           node tools/test_gemini_worker_pixels.cjs
+          node tools/test_gemini_ean_focus.cjs
+          node tools/test_gemini_ean_printed.cjs
       - name: Vérifier la photo optimale et les 3 zones DIGI
         run: |
           node tools/test_gemini_frame_quality.cjs
