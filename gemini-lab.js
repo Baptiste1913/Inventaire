@@ -875,13 +875,47 @@
  // Une vue centrale complémentaire est dérivée de la même capture. Ne
  // jamais couper l'image originale : c'est le seul repère géométrique sûr.
  // L'agrandissement est facultatif pour préserver la latence sur iPhone.
- async function prepareLabelDetail(source){
+ async function prepareLabelDetail(source,confirmedOptical=null){
   if(source?.type!=='image/jpeg'||source.size<100)return null;
   const img=await decodePhoto(source);
   const width=img.naturalWidth,height=img.naturalHeight;
   if(width<650||height<350)return null;
-  const cropX=Math.round(width*.065),cropY=Math.round(height*.07);
-  const cropW=width-2*cropX,cropH=height-2*cropY;
+  // Conservons la vue d'origine intégrale, indépendamment du détail.
+  // Les contours réels sont recherchés sur une miniature puis acceptés
+  // UNIQUEMENT si suffisamment nets et entourés de marges.
+  let cropX=Math.round(width*.065),cropY=Math.round(height*.07);
+  let cropW=width-2*cropX,cropH=height-2*cropY;
+  const geometry=window.IUGeminiLabelGeometry;
+  if(geometry){
+   let rect=null;
+   try{
+    rect=geometry.opticalCrop(confirmedOptical,width,height);
+    if(!rect){
+     const thumb=document.createElement('canvas');
+     const factor=Math.min(1,240/width);
+     thumb.width=Math.max(1,Math.round(width*factor));
+     thumb.height=Math.max(1,Math.round(height*factor));
+     const cx=thumb.getContext('2d',{willReadFrequently:true});
+     if(cx){
+      cx.drawImage(img,0,0,thumb.width,thumb.height);
+      rect=geometry.detect(cx.getImageData(0,0,thumb.width,thumb.height));
+     }
+    }
+   }catch(_){rect=null;}
+   if(rect&&rect.x>.005&&rect.y>.005&&
+      rect.x+rect.w<.995&&rect.y+rect.h<.995){
+    const proposed={x:Math.floor(rect.x*width),y:Math.floor(rect.y*height),
+     w:Math.ceil(rect.w*width),h:Math.ceil(rect.h*height)};
+    // Un contour incertain n'est jamais imposé à Gemini. Repli exact
+    // sur le recadrage central de l'ancienne version.
+    if(proposed.w>=480&&proposed.h>=260&&
+       proposed.x>=0&&proposed.y>=0&&
+       proposed.x+proposed.w<=width&&proposed.y+proposed.h<=height){
+     cropX=proposed.x;cropY=proposed.y;
+     cropW=proposed.w;cropH=proposed.h;
+    }
+   }
+  }
   if(cropW<450||cropH<230)return null;
   const canvas=document.createElement('canvas');
   const scale=Math.min(1,1500/Math.max(cropW,cropH));
@@ -1311,13 +1345,31 @@
    // Comparer les chiffres indépendamment, sans jamais remplacer un
    // EAN Gemini confirmé et contradictoire par simple supposition.
    combined=reconcileBarcode(combined,localBarcode);
-   const targets=!targetField?recoveryTargets(combined):[];
+   let targets=!targetField?recoveryTargets(combined):[];
+   // Le décodage local travaille déjà en parallèle depuis la capture.
+   // S'il est presque terminé et que seul l'EAN nécessite confirmation,
+   // attendre très brièvement évite un aller-retour Gemini de plusieurs
+   // secondes. Si le lecteur a déjà échoué, aucune attente supplémentaire.
+   if(!targetField&&!localBarcode&&targets.length===1&&targets[0]==='ean'){
+    const finalOptical=await Promise.race([job,
+     new Promise(resolve=>setTimeout(()=>resolve(null),165))]);
+    if(id!==generation)return;
+    if(finalOptical){
+     localBarcode=finalOptical;
+     combined=reconcileBarcode(combined,localBarcode);
+     targets=recoveryTargets(combined);
+    }
+   }
    if(targets.length){
     // Une seule relecture de tous les champs problématiques sur cette
     // MEME photo. Ne pas perdre les valeurs fiables de la première.
     try{
      say(providerName+' · vérification de '+targets.length+' champ(s)…');
-     const pendingDetail=await Promise.race([detailTask,
+     // Si un code-barres indépendant a localisé l'étiquette, la seconde
+     // vue exploite sa géométrie. Sinon, garder le détail habituel.
+     const opticalDetail=localBarcode?.confirmed&&localBarcode?.bounds?
+      prepareLabelDetail(file,localBarcode).catch(()=>null):detailTask;
+     const pendingDetail=await Promise.race([opticalDetail,
       new Promise(resolve=>setTimeout(()=>resolve(null),240))]);
      if(id!==generation)return;
      const focused=await requestGeminiWithRecovery(
