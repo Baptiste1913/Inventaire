@@ -12,7 +12,7 @@ assert.equal(parse('0203476013845'),null,'Clé EAN invalide');
 assert.equal(parse('Produit 0 203476 013844'),null,'Ne pas lire une ligne contenant du texte');
 assert.equal(parse('0 203476 013844 22'),null,'Ne pas fabriquer un EAN depuis un prix');
 assert.equal(parse('0 203476 013844',38),null,'OCR trop incertain');
-assert.equal(parse('0203476013844\n0206632090597')?.ambiguous,true,
+assert.equal(parse('0203476013844\n2824059003151')?.ambiguous,true,
  'Plusieurs EAN indépendants : indéterminé');
 const hints={labelRect:{x:.35,y:.12,w:.55,h:.78,source:'paper-outline'}};
 const r=roi(hints);
