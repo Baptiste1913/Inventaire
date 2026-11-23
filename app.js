@@ -155,11 +155,29 @@ window.IUGeminiSaveWeigh=payload=>{
  const ean=payload?.ean13,corrected=payload?.correctedEan13;
  const product=typeof payload?.product==='string'?payload.product.trim().slice(0,120):'';
  const b=baskets.find(x=>x.id===$('basketSelect').value);
+ const plu=String(payload?.plu??''),prefix=String(payload?.catalogPrefix??'');
+ const digi=window.IUDigiCatalogLookup?.resolve(ean);
+ // Le magasin n'enregistre jamais un nom/PLU venant d'une déduction Gemini.
+ if(!digi?.ok||digi.plu!==plu||digi.name!==product||digi.eanPrefix!==prefix)
+  return {ok:false,reason:'Référence DIGI absente, ambiguë ou modifiée'};
  if(!b||!product||!Number.isSafeInteger(gross)||gross<=b.tare||gross>30000||
     !Number.isSafeInteger(rate)||rate<=0||!Number.isSafeInteger(total)||total<0||
     !/^\d{13}$/.test(ean||'')||!/^\d{13}$/.test(corrected||''))return {ok:false,reason:'Données ou panier invalides'};
  const net=gross-b.tare;
- if(Math.abs(Math.round(gross*rate/1000)-total)>1)return {ok:false,reason:'Prix original incohérent'};
+ if(Math.abs(Math.round(gross*rate/1000)-total)>1)
+  return {ok:false,reason:'Prix original incohérent'};
+ // Le montant et la clé EAN reconstitués doivent correspondre EXACTEMENT
+ // au poids net et au prix de cette pesée, même si l'appelant est modifié.
+ const correctedTotal=Math.round(net*rate/1000);
+ const encoded=Math.round(correctedTotal*655.36/100);
+ if(encoded<0||encoded>99999||!Number.isSafeInteger(encoded))
+  return {ok:false,reason:'Montant EAN hors limites'};
+ const first12=ean.slice(0,7)+String(encoded).padStart(5,'0');
+ let sum=0;
+ for(let i=0;i<12;i++)sum+=Number(first12[i])*(i%2?3:1);
+ const expected=first12+String((10-sum%10)%10);
+ if(corrected!==expected||payload?.correctedTotalCents!==correctedTotal)
+  return {ok:false,reason:'Code-barres corrigé non conforme au calcul'};
  const now=Date.now();
  const duplicate=Boolean(iuGeminiDuplicate(ean,gross,rate,total));
  // Deux étiquettes identiques peuvent être deux vrais articles. Exiger
@@ -172,7 +190,7 @@ window.IUGeminiSaveWeigh=payload=>{
  const entry={id:uid(),at:now,name:b.name,tare:b.tare,gross,net,
   manualCorrectedFields:editedFields,
   duplicateConfirmed:duplicate&&payload?.confirmDuplicate===true,
-  source:'gemini',product,ean13:ean,correctedEan13:corrected,
+  source:'gemini',product,plu,catalogPrefix:prefix,ean13:ean,correctedEan13:corrected,
   pricePerKgCents:rate,originalTotalCents:total,correctedTotalCents:payload.correctedTotalCents,
   model:'gemini-3.5-flash-lite'};
  const newHistory=[entry,...history].slice(0,15);
@@ -206,7 +224,7 @@ for(const entry of (historyExpanded?history:history.slice(0,5))){const row=docum
  const audit=document.createElement('span');audit.className='history-chip history-chip-detail';
  audit.textContent='Valeur vérifiée';meta.append(audit);
 }
-}const extra=document.createElement('div');extra.className='history-gemini-extra';extra.textContent=[entry.product,entry.ean13?'EAN '+entry.ean13:null,entry.correctedEan13?'Corrigé '+entry.correctedEan13:null,Number.isInteger(entry.pricePerKgCents)?(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €/kg':null,Number.isInteger(entry.correctedTotalCents)?(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' € après tare':null].filter(Boolean).join(' · ');info.append(name,meta,extra);}else info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);if(entry.source==='gemini'){const star=document.createElement('span');star.className='iu-gemini-star-badge iu-gemini-history-star';star.setAttribute('role','img');star.setAttribute('aria-label','Pesée réalisée par Gemini');star.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiHistoryGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiHistoryGradient)"/></svg>';row.append(star);}row.append(info,result);list.append(row);}}
+}const extra=document.createElement('div');extra.className='history-gemini-extra';extra.textContent=[entry.product,entry.plu?'PLU '+entry.plu:null,entry.ean13?'EAN '+entry.ean13:null,entry.correctedEan13?'Corrigé '+entry.correctedEan13:null,Number.isInteger(entry.pricePerKgCents)?(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €/kg':null,Number.isInteger(entry.correctedTotalCents)?(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' € après tare':null].filter(Boolean).join(' · ');info.append(name,meta,extra);}else info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);if(entry.source==='gemini'){const star=document.createElement('span');star.className='iu-gemini-star-badge iu-gemini-history-star';star.setAttribute('role','img');star.setAttribute('aria-label','Pesée réalisée par Gemini');star.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiHistoryGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiHistoryGradient)"/></svg>';row.append(star);}row.append(info,result);list.append(row);}}
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
 function persist(){
  try{safeSetItem(STORAGE_KEY,JSON.stringify(baskets));render();return true;}
@@ -287,7 +305,21 @@ const safeClone=x=>JSON.parse(JSON.stringify(x));
 const readJSON=(key,fallback)=>{try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw);}catch{return fallback;}};
 function cleanWeigh(x){
   if(!x||typeof x!=='object'||!Number.isSafeInteger(x.net)||!Number.isSafeInteger(x.gross)||!Number.isSafeInteger(x.tare)||x.gross<0||x.tare<0||x.net!==x.gross-x.tare||!Number.isFinite(x.at))return null;
-  return {id:typeof x.id==='string'?x.id.slice(0,90):uid(),at:x.at,name:String(x.name||'Panier').slice(0,40),tare:x.tare,gross:x.gross,net:x.net,groupId:String(x.groupId||x.id||uid()).slice(0,90)};
+  const saved={id:typeof x.id==='string'?x.id.slice(0,90):uid(),at:x.at,
+   name:String(x.name||'Panier').slice(0,40),tare:x.tare,gross:x.gross,
+   net:x.net,groupId:String(x.groupId||x.id||uid()).slice(0,90)};
+  if(x.source==='gemini'){
+   saved.source='gemini';
+   for(const key of ['product','plu','catalogPrefix','ean13','correctedEan13'])
+    if(typeof x[key]==='string')saved[key]=x[key].slice(0,key==='product'?120:20);
+   for(const key of ['pricePerKgCents','originalTotalCents','correctedTotalCents'])
+    if(Number.isSafeInteger(x[key])&&x[key]>=0)saved[key]=x[key];
+   if(Array.isArray(x.manualCorrectedFields))
+    saved.manualCorrectedFields=x.manualCorrectedFields.filter(v=>
+     ['ean','weight','rate','total'].includes(v)).slice(0,4);
+   saved.duplicateConfirmed=x.duplicateConfirmed===true;
+  }
+  return saved;
 }
 
 /* V39.60 — Mois de référence explicite, indépendant de la date réelle.

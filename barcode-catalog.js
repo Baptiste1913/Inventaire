@@ -90,6 +90,7 @@
    // Les données sont conservées dans une clé distincte de tous les inventaires.
    localStorage.setItem(keyCatalog,JSON.stringify({articles:serializable}));
    populate(records);
+   window.dispatchEvent(new Event('iu-digi-catalog-updated'));
    $s('iuEanCatalogStatus','Import réussi : '+records.size+' PLU, '+eanIndex.size+' préfixes EAN reconnus hors ligne sur cet appareil.'+(ambiguousPrefixes.size?' '+ambiguousPrefixes.size+' préfixe(s) ambigus non associés automatiquement.':''));
    renderSearch('iuEanCatalogSearch','iuEanCatalogMatches',false);
   }catch(error){$s('iuEanCatalogStatus','Import impossible. Sélectionne le fichier JSON ou CSV consolidé : '+String(error.message||'').slice(0,100))}
