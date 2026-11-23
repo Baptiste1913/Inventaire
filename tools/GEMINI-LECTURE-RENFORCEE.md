@@ -166,3 +166,46 @@ Le gain de rapidité sera probablement très faible, car les branches
 Apify/OpenAI n’étaient déjà pas exécutées lors d’une analyse Gemini.
 L’objectif de ce changement est un Worker plus simple, plus léger et
 moins risqué à maintenir.
+
+## v42.32 — deux traitements parallèles et résolution utile (23 novembre 2026)
+
+La requête principale Gemini, son JSON et sa validation sont strictement
+identiques à la v42.31. Le navigateur démarre la lecture EAN dans un
+Web Worker classique `gemini-image-worker.js`, qui réutilise
+`gemini-ean.js` à travers `importScripts`. Les opérations de pixels
+utilisent `OffscreenCanvas` et `createImageBitmap` quand disponibles,
+ce qui évite de monopoliser le thread d'interface Safari pendant
+l'analyse du code-barres. Si l'API Worker, le décodage ou les fonctions
+requises échouent, le lecteur habituel est utilisé automatiquement
+(ou le résultat local reste absent, sans inventer de chiffres).
+
+La capture manuelle monte à **2160 pixels maximum sur le plus grand côté**
+au lieu de 1920, si le flux vidéo natif contient ces pixels. Le tampon
+d'images récentes reste à 1920 pour éviter la chauffe. La photo
+JPEG est tentée en qualité 88 % ; si son poids dépasse 490 Ko, la
+capture revient à 1920 px / 86 %. Aucun DPI artificiel n'est ajouté :
+seule compte la résolution effective des chiffres à l'écran et dans la
+photo. La vue secondaire peut conserver jusqu'à 1700 px, avec la même
+limite stricte de 122 Ko et un repli des qualités JPEG.
+
+En cas de RELECTURE Gemini seulement, une image complémentaire
+optionnelle peut être traitée en dehors du thread caméra :
+**CLAHE** en niveaux de gris avec contraste local limité
+(grille 8×8, clip ~2,2) lorsque l'impression présente un contraste faible,
+et redressement modéré lorsque l'angle est optiquement confirmé.
+Le traitement ne s'applique PAS sur une étiquette normalement lisible
+et ne remplace jamais la photo originale. En cas d'échec, de
+dépassement de délai ou de doute, l'ancien détail est conservé.
+Aucun nouveau modèle ou requête IA supplémentaire n'est ajouté.
+Seules les validations existantes peuvent demander une relecture.
+
+Le nouveau système est dans la PWA et ne requiert pas de déployer
+Cloudflare pour le calcul local. Pour bénéficier des images secondaires
+Gemini, le Worker distant doit cependant déjà accepter
+`detailImageBase64` (pipeline v2). Si ce n'est pas le cas, la photo
+complète et les validations existantes restent prioritaires.
+
+Tests : `node tools/test_gemini_parallel.cjs` et
+`node tools/test_gemini_ean_rescue.cjs`, en plus des vérifications
+caméra, catalogue DIGI et Gemini. Le bénéfice réel de délai reste
+à vérifier sur un iPhone et sur les étiquettes réelles.

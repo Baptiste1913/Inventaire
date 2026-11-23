@@ -1,6 +1,6 @@
 {
-  "version": "42.31",
+  "version": "42.32",
   "published": "2026-11-23",
-  "assets": 57,
-  "notes": "Scan DIGI v42.31 conservateur : réparation du motif EAN droit manquant, lecture optique initiale inchangée puis secours local 1500px si non reconnue (inclinaisons et seuils étendus) ; détection facultative du contour réel de l'étiquette pour créer un détail Gemini, avec repli sur l'ancien recadrage si incertain, sans modifier la photo complète ; confirmation optique brièvement attendue si seule l'EAN nécessiterait une seconde demande Gemini. Protections poids/tare/PLU/prix/doublon inchangées. Aucun changement du Worker Cloudflare nécessaire pour ces optimisations côté PWA."
+  "assets": 59,
+  "notes": "Parallélisme prudent Safari : décodage EAN hors du thread principal via Web Worker + OffscreenCanvas, repli automatique sur le lecteur historique ; contraste adaptatif CLAHE et léger redressement uniquement sur un détail facultatif lors des relectures Gemini. Résolution utile améliorée au clic jusqu'à 2160 px si la photo reste sous 490 Ko, sinon fallback JPEG 1920 px ; détail jusqu'à 1700 px sans suréchantillonnage. Aucune modification du Worker Cloudflare ou des contrôles de sécurité DIGI, poids, prix et doublons."
 }

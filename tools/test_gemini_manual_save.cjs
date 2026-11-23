@@ -23,8 +23,9 @@ assert(next.includes('validationState()')&&next.includes('saveVerifiedProposal('
  'Le bouton Nouvelle pesée valide avant de sauvegarder');
 assert(capture.includes('saveVerifiedProposal({')&&capture.includes('priorWasSavable'),
  'Le geste de capture n’enregistre que la pesée précédente déjà validée');
-assert(capture.includes("cv.toBlob(resolve,'image/jpeg',.86)"),
- 'La capture photo est distincte de la sauvegarde');
+assert(capture.includes("cv.toBlob(resolve,'image/jpeg',.88)")&&
+ capture.includes("fallback.toBlob(resolve,'image/jpeg',.86)"),
+ 'Capture haute résolution avec repli JPEG conservateur indépendante de la sauvegarde');
 assert(capture.includes('const chosen=await chooseSharpCameraFrame(frameEpoch);'),
  'Le déclencheur choisit le cliché le plus net avant la requête Gemini');
 assert(js.includes('const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,'),
