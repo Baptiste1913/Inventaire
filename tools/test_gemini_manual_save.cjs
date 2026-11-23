@@ -25,8 +25,10 @@ assert(capture.includes('saveVerifiedProposal({')&&capture.includes('priorWasSav
  'Le geste de capture n’enregistre que la pesée précédente déjà validée');
 assert(capture.includes("cv.toBlob(resolve,'image/jpeg',.86)"),
  'La capture photo est distincte de la sauvegarde');
-assert(capture.includes('cameraCaptureCrop(video.videoWidth'),
- 'Le vrai cadrage vidéo pilote la capture');
+assert(capture.includes('const chosen=await chooseSharpCameraFrame(frameEpoch);'),
+ 'Le déclencheur choisit le cliché le plus net avant la requête Gemini');
+assert(js.includes('const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,'),
+ 'Le cadrage vidéo reste en haute résolution');
 assert(save.includes('catalogProposalCurrent()'),
  'La référence DIGI est revalidée juste avant la sauvegarde');
 assert(save.includes('plu:proposal.plu')&&save.includes('catalogPrefix:proposal.catalogPrefix'),

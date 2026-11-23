@@ -11,7 +11,7 @@ assert(a>0&&b>a,'Cycle de vie du viseur IA présent');
 const lifecycle=source.slice(a,b);
 const track={readyState:'live',enabled:true};
 const cameraStream={getVideoTracks:()=>[track]};
-const events={pauses:0,plays:0,bindings:0};
+const events={pauses:0,plays:0,bindings:0,qualityStops:0,qualityStarts:0};
 const video={
  paused:false,
  _srcObject:cameraStream,
@@ -34,6 +34,8 @@ const document={hidden:false};
 const context={video,cameraStream,cameraShell,cameraStage,cameraStill,
  cameraIdle,frameState:{hidden:true},panel,document,
  cameraPausedInBackground:false,
+ stopQualityMonitor(){events.qualityStops++},
+ startQualityMonitor(){events.qualityStarts++},
  startCamera(){throw Error('Une requête de permissions ne doit pas être nécessaire')},
  say(){},Promise};
 const set=vm.runInNewContext(lifecycle+';setAnalysisCameraClosed',context);
@@ -54,6 +56,8 @@ set(false);
 assert.equal(track.enabled,true,'Récupération possible après arrière-plan');
 assert.equal(events.plays,1,'Reprise seulement si vidéo réellement suspendue');
 assert.equal(events.bindings,0,'La piste autorisée est réutilisée');
+assert(events.qualityStops>=4&&events.qualityStarts>=3,
+ 'Le tampon photo est suspendu puis repris sans redémarrer la piste Safari');
 assert(source.includes('for(const track of cameraStream.getVideoTracks())track.enabled=false;'),
  'La mise en arrière-plan coupe toujours le flux');
 assert(source.includes("cameraShell.dataset.state='idle'"),
