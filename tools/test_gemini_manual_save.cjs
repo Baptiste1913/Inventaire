@@ -43,8 +43,10 @@ assert(app.includes("const digi=window.IUDigiCatalogLookup?.resolve(ean);"),
 assert(app.includes('corrected!==expected||payload?.correctedTotalCents!==correctedTotal'),
  'Le code-barres recalculé est contrôlé avant écriture');
 assert(html.includes('gemini-lab.js?v='+version));
-assert(html.includes('digi-catalog-lookup.js?v='+version));
-assert(sw.includes('digi-catalog-lookup.js?v='+version));
+const catalogAssetVersion=(html.match(/digi-catalog-lookup\\.js\\?v=([\\d.]+)/)||[])[1];
+assert(Boolean(catalogAssetVersion),'L’identité DIGI doit être disponible');
+assert(sw.includes('digi-catalog-lookup.js?v='+catalogAssetVersion),
+ 'Cache DIGI et HTML utilisent le même fichier');
 assert(js.includes('todayForVirtualLabel()'));
 assert(!html.includes('id="iuGeminiCopyGross"'));
 console.log('OK : aucune sauvegarde implicite, catalogue DIGI, tare, EAN et doublons protégés');
