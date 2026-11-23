@@ -5443,3 +5443,173 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiRepair .iu-gemini-repair-manual input {
  flex:1 1 auto!important;width:100px!important;min-width:0!important;
 }
+
+
+/* v42.41 — scanner : déclencheur à droite et état unifié à gauche.
+   Conserver exactement les dimensions et le relief des commandes du viseur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > button#iuGeminiCapture.iu-weigh-scan-close.iu-gemini-shutter {
+ left:auto!important;
+ right:5px!important;
+ bottom:5px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator {
+ left:5px!important;
+ right:auto!important;
+ bottom:5px!important;
+}
+/* Les trois états partagent le même carré et un seul pictogramme à la fois. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator > svg[data-indicator-icon] {
+ display:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator[data-indicator="success"] > svg[data-indicator-icon="success"],
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator[data-indicator="duplicate"] > svg[data-indicator-icon="duplicate"],
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator[data-indicator="error"] > svg[data-indicator-icon="error"] {
+ display:block!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator[data-indicator="duplicate"] {
+ background:linear-gradient(145deg,#e7a951,#b87325)!important;
+ border-color:rgba(255,239,214,.92)!important;
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell.iu-gemini-camera-shell .iu-gemini-camera-stage.iu-weigh-scan-camera
+ > #iuGeminiDetected.iu-weigh-scan-detected-indicator[data-indicator="error"] {
+ background:linear-gradient(145deg,#e86666,#b93144)!important;
+ border-color:rgba(255,229,230,.92)!important;
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
+}
+/* L'état est dans le carré, plus dans un coin superposé du déclencheur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > button#iuGeminiCapture.iu-gemini-shutter[data-action="save-and-scan"]::after,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > button#iuGeminiCapture.iu-gemini-shutter[data-action="confirm-duplicate"]::after,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage
+ > button#iuGeminiCapture.iu-gemini-shutter[data-action="duplicate-review"]::after {
+ content:none!important;
+ display:none!important;
+}
+
+/* v42.41 — confirmation des doublons, même langage que la fenêtre
+   « Terminer l'inventaire ? », mais indépendante de la barre de session. */
+#iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay[hidden] {
+ display:none!important;
+}
+#iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]) {
+ position:fixed!important;
+ inset:0!important;
+ z-index:100600!important;
+ display:flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ box-sizing:border-box!important;
+ padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px)!important;
+ background:rgba(16,30,42,.34)!important;
+ -webkit-backdrop-filter:blur(7px)!important;
+ backdrop-filter:blur(7px)!important;
+}
+#iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm {
+ position:relative!important;
+ inset:auto!important;
+ transform:none!important;
+ display:flex!important;
+ flex-direction:column!important;
+ gap:10px!important;
+ box-sizing:border-box!important;
+ width:min(100%,350px)!important;
+ max-width:350px!important;
+ max-height:90dvh!important;
+ overflow:auto!important;
+ margin:auto!important;
+ padding:20px 18px 18px!important;
+ border:1px solid rgba(255,255,255,.86)!important;
+ border-radius:19px!important;
+ background:linear-gradient(150deg,#f8fafc,#eaf0f5)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 18px 48px rgba(21,36,48,.23)!important;
+ color:#253641!important;
+ text-align:center!important;
+}
+#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > p {
+ margin:0!important;
+ font-family:inherit!important;
+ font-size:17px!important;
+ line-height:1.2!important;
+ font-weight:800!important;
+ color:#253641!important;
+}
+#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > small {
+ margin:0 0 7px!important;
+ font-family:inherit!important;
+ font-size:12px!important;
+ line-height:1.45!important;
+ font-weight:500!important;
+ color:#566874!important;
+}
+#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div {
+ display:grid!important;
+ grid-template-columns:1fr 1.35fr!important;
+ gap:9px!important;
+ width:100%!important;
+ margin:0!important;
+}
+#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button {
+ box-sizing:border-box!important;
+ min-width:0!important;
+ min-height:44px!important;
+ margin:0!important;
+ padding:10px 9px!important;
+ border:1px solid rgba(164,182,194,.7)!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,#fff,#e5ecf2)!important;
+ box-shadow:inset 0 1px 0 #fff,0 2px 6px rgba(35,52,67,.08)!important;
+ color:#425767!important;
+ font-family:inherit!important;
+ font-size:12px!important;
+ font-weight:750!important;
+ line-height:1.15!important;
+ cursor:pointer!important;
+ touch-action:manipulation!important;
+}
+#iuGeminiDuplicateConfirm #iuGeminiDuplicateAccept {
+ color:#fff!important;
+ background:linear-gradient(145deg,#457487,#315d73)!important;
+ border-color:rgba(42,91,114,.8)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.23),0 2px 7px rgba(38,69,88,.15)!important;
+}
+#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button:active {
+ transform:scale(.97)!important;
+}
+#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button:focus-visible {
+ outline:2px solid #277fbc!important;
+ outline-offset:2px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button {transition:none!important;}
+}
+@media(forced-colors:active){
+ #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]) {background:Canvas!important;}
+ #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm {
+  background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;
+ }
+ #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button,
+ #iuGeminiDuplicateConfirm #iuGeminiDuplicateAccept {
+  background:ButtonFace!important;color:ButtonText!important;border-color:ButtonText!important;
+ }
+}

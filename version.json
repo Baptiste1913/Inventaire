@@ -1,6 +1,6 @@
 {
-  "version": "42.40",
+  "version": "42.41",
   "published": "2026-11-23",
   "assets": 63,
-  "notes": "Base v42.34 conservée : ZXing-C++ WebAssembly local en priorité pour EAN-13, préchargement non bloquant, ancien lecteur en secours, validation stricte de la clé, de la position et des ambiguïtés. Aucun retour des changements Hydrogen, Mistral ni du Worker Cloudflare."
+  "notes": "Sur la base v42.40 : doublons Gemini confirmés par une fenêtre dédiée (Valider la pesée / Annuler sans modifier l’historique) ; photo à droite, témoin commun à gauche vert si valide, orange en doublon, rouge en erreur. Aucun changement de modèle, de ZXing ou du Worker Cloudflare."
 }

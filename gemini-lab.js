@@ -41,7 +41,10 @@
  const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText'),
-  duplicateSkip=$('iuGeminiDuplicateSkip');
+  duplicateDialog=$('iuGeminiDuplicateConfirm'),
+  duplicateCancel=$('iuGeminiDuplicateCancel'),
+  duplicateAccept=$('iuGeminiDuplicateAccept');
+ let duplicateDialogOpen=false;
  const repairPanel=$('iuGeminiRepair'),repairField=$('iuGeminiRepairField'),
   repairRead=$('iuGeminiRepairRead'),repairEdit=$('iuGeminiRepairEdit'),
   repairManual=$('iuGeminiRepairManual'),repairValue=$('iuGeminiRepairValue'),
@@ -214,6 +217,7 @@
  const say=(message,error=false)=>{
   status.textContent=message;
   status.classList.toggle('is-error',error);
+  if(error&&!active)showDetectedIndicator('error',message||'Erreur de lecture');
   // Le texte de statut était masqué par les styles : réutiliser le voyant
   // réellement visible pendant une analyse plutôt que laisser « Aucune pesée ».
   // L'unique « Analyse… » visible est déjà au centre du viseur fermé.
@@ -310,17 +314,17 @@
   const duplicate=canSave&&duplicateForCurrent();
   const retry=Boolean(file&&(lastAnalysisError||lastReadProblem||
    (!proposal&&latestLabelFields)));
-  const caption=active?'…':duplicate?'Confirmer doublon'
+  const caption=active?'…':duplicate?'Vérifier doublon'
    :canSave?'Enregistrer'
    :needsBasketChange()?'Changer panier'
    :retry?'Réessayer':'Nouvelle photo';
   if(primaryText&&primaryText.textContent!==caption)primaryText.textContent=caption;
-  nextWeigh.setAttribute('aria-label',duplicate?'Confirmer le doublon et enregistrer la pesée'
+  nextWeigh.setAttribute('aria-label',duplicate?'Ouvrir la confirmation de ce doublon'
    :canSave?'Enregistrer la pesée sans nouvelle photo'
    :active?'Analyse en cours'
    :needsBasketChange()?'Changer de panier sans relire l’étiquette'
    :retry?'Relire la même photo':'Préparer une nouvelle photographie');
-  nextWeigh.dataset.action=duplicate?'confirm-duplicate':canSave?'save'
+  nextWeigh.dataset.action=duplicate?'duplicate-review':canSave?'save'
    :active?'busy':needsBasketChange()?'basket':retry?'retry':'retake';
  }
  const formatWeight=g=>Number.isInteger(g)?(g/1000).toFixed(3).replace('.',',')+' kg':'Non reconnu';
@@ -367,12 +371,12 @@
   const locked=Boolean(frameCaptureBusy||(!active&&localOcrBusy));
   const ready=hasSavableProposal();
   const duplicated=ready&&duplicateForCurrent();
-  capture.disabled=locked;
-  capture.setAttribute('aria-disabled',String(locked));
-  capture.dataset.action=duplicated?'confirm-duplicate'
+  capture.disabled=locked||duplicateDialogOpen;
+  capture.setAttribute('aria-disabled',String(capture.disabled));
+  capture.dataset.action=duplicated?'duplicate-review'
    :ready?'save-and-scan':'scan';
   const description=active?'Annuler l’analyse et revenir au viseur'
-   :duplicated?'Confirmer ce doublon et photographier la suivante'
+   :duplicated?'Ouvrir la confirmation du doublon'
    :ready?'Enregistrer cette pesée et photographier la suivante'
    :locked?'Préparation du scanner':'Photographier une étiquette';
   capture.title=description;
@@ -391,17 +395,25 @@
   if(!detected)return;
   detected.hidden=true;
   detected.classList.remove('is-visible');
+  detected.removeAttribute('data-indicator');
   detected.removeAttribute('title');
  }
- function revealDetectedIndicator(fields){
-  if(!detected||cameraShell.hidden)return;
-  const name=typeof fields?.name==='string'&&fields.name.trim()?fields.name.trim():'Étiquette';
-  detected.title=name+' reconnu';
-  detected.setAttribute('aria-label',name+' reconnu');
+ function showDetectedIndicator(state,message){
+  if(!detected||cameraShell.hidden||cameraShell.dataset.state==='idle'||
+     cameraShell.dataset.state==='analyzing'||active)return;
+  const kind=['success','duplicate','error'].includes(state)?state:'error';
+  if(!detected.hidden&&detected.dataset.indicator===kind&&detected.title===message)return;
+  detected.dataset.indicator=kind;
+  detected.title=message;
+  detected.setAttribute('aria-label',message);
   detected.hidden=false;
   detected.classList.remove('is-visible');
   void detected.offsetWidth;
   detected.classList.add('is-visible');
+ }
+ function revealDetectedIndicator(fields){
+  const name=typeof fields?.name==='string'&&fields.name.trim()?fields.name.trim():'Étiquette';
+  showDetectedIndicator('success',name+' reconnue · pesée valide');
  }
  function resetProposal(){
   proposal=null;
@@ -420,8 +432,6 @@
   }
   labelAlertText.textContent=message;
   labelAlert.hidden=type==='idle'&&!message;
-  if(duplicateSkip)duplicateSkip.hidden=!(
-   type==='warning'&&message.startsWith('Doublon détecté'));
  }
  function duplicateForCurrent(){
   if(!proposal||typeof window.IUGeminiDuplicateInfo!=='function')return false;
@@ -474,7 +484,7 @@
    return;
   }
   if(duplicateForCurrent()){
-   setLabelAlert('warning','Doublon détecté · confirme ou ignore');
+   setLabelAlert('warning','Doublon détecté · validation nécessaire');
    return;
   }
   setLabelAlert('success','DIGI · PLU '+proposal.plu+' · étiquette prête');
@@ -690,15 +700,20 @@
   }
   refreshCorrectedLabel();
   refreshLabelAlert();
-  // Réutiliser la coche du viseur seulement lorsque tous les calculs
-  // métier sont validés, la tare correcte et sans doublon signalé.
-  const confirmed=canSave&&!duplicateForCurrent()&&!cameraShell.hidden;
-  if(confirmed){
-   if(detected?.hidden)revealDetectedIndicator(latestLabelFields);
-  }else if(detected&&!detected.hidden){
-   resetDetectedIndicator();
-  }
+  // Indicateur unique du viseur : valide, doublon ou erreur.
+  const duplicate=canSave&&duplicateForCurrent();
+  if(!active&&!cameraShell.hidden&&cameraShell.dataset.state==='scanning'){
+   if(lastAnalysisError||lastReadProblem||(file&&!canSave)){
+    showDetectedIndicator('error',lastAnalysisError||lastReadProblem||'Pesée non validable');
+   }else if(duplicate){
+    showDetectedIndicator('duplicate','Doublon détecté · confirmation requise');
+   }else if(canSave){
+    revealDetectedIndicator(latestLabelFields);
+   }else resetDetectedIndicator();
+  }else resetDetectedIndicator();
   refreshCaptureButton();
+  if(duplicate&&!lastAnalysisError&&!lastReadProblem&&!duplicateDialogOpen)
+   openDuplicateConfirm();
   return canSave?corrected:null;
  }
  $('basketSelect')?.addEventListener('change',validationState);
@@ -706,6 +721,7 @@
   if(url){URL.revokeObjectURL(url);url=null;}
  }
  function resetReading(){
+  closeDuplicateConfirm();
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;
   resetDetectedIndicator();
@@ -1743,17 +1759,60 @@
  }
  function announceSaveError(saved){
   const msg=String(saved?.reason||'Enregistrement impossible');
+  showDetectedIndicator('error',msg);
   setLabelAlert('warning',msg);
   say('Pesée non enregistrée · '+msg,true);
  }
- duplicateSkip?.addEventListener('click',()=>{
-  // Ignorer une lecture identique sans modifier la session ni l'historique.
-  if(!duplicateForCurrent())return;
+ // Doublon : même confirmation explicite que la fin d'inventaire.
+ function openDuplicateConfirm(){
+  if(duplicateDialogOpen||active||!duplicateDialog||
+     !correctedCurrentProposal()||!duplicateForCurrent())return false;
+  duplicateDialogOpen=true;
+  duplicateDialog.hidden=false;
+  refreshCaptureButton();
+  duplicateCancel?.focus({preventScroll:true});
+  return true;
+ }
+ function closeDuplicateConfirm(){
+  if(!duplicateDialogOpen)return;
+  duplicateDialogOpen=false;
+  if(duplicateDialog)duplicateDialog.hidden=true;
+  refreshCaptureButton();
+ }
+ function cancelDuplicateConfirm(){
+  if(!duplicateDialogOpen)return;
+  closeDuplicateConfirm();
+  // Annuler efface seulement la photo en attente : rien dans l'historique.
   resetReading();
-  say('Doublon ignoré · photographie l’étiquette suivante.');
+  say('Doublon annulé · photographie la prochaine étiquette.');
+  if(cameraStream&&!cameraShell.hidden)capture?.focus({preventScroll:true});
+ }
+ duplicateCancel?.addEventListener('click',cancelDuplicateConfirm);
+ duplicateAccept?.addEventListener('click',()=>{
+  if(!duplicateDialogOpen)return;
+  closeDuplicateConfirm();
+  const saved=saveVerifiedProposal({confirmDuplicate:true});
+  if(!saved?.ok){announceSaveError(saved);validationState();return;}
+  resetReading();
+  if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
+  setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
+  say(saved.duplicate?'Doublon validé · prêt pour la suite.':'Pesée enregistrée · prêt pour la suite.');
+  if(cameraStream&&!cameraShell.hidden)capture?.focus({preventScroll:true});
+ });
+ document.addEventListener('keydown',event=>{
+  if(!duplicateDialogOpen)return;
+  if(event.key==='Escape'){event.preventDefault();cancelDuplicateConfirm();}
+  else if(event.key==='Tab'){
+   const current=document.activeElement;
+   if(event.shiftKey&&current===duplicateCancel){
+    event.preventDefault();duplicateAccept?.focus();
+   }else if(!event.shiftKey&&current===duplicateAccept){
+    event.preventDefault();duplicateCancel?.focus();
+   }
+  }
  });
  nextWeigh?.addEventListener('click',()=>{
-  if(active||frameCaptureBusy)return;
+  if(active||frameCaptureBusy||duplicateDialogOpen)return;
   const corrected=validationState();
   if(!corrected){
    if(needsBasketChange()){
@@ -1775,9 +1834,13 @@
    else capture?.focus();
    return;
   }
-  // Sur un doublon, le bouton porte explicitement « Confirmer doublon ».
-  const saved=saveVerifiedProposal({confirmDuplicate:duplicateForCurrent()});
-  if(!saved?.ok){announceSaveError(saved);return;}
+  if(duplicateForCurrent()){openDuplicateConfirm();return;}
+  const saved=saveVerifiedProposal();
+  if(!saved?.ok){
+   if(saved?.duplicate)openDuplicateConfirm();
+   else announceSaveError(saved);
+   return;
+  }
   resetReading();
   if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
   setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
@@ -2245,6 +2308,7 @@
  selectCameraMode();
 
  capture.addEventListener('click',async()=>{
+  if(duplicateDialogOpen)return;
   if(!cameraStream||cameraShell.hidden||cameraShell.dataset.state!=='scanning'||
      document.hidden||!video.videoWidth||!video.videoHeight){
    say('Viseur non prêt · ouvre la caméra.',true);
@@ -2256,15 +2320,15 @@
    say('Analyse annulée · reprends une photo.');
    return;
   }
-  // Le geste est unique : capturer d'abord, enregistrer la pesée
-  // précédente uniquement si la nouvelle photographie est obtenue.
-  // Le libellé du déclencheur signale « Confirmer doublon » lorsque
-  // l'utilisateur choisit volontairement d'enregistrer un article identique.
+  // Le déclencheur ne valide jamais silencieusement un doublon.
+  if(hasSavableProposal()&&duplicateForCurrent()){
+   openDuplicateConfirm();return;
+  }
+  // Photographier d'abord, puis enregistrer une pesée valide précédente.
   const priorProposal=proposal;
   const frameGeneration=generation,frameEpoch=cameraEpoch;
   const priorBasket=$('basketSelect')?.value;
   const priorWasSavable=Boolean(correctedCurrentProposal());
-  const duplicateBefore=priorWasSavable&&duplicateForCurrent();
   frameCaptureBusy=true;
   refreshCaptureButton();
   const automatic=autoCapturePending;
@@ -2302,10 +2366,12 @@
       cameraShell.dataset.state!=='scanning')return;
    const nextPhoto=new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'});
    if(priorWasSavable){
-    const saved=saveVerifiedProposal({
-     confirmDuplicate:duplicateBefore,fromCapture:true
-    });
-    if(!saved?.ok){announceSaveError(saved);return;}
+    const saved=saveVerifiedProposal({fromCapture:true});
+    if(!saved?.ok){
+     if(saved.duplicate)openDuplicateConfirm();
+     else announceSaveError(saved);
+     return;
+    }
     resetReading();
     say(saved.duplicate?'Doublon confirmé · photo suivante.':'Pesée enregistrée · photo suivante.');
    }else if(proposal||latestLabelFields||file){

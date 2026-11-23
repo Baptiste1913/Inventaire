@@ -15,6 +15,7 @@ on:
       - 'gemini-zxing.js'
       - 'vendor/zxing/**'
       - 'tools/test_zxing_primary.cjs'
+      - 'tools/test_gemini_duplicate_dialog.cjs'
       - 'tools/test_gemini_parallel.cjs'
       - 'tools/test_gemini_worker_pixels.cjs'
       - 'gemini-ean.js'
@@ -74,6 +75,7 @@ jobs:
           node --check gemini-image-worker.js
           node --check gemini-zxing.js
           node --check tools/test_zxing_primary.cjs
+          node --check tools/test_gemini_duplicate_dialog.cjs
           node --check tools/test_gemini_parallel.cjs
           node --check tools/test_gemini_worker_pixels.cjs
           node --check gemini-ean.js
@@ -134,6 +136,7 @@ jobs:
         run: |
           node tools/test_gemini_parallel.cjs
           node tools/test_zxing_primary.cjs
+          node tools/test_gemini_duplicate_dialog.cjs
           node tools/test_gemini_worker_pixels.cjs
           node tools/test_gemini_ean_focus.cjs
           node tools/test_gemini_ean_printed.cjs
