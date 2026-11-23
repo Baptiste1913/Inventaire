@@ -1,6 +1,6 @@
 {
-  "version": "42.26",
+  "version": "42.27",
   "published": "2026-11-23",
   "assets": 55,
-  "notes": "Correctif de reprise de la caméra sur iPhone Safari : le flux vidéo reste actif mais masqué pendant chaque analyse IA, évitant les pauses et réinitialisations susceptibles d'afficher des bandes noires latérales après une pesée. La vraie mise en arrière-plan coupe toujours la piste, les commandes Fermer/Flash restent intactes. Repère DIGI à 70%, capture JPEG 1920px max, Gemini/OpenAI, validations et protections anti-doublons inchangés."
+  "notes": "Pilote Gemini unique : photo globale et agrandissement central facultatif dans une requête JSON structurée ; EAN indépendant en parallèle ; contrôle des prix DIGI encodés ; une seule relecture automatique groupée des champs manquants/incohérents sur la même photo, sans écraser de valeurs contradictoires. Attente limitée à 15 s côté iPhone et validation des pesées toujours manuelle. Le Worker Cloudflare source doit être déployé séparément pour la reconnaissance renforcée."
 }

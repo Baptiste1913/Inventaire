@@ -16,6 +16,7 @@ on:
       - 'tools/test_gemini_manual_save.cjs'
       - 'tools/test_openai_scanner.mjs'
       - 'tools/test_gemini_video_resume.cjs'
+      - 'tools/test_gemini_single_photo.cjs'
       - 'tools/test_gemini_auto_scan.cjs'
       - 'tools/test_gemini_local_ocr.cjs'
       - 'tools/test_gemini_alerts_and_duplicates.cjs'
@@ -48,6 +49,7 @@ jobs:
           node --check workers/coursesu-live-worker.js
           node --check tools/test_openai_scanner.mjs
           node --check tools/test_gemini_video_resume.cjs
+          node --check tools/test_gemini_single_photo.cjs
           node --check tools/test_gemini_manual_save.cjs
           node --check tools/test_gemini_auto_scan.cjs
           node --check tools/test_gemini_local_ocr.cjs
@@ -62,6 +64,8 @@ jobs:
           node --check tools/test_scanner_transfer.cjs
       - name: Vérifier les moteurs OpenAI et Gemini sans frais réseau
         run: node tools/test_openai_scanner.mjs
+      - name: Vérifier la lecture Gemini renforcée à partir d’une seule photo
+        run: node tools/test_gemini_single_photo.cjs
       - name: Vérifier la reprise caméra iPhone sans bandes noires après lecture
         run: node tools/test_gemini_video_resume.cjs
       - name: Vérifier le transfert OCR et le calcul de tare

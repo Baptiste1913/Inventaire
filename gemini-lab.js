@@ -469,6 +469,10 @@
    return {error:'EAN non confirmé ou clé EAN incorrecte.'};
   if(c.independentMismatch===true)
    return {error:'Code-barres différent de la lecture indépendante.'};
+  if(c.readingConflict===true)
+   return {error:'Lectures contradictoires · vérifie les chiffres imprimés.'};
+  if(fieldsChecks(f).barcodePriceConsistent===false)
+   return {error:'Prix de l’EAN différent du prix imprimé.'};
   return {name,grams,rate,total,ean};
  }
  // Une lecture EAN13 purement optique n'est acceptée que si elle est
@@ -497,7 +501,14 @@
  function fieldsChecks(fields){
   const ean=String(fields?.ean13||'');
   const validEAN=/^\d{13}$/.test(ean)&&eanCheck(ean.slice(0,12))===ean[12];
+  // Formule DIGI limitée aux étiquettes de prix encodé en 02 :
+  // elle vérifie, elle ne remplace jamais une valeur lue sur la photo.
+  const priceInEAN=validEAN&&ean.startsWith('02')
+   ?Math.round(Number(ean.slice(7,12))*100/655.36):null;
+  const barcodePriceConsistent=priceInEAN!==null&&Number.isSafeInteger(fields?.totalCents)
+   ?Math.abs(priceInEAN-fields.totalCents)<=1:null;
   return {
+   barcodePriceConsistent,
    arithmeticConsistent:Number.isSafeInteger(fields?.weightGrams)&&
     Number.isSafeInteger(fields?.pricePerKgCents)&&Number.isSafeInteger(fields?.totalCents)&&
     Math.abs(Math.round(fields.weightGrams*fields.pricePerKgCents/1000)-fields.totalCents)<=1,
@@ -842,6 +853,39 @@
    img.src=localUrl;
   });
  }
+ // Une vue centrale complémentaire est dérivée de la même capture. Ne
+ // jamais couper l'image originale : c'est le seul repère géométrique sûr.
+ // L'agrandissement est facultatif pour préserver la latence sur iPhone.
+ async function prepareLabelDetail(source){
+  if(source?.type!=='image/jpeg'||source.size<100)return null;
+  const img=await decodePhoto(source);
+  const width=img.naturalWidth,height=img.naturalHeight;
+  if(width<650||height<350)return null;
+  const cropX=Math.round(width*.065),cropY=Math.round(height*.07);
+  const cropW=width-2*cropX,cropH=height-2*cropY;
+  if(cropW<450||cropH<230)return null;
+  const canvas=document.createElement('canvas');
+  const scale=Math.min(1,1500/Math.max(cropW,cropH));
+  canvas.width=Math.max(1,Math.round(cropW*scale));
+  canvas.height=Math.max(1,Math.round(cropH*scale));
+  const ctx=canvas.getContext('2d');
+  if(!ctx)return null;
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.drawImage(img,cropX,cropY,cropW,cropH,0,0,canvas.width,canvas.height);
+  for(const quality of [.79,.68,.57]){
+   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));
+   if(!blob||blob.size<100||blob.size>122000)continue;
+   const encoded=await new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(Error('Image détail illisible'));
+    reader.onload=()=>resolve(String(reader.result||'').split(',')[1]||'');
+    reader.readAsDataURL(blob);
+   });
+   if(encoded.length>=100&&encoded.length<=165000)return encoded;
+  }
+  return null;
+ }
  async function imageBase64(source){
   // Le JPEG issu du viseur est déjà recadré, redimensionné et compressé.
   // Éviter une deuxième décompression/compression si l'image passe sous
@@ -1044,7 +1088,8 @@
    const usedProvider=usedModel.startsWith('gpt-')?'OpenAI':'Gemini';
    networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
-    +' · modèle '+usedModel;
+    +' · modèle '+usedModel
+    +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser');
   }
  }
  // v42.06 — réessais limités pour indisponibilités TRANSITOIRES seulement.
@@ -1071,10 +1116,13 @@
   if(Number.isFinite(seconds)&&seconds>0)return Math.min(8000,Math.max(1000,Math.ceil(seconds*1000)));
   return attempt===1?1100:2600;
  }
- async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,provider='gemini'){
+ async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,
+  provider='gemini',detailImageBase64=null,focusFields=null){
   const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,provider,
    mimeType:'image/jpeg',imageBase64:encoded,
-   ...(focusField?{focusField}:{})});
+   ...(detailImageBase64?{detailImageBase64}:{}),
+   ...(focusField?{focusField}:{}),
+   ...(focusFields?.length?{focusFields}:{})});
   // Une seule requête par pression : HTTP 502 peut cacher un échec de
   // lecture et ne doit jamais provoquer une deuxième analyse automatique.
   if(signal.aborted||id!==generation)
@@ -1113,25 +1161,55 @@
    throw Error('Modèle '+(provider==='openai'?'OpenAI':'Gemini')+' indisponible');
   throw Error('Service IA indisponible · réessaie cette photo');
  }
- // Une relecture ciblée n'est justifiée que si UNE seule information
- // manque. Si deux valeurs se contredisent, aucune réparation automatique.
- function singleMissingField(result){
-  const f=result?.fields||{};
-  const missing=[
-   !(typeof f.name==='string'&&f.name.trim().length>=3)?'name':null,
-   !Number.isSafeInteger(f.weightGrams)||f.weightGrams<=0?'weight':null,
-   !Number.isSafeInteger(f.pricePerKgCents)||f.pricePerKgCents<=0?'rate':null,
-   !Number.isSafeInteger(f.totalCents)||f.totalCents<0?'total':null,
-   !(typeof f.ean13==='string'&&/^\d{13}$/.test(f.ean13)&&
-      eanCheck(f.ean13.slice(0,12))===f.ean13[12])?'ean':null
-  ].filter(Boolean);
-  return missing.length===1&&!result?.checks?.independentMismatch
-   ?missing[0]:null;
+ // Une seule relecture groupée de la photo existante, y compris quand
+ // plusieurs champs manquent ; jamais de nouvelle prise automatique.
+ function readableValue(kind,value){
+  if(kind==='name')return typeof value==='string'&&value.trim().length>=3;
+  if(kind==='ean')return typeof value==='string'&&/^\d{13}$/.test(value)&&
+   eanCheck(value.slice(0,12))===value[12];
+  return Number.isSafeInteger(value)&&(kind==='total'?value>=0:value>0);
+ }
+ function recoveryTargets(result){
+  const f=result?.fields||{},checks=fieldsChecks(f),targets=[];
+  for(const [kind,key] of Object.entries(fieldKeys))
+   if(!readableValue(kind,f[key]))targets.push(kind);
+  const allAmounts=['weight','rate','total'].every(k=>readableValue(k,f[fieldKeys[k]]));
+  if(allAmounts&&!checks.arithmeticConsistent)targets.push('weight','rate','total');
+  if(checks.barcodePriceConsistent===false)targets.push('ean','total');
+  if(checks.independentMismatch)targets.push('ean');
+  return [...new Set(targets)];
+ }
+ function mergeRecoveredReading(original,recheck,targets){
+  const fields={...(original?.fields||{})};
+  let conflict=false,opticallyConfirmed=false;
+  for(const kind of targets){
+   const key=fieldKeys[kind],next=recheck?.fields?.[key];
+   if(!readableValue(kind,next))continue;
+   const current=fields[key];
+   if(!readableValue(kind,current)){fields[key]=next;continue}
+   if(current===next)continue;
+   // Remplacer un EAN seulement si la seconde lecture Gemini ET le
+   // décodeur optique indépendant confirment les mêmes 13 chiffres.
+   if(kind==='ean'&&localBarcode?.confirmed&&!localBarcode.ambiguous&&
+      localBarcode.ean13===next){
+    fields[key]=next;opticallyConfirmed=true;
+   }else{
+    // Deux lectures contradictoires ne deviennent pas vraies par un calcul.
+    conflict=true;
+   }
+  }
+  return {...original,fields,source:'gemini-recovery',
+   pipelineVersion:recheck?.pipelineVersion||original?.pipelineVersion,
+   elapsedMs:Number(original?.elapsedMs||0)+Number(recheck?.elapsedMs||0),
+   checks:{...(original?.checks||{}),
+    readingConflict:Boolean(original?.checks?.readingConflict||conflict),
+    independentMismatch:opticallyConfirmed?false:original?.checks?.independentMismatch===true}};
  }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
-  const selectedProvider=providerSelect?.value==='openai'?'openai':'gemini';
+  // Ce pilote de rapidité/fiabilité n'utilise qu'un seul moteur IA.
+  const selectedProvider='gemini';
   const providerName=selectedProvider==='openai'?'OpenAI':'Gemini';
   const targetField=repairFocus&&lastRawResult?repairFocus:null;
   const oldResult=targetField?lastRawResult:null;
@@ -1144,6 +1222,8 @@
   if(cameraStream&&cameraMode==='auto')setAutoHint('Analyse en cours · une seule photo envoyée','capturing');
   const id=++generation;
   abort=new AbortController();
+  const currentAbort=abort;
+  const guard=setTimeout(()=>currentAbort.abort(),15000);
   const start=performance.now();
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
   try{
@@ -1153,12 +1233,18 @@
    const job=barcodeJob||Promise.resolve().then(()=>
     window.IUGeminiEAN?.read(file)||null).catch(()=>null);
    barcodeJob=job;
+   const detailTask=prepareLabelDetail(file).catch(()=>null);
    const encoded=await imageBase64(file);
    if(id!==generation)return;
+   // Sur iPhone, ne jamais retarder la première requête de plus de 180 ms
+   // pour un agrandissement facultatif ; la pleine photo reste présente.
+   const firstDetail=await Promise.race([detailTask,
+    new Promise(resolve=>setTimeout(()=>resolve(null),180))]);
+   const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
    say(providerName+' analyse l’étiquette…');
-   // Une seule demande réseau. La relecture ciblée est VOLONTAIRE.
    const received=await requestGeminiWithRecovery(
-    encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider);
+    encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
+    safeDetail(firstDetail),targetField?[targetField]:null);
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
@@ -1177,36 +1263,37 @@
        source:'gemini-focused',focusField:targetField}
      :{...oldResult,source:'gemini-focused',focusField:targetField};
    }
-   // Le décodeur local peut remplir l'EAN manquant mais ne peut jamais
-   // écraser une valeur Gemini confirmée et contradictoire.
+   // Comparer les chiffres indépendamment, sans jamais remplacer un
+   // EAN Gemini confirmé et contradictoire par simple supposition.
    combined=reconcileBarcode(combined,localBarcode);
-   const missing=!targetField?singleMissingField(combined):null;
-   if(missing){
-    // Un seul second appel, uniquement pour le champ réellement illisible
-    // sur la MÊME photo. Échec = conserver le premier résultat.
+   const targets=!targetField?recoveryTargets(combined):[];
+   if(targets.length){
+    // Une seule relecture de tous les champs problématiques sur cette
+    // MEME photo. Ne pas perdre les valeurs fiables de la première.
     try{
-     say(providerName+' · vérification de '+({ean:'l’EAN',weight:'poids',
-      rate:'prix au kilo',total:'prix total',name:'nom'}[missing]||'la lecture')+'…');
-     const focused=await requestGeminiWithRecovery(
-      encoded,access,selectedModel,abort.signal,id,missing,selectedProvider);
+     say(providerName+' · vérification de '+targets.length+' champ(s)…');
+     const pendingDetail=await Promise.race([detailTask,
+      new Promise(resolve=>setTimeout(()=>resolve(null),240))]);
      if(id!==generation)return;
-     const key=fieldKeys[missing],value=focused?.fields?.[key];
-     if(value!==null&&value!==undefined&&value!==''){
-      combined={...combined,fields:{...combined.fields,[key]:value},
-       source:'gemini-focused',focusField:missing};
-      combined=reconcileBarcode(combined,localBarcode);
-     }
+     const focused=await requestGeminiWithRecovery(
+      encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
+      safeDetail(pendingDetail),targets);
+     if(id!==generation)return;
+     combined=mergeRecoveredReading(combined,focused,targets);
+     combined=reconcileBarcode(combined,localBarcode);
     }catch(error){
      if(error?.name==='AbortError')throw error;
-     // Conserver les données Gemini déjà reconnues, et permettre la
-     // relecture manuelle du champ plutôt que rejeter tout le document.
+     // Le premier résultat reste disponible pour correction manuelle.
     }
    }
    const validated=combined;
    const priorMismatch=validated.checks?.independentMismatch===true;
    const localChecks=fieldsChecks(validated.fields);
+   const opticalResolved=localBarcode?.confirmed&&!localBarcode?.ambiguous&&
+    validated.fields?.ean13===localBarcode.ean13;
    validated.checks={...validated.checks,...localChecks,
-    independentMismatch:priorMismatch||localChecks.independentMismatch};
+    independentMismatch:localChecks.independentMismatch||
+     (priorMismatch&&!opticalResolved)};
    repairFocus=null;
    display(validated,performance.now()-start);
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
@@ -1219,12 +1306,14 @@
     usedLegacyGemini||!saveReady);
 
   }catch(error){
-   if(id===generation&&error?.name!=='AbortError'){
+   if(id===generation){
     // Une erreur technique ne doit pas condamner la photo déjà prise :
     // sa relance reste manuelle après épuisement des réessais bornés.
     attempts.delete(selectedModel);
     if(!proposal&&!output.querySelector('.iu-gemini-printed-label'))showBlankLabel();
-    const reason=String(error?.message||'Échec réseau').slice(0,140);
+    const reason=error?.name==='AbortError'
+     ?'Analyse trop longue · réessaie cette photo ou améliore le réseau'
+     :String(error?.message||'Échec réseau').slice(0,140);
     lastAnalysisError=reason;
     repairFocus=null;
     if(oldResult)display(reconcileBarcode(oldResult,localBarcode),performance.now()-start);
@@ -1232,6 +1321,7 @@
     updateCardState('error');
    }
   }finally{
+   clearTimeout(guard);
    if(id===generation){
     active=false;abort=null;setAnalysisCameraClosed(false);
     updateButton();validationState();refreshRepairPanel();
