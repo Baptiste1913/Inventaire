@@ -1,0 +1,27 @@
+name: Gemini — tests de lecture renforcée
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'gemini-lab.js'
+      - 'workers/coursesu-live-worker.js'
+      - 'tools/test_gemini_single_photo.cjs'
+      - 'tools/test_gemini_worker_v2.mjs'
+      - '.github/workflows/gemini-pilot-v2.yml'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérification JavaScript
+        run: |
+          node --check gemini-lab.js
+          node --check workers/coursesu-live-worker.js
+          node --check tools/test_gemini_worker_v2.mjs
+          node --check tools/test_gemini_single_photo.cjs
+      - name: Validation du Worker Gemini simulé
+        run: node tools/test_gemini_worker_v2.mjs
+      - name: Contrôles EAN et relecture depuis une photo unique
+        run: node tools/test_gemini_single_photo.cjs
