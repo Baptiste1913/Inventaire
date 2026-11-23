@@ -100,10 +100,27 @@
    x<.015||y<.015||x+w>.985||y+h>.985)return null;
   return {x,y,w,h,source:'verified-optical'};
  }
+ // Seul un EAN physiquement inclus dans le papier détecté peut
+ // bénéficier d'un repositionnement dynamique. L'EAN doit être dans
+ // la partie basse, sans chevaucher le prix imprimé à droite.
+ function barcodeWithinLabel(reading,rect){
+  const b=reading?.bounds;
+  if(!reading?.confirmed||reading.ambiguous||reading.source!=='optical'||
+     rect?.source!=='paper-outline'||!b||
+     !(rect.w>.40&&rect.h>.30)||!Number.isFinite(b.left)||
+     !Number.isFinite(b.right)||!Number.isFinite(b.y)||
+     !Number.isFinite(b.slope)||Math.abs(b.slope)>.17)return false;
+  const cx=((b.left+b.right)/2-rect.x)/rect.w;
+  const y=(b.y-rect.y)/rect.h;
+  const bw=(b.right-b.left)/rect.w;
+  return cx>=.15&&cx<=.79&&y>=.53&&y<=.96&&
+   bw>=.23&&bw<=.83&&b.left>=rect.x-.015&&
+   b.right<=rect.x+rect.w+.015;
+ }
  function crop(imageData,reading=null){
   const w=imageData?.width,h=imageData?.height;
   const optical=opticalCrop(reading,w,h);
   return optical||detect(imageData);
  }
- return Object.freeze({detect,opticalCrop,crop});
+ return Object.freeze({detect,opticalCrop,crop,barcodeWithinLabel});
 });

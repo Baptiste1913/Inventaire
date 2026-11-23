@@ -1,4 +1,4 @@
-/* Inventaires U v42.31 — EAN-13 optique indépendant, secours haute précision.
+/* Inventaires U v42.33 — EAN-13 optique indépendant, secours haute précision.
  * Pur JavaScript sans chargement distant ; fallback iOS lorsque
  * BarcodeDetector n'existe pas. Jamais de code créé par déduction.
  * Les clés EAN et deux lignes optiques concordantes sont requises. */
@@ -109,16 +109,23 @@
  // La lecture d'origine (1100 px, 50 lignes inclinées) reste la
  // première tentative. Une seconde passe un peu plus détaillée n'est
  // tentée QUE si aucune lecture fiable n'a été obtenue.
- function scanRaster(original,iw,ih,targetWidth,enhanced=false){
-  const scale=Math.min(1,targetWidth/iw);
-  const w=Math.max(1,Math.round(iw*scale)),h=Math.max(1,Math.round(ih*scale));
+ function scanRaster(original,iw,ih,targetWidth,enhanced=false,region=null){
+  // Un cadre confirmé découpe directement les pixels de la capture
+  // native. Ne jamais agrandir une zone déjà plus petite que le budget.
+  const rx=region?Math.max(0,Math.floor(region.x*iw)):0;
+  const ry=region?Math.max(0,Math.floor(region.y*ih)):0;
+  const rw=region?Math.min(iw-rx,Math.ceil(region.w*iw)):iw;
+  const rh=region?Math.min(ih-ry,Math.ceil(region.h*ih)):ih;
+  const scale=Math.min(1,targetWidth/rw);
+  const w=Math.max(1,Math.round(rw*scale)),h=Math.max(1,Math.round(rh*scale));
   if(w<220||h<120)return null;
   const canvas=typeof OffscreenCanvas==='function'
    ?new OffscreenCanvas(w,h):document.createElement('canvas');
   canvas.width=w;canvas.height=h;
   const context=canvas.getContext('2d',{willReadFrequently:true});
   if(!context)return null;
-  context.drawImage(original,0,0,w,h);
+  if(region)context.drawImage(original,rx,ry,rw,rh,0,0,w,h);
+  else context.drawImage(original,0,0,w,h);
   const pixels=context.getImageData(0,0,w,h).data;
   const line=(y,slope)=>{
    const a=new Array(w);
@@ -133,8 +140,10 @@
   const fractions=enhanced
    ?[.49,.55,.60,.65,.70,.75,.80,.84,.88,.92]
    :[.47,.53,.59,.65,.70,.75,.79,.83,.87,.91];
-  const slopes=enhanced?[0,-.055,.055,-.11,.11]:[0,-.045,.045,-.09,.09];
-  const thresholds=enhanced?[.43,.57]:[.5];
+  const slopes=region
+   ?[0,-.045,.045,-.09,.09,-.14,.14]
+   :(enhanced?[0,-.055,.055,-.11,.11]:[0,-.045,.045,-.09,.09]);
+  const thresholds=region?[.35,.5,.65]:(enhanced?[.43,.57]:[.5]);
   for(const fraction of fractions){
    const y=Math.floor(h*fraction);
    for(const slope of slopes){
@@ -162,9 +171,40 @@
   const pos=Math.floor(ranges.length/2),rect=ranges[pos];
   return {ean13,source:'optical',confirmed:true,
    pass:enhanced?'enhanced':'standard',
-   bounds:{left:rect[0]/w,right:rect[1]/w,
-    y:data.ys[Math.min(pos,data.ys.length-1)]/h,
+   bounds:{left:(rx+rect[0]*rw/w)/iw,
+    right:(rx+rect[1]*rw/w)/iw,
+    y:(ry+data.ys[Math.min(pos,data.ys.length-1)]*rh/h)/ih,
     slope:data.slopes[Math.min(pos,data.slopes.length-1)]}};
+ }
+ function detectPaper(original,iw,ih){
+  const geom=(typeof window!=='undefined'?window:
+   (typeof self!=='undefined'?self:null))?.IUGeminiLabelGeometry;
+  if(!geom?.detect)return null;
+  try{
+   const factor=Math.min(1,300/Math.max(iw,ih));
+   const w=Math.round(iw*factor),h=Math.round(ih*factor);
+   if(w<100||h<70)return null;
+   const cv=typeof OffscreenCanvas==='function'
+    ?new OffscreenCanvas(w,h):document.createElement('canvas');
+   cv.width=w;cv.height=h;
+   const ctx=cv.getContext('2d',{willReadFrequently:true});
+   if(!ctx)return null;
+   ctx.drawImage(original,0,0,w,h);
+   const found=geom.detect(ctx.getImageData(0,0,w,h));
+   return found?.source==='paper-outline'?found:null;
+  }catch(_){return null;}
+ }
+ function attachPaperIfSafe(reading,paper){
+  const geom=(typeof window!=='undefined'?window:
+   (typeof self!=='undefined'?self:null))?.IUGeminiLabelGeometry;
+  return reading?.confirmed&&geom?.barcodeWithinLabel?.(reading,paper)
+   ?{...reading,labelRect:paper}:reading;
+ }
+ function inLegacyZone(reading){
+  const b=reading?.bounds;
+  return Boolean(b&&b.y>=.60&&b.y<=.93&&
+   (b.left+b.right)/2>=.15&&(b.left+b.right)/2<=.60&&
+   b.right-b.left>=.20&&Math.abs(b.slope||0)<=.10);
  }
  async function rasterRead(source){
   if(typeof document==='undefined'&&typeof OffscreenCanvas==='undefined')return null;
@@ -186,10 +226,28 @@
    const ih=original.height||original.naturalHeight;
    if(!(iw>0&&ih>0))return null;
    const usual=scanRaster(original,iw,ih,1100);
-   if(usual)return usual;
-   // Rester borné (1500 px) : pas de bibliothèque supplémentaire et pas
-   // de troisième passe pour ne pas dégrader la vitesse de l'inventaire.
-   return scanRaster(original,iw,ih,1500,true);
+   if(usual){
+    // Une lecture excentrée reste utilisable uniquement si les contours
+    // fiables de la même étiquette l'entourent.
+    return usual.confirmed&&!inLegacyZone(usual)
+     ?attachPaperIfSafe(usual,detectPaper(original,iw,ih)):usual;
+   }
+   // Deuxième tentative historique inchangée, seulement en cas d'échec.
+   const enhanced=scanRaster(original,iw,ih,1500,true);
+   if(enhanced){
+    return enhanced.confirmed&&!inLegacyZone(enhanced)
+     ?attachPaperIfSafe(enhanced,detectPaper(original,iw,ih)):enhanced;
+   }
+   // Dernier secours local ciblé : retrouver le papier clair puis garder
+   // les pixels natifs de la partie basse où sont imprimées les barres.
+   // Si le papier est incertain, ne jamais inventer de crop ni d'EAN.
+   const paper=detectPaper(original,iw,ih);
+   if(!paper)return null;
+   const region={x:paper.x+paper.w*.025,y:paper.y+paper.h*.49,
+    w:paper.w*.84,h:paper.h*.49};
+   if(region.x+region.w>.995||region.y+region.h>.995)return null;
+   const focused=scanRaster(original,iw,ih,1700,true,region);
+   return attachPaperIfSafe(focused,paper);
   }catch(_){return null;}
   finally{
    try{bitmap?.close?.();}catch(_){}
