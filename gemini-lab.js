@@ -1376,6 +1376,18 @@
    // EAN Gemini confirmé et contradictoire par simple supposition.
    combined=reconcileBarcode(combined,localBarcode);
    let targets=!targetField?recoveryTargets(combined):[];
+   // Seules les étiquettes encore incertaines bénéficient de la lecture
+   // OCR locale des chiffres imprimés. Le moteur doit déjà être chargé :
+   // aucun téléchargement Tesseract supplémentaire ni délai à la capture.
+   let printedJob=null;
+   if(targets.includes('ean')&&window.IUGeminiPrintedEAN&&
+      (!localOcrBusy&&localWorker||window.TextDetector)){
+    printedJob=window.IUGeminiPrintedEAN.read(file,{
+     engine:localOcrBusy?null:localWorker,
+     TextDetector:window.TextDetector||null,
+     hint:localBarcode
+    }).catch(()=>null);
+   }
    // Le décodage local travaille déjà en parallèle depuis la capture.
    // S'il est presque terminé et que seul l'EAN nécessite confirmation,
    // attendre très brièvement évite un aller-retour Gemini de plusieurs
@@ -1426,6 +1438,27 @@
     }
    }
    const validated=combined;
+   if(printedJob){
+    // Le Tesseract local est facultatif. Il n'ajoute jamais un EAN
+    // inconnu au résultat et ne contourne pas la seconde lecture Gemini.
+    const printed=await Promise.race([printedJob,
+     new Promise(resolve=>setTimeout(()=>resolve(null),65))]);
+    if(id!==generation)return;
+    if(printed?.ean13){
+     const visualEAN=String(validated.fields?.ean13||'');
+     const independentTrusted=trustedBarcodeEvidence(localBarcode);
+     const printedMismatch=readableValue('ean',visualEAN)&&
+      visualEAN!==printed.ean13;
+     validated.checks={...validated.checks,
+      printedEANChecked:true,
+      printedEANConflict:printedMismatch};
+     // Une vérification de caractères indépendamment acquise peut
+     // signaler une contradiction seulement si aucun code-barres
+     // confirmé ne concorde déjà avec Gemini et que l'OCR est net.
+     if(printedMismatch&&!independentTrusted&&printed.confidence>=88)
+      validated.checks.independentMismatch=true;
+    }
+   }
    const priorMismatch=validated.checks?.independentMismatch===true;
    const localChecks=fieldsChecks(validated.fields);
    const opticalResolved=trustedBarcodeEvidence(localBarcode)&&

@@ -29,7 +29,7 @@
    if(ean.length===13&&valid(ean))found.add(ean);
   }
   return found.size===1?{ean13:[...found][0],source:'printed-ocr',
-   confirmed:false,ambiguous:false}:
+   confidence:Number(confidence),confirmed:false,ambiguous:false}:
    found.size>1?{source:'printed-ocr',ambiguous:true}:null;
  }
  function roi(hint){
