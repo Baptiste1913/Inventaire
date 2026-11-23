@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'gemini-lab.js'
+      - 'gemini-parallel.js'
+      - 'gemini-image-worker.js'
+      - 'tools/test_gemini_parallel.cjs'
       - 'gemini-ean.js'
       - 'gemini-label-geometry.js'
       - 'tools/test_gemini_ean_rescue.cjs'
@@ -33,6 +36,9 @@ jobs:
       - name: Vérification JavaScript
         run: |
           node --check gemini-lab.js
+          node --check gemini-parallel.js
+          node --check gemini-image-worker.js
+          node --check tools/test_gemini_parallel.cjs
           node --check gemini-ean.js
           node --check gemini-label-geometry.js
           node --check tools/test_gemini_ean_rescue.cjs
@@ -60,6 +66,8 @@ jobs:
           node tools/test_gemini_ean_rescue.cjs
           node tools/test_gemini_label_geometry.cjs
           node tools/test_gemini_label_detail.cjs
+      - name: Vérifier parallélisme du scanner et secours Safari
+        run: node tools/test_gemini_parallel.cjs
       - name: Vérifier la netteté EAN, poids, prix et la sélection de la photo
         run: |
           node tools/test_gemini_frame_quality.cjs
