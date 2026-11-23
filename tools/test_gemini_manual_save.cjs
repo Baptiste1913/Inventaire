@@ -43,7 +43,7 @@ assert(app.includes("const digi=window.IUDigiCatalogLookup?.resolve(ean);"),
 assert(app.includes('corrected!==expected||payload?.correctedTotalCents!==correctedTotal'),
  'Le code-barres recalculé est contrôlé avant écriture');
 assert(html.includes('gemini-lab.js?v='+version));
-const catalogAssetVersion=(html.match(/digi-catalog-lookup\\.js\\?v=([\\d.]+)/)||[])[1];
+const catalogAssetVersion=(html.match(/digi-catalog-lookup\.js\?v=([\d.]+)/)||[])[1];
 assert(Boolean(catalogAssetVersion),'L’identité DIGI doit être disponible');
 assert(sw.includes('digi-catalog-lookup.js?v='+catalogAssetVersion),
  'Cache DIGI et HTML utilisent le même fichier');
