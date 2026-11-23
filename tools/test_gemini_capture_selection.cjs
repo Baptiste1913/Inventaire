@@ -88,9 +88,10 @@ async function simulate(frames,cache,settings={}){
   'Résolution réelle JPEG inchangée');
  assert(js.includes('stopQualityMonitor();\n   analysisCameraClosed=true;'),
   'Aucune sélection permanente pendant une analyse Gemini');
- assert(html.includes('gemini-frame-quality.js?v='+version)&&
-  sw.includes('gemini-frame-quality.js?v='+version));
- assert(html.indexOf('gemini-frame-quality.js?v='+version)<
+ const qualityAssetVersion=(html.match(/gemini-frame-quality\\.js\\?v=([\\d.]+)/)||[])[1];
+ assert(qualityAssetVersion&&sw.includes('gemini-frame-quality.js?v='+qualityAssetVersion),
+  'Le module de netteté est présent dans la page et le cache PWA');
+ assert(html.indexOf('gemini-frame-quality.js?v='+qualityAssetVersion)<
   html.indexOf('gemini-lab.js?v='+version),'Module chargé avant le scanner');
  console.log('OK : meilleure photo EAN/poids/prix, 85 ms maxi, une requête JPEG, Safari');
 })().catch(e=>{console.error(e);process.exitCode=1});
