@@ -31,19 +31,37 @@ function mistralErrorDetails(raw){
   };
  }catch(_){return {};}
 }
+// Ne jamais journaliser le message fournisseur : il peut contenir une image,
+ // un texte client ou une valeur privée. Garder uniquement les codes connus.
+function googleErrorDetails(raw){
+ if(typeof raw!=='string'||raw.length>4096)return {};
+ try{
+  const error=JSON.parse(raw)?.error;
+  const statuses=['UNAVAILABLE','RESOURCE_EXHAUSTED','INTERNAL',
+   'FAILED_PRECONDITION','PERMISSION_DENIED','NOT_FOUND','INVALID_ARGUMENT'];
+  const reason=error?.details?.find?.(x=>typeof x?.reason==='string')?.reason;
+  const known=['MODEL_OVERLOADED','MODEL_CAPACITY_UNAVAILABLE',
+   'RATE_LIMIT_EXCEEDED','QUOTA_EXCEEDED','RESOURCE_EXHAUSTED',
+   'SERVICE_UNAVAILABLE','BACKEND_ERROR','MODEL_NOT_FOUND'];
+  return {
+   providerErrorType:statuses.includes(error?.status)?error.status:null,
+   providerErrorCode:known.includes(reason)?reason:null
+  };
+ }catch(_){return {};}
+}
 function geminiDiagnostic({stage,reason,model=null,providerStatus=null,httpStatus,
- elapsedMs=0,providerErrorType=null,providerErrorCode=null}){
- const safeModel=['gemini-3.8-flash','gemini-3.5-flash-lite','mistral-ocr-4-1'].includes(model)?model:null;
- const safeType=safeModel==='mistral-ocr-4-1'?
-  safeProviderErrorToken(providerErrorType,48):null;
- const safeCode=safeModel==='mistral-ocr-4-1'?
-  safeProviderErrorToken(providerErrorCode,32):null;
+ elapsedMs=0,providerErrorType=null,providerErrorCode=null,retryAfterSeconds=null}){
+ const safeModel=['gemini-4-hydrogen','gemini-3.8-flash','gemini-3.5-flash-lite','mistral-ocr-4-1'].includes(model)?model:null;
+ const safeType=safeModel?safeProviderErrorToken(providerErrorType,48):null;
+ const safeCode=safeModel?safeProviderErrorToken(providerErrorCode,32):null;
  console.error('IU_GEMINI_DIAGNOSTIC '+JSON.stringify({
   event:'iu_gemini_failure',stage,reason,model:safeModel,
   providerStatus:Number.isInteger(providerStatus)?providerStatus:null,
   httpStatus,elapsedMs:Math.max(0,Math.round(elapsedMs)),
   ...(safeType?{providerErrorType:safeType}:{}),
-  ...(safeCode?{providerErrorCode:safeCode}:{})
+  ...(safeCode?{providerErrorCode:safeCode}:{}),
+  ...(Number.isSafeInteger(retryAfterSeconds)&&retryAfterSeconds>=1&&
+   retryAfterSeconds<=180?{retryAfterSeconds}:{})
  }));
 }
 function validEAN13(code){
@@ -296,8 +314,14 @@ async function geminiPilot(request,env,origin){
    // Ne pas transformer un refus d’accès/quota en fausse panne HTTP 502.
    const outputStatus=status===429?429:[401,403].includes(status)?403
     :status===404?404:status===400?400:[500,502,503,504].includes(status)?503:502;
+   let googleDetails={};
+   try{googleDetails=googleErrorDetails(await res.text())}catch(_){}
+   const retryValue=Number(res.headers?.get('retry-after'));
+   const retryAfterSeconds=Number.isSafeInteger(retryValue)&&retryValue>=1&&
+    retryValue<=180?retryValue:null;
    geminiDiagnostic({stage,reason:'provider_http_error',model,
-    providerStatus:status,httpStatus:outputStatus,elapsedMs:Date.now()-started});
+    providerStatus:status,httpStatus:outputStatus,elapsedMs:Date.now()-started,
+    ...googleDetails,retryAfterSeconds});
    return reply({...closed,error:diagnostic,providerStatus:status,model},outputStatus,origin);
   }
   providerAnswered=true;

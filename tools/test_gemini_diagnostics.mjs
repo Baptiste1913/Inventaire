@@ -6,7 +6,7 @@ import vm from 'node:vm';
 // identifiable par son statut original, sans corps de réponse ni secret.
 const source=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
 const records=[];
-let remoteStatus=200,networkFailure=false,brokenJson=false;
+let remoteStatus=200,networkFailure=false,brokenJson=false,structuredError=false;
 const secretImage=Buffer.from('SECRET-PHOTO-BODY'.repeat(8)).toString('base64');
 const env={GEMINI_LAB_ENABLED:'true',COURSESU_TEST_TOKEN:'SECRET-PRIVATE-TOKEN',
  GEMINI_API_KEY:'SECRET-GOOGLE-API-KEY'};
@@ -14,8 +14,11 @@ const fetchMock=async(url,options)=>{
  assert(url.startsWith('https://generativelanguage.googleapis.com/'));
  assert.equal(options.headers['x-goog-api-key'],env.GEMINI_API_KEY);
  if(networkFailure)throw new Error('SECRET-EXCEPTION-INCLUDING-PRIVATE-DATA');
- if(remoteStatus!==200)return new Response('SECRET-GOOGLE-RESPONSE-AND-USER-DATA',
-  {status:remoteStatus});
+ if(remoteStatus!==200)return new Response(structuredError?JSON.stringify({error:{
+   status:'UNAVAILABLE',message:'SECRET-PRIVATE-USER-DATA',
+   details:[{reason:'MODEL_OVERLOADED',metadata:{private:'SECRET-METADATA'}}]
+  }}):'SECRET-GOOGLE-RESPONSE-AND-USER-DATA',
+  {status:remoteStatus,headers:structuredError?{'Retry-After':'5'}:{}});
  if(brokenJson)return new Response('NOT VALID JSON PRIVATE INFO',{status:200});
  const ean='0206632019594';
  return new Response(JSON.stringify({candidates:[{finishReason:'STOP',
@@ -40,7 +43,7 @@ async function request(options={}){
   'Content-Type':'application/json'
  });
  const res=await ctx.worker.fetch(new Request('https://example.test/gemini-lab',{
-  method:'POST',headers,body:JSON.stringify(body())
+  method:'POST',headers,body:JSON.stringify({...body(),...(options.payload||{})})
  }),options.env||env);
  return {status:res.status,json:await res.json()};
 }
@@ -50,7 +53,7 @@ function latest(){
  assert(line.startsWith('IU_GEMINI_DIAGNOSTIC '),'Préfixe de journal stable');
  const detail=JSON.parse(line.slice('IU_GEMINI_DIAGNOSTIC '.length));
  assert.equal(detail.event,'iu_gemini_failure');
- assert([null,'gemini-3.5-flash-lite'].includes(detail.model),
+ assert([null,'gemini-3.5-flash-lite','gemini-4-hydrogen'].includes(detail.model),
   'Le modèle logué doit être connu ou absent');
  assert(Number.isFinite(detail.elapsedMs)&&detail.elapsedMs>=0);
  for(const forbidden of ['SECRET-', 'imageBase64','x-goog-api-key',
@@ -75,6 +78,19 @@ for(const upstream of [500,502,503,504,429,400]){
  assert.equal(detail.providerStatus,upstream,'Code Google exact conservé');
  assert.equal(detail.httpStatus,expected,'Code Cloudflare également visible');
 }
+// Reproduire le 503 Hydrogen : modèle visible, statut Google précis,
+ // codes bornés uniquement ; aucun message brut, ni image ni clé.
+structuredError=true;remoteStatus=503;
+res=await request({payload:{model:'gemini-4-hydrogen'}});
+assert.equal(res.status,503);
+let google=latest();
+assert.equal(google.model,'gemini-4-hydrogen');
+assert.equal(google.providerErrorType,'unavailable');
+assert.equal(google.providerErrorCode,'model_overloaded');
+assert.equal(google.retryAfterSeconds,5);
+assert(!records.at(-1).includes('SECRET-PRIVATE-USER-DATA'));
+assert(!records.at(-1).includes('SECRET-METADATA'));
+structuredError=false;
 remoteStatus=200;networkFailure=true;
 res=await request();
 assert.equal(res.status,503);

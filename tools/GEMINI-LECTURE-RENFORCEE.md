@@ -531,3 +531,31 @@ https://docs.mistral.ai/resources/error-glossary
   dont des photos floues et plusieurs étiquettes. Comparer temps
   de lecture, montant par scan et pesées correctes dès le premier
   essai, sans supposer de taux de précision garanti.
+
+
+## Diagnostics Hydrogen — HTTP 503 (23 novembre 2026)
+
+Le journal Cloudflare indiquait `model:null` malgré un appel
+`gemini-4-hydrogen` : seule la liste blanche du journal avait oublié
+ce modèle. **Ce bug ne modifiait pas le modèle réellement appelé.**
+
+Le Worker affiche désormais `model:gemini-4-hydrogen` et lit uniquement
+les codes normalisés de la réponse HTTP Google pour les erreurs :
+`providerErrorType` (ex. `unavailable`), `providerErrorCode`
+(ex. `model_overloaded` lorsqu'il figure dans les détails Google) et
+`retryAfterSeconds` si un en-tête numérique valide est présent.
+Les messages bruts, réponses complètes, clés API, EAN et photographies
+ne sont jamais journalisés.
+
+Un `503` reçu de Google en ~1,8 seconde signifie que le fournisseur
+a renvoyé le statut, pas que le timeout de 13 secondes a été atteint.
+Le diagnostic ne prouve pas encore la cause exacte (capacité, routage,
+service, etc.). Aucun changement de modèle, aucune répétition automatique
+ni modification de validation de pesées dans ce correctif.
+
+**Déployer séparément** le fichier `workers/coursesu-live-worker.js`
+sur le Worker Cloudflare `inventaires-u-prix`. Le seul commit GitHub
+ne modifie pas la version de production Cloudflare. Après déploiement,
+reproduire une fois l'erreur et consulter `IU_GEMINI_DIAGNOSTIC`.
+Comparer le `providerErrorType` et un éventuel `providerErrorCode`
+avant d'ajouter un secours.
