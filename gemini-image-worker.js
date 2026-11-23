@@ -1,9 +1,9 @@
-/* Inventaires U 42.32 — travail image hors du thread de la caméra.
+/* Inventaires U 42.33 — travail image hors du thread de la caméra.
  * Classic Worker Safari ; aucune requête HTTP externe ni accès au stockage.
  */
 'use strict';
-importScripts('./gemini-ean.js?v=42.32');
-importScripts('./gemini-label-geometry.js?v=42.32');
+importScripts('./gemini-ean.js?v=42.33');
+importScripts('./gemini-label-geometry.js?v=42.33');
 function zoneToPixels(rect,w,h){
  if(!rect)return null;
  return {
@@ -89,7 +89,9 @@ async function enhancedDetail(photo,reading){
   const iw=bitmap.width,ih=bitmap.height;
   if(!(iw>=650&&ih>=350))return null;
   const geometry=self.IUGeminiLabelGeometry;
-  let rect=geometry.opticalCrop(reading,iw,ih);
+  let rect=geometry.barcodeWithinLabel?.(reading,reading?.labelRect)
+   ?reading.labelRect:null;
+  if(!rect)rect=geometry.opticalCrop(reading,iw,ih);
   if(!rect){
    const thumb=new OffscreenCanvas(Math.max(1,Math.round(iw*Math.min(1,240/iw))),
     Math.max(1,Math.round(ih*Math.min(1,240/iw))));
