@@ -432,6 +432,17 @@
  }
  function refreshLabelAlert(){
   if(active){setLabelAlert('idle','');return;}
+  // Si un résultat a déjà été lu pour CETTE photo, un panier plus
+  // lourd que le brut est une erreur métier certaine, pas une panne IA.
+  // Cela évite de masquer la tare lors d'une relecture réseau échouée.
+  const knownGross=latestLabelFields?.weightGrams;
+  const knownTare=typeof window.IUWeighScanContext==='function'
+   ?window.IUWeighScanContext()?.tareGrams:null;
+  if(Number.isSafeInteger(knownGross)&&knownGross>0&&
+     Number.isSafeInteger(knownTare)&&knownTare>=knownGross){
+   setLabelAlert('warning','Tare trop élevée · change de panier');
+   return;
+  }
   if(lastAnalysisError){setLabelAlert('warning',lastAnalysisError);return;}
   const raw=latestLabelFields?.weightGrams;
   if(!Number.isSafeInteger(raw)||raw<=0){
@@ -489,6 +500,8 @@
    return {error:'Code-barres différent de la lecture indépendante.'};
   if(checks.readingConflict===true)
    return {error:'Lectures contradictoires · vérifie les chiffres imprimés.'};
+  if(checks.recoveryInterrupted===true)
+   return {error:'Vérification complémentaire interrompue · relis cette photo.'};
   if(fieldsChecks(f).barcodePriceConsistent===false)
    return {error:'Prix de l’EAN différent du prix imprimé.'};
   return {name:digi.name,plu:digi.plu,catalogPrefix:digi.eanPrefix,
@@ -1237,7 +1250,11 @@
    throw new DOMException('Analyse annulée','AbortError');
   let result;
   try{result=await response.json()}
-  catch(_){throw Error('Réponse illisible du service · réessaie cette photo');}
+  catch(_){
+   // Un refus réseau/CDN non JSON ne signifie pas qu'un chiffre est
+   // illisible. Montrer le code HTTP sans exposer de données sensibles.
+   throw Error('Réponse Cloudflare illisible (HTTP '+response.status+') · réessaie cette photo');
+  }
   if(response.ok)return result;
   const status=response.status,providerStatus=Number(result?.providerStatus);
   const diagnostic=String(result?.error||'');
@@ -1254,7 +1271,16 @@
    throw Error('Photo non acceptée · reprends une photo');
   if(status===404||providerStatus===404)
    throw Error('Modèle '+(provider==='openai'?'OpenAI':'Gemini')+' indisponible');
-  throw Error('Service IA indisponible · réessaie cette photo');
+  if(status===504||providerStatus===504)
+   throw Error('Délai Gemini dépassé (504) · conserve cette photo et réessaie');
+  if(status===503||providerStatus===503)
+   throw Error(providerStatus
+    ?'Gemini temporairement indisponible (503) · réessaie cette photo'
+    :'Liaison Cloudflare–Gemini indisponible (503) · réessaie cette photo');
+  if(status>=500&&status<=599)
+   throw Error('Erreur du service Gemini (HTTP '+status+
+    (providerStatus?' / fournisseur '+providerStatus:'')+') · réessaie cette photo');
+  throw Error('Service IA : réponse inattendue (HTTP '+status+') · réessaie cette photo');
  }
  // Une seule relecture groupée de la photo existante, y compris quand
  // plusieurs champs manquent ; jamais de nouvelle prise automatique.
@@ -1433,8 +1459,13 @@
      combined=mergeRecoveredReading(combined,focused,targets);
      combined=reconcileBarcode(combined,localBarcode);
     }catch(error){
-     if(error?.name==='AbortError')throw error;
-     // Le premier résultat reste disponible pour correction manuelle.
+     if(error?.name==='AbortError'&&id!==generation)throw error;
+     // L'expiration globale de 15 s peut arriver pendant la SECONDE
+     // lecture : ne jamais effacer les champs déjà obtenus de Gemini.
+     // En revanche, interdire l'enregistrement tant que la confirmation
+     // additionnelle n'a pas été obtenue.
+     combined={...combined,checks:{...(combined.checks||{}),
+      recoveryInterrupted:true}};
     }
    }
    const validated=combined;
