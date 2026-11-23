@@ -56,6 +56,18 @@ assert.equal(trustedBarcodeEvidence(ctx.localBarcode),false,
  'Un code optique hors de la zone DIGI n’est pas une preuve suffisante');
 assert.deepEqual(Array.from(recoveryTargets({fields:label,checks:{}})),['ean'],
  'Si la lecture locale est mal placée, conserver la relecture Gemini de sécurité');
+ctx.window.IUGeminiLabelGeometry=require('../gemini-label-geometry.js');
+ctx.localBarcode={confirmed:true,ean13:label.ean13,source:'optical',
+ bounds:{left:.61,right:.83,y:.76,slope:.03},
+ labelRect:{x:.38,y:.12,w:.57,h:.77,source:'paper-outline'}};
+assert.equal(trustedBarcodeEvidence(ctx.localBarcode),true,
+ 'Un EAN hors gabarit fixe reste fiable si inclus dans le papier identifié');
+assert.deepEqual(Array.from(recoveryTargets({fields:label,checks:{}})),[],
+ 'Un code-barres décentré confirmé évite une relecture Gemini inutile');
+ctx.localBarcode={...ctx.localBarcode,
+ bounds:{left:.90,right:.99,y:.76,slope:0}};
+assert.equal(trustedBarcodeEvidence(ctx.localBarcode),false,
+ 'Ne pas valider un autre EAN placé en dehors de la feuille détectée');
 ctx.localBarcode={confirmed:true,ean13:label.ean13,ambiguous:false,source:'native'};
 assert(worker.includes('responseSchema')&&worker.includes('pipelineVersion:2'));
 assert(worker.includes('focusFields')&&worker.includes('detailImageBase64'));

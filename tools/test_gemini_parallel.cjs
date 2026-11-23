@@ -89,5 +89,42 @@ const api=window.IUGeminiParallel;
  vm.runInContext(script,broken);
  assert.equal((await brokenWindow.IUGeminiParallel.barcode(photo)).ean13,
   'legacy-after-error','Crash Web Worker => retour au lecteur d’origine');
- console.log('OK : EAN et CLAHE hors thread, 1 Worker réutilisé, lecture de secours, budget JPEG');
+ class EmptyWorker{
+  postMessage(message){
+   Promise.resolve().then(()=>this.onmessage({data:{id:message.id,result:null}}));
+  }
+  terminate(){}
+ }
+ let localRuns=0;
+ const emptyWindow={Worker:EmptyWorker,OffscreenCanvas:class{},
+  createImageBitmap:()=>{},IUGeminiEAN:{read:async()=>{
+   localRuns++;return {ean13:'verified-by-legacy'};
+  }}};
+ const empty=vm.createContext({window:emptyWindow,setTimeout,clearTimeout,Promise,Map,Object,Number});
+ vm.runInContext(script,empty);
+ assert.equal((await emptyWindow.IUGeminiParallel.barcode(photo))?.ean13,
+  'verified-by-legacy','Worker sans lecture => secours historique');
+ assert.equal((await emptyWindow.IUGeminiParallel.barcode(photo))?.ean13,
+  'verified-by-legacy');
+ assert.equal(localRuns,1,'Ne pas redécoder plusieurs fois la même photo');
+
+ class HungWorker{
+  postMessage(){}
+  terminate(){}
+ }
+ const hangingWindow={Worker:HungWorker,OffscreenCanvas:class{},
+  createImageBitmap:()=>{},IUGeminiEAN:{read:async()=>({ean13:'legacy-timeout'})}};
+ const fakeClock={
+  setTimeout(callback,ms){
+   if(ms===4500)Promise.resolve().then(callback);
+   return 1;
+  },
+  clearTimeout(){}
+ };
+ const hung=vm.createContext({window:hangingWindow,Promise,Map,Object,Number,
+  ...fakeClock});
+ vm.runInContext(script,hung);
+ assert.equal((await hangingWindow.IUGeminiParallel.barcode(photo))?.ean13,
+  'legacy-timeout','Worker bloqué => reprise locale sans EAN perdu');
+ console.log('OK : EAN/CLAHE hors thread, secours sur erreur, résultat vide et délai, déduplication');
 })().catch(error=>{console.error(error);process.exitCode=1});
