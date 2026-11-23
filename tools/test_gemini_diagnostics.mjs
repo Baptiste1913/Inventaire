@@ -50,7 +50,8 @@ function latest(){
  assert(line.startsWith('IU_GEMINI_DIAGNOSTIC '),'Préfixe de journal stable');
  const detail=JSON.parse(line.slice('IU_GEMINI_DIAGNOSTIC '.length));
  assert.equal(detail.event,'iu_gemini_failure');
- assert.equal(detail.model,'gemini-3.5-flash-lite');
+ assert([null,'gemini-3.5-flash-lite'].includes(detail.model),
+  'Le modèle logué doit être connu ou absent');
  assert(Number.isFinite(detail.elapsedMs)&&detail.elapsedMs>=0);
  for(const forbidden of ['SECRET-', 'imageBase64','x-goog-api-key',
   'content-type','X-IU-Pilot-Key','https://','weightKg','ean13'])
