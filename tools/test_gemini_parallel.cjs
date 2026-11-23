@@ -24,10 +24,14 @@ assert(ean.includes("typeof OffscreenCanvas==='function'"),
 assert(ean.includes("adaptiveLine(values)"),'Seuillage glissant en secours uniquement');
 assert(geometry.includes("typeof self!=='undefined'?self:null"),
  'Le lecteur de contours est disponible en Worker');
-assert(html.includes('gemini-parallel.js?v='+version));
-assert(sw.includes('gemini-image-worker.js?v='+version));
-assert(sw.includes('gemini-parallel.js?v='+version));
-assert(html.indexOf('gemini-parallel.js?v='+version)<html.indexOf('gemini-lab.js?v='+version));
+const parallelVersion=(html.match(/gemini-parallel\.js\?v=([\d.]+)/)||[])[1];
+const imageWorkerVersion=(sw.match(/gemini-image-worker\.js\?v=([\d.]+)/)||[])[1];
+assert(parallelVersion&&imageWorkerVersion,'Les deux Workers doivent rester déclarés');
+assert(sw.includes('gemini-parallel.js?v='+parallelVersion));
+assert(sw.includes('gemini-image-worker.js?v='+imageWorkerVersion));
+assert(html.indexOf('gemini-parallel.js?v='+parallelVersion)<
+ html.indexOf('gemini-lab.js?v='+version),
+ 'Le gestionnaire parallèle doit être chargé avant le scanner');
 assert(local.includes('window.IUGeminiParallel?.barcode(chosen)'));
 assert(local.includes('window.IUGeminiParallel?.enhancedDetail(file,'));
 assert(local.includes('blob?.size>490000&&Math.max(cv.width,cv.height)>1920'));
