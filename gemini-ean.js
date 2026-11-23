@@ -76,6 +76,20 @@
   }
   return results;
  }
+ // Seuillage glissant pour un éclairage inégal : uniquement en secours.
+ // On ne modifie pas la photo, les chiffres ni le parcours initial.
+ function adaptiveLine(values){
+  const n=values.length,radius=24;
+  const sums=new Float64Array(n+1);
+  for(let i=0;i<n;i++)sums[i+1]=sums[i]+values[i];
+  const out=new Array(n);
+  for(let i=0;i<n;i++){
+   const lo=Math.max(0,i-radius),hi=Math.min(n,i+radius+1);
+   const mean=(sums[hi]-sums[lo])/(hi-lo);
+   out[i]=values[i]<mean-8?35:235;
+  }
+  return out;
+ }
  async function nativeRead(source){
   if(typeof BarcodeDetector==='undefined')return null;
   try{
@@ -99,7 +113,8 @@
   const scale=Math.min(1,targetWidth/iw);
   const w=Math.max(1,Math.round(iw*scale)),h=Math.max(1,Math.round(ih*scale));
   if(w<220||h<120)return null;
-  const canvas=document.createElement('canvas');
+  const canvas=typeof OffscreenCanvas==='function'
+   ?new OffscreenCanvas(w,h):document.createElement('canvas');
   canvas.width=w;canvas.height=h;
   const context=canvas.getContext('2d',{willReadFrequently:true});
   if(!context)return null;
@@ -124,15 +139,17 @@
    const y=Math.floor(h*fraction);
    for(const slope of slopes){
     const values=line(y,slope);
-    for(const threshold of thresholds){
-     for(const item of lineCode(values,threshold)){
-      const key=item.code,record=votes.get(key)||
-       {rows:new Set(),xs:[],ys:[],slopes:[]};
-      record.rows.add(fraction);
-      record.xs.push([item.start,item.end]);
-      record.ys.push(y);record.slopes.push(slope);
-      votes.set(key,record);
-     }
+    const candidates=[];
+    for(const threshold of thresholds)candidates.push(...lineCode(values,threshold));
+    if(enhanced&&candidates.length===0)
+     candidates.push(...lineCode(adaptiveLine(values)));
+    for(const item of candidates){
+     const key=item.code,record=votes.get(key)||
+      {rows:new Set(),xs:[],ys:[],slopes:[]};
+     record.rows.add(fraction);
+     record.xs.push([item.start,item.end]);
+     record.ys.push(y);record.slopes.push(slope);
+     votes.set(key,record);
     }
    }
   }
@@ -150,7 +167,7 @@
     slope:data.slopes[Math.min(pos,data.slopes.length-1)]}};
  }
  async function rasterRead(source){
-  if(typeof document==='undefined')return null;
+  if(typeof document==='undefined'&&typeof OffscreenCanvas==='undefined')return null;
   let bitmap=null,img=null,objectUrl=null;
   try{
    if(typeof createImageBitmap==='function'){
@@ -244,5 +261,8 @@
   if(native?.ean13)return native;
   return rasterRead(source);
  }
- window.IUGeminiEAN={read,decode95,lineCode,valid,suggestLabelCrop,cropIfSafe};
+ const scope=typeof window!=='undefined'?window:
+  (typeof self!=='undefined'?self:null);
+ if(scope)scope.IUGeminiEAN={read,decode95,lineCode,valid,
+  suggestLabelCrop,cropIfSafe};
 })();

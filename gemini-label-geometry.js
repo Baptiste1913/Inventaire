@@ -7,7 +7,7 @@
  const api=factory();
  if(typeof module==='object'&&module.exports)module.exports=api;
  if(root)root.IUGeminiLabelGeometry=api;
-})(typeof window!=='undefined'?window:null,function(){
+})(typeof window!=='undefined'?window:(typeof self!=='undefined'?self:null),function(){
  'use strict';
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
  function longestRun(scores,threshold,minLength,center){
