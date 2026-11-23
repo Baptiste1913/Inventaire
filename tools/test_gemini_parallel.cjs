@@ -14,7 +14,7 @@ const version=JSON.parse(fs.readFileSync('version.json','utf8')).version;
 assert(!imgWorker.includes('fetch('),'Le traitement doit rester strictement local');
 assert(imgWorker.includes('importScripts('),'Web Worker classique Safari');
 assert(imgWorker.includes('function clahe('),'CLAHE conditionnel présent');
-assert(imgWorker.includes('if((contrast.range>=94||contrast.range<16)&&!rotate)return null;'),
+assert(imgWorker.includes('if((contrast.range>=110||contrast.range<12)&&!rotate)return null;'),
  'Aucun CLAHE pour les images déjà suffisamment contrastées');
 assert(imgWorker.includes("if(kind==='barcode')result=await self.IUGeminiEAN.read(photo);"),
  'Même décodeur indépendant dans le Web Worker');
