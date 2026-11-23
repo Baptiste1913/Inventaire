@@ -73,8 +73,9 @@ assert(worker.includes('responseSchema')&&worker.includes('pipelineVersion:2'));
 assert(worker.includes('focusFields')&&worker.includes('detailImageBase64'));
 assert(js.includes("selectedModel!==hydrogenModel"),
  'Hydrogen ne doit pas provoquer de seconde requête Gemini automatique');
-assert(js.includes("providerSelect?.value==='hydrogen'?hydrogenModel:fixedModel"),
- 'Gemini reste sélectionné par défaut, Mistral est un test explicite');
+assert(js.includes("const hydrogenRequested=providerSelect?.value==='hydrogen'")&&
+ js.includes("const selectedModel=hydrogenRequested&&!hydrogenPaused?hydrogenModel:fixedModel"),
+ 'Flash-Lite reste le modèle par défaut, Hydrogen seulement sur sélection explicite');
 assert(js.includes('let targets=!targetField?recoveryTargets(combined):[]'));
 assert(js.includes("targets.length===1&&targets[0]==='ean'"),
  'Attente bornée pour éviter un appel Gemini si la lecture EAN locale est imminente');
