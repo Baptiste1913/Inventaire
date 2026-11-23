@@ -50,20 +50,19 @@ assert.equal(ocr.parse(carotte.replace('2,11€','2,10€'),{confidence:90}),nul
  'Arithmétique locale exacte exigée');
 assert.equal(ocr.eanValid('0203476013844'),true);
 assert.equal(ocr.eanValid('0203476013845'),false);
-// La caméra doit garantir que la lecture n'est jamais enregistrée sans clic.
+// Le module OCR local est conservé pour le contrôle des étiquettes,
+// mais la reconnaissance IA principale v42 est Gemini, jamais un
+// raccourci de pesée automatique par deux OCR locaux.
 const js=require('node:fs').readFileSync('gemini-lab.js','utf8');
-assert(js.includes('void readLocalFrame(quality)'), 'La boucle vidéo appelle l’OCR local');
-assert(js.includes('localReader.matchTwo(localCandidate,parsed)'),'Deux lectures requises');
-assert(js.includes('sendOcrFallback(canvas,valid)'),'Gemini déclenché seulement en secours');
-assert(js.includes("if(!pilotKey.value.trim()){") &&
- js.includes('Aucune image envoyée : configure la clé Cloudflare'),
- 'Sans clé Cloudflare, aucun envoi distant');
+assert(js.includes("const selectedProvider='gemini';"),
+ 'Gemini reste le fournisseur principal du parcours IA');
+assert(js.includes("cameraMode='manual';"),
+ 'La prise de photo manuelle reste explicite');
+assert(js.includes('sendOcrFallback(canvas,valid)'),
+ 'Une photo du mode expérimental passe également par Gemini');
 assert(js.includes("nextWeigh?.addEventListener('click'") &&
  js.includes('window.IUGeminiSaveWeigh('),
- 'Un clic reste obligatoire pour enregistrer la pesée');
-assert(js.includes('autoNeedsChange=Boolean(autoChangeReference)') &&
- js.includes('autoFrameDistance(quality.pixels,autoChangeReference)>18'),
- 'Ne pas re-déclencher une analyse sur la même étiquette après validation');
-assert(!js.includes('autoStableCount>=4&&now-autoStableSince>=650'),
- 'Ancien verrou de visée trop sensible supprimé');
-console.log('OCR hybride : cas réels, EAN, arithmétique, deux lectures et secours contrôlé OK.');
+ 'Aucune sauvegarde ne contourne la validation manuelle');
+assert(js.includes('IUDigiCatalogLookup?.resolve'),
+ 'Le module OCR ne remplace pas le catalogue DIGI');
+console.log('OK : OCR local prudent et priorité Gemini, validation humaine');
