@@ -206,7 +206,7 @@ async function geminiPilot(request,env,origin){
  const provider=payload?.provider==='mistral'?'mistral':'gemini',model=payload?.model;
  if((payload?.provider&&!['gemini','mistral'].includes(payload.provider))||
     !(provider==='mistral'?model==='mistral-ocr-4-1':
-     ['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model))||
+     ['gemini-4-hydrogen','gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model))||
     payload?.type!=='iu-gemini-label-test'||
     payload?.mimeType!=='image/jpeg'||
     typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
@@ -276,7 +276,11 @@ async function geminiPilot(request,env,origin){
     headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
     body:JSON.stringify({
      contents:[{role:'user',parts:[{text:prompt},...imageParts]}],
-     generationConfig:{temperature:0,maxOutputTokens:1024,
+     generationConfig:{temperature:0,
+      // Hydrogen doit rester en raisonnement LOW : le mode HIGH par
+      // défaut est trop lent et coûteux pour une petite étiquette DIGI.
+      ...(model==='gemini-4-hydrogen'?{thinkingConfig:{thinkingLevel:'LOW'}}:{}),
+      maxOutputTokens:model==='gemini-4-hydrogen'?2048:1024,
       responseMimeType:'application/json',responseSchema}
     })
    });
@@ -352,7 +356,19 @@ async function geminiPilot(request,env,origin){
    ?Math.round(Number(ean13.slice(7,12))*100/655.36):null;
   const barcodePriceConsistent=priceFromEAN!==null&&totalCents!==null
    ?Math.abs(priceFromEAN-totalCents)<=1:null;
+  // Les volumes de tokens proviennent de Google, jamais de la photo
+  // ni du texte OCR. Le coût ci-dessous est indicatif, non un plafond.
+  const metrics=data?.usageMetadata||{};
+  const safeCount=value=>Number.isSafeInteger(value)&&value>=0?value:null;
+  const inputTokens=safeCount(metrics.promptTokenCount);
+  const completionTokens=safeCount(metrics.candidatesTokenCount);
+  const thinkingTokens=safeCount(metrics.thoughtsTokenCount);
+  const estimatedUsd=model==='gemini-4-hydrogen'&&
+   inputTokens!==null&&completionTokens!==null
+   ?Number(((inputTokens*1.5+(completionTokens+(thinkingTokens||0))*7.5)/1e6).toFixed(6))
+   :null;
   return reply({...closed,provider,model,pipelineVersion:2,
+   usage:{inputTokens,completionTokens,thinkingTokens,estimatedUsd},
    focusField:focus,focusFields,elapsedMs:Date.now()-started,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null,

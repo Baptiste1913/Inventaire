@@ -26,7 +26,8 @@
  let pendingReplacementFile=null,lastSavedImportedPhoto=null;
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
- const fixedModel='gemini-3.5-flash-lite',mistralModel='mistral-ocr-4-1';
+ const fixedModel='gemini-3.5-flash-lite',hydrogenModel='gemini-4-hydrogen';
+ // Mistral est conservé côté Worker, mais le scanner teste Gemini.
  const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
@@ -796,7 +797,8 @@
  });
  pilotKey.addEventListener('input',updateButton);
  if(providerSelect){
-  try{providerSelect.value=localStorage.getItem(providerPreferenceKey)==='mistral'?'mistral':'gemini';}
+  try{providerSelect.value=localStorage.getItem(providerPreferenceKey)==='hydrogen'
+   ?'hydrogen':'gemini';}
   catch(_){providerSelect.value='gemini';}
   providerSelect.addEventListener('change',()=>{
    try{localStorage.setItem(providerPreferenceKey,providerSelect.value)}catch(_){}
@@ -1190,6 +1192,8 @@
    networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +' · modèle '+usedModel
+    +(Number.isFinite(result?.usage?.estimatedUsd)
+      ?' · coût IA estimé '+result.usage.estimatedUsd.toFixed(4)+' $':'')
     +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser');
   }
  }
@@ -1289,6 +1293,11 @@
    throw Error('Mistral OCR non déployé sur Cloudflare · utilise Gemini en attendant');
   if(provider==='mistral'&&diagnostic.includes('MISTRAL_API_KEY'))
    throw Error('Clé Mistral absente de Cloudflare · configure MISTRAL_API_KEY');
+  if(status===400&&selectedModel==='gemini-4-hydrogen'&&
+     diagnostic.includes('Modèle ou image JPEG incorrect'))
+   throw Error('Hydrogen non activé sur Cloudflare · déploie le nouveau Worker');
+  if(status===400&&diagnostic.includes('Paramètres refusés par Gemini'))
+   throw Error('Paramètres Gemini refusés · voir le diagnostic Cloudflare');
   if(status===400||status===413)
    throw Error('Photo non acceptée · reprends une photo');
   if(status===404||providerStatus===404)
@@ -1364,11 +1373,11 @@
  }
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
-  const selectedProvider=providerSelect?.value==='mistral'?'mistral':'gemini';
-  const selectedModel=selectedProvider==='mistral'?mistralModel:fixedModel;
+  const selectedProvider='gemini';
+  const selectedModel=providerSelect?.value==='hydrogen'?hydrogenModel:fixedModel;
   const access=pilotKey.value.trim();
-  // Mistral est un mode d'essai explicite. Une capture, un fournisseur.
-  const providerName=selectedProvider==='mistral'?'Mistral OCR':'Gemini';
+  // Hydrogen ne relit pas automatiquement la même photo par réseau.
+  const providerName=selectedModel===hydrogenModel?'Gemini 4 Hydrogen':'Gemini Flash-Lite';
   const targetField=repairFocus&&lastRawResult?repairFocus:null;
   const oldResult=targetField?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
@@ -1454,7 +1463,7 @@
      targets=recoveryTargets(combined);
     }
    }
-   if(targets.length&&selectedProvider==='gemini'){
+   if(targets.length&&selectedProvider==='gemini'&&selectedModel!==hydrogenModel){
     // Une seule relecture de tous les champs problématiques sur cette
     // MEME photo. Ne pas perdre les valeurs fiables de la première.
     try{

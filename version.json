@@ -1,6 +1,6 @@
 {
-  "version": "42.37",
+  "version": "42.38",
   "published": "2026-11-23",
   "assets": 60,
-  "notes": "Correction des diagnostics IA : messages de quota adaptés au fournisseur réellement sélectionné (Mistral ou Gemini), refus des réponses serveur provenant d'un moteur différent, distinction HTTP 402/429, délai Cloudflare 504 contre HTTP 504 renvoyé directement par Google, et information facultative Retry-After Mistral. Aucun retry automatique, changement de modèle, d'images ou de validations DIGI. La correction des réponses Mistral nécessite un déploiement Cloudflare séparé."
+  "notes": "Pilote opt-in Gemini 4 Hydrogen (gemini-4-hydrogen) en thinking LOW pour l'OCR DIGI : une seule requête IA par capture, sans relecture automatique coûteuse. Gemini 3.5 Flash-Lite reste le moteur stable par défaut, Mistral retiré du sélecteur du scanner suite aux refus 429. Le Worker retourne un relevé indicatif des tokens/coûts Hydrogen ; les règles EAN, catalogue DIGI, tare et validation manuelle restent inchangées. Déployer le Worker Cloudflare pour activer Hydrogen ; fixer un plafond de dépenses dans Google AI Studio car l'application n'est pas un plafond de facturation."
 }

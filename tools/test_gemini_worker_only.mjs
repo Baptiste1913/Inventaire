@@ -26,7 +26,9 @@ const upstream=async(url,options)=>{
   content:{parts:[{text:JSON.stringify({
    name:null,weightKg:'1,000',pricePerKgEur:'2,99',
    totalEur:'2,99',ean13:code
-  })}]}}]}),{status:200});
+  })}]}}],usageMetadata:{
+   promptTokenCount:3000,candidatesTokenCount:200,thoughtsTokenCount:100
+  }}),{status:200});
 };
 const ctx=vm.createContext({
  fetch:upstream,Response,AbortController,setTimeout,clearTimeout,URL
@@ -100,6 +102,19 @@ assert.equal((await call('/gemini-lab',body(),{
 const flash=await call('/gemini-lab',body({model:'gemini-3.8-flash'}));
 assert.equal(flash.status,200);
 assert.equal(flash.json.model,'gemini-3.8-flash');
+const hydrogen=await call('/gemini-lab',body({model:'gemini-4-hydrogen'}));
+assert.equal(hydrogen.status,200);
+assert.equal(hydrogen.json.model,'gemini-4-hydrogen');
+const hydrogenRequest=JSON.parse(calls.at(-1).options.body);
+assert.equal(hydrogenRequest.generationConfig.thinkingConfig.thinkingLevel,'LOW',
+ 'Hydrogen doit éviter HIGH par défaut');
+assert.equal(hydrogenRequest.generationConfig.maxOutputTokens,2048);
+assert.equal(hydrogen.json.usage.inputTokens,3000);
+assert.equal(hydrogen.json.usage.completionTokens,200);
+assert.equal(hydrogen.json.usage.thinkingTokens,100);
+assert.equal(hydrogen.json.usage.estimatedUsd,0.00675,
+ 'Coût calculé d’après tokens réels, raisonnement inclus');
+assert.equal(hydrogen.json.verifiedForInventory,false);
 remoteStatus=429;
 const limited=await call();
 assert.equal(limited.status,429);

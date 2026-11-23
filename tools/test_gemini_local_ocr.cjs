@@ -54,7 +54,7 @@ assert.equal(ocr.eanValid('0203476013845'),false);
 // mais la reconnaissance IA principale v42 est Gemini, jamais un
 // raccourci de pesée automatique par deux OCR locaux.
 const js=require('node:fs').readFileSync('gemini-lab.js','utf8');
-assert(js.includes("providerSelect?.value==='mistral'?'mistral':'gemini'"),
+assert(js.includes("providerSelect?.value==='hydrogen'?hydrogenModel:fixedModel"),
  'Gemini reste le moteur par défaut, Mistral est activé manuellement');
 assert(js.includes("cameraMode='manual';"),
  'La prise de photo manuelle reste explicite');

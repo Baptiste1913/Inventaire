@@ -495,3 +495,39 @@ journal ne permet de retrouver les champs qui n'étaient pas enregistrés.
 Test sans API : `node tools/test_mistral_error_diagnostics.mjs`.
 Documentation Mistral :
 https://docs.mistral.ai/resources/error-glossary
+
+## v42.38 — pilote Gemini 4 Hydrogen et budget <= 10 €/mois
+
+- Modèle Google valide : `gemini-4-hydrogen` dans le Worker
+  `workers/coursesu-live-worker.js`, avec
+  `generationConfig.thinkingConfig.thinkingLevel='LOW'` :
+  `minimal` n'est **pas compatible** avec les modèles Gemini 4.
+- Sélecteur scanner « Gemini 4 Hydrogen (pilote) » : uniquement opt-in,
+  le modèle éprouvé `gemini-3.5-flash-lite` reste le choix initial.
+  L'ancien choix Mistral mémorisé repasse sur Gemini. Les données
+  d'inventaire ne changent pas.
+- **Une seule requête par capture Hydrogen** : pas de second appel
+  coûteux automatique. Si des champs manquent, la correction reste
+  manuelle sur la photo existante. La lecture optique ZXing locale
+  et la validation DIGI/poids/tare continuent en parallèle.
+- Réponse serveur : `usage.inputTokens`, `completionTokens`,
+  `thinkingTokens` et `estimatedUsd` (estimation calculée
+  selon 1,50 $/M tokens entrée et 7,50 $/M tokens sortie,
+  raisonnement inclus). Ce n'est **pas** un plafonnement
+  financier, et les requêtes échouées peuvent être facturées.
+- Budget : utiliser **Google AI Studio > Spend > Monthly spend cap**
+  (par exemple 8 $ comme garde-fou sous 10 € TTC,
+  à ajuster selon change et taxes), idéalement avec
+  **Prépaiement sans recharge automatique**. Google indique un
+  délai de comptabilisation pouvant atteindre environ 10 minutes :
+  un dépassement momentané reste possible. Ne promettre
+  aucune garantie à 10 € sans un contrôleur de dépenses serveur
+  persistant couplé à la facturation.
+- **Publication GitHub ≠ déploiement Cloudflare** : déployer le fichier
+  Worker mis à jour sous `inventaires-u-prix` sans changer
+  la clé `GEMINI_API_KEY`, `COURSESU_TEST_TOKEN` ni les routes.
+  Tant que le Worker n'est pas à jour, Hydrogen renverra 400.
+- Mesurer 30-100 étiquettes en mode Hydrogen LOW vs Flash-Lite,
+  dont des photos floues et plusieurs étiquettes. Comparer temps
+  de lecture, montant par scan et pesées correctes dès le premier
+  essai, sans supposer de taux de précision garanti.
