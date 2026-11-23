@@ -52,8 +52,9 @@ async function call(route='/gemini-lab',payload=body(),options={}){
   method,headers,...(method==='POST'?{body:JSON.stringify(payload)}:{})
  });
  const res=await ctx.worker.fetch(req,options.env||env);
+ const type=res.headers.get('Content-Type')||'';
  return {status:res.status,headers:res.headers,
-  json:res.status===204?null:await res.json()};
+  json:res.status===204||!type.includes('application/json')?null:await res.json()};
 }
 const read=await call('/gemini-lab',body({detailImageBase64:detail}));
 assert.equal(read.status,200);
