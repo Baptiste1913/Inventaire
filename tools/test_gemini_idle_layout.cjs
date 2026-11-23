@@ -101,9 +101,9 @@ assert(!js.includes("range.selectNodeContents(element)")&&
  !js.includes("addText('.iu-gemini-label-")&&
  !js.includes("addSample('.iu-gemini-label-"),
  'Les anciens contours autour de chaque mot ont disparu');
-assert(js.includes('const scale=.82*Math.min((stage.width-8)/guideSize.width,')&&
+assert(js.includes('const scale=.70*Math.min((stage.width-8)/guideSize.width,')&&
  js.includes('(stage.height-8)/guideSize.height);'),
- 'Repère réduit de 18 % uniformément, sans déformation');
+ 'Repère à 70 % de la taille maximale, uniformément et sans déformation');
 assert(css.includes('.iu-gemini-outline-label > .iu-gemini-outline-rect')&&
  css.includes('background:transparent!important;'),
  'Les cadres sont des contours vides et translucides');
@@ -674,7 +674,7 @@ assert(server.includes('let providerAnswered=false;')&&
  server.includes('abort.signal.aborted?504:providerAnswered?422:503'),
  'Le Worker distingue lecture non reconnue, délai et panne fournisseur');
 // v42.19 — caméra fermée uniquement durant l'analyse et reprise rapide.
-assert(js.includes('const scale=.82*Math.min(')&&
+assert(js.includes('const scale=.70*Math.min(')&&
  js.includes('setAnalysisCameraClosed(true);')&&
  js.includes('active=false;abort=null;setAnalysisCameraClosed(false);')&&
  js.includes("if(track?.readyState==='live')track.enabled=false;")&&

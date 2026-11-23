@@ -148,9 +148,10 @@
    }
   }
   if(!guideSnapshot||!guideSize)return;
-  // Repère réduit de 18 % : on recule l'iPhone pour cadrer toute
-  // l'étiquette avec de l'air autour. Ratio et formes DIGI inchangés.
-  const scale=.82*Math.min((stage.width-8)/guideSize.width,
+  // Repère réduit à 70 % du cadrage maximal (82 % auparavant) :
+  // davantage d'air autour de l'étiquette, ratio et zones DIGI inchangés.
+  // Ce calcul ne modifie pas la capture photo ni sa résolution.
+  const scale=.70*Math.min((stage.width-8)/guideSize.width,
    (stage.height-8)/guideSize.height);
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';
