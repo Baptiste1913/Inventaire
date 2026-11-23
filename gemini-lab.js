@@ -430,8 +430,12 @@
    labelAlert.classList.toggle('is-warning',type==='warning');
    labelAlert.classList.toggle('is-working',type==='working');
   }
-  labelAlertText.textContent=message;
-  labelAlert.hidden=type==='idle'&&!message;
+  // Simplifier uniquement l'avertissement destiné à l'interface :
+  // conserver l'erreur détaillée pour la correction et les diagnostics.
+  const visibleMessage=message==='Lecture non validable · Poids lu sur l’étiquette manquant ou invalide.'
+   ?'Données incertaines':message;
+  labelAlertText.textContent=visibleMessage;
+  labelAlert.hidden=type==='idle'&&!visibleMessage;
   // Les erreurs visibles utilisent systématiquement le carré rouge.
   if(type==='warning'&&!active&&
      /erreur|invalide|impossible|indisponible|incomplet|non reconn|incorrect|échec|trop élev|manquant|incohér|non valid|non conforme|réessaie|choisis un panier/i.test(message))

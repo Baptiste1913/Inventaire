@@ -5507,109 +5507,169 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  display:none!important;
 }
 
-/* v42.41 — confirmation des doublons, même langage que la fenêtre
-   « Terminer l'inventaire ? », mais indépendante de la barre de session. */
-#iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay[hidden] {
+/* v42.42 — reprise exacte du panneau de fin d'inventaire.
+   Le popup est ancré 12px au-dessus du dock (70px, bas à 3px/safe-area).
+   Aucun redimensionnement ni décalage des cinq icônes du dock. */
+html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay[hidden]{
  display:none!important;
 }
-#iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]) {
+html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]){
  position:fixed!important;
  inset:0!important;
- z-index:100600!important;
- display:flex!important;
- justify-content:center!important;
- align-items:center!important;
+ z-index:2147483001!important;
  box-sizing:border-box!important;
- padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px)!important;
- background:rgba(16,30,42,.34)!important;
- -webkit-backdrop-filter:blur(7px)!important;
- backdrop-filter:blur(7px)!important;
+ display:flex!important;
+ align-items:flex-end!important;
+ justify-content:center!important;
+ padding:10px 14px calc(82px + max(3px,calc(env(safe-area-inset-bottom,0px) - 5px)))!important;
+ background:transparent!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ pointer-events:auto!important;
 }
-#iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm {
+html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm{
  position:relative!important;
  inset:auto!important;
- transform:none!important;
- display:flex!important;
- flex-direction:column!important;
- gap:10px!important;
  box-sizing:border-box!important;
- width:min(100%,350px)!important;
- max-width:350px!important;
- max-height:90dvh!important;
+ display:block!important;
+ width:min(540px,100%)!important;
+ max-width:540px!important;
+ max-height:calc(100dvh - 110px - env(safe-area-inset-bottom,0px))!important;
  overflow:auto!important;
- margin:auto!important;
- padding:20px 18px 18px!important;
- border:1px solid rgba(255,255,255,.86)!important;
- border-radius:19px!important;
- background:linear-gradient(150deg,#f8fafc,#eaf0f5)!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 18px 48px rgba(21,36,48,.23)!important;
- color:#253641!important;
- text-align:center!important;
-}
-#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > p {
  margin:0!important;
+ padding:13px!important;
+ border:1px solid rgba(255,255,255,.92)!important;
+ border-radius:13px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 35%,#e7edf1 100%)!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.88),3px 4px 10px rgba(143,161,175,.22),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ color:#27343d!important;
+ text-align:left!important;
+ animation:iuGeminiDuplicateRiseV4242 .48s cubic-bezier(.18,.84,.25,1) both!important;
+}
+@keyframes iuGeminiDuplicateRiseV4242{
+ from{opacity:0;transform:translate3d(0,calc(100% + 105px),0);}
+ to{opacity:1;transform:translate3d(0,0,0);}
+}
+html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > p{
+ margin:0 0 11px!important;
  font-family:inherit!important;
- font-size:17px!important;
- line-height:1.2!important;
+ font-size:14px!important;
  font-weight:800!important;
- color:#253641!important;
+ line-height:1.35!important;
+ letter-spacing:-.15px!important;
+ color:#27343d!important;
+ text-align:left!important;
 }
-#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > small {
- margin:0 0 7px!important;
- font-family:inherit!important;
- font-size:12px!important;
- line-height:1.45!important;
- font-weight:500!important;
- color:#566874!important;
+/* Le détail reste lisible par les lecteurs d'écran, sans alourdir
+   les dimensions de ce panneau calquées sur Fin d'inventaire. */
+html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > small{
+ position:absolute!important;
+ width:1px!important;
+ height:1px!important;
+ padding:0!important;
+ margin:-1px!important;
+ overflow:hidden!important;
+ clip-path:inset(50%)!important;
+ white-space:nowrap!important;
+ border:0!important;
 }
-#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div {
+html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div{
  display:grid!important;
- grid-template-columns:1fr 1.35fr!important;
- gap:9px!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:10px!important;
  width:100%!important;
  margin:0!important;
 }
-#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button {
+html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{
+ -webkit-appearance:none!important;
+ appearance:none!important;
  box-sizing:border-box!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
  min-width:0!important;
- min-height:44px!important;
+ min-height:45px!important;
  margin:0!important;
- padding:10px 9px!important;
- border:1px solid rgba(164,182,194,.7)!important;
- border-radius:12px!important;
- background:linear-gradient(145deg,#fff,#e5ecf2)!important;
- box-shadow:inset 0 1px 0 #fff,0 2px 6px rgba(35,52,67,.08)!important;
- color:#425767!important;
+ padding:10px 12px!important;
+ border:1px solid rgba(255,255,255,.92)!important;
+ border-radius:13px!important;
+ background:linear-gradient(145deg,#fff 0%,#f6f9fb 38%,#e8eef2 100%)!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.86),3px 4px 9px rgba(143,161,175,.20),inset 1px 1px 0 rgba(255,255,255,.97)!important;
+ color:#4b5963!important;
  font-family:inherit!important;
- font-size:12px!important;
- font-weight:750!important;
- line-height:1.15!important;
+ font-size:12.5px!important;
+ font-weight:800!important;
+ line-height:1.3!important;
+ white-space:normal!important;
+ text-shadow:none!important;
+ transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important;
  cursor:pointer!important;
  touch-action:manipulation!important;
+ -webkit-tap-highlight-color:transparent!important;
 }
-#iuGeminiDuplicateConfirm #iuGeminiDuplicateAccept {
- color:#fff!important;
- background:linear-gradient(145deg,#457487,#315d73)!important;
- border-color:rgba(42,91,114,.8)!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.23),0 2px 7px rgba(38,69,88,.15)!important;
+html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button#iuGeminiDuplicateAccept{
+ border-color:#f3dfe3!important;
+ background:linear-gradient(145deg,#fffafa 0%,#fff4f6 35%,#f6e8ed 100%)!important;
+ color:#a84253!important;
+ box-shadow:-2px -2px 6px rgba(255,255,255,.82),3px 4px 9px rgba(167,110,122,.14),inset 1px 1px 0 rgba(255,255,255,.94)!important;
 }
-#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button:active {
- transform:scale(.97)!important;
+html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button:active{
+ transform:scale(.975)!important;
+ box-shadow:inset 2px 3px 6px rgba(126,148,164,.15),inset -1px -1px 2px rgba(255,255,255,.93)!important;
 }
-#iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button:focus-visible {
- outline:2px solid #277fbc!important;
- outline-offset:2px!important;
+html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button:focus-visible{
+ outline:2px solid #4d9bae!important;
+ outline-offset:3px!important;
+}
+@media(max-width:380px){
+ html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm{padding:11px!important;}
+ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > p{font-size:13px!important;}
+ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div{gap:8px!important;}
+ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{font-size:12px!important;padding:9px 8px!important;}
 }
 @media(prefers-reduced-motion:reduce){
- #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button {transition:none!important;}
+ html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm{animation:none!important;}
+ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{transition:none!important;}
 }
 @media(forced-colors:active){
- #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]) {background:Canvas!important;}
- #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm {
-  background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;
+ html body #iuGeminiDuplicateConfirm .focus-confirm.iu-gemini-duplicate-confirm,
+ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm > div > button{
+  border:1px solid CanvasText!important;
+  color:CanvasText!important;
+  background:Canvas!important;
+  box-shadow:none!important;
  }
- #iuGeminiDuplicateConfirm .iu-gemini-duplicate-confirm button,
- #iuGeminiDuplicateConfirm #iuGeminiDuplicateAccept {
-  background:ButtonFace!important;color:ButtonText!important;border-color:ButtonText!important;
- }
+}
+
+/* v42.42 — même couleur que "Clé privée et confidentialité" (#83909a,
+   10.5px / graisse 550), légende du brut +2px et en gras. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-row > .iu-gemini-gross-panel > span{
+ color:#83909a!important;
+ -webkit-text-fill-color:#83909a!important;
+ font-size:12.5px!important;
+ font-weight:800!important;
+ line-height:1.2!important;
+ letter-spacing:0!important;
+}
+/* La valeur reprend toute sa hiérarchie sans agrandir la carte de 54px. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult .iu-gemini-gross-panel .iu-gemini-gross-number > strong{
+ font-size:clamp(23px,6.3vw,28px)!important;
+ font-weight:900!important;
+ line-height:1.05!important;
+ letter-spacing:-.5px!important;
+ font-variant-numeric:tabular-nums!important;
+}
+
+/* Lorsque la barre d'accueil est masquée (sous-pages ou inventaire actif),
+   le panneau reste accessible près du bas, sans laisser une bande vide. */
+html body:is(.is-focus-mode,.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode)
+ #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]){
+ padding-bottom:max(14px,env(safe-area-inset-bottom,0px))!important;
+}
+html body.is-focus-mode .app > #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay:not([hidden]){
+ display:flex!important;
+ visibility:visible!important;
+ pointer-events:auto!important;
 }

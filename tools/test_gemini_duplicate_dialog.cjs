@@ -76,4 +76,42 @@ context.duplicateForCurrent=()=>false;
 assert.equal(context.openPrompt(),false,'Pas de fenêtre sans doublon');
 assert(html.includes('gemini-lab.js?v='+version)&&html.includes('gemini-lab.css?v='+version));
 assert(sw.includes('gemini-lab.js?v='+version)&&sw.includes('gemini-lab.css?v='+version));
+// v42.42 — libellés Gemini, erreur simplifiée, style de fin de session
+// et apparition en glissant au-dessus de la barre de navigation.
+assert(html.includes('<span class="section-kicker">SERVICE U / CALCUL IA</span>'));
+assert(html.includes('id="iu-gemini-section-title">Nouvelle pesée via Gemini</h2>'));
+assert(html.includes('<span class="iu-gemini-title-text">Gemini</span>'));
+assert(!html.includes('<span class="iu-gemini-title-text">IA</span>'));
+const alertCode=between(' function setLabelAlert(state,message){',' function duplicateForCurrent(){');
+const originalError='Lecture non validable · Poids lu sur l’étiquette manquant ou invalide.';
+assert(alertCode.includes("?'Données incertaines':message"));
+assert(js.includes("return {error:'Poids lu sur l’étiquette manquant ou invalide.'}"),
+ 'Le diagnostic métier n’est pas dégradé en changeant le texte');
+const alertPanel={dataset:{state:'idle'},classList:{toggle(){}},hidden:true};
+const alertText={textContent:''};
+const alertEnv={labelAlert:alertPanel,labelAlertText:alertText,active:false,
+ showDetectedIndicator:()=>{}};
+vm.runInNewContext(alertCode+';setLabelAlert',alertEnv);
+assert.equal(alertEnv.setLabelAlert('warning',originalError),undefined);
+assert.equal(alertText.textContent,'Données incertaines',
+ 'Le message de poids erroné est court pour les utilisateurs');
+alertEnv.setLabelAlert('warning','Tare trop élevée · change de panier');
+assert.equal(alertText.textContent,'Tare trop élevée · change de panier',
+ 'Les autres erreurs restent explicites');
+assert(css.includes('animation:iuGeminiDuplicateRiseV4242 .48s'),
+ 'Animation de remontée du doublon présente');
+assert(css.includes('padding:10px 14px calc(82px + max(3px'),
+ 'La popup est placée au-dessus du dock et de la safe area iOS');
+assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))!important'),
+ 'Mêmes dimensions de boutons que la fin d’inventaire');
+assert(css.includes('background:linear-gradient(145deg,#fff 0%,#f8fafb 35%,#e7edf1 100%)!important'),
+ 'Même fond neumorphique que le bloc Fin d’inventaire');
+assert(css.includes('body.is-focus-mode .app > #iuGeminiDuplicateConfirm'),
+ 'La popup ne doit pas être masquée lors d’une session active');
+assert(css.includes('font-size:12.5px!important')&&css.includes('color:#83909a!important'),
+ 'Légende du brut +2px et couleur de la confidentialité');
+assert(css.includes('font-size:clamp(23px,6.3vw,28px)!important')&&
+ css.includes('font-weight:900!important'),
+ 'Le poids brut doit être plus grand et plus gras');
+
 console.log('OK : popup doublon volontaire, annulation sans sauvegarde, états et position du viseur');

@@ -1,6 +1,6 @@
 {
-  "version": "42.41",
+  "version": "42.42",
   "published": "2026-11-23",
   "assets": 63,
-  "notes": "Sur la base v42.40 : doublons Gemini confirmés par une fenêtre dédiée (Valider la pesée / Annuler sans modifier l’historique) ; photo à droite, témoin commun à gauche vert si valide, orange en doublon, rouge en erreur. Aucun changement de modèle, de ZXing ou du Worker Cloudflare."
+  "notes": "UI Gemini : Données incertaines à la place de l'erreur de poids non validable, titres SERVICE U / CALCUL IA et Nouvelle pesée via Gemini, pastille Gemini, poids brut plus lisible. Fenêtre doublon style Fin d'inventaire, montée du bas au-dessus de la navigation. Reconnaissance, ZXing et Worker Cloudflare inchangés."
 }
