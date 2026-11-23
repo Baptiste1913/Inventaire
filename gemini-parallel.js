@@ -47,7 +47,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.33');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.35');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);

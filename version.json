@@ -1,6 +1,6 @@
 {
-  "version": "42.34",
+  "version": "42.35",
   "published": "2026-11-23",
   "assets": 60,
-  "notes": "Différencier tare trop élevée et indisponibilité Gemini/Cloudflare (503, 504, quota, accès, réponse vide). Si une relecture supplémentaire dépasse son délai, conserver les valeurs déjà lues, sans autoriser l’enregistrement tant que les vérifications sont incomplètes. Photo conservée pour réessai manuel, aucun nouvel appel API automatique. Correction d’après vidéo du 23 novembre 2026 ; cause exacte des retours 503 à confirmer dans les journaux Cloudflare."
+  "notes": "Pilote de comparaison Mistral OCR 4.1 (OCR 4.0 retiré) et Gemini, avec sélection explicite dans les réglages Cloudflare. ZXing-C++ WebAssembly en secours du lecteur EAN actuel dans le Web Worker, via CDN JS/WASM épinglé 3.1.2, uniquement après échec local. Les controles EAN/DIGI, prix, tare, validation et données restent sécurisés. L'API Mistral requiert un secret MISTRAL_API_KEY et le déploiement séparé du Worker Cloudflare. Aucune analyse Mistral live sans cette configuration."
 }

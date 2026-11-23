@@ -5443,3 +5443,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiRepair .iu-gemini-repair-manual input {
  flex:1 1 auto!important;width:100px!important;min-width:0!important;
 }
+
+/* v42.35 — moteur OCR visible seulement dans les réglages repliés */
+.iu-gemini-engine-choice{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:600;letter-spacing:.01em}
+.iu-gemini-engine-choice select{width:100%;min-height:42px;padding:9px 12px;border:1px solid rgba(50,68,82,.16);border-radius:14px;background:rgba(246,250,252,.92);color:#1d2831;font:inherit}
+.iu-gemini-engine-choice select:focus-visible{outline:2px solid #346b96;outline-offset:2px}
