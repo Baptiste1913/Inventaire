@@ -1,6 +1,6 @@
 {
-  "version": "42.29",
+  "version": "42.30",
   "published": "2026-11-23",
-  "assets": 55,
-  "notes": "Nom et PLU exclusivement extraits du catalogue DIGI importé localement, après lecture du code EAN complet par Gemini et contrôle indépendant du checksum. Aucun prix ou nom reconstruit depuis le catalogue ; poids et prix/kg lus sur photo. Les préfixes ambigus/inconnus sont bloqués. PLU officiel dans le code-barres virtuel et l'historique des pesées. Revalidation à l'enregistrement et blocage des codes corrigés incohérents ; Worker Cloudflare à déployer séparément."
+  "assets": 56,
+  "notes": "Capture Gemini plus nette sur iPhone : aperçu contrôlé localement sur les zones EAN, poids et prix/kg à basse résolution pendant le cadrage ; un seul tampon RAM haute résolution très récent, et sélection du meilleur cliché au déclenchement, avec au plus 85 ms d'attente supplémentaire lorsque les zones sont floues. Une seule photo JPEG envoyée à Gemini, aucune nouvelle permission ni changement du flux Safari. Les règles d'identification et de sécurité DIGI sont inchangées."
 }
