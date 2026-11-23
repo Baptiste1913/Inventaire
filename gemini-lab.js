@@ -5,7 +5,7 @@
  const $=id=>document.getElementById(id);
  const toggle=$('iuGeminiLabToggle'),panel=$('iuGeminiLab');
  if(!panel)return;
- const photo=$('iuGeminiLabPhoto'),
+ const photo=$('iuGeminiLabPhoto'),providerSelect=$('iuAiProvider'),
   pilotKey=$('iuGeminiPilotKey'),saveKey=$('iuGeminiSaveKey'),
   forgetKey=$('iuGeminiForgetKey'),keyInfo=$('iuGeminiKeyInfo'),
   analyze=$('iuGeminiAnalyze'),status=$('iuGeminiLabStatus'),
@@ -27,6 +27,7 @@
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
  const fixedModel='gemini-3.5-flash-lite';
+ const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
@@ -735,6 +736,13 @@
   }
  });
  pilotKey.addEventListener('input',updateButton);
+ if(providerSelect){
+  try{providerSelect.value=localStorage.getItem(providerPreferenceKey)==='openai'?'openai':'gemini';}
+  catch(_){providerSelect.value='gemini';}
+  providerSelect.addEventListener('change',()=>{
+   try{localStorage.setItem(providerPreferenceKey,providerSelect.value)}catch(_){}
+  });
+ }
  function readStoredKey(){
   try{return localStorage.getItem(storageKey)||'';}catch(_){return '';}
  }
@@ -1026,9 +1034,11 @@
    networkTime.textContent='OCR local · 2 lectures concordantes · aucune image envoyée'
     +' · '+(wallMs/1000).toFixed(2)+' s';
   }else{
-   networkTime.textContent='Gemini · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
+   const usedModel=String(result?.model||fixedModel);
+   const usedProvider=usedModel.startsWith('gpt-')?'OpenAI':'Gemini';
+   networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
-    +' · modèle '+String(result.model||fixedModel);
+    +' · modèle '+usedModel;
   }
  }
  // v42.06 — réessais limités pour indisponibilités TRANSITOIRES seulement.
@@ -1055,8 +1065,8 @@
   if(Number.isFinite(seconds)&&seconds>0)return Math.min(8000,Math.max(1000,Math.ceil(seconds*1000)));
   return attempt===1?1100:2600;
  }
- async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null){
-  const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,
+ async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,provider='gemini'){
+  const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,provider,
    mimeType:'image/jpeg',imageBase64:encoded,
    ...(focusField?{focusField}:{})});
   // Une seule requête par pression : HTTP 502 peut cacher un échec de
@@ -1085,14 +1095,16 @@
   const unreadable=status===422||
    /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération|JSON non reconnu/i.test(diagnostic);
   if(unreadable)throw Error('Étiquette non lue · réessaie cette photo');
+  if(provider==='openai'&&diagnostic.includes('OPENAI_API_KEY'))
+   throw Error('OpenAI non configuré sur Cloudflare · utilise Gemini en attendant');
   if([401,403].includes(status)||[401,403].includes(providerStatus))
-   throw Error('Accès Gemini refusé · vérifie la clé');
+   throw Error(provider==='openai'?'Accès OpenAI refusé · vérifie la clé API dans Cloudflare':'Accès Gemini refusé · vérifie la clé');
   if(status===429||providerStatus===429)
-   throw Error('Quota Gemini atteint · réessaie plus tard');
+   throw Error('Quota '+(provider==='openai'?'OpenAI':'Gemini')+' atteint · réessaie plus tard');
   if(status===400||status===413)
    throw Error('Photo non acceptée · reprends une photo');
   if(status===404||providerStatus===404)
-   throw Error('Modèle Gemini indisponible');
+   throw Error('Modèle '+(provider==='openai'?'OpenAI':'Gemini')+' indisponible');
   throw Error('Service IA indisponible · réessaie cette photo');
  }
  // Une relecture ciblée n'est justifiée que si UNE seule information
@@ -1113,6 +1125,8 @@
  analyze.addEventListener('click',async()=>{
   if(analyze.disabled||!file)return;
   const selectedModel=fixedModel,access=pilotKey.value.trim();
+  const selectedProvider=providerSelect?.value==='openai'?'openai':'gemini';
+  const providerName=selectedProvider==='openai'?'OpenAI':'Gemini';
   const targetField=repairFocus&&lastRawResult?repairFocus:null;
   const oldResult=targetField?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
@@ -1125,7 +1139,7 @@
   const id=++generation;
   abort=new AbortController();
   const start=performance.now();
-  say('Préparation puis envoi d’une seule photo à Gemini…');
+  say('Préparation puis envoi d’une seule photo à '+providerName+'…');
   try{
    // Gemini reçoit immédiatement l'image la plus complète possible.
    // Le décodeur EAN-13 travaille EN PARALLÈLE, sans retarder l'appel
@@ -1135,10 +1149,10 @@
    barcodeJob=job;
    const encoded=await imageBase64(file);
    if(id!==generation)return;
-   say('Gemini analyse l’étiquette…');
+   say(providerName+' analyse l’étiquette…');
    // Une seule demande réseau. La relecture ciblée est VOLONTAIRE.
    const received=await requestGeminiWithRecovery(
-    encoded,access,selectedModel,abort.signal,id,targetField);
+    encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider);
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
@@ -1165,10 +1179,10 @@
     // Un seul second appel, uniquement pour le champ réellement illisible
     // sur la MÊME photo. Échec = conserver le premier résultat.
     try{
-     say('Gemini · vérification de '+({ean:'l’EAN',weight:'poids',
+     say(providerName+' · vérification de '+({ean:'l’EAN',weight:'poids',
       rate:'prix au kilo',total:'prix total',name:'nom'}[missing]||'la lecture')+'…');
      const focused=await requestGeminiWithRecovery(
-      encoded,access,selectedModel,abort.signal,id,missing);
+      encoded,access,selectedModel,abort.signal,id,missing,selectedProvider);
      if(id!==generation)return;
      const key=fieldKeys[missing],value=focused?.fields?.[key];
      if(value!==null&&value!==undefined&&value!==''){
@@ -1193,7 +1207,10 @@
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    const saveReady=Boolean(validationState());
-   say(saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),!saveReady);
+   const usedLegacyGemini=selectedProvider==='openai'&&!String(received?.model||'').startsWith('gpt-');
+   say(usedLegacyGemini?'Lecture faite par Gemini · Worker Cloudflare à mettre à jour'
+    :saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),
+    usedLegacyGemini||!saveReady);
 
   }catch(error){
    if(id===generation&&error?.name!=='AbortError'){
