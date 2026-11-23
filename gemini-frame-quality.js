@@ -83,12 +83,20 @@
   const width=left.width,height=left.height;
   if(width!==right.width||height!==right.height||
      !Number.isInteger(width)||!Number.isInteger(height))return Infinity;
-  const x0=Math.max(0,Math.floor(box.x*width)),x1=Math.min(width,Math.ceil((box.x+box.w)*width));
-  const y0=Math.max(0,Math.floor(box.y*height)),y1=Math.min(height,Math.ceil((box.y+box.h)*height));
+  const x0=Math.max(2,Math.floor(box.x*width)),x1=Math.min(width-2,Math.ceil((box.x+box.w)*width));
+  const y0=Math.max(2,Math.floor(box.y*height)),y1=Math.min(height-2,Math.ceil((box.y+box.h)*height));
+  // Un code-barres légèrement flou conserve ses structures larges.
+  // Comparer sur de petits moyennages 5x5 distingue le mouvement réel
+  // d'un changement d'étiquette, sans pénaliser le flou de la même scène.
+  // La note de netteté reste calculée sur les pixels originaux.
   let difference=0,count=0;
-  for(let y=y0;y<y1;y+=2)for(let x=x0;x<x1;x+=2){
-   const i=y*width+x;
-   difference+=Math.abs(left.gray[i]-right.gray[i]);count++;
+  for(let y=y0;y<y1;y+=4)for(let x=x0;x<x1;x+=4){
+   let l=0,r=0;
+   for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+    const i=(y+dy)*width+x+dx;
+    l+=left.gray[i];r+=right.gray[i];
+   }
+   difference+=Math.abs(l-r)/25;count++;
   }
   return count?difference/count:Infinity;
  }
