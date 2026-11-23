@@ -16,7 +16,7 @@ function between(start,end){
 const analysis=between("analyze.addEventListener('click'","function refreshTorch()");
 const next=between("nextWeigh?.addEventListener('click'","openCamera.addEventListener('click'");
 const capture=between("capture.addEventListener('click'","document.addEventListener('visibilitychange'");
-const save=between("function saveVerifiedProposal({","function announceSaveError()");
+const save=between("function saveVerifiedProposal({","function announceSaveError(");
 assert(!analysis.includes('IUGeminiSaveWeigh('),
  'Une reconnaissance IA ne sauvegarde jamais une pesée');
 assert(next.includes('validationState()')&&next.includes('saveVerifiedProposal('),
