@@ -105,5 +105,5 @@ assert.equal(res.status,401);
 assert.equal(records.length,before,'Ne pas journaliser les jetons incorrects');
 // Les traces n'altèrent ni prompt, ni schéma, ni taux d'échec.
 assert(source.includes('responseSchema')&&source.includes('detailImageBase64'));
-assert.equal(source.match(/await fetch\(/g)?.length,1,'Pas de second appel Gemini');
+assert.equal(source.match(/await fetch\(/g)?.length,2,'Un appel possible par fournisseur : Gemini et Mistral');
 console.log('OK : vrai code Google, étape et durée, aucune photo/clé donnée en logs');
