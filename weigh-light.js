@@ -1,14 +1,15 @@
-/* Inventaires U 42.57 — chrome, longues fibres internes et relief extérieur.
+/* Inventaires U 42.59 — chrome partagé entre viseur DIGI et contrôle du poids.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
- const isGemini=overlay.id==='iuGeminiCameraShell';
- const contourBoost=0; // Retour aux épaisseurs d'origine du contour OCR pour les deux modes
- const guide=overlay?.querySelector(isGemini
+ const isGross=overlay.id==='iuGeminiGrossChrome';
+ const isGemini=isGross||overlay.id==='iuGeminiCameraShell';
+ const contourBoost=0;
+ const guide=isGross?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
  const canvas=guide?.querySelector('.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
@@ -19,13 +20,14 @@
  const COUNT=1280;
  let width=0,height=0,renderScale=0;
  let lanes=[],chromeOuterLines=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
+ let inViewport=true,lastVisibilityCheck=0;
  function wrap(u){return ((u%1)+1)%1;}
  // Contour arrondi à paramétrisation par longueur d'arc réelle :
  // les déplacements restent continus, y compris dans les quatre coins.
  function basePoint(u){
   const inset=isGemini?6:7;
   const left=inset,top=inset,right=width-inset,bottom=height-inset;
-  const r=Math.max(2,Math.min(isGemini?7:9,(right-left)/5,(bottom-top)/3));
+  const r=Math.max(2,Math.min(isGross?12:isGemini?7:9,(right-left)/5,(bottom-top)/3));
   const horizontal=Math.max(1,right-left-2*r);
   const vertical=Math.max(1,bottom-top-2*r);
   const arc=Math.PI*r/2;
@@ -269,7 +271,7 @@
   const span=w.span*(.45+.55*lifeEnvelope),positions=[],samples=84;
   // Stay within the perimeter gutter; closest internal rectangle starts
   // at 2% of guide height (barcode/total bottom).
-  const safeDepth=Math.max(0,Math.min(2.0,(height-12)*.02-.55));
+  const safeDepth=isGross?2.0:Math.max(0,Math.min(2.0,(height-12)*.02-.55));
   for(let i=0;i<=samples;i++){
    const s=i/samples,u=center+(s-.5)*span,p=basePoint(u);
    const envelope=Math.pow(Math.sin(Math.PI*s),1.45);
@@ -341,18 +343,24 @@
  }
  function isActive(){
   return !document.hidden&&!overlay.hidden&&
-    overlay.dataset.state==='scanning'&&!reduceMotion?.matches&&
+    (isGross?inViewport:overlay.dataset.state==='scanning')&&!reduceMotion?.matches&&
     guide.getClientRects().length>0;
  }
  function frame(now){
   if(!running)return;
+  if(isGross&&now-lastVisibilityCheck>=250){
+   lastVisibilityCheck=now;
+   if(!isActive()){sync();return;}
+  }
   if(lastTick){
    // Évite une téléportation du reflet après une longue frame OCR,
    // une suspension Safari ou une baisse de FPS.
    elapsed+=Math.min(48,Math.max(0,now-lastTick))/1000;
   }
   lastTick=now;
-  if(now-lastPaint>=16){
+  // Avoid two full-rate canvases while the camera is also scanning.
+  const interval=isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning'?32:16;
+  if(now-lastPaint>=interval){
    lastPaint=now;
    paint(elapsed);
   }
@@ -362,7 +370,7 @@
   if(isActive()){
    if(!measure())return;
    if(!running){
-    running=true;lastTick=0;lastPaint=0;
+    running=true;lastTick=0;lastPaint=0;lastVisibilityCheck=0;
     request=window.requestAnimationFrame(frame);
    }
   }else{
@@ -370,12 +378,20 @@
    if(isGemini)resetWaves();
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
-   if(!overlay.hidden&&guide.getClientRects().length&&measure())paint(elapsed);
+   if(!document.hidden&&!overlay.hidden&&(!isGross||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
   }
  }
- new MutationObserver(sync).observe(overlay,{
-  attributes:true,attributeFilter:['hidden','data-state']
- });
+ const visibilityObserver=new MutationObserver(sync);
+ visibilityObserver.observe(overlay,{attributes:true,attributeFilter:['hidden','data-state']});
+ if(isGross){
+  const section=document.getElementById('iuGeminiLab');
+  if(section)visibilityObserver.observe(section,{attributes:true,attributeFilter:['hidden','class','data-scan-state','style']});
+  const result=document.getElementById('iuGeminiEmptyResult');
+  if(result)visibilityObserver.observe(result,{attributes:true,attributeFilter:['hidden','class','style']});
+  if(window.IntersectionObserver)new window.IntersectionObserver(entries=>{
+   inViewport=entries[0]?.isIntersecting===true;sync();
+  }).observe(guide);
+ }
  document.addEventListener('visibilitychange',sync);
  window.addEventListener('pageshow',sync);
  window.addEventListener('pagehide',()=>{running=false;if(isGemini)resetWaves();if(request)cancelAnimationFrame(request);request=0;lastTick=0;});
@@ -389,7 +405,7 @@
  else reduceMotion?.addListener?.(sync);
  if(window.ResizeObserver)new ResizeObserver(()=>{
   // Recalcule uniquement si la taille CSS change vraiment.
-  if(guide.getClientRects().length){measure();if(!running)paint(elapsed);}
+  if(isGross){sync();}else if(guide.getClientRects().length){measure();if(!running)paint(elapsed);}
  }).observe(guide);
  sync();
  }

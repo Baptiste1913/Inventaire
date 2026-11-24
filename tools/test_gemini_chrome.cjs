@@ -9,7 +9,7 @@ function run(id,reduce=false){
   fill(){paints.push({color:this.fillStyle,mode:this.globalCompositeOperation,alpha:this.globalAlpha});}};
  const canvas={getContext:()=>ctx,getBoundingClientRect:()=>({width:212,height:172})};
  const guide={querySelector:()=>canvas,getClientRects:()=>[{}]};
- const overlay={id,hidden:false,dataset:{state:'scanning'},querySelector:()=>guide};
+ const overlay={id,hidden:false,dataset:{state:id==='iuGeminiGrossChrome'?'idle':'scanning'},querySelector:()=>id==='iuGeminiGrossChrome'?canvas:guide,getClientRects:()=>[{}]};
  const document={hidden:false,getElementById:k=>k===id?overlay:null,addEventListener:(k,fn)=>{events[k]=fn;}};
  const window={devicePixelRatio:3,matchMedia:()=>({matches:reduce}),addEventListener(){},
   requestAnimationFrame:fn=>{frames.push(fn);return ++requests;},cancelAnimationFrame(){}};
@@ -25,6 +25,12 @@ assert(gemini.paints.every(p=>grey(p.color)&&p.mode==='source-over'));
 assert(gemini.paints.some(p=>p.color==='#1b1b1b'));
 assert(gemini.paints.some(p=>p.color==='#fafafa'));
 assert(gemini.paints.every(p=>Number.isFinite(p.alpha)&&p.alpha>=0&&p.alpha<=1));
+const gross=run('iuGeminiGrossChrome');
+assert(gross.paints.length>=15);
+assert(gross.paints.every(p=>grey(p.color)&&p.mode==='source-over'));
+assert.deepEqual(gross.paints,gemini.paints,'Même palette et couches Chrome au démarrage');
+const grossReduced=run('iuGeminiGrossChrome',true);
+assert.equal(grossReduced.requests,0);assert(grossReduced.paints.length>=15);
 const classic=run('iuWeighScanOverlay');
 assert(classic.paints.some(p=>p.color==='#79c7ff'&&p.mode==='screen'));
 assert(classic.paints.some(p=>p.color==='#44d4ae'));
@@ -37,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.58'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.59'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -106,3 +112,15 @@ assert(update.includes('background:transparent!important;'));
 assert(update.includes('[data-state="scanning"]'));
 assert(update.includes('overflow:hidden!important;'));
 console.log('OK : longues fibres internes bornées, épaisseur extérieure et voile transparent au centre');
+
+const grossStyle=css.slice(css.indexOf('/* v42.59'));
+assert(grossStyle.includes('height:62px!important;'));
+assert(grossStyle.includes('min-height:62px!important;')&&grossStyle.includes('max-height:62px!important;'));
+assert(grossStyle.includes('button#iuGeminiNext'));
+assert(grossStyle.includes('font-size:clamp(28px,7.8vw,34px)!important;'));
+assert(grossStyle.includes('content:none!important;'));
+assert(grossStyle.includes('pointer-events:none!important;'));
+assert(fs.readFileSync('index.html','utf8').includes('id="iuGeminiGrossChrome"><canvas class="iu-weight-light iu-gemini-gross-light" aria-hidden="true">'));
+assert(source.includes('new window.IntersectionObserver'));
+assert(source.includes('isGross?12:isGemini?7:9'));
+console.log('OK : même moteur chrome pour le poids, hauteur commune, typographie et mouvement réduit');
