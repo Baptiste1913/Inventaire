@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
 const js=fs.readFileSync('gemini-lab.js','utf8'),html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('gemini-lab.css','utf8');
 const start=js.indexOf(' function setLabelAlert(state,message){'),end=js.indexOf(' function validateResult(result)',start);
 const classes=new Set(),light={dataset:{state:'idle'},classList:{toggle(k,v){if(v)classes.add(k);else classes.delete(k);}},hidden:true};
-const label={textContent:''},camera={dataset:{state:'idle'}},state={active:false,file:null,proposal:null,latestLabelFields:null,lastAnalysisError:null,lastSaveError:null,lastReadProblem:null,lastRawResult:null};
+const label={textContent:''},camera={dataset:{state:'idle'}},state={active:false,retainedSavedLabel:false,file:null,proposal:null,latestLabelFields:null,lastAnalysisError:null,lastSaveError:null,lastReadProblem:null,lastRawResult:null};
 const api=new Function('labelAlert','labelAlertText','cameraShell','state','window','showDetectedIndicator','catalogProposalCurrent','with(state){'+js.slice(start,end)+';return {setLabelAlert,refreshLabelAlert,refreshCameraAlert};}')(light,label,camera,state,{IUWeighScanContext:()=>({tareGrams:100}),IUGeminiDuplicateInfo:()=>({duplicate:false})},()=>{},()=>true);
 function expect(type,word){assert.equal(light.dataset.state,type);assert.equal(label.textContent,word);assert.equal(light.hidden,false);assert(label.textContent.split(/\s+/).length<=3);}
 api.refreshLabelAlert();expect('idle','Caméra désactivée');
@@ -79,3 +79,7 @@ for(const k of ['border','border-radius','background-color','background-image','
 assert.equal(prop(selectStyle,'height'),prop(buttonsStyle,'height'));
 assert(repairRules.includes('appearance:none!important;-webkit-appearance:none!important'));
 console.log('OK : pastille 32 px, logo réduit, surfaces exactes et sélection native.');
+
+state.retainedSavedLabel=true;state.latestLabelFields={weightGrams:1058};state.proposal=null;state.file=null;
+api.refreshLabelAlert();expect('success','Doublon confirmé');
+state.retainedSavedLabel=false;state.latestLabelFields=null;api.refreshLabelAlert();expect('idle','Caméra désactivée');

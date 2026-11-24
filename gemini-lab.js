@@ -20,6 +20,7 @@
  }
   let file=null,url=null,active=false,attempts=new Set(),generation=0,abort=null;
  let proposal=null,latestLabelFields=null;
+ let retainedSavedLabel=false;
  // La dernière photo et son résultat appartiennent à une même lecture.
  // Les erreurs ne doivent jamais laisser le scanner figé ou le bouton bloqué.
  let lastReadProblem=null,lastAnalysisError=null,lastSaveError=null,retakeConfirmUntil=0;
@@ -494,6 +495,7 @@
  }
  function refreshLabelAlert(){
   if(active){setLabelAlert('working','Analyse…');return;}
+  if(retainedSavedLabel){setLabelAlert('success','Doublon confirmé');return;}
   // Si un résultat a déjà été lu pour CETTE photo, un panier plus
   // lourd que le brut est une erreur métier certaine, pas une panne IA.
   // Cela évite de masquer la tare lors d'une relecture réseau échouée.
@@ -768,6 +770,9 @@
   if(!analyze.disabled)analyze.click();
  });
  function refreshCorrectedLabel(){
+  // Un résultat enregistré est un instantané : un changement de panier
+  // ne doit pas modifier les chiffres déjà enregistrés.
+  if(retainedSavedLabel)return;
   refreshResultCard();
   if(!latestLabelFields)return;
   const fields=latestLabelFields;
@@ -797,6 +802,10 @@
  }
  // Les contrôles sont refaits au moment du clic de validation.
  function validationState(){
+  if(retainedSavedLabel){
+   if(nextWeigh){nextWeigh.disabled=false;nextWeigh.classList.remove('is-ready');}
+   setPrimaryAction(false);refreshCaptureButton();refreshLabelAlert();return null;
+  }
   const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
   const corrected=proposal&&ctx&&catalogProposalCurrent()
    ?recodeAfterTare(proposal.ean,proposal.grams,ctx.tareGrams,proposal.rate):null;
@@ -834,6 +843,7 @@
   if(url){URL.revokeObjectURL(url);url=null;}
  }
  function resetReading(){
+  retainedSavedLabel=false;
   closeDuplicateConfirm();closeCatalogConfirm();
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
@@ -869,6 +879,7 @@
    return false;
   }
   if(active)resetReading();
+  retainedSavedLabel=false;
   closeCatalogConfirm();
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
@@ -2307,13 +2318,27 @@
   say('Doublon annulé · photographie la prochaine étiquette.');
   if(cameraStream&&!cameraShell.hidden)capture?.focus({preventScroll:true});
  }
+ // Libérer la photo et la proposition enregistrées, sans effacer le rendu.
+ // La prochaine capture ou import remplace cet instantané normalement.
+ function retainConfirmedDuplicate(){
+  retainedSavedLabel=true;
+  generation++;
+  proposal=null;file=null;
+  lastRawResult=null;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
+  localBarcode=null;barcodeJob=null;repairFocus=null;manualCorrectedFields=[];
+  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;
+  attempts.clear();photo.value='';clearPreview();
+  if(repairPanel)repairPanel.hidden=true;
+  if(repairManual)repairManual.hidden=true;
+  updateButton();validationState();
+ }
  duplicateCancel?.addEventListener('click',cancelDuplicateConfirm);
  duplicateAccept?.addEventListener('click',()=>{
   if(!duplicateDialogOpen)return;
   closeDuplicateConfirm();
   const saved=saveVerifiedProposal({confirmDuplicate:true});
   if(!saved?.ok){announceSaveError(saved);validationState();return;}
-  resetReading();
+  retainConfirmedDuplicate();
   if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
   setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
   say(saved.duplicate?'Doublon validé · prêt pour la suite.':'Pesée enregistrée · prêt pour la suite.');

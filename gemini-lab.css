@@ -6265,3 +6265,36 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap > select#iuGeminiRepairField{color:ButtonText!important;}
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap::after{border-color:ButtonText!important;}
 }
+
+/* v42.86 — confirmation de doublon : même surface que la carte AI,
+   contour du bouton validant dessiné par le moteur du poids brut. */
+html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay > .focus-confirm.iu-gemini-duplicate-confirm {
+ border:1px solid rgba(255,255,255,.92)!important;
+ border-radius:20px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.98),-6px -6px 13px rgba(255,255,255,.60),4px 5px 11px rgba(91,108,120,.22),1px 2px 4px rgba(72,92,108,.15)!important;
+ overflow:visible!important;
+}
+html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay .iu-gemini-duplicate-confirm > div > button#iuGeminiDuplicateAccept {
+ position:relative!important;isolation:isolate!important;overflow:visible!important;
+ border:0!important;border-radius:12px!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ color:#28343d!important;
+ box-shadow:-2px -2px 5px rgba(255,255,255,.88),2px 3px 7px rgba(146,166,179,.16),inset 1px 1px 0 rgba(255,255,255,.96)!important;
+}
+html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay .iu-gemini-duplicate-confirm > div > button#iuGeminiDuplicateAccept > canvas.iu-gemini-duplicate-light {
+ position:absolute!important;inset:-6px!important;width:calc(100% + 12px)!important;height:calc(100% + 12px)!important;
+ max-width:none!important;max-height:none!important;display:block!important;box-sizing:content-box!important;
+ margin:0!important;padding:0!important;z-index:1!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;background:transparent!important;pointer-events:none!important;transform:none!important;filter:none!important;
+}
+html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay .iu-gemini-duplicate-confirm > div > button#iuGeminiDuplicateAccept > span {
+ position:relative!important;z-index:2!important;
+}
+@media(forced-colors:active){
+ html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay > .focus-confirm.iu-gemini-duplicate-confirm,
+ html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay .iu-gemini-duplicate-confirm > div > button#iuGeminiDuplicateAccept {
+  border:1px solid CanvasText!important;background:Canvas!important;color:CanvasText!important;box-shadow:none!important;
+ }
+ html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-light {display:none!important;}
+}

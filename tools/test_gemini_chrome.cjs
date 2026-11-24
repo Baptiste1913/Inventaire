@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.84'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.86'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -239,8 +239,8 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.85'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.85'));
+assert(markup.includes('gemini-lab.css?v=42.86'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.86'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
@@ -392,8 +392,27 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  assert.equal(frames.size,1);
  const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100);
  assert.deepEqual(paints.slice(0,15),gross.paints.slice(0,15).map(p=>p.color));
- for(let i=0;i<=128;i++){const p=debug.basePoint(i/128);assert(Math.abs(Math.hypot(p.x-13,p.y-13)-8)<1e-8);}
+ for(let i=0;i<=128;i++){const p=debug.basePoint(i/128);assert(Math.abs(Math.hypot(p.x-13,p.y-13)-6)<1e-8);}
  visible([{isIntersecting:false}]);assert.equal(frames.size,0);
  visible([{isIntersecting:true}]);assert.equal(frames.size,1);
- console.log('OK : logo AI circulaire 16 px, même palette Chrome, suspension hors écran.');
+ console.log('OK : logo AI circulaire 12 px, même palette Chrome, suspension hors écran.');
+}
+
+{
+ const frames=new Map(),colors=[],observers=[];let req=0;
+ class Path{moveTo(){}lineTo(){}closePath(){}}
+ const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){colors.push(this.strokeStyle);},fill(){colors.push(this.fillStyle);}};
+ const dialog={hidden:true};
+ const canvas={getContext:()=>ctx,getBoundingClientRect:()=>({width:140,height:57})};
+ const button={id:'iuGeminiDuplicateAccept',hidden:false,querySelector:()=>canvas,getClientRects:()=>dialog.hidden?[]:[{}]};
+ const doc={hidden:false,getElementById:k=>k===button.id?button:k==='iuGeminiDuplicateConfirm'?dialog:null,addEventListener(){}};
+ const win={devicePixelRatio:2,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.set(++req,fn);return req;},cancelAnimationFrame:id=>frames.delete(id)};
+ class Observer{constructor(fn){this.fn=fn;}observe(node){if(node===dialog)observers.push(this.fn);}}
+ new Function('document','window','Path2D','MutationObserver',source)(doc,win,Path,Observer);
+ assert.equal(frames.size,0);
+ dialog.hidden=false;observers.forEach(fn=>fn());assert.equal(frames.size,1);
+ const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100);
+ assert.deepEqual(colors.slice(0,15),gross.paints.slice(0,15).map(p=>p.color));
+ dialog.hidden=true;observers.forEach(fn=>fn());assert.equal(frames.size,0);
+ console.log('OK : bouton de doublon, même palette Chrome, arrêt à la fermeture.');
 }

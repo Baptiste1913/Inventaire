@@ -1,12 +1,14 @@
-/* Inventaires U 42.84 — chrome : anneau de chargement et logo AI miniature.
+/* Inventaires U 42.86 — chrome : logo compact et validation du doublon.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
- const isGross=overlay.id==='iuGeminiGrossChrome';
+ const isDuplicate=overlay.id==='iuGeminiDuplicateAccept';
+ const duplicateDialog=isDuplicate?document.getElementById('iuGeminiDuplicateConfirm'):null;
+ const isGross=overlay.id==='iuGeminiGrossChrome'||isDuplicate;
  const isOuter=overlay.id==='iuGeminiOuterChrome';
  const isBackdrop=overlay.id==='iuGeminiBackdropChrome';
  const isLoader=overlay.id==='iuGeminiLoadingChrome';
@@ -38,7 +40,7 @@
  function basePoint(u){
   if(isBackdrop&&openPoints)return openPoint(u);
   if(isRing){
-   const angle=wrap(u)*TWO_PI-Math.PI/2,r=Math.min(width,height)/2-(isLogo?5:6);
+   const angle=wrap(u)*TWO_PI-Math.PI/2,r=Math.min(width,height)/2-(isLogo?7:6);
    const nx=Math.cos(angle),ny=Math.sin(angle);
    return {x:width/2+r*nx,y:height/2+r*ny,nx,ny};
   }
@@ -490,7 +492,7 @@
     tint:'#59dcb8',core:'#ecfff8',opacity:.54});
  }
  function isActive(){
-  return !document.hidden&&!overlay.hidden&&
+  return !document.hidden&&!overlay.hidden&&(!isDuplicate||duplicateDialog?.hidden===false)&&
     (isLoader?loaderShell?.dataset.state==='analyzing'&&inViewport:isPanelChrome?inViewport:overlay.dataset.state==='scanning')&&!reduceMotion?.matches&&
     guide.getClientRects().length>0;
  }
@@ -526,12 +528,13 @@
    if(isGemini&&!isBackdrop)resetWaves();
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
-   if(!document.hidden&&!overlay.hidden&&(!isLoader||loaderShell?.dataset.state==='analyzing')&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
+   if(!document.hidden&&!overlay.hidden&&(!isDuplicate||duplicateDialog?.hidden===false)&&(!isLoader||loaderShell?.dataset.state==='analyzing')&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
   }
  }
  const visibilityObserver=new MutationObserver(sync);
  visibilityObserver.observe(overlay,{attributes:true,attributeFilter:['hidden','data-state']});
  if(loaderShell)visibilityObserver.observe(loaderShell,{attributes:true,attributeFilter:['hidden','data-state']});
+ if(duplicateDialog)visibilityObserver.observe(duplicateDialog,{attributes:true,attributeFilter:['hidden']});
  if(isPanelChrome){
   const section=document.getElementById('iuGeminiLab');
   if(section&&section!==overlay)visibilityObserver.observe(section,{attributes:true,attributeFilter:['hidden','class','data-scan-state','style']});

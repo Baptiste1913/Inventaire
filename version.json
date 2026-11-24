@@ -1,6 +1,6 @@
 {
-  "version": "42.85",
+  "version": "42.86",
   "published": "2026-11-24",
-  "assets": 85,
-  "notes": "Pastille AI ramenée à 32 px, anneau de 16 px. Sélecteur de correction assorti au panier, boutons Relire et Corriger assortis à Nouvelle pesée, hauteur compacte 40 px. Reconnaissance inchangée."
+  "assets": 86,
+  "notes": "Logo AI de 12 px à épaisseur inchangée, conservation de l’étiquette après validation du doublon sans réenregistrement possible, confirmation harmonisée avec la carte AI et contour Chrome du bouton Valider."
 }
