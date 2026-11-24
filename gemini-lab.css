@@ -1661,7 +1661,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
 /* Empêcher les deux couches décoratives de recouvrir le titre, le panier,
    le viseur, les champs, les bilans ou les boutons de validation. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
- > :not(.iu-gemini-frame-gradient):not(.iu-gemini-frame-surface):not(.iu-gemini-hidden-photo-input):not(.iu-gemini-title-badge) {
+ > :not(.iu-gemini-frame-gradient):not(.iu-gemini-frame-surface):not(.iu-gemini-hidden-photo-input):not(.iu-gemini-title-badge):not(#iuGeminiOuterChrome) {
  position:relative!important;
  z-index:2!important;
 }
@@ -5994,8 +5994,9 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
  background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
  box-shadow:-3px -3px 7px rgba(255,255,255,.98),-6px -6px 13px rgba(255,255,255,.60),4px 5px 11px rgba(91,108,120,.22),1px 2px 4px rgba(72,92,108,.15)!important;
 }
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > canvas.iu-gemini-outer-light {
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > canvas#iuGeminiOuterChrome.iu-gemini-outer-light {
  position:absolute!important;
+ display:block!important;flex:none!important;min-height:0!important;min-width:0!important;aspect-ratio:auto!important;box-sizing:border-box!important;
  inset:0!important;width:100%!important;height:100%!important;
  max-width:none!important;max-height:none!important;
  margin:0!important;padding:0!important;border:0!important;
@@ -6008,5 +6009,10 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > c
 }
 @media(forced-colors:active) {
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {border:1px solid CanvasText!important;background:Canvas!important;}
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > canvas.iu-gemini-outer-light {display:none!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > canvas#iuGeminiOuterChrome.iu-gemini-outer-light {display:none!important;}
+}
+
+/* v42.72 — SVG source mesuré une fois ; animation pilotée par le canvas. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > svg.iu-gemini-chrome-backdrop > g {
+ animation:none!important;transform:none!important;
 }

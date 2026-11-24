@@ -1,6 +1,6 @@
 {
-  "version": "42.71",
+  "version": "42.72",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Moteur Chrome partagé pour les trois courbes du fond (trajectoires SVG préservées, opacité du canvas 100 %) et le contour global. Quadrillage supprimé. Statut Étiquette prête • PLU dynamique, mentions de vérification conservées. Verre 2 px et OCR inchangés."
+  "notes": "Chrome : contour global hors flux, courbes ouvertes sans raccord brusque, horloge continue et filament inférieur prolongé aux bords. Verre 2 px, statut PLU et OCR inchangés."
 }

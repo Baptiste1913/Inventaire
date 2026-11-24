@@ -1,20 +1,20 @@
-/* Inventaires U 42.71 — chrome partagé : viseur, poids, carte et fond DIGI.
+/* Inventaires U 42.72 — chrome continu : courbes ouvertes et contour hors flux.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiLab'),document.getElementById('iuGeminiBackdropChrome')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
  const isGross=overlay.id==='iuGeminiGrossChrome';
- const isOuter=overlay.id==='iuGeminiLab';
+ const isOuter=overlay.id==='iuGeminiOuterChrome';
  const isBackdrop=overlay.id==='iuGeminiBackdropChrome';
  const isPanelChrome=isGross||isOuter||isBackdrop;
  const isGemini=isPanelChrome||overlay.id==='iuGeminiCameraShell';
  const contourBoost=0;
- const guide=isBackdrop?overlay.parentElement:isGross||isOuter?overlay:overlay.querySelector(isGemini
+ const guide=isBackdrop||isOuter?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
- const canvas=isBackdrop?overlay:guide?.querySelector(isOuter?'.iu-gemini-outer-light':'.iu-weight-light');
+ const canvas=isBackdrop||isOuter?overlay:guide?.querySelector('.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
  const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
  if(!ctx)return;
@@ -59,22 +59,53 @@
  // Open paths are sampled from the original SVG curves. Their animated
  // screen matrices preserve the old placement and the three CSS motions.
  function openPoint(u){
+  u=Math.max(0,Math.min(1,u));
   const n=openPoints.length-1,k=Math.max(0,Math.min(n-1,Math.floor(u*n)));
   const a=openPoints[k],b=openPoints[k+1],fraction=u*n-k;
   const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
   return {x:a.x+dx*fraction,y:a.y+dy*fraction,nx:dy/len,ny:-dx/len};
  }
+ // Original path positions and motion poses, evaluated on one clock.
+ const backdropMotion=[
+  {seconds:17,delay:3,keys:[[0,-.09,-.18,1.06,.88],[.4,.12,.23,1.12,1.18],[.75,-.06,.08,1.03,.96],[1,-.09,-.18,1.06,.88]]},
+  {seconds:23,delay:12,keys:[[0,.11,.16,1.07,1],[.38,-.13,-.22,1.12,.88],[.73,.04,.27,1.04,1.15],[1,.11,.16,1.07,1]]},
+  {seconds:29,delay:7,keys:[[0,-.11,.17,1.07,.94],[.5,.12,-.29,1.12,1.18],[1,-.11,.17,1.07,.94]]}
+ ];
  function sampleMotionPaths(){
   const svg=guide.querySelector('.iu-gemini-chrome-backdrop');
   if(!svg)return [];
-  return Array.from(svg.querySelectorAll('g.iu-chrome-flow-a,g.iu-chrome-flow-b,g.iu-chrome-flow-c')).map(group=>{
+  return Array.from(svg.querySelectorAll('g.iu-chrome-flow-a,g.iu-chrome-flow-b,g.iu-chrome-flow-c')).map((group,index)=>{
    const path=group.querySelector('path');
    if(!path||!path.getTotalLength||!path.getPointAtLength)return null;
    const len=path.getTotalLength();
    if(!Number.isFinite(len)||len<=0)return null;
-   return {path,local:Array.from({length:129},(_,i)=>{const p=path.getPointAtLength(len*i/128);return{x:p.x,y:p.y};}),
-    loose:[],inner:[],next:null,nextInner:null};
+   const local=Array.from({length:129},(_,i)=>{const p=path.getPointAtLength(len*i/128);return{x:p.x/340,y:p.y/260};});
+   const xs=local.map(p=>p.x),ys=local.map(p=>p.y);
+   const box={x:Math.min(...xs),y:Math.min(...ys),w:Math.max(...xs)-Math.min(...xs),h:Math.max(...ys)-Math.min(...ys)};
+   return {index,local,box,loose:[],inner:[],next:null,nextInner:null};
   }).filter(Boolean);
+ }
+ function motionPose(t,index){
+  const cfg=backdropMotion[index],p=wrap((t+cfg.delay)/cfg.seconds);
+  let i=0;while(i<cfg.keys.length-2&&p>cfg.keys[i+1][0])i++;
+  const a=cfg.keys[i],b=cfg.keys[i+1];
+  const q=Math.max(0,Math.min(1,(p-a[0])/(b[0]-a[0])));
+  const ease=q*q*(3-2*q);
+  return a.slice(1).map((v,k)=>v+(b[k+1]-v)*ease);
+ }
+ function projectMotion(motion,t){
+  const [tx,ty,sx,sy]=motionPose(t,motion.index),b=motion.box;
+  const cx=b.x+b.w/2,cy=b.y+b.h/2;
+  const pts=motion.local.map(p=>({x:(cx+(p.x-cx)*sx+tx*b.w)*width,
+   y:(cy+(p.y-cy)*sy+ty*b.h)*height}));
+  if(motion.index===2){
+   const limit=y=>Math.max(0,Math.min(height-3,y));
+   for(const p of pts)p.y=limit(p.y);
+   const first=pts[0],last=pts[pts.length-1];
+   pts.unshift({x:Math.min(-4,first.x-4),y:first.y});
+   pts.push({x:Math.max(width+4,last.x+4),y:last.y});
+  }
+  return pts;
  }
  function lanePoint(u,phase,amplitude,outset=0){
   const p=basePoint(u);
@@ -162,8 +193,14 @@
  // avec extrémités carrées : joints visibles à l'échelle Retina.
  // Un ruban est maintenant UN chemin fermé antialiasé, d'épaisseur variable,
  // effilé naturellement aux deux extrémités, sans ligne segmentée.
+ function reflectionCenter(t,config){
+  const raw=config.start+config.direction*t/config.seconds;
+  // Leave the open curve entirely before returning to its other end.
+  return isBackdrop?wrap((raw+config.span/2)/(1+config.span))*(1+config.span)-config.span/2:wrap(raw);
+ }
+ function endFade(u){return isBackdrop?Math.max(0,Math.min(1,u/.035,(1-u)/.035)):1;}
  function ribbonGeometry(t,config){
-  const center=wrap(config.start+config.direction*t/config.seconds);
+  const center=reflectionCenter(t,config);
   const samples=config.samples||192;
   const positions=[];
   const epsilon=1/(COUNT*2);
@@ -177,7 +214,7 @@
    const magnitude=Math.hypot(tx,ty)||1;
    tx/=magnitude;ty/=magnitude;
    // La largeur évolue progressivement : aucune césure lumineuse.
-   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*s)),1.65);
+   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*s)),1.65)*endFade(u);
    // Detached fibres peel away gently and return, with no discontinuity.
    const drift=(config.drift||0)*Math.pow(Math.sin(Math.PI*s),2)*
     (.68+.32*Math.sin(TWO_PI*s*1.4+t*.7+(config.start||0)*TWO_PI));
@@ -255,13 +292,13 @@
  function waveShape(t,w){
   const age=Math.max(0,Math.min(1,(t-w.born)/w.life));
   const lifeEnvelope=Math.pow(Math.sin(Math.PI*age),1.35);
-  const center=wrap(w.center+w.travel*Math.sin(Math.PI*age));
+  const center=isBackdrop?w.center+w.travel*Math.sin(Math.PI*age):wrap(w.center+w.travel*Math.sin(Math.PI*age));
   const span=w.span*(.42+.58*lifeEnvelope);
   const positions=[],samples=56;
   for(let i=0;i<=samples;i++){
    const s=i/samples,u=center+(s-.5)*span;
    const p=point(u,w.lane),normal=basePoint(u);
-   const envelope=Math.pow(Math.sin(Math.PI*s),1.7);
+   const envelope=Math.pow(Math.sin(Math.PI*s),1.7)*endFade(u);
    // Signed normal displacement: crosses the contour in BOTH directions.
    // Spatial and temporal waves blend; the ends remain attached.
    const oscillation=.72*Math.sin(TWO_PI*(w.cycles*age+w.frequency*s)+w.phase)
@@ -301,14 +338,14 @@
  function innerWaveShape(t,w){
   const age=Math.max(0,Math.min(1,(t-w.born)/w.life));
   const lifeEnvelope=Math.pow(Math.sin(Math.PI*age),1.2);
-  const center=wrap(w.center+w.travel*Math.sin(Math.PI*age));
+  const center=isBackdrop?w.center+w.travel*Math.sin(Math.PI*age):wrap(w.center+w.travel*Math.sin(Math.PI*age));
   const span=w.span*(.45+.55*lifeEnvelope),positions=[],samples=84;
   // Stay within the perimeter gutter; closest internal rectangle starts
   // at 2% of guide height (barcode/total bottom).
   const safeDepth=isPanelChrome?2.0:Math.max(0,Math.min(2.0,(height-12)*.02-.55));
   for(let i=0;i<=samples;i++){
    const s=i/samples,u=center+(s-.5)*span,p=basePoint(u);
-   const envelope=Math.pow(Math.sin(Math.PI*s),1.45);
+   const envelope=Math.pow(Math.sin(Math.PI*s),1.45)*endFade(u);
    const oscillation=.76*Math.sin(TWO_PI*(w.cycles*age+w.frequency*s)+w.phase)
     +.24*Math.sin(TWO_PI*(.5*age+1.25*s)-w.phase);
    const depth=Math.min(safeDepth,(.42+w.amplitude*(.55+.45*oscillation)))*lifeEnvelope*envelope;
@@ -344,13 +381,8 @@
   if(running){paintWaves(t);paintInnerWaves(t);}
  }
  function paintBackdrop(t){
-  const bounds=canvas.getBoundingClientRect();
-  if(!bounds.width||!bounds.height)return;
   for(const motion of motionPaths){
-   const m=motion.path.getScreenCTM?.();
-   if(!m)continue;
-   openPoints=motion.local.map(p=>({x:(m.a*p.x+m.c*p.y+m.e-bounds.left)*width/bounds.width,
-    y:(m.b*p.x+m.d*p.y+m.f-bounds.top)*height/bounds.height}));
+   openPoints=projectMotion(motion,t);
    chromeOuterLines=[buildLane(.28,.37,.06).line,buildLane(2.35,.58,.04).line,buildLane(1.42,.49,.03).line];
    looseFibres=motion.loose;innerWaves=motion.inner;nextWaveAt=motion.next;nextInnerWaveAt=motion.nextInner;
    // Exactly the same painting function, widths, palette and life cycles.
@@ -427,7 +459,7 @@
    }
   }else{
    running=false;
-   if(isGemini)resetWaves();
+   if(isGemini&&!isBackdrop)resetWaves();
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
    if(!document.hidden&&!overlay.hidden&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
@@ -446,7 +478,7 @@
  }
  document.addEventListener('visibilitychange',sync);
  window.addEventListener('pageshow',sync);
- window.addEventListener('pagehide',()=>{running=false;if(isGemini)resetWaves();if(request)cancelAnimationFrame(request);request=0;lastTick=0;});
+ window.addEventListener('pagehide',()=>{running=false;if(isGemini&&!isBackdrop)resetWaves();if(request)window.cancelAnimationFrame(request);request=0;lastTick=0;});
  window.addEventListener('resize',()=>{measure();sync();},{passive:true});
  // Le zoom par pincement n'émet pas forcément window.resize sur iOS.
  // La surface est rééchantillonnée uniquement quand son niveau change.
