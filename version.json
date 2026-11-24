@@ -1,6 +1,6 @@
 {
-  "version": "42.90",
+  "version": "42.91",
   "published": "2026-11-24",
-  "assets": 90,
-  "notes": "Verre transparent restauré, pastille AI assortie à la carte, chevron SVG continu. Correction manuelle visible dès le panneau d'erreur, champ Mes paniers avec focus gris et bouton Valider de hauteur égale, contour Chrome partagé. Aucune ouverture automatique du clavier."
+  "assets": 91,
+  "notes": "Halos AI réduits de 25 % en largeur et hauteur, centres et animations conservés. Carte AI limitée aux vues de pesée (accueil et session), masquée sur Administration, Planning, Marché et Compte. Caméra arrêtée hors pesée, étiquette conservée."
 }

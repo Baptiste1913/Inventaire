@@ -314,13 +314,13 @@
   if(frameState)frameState.hidden=true;
   const track=cameraStream?.getVideoTracks?.()[0];
   const canResume=Boolean(resume&&wasLive&&track?.readyState==='live'&&
-   !cameraShell.hidden&&!panel.hidden);
+   !cameraShell.hidden&&isWeighingPage());
   if(!canResume){
    cameraShell.dataset.state='idle';
    // Safari peut terminer une piste quand elle est momentanément coupée.
    // Rouvrir dans ce cas seulement, sans affecter la fermeture volontaire.
    if(resume&&wasLive&&cameraStream&&track?.readyState!=='live'&&
-      !document.hidden&&!panel.hidden){
+      !document.hidden&&isWeighingPage()){
     void startCamera();
    }
    return;
@@ -2018,8 +2018,19 @@
    void track.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
   }catch(_){}
  }
+ function isWeighingPage(){
+  return !panel.hidden&&!['is-admin-mode','is-events-mode','is-alerts-mode','is-account-mode']
+   .some(mode=>document.body.classList.contains(mode));
+ }
+ function syncWeighingPage(){
+  if(isWeighingPage())return;
+  // Ne pas effacer la photo, l'étiquette ou la proposition non enregistrée.
+  // Arrêter aussi une demande getUserMedia encore en attente via cameraEpoch.
+  if(cameraStream||cameraStarting||analysisCameraClosed)stopCamera();
+  closeDuplicateConfirm();closeCatalogConfirm();
+ }
  async function startCamera(){
-  if(cameraStarting||active)return;
+  if(!isWeighingPage()||cameraStarting||active)return;
   // Préchauffer ZXing dans le Web Worker sans retarder la caméra.
   try{window.IUGeminiParallel?.preloadBarcode?.();window.IUGeminiParallel?.warmDetail?.();}catch(_){}
   try{window.IUDigiAdvanced?.warm?.();}catch(_){}
@@ -2067,7 +2078,7 @@
      frameRate:{ideal:24,max:30}
     }
    });
-   if(epoch!==cameraEpoch||panel.hidden){
+   if(epoch!==cameraEpoch||!isWeighingPage()){
     for(const track of obtained.getTracks())track.stop();
     return;
    }
@@ -2093,7 +2104,7 @@
    cameraShell.hidden=false;cameraShell.dataset.state='scanning';
    refreshCameraAlert();
    await video.play();
-   if(epoch!==cameraEpoch||panel.hidden)return;
+   if(epoch!==cameraEpoch||!isWeighingPage())return;
    syncCameraCover();
    refreshTorch();
    startQualityMonitor();
@@ -2191,7 +2202,7 @@
  // des douze chiffres utiles, ainsi qu'un nom réellement concordant.
  function openCatalogConfirm(){
   const info=lastRawResult?.digiRecovery;
-  if(catalogDialogOpen||duplicateDialogOpen||active||!catalogDialog||
+  if(!isWeighingPage()||catalogDialogOpen||duplicateDialogOpen||active||!catalogDialog||
      info?.kind!=='confirmation'||!info.proposedEAN||
      lastRawResult?.checks?.independentMismatch||lastRawResult?.checks?.readingConflict||
      lastRawResult?.checks?.digiConflict||lastRawResult?.checks?.recoveryInterrupted)return false;
@@ -2264,7 +2275,7 @@
  });
  // Doublon : même confirmation explicite que la fin d'inventaire.
  function openDuplicateConfirm(){
-  if(duplicateDialogOpen||active||!duplicateDialog||
+  if(!isWeighingPage()||duplicateDialogOpen||active||!duplicateDialog||
      !correctedCurrentProposal()||!duplicateForCurrent())return false;
   duplicateDialogOpen=true;
   lastDuplicatePromptGeneration=generation;
@@ -2955,6 +2966,7 @@
   }
  });
  document.addEventListener('visibilitychange',()=>{
+  if(!isWeighingPage()){syncWeighingPage();return;}
   if(document.hidden&&cameraStream){
    stopQualityMonitor();
    localOcrToken++;localOcrBusy=false;localCandidate=null;localPasses=0;
@@ -2994,4 +3006,10 @@
  // les pistes. Ne pas forcer stop() ici : certaines navigations internes
  // de PWA peuvent aussi émettre pagehide et provoquer un prompt inutile.
  clear();
+ if(typeof MutationObserver==='function'){
+  const routeObserver=new MutationObserver(syncWeighingPage);
+  routeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+  routeObserver.observe(panel,{attributes:true,attributeFilter:['hidden']});
+ }
+ syncWeighingPage();
 })();

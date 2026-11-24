@@ -1796,7 +1796,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
    l'étiquette DIGI reste ENTIÈRE et visible, et la validation reste manuelle.
    Les deux contours colorés de la carte sont conservés intacts. */
 html body main.app > #iuGeminiLab .iu-gemini-focus-summary {display:none!important;}
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
+html body:not(:is(.is-admin-mode,.is-events-mode,.is-alerts-mode,.is-account-mode)) main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone:not([hidden]) {
  display:flex!important;
  flex-direction:column!important;
  gap:6px!important;
@@ -6320,25 +6320,25 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-welcome-glow > .iu-ai-glow-steel {
- left:2%!important;top:-12%!important;width:70%!important;height:88%!important;
+ left:10.75%!important;top:-1%!important;width:52.5%!important;height:66%!important;
  background:radial-gradient(ellipse at 47% 49%,rgba(113,113,113,.68) 0%,rgba(155,155,155,.34) 33%,rgba(155,155,155,.105) 63%,transparent 91%)!important;
  animation:iuHomeBackdropRed 10s ease-in-out -2s infinite!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-welcome-glow > .iu-ai-glow-silver {
- left:31%!important;top:15%!important;width:72%!important;height:92%!important;
+ left:40%!important;top:26.5%!important;width:54%!important;height:69%!important;
  background:radial-gradient(ellipse at center,rgba(255,255,255,.66) 0%,rgba(226,226,226,.33) 37%,rgba(226,226,226,.10) 65%,transparent 94%)!important;
  animation:iuHomeBackdropBlue 13s ease-in-out -6s infinite!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-welcome-glow > .iu-ai-glow-dark {
- right:1%!important;top:33%!important;width:70%!important;height:96%!important;
+ right:9.75%!important;top:45%!important;width:52.5%!important;height:72%!important;
  background:radial-gradient(ellipse at 54% 51%,rgba(74,74,74,.65) 0%,rgba(130,130,130,.34) 37%,rgba(130,130,130,.105) 65%,transparent 92%)!important;
  animation:iuHomeBackdropGreen 17s ease-in-out -11s infinite!important;
 }
 @media(max-width:420px){
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone .iu-gemini-welcome-glow > .iu-ai-glow-steel{left:-9%!important;}
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone .iu-gemini-welcome-glow > .iu-ai-glow-dark{right:-9%!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone .iu-gemini-welcome-glow > .iu-ai-glow-steel{left:-.25%!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone .iu-gemini-welcome-glow > .iu-ai-glow-dark{right:-.25%!important;}
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-welcome-glow[data-paused="true"] > .iu-ai-glow-orb{animation-play-state:paused!important;}
@@ -6479,4 +6479,11 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #
  }
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap > svg.iu-gemini-repair-chevron{color:ButtonText!important;}
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > #iuGeminiRepairManual.iu-gemini-repair-manual > button#iuGeminiRepairApply > canvas.iu-gemini-repair-light{display:none!important;}
+}
+
+/* v42.91 — la carte AI suit la navigation comme les autres cartes.
+   Masquage prioritaire y compris si une classe Session coexiste. */
+html body:is(.is-admin-mode,.is-events-mode,.is-alerts-mode,.is-account-mode) main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone[hidden] {
+ display:none!important;
 }
