@@ -1,4 +1,4 @@
-/* Inventaires U 41.89 — deux filaments anthracite sous les fibres nacrées.
+/* Inventaires U 42.56 — chrome et micro-vagues locales, apparition aléatoire.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -191,12 +191,57 @@
   {lane:5,start:.48,direction:1,seconds:15.4,span:.18,tint:'#444444',core:'#1b1b1b',opacity:.56,dark:true},
   {lane:6,start:.79,direction:-1,seconds:18.6,span:.16,tint:'#767676',core:'#d8d8d8',opacity:.81}
  ];
- const looseFibres=[
-  {lane:1,start:.12,direction:1,seconds:19.7,span:.085,drift:3.4,core:'#e2e2e2',opacity:.57,samples:72},
-  {lane:3,start:.42,direction:-1,seconds:24.3,span:.11,drift:-3.6,core:'#454545',opacity:.44,samples:72},
-  {lane:5,start:.73,direction:1,seconds:21.8,span:.065,drift:4.2,core:'#9b9b9b',opacity:.52,samples:72},
-  {lane:7,start:.93,direction:-1,seconds:27.1,span:.09,drift:-2.8,core:'#242424',opacity:.37,samples:72}
- ];
+ // Transient local waves: no recurring orbit, independent random lifetimes.
+ const waveShades=['#f2f2f2','#e7e7e7','#d6d6d6','#c4c4c4','#b3b3b3',
+  '#a1a1a1','#909090','#7f7f7f','#6c6c6c','#595959','#464646','#343434','#232323'];
+ const MAX_WAVES=6;
+ let looseFibres=[],nextWaveAt=null;
+ const range=(min,max)=>min+(max-min)*Math.random();
+ function spawnWave(t){
+  return {born:t,life:range(1.25,3.2),center:Math.random(),
+   lane:Math.floor(range(0,9)),span:range(.027,.072),amplitude:range(.85,2.2),
+   phase:range(0,TWO_PI),cycles:range(1.0,1.65),frequency:range(.65,1.3),
+   travel:range(-.018,.018),width:range(.26,.48),opacity:range(.16,.34),
+   shade:waveShades[Math.floor(range(0,waveShades.length))]};
+ }
+ function advanceWaves(t){
+  looseFibres=looseFibres.filter(w=>t-w.born<w.life);
+  if(nextWaveAt===null)nextWaveAt=t+range(.08,.4);
+  if(t<nextWaveAt)return;
+  if(looseFibres.length<MAX_WAVES)looseFibres.push(spawnWave(t));
+  // Occasionally a longer lull; no catch-up burst after a suspended tab.
+  nextWaveAt=t+(Math.random()<.14?range(1.0,1.8):range(.26,.72));
+ }
+ function waveShape(t,w){
+  const age=Math.max(0,Math.min(1,(t-w.born)/w.life));
+  const lifeEnvelope=Math.pow(Math.sin(Math.PI*age),1.35);
+  const center=wrap(w.center+w.travel*Math.sin(Math.PI*age));
+  const span=w.span*(.42+.58*lifeEnvelope);
+  const positions=[],samples=56;
+  for(let i=0;i<=samples;i++){
+   const s=i/samples,u=center+(s-.5)*span;
+   const p=point(u,w.lane),normal=basePoint(u);
+   const envelope=Math.pow(Math.sin(Math.PI*s),1.7);
+   // Signed normal displacement: crosses the contour in BOTH directions.
+   // Spatial and temporal waves blend; the ends remain attached.
+   const oscillation=.72*Math.sin(TWO_PI*(w.cycles*age+w.frequency*s)+w.phase)
+     +.28*Math.sin(TWO_PI*(.7*age+1.6*s)-w.phase);
+   const drift=w.amplitude*lifeEnvelope*envelope*oscillation;
+   positions.push({x:p.x+normal.nx*drift,y:p.y+normal.ny*drift,
+    nx:normal.nx,ny:normal.ny,envelope});
+  }
+  return {positions,lifeEnvelope,center,span};
+ }
+ function paintWaves(t){
+  if(reduceMotion?.matches)return;
+  advanceWaves(t);
+  for(const w of looseFibres){
+   const shape=waveShape(t,w);
+   if(shape.lifeEnvelope<.012)continue;
+   drawRibbon(shape.positions,w.width*(.55+.45*shape.lifeEnvelope),w.shade,
+    w.opacity*shape.lifeEnvelope,.32,'source-over');
+  }
+ }
  function paintChrome(t){
   // A single animated contour, made of thin overlapping metal fibres;
   // the gentle breathing keeps the full perimeter legible on light/dark paper.
@@ -208,10 +253,7 @@
    drawRibbon(ribbon,1.9,config.tint,config.opacity*.44,1.5,'source-over');
    drawRibbon(ribbon,.85,config.core,config.opacity,.35,'source-over');
   }
-  for(const config of looseFibres){
-   const pulse=.38+.62*Math.pow((1+Math.sin(t*.76+config.start*TWO_PI))/2,1.7);
-   drawRibbon(ribbonGeometry(t,config),.56,config.core,config.opacity*pulse,.55,'source-over');
-  }
+  if(running)paintWaves(t);
  }
  function paint(t){
   if(!width||!height)return;
@@ -274,6 +316,7 @@
    }
   }else{
    running=false;
+   if(isGemini){looseFibres=[];nextWaveAt=null;}
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
    if(!overlay.hidden&&guide.getClientRects().length&&measure())paint(elapsed);
