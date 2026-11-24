@@ -1,6 +1,6 @@
 {
-  "version": "43.04",
+  "version": "43.05",
   "published": "2026-11-24",
-  "assets": 104,
-  "notes": "Logo AI : cinq trajectoires internes rapprochées du groupe extérieur et jonctions légèrement élargies. Finesse, respiration, cadence cible et pastille inchangées. Reconnaissance inchangée."
+  "assets": 105,
+  "notes": "Optimisation réseau AI : préparation Cloudflare sans photo, négociation binaire anticipée, compression d’enveloppe sans perte si mesurable, Gemini Priority avec repli explicite, diagnostics par requête et statistiques locales. CORS, capture, modèle et validation inchangés. Worker à redéployer séparément."
 }

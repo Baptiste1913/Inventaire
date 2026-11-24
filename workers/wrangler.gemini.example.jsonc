@@ -1,0 +1,8 @@
+// Exemple : fusionner placement dans la configuration réelle du Worker.
+// Ne pas déployer seul : conserver la date de compatibilité, les routes et secrets existants.
+{
+ "name": "inventaires-u-prix",
+ "main": "coursesu-live-worker.js",
+ "placement": {"mode":"smart"}
+ // Variante expérimentale : "placement": {"hostname":"generativelanguage.googleapis.com"}
+}

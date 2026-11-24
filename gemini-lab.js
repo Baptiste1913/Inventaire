@@ -100,6 +100,30 @@
  const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
+ const networkSamples=[];let warmDiagnostic=null;
+ function warmNetwork(reconnect=false){
+  const key=pilotKey.value.trim();
+  if(!key||document.hidden||active)return;
+  const task=window.IUGeminiTransport?.warm?.(endpoint,key,{isCurrent:()=>pilotKey.value.trim()===key,reconnect});
+  if(task)void task.then(data=>{if(data){warmDiagnostic=data;renderNetworkDiagnostic();}}).catch(()=>{});
+ }
+ function renderNetworkDiagnostic(){
+  const node=$('iuGeminiNetworkSummary');if(!node)return;
+  const quantile=(values,p)=>{const sorted=values.filter(Number.isFinite).sort((a,b)=>a-b);return sorted.length?Math.round(sorted[Math.max(0,Math.ceil(sorted.length*p)-1)]):null;};
+  const fmt=v=>Number.isFinite(v)?v+' ms':'—';
+  const samples=networkSamples,latest=samples[samples.length-1];
+  const lines=['Échantillons de requêtes réussies : '+samples.length+' (RAM uniquement).'];
+  if(warmDiagnostic)lines.push('Connexion préparée : '+warmDiagnostic.ms+' ms · '+warmDiagnostic.transport);
+  if(latest){
+   lines.push('Médiane / P95 échange : '+fmt(quantile(samples.map(x=>x.ms),.5))+' / '+fmt(quantile(samples.map(x=>x.ms),.95)));
+   lines.push('Dernière requête : '+latest.ms+' ms · '+latest.bytes+' octets · '+latest.transport);
+   lines.push('Gemini demandé : '+latest.requested+' · confirmé : '+latest.tier);
+   lines.push('Priority confirmé : '+samples.filter(x=>x.tier==='priority').length+' / '+samples.length);
+   if(latest.server)lines.push('Worker : entrée '+fmt(latest.server.ingressMs)+' · préparation '+fmt(latest.server.preparationMs)+' · Google (réseau + calcul) '+fmt(latest.server.upstreamMs)+' · réponse '+fmt(latest.server.responseMs)+' · traitement '+fmt(latest.server.processingMs));
+  }
+  node.textContent=lines.join(' | ');
+ }
+ window.addEventListener('online',()=>{if(cameraStream&&!document.hidden&&!active)warmNetwork(true);});
  const cameraShell=$('iuGeminiCameraShell'),
   cameraIdle=$('iuGeminiCameraIdle'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
@@ -1343,7 +1367,7 @@
     +(Number.isFinite(result.clientNetworkMs)?' · échange '+(result.clientNetworkMs/1000).toFixed(2)+' s':'')
     +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
     +(result.timing?' · préparation '+result.timing.preparationMs+' ms · première réponse '+result.timing.firstResponseMs+' ms · relecture '+result.timing.recoveryMs+' ms · analyse '+result.timing.totalMs+' ms'+(result.timing.captureMs!==null?' · capture '+result.timing.captureMs+' ms':''):'')
-    +(result.requestTimings?.length?' · réseau '+result.requestTimings.map((x,i)=>(i+1)+': préparation '+x.packetMs+' / réponse '+x.headersMs+' / JSON '+x.parseMs+' / Worker '+(x.workerMs??'—')+' ms'+(x.server?' (entrée '+x.server.ingressMs+' / Google '+x.server.upstreamMs+' / retour '+x.server.processingMs+' ms)':'')).join(' ; '):'')
+    +(result.requestTimings?.length?' · réseau '+result.requestTimings.map((x,i)=>(i+1)+': préparation '+x.packetMs+' / réponse '+x.headersMs+' / JSON '+x.parseMs+' / Worker '+(x.workerMs??'—')+' ms'+(x.server?' (entrée '+x.server.ingressMs+' / Google '+x.server.upstreamMs+' / retour '+(x.server.responseMs??0)+' / traitement '+x.server.processingMs+' ms)':'')+' · '+(x.tier||'non confirmé')).join(' ; '):'')
     +(result.visualFirst?' · détail 1 : '+result.visualFirst:'')
     +(result.visualRecheck?' · détail 2 : '+result.visualRecheck:'')
     +(result.localDiagnostics?' · '+Object.entries(result.localDiagnostics).map(([k,v])=>k+' '+v).join(' / '):'')
@@ -1436,9 +1460,18 @@
   }
   if(response.ok){
    transport?.observe(result);
-   return {...result,clientNetworkMs:Math.round(networkNow()-networkStart),
-    clientPayloadBytes:packet.size??null,clientTransport:packet.contentType==='application/octet-stream'?'binary':'json',
-    requestTimings:[{packetMs,headersMs,parseMs:Math.round(networkNow()-parseStart),workerMs:Number.isFinite(result.elapsedMs)?result.elapsedMs:null,server:result.serverTimings||null}]};
+   const ms=Math.round(networkNow()-networkStart),parseMs=Math.round(networkNow()-parseStart);
+   const protocol=packet.compressed?'gzip-binary':packet.contentType==='application/octet-stream'?'binary':'json';
+   const tier=['priority','standard'].includes(result.serviceTier)?result.serviceTier:'non confirmé';
+   const requested=['priority','standard'].includes(result.requestedTier)?result.requestedTier:'non communiqué';
+   try{
+    networkSamples.push({ms,bytes:packet.size??null,transport:protocol,tier,requested,server:result.serverTimings||null});
+    if(networkSamples.length>100)networkSamples.shift();
+    renderNetworkDiagnostic();
+   }catch(_){}
+   return {...result,clientNetworkMs:ms,
+    clientPayloadBytes:packet.size??null,clientTransport:protocol,
+    requestTimings:[{packetMs,headersMs,parseMs,workerMs:Number.isFinite(result.elapsedMs)?result.elapsedMs:null,server:result.serverTimings||null,tier,requested}]};
   }
   if(response.status===400||response.status===415)transport?.reset();
   const status=response.status,providerStatus=Number(result?.providerStatus);
@@ -2072,6 +2105,7 @@
  }
  async function startCamera(){
   if(!isWeighingPage()||cameraStarting||active)return;
+  warmNetwork();
   // Préchauffer ZXing dans le Web Worker sans retarder la caméra.
   try{window.IUGeminiParallel?.preloadBarcode?.();window.IUGeminiParallel?.warmDetail?.();window.IUGeminiParallel?.warmExtra?.();}catch(_){}
   try{window.IUDigiAdvanced?.warm?.();}catch(_){}

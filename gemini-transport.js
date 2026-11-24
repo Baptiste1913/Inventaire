@@ -7,7 +7,9 @@
  if(root)root.IUGeminiTransport=api;
 })(typeof window!=='undefined'?window:null,function(){
  'use strict';
- let binary=false;
+ let binary=false,gzip=false,compressionRejected=false;
+ let warmAt=-Infinity,warmTask=null,epoch=0;
+ const clock=()=>typeof performance!=='undefined'?performance.now():Date.now();
  const views=new WeakMap();
  function wrapJPEG(blob){
   if(!blob||typeof blob.arrayBuffer!=='function'||blob.size<75)return null;
@@ -60,13 +62,39 @@
   const {imageBase64,detailImageBase64,...fields}=payload;
   if(binary){try{
    const [a,b]=await Promise.all([binaryPart(imageBase64),detailImageBase64?binaryPart(detailImageBase64):new Uint8Array(0)]);
-   return packet(fields,a,b);
+   return await maybeCompress(packet(fields,a,b));
   }catch(_){/* Legacy JSON, no second HTTP request. */}}
   const [a,b]=await Promise.all([base64(imageBase64),base64(detailImageBase64)]);
   const body=JSON.stringify({...fields,imageBase64:a,...(b?{detailImageBase64:b}:{})});
   return {body,contentType:'application/json',size:typeof TextEncoder==='function'?new TextEncoder().encode(body).length:body.length};
  }
- function observe(result){binary=result?.transport==='binary-v1';}
- function reset(){binary=false;}
- return Object.freeze({prepare,prepareAsync,wrapJPEG,observe,reset,pack});
+ async function maybeCompress(packet){
+  if(!gzip||compressionRejected||packet.size<65536||typeof CompressionStream!=='function'||typeof Response!=='function')return packet;
+  const start=clock();let timer;
+  try{
+   const task=new Response(packet.body.stream().pipeThrough(new CompressionStream('gzip'))).blob();
+   const zipped=await Promise.race([task,new Promise(resolve=>{timer=setTimeout(()=>resolve(null),35);})]);
+   if(!zipped||clock()-start>35||packet.size-zipped.size<8192||zipped.size>packet.size*.92){compressionRejected=true;return packet;}
+   return {...packet,body:zipped,size:zipped.size,compressed:true,originalSize:packet.size};
+  }catch(_){compressionRejected=true;return packet;}finally{clearTimeout(timer);}
+ }
+ function observe(result){binary=result?.transport==='binary-v1';gzip=binary&&result.gzipEnvelope===true;epoch++;}
+ function reset(){binary=false;gzip=false;compressionRejected=false;warmAt=-Infinity;epoch++;}
+ // No photograph and no Gemini invocation. Same URL/header names as analysis.
+ function warm(endpoint,access,{send=fetch,isCurrent=()=>true,reconnect=false}={}){
+  if(!access||warmTask||clock()-warmAt<(reconnect?5000:60000))return warmTask;
+  warmAt=clock();const started=clock(),initialEpoch=epoch,controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),2200);
+  warmTask=Promise.resolve().then(async()=>{
+   try{
+    const res=await send(endpoint,{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json','X-IU-Pilot-Key':access},body:JSON.stringify({type:'iu-gemini-network-warmup'})});
+    if(!res.ok)return null;
+    const data=await res.json();
+    if(!isCurrent()||data?.type!=='iu-gemini-network-warmup')return null;
+    if(epoch===initialEpoch)observe(data);
+    return {ms:Math.round(clock()-started),transport:data.transport,tier:data.requestedTier};
+   }catch(_){return null;}finally{clearTimeout(timer);warmTask=null;}
+  });return warmTask;
+ }
+ return Object.freeze({prepare,prepareAsync,wrapJPEG,observe,reset,pack,warm});
 });
