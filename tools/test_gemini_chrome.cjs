@@ -140,7 +140,7 @@ const chromeHalos=css.slice(css.indexOf('/* Reflets diffus argent/acier'),css.in
 const palette=[...chromeHalos.matchAll(/rgba\((\d+),(\d+),(\d+),[^)]+\)/g)];
 assert(palette.length===12&&palette.every(m=>m[1]===m[2]&&m[2]===m[3]));
 assert(!chromeHalos.includes('iuHomeBackdrop'));
-const backdrop=css.slice(css.indexOf('/* v42.61'));
+const backdrop=css.slice(css.indexOf('/* v42.62'));
 assert(backdrop.includes('opacity:.31!important;'));
 assert(backdrop.includes('prefers-reduced-motion:reduce'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
@@ -153,3 +153,18 @@ const shades=[...waves[0].matchAll(/stop-color="#([0-9a-f]{6})"/g)];
 assert(shades.length>=8&&shades.every(m=>grey('#'+m[1])));
 for(const n of ['A','B','C'])assert(backdrop.includes('@keyframes iuChromeFlow'+n));
 console.log('OK : fond DIGI monochrome, trois vagues, accessibilité, typographie');
+
+assert(markup.includes('<i></i></div>\n'+waves[0]),'SVG distinct du calque des points');
+assert(backdrop.includes('#iuGeminiLabelPanel > svg.iu-gemini-chrome-backdrop'));
+assert(backdrop.includes('inset:-26px -24px!important;'));
+assert(backdrop.includes('width:calc(100% + 48px)!important;height:calc(100% + 52px)!important;'));
+assert(backdrop.includes('overflow:visible!important;'));
+assert(backdrop.includes('overflow:hidden!important;'));
+assert(backdrop.includes('contain:paint!important;'));
+assert(backdrop.includes('z-index:1!important;'));
+assert(backdrop.includes('opacity:.68!important;'));
+assert(backdrop.includes('rgba(92,121,147,.104)'));
+assert(backdrop.includes('translate(12%,23%)'));
+assert(backdrop.includes('translate(-13%,-22%)'));
+assert(backdrop.includes('translate(12%,-29%)'));
+console.log('OK : débordement du panneau uniquement, amplitude et points renforcés');
