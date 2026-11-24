@@ -97,7 +97,7 @@
  const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
   cameraIdle=$('iuGeminiCameraIdle'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
-  torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture'),detected=$('iuGeminiDetected');
+  torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture');
  let cameraStream=null,cameraStarting=false,cameraEpoch=0,torchOn=false,torchBusy=false,frameCaptureBusy=false;
  let cameraPausedInBackground=false;
  const modeCamera=$('iuGeminiModeCamera'),modePhoto=$('iuGeminiModePhoto');
@@ -152,11 +152,35 @@
   }
   return {node:wireframe,width,height};
  }
+ // Safari peut conserver une surface vidéo portrait en mode paysage.
+ // Dimensionner la surface elle-même au ratio natif, sans se fier uniquement
+ // à object-fit. Le calcul de crop utilise toujours le rectangle vidéo réel.
+ function cameraCoverGeometry(srcW,srcH,w,h){
+  if(![srcW,srcH,w,h].every(v=>Number.isFinite(v)&&v>0))return null;
+  const scale=Math.max(w/srcW,h/srcH);
+  const width=srcW*scale,height=srcH*scale;
+  return {width,height,left:(w-width)/2,top:(h-height)/2};
+ }
+ function syncCameraCover(){
+  if(!cameraStage||!video)return;
+  const cover=cameraCoverGeometry(video.videoWidth,video.videoHeight,cameraStage.clientWidth,cameraStage.clientHeight);
+  if(!cover)return;
+  for(const [key,value] of Object.entries(cover)){
+   const property='--iu-video-'+key,val=value+'px';
+   if(cameraStage.style.getPropertyValue(property)!==val)cameraStage.style.setProperty(property,val);
+  }
+ }
+ function shutterGeometry(stageWidth,guideWidth){
+  const gutter=Math.max(0,(stageWidth-guideWidth)/2);
+  const margin=Math.min(5,gutter*.12);
+  return {size:Math.max(0,gutter-2*margin),margin};
+ }
  function syncExactCameraGuide(){
   if(!cameraStage||!exactGuide||!output)return;
   const source=output.querySelector('.iu-gemini-printed-label.iu-gemini-label-placeholder');
   const stage=cameraStage.getBoundingClientRect();
   if(stage.width<40||stage.height<40)return;
+  syncCameraCover();
   if(source){
    const bounds=source.getBoundingClientRect();
    if(bounds.width>60&&bounds.height>40&&
@@ -183,6 +207,9 @@
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';
   exactGuide.style.height=(guideSize.height*scale)+'px';
+  const shutter=shutterGeometry(cameraStage.clientWidth,guideSize.width*scale);
+  cameraStage.style.setProperty('--iu-shutter-size',shutter.size+'px');
+  cameraStage.style.setProperty('--iu-shutter-margin',shutter.margin+'px');
   guideSnapshot.style.setProperty('transform','scale('+scale+')');
   guideSnapshot.style.setProperty('transform-origin','top left');
  }
@@ -195,6 +222,7 @@
   });
  }
  if(cameraStage&&exactGuide){
+  for(const event of ['loadedmetadata','resize','playing'])video?.addEventListener(event,syncCameraCover);
   scheduleExactCameraGuide();
   if(typeof ResizeObserver==='function'){
    const observer=new ResizeObserver(scheduleExactCameraGuide);
@@ -241,7 +269,6 @@
  const say=(message,error=false)=>{
   status.textContent=message;
   status.classList.toggle('is-error',error);
-  if(error&&!active)showDetectedIndicator('error',message||'Erreur de lecture');
   // Le voyant permanent indique le chargement et les erreurs de capture.
   if(active)setLabelAlert('working','Analyse…');
   else if(error&&['idle','working'].includes(labelAlert?.dataset.state))
@@ -310,7 +337,7 @@
   if(!track.enabled)track.enabled=true;
   if(video.srcObject!==cameraStream)video.srcObject=cameraStream;
   if(video.paused)Promise.resolve(video.play()).then(()=>{
-   startQualityMonitor();
+   syncCameraCover();startQualityMonitor();
   }).catch(()=>{
    if(!analysisCameraClosed&&cameraStream&&
       cameraShell.dataset.state==='scanning'){
@@ -318,7 +345,7 @@
     say('Caméra interrompue par iOS · touche le viseur pour rouvrir.',true);
    }
   });
-  else startQualityMonitor();
+  else {syncCameraCover();startQualityMonitor();}
  }
  function clearReplacePrompt(){
   pendingReplacementFile=null;
@@ -410,32 +437,6 @@
   setPrimaryAction(false);
   refreshCaptureButton();
  }
- // Réutilisation exacte de l'indicateur OCR classique : une coche verte
- // apparaît dans le viseur lorsqu'une étiquette a été reconnue.
- function resetDetectedIndicator(){
-  if(!detected)return;
-  detected.hidden=true;
-  detected.classList.remove('is-visible');
-  detected.removeAttribute('data-indicator');
-  detected.removeAttribute('title');
- }
- function showDetectedIndicator(state,message){
-  if(!detected||cameraShell.hidden||cameraShell.dataset.state==='idle'||
-     cameraShell.dataset.state==='analyzing'||active)return;
-  const kind=['success','duplicate','error'].includes(state)?state:'error';
-  if(!detected.hidden&&detected.dataset.indicator===kind&&detected.title===message)return;
-  detected.dataset.indicator=kind;
-  detected.title=message;
-  detected.setAttribute('aria-label',message);
-  detected.hidden=false;
-  detected.classList.remove('is-visible');
-  void detected.offsetWidth;
-  detected.classList.add('is-visible');
- }
- function revealDetectedIndicator(fields){
-  const name=typeof fields?.name==='string'&&fields.name.trim()?fields.name.trim():'Étiquette';
-  showDetectedIndicator('success',name+' reconnue · pesée valide');
- }
  function resetProposal(){
   proposal=null;
   if(nextWeigh){nextWeigh.disabled=active;nextWeigh.classList.remove('is-ready');}
@@ -476,10 +477,7 @@
   if(labelAlertText.textContent!==visibleMessage)labelAlertText.textContent=visibleMessage;
   labelAlert.title=detail||visibleMessage;
   labelAlert.hidden=false;
-  // Préserver les diagnostics et le voyant du viseur, indépendamment du résumé.
-  if(type==='warning'&&!active&&
-     /erreur|invalide|impossible|indisponible|incomplet|non reconn|incorrect|échec|trop élev|manquant|incohér|non valid|non conforme|réessaie|choisis un panier/i.test(detail))
-   showDetectedIndicator('error',detail);
+
  }
  function refreshCameraAlert(){
   if(active){setLabelAlert('working','Analyse…');return;}
@@ -824,17 +822,7 @@
   }
   refreshCorrectedLabel();
   refreshLabelAlert();
-  // Indicateur unique du viseur : valide, doublon ou erreur.
   const duplicate=canSave&&duplicateForCurrent();
-  if(!active&&!cameraShell.hidden&&cameraShell.dataset.state==='scanning'){
-   if(lastAnalysisError||lastReadProblem||lastSaveError||(file&&!canSave)){
-    showDetectedIndicator('error',lastAnalysisError||lastReadProblem||lastSaveError||'Pesée non validable');
-   }else if(duplicate){
-    showDetectedIndicator('duplicate','Doublon détecté · confirmation requise');
-   }else if(canSave){
-    revealDetectedIndicator(latestLabelFields);
-   }else resetDetectedIndicator();
-  }else resetDetectedIndicator();
   refreshCaptureButton();
   if(duplicate&&!lastAnalysisError&&!lastReadProblem&&!lastSaveError&&!duplicateDialogOpen&&
      generation!==lastDuplicatePromptGeneration)
@@ -849,7 +837,6 @@
   closeDuplicateConfirm();closeCatalogConfirm();
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
-  resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   generation++;abort?.abort();abort=null;active=false;file=null;
   setAnalysisCameraClosed(false);
@@ -885,7 +872,6 @@
   closeCatalogConfirm();
   clearReplacePrompt();
   retakeConfirmUntil=0;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
-  resetDetectedIndicator();
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   latestLabelFields=null;lastRawResult=null;localBarcode=null;barcodeJob=null;
   repairFocus=null;manualCorrectedFields=[];
@@ -1328,9 +1314,6 @@
   proposal=verified.error?null:verified;
   lastReadProblem=verified.error||null;
   lastAnalysisError=null;
-  // La coche verte est réservée à une pesée réellement validable,
-  // et non à une simple lecture visuelle encore incohérente.
-  resetDetectedIndicator();
   updateCardState(ready?'review':'retry');
   if(!proposal)resetProposal();
   validationState();refreshRepairPanel();
@@ -1618,7 +1601,7 @@
   const oldResult=targetField||resumeFields?.length?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
   setLabelAlert('working','Analyse…');
-  resetDetectedIndicator();updateButton();setAnalysisCameraClosed(true);
+  updateButton();setAnalysisCameraClosed(true);
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
   // Laisser l'étiquette vierge affichée jusqu'au remplacement par le résultat.
   output.hidden=false;networkTime.textContent='';resetProposal();
@@ -2006,7 +1989,6 @@
   stopQualityMonitor();
   // Fermeture volontaire : ne surtout pas réactiver la piste vidéo.
   setAnalysisCameraClosed(false,{resume:false});
-  resetDetectedIndicator();
   cameraPausedInBackground=false;
   clearAutoTimer();clearAutoStability();
   autoLocked=false;autoSuspended=false;autoNeedsChange=false;
@@ -2065,7 +2047,7 @@
     shortcut?.setAttribute('aria-pressed','true');
     shortcut?.setAttribute('aria-expanded','true');
     shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
-    try{await video.play()}catch(_){
+    try{await video.play();syncCameraCover();}catch(_){
      say('Vidéo suspendue par iOS. Réessaie de toucher le viseur.',true);
     }
     if(cameraMode==='auto'&&!autoSuspended&&!active&&!file&&!proposal){
@@ -2126,6 +2108,7 @@
    shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
+   syncCameraCover();
    refreshTorch();
    startQualityMonitor();
    if(cameraMode==='auto'&&!file&&!proposal&&!active)armAutoScanner(false);
@@ -2220,7 +2203,6 @@
  function announceSaveError(saved){
   const msg=String(saved?.reason||'Enregistrement impossible');
   lastSaveError=msg;
-  showDetectedIndicator('error',msg);
   setLabelAlert('warning',msg);
   say('Pesée non enregistrée · '+msg,true);
  }
@@ -3007,7 +2989,7 @@
    refreshCameraAlert();
    video.srcObject=cameraStream;
    Promise.resolve(video.play()).then(()=>{
-    startQualityMonitor();
+    syncCameraCover();startQualityMonitor();
     if(cameraMode==='auto'&&!autoLocked&&!autoSuspended&&
        !active&&!file&&!proposal)startAutoMonitor();
    }).catch(()=>{

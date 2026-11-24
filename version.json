@@ -1,6 +1,6 @@
 {
-  "version": "42.82",
+  "version": "42.83",
   "published": "2026-11-24",
-  "assets": 82,
-  "notes": "Anneau Chrome de chargement : diamètre nominal 36 px, filaments 60 % plus épais et statut Analyse… à la place de Chargement. Autres contours, vitesse et reconnaissance inchangés."
+  "assets": 83,
+  "notes": "Surface vidéo dimensionnée au ratio natif pour limiter les bandes noires Safari, recalcul aux changements de flux. Déclencheur noir agrandi et centré verticalement dans la marge droite du repère. Indicateur caméra redondant retiré, statut permanent et validation conservés."
 }

@@ -239,8 +239,8 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.82'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.82'));
+assert(markup.includes('gemini-lab.css?v=42.83'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.83'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
