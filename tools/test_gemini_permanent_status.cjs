@@ -8,7 +8,7 @@ const api=new Function('labelAlert','labelAlertText','cameraShell','state','wind
 function expect(type,word){assert.equal(light.dataset.state,type);assert.equal(label.textContent,word);assert.equal(light.hidden,false);assert(label.textContent.split(/\s+/).length<=3);}
 api.refreshLabelAlert();expect('idle','Caméra désactivée');
 camera.dataset.state='scanning';api.refreshCameraAlert();expect('idle','Caméra active');
-state.active=true;api.refreshLabelAlert();expect('working','Chargement');
+state.active=true;api.refreshLabelAlert();expect('working','Analyse…');
 state.active=false;state.file={};state.latestLabelFields={weightGrams:1058};state.proposal={ean:'0203476013844',grams:1058,plu:3476};
 api.refreshLabelAlert();expect('success','Étiquette prête');assert(light.title.includes('PLU 3476'));
 camera.dataset.state='idle';api.refreshCameraAlert();expect('success','Étiquette prête');
@@ -32,7 +32,7 @@ assert(idle.includes('iu-gemini-camera-off-icon')&&idle.includes('fill="#fff"')&
 assert(!idle.includes('>Caméra désactivée<'));
 assert(idle.includes('id="iuGeminiLoadingChrome"')&&idle.includes('aria-hidden="true"'));
 assert(js.includes("cameraIdle.setAttribute('aria-label','Analyse en cours')")&&!js.includes("if(title)title.textContent='Analyse…';"));
-assert(css.includes('width:54px!important;height:54px!important')&&css.includes('#iuGeminiCameraShell[data-state="analyzing"] .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > canvas#iuGeminiLoadingChrome'));
+assert(css.includes('width:48px!important;height:48px!important')&&css.includes('#iuGeminiCameraShell[data-state="analyzing"] .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > canvas#iuGeminiLoadingChrome'));
 console.log('OK : cadre identique, halo partagé, icône blanche et analyse préservée.');
 
 assert(statusStyle.includes('margin:3px 0!important'));

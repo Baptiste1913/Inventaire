@@ -1,6 +1,6 @@
 {
-  "version": "42.81",
+  "version": "42.82",
   "published": "2026-11-24",
-  "assets": 81,
-  "notes": "Anneau de chargement circulaire dans le viseur, moteur Chrome du poids brut réutilisé (reflets et ramifications), actif uniquement pendant l’analyse. Caméra et reconnaissance inchangées."
+  "assets": 82,
+  "notes": "Anneau Chrome de chargement : diamètre nominal 36 px, filaments 60 % plus épais et statut Analyse… à la place de Chargement. Autres contours, vitesse et reconnaissance inchangés."
 }

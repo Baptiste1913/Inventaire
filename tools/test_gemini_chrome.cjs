@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.81'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.82'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -239,8 +239,8 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.81'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.81'));
+assert(markup.includes('gemini-lab.css?v=42.82'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.82'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
@@ -354,12 +354,12 @@ assert(css.includes('> canvas#iuGeminiOuterChrome.iu-gemini-outer-light {\n posi
 assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
 
 {
- const paints=[],frames=new Map(),observers=[];let req=0,debug;
+ const paints=[],widths=[],frames=new Map(),observers=[];let req=0,debug;
  class Path{moveTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));}lineTo(x,y){this.moveTo(x,y);}closePath(){}}
- const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){paints.push(this.strokeStyle);},fill(){paints.push(this.fillStyle);}};
+ const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){paints.push(this.strokeStyle);widths.push(this.lineWidth);},fill(){paints.push(this.fillStyle);}};
  const shell={id:'iuGeminiCameraShell',dataset:{state:'idle'},querySelector:()=>null};
  const guide={getClientRects:()=>shell.dataset.state==='analyzing'?[{}]:[]};
- const canvas={id:'iuGeminiLoadingChrome',parentElement:guide,getContext:()=>ctx,getBoundingClientRect:()=>({width:54,height:54})};
+ const canvas={id:'iuGeminiLoadingChrome',parentElement:guide,getContext:()=>ctx,getBoundingClientRect:()=>({width:48,height:48})};
  const doc={hidden:false,getElementById:k=>k===canvas.id?canvas:k===shell.id?shell:null,addEventListener(){}};
  let reduced=false;
  const win={devicePixelRatio:3,matchMedia:()=>({get matches(){return reduced;}}),addEventListener(){},requestAnimationFrame:fn=>{frames.set(++req,fn);return req;},cancelAnimationFrame:id=>frames.delete(id)};
@@ -370,7 +370,9 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  shell.dataset.state='analyzing';observers.forEach(fn=>fn());assert.equal(frames.size,1);
  const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100);
  assert.deepEqual(paints.slice(0,15),gross.paints.slice(0,15).map(p=>p.color));
- for(let i=0;i<=128;i++){const p=debug.basePoint(i/128);assert(Math.abs(Math.hypot(p.x-27,p.y-27)-21)<1e-8);}
+ for(const [i,w] of [1.02,.76,.54].entries())assert(Math.abs(widths[i]-w*1.6)<1e-8,'Épaisseur de l’anneau renforcée');
+ assert(source.includes('if(isLoader){widthPx*=loaderWidthScale;outset*=loaderWidthScale;}'));
+ for(let i=0;i<=128;i++){const p=debug.basePoint(i/128);assert(Math.abs(Math.hypot(p.x-24,p.y-24)-18)<1e-8);}
  shell.dataset.state='idle';observers.forEach(fn=>fn());assert.equal(frames.size,0);
  reduced=true;shell.dataset.state='analyzing';const count=paints.length;observers.forEach(fn=>fn());assert.equal(frames.size,0);assert(paints.length>count);
  console.log('OK : anneau circulaire Chrome partagé, démarrage/arrêt et mouvement réduit.');

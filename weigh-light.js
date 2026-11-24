@@ -1,4 +1,4 @@
-/* Inventaires U 42.81 — chrome : anneau de chargement circulaire partagé.
+/* Inventaires U 42.82 — chrome : anneau de chargement plus compact et épais.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -15,6 +15,7 @@
  const isGemini=isPanelChrome||overlay.id==='iuGeminiCameraShell';
  const contourBoost=0;
  const backdropWidthScale=.82;
+ const loaderWidthScale=isLoader?1.6:1;
  const guide=isBackdrop||isOuter||isLoader?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
  const canvas=isBackdrop||isOuter||isLoader?overlay:guide?.querySelector('.iu-weight-light');
@@ -215,7 +216,7 @@
   ctx.globalCompositeOperation='source-over';
   ctx.strokeStyle=color;
   ctx.lineJoin='round';
-  ctx.lineWidth=widthPx+contourBoost;
+  ctx.lineWidth=widthPx*loaderWidthScale+contourBoost;
   ctx.globalAlpha=alpha;
   if(isBackdrop){ctx.fillStyle=color;ctx.fill(backgroundBaseShape(laneIndex,widthPx*backdropWidthScale,laneIndex===0?.06:laneIndex===1?.04:.03));}
   else ctx.stroke(line||lanes[laneIndex].line);
@@ -256,6 +257,7 @@
  }
  function drawRibbon(points,widthPx,color,opacity,blur,blend='screen',outset=0){
   if(isBackdrop){widthPx*=backdropWidthScale;outset*=backdropWidthScale;blur*=.8;}
+  if(isLoader){widthPx*=loaderWidthScale;outset*=loaderWidthScale;}
   const shape=new Path2D();
   for(let i=0;i<points.length;i++){
    const p=points[i];

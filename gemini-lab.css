@@ -6103,7 +6103,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiCameraShell .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > canvas#iuGeminiLoadingChrome.iu-gemini-loading-light {
  display:none!important;position:static!important;flex:none!important;
- width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important;
+ width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;
  max-width:none!important;max-height:none!important;aspect-ratio:1!important;
  margin:0!important;padding:0!important;border:0!important;background:transparent!important;
  box-shadow:none!important;filter:none!important;transform:none!important;pointer-events:none!important;

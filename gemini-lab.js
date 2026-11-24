@@ -243,7 +243,7 @@
   status.classList.toggle('is-error',error);
   if(error&&!active)showDetectedIndicator('error',message||'Erreur de lecture');
   // Le voyant permanent indique le chargement et les erreurs de capture.
-  if(active)setLabelAlert('working','Chargement');
+  if(active)setLabelAlert('working','Analyse…');
   else if(error&&['idle','working'].includes(labelAlert?.dataset.state))
    setLabelAlert('warning',message||'Erreur de lecture');
  };
@@ -449,7 +449,7 @@
   if(type==='idle'){
    visibleMessage=cameraShell?.dataset.state==='scanning'?'Caméra active':'Caméra désactivée';
   }else if(type==='working'){
-   visibleMessage='Chargement';
+   visibleMessage='Analyse…';
   }else if(type==='success'){
    visibleMessage=/doublon/i.test(detail)?'Doublon confirmé':
     /enregistr/i.test(detail)?'Pesée enregistrée':'Étiquette prête';
@@ -482,7 +482,7 @@
    showDetectedIndicator('error',detail);
  }
  function refreshCameraAlert(){
-  if(active){setLabelAlert('working','Chargement');return;}
+  if(active){setLabelAlert('working','Analyse…');return;}
   // Les résultats d'une photo importée ou conservée restent prioritaires.
   if(file||proposal||latestLabelFields)return;
   setLabelAlert('idle','');
@@ -495,7 +495,7 @@
   })?.duplicate===true;}catch(_){return false;}
  }
  function refreshLabelAlert(){
-  if(active){setLabelAlert('working','Chargement');return;}
+  if(active){setLabelAlert('working','Analyse…');return;}
   // Si un résultat a déjà été lu pour CETTE photo, un panier plus
   // lourd que le brut est une erreur métier certaine, pas une panne IA.
   // Cela évite de masquer la tare lors d'une relecture réseau échouée.
@@ -1617,7 +1617,7 @@
    Array.isArray(lastRawResult.checks.recoveryInterruptedTargets)?lastRawResult.checks.recoveryInterruptedTargets.filter(k=>Object.prototype.hasOwnProperty.call(fieldKeys,k)):null;
   const oldResult=targetField||resumeFields?.length?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
-  setLabelAlert('working','Chargement');
+  setLabelAlert('working','Analyse…');
   resetDetectedIndicator();updateButton();setAnalysisCameraClosed(true);
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
   // Laisser l'étiquette vierge affichée jusqu'au remplacement par le résultat.
@@ -2910,7 +2910,7 @@
   const priorBasket=$('basketSelect')?.value;
   const priorWasSavable=Boolean(correctedCurrentProposal());
   frameCaptureBusy=true;
-  setLabelAlert('working','Chargement');
+  setLabelAlert('working','Analyse…');
   refreshCaptureButton();
   const automatic=autoCapturePending;
   autoCapturePending=false;autoLocked=true;autoSuspended=true;
