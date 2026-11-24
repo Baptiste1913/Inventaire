@@ -6499,7 +6499,10 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
  background:rgba(128,128,128,.002)!important;
  -webkit-backdrop-filter:blur(1.25px)!important;
  backdrop-filter:blur(1.25px)!important;
- box-shadow:0 23px 30px -18px rgba(83,105,121,.112)!important;
+ box-shadow:
+  -2px -2px 4px rgba(255,255,255,.82),
+  2px 3px 7px rgba(146,166,179,.14),
+  inset 0 1px 0 rgba(255,255,255,.72)!important;
 }
 @media(prefers-reduced-transparency:reduce){
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {

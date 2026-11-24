@@ -1,6 +1,6 @@
 {
-  "version": "42.98",
+  "version": "42.99",
   "published": "2026-11-24",
-  "assets": 98,
-  "notes": "Pastille du logo AI : même verre translucide que le résultat (fond transparent, contour blanc, flou 1,25 px). Dimensions, animation et reconnaissance v42.97 inchangées."
+  "assets": 99,
+  "notes": "Pastille AI : léger relief neumorphique du contour, verre translucide, flou, dimensions et animation préservés. Reconnaissance inchangée."
 }
