@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.73'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.74'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -239,8 +239,8 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.73'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.73'));
+assert(markup.includes('gemini-lab.css?v=42.74'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.74'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
@@ -269,7 +269,7 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
 
 {
  const drawn=[],frames=[],clips=[];let debug;
- class Path{constructor(){this.points=[];}moveTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));this.points.push([x,y]);}lineTo(x,y){this.moveTo(x,y);}quadraticCurveTo(...args){this.points.push(args);}closePath(){}}
+ class Path{constructor(){this.points=[];}moveTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));this.points.push([x,y]);}lineTo(x,y){this.moveTo(x,y);}bezierCurveTo(...args){this.points.push(args);}closePath(){}}
  const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){drawn.push([this.strokeStyle,this.lineWidth,this.globalAlpha]);},fill(){drawn.push([this.fillStyle,null,this.globalAlpha]);},clip(p){clips.push(p.points);}};
  const motion=[0,1,2].map(i=>({getTotalLength:()=>340,getPointAtLength:d=>({x:d,y:70+i*75+10*Math.sin(d/40)}),getScreenCTM:()=>({a:1,b:0,c:0,d:1,e:0,f:0})}));
  const svg={querySelectorAll:()=>motion.map(p=>({querySelector:()=>p}))};
@@ -315,7 +315,10 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  assert(Math.abs(distance(shape[0],shape[257])-1.02)<1e-8);
  assert(Math.abs(distance(shape[64],shape[193])-.714)<1e-8);
  const clip=debug.backdropClipRect(outer.getBoundingClientRect(),bg.getBoundingClientRect());
- assert.deepEqual(clip,{x:15.5,y:-94.5,w:309,h:341,r:14.5});
+ for(const [key,expected] of Object.entries({x:11.8,y:-98.2,w:316.4,h:348.4,rx:19,ry:19}))assert(Math.abs(clip[key]-expected)<1e-8,key);
+ assert(Math.abs(clip.x-outer.getBoundingClientRect().left-1.8)<1e-8);
+ assert(clips[0].some(p=>p.length===6),'Coins cubiques alignés sur le contour');
+ assert(source.includes("document.getElementById('iuGeminiOuterChrome')||document.getElementById('iuGeminiLab')"));
  console.log('OK : tangentes continues sans aplatissement, clip intérieur et largeur variable au centre');
 }
 

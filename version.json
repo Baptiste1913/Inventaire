@@ -1,6 +1,6 @@
 {
-  "version": "42.73",
+  "version": "42.74",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Filaments de fond : prolongement tangent et translation globale douce sans aplatissement, découpe arrondie à l'intérieur du contour global, épaisseur réduite progressivement de 30 % au centre. Verre 2 px, opacité et autres contours conservés."
+  "notes": "Raccord des filaments au contour Chrome : découpe sur son axe à 1,8 px du bord au lieu de 5,5 px, coins alignés sur le rayon réel du contour. Courbes, opacité, épaisseur et verre 2 px conservés."
 }

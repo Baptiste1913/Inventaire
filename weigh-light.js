@@ -1,4 +1,4 @@
-/* Inventaires U 42.73 — chrome : courbure préservée, découpe intérieure et centre affiné.
+/* Inventaires U 42.74 — chrome : raccord exact des filaments au contour.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -402,25 +402,28 @@
   }
   if(running){paintWaves(t);paintInnerWaves(t);}
  }
- // The actual outer chrome centreline lies 1.8 CSS px inside its
- // card. Reserve a further 3.7 px for fibre/shadow and 2 px glass blur.
+ // Clip at the centreline of the outer chrome, not 3.7 px inside it.
+ // The outer canvas is drawn above this one and covers the junction.
  function backdropClipRect(outer,bounds){
-  const sx=width/bounds.width,sy=height/bounds.height,margin=5.5;
+  const sx=width/bounds.width,sy=height/bounds.height,margin=1.8;
+  const w=outer.width-2*margin,h=outer.height-2*margin;
+  const radius=Math.max(2,Math.min(19,w/5,h/3));
   return {x:(outer.left-bounds.left+margin)*sx,y:(outer.top-bounds.top+margin)*sy,
-   w:(outer.width-2*margin)*sx,h:(outer.height-2*margin)*sy,r:14.5*Math.min(sx,sy)};
+   w:w*sx,h:h*sy,rx:radius*sx,ry:radius*sy};
  }
  function clipBackdrop(){
-  const outer=document.getElementById('iuGeminiLab');
+  const outer=document.getElementById('iuGeminiOuterChrome')||document.getElementById('iuGeminiLab');
   if(!outer||!ctx.clip)return;
   const bounds=canvas.getBoundingClientRect(),box=outer.getBoundingClientRect();
   if(!bounds.width||!bounds.height||box.width<=11||box.height<=11)return;
-  const {x,y,w,h,r}=backdropClipRect(box,bounds);
-  const clip=new Path2D(),radius=Math.min(r,w/2,h/2);
-  // Manual rounded rectangle works also on Safari without roundRect.
-  clip.moveTo(x+radius,y);clip.lineTo(x+w-radius,y);clip.quadraticCurveTo(x+w,y,x+w,y+radius);
-  clip.lineTo(x+w,y+h-radius);clip.quadraticCurveTo(x+w,y+h,x+w-radius,y+h);
-  clip.lineTo(x+radius,y+h);clip.quadraticCurveTo(x,y+h,x,y+h-radius);
-  clip.lineTo(x,y+radius);clip.quadraticCurveTo(x,y,x+radius,y);clip.closePath();
+  const {x,y,w,h,rx,ry}=backdropClipRect(box,bounds);
+  const clip=new Path2D(),k=.5522847498307936,R=x+w,B=y+h;
+  // Cubic quarter-circle approximation matching the chrome arc.
+  clip.moveTo(x+rx,y);clip.lineTo(R-rx,y);
+  clip.bezierCurveTo(R-rx+k*rx,y,R,y+ry-k*ry,R,y+ry);
+  clip.lineTo(R,B-ry);clip.bezierCurveTo(R,B-ry+k*ry,R-rx+k*rx,B,R-rx,B);
+  clip.lineTo(x+rx,B);clip.bezierCurveTo(x+rx-k*rx,B,x,B-ry+k*ry,x,B-ry);
+  clip.lineTo(x,y+ry);clip.bezierCurveTo(x,y+ry-k*ry,x+rx-k*rx,y,x+rx,y);clip.closePath();
   ctx.clip(clip);
  }
  function paintBackdrop(t){
