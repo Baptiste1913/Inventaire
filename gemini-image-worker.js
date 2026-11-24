@@ -3,10 +3,14 @@
  */
 'use strict';
 importScripts('./gemini-recognition-core.js?v=42.45');
-importScripts('./gemini-ean.js?v=42.49');
 importScripts('./gemini-label-geometry.js?v=42.33');
-importScripts('./gemini-zxing.js?v=42.36');
-importScripts('./digi-digit-ocr.js?v=42.50');
+// Dedicated detail instance does not download/initialize the barcode engines.
+const detailOnly=Boolean(self.location?.search?.includes('detail=1'));
+if(!detailOnly){
+ importScripts('./gemini-ean.js?v=42.49');
+ importScripts('./gemini-zxing.js?v=42.36');
+ importScripts('./digi-digit-ocr.js?v=42.50');
+}
 function zoneToPixels(rect,w,h){
  if(!rect)return null;
  return {
@@ -34,7 +38,7 @@ function sampleContrast(image){
  for(let i=0;i<256;i++){cum+=hist[i];if(cum>=n*.95){high=i;break;}}
  return {low,high,range:high-low};
 }
-// CLAHE grayscale sur le SEUL détail d'une relecture ; jamais sur
+// CLAHE grayscale sur la vue secondaire, dès la première lecture ; jamais sur
 // l'image entière envoyée à Gemini, et seulement si le contraste est
 // réellement insuffisant. Luminance traitée à 1400px max hors Safari UI.
 function clahe(image,clipFactor=2.2,grid=8){
@@ -83,7 +87,8 @@ function clahe(image,clipFactor=2.2,grid=8){
  }
  return image;
 }
-async function enhancedDetail(photo,reading){
+async function enhancedDetail(photo,reading,maxBytes=122000){
+ const limit=Number.isSafeInteger(maxBytes)?Math.max(100,Math.min(122000,maxBytes)):122000;
  if(typeof OffscreenCanvas!=='function'||
     typeof createImageBitmap!=='function'||!self.IUGeminiLabelGeometry)
   return null;
@@ -104,11 +109,13 @@ async function enhancedDetail(photo,reading){
     rect=geometry.detect(tc.getImageData(0,0,thumb.width,thumb.height));
    }
   }
-  if(!rect||rect.x<.008||rect.y<.008||
-     rect.x+rect.w>.992||rect.y+rect.h>.992)return null;
+  const located=Boolean(rect&&rect.x>=.008&&rect.y>=.008&&rect.x+rect.w<=.992&&rect.y+rect.h<=.992);
+  // Same wide central crop as the raw detail if no trustworthy outline.
+  // No perspective correction on a guessed rectangle.
+  if(!located)rect={x:.065,y:.07,w:.87,h:.86};
   // Perspective : quatre bords réels et marges sûres obligatoires.
   const core=self.IURecognitionCore;
-  if(core?.quad&&core?.warp){
+  if(located&&core?.quad&&core?.warp){
    try{
     const tw=Math.min(300,iw),th=Math.max(1,Math.round(ih*tw/iw));
     const thumb=new OffscreenCanvas(tw,th),tc=thumb.getContext('2d',{willReadFrequently:true});
@@ -120,14 +127,18 @@ async function enhancedDetail(photo,reading){
      const src=new OffscreenCanvas(Math.round(iw*scale),Math.round(ih*scale));
      const sc=src.getContext('2d',{willReadFrequently:true});
      sc.drawImage(bitmap,0,0,src.width,src.height);
-     const W=Math.round(Math.min(1400,rect.w*iw)),H=Math.round(Math.min(1150,rect.h*ih));
+     const outScale=Math.min(1,1700/Math.max(rect.w*iw,rect.h*ih),Math.sqrt(1800000/(rect.w*iw*rect.h*ih)));
+     const W=Math.round(rect.w*iw*outScale),H=Math.round(rect.h*ih*outScale);
      const flat=new OffscreenCanvas(W,H),fc=flat.getContext('2d');
      const dest=fc.createImageData(W,H);
      if(core.warp(sc.getImageData(0,0,src.width,src.height),dest,q)){
+      const contrast=sampleContrast(dest);
+      if(contrast.range<12)return null;
+      if(contrast.range<110){core.grayscale?.(dest.data);clahe(dest);}
       fc.putImageData(dest,0,0);
-      for(const quality of [.84,.75,.65,.55]){
+      for(const quality of [.88,.84,.77,.69,.57]){
        const jpeg=await flat.convertToBlob({type:'image/jpeg',quality});
-       if(jpeg.size>=100&&jpeg.size<=122000)return jpeg;
+       if(jpeg.size>=100&&jpeg.size<=122000&&jpeg.size<=limit)return jpeg;
       }
      }
     }
@@ -135,7 +146,7 @@ async function enhancedDetail(photo,reading){
   }
   const box=zoneToPixels(rect,iw,ih);
   if(box.w<480||box.h<260||box.x+box.w>iw||box.y+box.h>ih)return null;
-  const factor=Math.min(1,1400/Math.max(box.w,box.h));
+  const factor=Math.min(1,1700/Math.max(box.w,box.h),Math.sqrt(1800000/(box.w*box.h)));
   const w=Math.round(box.w*factor),h=Math.round(box.h*factor);
   const canvas=new OffscreenCanvas(w,h);
   const ctx=canvas.getContext('2d',{willReadFrequently:true});
@@ -164,22 +175,24 @@ async function enhancedDetail(photo,reading){
    rc.scale(.94,.94);
    rc.drawImage(canvas,-w/2,-h/2);
    const contents=clone;
-   for(const quality of [.84,.75,.65,.55]){
+   for(const quality of [.88,.84,.77,.69,.57]){
     const jpeg=await contents.convertToBlob({type:'image/jpeg',quality});
-    if(jpeg.size>=100&&jpeg.size<=122000)return jpeg;
+    if(jpeg.size>=100&&jpeg.size<=122000&&jpeg.size<=limit)return jpeg;
    }
    return null;
   }
-  for(const quality of [.84,.75,.65,.55]){
+  for(const quality of [.88,.84,.77,.69,.57]){
    const jpeg=await canvas.convertToBlob({type:'image/jpeg',quality});
-   if(jpeg.size>=100&&jpeg.size<=122000)return jpeg;
+   if(jpeg.size>=100&&jpeg.size<=122000&&jpeg.size<=limit)return jpeg;
   }
   return null;
  }finally{bitmap.close?.();}
 }
 self.onmessage=async event=>{
- const {id,kind,photo,reading}=event.data||{};
+ const {id,kind,photo,reading,maxBytes}=event.data||{};
  if(!Number.isSafeInteger(id))return;
+ if(kind==='warm-detail'){self.postMessage({id,result:null});return;}
+ if(detailOnly&&kind!=='enhanced-detail')return;
  if(kind==='warm-zxing'){
   // Compiler le moteur sans photo et sans retarder le viseur.
   try{self.IUDigiDigitOCR?.warm?.();}catch(_){}
@@ -204,7 +217,7 @@ self.onmessage=async event=>{
   }
   else if(kind==='partial')result=await self.IUGeminiEAN.readPartial?.(photo)||null;
   else if(kind==='digit-template')result=await self.IUDigiDigitOCR?.read(photo,reading)||null;
-  else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading);
+  else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading,maxBytes);
   self.postMessage({id,result});
  }catch(_){
   // Les échecs du prétraitement ne compromettent jamais Gemini.

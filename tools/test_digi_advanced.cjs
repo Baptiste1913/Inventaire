@@ -28,7 +28,7 @@ assert.equal(ean.pattern,'0203476013844');assert.equal(ean.confirmed,false);
 const lab=fs.readFileSync('gemini-lab.js','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
 assert(lab.includes('const receivedTask=requestGeminiWithRecovery('));
 assert(lab.indexOf('const receivedTask=requestGeminiWithRecovery(')<lab.indexOf('advancedJob=track(window.IUDigiAdvanced'));
-assert(lab.includes('const received=await receivedTask;'));
+assert(lab.includes('received=await receivedTask;'));
 assert(lab.includes('digitJob?.value,advancedJob?.value'));
 assert(!lab.includes('fuseEAN(result,advancedJob'));
 assert(!lab.includes('fuseEAN(combined,advancedJob'));

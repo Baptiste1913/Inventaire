@@ -30,7 +30,7 @@ const lab=fs.readFileSync('gemini-lab.js','utf8'),worker=fs.readFileSync('gemini
 const v=JSON.parse(fs.readFileSync('version.json','utf8')).version;
 assert(worker.includes("importScripts('./digi-digit-ocr.js?v=42.50')"));
 assert(sw.includes('digi-digit-ocr.js?v=42.50'));
-assert(html.includes('gemini-parallel.js?v=42.50'));
+assert(html.includes('gemini-parallel.js?v=42.52'));
 assert(lab.includes('printedJob?.value,digitJob?.value'));
 assert(!lab.includes('fuseEAN(result,digitJob'));
 assert(!lab.includes('fuseEAN(combined,digitJob'));

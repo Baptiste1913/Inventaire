@@ -37,7 +37,7 @@ assert(html.indexOf('gemini-parallel.js?v='+parallelVersion)<
  html.indexOf('gemini-lab.js?v='+version),
  'Le gestionnaire parallèle doit être chargé avant le scanner');
 assert(local.includes('window.IUGeminiParallel?.barcode(barcodeSource)'));
-assert(local.includes('window.IUGeminiParallel?.enhancedDetail(file,'));
+assert(local.includes('window.IUGeminiParallel?.prepareDetail?.(source,reading,maxBytes)'));
 assert(local.includes('blob?.size>490000&&Math.max(cv.width,cv.height)>1920'));
 assert(local.includes('fullResolutionCameraFrame(localEdge)'));
 const photo={name:'simulated-jpeg',size:12000,type:'image/jpeg'};

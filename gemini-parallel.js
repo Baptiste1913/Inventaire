@@ -10,6 +10,7 @@
 })(typeof window!=='undefined'?window:null,function(root){
  'use strict';
  let worker=null,unavailable=false,nextId=0,warmStarted=false;
+ let detailWorker=null,detailPending=null,detailUnavailable=false;
  const pending=new Map();
  // Le même JPEG ne doit jamais déclencher plusieurs relectures historiques
  // lorsqu'un Worker échoue pendant que Gemini est en cours.
@@ -48,7 +49,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.50');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.52');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
@@ -114,10 +115,49 @@
      !root?.createImageBitmap)return Promise.resolve(null);
   return dispatch('enhanced-detail',photo,reading);
  }
+ // Separate instance: expensive rectification never queues behind ZXing,
+ // Tesseract or the partial barcode scan. At most one detail in flight.
+ function closeDetail(){
+  if(detailPending){clearTimeout(detailPending.timer);detailPending.resolve(null);detailPending=null;}
+  if(detailWorker){try{detailWorker.terminate()}catch(_){}detailWorker=null;}
+ }
+ function warmDetail(){
+  if(detailUnavailable||!root?.Worker||!root?.OffscreenCanvas||!root?.createImageBitmap)return false;
+  if(detailWorker)return true;
+  try{
+   const instance=new root.Worker('gemini-image-worker.js?v=42.52&detail=1');
+   detailWorker=instance;
+   instance.onmessage=event=>{
+    if(detailWorker!==instance)return;
+    const {id,result,error}=event.data||{};
+    if(error==='unsupported'){closeDetail();detailUnavailable=true;return;}
+    if(!detailPending||detailPending.id!==id)return;
+    const task=detailPending;detailPending=null;clearTimeout(task.timer);task.resolve(result||null);
+   };
+   instance.onerror=()=>{if(detailWorker===instance){closeDetail();detailUnavailable=true;}};
+   instance.postMessage({id:++nextId,kind:'warm-detail'});return true;
+  }catch(_){closeDetail();detailUnavailable=true;return false;}
+ }
+ function prepareDetail(photo,reading=null,maxBytes=122000){
+  if(!photo||!warmDetail())return Promise.resolve(null);
+  if(detailPending){
+   if(detailPending.photo===photo&&detailPending.maxBytes===maxBytes)return detailPending.promise;
+   // Never let an older label monopolize the new one.
+   closeDetail();if(!warmDetail())return Promise.resolve(null);
+  }
+  const id=++nextId;
+  let resolve;
+  const promise=new Promise(done=>{resolve=done;});
+  const timer=setTimeout(()=>{if(detailPending?.id===id)closeDetail();},1700);
+  detailPending={id,photo,maxBytes,promise,resolve,timer};
+  try{detailWorker.postMessage({id,kind:'enhanced-detail',photo,reading,maxBytes});}catch(_){closeDetail();}
+  return promise;
+ }
  function close(){
+  closeDetail();detailUnavailable=false;
   dispose(false);
   legacyCache=new WeakMap();
  }
  function available(){return !unavailable&&Boolean(root?.Worker&&root?.OffscreenCanvas);}
- return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,close,available});
+ return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,warmDetail,prepareDetail,closeDetail,close,available});
 });

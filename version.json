@@ -1,6 +1,6 @@
 {
-  "version": "42.51",
+  "version": "42.52",
   "published": "2026-11-24",
-  "assets": 72,
-  "notes": "DIGI Advanced : CNN+CTC quantifié entraîné sur 30 000 lignes (220 654 caractères), Worker indépendant, indices EAN/poids/prix/montant, Gemini 3.5 toujours prioritaire. Test sur polices réservées : 932/1200 lignes exactes, non représentatif du scanner réel. Générateur 50 000 étiquettes, Nano conservé, pas de changement Worker Cloudflare."
+  "assets": 73,
+  "notes": "Prétraitement de la vue secondaire dès la capture : Worker dédié préchauffé, redressement, contraste conditionnel, JPEG original conservé, priorité au détail amélioré (attente bornée 280 ms), relecture complémentaire automatique sur 422 explicite si une autre vue est disponible. Contrôles, Gemini 3.5 et anti-503 conservés. Pas de changement Cloudflare."
 }

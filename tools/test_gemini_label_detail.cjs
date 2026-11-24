@@ -67,7 +67,8 @@ async function exercise(mode){
   [78,56,1044,688],'Étiquette en bordure : repli sans risque');
  assert(js.includes("const detailTask=samePhotoTask(file,true)"));
  assert(js.includes("prepareLabelDetail(file,localBarcode).catch(()=>null)"));
- assert(js.includes("samePhotoTask(file),until(track(detailTask),detailDeadline)"));
+ assert(js.includes("const encoded=await samePhotoTask(file)"));
+ assert(js.includes("chooseVisualDetail(enhancedView,normalView,detailDeadline,until,safeDetail)"));
  assert(js.includes("const safeDetail=detail=>detail&&detail.length+encoded.length<=750000"));
  assert(js.includes("targets.length===1&&targets[0]==='ean'"));
  console.log('OK : photo entière conservée, détail optique/papier, repli géométrique');

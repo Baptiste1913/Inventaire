@@ -27,7 +27,30 @@
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
  let primaryBarcodePhoto=null,alternatePhotoTask=null,printedBusy=false;
- let cachedEncoding=null,cachedDetail=null;
+ let cachedEncoding=null,cachedDetail=null,cachedEnhanced=null;
+ // Prepare a second, improved view for the exact same captured label.
+ function samePhotoEnhanced(source,reading=null){
+  if(!source)return Promise.resolve(null);
+  if(cachedEnhanced?.source===source)return cachedEnhanced.promise;
+  // The cloud JPEG is never recompressed to make room for the detail.
+  const maxBytes=file?.name==='etiquette-gemini.jpg'&&file.type==='image/jpeg'&&file.size<=490000?
+   Math.max(100,Math.min(122000,Math.floor((750000-4*Math.ceil(file.size/3))/4)*3)):122000;
+  const promise=Promise.resolve().then(()=>window.IUGeminiParallel?.prepareDetail?.(source,reading,maxBytes)||null)
+   .then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
+  cachedEnhanced={source,promise};return promise;
+ }
+ // Prefer the enhanced view, not merely the fastest completed promise.
+ // If it is late, fall back immediately at the shared deadline.
+ async function chooseVisualDetail(preferred,fallback,deadline,until,usable,exclude=null){
+  const available=entry=>entry&&usable(entry.task.value)&&entry.task.value!==exclude?
+   {data:entry.task.value,kind:entry.kind}:null;
+  const pick=async entry=>{
+   if(!entry)return null;
+   const data=await until(entry.task,deadline);
+   return usable(data)&&data!==exclude?{data,kind:entry.kind}:null;
+  };
+  return available(preferred)||await pick(preferred)||available(fallback)||await pick(fallback)||null;
+ }
  function samePhotoTask(source,detail=false){
   const stored=detail?cachedDetail:cachedEncoding;
   if(stored?.source===source)return stored.promise;
@@ -829,7 +852,7 @@
   generation++;abort?.abort();abort=null;active=false;file=null;
   setAnalysisCameraClosed(false);
   lastRawResult=null;localBarcode=null;barcodeJob=null;repairFocus=null;manualCorrectedFields=[];
-  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;
+  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   attempts.clear();photo.value='';latestLabelFields=null;
@@ -867,7 +890,7 @@
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   analyze.textContent='Analyser l’étiquette';
-  clearPreview();file=chosen;cachedEncoding=null;cachedDetail=null;attempts.clear();generation++;
+  clearPreview();file=chosen;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;attempts.clear();generation++;
   // Lire l'EAN en local en parallèle du réseau, sans envoi ni bibliothèque.
   // La pleine résolution reste réservée à l'EAN LOCAL si le JPEG
   // envoyé à Gemini a été réduit pour respecter le budget Cloudflare.
@@ -877,6 +900,8 @@
    (window.IUGeminiParallel?.barcode(barcodeSource)||
     Promise.resolve().then(()=>window.IUGeminiEAN?.read(barcodeSource)||null)))
    .catch(()=>null);
+  // Start visual enhancement before launching the analysis event. No upload here.
+  void samePhotoEnhanced(barcodeSource);
   url=URL.createObjectURL(chosen);
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
   showBlankLabel();networkTime.textContent='';resetProposal();
@@ -1314,6 +1339,8 @@
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +(Number.isFinite(result.clientNetworkMs)?' · échange '+(result.clientNetworkMs/1000).toFixed(2)+' s':'')
     +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
+    +(result.visualFirst?' · détail 1 : '+result.visualFirst:'')
+    +(result.visualRecheck?' · détail 2 : '+result.visualRecheck:'')
     +(result.networkFailure?' · '+String(result.networkFailure.stage||'réseau')+' / '+Number(result.networkFailure.attempts||0)+' tentative(s)':'')
     +(result.digiPlan?' · DIGI : '+result.digiPlan.candidateCount+' candidat(s), '+result.digiPlan.observationCount+' observations, '+result.digiPlan.barRows+' lignes':'')
     +(result.digiDigitHint?' · OCR chiffres (indice) '+result.digiDigitHint:'')
@@ -1373,8 +1400,8 @@
    ...(digiPositions?.length?{digiPositions:digiPositions.slice(0,13)}:{})};
   const transport=typeof window!=='undefined'?window.IUGeminiTransport:null;
   const packet=transport?.prepare(payload)||{body:JSON.stringify(payload),contentType:'application/json'};
-  // Une seule requête par pression : HTTP 502 peut cacher un échec de
-  // lecture et ne doit jamais provoquer une deuxième analyse automatique.
+  // One request per logical reading. Only an explicit unreadable response
+  // may trigger a complementary view in the outer analysis; no blind retry.
   if(signal.aborted||id!==generation)
    throw new DOMException('Analyse annulée','AbortError');
   let response;
@@ -1409,7 +1436,7 @@
   const diagnostic=String(result?.error||'');
   const unreadable=status===422||
    /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération|JSON non reconnu/i.test(diagnostic);
-  if(unreadable)throw Error('Étiquette non lue · réessaie cette photo');
+  if(unreadable){const e=Error('Étiquette non lue · réessaie cette photo');e.unreadable=true;throw e;}
   if(provider==='openai'&&diagnostic.includes('OPENAI_API_KEY'))
    throw Error('OpenAI non configuré sur Cloudflare · utilise Gemini en attendant');
   if([401,403].includes(status)||[401,403].includes(providerStatus))
@@ -1615,6 +1642,8 @@
    const until=(task,deadline)=>latency?latency.until(task,deadline):
     task?Promise.race([task.promise,new Promise(resolve=>setTimeout(()=>resolve(null),Math.max(0,deadline-performance.now())))]):Promise.resolve(null);
    const opticalTask=track(job);
+   const normalView={kind:'original',task:track(detailTask)};
+   const enhancedView={kind:'amélioré',task:track(samePhotoEnhanced(sourcePhoto,localBarcode))};
    let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null,digitJob=null;
    const stillCurrent=()=>id===generation&&active&&!currentAbort.signal.aborted;
    function startPrinted(){
@@ -1654,22 +1683,37 @@
     if(stillCurrent()&&!opticalTask.done)startPrinted();
    },220);
    void opticalTask.promise.then(()=>clearTimeout(earlyTimer));
-   const detailDeadline=performance.now()+180;
-   const [encoded,firstDetail]=await Promise.all([
-    samePhotoTask(file),until(track(detailTask),detailDeadline)
-   ]);
-   if(id!==generation)return;
+   const detailDeadline=performance.now()+280;
+   const encoded=await samePhotoTask(file);
    const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
+   const firstDetail=await chooseVisualDetail(enhancedView,normalView,detailDeadline,until,safeDetail);
+   if(id!==generation||currentAbort.signal.aborted)throw new DOMException('Analyse annulée','AbortError');
    say(providerName+' analyse l’étiquette…');
    const receivedTask=requestGeminiWithRecovery(
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
-    safeDetail(firstDetail),targetField?[targetField]:resumeFields?.length?resumeFields:null,
+    safeDetail(firstDetail?.data),targetField?[targetField]:resumeFields?.length?resumeFields:null,
     catalogHints(oldResult,opticalReady),
     resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null);
    // Start only after the primary Gemini request has been issued. No await
    // on Advanced, no additional cloud call and no modified cloud JPEG.
    advancedJob=track(window.IUDigiAdvanced?.read?.(sourcePhoto,opticalReady)||null);
-   const received=await receivedTask;
+   let received,usedComplementaryRead=false,recheckView=null;
+   try{received=await receivedTask;}
+   catch(error){
+    // A 422 is not a network failure. Try one DIFFERENT visual view,
+    // with the original JPEG still present, without another user click.
+    if(!error?.unreadable||id!==generation||currentAbort.signal.aborted||performance.now()-start>10000)throw error;
+    const deadline=performance.now()+280;
+    const firstEnhanced=firstDetail?.kind==='amélioré';
+    recheckView=await chooseVisualDetail(firstEnhanced?normalView:enhancedView,
+     firstEnhanced?enhancedView:normalView,deadline,until,safeDetail,firstDetail?.data||null);
+    if(!recheckView||id!==generation||currentAbort.signal.aborted)throw error;
+    usedComplementaryRead=true;
+    say(providerName+' · seconde vue préparée…');
+    received=await requestGeminiWithRecovery(encoded,access,selectedModel,currentAbort.signal,id,targetField,selectedProvider,
+     recheckView.data,targetField?[targetField]:resumeFields?.length?resumeFields:null,
+     catalogHints(oldResult,opticalReady),resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null);
+   }
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
@@ -1772,7 +1816,12 @@
     if(id!==generation)return;
     targets=recoveryTargets(combined);
    }
-   if(resumeFields?.length)targets=[];
+   if(usedComplementaryRead&&targets.length){
+    // The first call returned no usable fields: a later result alone is
+    // not a second independent EAN verification. Keep that gate closed.
+    combined={...combined,checks:{...combined.checks,recoveryInterrupted:true,recoveryInterruptedTargets:[...targets]}};
+   }
+   if(resumeFields?.length||usedComplementaryRead)targets=[];
    if(targets.length){
     // The synthetic-trained OCR is an advisory observation only. Never fuse its mask into the primary reading.
     const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value,digitJob?.value,advancedJob?.value].filter(Boolean);
@@ -1786,25 +1835,24 @@
     // MEME photo. Ne pas perdre les valeurs fiables de la première.
     try{
      say(providerName+' · vérification de '+targets.length+' champ(s)…');
-     // Si un code-barres indépendant a localisé l'étiquette, la seconde
-     // vue exploite sa géométrie. Sinon, garder le détail habituel.
+     // Prefer a complementary view: if Gemini already saw the enhanced
+     // crop, provide unfiltered pixels. Otherwise prioritize the ready
+     // enhanced crop; never let the cached normal crop win a race.
      const opticalDetail=trustedBarcodeEvidence(localBarcode)&&localBarcode?.bounds?
       prepareLabelDetail(file,localBarcode).catch(()=>null):detailTask;
-     // CLAHE et redressement uniquement après un premier résultat
-     // incomplet, avec le recadrage historique toujours disponible.
-     const enhancedTask=((unresolvedEAN?window.IUGeminiParallel?.enhancedDetail(file,
-      trustedBarcodeEvidence(localBarcode)?localBarcode:null):null)||Promise.resolve(null))
-      .then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
-     const normalTask=track(opticalDetail),filteredTask=track(enhancedTask);
+     const guidedView={kind:'original',task:track(opticalDetail)};
+     const firstEnhanced=firstDetail?.kind==='amélioré';
      const detailEnd=performance.now()+220;
-     // Dès qu'un détail utile est prêt, commencer la relecture.
-     const pendingDetail=await Promise.race([normalTask.promise.then(v=>v||until(filteredTask,detailEnd)),
-      filteredTask.promise.then(v=>v||until(normalTask,detailEnd)),
-      new Promise(resolve=>setTimeout(()=>resolve(null),220))]);
-     if(id!==generation)return;
+     recheckView=await chooseVisualDetail(firstEnhanced?guidedView:enhancedView,
+      firstEnhanced?enhancedView:guidedView,detailEnd,until,safeDetail,firstDetail?.data||null);
+     // If the same picture is the only available detail, keep the useful
+     // crop and existing focused prompt rather than sending no detail.
+     if(!recheckView)recheckView=await chooseVisualDetail(firstEnhanced?guidedView:enhancedView,
+      normalView,detailEnd,until,safeDetail);
+     if(id!==generation||currentAbort.signal.aborted)throw new DOMException('Analyse annulée','AbortError');
      const focused=await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
-      safeDetail(pendingDetail),targets,
+      safeDetail(recheckView?.data),targets,
       catalogHints(combined,localBarcode),
       targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null);
      if(id!==generation)return;
@@ -1834,7 +1882,7 @@
       recoveryInterrupted:true,recoveryInterruptedTargets:[...targets]}};
     }
    }
-   let validated=combined;
+   let validated={...combined,visualFirst:firstDetail?.kind||'photo entière',visualRecheck:recheckView?.kind||null};
    if(advancedJob?.value)validated={...validated,digiAdvancedHint:advancedJob.value,
     digiAdvancedComparison:window.IUDigiCatalogLookup?.compareAdvanced?.(validated,advancedJob.value)};
    const finalDeadline=performance.now()+110;
@@ -1946,6 +1994,7 @@
   releaseLocalOcr();
   window.IULiteRTLab?.close?.();
   window.IUDigiAdvanced?.close?.();
+  if(!active)window.IUGeminiParallel?.closeDetail?.();
   if(cameraStream){
    for(const track of cameraStream.getTracks())track.stop();
    cameraStream=null;
@@ -1976,7 +2025,7 @@
  async function startCamera(){
   if(cameraStarting||active)return;
   // Préchauffer ZXing dans le Web Worker sans retarder la caméra.
-  try{window.IUGeminiParallel?.preloadBarcode?.();}catch(_){}
+  try{window.IUGeminiParallel?.preloadBarcode?.();window.IUGeminiParallel?.warmDetail?.();}catch(_){}
   try{window.IUDigiAdvanced?.warm?.();}catch(_){}
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
   // getUserMedia tant que la caméra fonctionne dans cette session.
