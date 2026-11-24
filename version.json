@@ -1,6 +1,6 @@
 {
-  "version": "42.69",
+  "version": "42.70",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Quadrillage DIGI continu sur toute la surface, au-dessus des sous-blocs, points nets, trame 24 px et opacité .82. Verre 5 px (10 auparavant), filaments, halos et OCR inchangés."
+  "notes": "Quadrillage DIGI derrière les sous-blocs opaques, vague diagonale de Bienvenue (18 s, pas 28 px, deux masques partagés), contraste conservé. Flou du verre réduit à 2 px. Filaments, halos et OCR inchangés."
 }

@@ -232,19 +232,19 @@ assert(glassStyle.includes('position:absolute!important;'));
 assert(glassStyle.includes('inset:5px 0 0!important;'));
 assert(glassStyle.includes('z-index:1!important;'));
 assert(css.slice(css.indexOf('/* v42.67')).includes('z-index:2!important;'));
-assert(glassStyle.includes('backdrop-filter:blur(5px)!important;'));
+assert(glassStyle.includes('backdrop-filter:blur(2px)!important;'));
 assert(glassStyle.includes('pointer-events:none!important;'));
 assert(glassStyle.includes('overflow:hidden!important;'));
 assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.69'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.69'));
+assert(markup.includes('gemini-lab.css?v=42.70'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.70'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
-assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(5px)!important;'));
+assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(2px)!important;'));
 
 {
  const dotStyle=css.slice(css.indexOf('/* v42.68'));
@@ -254,17 +254,26 @@ assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\
  assert(css.includes('rgba(92,121,147,.14) 0 .40px'));
  assert(css.includes('transparent 1px)!important;'));
  assert(dotStyle.includes('prefers-reduced-transparency:reduce'));
- console.log('OK : trame nette, intensité renforcée, verre 5 px');
+ console.log('OK : trame nette, intensité renforcée, verre 2 px');
 }
 
 {
- const full=css.slice(css.indexOf('/* v42.69'));
+ const full=css.slice(css.indexOf('/* v42.70'));
  const field=full.match(/#iuGeminiLabelPanel\.result\.iu-result-compact > \.iu-result-light-field \{([^}]+)\}/)[1];
- for(const value of ['position:absolute!important;','inset:0!important;','width:auto!important;','height:auto!important;','z-index:4!important;','mask:none!important;','-webkit-mask:none!important;','clip-path:none!important;','pointer-events:none!important;','background-size:24px 24px!important;','background-repeat:repeat!important;','opacity:.82!important;','filter:none!important;','backdrop-filter:none!important;'])assert(field.includes(value),value);
+ for(const value of ['position:absolute!important;','inset:0!important;','width:auto!important;','height:auto!important;','z-index:1!important;','mask:none!important;','-webkit-mask:none!important;','clip-path:none!important;','pointer-events:none!important;','background-size:28px 28px!important;','background-repeat:repeat!important;','opacity:.82!important;','filter:none!important;','backdrop-filter:none!important;'])assert(field.includes(value),value);
  assert(full.includes('background-image:none!important;'));
- assert(full.includes('> .iu-result-light-field > i,'));
+ assert(full.includes('> .iu-result-light-field > i {'));
+ assert(full.includes('animation:iuWelcomeDiagonalLines 18s linear infinite!important;'));
+ assert(full.includes('> :not(.iu-result-light-field) {\n z-index:3!important;'));
+ assert(full.includes('> i:first-child')&&full.includes('> i:last-child'));
+ assert(full.includes('@media(prefers-reduced-motion:reduce)'));
+ assert(markup.includes('<div class="iu-result-light-field iu-welcome-dot-wave" aria-hidden="true"><i></i><i></i></div>'));
+ const home=fs.readFileSync('style.css','utf8');
+ assert(home.includes('animation:iuWelcomeDiagonalLines 18s linear infinite;'));
+ assert(home.includes('@keyframes iuWelcomeDiagonalLines{'));
+ assert(home.includes('mask-position:118.794px 118.794px;'));
  assert(full.includes('rgba(92,121,147,.16)'));
  assert(full.includes('@media(forced-colors:active)'));
  assert(full.includes('display:none!important;'));
- console.log('OK : quadrillage plein panneau, au-dessus des contenus, sans masque ni interception tactile');
+ console.log('OK : quadrillage plein panneau derrière les contenus, même vague que Bienvenue');
 }

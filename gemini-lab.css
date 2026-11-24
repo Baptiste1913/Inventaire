@@ -5929,8 +5929,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;
  pointer-events:none!important;
  z-index:1!important;
- -webkit-backdrop-filter:blur(5px)!important;
- backdrop-filter:blur(5px)!important;
+ -webkit-backdrop-filter:blur(2px)!important;
+ backdrop-filter:blur(2px)!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
@@ -5988,9 +5988,9 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  }
 }
 
-/* v42.69 — trame continue, indépendante du verre et des cartes.
-   Le calque est au-dessus des sous-blocs opaques, sans intercepter
-   les gestes. Pas de masque diagonal ni de rangée isolée. */
+/* v42.70 — trame continue derrière les sous-blocs opaques.
+   La vague reprend exactement les deux masques et les keyframes
+   iuWelcomeDiagonalLines de style.css, sans nouveau moteur. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
  background-image:none!important;
 }
@@ -6003,7 +6003,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iu
  max-height:none!important;
  margin:0!important;
  padding:0!important;
- z-index:4!important;
+ z-index:1!important;
  overflow:hidden!important;
  border-radius:inherit!important;
  pointer-events:none!important;
@@ -6018,19 +6018,56 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iu
  transform:none!important;
  background-image:radial-gradient(circle,rgba(92,121,147,.16) 0 .42px,rgba(92,121,147,.11) .58px,rgba(92,121,147,.03) .88px,transparent 1.02px)!important;
  background-color:transparent!important;
- background-size:24px 24px!important;
+ background-size:28px 28px!important;
  background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
  background-repeat:repeat!important;
  opacity:.82!important;
 }
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i,
+/* Les contenus sont au-dessus de la trame. Leurs fonds opaques existants
+   cachent les points sans modifier le papier ni les boutons. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact > :not(.iu-result-light-field) {
+ z-index:3!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ pointer-events:none!important;
+ background-size:28px 28px!important;
+ background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
+ background-repeat:repeat!important;
+ opacity:.68!important;
+ animation:iuWelcomeDiagonalLines 18s linear infinite!important;
+}
+/* Même taille et diffusion radiale des deux vagues de Bienvenue ;
+   intensité adaptée à la trame plus contrastée du résultat DIGI. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i:first-child {
+ background-image:radial-gradient(circle,rgba(92,121,147,.22) 1.05px,rgba(92,121,147,.13) 2.45px,rgba(92,121,147,.026) 3.75px,transparent 4.65px)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i:last-child {
+ background-image:radial-gradient(circle,rgba(92,121,147,.22) 1.65px,rgba(92,121,147,.123) 3.50px,rgba(92,121,147,.026) 5.00px,transparent 6.05px)!important;
+}
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field::before,
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field::after {
  display:none!important;
 }
+@media(prefers-reduced-motion:reduce) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
+  display:block!important;
+ }
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
+  display:none!important;
+  animation:none!important;
+ }
+}
 @media(prefers-reduced-transparency:reduce) {
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
+  display:block!important;
   opacity:.45!important;
+ }
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
+  display:none!important;
+  animation:none!important;
  }
 }
 @media(forced-colors:active) {
