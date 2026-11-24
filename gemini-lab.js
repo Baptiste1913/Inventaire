@@ -255,7 +255,6 @@
  let analysisCameraClosed=false,restoreCameraAfterAnalysis=false;
  function setAnalysisCameraClosed(closed,{resume=true}={}){
   if(!cameraShell||!cameraStage)return;
-  const title=cameraIdle?.querySelector('span');
   if(closed){
    if(analysisCameraClosed)return;
    stopQualityMonitor();
@@ -268,7 +267,6 @@
    if(cameraStill){cameraStill.hidden=true;cameraStill.removeAttribute('src');}
    cameraStage.classList.remove('is-photo-frozen');
    if(frameState)frameState.hidden=true;
-   if(title)title.textContent='Analyse…';
    if(cameraIdle){
     cameraIdle.disabled=true;
     cameraIdle.setAttribute('aria-label','Analyse en cours');
@@ -280,7 +278,6 @@
   analysisCameraClosed=false;
   const wasLive=restoreCameraAfterAnalysis;
   restoreCameraAfterAnalysis=false;
-  if(title)title.textContent='';
   if(cameraIdle){
    cameraIdle.disabled=false;
    cameraIdle.setAttribute('aria-label','Activer la caméra, actuellement désactivée');

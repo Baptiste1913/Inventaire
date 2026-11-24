@@ -1,6 +1,6 @@
 {
-  "version": "42.80",
+  "version": "42.81",
   "published": "2026-11-24",
-  "assets": 80,
-  "notes": "Marge caméra/statut stabilisée, trois trajectoires prolongées par tangentes, filaments de fond affinés de 18 %, verre 1,25 px, ramifications aléatoires indépendantes renforcées sur les trois branches. Contours et reconnaissance préservés."
+  "assets": 81,
+  "notes": "Anneau de chargement circulaire dans le viseur, moteur Chrome du poids brut réutilisé (reflets et ramifications), actif uniquement pendant l’analyse. Caméra et reconnaissance inchangées."
 }

@@ -6098,3 +6098,23 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
  pointer-events:none!important;
 }
+
+/* v42.81 — anneau Chrome, même moteur que le poids brut. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > canvas#iuGeminiLoadingChrome.iu-gemini-loading-light {
+ display:none!important;position:static!important;flex:none!important;
+ width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important;
+ max-width:none!important;max-height:none!important;aspect-ratio:1!important;
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important;
+ box-shadow:none!important;filter:none!important;transform:none!important;pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell[data-state="analyzing"] .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > canvas#iuGeminiLoadingChrome.iu-gemini-loading-light {
+ display:block!important;
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell[data-state="analyzing"] .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > canvas#iuGeminiLoadingChrome.iu-gemini-loading-light {
+ border:1px solid CanvasText!important;border-radius:50%!important;
+ }
+}

@@ -1,21 +1,23 @@
-/* Inventaires U 42.80 — chrome : fibres fines, ramifications et raccords continus.
+/* Inventaires U 42.81 — chrome : anneau de chargement circulaire partagé.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome'),document.getElementById('iuGeminiLoadingChrome')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
  const isGross=overlay.id==='iuGeminiGrossChrome';
  const isOuter=overlay.id==='iuGeminiOuterChrome';
  const isBackdrop=overlay.id==='iuGeminiBackdropChrome';
- const isPanelChrome=isGross||isOuter||isBackdrop;
+ const isLoader=overlay.id==='iuGeminiLoadingChrome';
+ const loaderShell=isLoader?document.getElementById('iuGeminiCameraShell'):null;
+ const isPanelChrome=isGross||isOuter||isBackdrop||isLoader;
  const isGemini=isPanelChrome||overlay.id==='iuGeminiCameraShell';
  const contourBoost=0;
  const backdropWidthScale=.82;
- const guide=isBackdrop||isOuter?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
+ const guide=isBackdrop||isOuter||isLoader?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
- const canvas=isBackdrop||isOuter?overlay:guide?.querySelector('.iu-weight-light');
+ const canvas=isBackdrop||isOuter||isLoader?overlay:guide?.querySelector('.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
  const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
  if(!ctx)return;
@@ -32,6 +34,11 @@
  // les déplacements restent continus, y compris dans les quatre coins.
  function basePoint(u){
   if(isBackdrop&&openPoints)return openPoint(u);
+  if(isLoader){
+   const angle=wrap(u)*TWO_PI-Math.PI/2,r=Math.min(width,height)/2-6;
+   const nx=Math.cos(angle),ny=Math.sin(angle);
+   return {x:width/2+r*nx,y:height/2+r*ny,nx,ny};
+  }
   const inset=isOuter?1.8:isGemini?6:7;
   const left=inset,top=inset,right=width-inset,bottom=height-inset;
   const r=Math.max(2,Math.min(isOuter?19:isGross?12:isGemini?7:9,(right-left)/5,(bottom-top)/3));
@@ -480,7 +487,7 @@
  }
  function isActive(){
   return !document.hidden&&!overlay.hidden&&
-    (isPanelChrome?inViewport:overlay.dataset.state==='scanning')&&!reduceMotion?.matches&&
+    (isLoader?loaderShell?.dataset.state==='analyzing'&&inViewport:isPanelChrome?inViewport:overlay.dataset.state==='scanning')&&!reduceMotion?.matches&&
     guide.getClientRects().length>0;
  }
  function frame(now){
@@ -492,7 +499,7 @@
   if(lastTick){
    // Évite une téléportation du reflet après une longue frame OCR,
    // une suspension Safari ou une baisse de FPS.
-   elapsed+=Math.min(48,Math.max(0,now-lastTick))/1000;
+   elapsed+=Math.min(48,Math.max(0,now-lastTick))/1000*(isLoader?2:1);
   }
   lastTick=now;
   // Avoid two full-rate canvases while the camera is also scanning.
@@ -515,11 +522,12 @@
    if(isGemini&&!isBackdrop)resetWaves();
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
-   if(!document.hidden&&!overlay.hidden&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
+   if(!document.hidden&&!overlay.hidden&&(!isLoader||loaderShell?.dataset.state==='analyzing')&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
   }
  }
  const visibilityObserver=new MutationObserver(sync);
  visibilityObserver.observe(overlay,{attributes:true,attributeFilter:['hidden','data-state']});
+ if(loaderShell)visibilityObserver.observe(loaderShell,{attributes:true,attributeFilter:['hidden','data-state']});
  if(isPanelChrome){
   const section=document.getElementById('iuGeminiLab');
   if(section&&section!==overlay)visibilityObserver.observe(section,{attributes:true,attributeFilter:['hidden','class','data-scan-state','style']});

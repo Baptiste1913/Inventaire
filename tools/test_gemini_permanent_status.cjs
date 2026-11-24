@@ -30,7 +30,9 @@ assert(css.includes('--iu-alert-dot:#9caab3')&&css.includes('--iu-alert-dot:#34b
 const idle=html.match(/<button type="button" id="iuGeminiCameraIdle"[\s\S]*?<\/button>/)[0];
 assert(idle.includes('iu-gemini-camera-off-icon')&&idle.includes('fill="#fff"')&&idle.includes('aria-label="Activer la caméra, actuellement désactivée"'));
 assert(!idle.includes('>Caméra désactivée<'));
-assert(js.includes("if(title)title.textContent='Analyse…';")&&js.includes("if(title)title.textContent='';"));
+assert(idle.includes('id="iuGeminiLoadingChrome"')&&idle.includes('aria-hidden="true"'));
+assert(js.includes("cameraIdle.setAttribute('aria-label','Analyse en cours')")&&!js.includes("if(title)title.textContent='Analyse…';"));
+assert(css.includes('width:54px!important;height:54px!important')&&css.includes('#iuGeminiCameraShell[data-state="analyzing"] .iu-gemini-camera-stage > #iuGeminiCameraIdle.iu-gemini-camera-idle > canvas#iuGeminiLoadingChrome'));
 console.log('OK : cadre identique, halo partagé, icône blanche et analyse préservée.');
 
 assert(statusStyle.includes('margin:3px 0!important'));
