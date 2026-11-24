@@ -4831,11 +4831,10 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
  background-color:transparent!important;
  background-image:
-  radial-gradient(circle,rgba(92,121,147,.042) .40px,rgba(92,121,147,.026) .96px,rgba(92,121,147,.009) 1.55px,transparent 2.15px),
-  linear-gradient(122deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.12) 54%,rgba(255,255,255,.07) 100%)!important;
- background-size:28px 28px,100% 100%!important;
- background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
- background-repeat:repeat,no-repeat!important;
+  radial-gradient(circle,rgba(92,121,147,.042) .40px,rgba(92,121,147,.026) .96px,rgba(92,121,147,.009) 1.55px,transparent 2.15px)!important;
+ background-size:28px 28px!important;
+ background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
+ background-repeat:repeat!important;
  -webkit-backdrop-filter:blur(18px) saturate(105%)!important;
  backdrop-filter:blur(18px) saturate(105%)!important;
 }
@@ -5801,7 +5800,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  }
 }
 
-/* v42.64 — SVG frère du panneau, sans débordement interne ni filtre
+/* v42.65 — SVG frère du panneau, sans débordement interne ni filtre
    de composition dynamique Safari. Tracés et keyframes conservés. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > .iu-gemini-label-glow-field.iu-result-glow-field {
@@ -5816,8 +5815,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;
  z-index:0!important;
  pointer-events:none!important;
- /* Compense le voile blanc du panneau au-dessus du SVG. */
- opacity:.72!important;
+ /* Filaments nets, au-dessus du verre flou mais derrière les contenus. */
+ opacity:.94!important;
  filter:none!important;-webkit-filter:none!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
@@ -5911,6 +5910,52 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
   background-color:#fff!important;
+  background-image:none!important;
+ }
+}
+
+/* v42.65 — verre réellement transparent, sans voile blanc.
+   Le flou est sur une surface fixe, séparée des filaments animés.
+   Le panneau de contenu n'est ni flouté ni recomposé avec le SVG. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-clear-glass {
+ position:absolute!important;
+ inset:0!important;
+ width:auto!important;height:auto!important;
+ margin:0!important;padding:0!important;
+ border:0!important;border-radius:20px!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ overflow:hidden!important;
+ pointer-events:none!important;
+ z-index:0!important;
+ -webkit-backdrop-filter:blur(10px)!important;
+ backdrop-filter:blur(10px)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+ background-color:transparent!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+ box-shadow:0 23px 30px -18px rgba(83,105,121,.112)!important;
+}
+@media(prefers-reduced-transparency:reduce), (forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-clear-glass {
+  display:none!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+  background-color:#fff!important;
+  background-image:none!important;
+ }
+}
+@media(forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+  background-color:Canvas!important;
   background-image:none!important;
  }
 }

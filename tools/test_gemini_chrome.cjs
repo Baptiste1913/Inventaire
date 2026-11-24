@@ -140,8 +140,8 @@ const chromeHalos=css.slice(css.indexOf('/* Reflets diffus argent/acier'),css.in
 const palette=[...chromeHalos.matchAll(/rgba\((\d+),(\d+),(\d+),[^)]+\)/g)];
 assert(palette.length===12&&palette.every(m=>m[1]===m[2]&&m[2]===m[3]));
 assert(!chromeHalos.includes('iuHomeBackdrop'));
-const backdrop=css.slice(css.indexOf('/* v42.64'));
-assert(backdrop.includes('opacity:.72!important;'));
+const backdrop=css.slice(css.indexOf('/* v42.65'));
+assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-motion:reduce'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
 assert(backdrop.includes('pointer-events:none!important;'));
@@ -212,7 +212,7 @@ for(const group of groups){
  assert.equal((group[0].match(/vector-effect="non-scaling-stroke"/g)||[]).length,7);
  assert(group[0].includes('url(#iuDigiChromeShadow)')&&group[0].includes('url(#iuDigiChromePearl)'));
 }
-assert(css.includes('rgba(255,255,255,.07) 0%,rgba(255,255,255,.12) 54%'));
+assert(!css.includes('rgba(255,255,255,.07) 0%,rgba(255,255,255,.12) 54%'));
 assert(chromeHalos.includes('width:52%!important;height:46%!important;'));
 assert(chromeHalos.includes('filter:blur(29px)!important;'));
 assert(chromeHalos.includes('rgba(87,87,87,0.592)'));
@@ -221,4 +221,23 @@ assert(backdrop.includes('opacity:.43!important;'),'Quadrillage inchangé');
 assert(backdrop.includes('backdrop-filter:none!important;'),'Pas de filtre dynamique Safari');
 assert(fs.readFileSync('gemini-chrome-halos.js','utf8').includes('opacity:range(.72,1)'));
 console.log('OK : six fibres chromées par vague, voile allégé, halos plus petits et plus lumineux');
+}
+
+{
+const glassMarkup='<div class="iu-gemini-clear-glass" aria-hidden="true"></div>';
+assert(markup.includes(glassMarkup+'\n'+waves[0]));
+const glassStyle=css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1];
+assert(glassStyle.includes('background:transparent!important;'));
+assert(glassStyle.includes('position:absolute!important;'));
+assert(glassStyle.includes('inset:0!important;'));
+assert(glassStyle.includes('backdrop-filter:blur(10px)!important;'));
+assert(glassStyle.includes('pointer-events:none!important;'));
+assert(glassStyle.includes('overflow:hidden!important;'));
+assert(backdrop.includes('background-color:transparent!important;'));
+assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
+assert(backdrop.includes('opacity:.94!important;'));
+assert(backdrop.includes('prefers-reduced-transparency:reduce'));
+assert(markup.includes('gemini-lab.css?v=42.65'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.65'));
+console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }

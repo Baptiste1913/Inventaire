@@ -1,6 +1,6 @@
 {
-  "version": "42.64",
+  "version": "42.65",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Chrome DIGI : six fibres rapprochées et un reflet fin par vague, opacité .72, voile du panneau .07–.12, halos plus concentrés et plus lumineux (52 % × 46 %, flou 29 px). Quadrillage, trajectoires, contours et OCR inchangés. Pas de backdrop-filter dynamique sur Safari."
+  "notes": "Panneau DIGI sans voile blanc, verre transparent flou 10 px sur un calque fixe indépendant. Filaments chrome .94 contre .72, géométrie et mouvements inchangés. Trame, halos, textes, contours et OCR préservés."
 }
