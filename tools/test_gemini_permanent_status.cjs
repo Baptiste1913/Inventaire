@@ -24,7 +24,7 @@ for(const property of ['border','background','box-shadow']){
  const read=s=>s.match(new RegExp('(?:^|[;\\s])'+property+':([^;]+);'))[1].replace(/\\s+/g,'');
  assert.equal(read(statusStyle),read(cameraStyle),'Même '+property+' que le cadre caméra');
 }
-assert(statusStyle.includes('border-radius:20px!important'));
+assert(statusStyle.includes('border-radius:13px!important'));
 assert(css.includes('animation:iu-v3559-session-glow 2.25s ease-in-out infinite!important'));
 assert(css.includes('--iu-alert-dot:#9caab3')&&css.includes('--iu-alert-dot:#34bd8a')&&css.includes('--iu-alert-dot:#e45465')&&css.includes('--iu-alert-dot:#d9a960'));
 const idle=html.match(/<button type="button" id="iuGeminiCameraIdle"[\s\S]*?<\/button>/)[0];
@@ -32,3 +32,10 @@ assert(idle.includes('iu-gemini-camera-off-icon')&&idle.includes('fill="#fff"')&
 assert(!idle.includes('>Caméra désactivée<'));
 assert(js.includes("if(title)title.textContent='Analyse…';")&&js.includes("if(title)title.textContent='';"));
 console.log('OK : cadre identique, halo partagé, icône blanche et analyse préservée.');
+
+assert(statusStyle.includes('margin:3px 0!important'));
+assert(css.includes('> #iuGeminiLabelAlert + .iu-result-glow-shell.iu-gemini-label-shell {\n margin-top:1px!important;'));
+assert(css.includes('margin:3px 0 1px!important;'));
+assert(css.includes('width:32px!important;height:32px!important;flex:none!important;fill:#fff!important;'));
+assert(idle.includes('width="32" height="32"'));
+console.log('OK : coins 13 px, marges verticales équilibrées, icône 32 px.');

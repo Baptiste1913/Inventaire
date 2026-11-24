@@ -1,6 +1,6 @@
 {
-  "version": "42.78",
+  "version": "42.79",
   "published": "2026-11-24",
-  "assets": 78,
-  "notes": "Indicateur permanent assorti au cadre caméra, halo de la pastille Aucune session réutilisé dans toutes les couleurs, icône caméra désactivée blanche à la place du texte dans le viseur."
+  "assets": 79,
+  "notes": "Bloc de statut moins arrondi (13 px), espacement vertical harmonisé entre caméra et résultat, icône caméra blanche réduite à 32 px. Animations et reconnaissance inchangées."
 }
