@@ -2,7 +2,7 @@
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
@@ -509,7 +509,7 @@
   }
   lastTick=now;
   // Avoid two full-rate canvases while the camera is also scanning.
-  const interval=isLogo?48:isBackdrop||isOuter||(isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning')?32:16;
+  const interval=isLogo?15:isBackdrop||isOuter||(isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning')?32:16;
   if(now-lastPaint>=interval){
    lastPaint=now;
    paint(elapsed);

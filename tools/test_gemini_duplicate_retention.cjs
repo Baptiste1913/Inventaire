@@ -16,3 +16,5 @@ assert(js.includes('if(active)resetReading();\n  retainedSavedLabel=false;'));
 assert(html.includes('id="iuGeminiDuplicateAccept"><canvas class="iu-weight-light iu-gemini-duplicate-light"'));
 assert(css.includes('border-radius:20px!important;')&&css.includes('> canvas.iu-gemini-duplicate-light'));
 console.log('OK : doublon accepté conservé, refus sans perte, nouvelle capture possible, pas de double enregistrement.');
+
+assert(css.includes('font-size:18px!important;font-weight:900!important;line-height:1.25!important;\n margin:0 0 15px!important;'));

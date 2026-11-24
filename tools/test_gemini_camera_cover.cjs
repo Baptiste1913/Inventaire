@@ -20,6 +20,8 @@ for(const [sw,sh] of [[1080,1920],[1920,1080],[2160,3840],[3840,2160],[1440,1440
   const button=shutterGeometry(w,gw);
   assert(Math.abs(button.size+2*button.margin-(w-gw)/2)<1e-8);
   assert(button.size>0);
+  const gutter=(w-gw)/2;
+  assert(Math.abs(button.size-(gutter-2*Math.min(5,gutter*.12))*.85)<1e-8);
  }
 }
 assert.equal(cameraCoverGeometry(0,1920,308,184),null);

@@ -6298,3 +6298,60 @@ html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay .iu-gemini-dupli
  }
  html body #iuGeminiDuplicateConfirm .iu-gemini-duplicate-light {display:none!important;}
 }
+
+/* v42.87 — réemploi des trois lumières de Bienvenue (style.css),
+   mêmes keyframes, périodes, phases, arrêts et diffusion ; palette Chrome.
+   Géométrie adaptée à la surface plus compacte du résultat. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-welcome-glow {
+ position:absolute!important;display:block!important;inset:0!important;
+ width:100%!important;height:100%!important;overflow:hidden!important;
+ border-radius:20px!important;z-index:0!important;isolation:isolate!important;
+ pointer-events:none!important;contain:paint!important;
+ -webkit-mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,#000 0%,#000 46%,rgba(0,0,0,.85) 65%,rgba(0,0,0,.40) 84%,transparent 100%)!important;
+ mask-image:radial-gradient(ellipse 72% 67% at 50% 48%,#000 0%,#000 46%,rgba(0,0,0,.85) 65%,rgba(0,0,0,.40) 84%,transparent 100%)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-welcome-glow > .iu-ai-glow-orb {
+ position:absolute!important;display:block!important;z-index:0!important;
+ pointer-events:none!important;box-sizing:border-box!important;border:0!important;
+ border-radius:50%!important;filter:blur(25px)!important;-webkit-filter:blur(25px)!important;
+ transform-origin:center!important;background-repeat:no-repeat!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-welcome-glow > .iu-ai-glow-steel {
+ left:2%!important;top:-12%!important;width:70%!important;height:88%!important;
+ background:radial-gradient(ellipse at 47% 49%,rgba(113,113,113,.68) 0%,rgba(155,155,155,.34) 33%,rgba(155,155,155,.105) 63%,transparent 91%)!important;
+ animation:iuHomeBackdropRed 10s ease-in-out -2s infinite!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-welcome-glow > .iu-ai-glow-silver {
+ left:31%!important;top:15%!important;width:72%!important;height:92%!important;
+ background:radial-gradient(ellipse at center,rgba(255,255,255,.66) 0%,rgba(226,226,226,.33) 37%,rgba(226,226,226,.10) 65%,transparent 94%)!important;
+ animation:iuHomeBackdropBlue 13s ease-in-out -6s infinite!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-welcome-glow > .iu-ai-glow-dark {
+ right:1%!important;top:33%!important;width:70%!important;height:96%!important;
+ background:radial-gradient(ellipse at 54% 51%,rgba(74,74,74,.65) 0%,rgba(130,130,130,.34) 37%,rgba(130,130,130,.105) 65%,transparent 92%)!important;
+ animation:iuHomeBackdropGreen 17s ease-in-out -11s infinite!important;
+}
+@media(max-width:420px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone .iu-gemini-welcome-glow > .iu-ai-glow-steel{left:-9%!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone .iu-gemini-welcome-glow > .iu-ai-glow-dark{right:-9%!important;}
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-welcome-glow[data-paused="true"] > .iu-ai-glow-orb{animation-play-state:paused!important;}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-welcome-glow > .iu-ai-glow-orb{animation:none!important;opacity:.5!important;}
+}
+@media(prefers-reduced-transparency:reduce),(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-welcome-glow{display:none!important;}
+}
+html body #iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay
+ .iu-gemini-duplicate-confirm > p#iuGeminiDuplicateTitle{
+ font-size:18px!important;font-weight:900!important;line-height:1.25!important;
+ margin:0 0 15px!important;
+}

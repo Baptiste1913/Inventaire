@@ -1,6 +1,6 @@
 {
-  "version": "42.86",
+  "version": "42.87",
   "published": "2026-11-24",
-  "assets": 86,
-  "notes": "Logo AI de 12 px à épaisseur inchangée, conservation de l’étiquette après validation du doublon sans réenregistrement possible, confirmation harmonisée avec la carte AI et contour Chrome du bouton Valider."
+  "assets": 87,
+  "notes": "Titre doublon 18 px et gras, marge 15 px. Déclencheur réduit de 15 % à centre fixe. Remplacement des filaments et anciens halos de résultat par les trois lumières de Bienvenue en chrome monochrome, mêmes cycles 10/13/17 s. Logo jusqu’à 60 FPS à vitesse inchangée."
 }

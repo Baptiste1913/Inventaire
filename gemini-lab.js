@@ -173,8 +173,9 @@
  }
  function shutterGeometry(stageWidth,guideWidth){
   const gutter=Math.max(0,(stageWidth-guideWidth)/2);
-  const margin=Math.min(5,gutter*.12);
-  return {size:Math.max(0,gutter-2*margin),margin};
+  const baseMargin=Math.min(5,gutter*.12);
+  const size=Math.max(0,gutter-2*baseMargin)*.85;
+  return {size,margin:(gutter-size)/2};
  }
  function syncExactCameraGuide(){
   if(!cameraStage||!exactGuide||!output)return;
