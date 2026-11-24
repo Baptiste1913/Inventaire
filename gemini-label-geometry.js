@@ -11,7 +11,7 @@
  'use strict';
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
  // Calibrated against the visible real DIGI labels, 24 Nov 2026.
- const aspect=1.24,guideScale=.85;
+ const aspect=1.24,guideScale=.90;
  const zones=Object.freeze([
   ['store',.49,.035,.45,.15],['product',.11,.265,.78,.145],
   ['rate',.065,.535,.275,.145],['weight',.395,.535,.245,.145],

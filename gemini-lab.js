@@ -172,9 +172,9 @@
    }
   }
   if(!guideSnapshot||!guideSize)return;
-  // Repère agrandi de 82 à 85 % ; ratio légèrement resserré (1.24).
+  // Repère agrandi de 85 à 90 % ; ratio physique inchangé (1.24).
   // Ce calcul ne modifie pas la capture photo ni sa résolution.
-  const scale=(labelLayout?.guideScale||.85)*Math.min((stage.width-8)/guideSize.width,
+  const scale=(labelLayout?.guideScale||.90)*Math.min((stage.width-8)/guideSize.width,
    (stage.height-8)/guideSize.height);
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';

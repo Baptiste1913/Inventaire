@@ -5691,4 +5691,18 @@ html body #iuGeminiCatalogConfirm .iu-gemini-duplicate-confirm > small#iuGeminiC
 
 /* v42.53 — true paper proportions, printed digits independent of bars. */
 #iuGeminiExactGuide .iu-gemini-outline-ean{border-radius:2px!important;}
-#iuGeminiCameraShell[data-state="scanning"] #iuGeminiExactGuide[data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198,.95)!important;}
+/* v42.55 — le canvas chromé est le seul contour extérieur.
+   Supprimer le bord CSS plutôt que le rendre transparent : aucun décalage
+   du rayon ni déplacement du contenu par un pixel de bordure. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell #iuGeminiExactGuide > .iu-gemini-outline-label {
+ border:0!important;
+ outline:0!important;
+ box-shadow:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell #iuGeminiExactGuide > .iu-gemini-outline-label::before,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell #iuGeminiExactGuide > .iu-gemini-outline-label::after {
+ content:none!important;
+}

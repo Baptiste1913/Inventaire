@@ -1,6 +1,6 @@
 {
-  "version": "42.54",
+  "version": "42.55",
   "published": "2026-11-24",
   "assets": 73,
-  "notes": "Viseur DIGI : échelle 85 %, ratio 1,24, libellé remonté, rangées alignées, contour unique code-barres et EAN. Zones OCR et moteur Gemini 3.5 inchangés. Aucun nouveau redéploiement Cloudflare après v42.53."
+  "notes": "Viseur DIGI à 90 %, contour fixe extérieur supprimé, animation chromée monochrome avec reflets gris clair, moyens, anthracite et noir doux, filaments organiques effilés. Repères internes et reconnaissance inchangés. Aucun redéploiement Cloudflare."
 }

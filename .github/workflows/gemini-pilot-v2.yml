@@ -40,6 +40,8 @@ on:
       - 'tools/test_gemini_label_detail.cjs'
       - 'tools/test_gemini_first_detail.cjs'
       - 'tools/test_gemini_calibrated.cjs'
+      - 'tools/test_gemini_chrome.cjs'
+      - 'weigh-light.js'
       - 'gemini-frame-quality.js'
       - 'tools/test_gemini_frame_quality.cjs'
       - 'tools/test_gemini_capture_selection.cjs'
@@ -129,6 +131,7 @@ jobs:
           node tools/test_gemini_label_detail.cjs
           node tools/test_gemini_first_detail.cjs
           node tools/test_gemini_calibrated.cjs
+          node tools/test_gemini_chrome.cjs
       - name: Vérifier parallélisme du scanner et secours Safari
         run: |
           node tools/test_gemini_parallel.cjs

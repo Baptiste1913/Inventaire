@@ -23,8 +23,9 @@
  // Contour arrondi à paramétrisation par longueur d'arc réelle :
  // les déplacements restent continus, y compris dans les quatre coins.
  function basePoint(u){
-  const left=7,top=7,right=width-7,bottom=height-7;
-  const r=Math.max(2,Math.min(9,(right-left)/5,(bottom-top)/3));
+  const inset=isGemini?6:7;
+  const left=inset,top=inset,right=width-inset,bottom=height-inset;
+  const r=Math.max(2,Math.min(isGemini?7:9,(right-left)/5,(bottom-top)/3));
   const horizontal=Math.max(1,right-left-2*r);
   const vertical=Math.max(1,bottom-top-2*r);
   const arc=Math.PI*r/2;
@@ -126,7 +127,7 @@
  // effilé naturellement aux deux extrémités, sans ligne segmentée.
  function ribbonGeometry(t,config){
   const center=wrap(config.start+config.direction*t/config.seconds);
-  const samples=192;
+  const samples=config.samples||192;
   const positions=[];
   const epsilon=1/(COUNT*2);
   for(let i=0;i<=samples;i++){
@@ -140,11 +141,14 @@
    tx/=magnitude;ty/=magnitude;
    // La largeur évolue progressivement : aucune césure lumineuse.
    const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*s)),1.65);
-   positions.push({x:p.x,y:p.y,nx:-ty,ny:tx,envelope});
+   // Detached fibres peel away gently and return, with no discontinuity.
+   const drift=(config.drift||0)*Math.pow(Math.sin(Math.PI*s),2)*
+    (.68+.32*Math.sin(TWO_PI*s*1.4+t*.7+(config.start||0)*TWO_PI));
+   positions.push({x:p.x-ty*drift,y:p.y+tx*drift,nx:-ty,ny:tx,envelope});
   }
   return positions;
  }
- function drawRibbon(points,widthPx,color,opacity,blur){
+ function drawRibbon(points,widthPx,color,opacity,blur,blend='screen'){
   const shape=new Path2D();
   for(let i=0;i<points.length;i++){
    const p=points[i];
@@ -158,7 +162,7 @@
   }
   shape.closePath();
   ctx.save();
-  ctx.globalCompositeOperation='screen';
+  ctx.globalCompositeOperation=blend;
   ctx.globalAlpha=opacity;
   ctx.fillStyle=color;
   ctx.shadowColor=color;
@@ -177,9 +181,42 @@
   drawRibbon(ribbon,.86,config.core,
     config.opacity*(isGemini?.95:.81),.55);
  }
+ // Chrome is confined to the Gemini viewfinder. Dark reflections require
+ // source-over, not screen (which would make black disappear).
+ const chromeReflections=[
+  {lane:0,start:.07,direction:1,seconds:10.2,span:.26,tint:'#a7a7a7',core:'#eeeeee',opacity:.90},
+  {lane:1,start:.62,direction:-1,seconds:12.3,span:.23,tint:'#555555',core:'#292929',opacity:.72,dark:true},
+  {lane:2,start:.34,direction:1,seconds:17.1,span:.14,tint:'#888888',core:'#bcbcbc',opacity:.82},
+  {lane:3,start:.11,direction:-1,seconds:13.8,span:.17,tint:'#bdbdbd',core:'#fafafa',opacity:.92},
+  {lane:5,start:.48,direction:1,seconds:15.4,span:.18,tint:'#444444',core:'#1b1b1b',opacity:.56,dark:true},
+  {lane:6,start:.79,direction:-1,seconds:18.6,span:.16,tint:'#767676',core:'#d8d8d8',opacity:.81}
+ ];
+ const looseFibres=[
+  {lane:1,start:.12,direction:1,seconds:19.7,span:.085,drift:3.4,core:'#e2e2e2',opacity:.57,samples:72},
+  {lane:3,start:.42,direction:-1,seconds:24.3,span:.11,drift:-3.6,core:'#454545',opacity:.44,samples:72},
+  {lane:5,start:.73,direction:1,seconds:21.8,span:.065,drift:4.2,core:'#9b9b9b',opacity:.52,samples:72},
+  {lane:7,start:.93,direction:-1,seconds:27.1,span:.09,drift:-2.8,core:'#242424',opacity:.37,samples:72}
+ ];
+ function paintChrome(t){
+  // A single animated contour, made of thin overlapping metal fibres;
+  // the gentle breathing keeps the full perimeter legible on light/dark paper.
+  baseFilament(0,.35+.045*Math.sin(t*.9),.90,'#303030');
+  baseFilament(1,.62+.065*Math.sin(t*.73+1.4),.68,'#dedede');
+  baseFilament(3,.34+.04*Math.sin(t*.61+2),.48,'#898989');
+  for(const config of chromeReflections){
+   const ribbon=ribbonGeometry(t,config);
+   drawRibbon(ribbon,1.9,config.tint,config.opacity*.44,1.5,'source-over');
+   drawRibbon(ribbon,.85,config.core,config.opacity,.35,'source-over');
+  }
+  for(const config of looseFibres){
+   const pulse=.38+.62*Math.pow((1+Math.sin(t*.76+config.start*TWO_PI))/2,1.7);
+   drawRibbon(ribbonGeometry(t,config),.56,config.core,config.opacity*pulse,.55,'source-over');
+  }
+ }
  function paint(t){
   if(!width||!height)return;
   ctx.clearRect(0,0,width,height);
+  if(isGemini){paintChrome(t);return;}
   // Deux fibres anthracite sous la nacre : contraste subtil lorsque
   // l'étiquette est claire. Tracés animés inchangés, aucun bord statique.
   baseFilament(0,.22,.92,'rgba(12,16,20,.85)');
@@ -194,24 +231,6 @@
   baseFilament(6,.09,.20,'#edf2f4');
   baseFilament(7,.10,.23,'#eef4f6');
   baseFilament(8,.08,.19,'#edf2f4');
-  // Couleurs STRICTEMENT identiques au contour du bloc de pesée
-  // Gemini (gemini-lab.css : #ed4d55 / #f9c017 / #0cb768 / #3287fe).
-  // Seule leur visibilité augmente : la largeur reste celle de v41.87.
-  if(isGemini){
-   illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.25,
-     tint:'#ed4d55',core:'#ffb4b8',opacity:1});
-   illuminate(t,{lane:1,start:.62,direction:-1,seconds:12.3,span:.20,
-     tint:'#f9c017',core:'#ffe39a',opacity:1});
-   illuminate(t,{lane:2,start:.34,direction:1,seconds:17.1,span:.09,
-     tint:'#0cb768',core:'#a3efc8',opacity:1});
-   illuminate(t,{lane:2,start:.11,direction:-1,seconds:13.8,span:.13,
-     tint:'#3287fe',core:'#b8dcff',opacity:1});
-   illuminate(t,{lane:5,start:.48,direction:1,seconds:15.4,span:.16,
-     tint:'#3287fe',core:'#d2e5ff',opacity:.92});
-   illuminate(t,{lane:6,start:.79,direction:-1,seconds:18.6,span:.12,
-     tint:'#0cb768',core:'#c9ffe3',opacity:.86});
-   return;
-  }
   // Reflets bleu, émeraude et rubis légèrement renforcés.
   illuminate(t,{lane:0,start:.07,direction:1,seconds:10.2,span:.25,
     tint:'#79c7ff',core:'#f6fbff',opacity:.94});
