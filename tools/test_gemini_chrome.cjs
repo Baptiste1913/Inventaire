@@ -239,8 +239,8 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.84'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.84'));
+assert(markup.includes('gemini-lab.css?v=42.85'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.85'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
@@ -383,7 +383,7 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  class Path{moveTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));}lineTo(x,y){this.moveTo(x,y);}closePath(){}}
  const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){paints.push(this.strokeStyle);},fill(){paints.push(this.fillStyle);}};
  const guide={getClientRects:()=>[{}]};
- const canvas={id:'iuGeminiAIChrome',parentElement:guide,getContext:()=>ctx,getBoundingClientRect:()=>({width:30,height:30})};
+ const canvas={id:'iuGeminiAIChrome',parentElement:guide,getContext:()=>ctx,getBoundingClientRect:()=>({width:26,height:26})};
  const doc={hidden:false,getElementById:k=>k===canvas.id?canvas:null,addEventListener(){}};
  let visible;const win={devicePixelRatio:3,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.set(++req,fn);return req;},cancelAnimationFrame:id=>frames.delete(id),IntersectionObserver:class{constructor(fn){visible=fn;}observe(){}}};
  class Observer{observe(){}}
@@ -392,8 +392,8 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  assert.equal(frames.size,1);
  const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100);
  assert.deepEqual(paints.slice(0,15),gross.paints.slice(0,15).map(p=>p.color));
- for(let i=0;i<=128;i++){const p=debug.basePoint(i/128);assert(Math.abs(Math.hypot(p.x-15,p.y-15)-10)<1e-8);}
+ for(let i=0;i<=128;i++){const p=debug.basePoint(i/128);assert(Math.abs(Math.hypot(p.x-13,p.y-13)-8)<1e-8);}
  visible([{isIntersecting:false}]);assert.equal(frames.size,0);
  visible([{isIntersecting:true}]);assert.equal(frames.size,1);
- console.log('OK : logo AI circulaire 20 px, même palette Chrome, suspension hors écran.');
+ console.log('OK : logo AI circulaire 16 px, même palette Chrome, suspension hors écran.');
 }

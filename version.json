@@ -1,6 +1,6 @@
 {
-  "version": "42.84",
+  "version": "42.85",
   "published": "2026-11-24",
-  "assets": 84,
-  "notes": "Nouvelle pesée AI : logo circulaire Chrome miniature animé, titre et sous-titre renommés, commandes de correction dans un panneau autonome sous le résultat, même surface que le statut. Reconnaissance et caméra inchangées."
+  "assets": 85,
+  "notes": "Pastille AI ramenée à 32 px, anneau de 16 px. Sélecteur de correction assorti au panier, boutons Relire et Corriger assortis à Nouvelle pesée, hauteur compacte 40 px. Reconnaissance inchangée."
 }

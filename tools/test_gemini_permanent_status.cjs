@@ -62,3 +62,20 @@ for(const property of ['border','border-radius','background','box-shadow']){
 assert(repairStyle.includes('margin:4px 0 3px!important'));
 assert(css.includes('> #iuGeminiRepair.iu-gemini-repair[hidden] {\n display:none!important;'));
 console.log('OK : identité AI et commandes de correction sous le résultat, surface et marges harmonisées.');
+
+assert(section.includes('class="iu-gemini-ai-logo" width="26" height="26"'));
+assert(css.includes('width:32px!important;height:32px!important;min-height:32px!important'));
+assert(section.includes('<div class="iu-gemini-repair-select-wrap"><select id="iuGeminiRepairField"'));
+const repairRules=css.slice(css.indexOf('/* v42.85'));
+const basketStyle=css.match(/\.iu-gemini-basket-stack > \.iu-basket-select-wrap\.iu-gemini-select-wrap\s*\{([^}]+)\}/)[1];
+const nextStyle=css.match(/> \.iu-gemini-gross-row > button#iuGeminiNext\.new-weigh-btn\.iu-gemini-confirm-next\s*\{([^}]+)\}/)[1];
+const selectStyle=repairRules.match(/> \.iu-gemini-repair-select-wrap\s*\{([^}]+)\}/)[1];
+const buttonsStyle=repairRules.match(/> :is\(button#iuGeminiRepairRead,button#iuGeminiRepairEdit\)\s*\{([^}]+)\}/)[1];
+const prop=(s,k)=>s.match(new RegExp('(?:^|[;\\s])'+k+':([^;]+);'))[1].replace(/\\s+/g,'');
+for(const k of ['border','border-radius','background-color','background-image','box-shadow','transition']){
+ assert.equal(prop(selectStyle,k),prop(basketStyle,k),k+' panier');
+ assert.equal(prop(buttonsStyle,k),prop(nextStyle,k),k+' Nouvelle pesée');
+}
+assert.equal(prop(selectStyle,'height'),prop(buttonsStyle,'height'));
+assert(repairRules.includes('appearance:none!important;-webkit-appearance:none!important'));
+console.log('OK : pastille 32 px, logo réduit, surfaces exactes et sélection native.');

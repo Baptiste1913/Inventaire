@@ -6166,18 +6166,18 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 
 /* v42.84 — logo AI circulaire et panneau de correction autonome. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
- width:36px!important;height:36px!important;min-height:36px!important;
+ width:32px!important;height:32px!important;min-height:32px!important;
  padding:2px!important;gap:0!important;border-radius:50%!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge > canvas.iu-gemini-ai-logo {
- display:block!important;position:static!important;flex:0 0 30px!important;
- width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
- max-width:30px!important;max-height:30px!important;margin:0!important;padding:0!important;
+ display:block!important;position:static!important;flex:0 0 26px!important;
+ width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;
+ max-width:26px!important;max-height:26px!important;margin:0!important;padding:0!important;
  border:0!important;background:transparent!important;box-shadow:none!important;transform:none!important;
  pointer-events:none!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading {
- padding-right:40px!important;
+ padding-right:36px!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair {
  order:0!important;display:flex!important;align-items:center!important;flex-wrap:wrap!important;
@@ -6195,4 +6195,73 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #
 @media(forced-colors:active){
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge > canvas.iu-gemini-ai-logo {border:1px solid CanvasText!important;border-radius:50%!important;}
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair {background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;}
+}
+
+/* v42.85 — commandes de correction : surfaces du panier et de Nouvelle pesée,
+   hauteur compacte adaptée à cette rangée, sélection native conservée. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap {
+ position:relative!important;display:flex!important;align-items:center!important;
+ box-sizing:border-box!important;flex:1 1 88px!important;min-width:0!important;
+ height:40px!important;min-height:40px!important;margin:0!important;padding:0!important;overflow:hidden!important;
+ border:1px solid rgba(214,224,231,.95)!important;
+ border-radius:14px!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important;
+ box-shadow:-2px -2px 5px rgba(255,255,255,.88),
+  2px 3px 7px rgba(146,166,179,.16),
+  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ transition:border-color .28s ease,box-shadow .28s ease!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap:focus-within {
+ border-color:#87949d!important;
+ box-shadow:0 0 0 3px rgba(101,115,125,.10),
+  inset 1px 1px 3px rgba(121,140,152,.08)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap::after {
+ content:""!important;position:absolute!important;top:50%!important;right:12px!important;
+ width:8px!important;height:8px!important;border-right:1.8px solid #657986!important;
+ border-bottom:1.8px solid #657986!important;transform:translateY(-68%) rotate(45deg)!important;pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap > select#iuGeminiRepairField {
+ display:block!important;position:relative!important;box-sizing:border-box!important;
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ margin:0!important;padding:0 27px 0 10px!important;appearance:none!important;-webkit-appearance:none!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ font-family:inherit!important;font-size:13px!important;line-height:1.12!important;font-weight:750!important;color:#303d46!important;
+ text-overflow:ellipsis!important;white-space:nowrap!important;cursor:pointer!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > :is(button#iuGeminiRepairRead,button#iuGeminiRepairEdit) {
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;flex:0 0 auto!important;height:40px!important;min-height:40px!important;
+ margin:0!important;padding:4px 10px!important;
+ font-family:inherit!important;font-size:12px!important;font-weight:780!important;line-height:1.14!important;
+ border:1px solid rgba(214,224,231,.95)!important;
+ border-radius:14px!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important;
+ box-shadow:-2px -2px 5px rgba(255,255,255,.88),
+  2px 3px 7px rgba(146,166,179,.16),
+  inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ transition:border-color .28s ease,box-shadow .28s ease,transform .17s ease!important;
+ color:#303d46!important;transform:none!important;touch-action:manipulation;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > :is(button#iuGeminiRepairRead,button#iuGeminiRepairEdit):active:not(:disabled) {
+ border-color:#87949d!important;
+ background-color:#f5f8fa!important;
+ background-image:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e9eff3 100%)!important;
+ box-shadow:0 0 0 3px rgba(101,115,125,.10),
+  inset 1px 1px 3px rgba(121,140,152,.08)!important;
+ transform:scale(.97)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > :is(button#iuGeminiRepairRead,button#iuGeminiRepairEdit):focus-visible {
+ outline:2px solid #87949d!important;outline-offset:2px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > :is(button#iuGeminiRepairRead,button#iuGeminiRepairEdit):disabled {opacity:.56!important;cursor:not-allowed!important;}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > :is(.iu-gemini-repair-select-wrap,button#iuGeminiRepairRead,button#iuGeminiRepairEdit){transition:none!important;}
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > :is(.iu-gemini-repair-select-wrap,button#iuGeminiRepairRead,button#iuGeminiRepairEdit){background:ButtonFace!important;color:ButtonText!important;border:1px solid ButtonText!important;box-shadow:none!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap > select#iuGeminiRepairField{color:ButtonText!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair > .iu-gemini-repair-select-wrap::after{border-color:ButtonText!important;}
 }
