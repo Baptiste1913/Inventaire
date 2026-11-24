@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const js=fs.readFileSync('gemini-lab.js','utf8');
+const take=(a,b)=>js.slice(js.indexOf(a),js.indexOf(b,js.indexOf(a)));
+const retention=take(' function retainSavedWeigh(saved){',' duplicateCancel?.addEventListener');
+const actions=take(' function saveAndRetainCurrentWeigh(){',' cameraIdle?.addEventListener');
+const hooks={},label={weightGrams:1058},ui={text:'CAROTTE 0,504 kg 1,00€'};
+let saves=0,clears=0,focuses=0;
+const state={retainedSavedLabel:false,generation:1,proposal:{},file:{},latestLabelFields:label,lastRawResult:{},lastReadProblem:null,lastAnalysisError:null,lastSaveError:null,localBarcode:null,barcodeJob:null,repairFocus:null,manualCorrectedFields:[],primaryBarcodePhoto:null,alternatePhotoTask:null,cachedEncoding:null,cachedDetail:null,cachedEnhanced:null,cachedFocused:new Map(),cachedGuided:null,attempts:new Set(),photo:{value:'photo'},repairPanel:{hidden:false},repairManual:{hidden:false},duplicateDialogOpen:false,catalogDialogOpen:false,active:false,frameCaptureBusy:false,cameraStream:{},cameraMode:'manual',nextWeigh:{addEventListener:(k,f)=>hooks.next=f},capture:{focus(){focuses++;}},validationState(){return state.proposal;},needsBasketChange(){return false;},duplicateForCurrent(){return false;},saveVerifiedProposal(){saves++;return {ok:true,duplicate:false};},updateButton(){},clearPreview(){},setLabelAlert(){},say(){},resetReading(){clears++;ui.text='';}};
+new Function('state','with(state){'+retention+actions+'}')(state);
+hooks.next();assert.equal(saves,1);assert.equal(state.retainedSavedLabel,'Pesée enregistrée');assert.equal(state.latestLabelFields,label);assert.equal(state.proposal,null);assert.equal(state.file,null);assert.equal(clears,0);assert.equal(ui.text,'CAROTTE 0,504 kg 1,00€');
+hooks.next();assert.equal(saves,1);assert.equal(clears,0);assert.equal(focuses,1);
+assert(js.includes("function cancelDuplicateConfirm(){\n  if(!duplicateDialogOpen)return;\n  closeDuplicateConfirm();"));
+assert(take(' function cancelDuplicateConfirm(){',' function retainSavedWeigh(saved){').includes('resetReading();'));
+assert(take(' function setPhoto(chosen,',' replaceKeep?.addEventListener').includes('showBlankLabel();'));
+console.log('OK : bouton Enregistrer, instantané inchangé, deuxième pression sans effacement ni double sauvegarde.');

@@ -496,7 +496,7 @@
  }
  function refreshLabelAlert(){
   if(active){setLabelAlert('working','Analyse…');return;}
-  if(retainedSavedLabel){setLabelAlert('success','Doublon confirmé');return;}
+  if(retainedSavedLabel){setLabelAlert('success',retainedSavedLabel);return;}
   // Si un résultat a déjà été lu pour CETTE photo, un panier plus
   // lourd que le brut est une erreur métier certaine, pas une panne IA.
   // Cela évite de masquer la tare lors d'une relecture réseau échouée.
@@ -1017,7 +1017,7 @@
  if(toggle)toggle.addEventListener('click',()=>{
   const opening=panel.hidden;
   panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
-  if(!opening)clear();
+  if(!opening){if(retainedSavedLabel)stopCamera();else clear();}
  });
  function decodePhoto(source){
   return new Promise((resolve,reject)=>{
@@ -2300,8 +2300,8 @@
  }
  // Libérer la photo et la proposition enregistrées, sans effacer le rendu.
  // La prochaine capture ou import remplace cet instantané normalement.
- function retainConfirmedDuplicate(){
-  retainedSavedLabel=true;
+ function retainSavedWeigh(saved){
+  retainedSavedLabel=saved.duplicate?'Doublon confirmé':'Pesée enregistrée';
   generation++;
   proposal=null;file=null;
   lastRawResult=null;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
@@ -2318,7 +2318,7 @@
   closeDuplicateConfirm();
   const saved=saveVerifiedProposal({confirmDuplicate:true});
   if(!saved?.ok){announceSaveError(saved);validationState();return;}
-  retainConfirmedDuplicate();
+  retainSavedWeigh(saved);
   if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
   setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
   say(saved.duplicate?'Doublon validé · prêt pour la suite.':'Pesée enregistrée · prêt pour la suite.');
@@ -2337,8 +2337,8 @@
   }
  });
  // Les deux commandes utilisent la même transaction synchrone.
- // N'effacer le résultat qu'après confirmation de l'enregistrement.
- function saveAndClearCurrentWeigh(){
+ // Conserver l'instantané affiché après l'enregistrement, sans proposition à resauver.
+ function saveAndRetainCurrentWeigh(){
   if(duplicateForCurrent()){openDuplicateConfirm();return null;}
   const saved=saveVerifiedProposal();
   if(!saved?.ok){
@@ -2346,7 +2346,7 @@
    else announceSaveError(saved);
    return null;
   }
-  resetReading();
+  retainSavedWeigh(saved);
   return saved;
  }
  nextWeigh?.addEventListener('click',()=>{
@@ -2366,13 +2366,13 @@
     else setLabelAlert('warning','Configure la clé Gemini');
     return;
    }
-   resetReading();
+   if(!retainedSavedLabel)resetReading();
    if(!cameraStream)void startCamera();
-   else if(cameraMode==='auto')armAutoScanner(false);
+   else if(cameraMode==='auto')armAutoScanner(Boolean(retainedSavedLabel));
    else capture?.focus();
    return;
   }
-  const saved=saveAndClearCurrentWeigh();
+  const saved=saveAndRetainCurrentWeigh();
   if(!saved)return;
   if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
   setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
@@ -2893,12 +2893,12 @@
    say('Analyse annulée · reprends une photo.');
    return;
   }
-  // Comme Enregistrer : valider et vider la pesée précédente AVANT
-  // de capturer la suivante. Un échec photo ne perd plus cette pesée.
+  // Comme Enregistrer : valider la pesée précédente AVANT la capture.
+  // Son étiquette reste affichée jusqu'à la réussite de la nouvelle photo.
   // Un doublon exige toujours sa confirmation explicite.
   if(hasSavableProposal()){
    if(duplicateForCurrent()){openDuplicateConfirm();return;}
-   const saved=saveAndClearCurrentWeigh();
+   const saved=saveAndRetainCurrentWeigh();
    if(!saved)return;
    setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
    say('Pesée enregistrée · photo suivante.');
@@ -2949,8 +2949,8 @@
       cameraShell.dataset.state!=='scanning')return;
    const nextPhoto=new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'});
    if(proposal||latestLabelFields||file||retainedSavedLabel){
-    // Résultat incorrect ou analyse échouée : nouvelle photo, aucune
-    // sauvegarde. Les données existantes ne sont pas altérées.
+    // La nouvelle photo est prête : remplacer l'ancien résultat,
+    // enregistré ou non, seulement maintenant.
     resetReading();
    }
    const used=setPhoto(nextPhoto,{confirmed:true,guideCrop:true,

@@ -1,6 +1,6 @@
 {
-  "version": "42.93",
+  "version": "42.94",
   "published": "2026-11-24",
-  "assets": 93,
-  "notes": "Surtitre SERVICES U / CALCUL AI harmonisé. Le déclencheur photo enregistre et efface d'abord la pesée valide en attente, via la même transaction que Enregistrer, puis capture la suivante. Doublons, échecs d'enregistrement et lectures incertaines protégés."
+  "assets": 94,
+  "notes": "Étiquette et poids brut conservés après tout enregistrement AI, y compris doublon. Statut enregistré distinct, pas de double sauvegarde. Remplacement seulement après nouvelle photo réussie ou annulation du doublon ; conservation si capture échouée."
 }

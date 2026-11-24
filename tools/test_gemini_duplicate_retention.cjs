@@ -1,14 +1,14 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const js=fs.readFileSync('gemini-lab.js','utf8'),html=fs.readFileSync('index.html','utf8'),css=fs.readFileSync('gemini-lab.css','utf8');
-const start=js.indexOf(' function retainConfirmedDuplicate(){'),end=js.indexOf(" document.addEventListener('keydown'",start);
+const start=js.indexOf(' function retainSavedWeigh(saved){'),end=js.indexOf(" document.addEventListener('keydown'",start);
 const label={weightGrams:1058},ui={textContent:'CAROTTE 0,504 kg 1,00€'},handlers={};
 const state={retainedSavedLabel:false,generation:1,proposal:{ean:'0203476013844'},file:{},latestLabelFields:label,lastRawResult:{},lastReadProblem:null,lastAnalysisError:null,lastSaveError:null,localBarcode:null,barcodeJob:null,repairFocus:null,manualCorrectedFields:[],primaryBarcodePhoto:null,alternatePhotoTask:null,cachedEncoding:null,cachedDetail:null,cachedEnhanced:null,cachedFocused:new Map(),cachedGuided:null,attempts:new Set(),photo:{value:'photo'},repairPanel:{hidden:false},repairManual:{hidden:false},duplicateDialogOpen:true,cameraStream:null,cameraMode:'manual',cameraShell:{hidden:false},capture:null};
 let saveCount=0,success=true,resets=0;
 Object.assign(state,{duplicateCancel:{addEventListener(){}},cancelDuplicateConfirm(){},duplicateAccept:{addEventListener(k,fn){handlers[k]=fn;}},closeDuplicateConfirm(){state.duplicateDialogOpen=false;},saveVerifiedProposal(p){assert(p.confirmDuplicate);saveCount++;return {ok:success,duplicate:true};},announceSaveError(){},validationState(){},updateButton(){},clearPreview(){},armAutoScanner(){},setLabelAlert(){},say(){},resetReading(){resets++;ui.textContent='';}});
 new Function('state','with(state){'+js.slice(start,end)+'}')(state);
 success=false;handlers.click();assert.equal(state.retainedSavedLabel,false);assert(state.proposal&&state.file);
-success=true;state.duplicateDialogOpen=true;handlers.click();assert.equal(state.retainedSavedLabel,true);assert.equal(state.proposal,null);assert.equal(state.file,null);assert.equal(state.latestLabelFields,label);assert.equal(ui.textContent,'CAROTTE 0,504 kg 1,00€');assert.equal(resets,0);assert.equal(state.generation,2);assert(state.repairPanel.hidden&&state.repairManual.hidden);
+success=true;state.duplicateDialogOpen=true;handlers.click();assert.equal(state.retainedSavedLabel,'Doublon confirmé');assert.equal(state.proposal,null);assert.equal(state.file,null);assert.equal(state.latestLabelFields,label);assert.equal(ui.textContent,'CAROTTE 0,504 kg 1,00€');assert.equal(resets,0);assert.equal(state.generation,2);assert(state.repairPanel.hidden&&state.repairManual.hidden);
 handlers.click();assert.equal(saveCount,2,'Pas de deuxième validation après fermeture');
 assert(js.includes('if(retainedSavedLabel)return;'));
 assert(js.includes('function resetReading(){\n  retainedSavedLabel=false;'));

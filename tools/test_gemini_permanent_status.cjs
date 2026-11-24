@@ -80,8 +80,9 @@ assert.equal(prop(selectStyle,'height'),prop(buttonsStyle,'height'));
 assert(repairRules.includes('appearance:none!important;-webkit-appearance:none!important'));
 console.log('OK : pastille 32 px, logo réduit, surfaces exactes et sélection native.');
 
-state.retainedSavedLabel=true;state.latestLabelFields={weightGrams:1058};state.proposal=null;state.file=null;
+state.retainedSavedLabel='Doublon confirmé';state.latestLabelFields={weightGrams:1058};state.proposal=null;state.file=null;
 api.refreshLabelAlert();expect('success','Doublon confirmé');
+state.retainedSavedLabel='Pesée enregistrée';api.refreshLabelAlert();expect('success','Pesée enregistrée');
 state.retainedSavedLabel=false;state.latestLabelFields=null;api.refreshLabelAlert();expect('idle','Caméra désactivée');
 
 assert(section.includes('<div class="iu-basket-select-wrap"><select id="iuGeminiBasketSelect"'));
