@@ -6492,19 +6492,14 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone[hid
  display:none!important;
 }
 
-/* v43.00 — pastille AI : contour et cinq ombres de Nouvelle pesée,
-   verre du résultat et géométrie de la pastille inchangés. */
+/* v43.01 — pastille AI : contour du bouton Importer une photo,
+   sans relief neumorphique, verre et géométrie conservés. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
- border:1px solid rgba(255,255,255,.94)!important;
+ border:1px solid rgba(214,224,231,.95)!important;
  background:rgba(128,128,128,.002)!important;
  -webkit-backdrop-filter:blur(1.25px)!important;
  backdrop-filter:blur(1.25px)!important;
- box-shadow:
-  -3px -3px 7px rgba(255,255,255,.98),
-  -6px -6px 13px rgba(255,255,255,.60),
-   4px 5px 11px rgba(156,173,189,.35),
-   1px 2px 4px rgba(156,173,189,.18),
-   inset 1px 1px 0 rgba(255,255,255,.96)!important;
+ box-shadow:none!important;
 }
 @media(prefers-reduced-transparency:reduce){
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {

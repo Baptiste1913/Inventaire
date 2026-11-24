@@ -33,7 +33,7 @@
  const TWO_PI=Math.PI*2;
  const COUNT=1280;
  let width=0,height=0,renderScale=0;
- let lanes=[],chromeOuterLines=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
+ let lanes=[],chromeOuterLines=[],logoInnerLines=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
  let inViewport=true,lastVisibilityCheck=0;
  let motionPaths=[],openPoints=null;
  const laneSpecs=[[.28,.37],[2.35,.58],[4.5,.22],[1.42,.49],[5.32,.30],[3.82,.41],[.94,.26],[2.93,.34],[5.81,.23]];
@@ -200,6 +200,7 @@
     buildLane(5.81,.23)
    ];
    if(isGemini)chromeOuterLines=[buildLane(.28,.37,.06).line,buildLane(2.35,.58,.04).line,buildLane(1.42,.49,.03).line];
+   if(isLogo)logoInnerLines=[buildLane(.94,.24,-.95).line,buildLane(3.82,.30,-1.65).line,buildLane(5.81,.20,-2.25).line];
   }
   return true;
  }
@@ -262,7 +263,18 @@
   }
   return positions;
  }
- function drawRibbon(points,widthPx,color,opacity,blur,blend='screen',outset=0){
+ // Enlarge only the inward side of the original logo ribbons. Radial
+ // displacement is independent of the orientation of each path normal.
+ function logoRibbonVertex(p,offset,innerExtra){
+  let x=p.x+p.nx*offset,y=p.y+p.ny*offset;
+  const dx=width/2-p.x,dy=height/2-p.y,length=Math.hypot(dx,dy)||1;
+  if(isLogo&&innerExtra&&offset*(p.nx*dx+p.ny*dy)>0){
+   const add=innerExtra*p.envelope;
+   x+=dx/length*add;y+=dy/length*add;
+  }
+  return {x,y};
+ }
+ function drawRibbon(points,widthPx,color,opacity,blur,blend='screen',outset=0,innerExtra=0){
   if(isBackdrop){widthPx*=backdropWidthScale;outset*=backdropWidthScale;blur*=.8;}
   if(isRing){widthPx*=loaderWidthScale;outset*=loaderWidthScale;}
   const shape=new Path2D();
@@ -271,13 +283,14 @@
    const radius=(widthPx+contourBoost)*p.envelope/2;
    // Clockwise main ribbons have inward normals: shift only added width outward.
    const offset=radius-outset*p.envelope;
-   const x=p.x+p.nx*offset,y=p.y+p.ny*offset;
+   const {x,y}=logoRibbonVertex(p,offset,innerExtra);
    if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y);
   }
   for(let i=points.length-1;i>=0;i--){
    const p=points[i],radius=(widthPx+contourBoost)*p.envelope/2;
    const offset=radius+outset*p.envelope;
-   shape.lineTo(p.x-p.nx*offset,p.y-p.ny*offset);
+   const v=logoRibbonVertex(p,-offset,innerExtra);
+   shape.lineTo(v.x,v.y);
   }
   shape.closePath();
   ctx.save();
@@ -422,10 +435,31 @@
    // Shorter arcs and tighter halos preserve distinct dark/light fibres;
    // the width multiplier, palette, opacity and animation clock stay intact.
    const ribbon=ribbonGeometry(t,isLogo?{...config,span:config.span*.85}:config);
-   drawRibbon(ribbon,2.15,config.tint,config.opacity*.44,isLogo?.65:1.5,'source-over',.125);
-   drawRibbon(ribbon,.95,config.core,config.opacity,isLogo?.18:.35,'source-over',.05);
+   drawRibbon(ribbon,2.15,config.tint,config.opacity*.44,isLogo?.65:1.5,'source-over',.125,isLogo?.55:0);
+   drawRibbon(ribbon,.95,config.core,config.opacity,isLogo?.18:.35,'source-over',.05,isLogo?.35:0);
   }
+  if(isLogo)paintLogoInner(t);
   if(running){paintWaves(t);paintInnerWaves(t);}
+ }
+ // Three extra nested fibres and three independently moving reflections.
+ // Cached paths and 64 samples on these tiny arcs limit the extra work.
+ const logoInnerReflections=[
+  {lane:4,start:.22,direction:1,seconds:11.6,span:.16,samples:64,tint:'#696969',core:'#e5e5e5',opacity:.76,depth:1.25},
+  {lane:7,start:.70,direction:-1,seconds:14.7,span:.14,samples:64,tint:'#aeaeae',core:'#343434',opacity:.65,depth:1.85},
+  {lane:8,start:.43,direction:1,seconds:16.9,span:.18,samples:64,tint:'#777777',core:'#f2f2f2',opacity:.78,depth:2.35}
+ ];
+ function paintLogoInner(t){
+  baseFilament(6,.44,.38,'#777777',logoInnerLines[0]);
+  baseFilament(5,.56,.34,'#d6d6d6',logoInnerLines[1]);
+  baseFilament(8,.36,.30,'#555555',logoInnerLines[2]);
+  for(const config of logoInnerReflections){
+   const ribbon=ribbonGeometry(t,config).map(p=>{
+    const dx=width/2-p.x,dy=height/2-p.y,length=Math.hypot(dx,dy)||1;
+    return {...p,x:p.x+dx/length*config.depth,y:p.y+dy/length*config.depth};
+   });
+   drawRibbon(ribbon,.72,config.tint,config.opacity*.48,.24,'source-over');
+   drawRibbon(ribbon,.38,config.core,config.opacity,.10,'source-over');
+  }
  }
  // Confiner les filaments au résultat sans modifier leur trajectoire
  // ni déplacer le canvas derrière le verre. Rayon CSS du panneau : 20 px.

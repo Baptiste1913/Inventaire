@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.00'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.01'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -152,7 +152,7 @@ assert(newGlow.includes('filter:blur(25px)!important'));
 assert(newGlow.includes('animation-play-state:paused!important'));
 assert(newGlow.includes('prefers-reduced-motion:reduce')&&newGlow.includes('prefers-reduced-transparency:reduce'));
 assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(1.25px)!important;'));
-for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=43.00'));
+for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=43.01'));
 {
  const hooks={},field={dataset:{}};let observer;
  const doc={hidden:false,querySelector:()=>field,addEventListener:(k,fn)=>hooks[k]=fn};
@@ -205,7 +205,7 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  const doc={hidden:false,getElementById:k=>k===canvas.id?canvas:null,addEventListener(){}};
  let visible;const win={devicePixelRatio:3,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.set(++req,fn);return req;},cancelAnimationFrame:id=>frames.delete(id),IntersectionObserver:class{constructor(fn){visible=fn;}observe(){}}};
  class Observer{observe(){}}
- const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isLogo)inspect({basePoint,loaderWidthScale,chromeReflections});\n }\n})();');
+ const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isLogo)inspect({basePoint,loaderWidthScale,chromeReflections,logoInnerReflections,logoInnerLines,logoRibbonVertex});\n }\n})();');
  new Function('document','window','Path2D','MutationObserver','inspect',instrument)(doc,win,Path,Observer,x=>{debug=x;});
  assert.equal(frames.size,1);
  const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100);
@@ -215,6 +215,11 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  for(let i=1;i<=60;i++){const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100+i*1000/60);}
  assert(paints.length-initial>=60*15,'60 rendus en une seconde');
  assert.equal(debug.loaderWidthScale,1.6);
+ assert.equal(debug.logoInnerLines.length,3);assert.equal(debug.logoInnerReflections.length,3);
+ assert(paints.length-initial>=60*24,'Filaments supplémentaires à chaque frame');
+ const vertex={x:19,y:13,nx:-1,ny:0,envelope:1};
+ assert.deepEqual(debug.logoRibbonVertex(vertex,-1,.55),debug.logoRibbonVertex(vertex,-1,0),'Bord externe inchangé');
+ assert(debug.logoRibbonVertex(vertex,1,.55).x<debug.logoRibbonVertex(vertex,1,0).x,'Épaisseur vers le centre');
  assert.deepEqual(debug.chromeReflections.map(c=>c.seconds),[10.2,12.3,17.1,13.8,15.4,18.6]);
  assert(source.includes('elapsed+=Math.min(48,Math.max(0,now-lastTick))/1000*(isLoader?2:1)'));
  visible([{isIntersecting:false}]);assert.equal(frames.size,0);
@@ -272,9 +277,9 @@ console.log('OK : Planning 22 px conservé.');
  console.log('OK : correction manuelle, contour identique et arrêt quand masqué.');
 }
 
-const badge=css.slice(css.indexOf('/* v43.00')).split('@media')[0];
-assert(badge.includes('border:1px solid rgba(255,255,255,.94)!important;'));
-assert(badge.replace(/\s/g,'').includes("box-shadow:-3px-3px7pxrgba(255,255,255,.98),-6px-6px13pxrgba(255,255,255,.60),4px5px11pxrgba(156,173,189,.35),1px2px4pxrgba(156,173,189,.18),inset1px1px0rgba(255,255,255,.96)!important;"));
+const badge=css.slice(css.indexOf('/* v43.01')).split('@media')[0];
+assert(badge.includes('border:1px solid rgba(214,224,231,.95)!important;'));
+assert(badge.includes('box-shadow:none!important;'));
 assert(badge.includes('background:rgba(128,128,128,.002)!important;'));
 assert(source.includes('isLogo?{...config,span:config.span*.85}:config'));
-console.log('OK : contour classique exact, reflets distincts, épaisseur et cycles du logo conservés.');
+console.log('OK : contour import, absence de relief, filaments intérieurs et cadence du logo.');
