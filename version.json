@@ -1,6 +1,6 @@
 {
-  "version": "42.68",
+  "version": "42.69",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Verre du panneau DIGI : flou 25 → 10 px. Quadrillage de points net, plus contrasté et plus fin, calque animé sans filtre. Filaments, halos, contours et OCR inchangés."
+  "notes": "Quadrillage DIGI continu sur toute la surface, au-dessus des sous-blocs, points nets, trame 24 px et opacité .82. Verre 5 px (10 auparavant), filaments, halos et OCR inchangés."
 }

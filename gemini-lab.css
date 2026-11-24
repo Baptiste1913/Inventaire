@@ -5929,8 +5929,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;
  pointer-events:none!important;
  z-index:1!important;
- -webkit-backdrop-filter:blur(10px)!important;
- backdrop-filter:blur(10px)!important;
+ -webkit-backdrop-filter:blur(5px)!important;
+ backdrop-filter:blur(5px)!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
@@ -5985,5 +5985,56 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
   opacity:.43!important;
+ }
+}
+
+/* v42.69 — trame continue, indépendante du verre et des cartes.
+   Le calque est au-dessus des sous-blocs opaques, sans intercepter
+   les gestes. Pas de masque diagonal ni de rangée isolée. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+ background-image:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
+ position:absolute!important;
+ inset:0!important;
+ width:auto!important;
+ height:auto!important;
+ max-width:none!important;
+ max-height:none!important;
+ margin:0!important;
+ padding:0!important;
+ z-index:4!important;
+ overflow:hidden!important;
+ border-radius:inherit!important;
+ pointer-events:none!important;
+ contain:paint!important;
+ filter:none!important;
+ -webkit-filter:none!important;
+ backdrop-filter:none!important;
+ -webkit-backdrop-filter:none!important;
+ mask:none!important;
+ -webkit-mask:none!important;
+ clip-path:none!important;
+ transform:none!important;
+ background-image:radial-gradient(circle,rgba(92,121,147,.16) 0 .42px,rgba(92,121,147,.11) .58px,rgba(92,121,147,.03) .88px,transparent 1.02px)!important;
+ background-color:transparent!important;
+ background-size:24px 24px!important;
+ background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
+ background-repeat:repeat!important;
+ opacity:.82!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field::before,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field::after {
+ display:none!important;
+}
+@media(prefers-reduced-transparency:reduce) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
+  opacity:.45!important;
+ }
+}
+@media(forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
+  display:none!important;
  }
 }
