@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.02'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.03'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -215,8 +215,8 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  for(let i=1;i<=60;i++){const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100+i*1000/60);}
  assert(paints.length-initial>=60*15,'60 rendus en une seconde');
  assert.equal(debug.loaderWidthScale,1.6);
- assert.equal(debug.logoInnerLines.length,3);assert.equal(debug.logoInnerReflections.length,3);
- for(let k=0;k<3;k++)for(const time of [0,5,15,29,60]){
+ assert.equal(debug.logoInnerLines.length,5);assert.equal(debug.logoInnerReflections.length,5);
+ for(let k=0;k<5;k++)for(const time of [0,5,15,29,60]){
   const u=debug.logoJoinCenter(time,k);
   const a=debug.logoLinkedPoint(u,time,k),b=debug.logoLinkedPoint(u,time,k-1);
   assert(Math.hypot(a.x-b.x,a.y-b.y)<1e-8,'Jonction réelle avec la fibre voisine');
@@ -230,7 +230,7 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  }
  assert(Math.abs(debug.logoBreath(0,0)-debug.logoBreath(4,0))>.1);
  assert(debug.logoBreath(0,0)!==debug.logoBreath(0,1),'Phases indépendantes');
- assert(paints.length-initial>=60*24,'Filaments supplémentaires à chaque frame');
+ assert(paints.length-initial>=60*30,'Filaments supplémentaires à chaque frame');
  const vertex={x:19,y:13,nx:-1,ny:0,envelope:1};
  assert.deepEqual(debug.logoRibbonVertex(vertex,-1,.55),debug.logoRibbonVertex(vertex,-1,0),'Bord externe inchangé');
  assert(debug.logoRibbonVertex(vertex,1,.55).x<debug.logoRibbonVertex(vertex,1,0).x,'Épaisseur vers le centre');
@@ -297,3 +297,7 @@ assert(badge.includes('box-shadow:none!important;'));
 assert(badge.includes('background:rgba(128,128,128,.002)!important;'));
 assert(source.includes('isLogo?{...config,span:config.span*.85}:config'));
 console.log('OK : contour import, absence de relief, filaments intérieurs et cadence du logo.');
+
+assert(source.includes('widthPx*loaderWidthScale*(isLogo?.85:1)'));
+assert(source.includes('if(isLogo){widthPx*=.85;innerExtra*=.85;}'));
+console.log('OK : cinq fibres intérieures liées, cinq reflets, épaisseur réduite uniquement sur le logo.');

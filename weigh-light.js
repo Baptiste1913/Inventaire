@@ -200,7 +200,7 @@
     buildLane(5.81,.23)
    ];
    if(isGemini)chromeOuterLines=[buildLane(.28,.37,.06).line,buildLane(2.35,.58,.04).line,buildLane(1.42,.49,.03).line];
-   if(isLogo)logoInnerLines=[buildLane(.94,.24,-.95).line,buildLane(3.82,.30,-1.65).line,buildLane(5.81,.20,-2.25).line];
+   if(isLogo)logoInnerLines=logoInnerSpecs.map(spec=>buildLane(...spec).line);
   }
   return true;
  }
@@ -224,7 +224,7 @@
   ctx.globalCompositeOperation='source-over';
   ctx.strokeStyle=color;
   ctx.lineJoin='round';
-  ctx.lineWidth=widthPx*loaderWidthScale+contourBoost;
+  ctx.lineWidth=widthPx*loaderWidthScale*(isLogo?.85:1)+contourBoost;
   ctx.globalAlpha=alpha;
   if(isBackdrop){ctx.fillStyle=color;ctx.fill(backgroundBaseShape(laneIndex,widthPx*backdropWidthScale,laneIndex===0?.06:laneIndex===1?.04:.03));}
   else ctx.stroke(line||lanes[laneIndex].line);
@@ -277,6 +277,7 @@
  function drawRibbon(points,widthPx,color,opacity,blur,blend='screen',outset=0,innerExtra=0){
   if(isBackdrop){widthPx*=backdropWidthScale;outset*=backdropWidthScale;blur*=.8;}
   if(isRing){widthPx*=loaderWidthScale;outset*=loaderWidthScale;}
+  if(isLogo){widthPx*=.85;innerExtra*=.85;}
   const shape=new Path2D();
   for(let i=0;i<points.length;i++){
    const p=points[i];
@@ -444,16 +445,18 @@
  // Three extra nested fibres and three independently moving reflections.
  // Cached paths and 64 samples on these tiny arcs limit the extra work.
  const logoInnerReflections=[
-  {lane:4,start:.22,direction:1,seconds:11.6,span:.16,samples:64,tint:'#696969',core:'#e5e5e5',opacity:.76,depth:1.25},
-  {lane:7,start:.70,direction:-1,seconds:14.7,span:.14,samples:64,tint:'#aeaeae',core:'#343434',opacity:.65,depth:1.85},
-  {lane:8,start:.43,direction:1,seconds:16.9,span:.18,samples:64,tint:'#777777',core:'#f2f2f2',opacity:.78,depth:2.35}
+  {lane:4,start:.22,direction:1,seconds:11.6,span:.16,samples:48,tint:'#696969',core:'#e5e5e5',opacity:.76,depth:1.25},
+  {lane:7,start:.70,direction:-1,seconds:14.7,span:.14,samples:48,tint:'#aeaeae',core:'#343434',opacity:.65,depth:1.85},
+  {lane:8,start:.43,direction:1,seconds:16.9,span:.18,samples:48,tint:'#777777',core:'#f2f2f2',opacity:.78,depth:2.35},
+  {lane:2,start:.91,direction:-1,seconds:19.2,span:.14,samples:48,tint:'#929292',core:'#ededed',opacity:.68,depth:2.06},
+  {lane:6,start:.56,direction:1,seconds:21.4,span:.15,samples:48,tint:'#656565',core:'#bcbcbc',opacity:.72,depth:2.52}
  ];
  // Slow, phase-shifted breathing; never changes the external edge.
  function logoBreath(t,index){
   const period=18+(index%5)*3;
   return 1+.13*Math.sin(TWO_PI*t/period+index*1.7);
  }
- const logoInnerSpecs=[[.94,.24,-.95],[3.82,.30,-1.65],[5.81,.20,-2.25]];
+ const logoInnerSpecs=[[.94,.24,-.68],[3.82,.25,-1.14],[5.81,.20,-1.60],[2.35,.18,-2.06],[4.50,.16,-2.52]];
  function logoJoinCenter(t,index){
   return wrap(.12+index*.29+.035*Math.sin(TWO_PI*t/(24+index*5)+index*1.4));
  }
@@ -494,6 +497,8 @@
   baseFilament(6,.44,.38*logoBreath(phase,6),'#777777',linkedLogoPath(phase,0));
   baseFilament(5,.56,.34*logoBreath(phase,5),'#d6d6d6',linkedLogoPath(phase,1));
   baseFilament(8,.36,.30*logoBreath(phase,8),'#555555',linkedLogoPath(phase,2));
+  baseFilament(2,.42,.30*logoBreath(phase,2),'#b3b3b3',linkedLogoPath(phase,3));
+  baseFilament(6,.40,.28*logoBreath(phase,4),'#777777',linkedLogoPath(phase,4));
   for(const [index,config] of logoInnerReflections.entries()){
    const ribbon=linkedLogoRibbon(phase,config,index),breath=logoBreath(phase,index+3);
    drawRibbon(ribbon,.72*breath,config.tint,config.opacity*.48,.24,'source-over');
