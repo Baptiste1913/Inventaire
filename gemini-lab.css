@@ -5929,8 +5929,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;
  pointer-events:none!important;
  z-index:0!important;
- -webkit-backdrop-filter:blur(10px)!important;
- backdrop-filter:blur(10px)!important;
+ -webkit-backdrop-filter:blur(25px)!important;
+ backdrop-filter:blur(25px)!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {

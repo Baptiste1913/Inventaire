@@ -230,14 +230,16 @@ const glassStyle=css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass 
 assert(glassStyle.includes('background:transparent!important;'));
 assert(glassStyle.includes('position:absolute!important;'));
 assert(glassStyle.includes('inset:0!important;'));
-assert(glassStyle.includes('backdrop-filter:blur(10px)!important;'));
+assert(glassStyle.includes('backdrop-filter:blur(25px)!important;'));
 assert(glassStyle.includes('pointer-events:none!important;'));
 assert(glassStyle.includes('overflow:hidden!important;'));
 assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.65'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.65'));
+assert(markup.includes('gemini-lab.css?v=42.66'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.66'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
+
+assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(25px)!important;'));

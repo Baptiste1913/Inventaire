@@ -1,6 +1,6 @@
 {
-  "version": "42.65",
+  "version": "42.66",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Panneau DIGI sans voile blanc, verre transparent flou 10 px sur un calque fixe indépendant. Filaments chrome .94 contre .72, géométrie et mouvements inchangés. Trame, halos, textes, contours et OCR préservés."
+  "notes": "Flou du verre transparent du panneau DIGI augmenté de 15 px (10 à 25 px). Filaments, halos, textes, contours et OCR inchangés."
 }
