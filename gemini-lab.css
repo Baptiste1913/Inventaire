@@ -3127,31 +3127,31 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-digi-chrome-halo {
  position:absolute!important;display:block!important;
- left:15%!important;top:19%!important;right:auto!important;bottom:auto!important;
- width:70%!important;height:62%!important;
+ left:24%!important;top:27%!important;right:auto!important;bottom:auto!important;
+ width:52%!important;height:46%!important;
  border:0!important;border-radius:50%!important;pointer-events:none!important;
- filter:blur(25px)!important;-webkit-filter:blur(25px)!important;
+ filter:blur(29px)!important;-webkit-filter:blur(29px)!important;
  background-repeat:no-repeat!important;transform-origin:center!important;
- animation:none!important;opacity:.8;
+ animation:none!important;opacity:.92;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-digi-halo-steel {
- background:radial-gradient(ellipse at center,rgba(87,87,87,0.4) 0%,rgba(125,125,125,0.2) 35%,rgba(170,170,170,0.06) 65%,transparent 94%)!important;
+ background:radial-gradient(ellipse at center,rgba(87,87,87,0.592) 0%,rgba(125,125,125,0.296) 35%,rgba(170,170,170,0.089) 65%,transparent 94%)!important;
  transform:translate(-32%,12%);
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-digi-halo-silver {
- background:radial-gradient(ellipse at center,rgba(255,255,255,0.88) 0%,rgba(240,240,240,0.46) 35%,rgba(225,225,225,0.1) 65%,transparent 94%)!important;
+ background:radial-gradient(ellipse at center,rgba(255,255,255,1) 0%,rgba(240,240,240,0.681) 35%,rgba(225,225,225,0.148) 65%,transparent 94%)!important;
  transform:translate(20%,-12%);
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-digi-halo-dark {
- background:radial-gradient(ellipse at center,rgba(55,55,55,0.32) 0%,rgba(100,100,100,0.17) 35%,rgba(145,145,145,0.045) 65%,transparent 94%)!important;
+ background:radial-gradient(ellipse at center,rgba(55,55,55,0.474) 0%,rgba(100,100,100,0.252) 35%,rgba(145,145,145,0.067) 65%,transparent 94%)!important;
  transform:translate(-10%,36%);
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-digi-halo-pearl {
- background:radial-gradient(ellipse at center,rgba(150,150,150,0.46) 0%,rgba(180,180,180,0.23) 35%,rgba(205,205,205,0.065) 65%,transparent 94%)!important;
+ background:radial-gradient(ellipse at center,rgba(150,150,150,0.681) 0%,rgba(180,180,180,0.34) 35%,rgba(205,205,205,0.096) 65%,transparent 94%)!important;
  transform:translate(38%,24%);
 }
 /* result-card.css applique déjà exactement le verre/translucidité,
@@ -4832,7 +4832,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  background-color:transparent!important;
  background-image:
   radial-gradient(circle,rgba(92,121,147,.042) .40px,rgba(92,121,147,.026) .96px,rgba(92,121,147,.009) 1.55px,transparent 2.15px),
-  linear-gradient(122deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.23) 54%,rgba(255,255,255,.16) 100%)!important;
+  linear-gradient(122deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.12) 54%,rgba(255,255,255,.07) 100%)!important;
  background-size:28px 28px,100% 100%!important;
  background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
  background-repeat:repeat,no-repeat!important;
@@ -5801,11 +5801,11 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  }
 }
 
-/* v42.63 — SVG frère du panneau, sans débordement interne ni filtre
+/* v42.64 — SVG frère du panneau, sans débordement interne ni filtre
    de composition dynamique Safari. Tracés et keyframes conservés. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > .iu-gemini-label-glow-field.iu-result-glow-field {
- opacity:.74!important;
+ opacity:.88!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > svg.iu-gemini-chrome-backdrop {
@@ -5817,7 +5817,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  z-index:0!important;
  pointer-events:none!important;
  /* Compense le voile blanc du panneau au-dessus du SVG. */
- opacity:.55!important;
+ opacity:.72!important;
  filter:none!important;-webkit-filter:none!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
@@ -5897,5 +5897,20 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
   background-image:none!important;
   background-color:Canvas!important;
+ }
+}
+
+/* v42.64 — verre visuellement plus diffus, sans backdrop-filter animé.
+   Les grandes lumières sont floutées à la source ; la trame, le texte
+   et les contrôles restent nets. Ne pas réintroduire les artefacts iOS. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+ box-shadow:0 23px 30px -18px rgba(83,105,121,.112),inset 0 1px 0 rgba(255,255,255,.78)!important;
+}
+@media(prefers-reduced-transparency:reduce) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+  background-color:#fff!important;
+  background-image:none!important;
  }
 }

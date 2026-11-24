@@ -10,7 +10,7 @@
  const range=(a,b)=>a+(b-a)*Math.random();
  const pose=()=>({
   transform:'translate('+range(-48,48).toFixed(2)+'%,'+range(-24,52).toFixed(2)+'%) scale('+range(.82,1.22).toFixed(3)+')',
-  opacity:range(.55,1).toFixed(3)
+  opacity:range(.72,1).toFixed(3)
  });
  const states=nodes.map(node=>({node,animation:null,current:null}));
  let visible=typeof IntersectionObserver!=='function',enabled=false;

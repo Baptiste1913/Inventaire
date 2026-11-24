@@ -140,8 +140,8 @@ const chromeHalos=css.slice(css.indexOf('/* Reflets diffus argent/acier'),css.in
 const palette=[...chromeHalos.matchAll(/rgba\((\d+),(\d+),(\d+),[^)]+\)/g)];
 assert(palette.length===12&&palette.every(m=>m[1]===m[2]&&m[2]===m[3]));
 assert(!chromeHalos.includes('iuHomeBackdrop'));
-const backdrop=css.slice(css.indexOf('/* v42.63'));
-assert(backdrop.includes('opacity:.55!important;'));
+const backdrop=css.slice(css.indexOf('/* v42.64'));
+assert(backdrop.includes('opacity:.72!important;'));
 assert(backdrop.includes('prefers-reduced-motion:reduce'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
 assert(backdrop.includes('pointer-events:none!important;'));
@@ -198,7 +198,27 @@ for(const n of haloNodes){
 doc.hidden=true;hooks.visibilitychange();assert(haloNodes.every(n=>n.animations[1].paused));
 doc.hidden=false;hooks.visibilitychange();assert(haloNodes.every(n=>!n.animations[1].paused));
 observer([{isIntersecting:false}]);assert(haloNodes.every(n=>n.animations[1].paused));
-assert(markup.includes('gemini-chrome-halos.js?v=42.63'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-chrome-halos.js?v=42.63'));
+assert(markup.includes('gemini-chrome-halos.js?v=42.64'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-chrome-halos.js?v=42.64'));
 console.log('OK : halos randomisés, transitions continues, suspension hors écran, cache');
+}
+
+{
+const groups=[...waves[0].matchAll(/<g class="iu-chrome-flow-[abc]"[\s\S]*?<\/g>/g)];
+assert.equal(groups.length,3);
+for(const group of groups){
+ assert.equal((group[0].match(/class="iu-chrome-strand"/g)||[]).length,6);
+ assert.equal((group[0].match(/class="iu-chrome-fine-strand"/g)||[]).length,1);
+ assert.equal((group[0].match(/vector-effect="non-scaling-stroke"/g)||[]).length,7);
+ assert(group[0].includes('url(#iuDigiChromeShadow)')&&group[0].includes('url(#iuDigiChromePearl)'));
+}
+assert(css.includes('rgba(255,255,255,.07) 0%,rgba(255,255,255,.12) 54%'));
+assert(chromeHalos.includes('width:52%!important;height:46%!important;'));
+assert(chromeHalos.includes('filter:blur(29px)!important;'));
+assert(chromeHalos.includes('rgba(87,87,87,0.592)'));
+assert(backdrop.includes('opacity:.88!important;'));
+assert(backdrop.includes('opacity:.43!important;'),'Quadrillage inchangé');
+assert(backdrop.includes('backdrop-filter:none!important;'),'Pas de filtre dynamique Safari');
+assert(fs.readFileSync('gemini-chrome-halos.js','utf8').includes('opacity:range(.72,1)'));
+console.log('OK : six fibres chromées par vague, voile allégé, halos plus petits et plus lumineux');
 }
