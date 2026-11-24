@@ -1,6 +1,6 @@
 {
-  "version": "42.62",
+  "version": "42.63",
   "published": "2026-11-24",
-  "assets": 73,
-  "notes": "Fond chrome DIGI : vagues élargies, calque indépendant pouvant dépasser du panneau de résultat mais limité au bloc IA. Trame de points renforcée (opacité des points animés .43 à .68), nuances et durées conservées. Poids, contours et reconnaissance inchangés."
+  "assets": 74,
+  "notes": "Correctif composition Safari : SVG frère du panneau sans filtre dynamique ni débordement interne, filaments et keyframes conservés. Quadrillage v42.61 rétabli. Grandes lumières chrome renforcées, trajets aléatoires continus dans la partie basse. Reconnaissance inchangée."
 }

@@ -140,31 +140,65 @@ const chromeHalos=css.slice(css.indexOf('/* Reflets diffus argent/acier'),css.in
 const palette=[...chromeHalos.matchAll(/rgba\((\d+),(\d+),(\d+),[^)]+\)/g)];
 assert(palette.length===12&&palette.every(m=>m[1]===m[2]&&m[2]===m[3]));
 assert(!chromeHalos.includes('iuHomeBackdrop'));
-const backdrop=css.slice(css.indexOf('/* v42.62'));
-assert(backdrop.includes('opacity:.31!important;'));
+const backdrop=css.slice(css.indexOf('/* v42.63'));
+assert(backdrop.includes('opacity:.55!important;'));
 assert(backdrop.includes('prefers-reduced-motion:reduce'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
 assert(backdrop.includes('pointer-events:none!important;'));
 const markup=fs.readFileSync('index.html','utf8');
 const waves=markup.match(/<svg class="iu-gemini-chrome-backdrop"[\s\S]*?<\/svg>/g);
 assert.equal(waves.length,1);
-assert(markup.indexOf(waves[0])>markup.indexOf('id="iuGeminiLabelPanel"'));
+assert(markup.indexOf(waves[0])<markup.indexOf('id="iuGeminiLabelPanel"'));
 const shades=[...waves[0].matchAll(/stop-color="#([0-9a-f]{6})"/g)];
 assert(shades.length>=8&&shades.every(m=>grey('#'+m[1])));
 for(const n of ['A','B','C'])assert(backdrop.includes('@keyframes iuChromeFlow'+n));
 console.log('OK : fond DIGI monochrome, trois vagues, accessibilité, typographie');
 
-assert(markup.includes('<i></i></div>\n'+waves[0]),'SVG distinct du calque des points');
-assert(backdrop.includes('#iuGeminiLabelPanel > svg.iu-gemini-chrome-backdrop'));
+assert(markup.includes(waves[0]+'\n<div id="iuGeminiLabelPanel"'),'SVG frère du panneau');
+assert(backdrop.includes('> .iu-gemini-label-shell > svg.iu-gemini-chrome-backdrop'));
 assert(backdrop.includes('inset:-26px -24px!important;'));
 assert(backdrop.includes('width:calc(100% + 48px)!important;height:calc(100% + 52px)!important;'));
 assert(backdrop.includes('overflow:visible!important;'));
 assert(backdrop.includes('overflow:hidden!important;'));
 assert(backdrop.includes('contain:paint!important;'));
-assert(backdrop.includes('z-index:1!important;'));
-assert(backdrop.includes('opacity:.68!important;'));
-assert(backdrop.includes('rgba(92,121,147,.104)'));
+assert(backdrop.includes('z-index:0!important;'));
+assert(backdrop.includes('opacity:.43!important;'));
+assert(!css.includes('rgba(92,121,147,.104)'));
+assert(css.includes('rgba(92,121,147,.062)'));
+assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
+assert(backdrop.includes('filter:none!important;'));
 assert(backdrop.includes('translate(12%,23%)'));
 assert(backdrop.includes('translate(-13%,-22%)'));
 assert(backdrop.includes('translate(12%,-29%)'));
 console.log('OK : débordement du panneau uniquement, amplitude et points renforcés');
+
+{
+const haloSource=fs.readFileSync('gemini-chrome-halos.js','utf8');
+const haloNodes=Array.from({length:4},()=>({style:{},animations:[],animate(frames,opts){
+ const a={frames,opts,paused:false,cancel(){this.cancelled=true},pause(){this.paused=true},play(){this.paused=false}};
+ this.animations.push(a);return a;
+}}));
+const hooks={};let observer;
+const field={querySelectorAll:()=>haloNodes};
+const doc={hidden:false,querySelector:()=>field,addEventListener:(k,fn)=>hooks[k]=fn};
+const win={matchMedia:()=>({matches:false,addEventListener(){}}),addEventListener(){}};
+class Intersection{constructor(fn){observer=fn;}observe(){}}
+new Function('document','window','IntersectionObserver',haloSource)(doc,win,Intersection);
+assert(haloNodes.every(n=>n.animations.length===0));
+observer([{isIntersecting:true}]);
+assert(haloNodes.every(n=>n.animations.length===1));
+for(const n of haloNodes){
+ const previous=n.animations[0];
+ assert(previous.opts.duration>=10500&&previous.opts.duration<=20500);
+ previous.onfinish();
+ const next=n.animations[1];
+ assert.deepEqual(previous.frames[1],next.frames[0],'continuité du mouvement');
+ assert(previous.cancelled);
+}
+doc.hidden=true;hooks.visibilitychange();assert(haloNodes.every(n=>n.animations[1].paused));
+doc.hidden=false;hooks.visibilitychange();assert(haloNodes.every(n=>!n.animations[1].paused));
+observer([{isIntersecting:false}]);assert(haloNodes.every(n=>n.animations[1].paused));
+assert(markup.includes('gemini-chrome-halos.js?v=42.63'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-chrome-halos.js?v=42.63'));
+console.log('OK : halos randomisés, transitions continues, suspension hors écran, cache');
+}
