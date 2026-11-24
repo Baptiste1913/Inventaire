@@ -16,7 +16,7 @@
   if(!enabled()||failed||!root.Worker)return false;
   if(engine)return true;
   try{
-   const w=new root.Worker('digi-advanced-worker.js?v=42.51');engine=w;
+   const w=new root.Worker('digi-advanced-worker.js?v=42.53');engine=w;
    show('DIGI Advanced · préparation locale');
    w.onmessage=({data:m})=>{
     if(engine!==w)return;

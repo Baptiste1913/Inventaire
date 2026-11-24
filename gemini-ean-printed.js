@@ -34,6 +34,8 @@
  }
  function roi(hint){
   const label=hint?.labelRect;
+  const calibrated=label?.paper&&root?.IUGeminiLabelGeometry?.zoneRect(label,['barcode','ean'],.025);
+  if(calibrated)return calibrated;
   if(label?.source==='paper-outline'&&label.w>.40&&label.h>.30)
    return {x:label.x+.01*label.w,y:label.y+.70*label.h,
     w:label.w*.84,h:label.h*.29};

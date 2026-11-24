@@ -10,6 +10,27 @@
 })(typeof window!=='undefined'?window:(typeof self!=='undefined'?self:null),function(){
  'use strict';
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+ // Calibrated against the visible real DIGI labels, 24 Nov 2026.
+ const aspect=1.28,guideScale=.82;
+ const zones=Object.freeze([
+  ['store',.49,.035,.45,.15],['product',.11,.265,.78,.145],
+  ['rate',.065,.535,.275,.145],['weight',.395,.535,.245,.145],
+  ['date',.665,.535,.285,.145],['barcode',.075,.725,.435,.20],
+  ['ean',.055,.925,.465,.055],['total',.52,.725,.405,.245]
+ ].map(Object.freeze));
+ function validRect(r){return Boolean(r&&[r.x,r.y,r.w,r.h].every(Number.isFinite)&&r.w>0&&r.h>0&&r.x>=0&&r.y>=0&&r.x+r.w<=1.001&&r.y+r.h<=1.001);}
+ function paperRect(rect){return validRect(rect?.paper)?rect.paper:validRect(rect)?rect:null;}
+ function zoneRect(rect,kinds,pad=.02){
+  const r=paperRect(rect);if(!r)return null;
+  const chosen=zones.filter(z=>kinds.includes(z[0]));if(!chosen.length)return null;
+  const x=Math.max(0,Math.min(...chosen.map(z=>z[1]))-pad),y=Math.max(0,Math.min(...chosen.map(z=>z[2]))-pad);
+  const right=Math.min(1,Math.max(...chosen.map(z=>z[1]+z[3]))+pad),bottom=Math.min(1,Math.max(...chosen.map(z=>z[2]+z[4]))+pad);
+  return {x:r.x+x*r.w,y:r.y+y*r.h,w:(right-x)*r.w,h:(bottom-y)*r.h};
+ }
+ function aligned(rect,guide){
+  const r=paperRect(rect);if(!r||!validRect(guide))return false;
+  return Math.abs(r.x+r.w/2-guide.x-guide.w/2)<guide.w*.10&&Math.abs(r.y+r.h/2-guide.y-guide.h/2)<guide.h*.10&&r.w/guide.w>.85&&r.w/guide.w<1.13&&r.h/guide.h>.85&&r.h/guide.h<1.13;
+ }
  function longestRun(scores,threshold,minLength,center){
   let best=null,from=-1;
   for(let i=0;i<=scores.length;i++){
@@ -89,12 +110,13 @@
   // Sur fond très clair ou si la bordure est invisible, il serait
   // dangereux de recadrer davantage : conserver l'ancienne vue.
   if(ni<12||no<10||inner/ni-outer/no<23)return null;
+  const paper={x:x0/w,y:y0/h,w:rw/w,h:rh/h};
   const mx=Math.max(3,rw*.07),my=Math.max(3,rh*.09);
   x0=clamp(x0-mx,0,w);y0=clamp(y0-my,0,h);
   x1=clamp(x1+mx,0,w);y1=clamp(y1+my,0,h);
   // Refuser les extractions qui risquent de supprimer des bordures.
   if(x0<2||y0<2||x1>w-2||y1>h-2)return null;
-  return {x:x0/w,y:y0/h,w:(x1-x0)/w,h:(y1-y0)/h,source:'paper-outline'};
+  return {x:x0/w,y:y0/h,w:(x1-x0)/w,h:(y1-y0)/h,source:'paper-outline',paper};
  }
  // Une lecture optique certaine fournit une autre estimation. Nous ne
  // l'utilisons que si l'étiquette calculée reste totalement dans l'image.
@@ -135,5 +157,5 @@
   const optical=opticalCrop(reading,w,h);
   return optical||detect(imageData);
  }
- return Object.freeze({detect,opticalCrop,crop,barcodeWithinLabel});
+ return Object.freeze({detect,opticalCrop,crop,barcodeWithinLabel,aspect,guideScale,zones,paperRect,zoneRect,aligned});
 });

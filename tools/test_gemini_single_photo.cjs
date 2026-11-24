@@ -75,7 +75,7 @@ assert(js.includes('const selectedProvider=\'gemini\''));
 assert(js.includes('let targets=!targetField?recoveryTargets(combined):[]'));
 assert(js.includes("targets.length===1&&targets[0]==='ean'"),
  'Attente bornée pour éviter un appel Gemini si la lecture EAN locale est imminente');
-assert(js.includes('prepareLabelDetail(file,localBarcode)'),
+assert(js.includes('samePhotoGuided(file,localBarcode)'),
  'Recadrage optique réservé à la vue secondaire sur la même photo');
 assert(js.includes('clearTimeout(guard)'));
 assert(!slice("analyze.addEventListener('click'","function refreshTorch()").includes('IUGeminiSaveWeigh('));

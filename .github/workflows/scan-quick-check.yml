@@ -44,6 +44,7 @@ on:
       - 'tools/test_gemini_label_geometry.cjs'
       - 'tools/test_gemini_label_detail.cjs'
       - 'tools/test_gemini_first_detail.cjs'
+      - 'tools/test_gemini_calibrated.cjs'
       - 'gemini-frame-quality.js'
       - 'tools/test_gemini_frame_quality.cjs'
       - 'tools/test_gemini_capture_selection.cjs'
@@ -176,6 +177,7 @@ jobs:
           node tools/test_gemini_label_geometry.cjs
           node tools/test_gemini_label_detail.cjs
           node tools/test_gemini_first_detail.cjs
+          node tools/test_gemini_calibrated.cjs
       - name: Tester EAN en parallèle et CLAHE en secours (sans API facturée)
         run: |
           node tools/test_gemini_parallel.cjs

@@ -1,6 +1,6 @@
 {
-  "version": "42.52",
+  "version": "42.53",
   "published": "2026-11-24",
   "assets": 73,
-  "notes": "Prétraitement de la vue secondaire dès la capture : Worker dédié préchauffé, redressement, contraste conditionnel, JPEG original conservé, priorité au détail amélioré (attente bornée 280 ms), relecture complémentaire automatique sur 422 explicite si une autre vue est disponible. Contrôles, Gemini 3.5 et anti-503 conservés. Pas de changement Cloudflare."
+  "notes": "Viseur DIGI agrandi et calibré sur les étiquettes filmées, géométrie commune, EAN imprimé distinct, alignement indicatif. Préparation locale en visée, cache exact, vues EAN/chiffres ciblées, budget 504 et relecture bornée, diagnostics par moteur. Gemini 3.5 prioritaire. Redéploiement Worker Cloudflare recommandé pour le budget 504."
 }

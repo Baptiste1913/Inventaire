@@ -83,9 +83,10 @@
  // Every crop is a hypothesis: never replace confirmed OCR values.
  const ZONES={ean:[.02,.79,.61,.20],weight:[.34,.475,.26,.19],rate:[.055,.475,.26,.19],total:[.55,.74,.42,.25]};
  function readZone(bmp,label,field){
-  const z=ZONES[field],sx=Math.round((label.x+z[0]*label.w)*bmp.width),
-   sy=Math.round((label.y+z[1]*label.h)*bmp.height),
-   sw=Math.round(z[2]*label.w*bmp.width),sh=Math.round(z[3]*label.h*bmp.height);
+  const z=ZONES[field];
+  const calibrated=label?.paper&&root?.IUGeminiLabelGeometry?.zoneRect(label,[field],field==='ean'?.028:.025);
+  const r=calibrated||{x:label.x+z[0]*label.w,y:label.y+z[1]*label.h,w:z[2]*label.w,h:z[3]*label.h};
+  const sx=Math.round(r.x*bmp.width),sy=Math.round(r.y*bmp.height),sw=Math.round(r.w*bmp.width),sh=Math.round(r.h*bmp.height);
   if(sx<0||sy<0||sw<50||sh<12||sx+sw>bmp.width||sy+sh>bmp.height)return null;
   const factor=Math.min(1,640/sw,160/sh),w=Math.round(sw*factor),h=Math.round(sh*factor);
   const cv=new OffscreenCanvas(w,h),ctx=cv.getContext('2d',{willReadFrequently:true});if(!ctx)return null;
@@ -124,6 +125,7 @@
    }
    const result=accept(decode(infer(input)),field);
    if(result)return result;
+   if(field==='ean'){const alternative=Uint8Array.from(input,x=>Math.max(0,Math.min(255,(x-24)*1.25)));const recovered=accept(decode(infer(alternative)),field);if(recovered)return recovered;}
   }
   return null;
  }

@@ -27,7 +27,7 @@
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
  let primaryBarcodePhoto=null,alternatePhotoTask=null,printedBusy=false;
- let cachedEncoding=null,cachedDetail=null,cachedEnhanced=null;
+ let cachedEncoding=null,cachedDetail=null,cachedEnhanced=null,cachedFocused=new Map(),cachedGuided=null;
  // Prepare a second, improved view for the exact same captured label.
  function samePhotoEnhanced(source,reading=null){
   if(!source)return Promise.resolve(null);
@@ -38,6 +38,22 @@
   const promise=Promise.resolve().then(()=>window.IUGeminiParallel?.prepareDetail?.(source,reading,maxBytes)||null)
    .then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
   cachedEnhanced={source,promise};return promise;
+ }
+ function samePhotoFocus(source,mode,reading){
+  const found=cachedFocused.get(mode);if(found?.source===source)return found.promise;
+  const owner=file;
+  // One dedicated detail worker: serialize its optional crops.
+  const previous=mode==='numbers'?cachedFocused.get('ean')?.promise:null;
+  const promise=Promise.resolve(previous||samePhotoEnhanced(source,reading)).then(()=>{
+   if(file!==owner||!file)return null;
+   return window.IUGeminiParallel?.prepareDetail?.(source,reading,122000,mode)||null;
+  }).then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
+  cachedFocused.set(mode,{source,promise});return promise;
+ }
+ function samePhotoGuided(source,reading){
+  if(cachedGuided?.source===source&&cachedGuided.reading===reading)return cachedGuided.promise;
+  const promise=prepareLabelDetail(source,reading).catch(()=>null);
+  cachedGuided={source,reading,promise};return promise;
  }
  // Prefer the enhanced view, not merely the fastest completed promise.
  // If it is late, fall back immediately at the shared deadline.
@@ -103,72 +119,26 @@
  // croquis de référence : 7 zones généreuses, aucune case par mot.
  const exactGuide=$('iuGeminiExactGuide');
  const cameraStage=cameraShell?.querySelector('.iu-gemini-camera-stage');
- let guideSnapshot=null,guideSize=null,guideSource=null,guideScheduled=false;
- const filledGuideValues=[
-  ['.iu-gemini-label-name','CAROTTE'],
-  ['.iu-gemini-label-rate .iu-gemini-label-number','1,99€/kg'],
-  ['.iu-gemini-label-gross .iu-gemini-label-number','0,504 kg'],
-  ['.iu-gemini-label-date .iu-gemini-label-number','22.11.2026'],
-  ['.iu-gemini-label-ean','0203476006556'],
-  ['.iu-gemini-label-total-number','1,00€']
- ];
- // Fractions relevées sur la maquette pleine (1372×1088) et corrigées
- // avec les sept grands encadrés rouges fournis : en-tête, produit,
- // 3 mesures, EAN, prix. Les zones ne se chevauchent pas.
- const labelOutlineZones=[
-  ['store',  .510,.014,.430,.209],
-  // Libellé : -15 % en largeur et en hauteur, centré.
-  ['product',.125,.285,.761,.156],
-  // Prix unitaire, poids net, date : -33 % sur les deux axes.
-  ['rate',   .099,.503,.178,.125],
-  ['weight', .382,.503,.180,.125],
-  ['date',   .696,.503,.200,.125],
-  // EAN : même hauteur et même position verticale que le bloc prix.
-  ['barcode',.025,.687,.510,.291],
-  ['total',  .547,.687,.404,.291]
+ let guideSnapshot=null,guideSize=null,guideSource=null,guideScheduled=false,guideLastCheck=-Infinity;
+ const labelLayout=window.IUGeminiLabelGeometry;
+ const labelOutlineZones=labelLayout?.zones||[
+  ['store',.49,.035,.45,.15],['product',.11,.265,.78,.145],
+  ['rate',.065,.535,.275,.145],['weight',.395,.535,.245,.145],
+  ['date',.665,.535,.285,.145],['barcode',.075,.725,.435,.20],
+  ['ean',.055,.925,.465,.055],['total',.52,.725,.405,.245]
  ];
  function buildExactCameraOutline(source){
-  const initial=source.getBoundingClientRect();
-  if(initial.width<=60||initial.height<=40||!source.parentElement)return null;
-  // Le calcul est fait sur une copie DIGI réellement remplie :
-  // jamais sur les tirets vides, et sans remplacer le résultat visible.
-  const fullLabel=source.cloneNode(true);
-  fullLabel.classList.remove('iu-gemini-label-placeholder');
-  fullLabel.setAttribute('aria-hidden','true');
-  for(const [selector,value] of filledGuideValues){
-   const field=fullLabel.querySelector(selector);
-   if(field)field.textContent=value;
-  }
-  fullLabel.style.setProperty('position','absolute','important');
-  fullLabel.style.setProperty('visibility','hidden','important');
-  fullLabel.style.setProperty('pointer-events','none','important');
-  fullLabel.style.setProperty('width',initial.width+'px','important');
-  fullLabel.style.setProperty('max-width','none','important');
-  fullLabel.style.setProperty('height',initial.height+'px','important');
-  fullLabel.style.setProperty('margin','0','important');
-  let base=initial;
-  try{
-   source.parentElement.appendChild(fullLabel);
-   const measured=fullLabel.getBoundingClientRect();
-   if(measured.width>60&&measured.height>40)base=measured;
-  }finally{
-   fullLabel.remove();
-  }
-  const wireframe=document.createElement('div');
-  wireframe.className='iu-gemini-outline-label';
-  wireframe.style.width=base.width+'px';
-  wireframe.style.height=base.height+'px';
-  wireframe.style.borderRadius=getComputedStyle(source).borderTopLeftRadius;
+  const width=source.getBoundingClientRect().width,height=width/(labelLayout?.aspect||1.28);
+  if(width<=60)return null;
+  const wireframe=document.createElement('div');wireframe.className='iu-gemini-outline-label';
+  wireframe.style.width=width+'px';wireframe.style.height=height+'px';
+  wireframe.style.borderRadius='7px';
   for(const [kind,x,y,w,h] of labelOutlineZones){
-   const outline=document.createElement('span');
-   outline.className='iu-gemini-outline-rect iu-gemini-outline-'+kind;
-   outline.style.left=(x*base.width)+'px';
-   outline.style.top=(y*base.height)+'px';
-   outline.style.width=(w*base.width)+'px';
-   outline.style.height=(h*base.height)+'px';
-   wireframe.appendChild(outline);
+   const outline=document.createElement('span');outline.className='iu-gemini-outline-rect iu-gemini-outline-'+kind;
+   outline.style.left=(x*width)+'px';outline.style.top=(y*height)+'px';
+   outline.style.width=(w*width)+'px';outline.style.height=(h*height)+'px';wireframe.appendChild(outline);
   }
-  return {node:wireframe,width:base.width,height:base.height};
+  return {node:wireframe,width,height};
  }
  function syncExactCameraGuide(){
   if(!cameraStage||!exactGuide||!output)return;
@@ -179,8 +149,7 @@
    const bounds=source.getBoundingClientRect();
    if(bounds.width>60&&bounds.height>40&&
       (!guideSnapshot||source!==guideSource||!guideSize||
-       Math.abs(bounds.width-guideSize.width)>.5||
-       Math.abs(bounds.height-guideSize.height)>.5)){
+       Math.abs(bounds.width-guideSize.width)>.5)){
     const built=buildExactCameraOutline(source);
     if(built){
      guideSource=source;
@@ -195,10 +164,9 @@
    }
   }
   if(!guideSnapshot||!guideSize)return;
-  // Repère réduit à 70 % du cadrage maximal (82 % auparavant) :
-  // davantage d'air autour de l'étiquette, ratio et zones DIGI inchangés.
+  // Repère agrandi de 70 à 82 % du cadrage maximal, ratio physique fixe.
   // Ce calcul ne modifie pas la capture photo ni sa résolution.
-  const scale=.70*Math.min((stage.width-8)/guideSize.width,
+  const scale=(labelLayout?.guideScale||.82)*Math.min((stage.width-8)/guideSize.width,
    (stage.height-8)/guideSize.height);
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';
@@ -852,7 +820,7 @@
   generation++;abort?.abort();abort=null;active=false;file=null;
   setAnalysisCameraClosed(false);
   lastRawResult=null;localBarcode=null;barcodeJob=null;repairFocus=null;manualCorrectedFields=[];
-  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;
+  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   attempts.clear();photo.value='';latestLabelFields=null;
@@ -866,7 +834,7 @@
   say('');
  }
  function clear(){stopCamera();resetReading();}
- function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null}={}){
+ function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null,preparedEnhanced=null}={}){
   if(!chosen)return false;
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
@@ -890,7 +858,7 @@
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   analyze.textContent='Analyser l’étiquette';
-  clearPreview();file=chosen;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;attempts.clear();generation++;
+  clearPreview();file=chosen;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;attempts.clear();generation++;
   // Lire l'EAN en local en parallèle du réseau, sans envoi ni bibliothèque.
   // La pleine résolution reste réservée à l'EAN LOCAL si le JPEG
   // envoyé à Gemini a été réduit pour respecter le budget Cloudflare.
@@ -901,7 +869,9 @@
     Promise.resolve().then(()=>window.IUGeminiEAN?.read(barcodeSource)||null)))
    .catch(()=>null);
   // Start visual enhancement before launching the analysis event. No upload here.
+  if(preparedEnhanced)cachedEnhanced={source:barcodeSource,promise:preparedEnhanced};
   void samePhotoEnhanced(barcodeSource);
+  void samePhotoTask(chosen,true);
   url=URL.createObjectURL(chosen);
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
   showBlankLabel();networkTime.textContent='';resetProposal();
@@ -1341,6 +1311,7 @@
     +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
     +(result.visualFirst?' · détail 1 : '+result.visualFirst:'')
     +(result.visualRecheck?' · détail 2 : '+result.visualRecheck:'')
+    +(result.localDiagnostics?' · '+Object.entries(result.localDiagnostics).map(([k,v])=>k+' '+v).join(' / '):'')
     +(result.networkFailure?' · '+String(result.networkFailure.stage||'réseau')+' / '+Number(result.networkFailure.attempts||0)+' tentative(s)':'')
     +(result.digiPlan?' · DIGI : '+result.digiPlan.candidateCount+' candidat(s), '+result.digiPlan.observationCount+' observations, '+result.digiPlan.barRows+' lignes':'')
     +(result.digiDigitHint?' · OCR chiffres (indice) '+result.digiDigitHint:'')
@@ -1390,9 +1361,9 @@
   return attempt===1?1100:2600;
  }
  async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,
-  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null){
+  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null,budgetMs=13000){
   const payload={type:'iu-gemini-label-test',model:selectedModel,provider,
-   mimeType:'image/jpeg',imageBase64:encoded,
+   mimeType:'image/jpeg',imageBase64:encoded,budgetMs,
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
    ...(focusFields?.length?{focusFields}:{}),
@@ -1447,8 +1418,9 @@
    throw Error('Photo non acceptée · reprends une photo');
   if(status===404||providerStatus===404)
    throw Error('Modèle '+(provider==='openai'?'OpenAI':'Gemini')+' indisponible');
-  if(status===504||providerStatus===504)
-   throw Error('Délai Gemini dépassé (504) · conserve cette photo et réessaie');
+  if(status===504||providerStatus===504){
+   const e=Error('Délai Gemini dépassé (504) · photo conservée');e.transient=true;e.timeout=true;e.networkStats=result?.networkStats||{stage:'timeout',attempts:1};throw e;
+  }
   if(status===503||providerStatus===503){
    const stats=result?.networkStats||{};
    const e=Error(stats.stage==='circuit_open'?'Gemini saturé · photo conservée, réessaie dans quelques secondes':
@@ -1619,7 +1591,7 @@
   const id=++generation;
   abort=new AbortController();
   const currentAbort=abort;
-  const guard=setTimeout(()=>currentAbort.abort(),15000);
+  const guard=setTimeout(()=>currentAbort.abort(),24000);
   const start=performance.now();
   let advancedJob=null;
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
@@ -1638,7 +1610,11 @@
    void job.then(reading=>{if(id===generation)opticalReady=reading;});
    const detailTask=samePhotoTask(file,true);
    const sourcePhoto=primaryBarcodePhoto||file;
-   const track=promise=>latency?latency.track(promise):{done:false,value:null,promise:Promise.resolve(promise).catch(()=>null)};
+   const track=promise=>{
+    const since=performance.now(),task=latency?latency.track(promise):{done:false,value:null,promise:Promise.resolve(promise).catch(()=>null)};
+    void task.promise.then(value=>{task.done=true;task.value=value??null;task.ms=Math.round(performance.now()-since);});
+    return task;
+   };
    const until=(task,deadline)=>latency?latency.until(task,deadline):
     task?Promise.race([task.promise,new Promise(resolve=>setTimeout(()=>resolve(null),Math.max(0,deadline-performance.now())))]):Promise.resolve(null);
    const opticalTask=track(job);
@@ -1683,7 +1659,7 @@
     if(stillCurrent()&&!opticalTask.done)startPrinted();
    },220);
    void opticalTask.promise.then(()=>clearTimeout(earlyTimer));
-   const detailDeadline=performance.now()+280;
+   const detailDeadline=performance.now()+(lastSelectedQuality&&Object.values(lastSelectedQuality).some(r=>Number.isFinite(r)&&r<.45)?360:280);
    const encoded=await samePhotoTask(file);
    const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
    const firstDetail=await chooseVisualDetail(enhancedView,normalView,detailDeadline,until,safeDetail);
@@ -1697,22 +1673,26 @@
    // Start only after the primary Gemini request has been issued. No await
    // on Advanced, no additional cloud call and no modified cloud JPEG.
    advancedJob=track(window.IUDigiAdvanced?.read?.(sourcePhoto,opticalReady)||null);
+   // Prepare focused crops in parallel with the primary network request.
+   const focusEAN={kind:'EAN ciblé',task:track(samePhotoFocus(sourcePhoto,'ean',opticalReady))};
+   const focusNumbers={kind:'chiffres ciblés',task:track(samePhotoFocus(sourcePhoto,'numbers',opticalReady))};
    let received,usedComplementaryRead=false,recheckView=null;
    try{received=await receivedTask;}
    catch(error){
     // A 422 is not a network failure. Try one DIFFERENT visual view,
     // with the original JPEG still present, without another user click.
-    if(!error?.unreadable||id!==generation||currentAbort.signal.aborted||performance.now()-start>10000)throw error;
+    if((!error?.unreadable&&!error?.timeout)||id!==generation||currentAbort.signal.aborted||performance.now()-start>17500)throw error;
     const deadline=performance.now()+280;
     const firstEnhanced=firstDetail?.kind==='amélioré';
     recheckView=await chooseVisualDetail(firstEnhanced?normalView:enhancedView,
      firstEnhanced?enhancedView:normalView,deadline,until,safeDetail,firstDetail?.data||null);
-    if(!recheckView||id!==generation||currentAbort.signal.aborted)throw error;
+    if((!recheckView&&!error?.timeout)||id!==generation||currentAbort.signal.aborted)throw error;
     usedComplementaryRead=true;
     say(providerName+' · seconde vue préparée…');
     received=await requestGeminiWithRecovery(encoded,access,selectedModel,currentAbort.signal,id,targetField,selectedProvider,
-     recheckView.data,targetField?[targetField]:resumeFields?.length?resumeFields:null,
-     catalogHints(oldResult,opticalReady),resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null);
+     recheckView?.data||null,targetField?[targetField]:resumeFields?.length?resumeFields:null,
+     catalogHints(oldResult,opticalReady),resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null,
+     Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))));
    }
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
@@ -1839,12 +1819,15 @@
      // crop, provide unfiltered pixels. Otherwise prioritize the ready
      // enhanced crop; never let the cached normal crop win a race.
      const opticalDetail=trustedBarcodeEvidence(localBarcode)&&localBarcode?.bounds?
-      prepareLabelDetail(file,localBarcode).catch(()=>null):detailTask;
+      samePhotoGuided(file,localBarcode):detailTask;
      const guidedView={kind:'original',task:track(opticalDetail)};
      const firstEnhanced=firstDetail?.kind==='amélioré';
      const detailEnd=performance.now()+220;
-     recheckView=await chooseVisualDetail(firstEnhanced?guidedView:enhancedView,
-      firstEnhanced?enhancedView:guidedView,detailEnd,until,safeDetail,firstDetail?.data||null);
+     const onlyEAN=targets.every(k=>k==='ean'),onlyNumbers=targets.every(k=>['weight','rate','total'].includes(k));
+     const focusedView=onlyEAN?focusEAN:onlyNumbers?focusNumbers:null;
+     recheckView=await chooseVisualDetail(focusedView||(firstEnhanced?guidedView:enhancedView),
+      firstEnhanced?guidedView:enhancedView,detailEnd,until,safeDetail,firstDetail?.data||null);
+     if(performance.now()-start>18500)throw Error('Budget de relecture épuisé');
      // If the same picture is the only available detail, keep the useful
      // crop and existing focused prompt rather than sending no detail.
      if(!recheckView)recheckView=await chooseVisualDetail(firstEnhanced?guidedView:enhancedView,
@@ -1854,7 +1837,8 @@
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
       safeDetail(recheckView?.data),targets,
       catalogHints(combined,localBarcode),
-      targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null);
+      targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null,
+      Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))));
      if(id!==generation)return;
      combined=mergeRecoveredReading(combined,focused,targets);
      if(targets.includes('ean')){
@@ -1874,7 +1858,7 @@
      combined=applyCatalogRecovery(combined);
     }catch(error){
      if(error?.name==='AbortError'&&id!==generation)throw error;
-     // L'expiration globale de 15 s peut arriver pendant la SECONDE
+     // L'expiration globale de 24 s peut arriver pendant la SECONDE
      // lecture : ne jamais effacer les champs déjà obtenus de Gemini.
      // En revanche, interdire l'enregistrement tant que la confirmation
      // additionnelle n'a pas été obtenue.
@@ -1882,7 +1866,8 @@
       recoveryInterrupted:true,recoveryInterruptedTargets:[...targets]}};
     }
    }
-   let validated={...combined,visualFirst:firstDetail?.kind||'photo entière',visualRecheck:recheckView?.kind||null};
+   let validated={...combined,visualFirst:firstDetail?.kind||'photo entière',visualRecheck:recheckView?.kind||null,
+    localDiagnostics:Object.fromEntries(Object.entries({ZXing:opticalTask,imprimé:printedJob,barres:partialJob,Nano:digitJob,Advanced:advancedJob,OCR:paddleJob,détail:enhancedView.task}).map(([k,t])=>[k,t?.done?(t.value?'lu':'sans résultat')+' '+(t.ms??0)+' ms':t?'en cours':'non lancé']))};
    if(advancedJob?.value)validated={...validated,digiAdvancedHint:advancedJob.value,
     digiAdvancedComparison:window.IUDigiCatalogLookup?.compareAdvanced?.(validated,advancedJob.value)};
    const finalDeadline=performance.now()+110;
@@ -1981,6 +1966,7 @@
   torch.title=torchOn?'Désactiver le flash':'Activer le flash';
  }
  function stopCamera(){
+  if(exactGuide)delete exactGuide.dataset.aligned;
   stopQualityMonitor();
   // Fermeture volontaire : ne surtout pas réactiver la piste vidéo.
   setAnalysisCameraClosed(false,{resume:false});
@@ -2429,8 +2415,17 @@
   const ctx=qualitySampleCanvas.getContext('2d',{willReadFrequently:true});
   if(!ctx)return null;
   ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,w,h);
-  return qualityEngine.evaluate(ctx.getImageData(0,0,w,h),
-   qualityZones(view),qualityPrevious?.gray);
+  const image=ctx.getImageData(0,0,w,h);
+  const rating=qualityEngine.evaluate(image,qualityZones(view),qualityPrevious?.gray);
+  // Bounded low-res outline check: feedback only, never auto capture.
+  if(exactGuide&&labelLayout&&performance.now()-guideLastCheck>500){
+   guideLastCheck=performance.now();
+   const b=exactGuide.getBoundingClientRect();
+   const guide={x:((b.left-view.left)/view.width-.02)/.96,y:(b.top-view.top)/view.height,w:b.width/view.width/.96,h:b.height/view.height};
+   const detected=labelLayout.detect(image);
+   exactGuide.dataset.aligned=String(labelLayout.aligned(detected,guide));
+  }
+  return rating;
  }
  function fullResolutionCameraFrame(maxEdge=1920){
   const bounds=video.getBoundingClientRect();
@@ -2523,6 +2518,11 @@
      void candidate.preparedBlob.then(blob=>{
       if(!blob||candidate.epoch!==cameraEpoch||active||frameCaptureBusy||qualityCached!==candidate)return null;
       candidate.jpeg=blob;
+      // Exact selected JPEG only; never send preview images to Gemini.
+      if(blob.size<=490000&&window.IUGeminiParallel?.prepareDetail){
+       candidate.preparedEnhanced=window.IUGeminiParallel.prepareDetail(blob,null,122000)
+        .then(result=>result?readParallelDetail(result):null).catch(()=>null);
+      }
       return window.IUGeminiParallel.previewBarcode(blob);
      }).then(reading=>{
       if(candidate.epoch===cameraEpoch&&trustedBarcodeEvidence(reading)){
@@ -2938,7 +2938,8 @@
    }
    const used=setPhoto(nextPhoto,{confirmed:true,
     barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null,alternatePhoto,
-    preparedBarcode:chosen.jpeg===barcodeOriginal?chosen.preparedBarcode:null});
+    preparedBarcode:chosen.jpeg===barcodeOriginal?chosen.preparedBarcode:null,
+    preparedEnhanced:chosen.jpeg===barcodeOriginal?chosen.preparedEnhanced:null});
    if(used===false)setAutoHint('Capture non utilisée · réessaie','waiting');
   }catch(_){
    say('Photo impossible · recommence la capture.',true);

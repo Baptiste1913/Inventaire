@@ -15,12 +15,12 @@ const until=async(t,d)=>t.done?t.value:null,usable=d=>typeof d==='string'&&d.len
  assert.equal(await select(entry('amélioré',null),entry('original',null),280,until,usable),null);
  assert(lab.indexOf('void samePhotoEnhanced(barcodeSource);')<lab.indexOf('analyze.click();',lab.indexOf('void samePhotoEnhanced(barcodeSource);')));
  assert(lab.includes('if(resumeFields?.length||usedComplementaryRead)targets=[];'));
- assert(lab.includes('if(!error?.unreadable||id!==generation||currentAbort.signal.aborted'));
+ assert(lab.includes('if((!error?.unreadable&&!error?.timeout)||id!==generation||currentAbort.signal.aborted'));
  assert(lab.includes('if(usedComplementaryRead&&targets.length)'));
- assert(lab.includes('cachedEnhanced=null;attempts.clear();generation++'));
+ assert(lab.includes('cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;attempts.clear();generation++'));
  assert(lab.includes('const encoded=await samePhotoTask(file)'));
  assert(lab.includes('safeDetail(firstDetail?.data)'));
- assert(parallel.includes('gemini-image-worker.js?v=42.52&detail=1'));
+ assert(parallel.includes('gemini-image-worker.js?v=42.53&detail=1'));
  assert(worker.includes('jpeg.size<=limit'));
  let imports=[],answers=[];
  class FakeCanvas{

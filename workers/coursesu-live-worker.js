@@ -242,7 +242,8 @@ async function geminiPilot(request,env,origin){
    +digiPositions.join(', ')+'. Examine leurs pixels, sans compléter depuis les candidats ni faire de calcul. '
    +'Retourne la lecture complète si elle est visible, sinon un masque de 13 positions avec ?. '
    :'');
- const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),13000);
+ const budgetMs=Number.isSafeInteger(payload?.budgetMs)?Math.max(3000,Math.min(13000,payload.budgetMs)):13000;
+ const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),budgetMs);
  const incomingSignal=request.signal;
  const cancel=()=>abort.abort();
  if(incomingSignal?.aborted)cancel();else incomingSignal?.addEventListener('abort',cancel,{once:true});
@@ -259,7 +260,7 @@ async function geminiPilot(request,env,origin){
    propertyOrdering:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved']};
   const imageParts=[{inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}];
   if(detail)imageParts.push(
-   {text:'Image 2 : agrandissement central de la MEME photo, pour relire les chiffres fins.'},
+   {text:'Image 2 : détail de la MEME photo (étiquette entière, code-barres ou zone numérique). Utilise la première image pour situer les champs et le détail pour relire les pixels.'},
    {inline_data:{mime_type:'image/jpeg',data:detail}});
   const attempt=await resilientGemini('https://generativelanguage.googleapis.com/v1beta/models/'
    +model+':generateContent',{
@@ -270,7 +271,7 @@ async function geminiPilot(request,env,origin){
      generationConfig:{temperature:0,maxOutputTokens:1024,
       responseMimeType:'application/json',responseSchema}
     })
-   },{deadline:started+13000,signal:abort.signal});
+   },{deadline:started+budgetMs,signal:abort.signal});
   networkStats=attempt.stats;
   const res=attempt.response;
   if(!res){
@@ -288,7 +289,7 @@ async function geminiPilot(request,env,origin){
     :'Erreur du fournisseur Gemini.';
    // Ne pas transformer un refus d’accès/quota en fausse panne HTTP 502.
    const outputStatus=status===429?429:[401,403].includes(status)?403
-    :status===404?404:status===400?400:[500,502,503,504].includes(status)?503:502;
+    :status===404?404:status===400?400:status===504?504:[500,502,503].includes(status)?503:502;
    return reply({...closed,error:diagnostic,providerStatus:status,model,networkStats},outputStatus,origin);
   }
   providerAnswered=true;

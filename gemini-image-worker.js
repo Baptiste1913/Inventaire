@@ -3,7 +3,7 @@
  */
 'use strict';
 importScripts('./gemini-recognition-core.js?v=42.45');
-importScripts('./gemini-label-geometry.js?v=42.33');
+importScripts('./gemini-label-geometry.js?v=42.53');
 // Dedicated detail instance does not download/initialize the barcode engines.
 const detailOnly=Boolean(self.location?.search?.includes('detail=1'));
 if(!detailOnly){
@@ -87,7 +87,7 @@ function clahe(image,clipFactor=2.2,grid=8){
  }
  return image;
 }
-async function enhancedDetail(photo,reading,maxBytes=122000){
+async function enhancedDetail(photo,reading,maxBytes=122000,mode='enhanced'){
  const limit=Number.isSafeInteger(maxBytes)?Math.max(100,Math.min(122000,maxBytes)):122000;
  if(typeof OffscreenCanvas!=='function'||
     typeof createImageBitmap!=='function'||!self.IUGeminiLabelGeometry)
@@ -108,6 +108,21 @@ async function enhancedDetail(photo,reading,maxBytes=122000){
     tc.drawImage(bitmap,0,0,thumb.width,thumb.height);
     rect=geometry.detect(tc.getImageData(0,0,thumb.width,thumb.height));
    }
+  }
+  if(mode==='ean'||mode==='numbers'){
+   if(rect?.source!=='paper-outline'||!rect.paper)return null;
+   const focus=geometry.zoneRect(rect,mode==='ean'?['barcode','ean']:['rate','weight','total'],.035);
+   if(!focus)return null;
+   const b=zoneToPixels(focus,iw,ih);
+   if(b.w<160||b.h<45||b.x+b.w>iw||b.y+b.h>ih)return null;
+   const scale=Math.min(1,1700/Math.max(b.w,b.h)),cv=new OffscreenCanvas(Math.round(b.w*scale),Math.round(b.h*scale)),cx=cv.getContext('2d',{willReadFrequently:true});
+   if(!cx)return null;
+   cx.imageSmoothingQuality='high';cx.drawImage(bitmap,b.x,b.y,b.w,b.h,0,0,cv.width,cv.height);
+   const pixels=cx.getImageData(0,0,cv.width,cv.height),contrast=sampleContrast(pixels);
+   if(contrast.range<12)return null;
+   if(contrast.range<110){self.IURecognitionCore?.grayscale(pixels.data);clahe(pixels);cx.putImageData(pixels,0,0);}
+   for(const quality of [.88,.84,.77,.69,.57]){const jpeg=await cv.convertToBlob({type:'image/jpeg',quality});if(jpeg.size>=100&&jpeg.size<=limit)return jpeg;}
+   return null;
   }
   const located=Boolean(rect&&rect.x>=.008&&rect.y>=.008&&rect.x+rect.w<=.992&&rect.y+rect.h<=.992);
   // Same wide central crop as the raw detail if no trustworthy outline.
@@ -189,7 +204,7 @@ async function enhancedDetail(photo,reading,maxBytes=122000){
  }finally{bitmap.close?.();}
 }
 self.onmessage=async event=>{
- const {id,kind,photo,reading,maxBytes}=event.data||{};
+ const {id,kind,photo,reading,maxBytes,mode}=event.data||{};
  if(!Number.isSafeInteger(id))return;
  if(kind==='warm-detail'){self.postMessage({id,result:null});return;}
  if(detailOnly&&kind!=='enhanced-detail')return;
@@ -217,7 +232,7 @@ self.onmessage=async event=>{
   }
   else if(kind==='partial')result=await self.IUGeminiEAN.readPartial?.(photo)||null;
   else if(kind==='digit-template')result=await self.IUDigiDigitOCR?.read(photo,reading)||null;
-  else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading,maxBytes);
+  else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading,maxBytes,mode);
   self.postMessage({id,result});
  }catch(_){
   // Les échecs du prétraitement ne compromettent jamais Gemini.

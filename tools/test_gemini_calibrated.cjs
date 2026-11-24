@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const g=require('../gemini-label-geometry.js');
+assert.equal(g.aspect,1.28);assert.equal(g.guideScale,.82);
+assert.equal(g.zones.length,8);
+const paper={x:.1,y:.1,w:.8,h:.8},r={x:.04,y:.04,w:.92,h:.92,paper};
+const e=g.zoneRect(r,['ean'],0),b=g.zoneRect(r,['barcode'],0);
+assert(e.y>=b.y+b.h-1e-9);assert(e.x>=paper.x);assert(e.y+e.h<=.9+1e-9);
+assert(g.aligned(r,paper));assert(!g.aligned(r,{x:.2,y:.2,w:.4,h:.4}));
+assert.equal(g.zoneRect(null,['ean']),null);
+const l=fs.readFileSync('gemini-lab.js','utf8'),w=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
+assert(l.includes('preparedEnhanced:chosen.jpeg===barcodeOriginal?chosen.preparedEnhanced:null'));
+assert(l.includes('!error?.unreadable&&!error?.timeout'));
+assert(l.includes('currentAbort.abort(),24000'));
+assert(w.includes('deadline:started+budgetMs'));
+assert(w.includes('status===504?504'));
+assert(w.includes("model!=='gemini-3.5-flash-lite'"));
+console.log('OK : calibrated geometry, exact preview identity, bounded 504, Gemini only');

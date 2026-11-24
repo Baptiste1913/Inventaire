@@ -49,7 +49,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.52');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.53');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
@@ -125,7 +125,7 @@
   if(detailUnavailable||!root?.Worker||!root?.OffscreenCanvas||!root?.createImageBitmap)return false;
   if(detailWorker)return true;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.52&detail=1');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.53&detail=1');
    detailWorker=instance;
    instance.onmessage=event=>{
     if(detailWorker!==instance)return;
@@ -138,10 +138,10 @@
    instance.postMessage({id:++nextId,kind:'warm-detail'});return true;
   }catch(_){closeDetail();detailUnavailable=true;return false;}
  }
- function prepareDetail(photo,reading=null,maxBytes=122000){
+ function prepareDetail(photo,reading=null,maxBytes=122000,mode='enhanced'){
   if(!photo||!warmDetail())return Promise.resolve(null);
   if(detailPending){
-   if(detailPending.photo===photo&&detailPending.maxBytes===maxBytes)return detailPending.promise;
+   if(detailPending.photo===photo&&detailPending.maxBytes===maxBytes&&detailPending.mode===mode)return detailPending.promise;
    // Never let an older label monopolize the new one.
    closeDetail();if(!warmDetail())return Promise.resolve(null);
   }
@@ -149,8 +149,8 @@
   let resolve;
   const promise=new Promise(done=>{resolve=done;});
   const timer=setTimeout(()=>{if(detailPending?.id===id)closeDetail();},1700);
-  detailPending={id,photo,maxBytes,promise,resolve,timer};
-  try{detailWorker.postMessage({id,kind:'enhanced-detail',photo,reading,maxBytes});}catch(_){closeDetail();}
+  detailPending={id,photo,maxBytes,mode,promise,resolve,timer};
+  try{detailWorker.postMessage({id,kind:'enhanced-detail',photo,reading,maxBytes,mode});}catch(_){closeDetail();}
   return promise;
  }
  function close(){

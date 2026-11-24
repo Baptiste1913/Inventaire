@@ -5688,3 +5688,7 @@ html body #iuGeminiCatalogConfirm .iu-gemini-duplicate-confirm > small#iuGeminiC
  margin:0 0 12px!important;padding:0!important;
  font:600 12px/1.45 inherit;color:#50606d!important;overflow-wrap:anywhere!important;
 }
+
+/* v42.53 — true paper proportions, printed digits independent of bars. */
+#iuGeminiExactGuide .iu-gemini-outline-ean{border-radius:2px!important;}
+#iuGeminiCameraShell[data-state="scanning"] #iuGeminiExactGuide[data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198,.95)!important;}
