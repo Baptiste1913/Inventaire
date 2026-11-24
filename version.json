@@ -1,6 +1,6 @@
 {
-  "version": "42.97",
+  "version": "42.98",
   "published": "2026-11-24",
-  "assets": 97,
-  "notes": "Stabilisation sur v42.95. Aucune photo ou preuve antérieure au déclenchement, une seule image sélectionnée après le clic pour tous les moteurs. Contradiction nom imprimé/EAN catalogue bloquante, nom initial conservé. Retour aux moteurs et Worker v42.95, diagnostics serveur optionnels conservés."
+  "assets": 98,
+  "notes": "Pastille du logo AI : même verre translucide que le résultat (fond transparent, contour blanc, flou 1,25 px). Dimensions, animation et reconnaissance v42.97 inchangées."
 }

@@ -6491,3 +6491,29 @@ html body:is(.is-admin-mode,.is-events-mode,.is-alerts-mode,.is-account-mode) ma
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone[hidden] {
  display:none!important;
 }
+
+/* v42.98 — pastille AI : même verre que le panneau de résultat.
+   Le canvas du logo garde sa géométrie et son animation. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
+ border:1px solid rgba(255,255,255,.94)!important;
+ background:rgba(128,128,128,.002)!important;
+ -webkit-backdrop-filter:blur(1.25px)!important;
+ backdrop-filter:blur(1.25px)!important;
+ box-shadow:0 23px 30px -18px rgba(83,105,121,.112)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
+  background:#fff!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+ }
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
+  border:1px solid CanvasText!important;
+  background:Canvas!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  box-shadow:none!important;
+ }
+}
