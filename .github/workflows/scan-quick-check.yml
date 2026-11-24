@@ -10,6 +10,10 @@ on:
       - 'app.js'
       - 'weigh-scan.js'
       - 'gemini-lab.js'
+      - 'gemini-recognition-core.js'
+      - 'gemini-paddle-lab.js'
+      - 'gemini-paddle-worker.js'
+      - 'tools/test_gemini_recognition_core.cjs'
       - 'gemini-parallel.js'
       - 'gemini-image-worker.js'
       - 'gemini-zxing.js'
@@ -73,6 +77,10 @@ jobs:
           node --check app.js
           node --check weigh-scan.js
           node --check gemini-lab.js
+          node --check gemini-recognition-core.js
+          node --check gemini-paddle-lab.js
+          node --check gemini-paddle-worker.js
+          node --check tools/test_gemini_recognition_core.cjs
           node --check gemini-parallel.js
           node --check gemini-image-worker.js
           node --check gemini-zxing.js
@@ -122,6 +130,7 @@ jobs:
           node tools/test_digi_catalog_lookup.cjs
           node tools/test_digi_catalog_integration.cjs
           node tools/test_digi_catalog_recovery.cjs
+          node tools/test_gemini_recognition_core.cjs
       - name: Vérifier la sécurité et les routes du Worker Gemini dédié
         run: node tools/test_gemini_worker_only.mjs
       - name: Vérifier la lecture Gemini renforcée à partir d’une seule photo

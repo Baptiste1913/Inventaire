@@ -48,7 +48,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.36');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.45');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
@@ -103,6 +103,7 @@
   if(!photo)return Promise.resolve(null);
   return dispatch('barcode',photo);
  }
+ function partial(photo){return photo?dispatch('partial',photo):Promise.resolve(null);}
  function enhancedDetail(photo,reading){
   if(!photo||!root?.OffscreenCanvas||
      !root?.createImageBitmap)return Promise.resolve(null);
@@ -113,5 +114,5 @@
   legacyCache=new WeakMap();
  }
  function available(){return !unavailable&&Boolean(root?.Worker&&root?.OffscreenCanvas);}
- return Object.freeze({barcode,preloadBarcode,enhancedDetail,close,available});
+ return Object.freeze({barcode,preloadBarcode,partial,enhancedDetail,close,available});
 });

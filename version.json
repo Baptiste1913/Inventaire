@@ -1,6 +1,6 @@
 {
-  "version": "42.44",
+  "version": "42.45",
   "published": "2026-11-23",
   "assets": 63,
-  "notes": "Assistance DIGI : recherche locale de candidats par EAN partiel et libellé, montant calculé depuis poids/prix réellement lus, EAN 02 reconstruit uniquement avec majorité de chiffres concordants et confirmation pour préfixe incomplet. Popup de validation probable. Gemini contextualisé (5 candidats au maximum et masque de chiffres réellement observés) via Worker Cloudflare à redéployer. Aucune donnée de pesée ni catalogue complet transmise ; ZXing inchangé."
+  "notes": "Capture multi-images locale et secours EAN sous contrôle de concordance, fusion de masques EAN optiques/OCR/Gemini, correction perspective à quatre bords, gris WebAssembly SIMD avec repli JS, PaddleOCR expérimental opt-in WebGPU/WASM. Gemini prioritaire, aucun appel cloud supplémentaire. Worker Cloudflare inchangé."
 }

@@ -2,7 +2,8 @@
  * Classic Worker Safari ; aucune requête HTTP externe ni accès au stockage.
  */
 'use strict';
-importScripts('./gemini-ean.js?v=42.33');
+importScripts('./gemini-recognition-core.js?v=42.45');
+importScripts('./gemini-ean.js?v=42.45');
 importScripts('./gemini-label-geometry.js?v=42.33');
 importScripts('./gemini-zxing.js?v=42.36');
 function zoneToPixels(rect,w,h){
@@ -104,6 +105,33 @@ async function enhancedDetail(photo,reading){
   }
   if(!rect||rect.x<.008||rect.y<.008||
      rect.x+rect.w>.992||rect.y+rect.h>.992)return null;
+  // Perspective : quatre bords réels et marges sûres obligatoires.
+  const core=self.IURecognitionCore;
+  if(core?.quad&&core?.warp){
+   try{
+    const tw=Math.min(300,iw),th=Math.max(1,Math.round(ih*tw/iw));
+    const thumb=new OffscreenCanvas(tw,th),tc=thumb.getContext('2d',{willReadFrequently:true});
+    tc.drawImage(bitmap,0,0,tw,th);
+    const ti=tc.getImageData(0,0,tw,th);core.grayscale(ti.data);
+    const q=core.quad(ti,rect);
+    if(q){
+     const scale=Math.min(1,1600/Math.max(iw,ih));
+     const src=new OffscreenCanvas(Math.round(iw*scale),Math.round(ih*scale));
+     const sc=src.getContext('2d',{willReadFrequently:true});
+     sc.drawImage(bitmap,0,0,src.width,src.height);
+     const W=Math.round(Math.min(1400,rect.w*iw)),H=Math.round(Math.min(1150,rect.h*ih));
+     const flat=new OffscreenCanvas(W,H),fc=flat.getContext('2d');
+     const dest=fc.createImageData(W,H);
+     if(core.warp(sc.getImageData(0,0,src.width,src.height),dest,q)){
+      fc.putImageData(dest,0,0);
+      for(const quality of [.84,.75,.65,.55]){
+       const jpeg=await flat.convertToBlob({type:'image/jpeg',quality});
+       if(jpeg.size>=100&&jpeg.size<=122000)return jpeg;
+      }
+     }
+    }
+   }catch(_){}
+  }
   const box=zoneToPixels(rect,iw,ih);
   if(box.w<480||box.h<260||box.x+box.w>iw||box.y+box.h>ih)return null;
   const factor=Math.min(1,1400/Math.max(box.w,box.h));
@@ -120,6 +148,7 @@ async function enhancedDetail(photo,reading){
   // Ne jamais retoucher une image suffisamment contrastée et droite.
   if((contrast.range>=110||contrast.range<12)&&!rotate)return null;
   if(contrast.range>=12&&contrast.range<110){
+   self.IURecognitionCore?.grayscale(img.data);
    clahe(img);
    ctx.putImageData(img,0,0);
   }
@@ -168,6 +197,7 @@ self.onmessage=async event=>{
    try{result=await self.IUZxingEAN?.read(photo)||null;}catch(_){}
    if(!result)result=await self.IUGeminiEAN.read(photo);
   }
+  else if(kind==='partial')result=await self.IUGeminiEAN.readPartial?.(photo)||null;
   else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading);
   self.postMessage({id,result});
  }catch(_){

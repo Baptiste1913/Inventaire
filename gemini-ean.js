@@ -38,7 +38,27 @@
   const code=first+digits+right;
   return valid(code)?code:null;
  }
- function lineCode(values,thresholdMix=.5){
+ // Un groupe EAN dont les sept modules ne sont pas reconnus reste '?',
+ // même si une autre combinaison donnerait une clé valide.
+ function decodePartial95(bits){
+  if(typeof bits!=='string'||bits.length!==95||bits.slice(0,3)!=='101'||
+     bits.slice(45,50)!=='01010'||bits.slice(92)!=='101')return null;
+  let parity='',digits='';
+  for(let i=0;i<6;i++){
+   const seg=bits.slice(3+i*7,10+i*7);
+   if(LEFT.has(seg)){digits+=LEFT.get(seg);parity+='L';}
+   else if(ODD.has(seg)){digits+=ODD.get(seg);parity+='G';}
+   else{digits+='?';parity+='?';}
+  }
+  const possible=PARITY.map((p,i)=>({p,i})).filter(({p})=>
+   [...parity].every((c,i)=>c==='?'||p[i]===c));
+  const first=possible.length===1?String(possible[0].i):'?';
+  let right='';
+  for(let i=0;i<6;i++)right+=RIGHT.get(bits.slice(50+i*7,57+i*7))??'?';
+  const result=first+digits+right;
+  return result.includes('?')&&result.replace(/\?/g,'').length>=6?result:null;
+ }
+ function lineCode(values,thresholdMix=.5,partial=false){
   const width=values.length;
   // P5/P85 atténue les reflets et les petits points noirs.
   const sorted=[...values].sort((a,b)=>a-b);
@@ -73,6 +93,7 @@
    }
    const code=decode95(bits.join(''));
    if(code)results.push({code,start,end});
+   else if(partial){const pattern=decodePartial95(bits.join(''));if(pattern)results.push({pattern,start,end});}
   }
   return results;
  }
@@ -175,6 +196,51 @@
     right:(rx+rect[1]*rw/w)/iw,
     y:(ry+data.ys[Math.min(pos,data.ys.length-1)]*rh/h)/ih,
     slope:data.slopes[Math.min(pos,data.slopes.length-1)]}};
+ }
+ // Secours borné : rangées physiques et gardes EAN concordantes.
+ async function readPartial(photo){
+  if(typeof OffscreenCanvas!=='function'||typeof createImageBitmap!=='function')return null;
+  let bmp;
+  try{
+   bmp=await createImageBitmap(photo);
+   const w=Math.min(1500,bmp.width),h=Math.round(bmp.height*w/bmp.width);
+   if(w<450||h<250)return null;
+   const cv=new OffscreenCanvas(w,h),ctx=cv.getContext('2d',{willReadFrequently:true});
+   if(!ctx)return null;
+   ctx.drawImage(bmp,0,0,w,h);
+   const pixels=ctx.getImageData(0,0,w,h).data,rows=[];
+   let anchor=null;
+   for(const fraction of [.60,.63,.66,.69,.72,.75,.78,.81,.84,.87,.90]){
+    const row=Math.round(h*fraction),found=[];
+    for(const slope of [0,-.045,.045]){
+     const values=Array.from({length:w},(_,x)=>{
+      const y=Math.max(0,Math.min(h-1,Math.round(row+slope*(x-w*.5))));
+      const i=(y*w+x)*4;
+      return (77*pixels[i]+150*pixels[i+1]+29*pixels[i+2])>>>8;
+     });
+     for(const hit of lineCode(values,.5,true)){
+      const center=(hit.start+hit.end)/2/w,width=(hit.end-hit.start)/w;
+      if(center<.15||center>.60||width<.20||width>.65)continue;
+      found.push({...hit,pattern:hit.pattern||hit.code});
+     }
+    }
+    if(!found.length)continue;
+    const hit=found.sort((a,b)=>b.pattern.replace(/\?/g,'').length-a.pattern.replace(/\?/g,'').length)[0];
+    if(!anchor)anchor=hit;
+    if(Math.abs(hit.start-anchor.start)>w*.045||Math.abs(hit.end-anchor.end)>w*.045)continue;
+    if(found.some(x=>Math.abs(x.start-hit.start)>w*.07||Math.abs(x.end-hit.end)>w*.07||
+       [...x.pattern].some((c,i)=>c!=='?'&&hit.pattern[i]!=='?'&&c!==hit.pattern[i])))return null;
+    rows.push(hit.pattern);
+   }
+   if(rows.length<2)return null;
+   let pattern='',known=0;
+   for(let i=0;i<13;i++){
+    const vals=rows.map(r=>r[i]).filter(c=>c!=='?'),unique=new Set(vals);
+    if(unique.size>1)return null;
+    const digit=vals.length>=2?vals[0]:'?';pattern+=digit;if(digit!=='?')known++;
+   }
+   return known>=6?{pattern,source:'optical-partial',confirmed:false,rows:rows.length}:null;
+  }catch(_){return null;}finally{bmp?.close?.();}
  }
  function detectPaper(original,iw,ih){
   const geom=(typeof window!=='undefined'?window:
@@ -321,6 +387,6 @@
  }
  const scope=typeof window!=='undefined'?window:
   (typeof self!=='undefined'?self:null);
- if(scope)scope.IUGeminiEAN={read,decode95,lineCode,valid,
+ if(scope)scope.IUGeminiEAN={read,decode95,decodePartial95,readPartial,lineCode,valid,
   suggestLabelCrop,cropIfSafe};
 })();

@@ -36,10 +36,10 @@ assert(sw.includes('gemini-image-worker.js?v='+imageWorkerVersion));
 assert(html.indexOf('gemini-parallel.js?v='+parallelVersion)<
  html.indexOf('gemini-lab.js?v='+version),
  'Le gestionnaire parallèle doit être chargé avant le scanner');
-assert(local.includes('window.IUGeminiParallel?.barcode(chosen)'));
+assert(local.includes('window.IUGeminiParallel?.barcode(barcodeSource)'));
 assert(local.includes('window.IUGeminiParallel?.enhancedDetail(file,'));
 assert(local.includes('blob?.size>490000&&Math.max(cv.width,cv.height)>1920'));
-assert(local.includes('fullResolutionCameraFrame(2160)'));
+assert(local.includes('fullResolutionCameraFrame(localEdge)'));
 const photo={name:'simulated-jpeg',size:12000,type:'image/jpeg'};
 const messages=[];
 let created=0,terminated=0;

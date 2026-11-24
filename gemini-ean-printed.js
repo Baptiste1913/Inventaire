@@ -41,6 +41,16 @@
   // l'ancienne étiquette DIGI est proposée, sans autre agrandissement.
   return {x:.025,y:.67,w:.67,h:.315};
  }
+ function partialPattern(text,confidence){
+  if(typeof text!=='string'||Number(confidence)<80)return null;
+  const masks=new Set();
+  for(const line of text.split(/[\r\n]+/)){
+   const normalized=line.trim().replace(/[ \t\u00a0\u202f-]/g,'');
+   if(/^[0-9?]{13}$/.test(normalized)&&normalized.includes('?')&&
+      normalized.replace(/\?/g,'').length>=6)masks.add(normalized);
+  }
+  return masks.size===1?[...masks][0]:null;
+ }
  function promote(first,second){
   // Une seule OCR, même avec une clé EAN correcte, est une piste non
   // confirmée : ne jamais compléter des chiffres par déduction.
@@ -49,7 +59,11 @@
   if(first?.ean13&&second?.ean13&&first.ean13!==second.ean13)
    return {source:'printed-ocr',confirmed:false,ambiguous:true};
   const one=first?.ean13?first:second;
-  if(!one?.ean13)return null;
+  if(!one?.ean13){
+   const a=first?.pattern,b=second?.pattern;
+   if(a&&b){const f=root?.IURecognitionCore?.fuse(a,b);if(f&&!f.conflict)return {pattern:f.pattern,source:'printed-ocr',confirmed:false};}
+   return null;
+  }
   const consistent=first?.ean13===second?.ean13&&
    first?.confidence>=80&&second?.confidence>=80;
   return {...one,source:'printed-ocr',confirmed:Boolean(consistent),
@@ -87,7 +101,9 @@
     if('filter' in ctx)ctx.filter='none';
     if(engine?.recognize){
      const result=await engine.recognize(cv);
-     return parse(result?.data?.text,result?.data?.confidence);
+     return parse(result?.data?.text,result?.data?.confidence)||
+      (partialPattern(result?.data?.text,result?.data?.confidence)?
+       {pattern:partialPattern(result.data.text,result.data.confidence),source:'printed-ocr',confidence:result.data.confidence}:null);
     }
     if(detector){
      const lines=await detector.detect(cv);
@@ -135,5 +151,5 @@
   }catch(_){return null;}
   finally{try{bmp?.close?.()}catch(_){}}
  }
- return Object.freeze({valid,parse,roi,read,promote});
+ return Object.freeze({valid,parse,roi,read,promote,partialPattern});
 });
