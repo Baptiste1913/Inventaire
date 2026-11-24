@@ -1,4 +1,4 @@
-/* Inventaires U 42.56 — chrome et micro-vagues locales, apparition aléatoire.
+/* Inventaires U 42.57 — chrome, longues fibres internes et relief extérieur.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -18,7 +18,7 @@
  const TWO_PI=Math.PI*2;
  const COUNT=1280;
  let width=0,height=0,renderScale=0;
- let lanes=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
+ let lanes=[],chromeOuterLines=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
  function wrap(u){return ((u%1)+1)%1;}
  // Contour arrondi à paramétrisation par longueur d'arc réelle :
  // les déplacements restent continus, y compris dans les quatre coins.
@@ -48,7 +48,7 @@
   d-=vertical;
   return corner(left+r,top+r,Math.PI+d/r);
  }
- function buildLane(phase,amplitude){
+ function buildLane(phase,amplitude,outset=0){
   const points=[];
   const line=new Path2D();
   for(let i=0;i<COUNT;i++){
@@ -58,7 +58,7 @@
    // ni saut à chaque image. Fréquences entières => boucle fermée.
    const displacement=amplitude*(.77*Math.sin(TWO_PI*3*u+phase)+
       .23*Math.sin(TWO_PI*7*u-phase*.4));
-   const x=p.x+p.nx*displacement,y=p.y+p.ny*displacement;
+   const x=p.x+p.nx*(displacement+outset),y=p.y+p.ny*(displacement+outset);
    points.push({x,y});
    if(i===0)line.moveTo(x,y);else line.lineTo(x,y);
   }
@@ -108,17 +108,18 @@
     buildLane(2.93,.34),
     buildLane(5.81,.23)
    ];
+   if(isGemini)chromeOuterLines=[buildLane(.28,.37,.06).line,buildLane(2.35,.58,.04).line,buildLane(1.42,.49,.03).line];
   }
   return true;
  }
- function baseFilament(laneIndex,alpha,widthPx,color='#f0f5f7'){
+ function baseFilament(laneIndex,alpha,widthPx,color='#f0f5f7',line=null){
   ctx.save();
   ctx.globalCompositeOperation='source-over';
   ctx.strokeStyle=color;
   ctx.lineJoin='round';
   ctx.lineWidth=widthPx+contourBoost;
   ctx.globalAlpha=alpha;
-  ctx.stroke(lanes[laneIndex].line);
+  ctx.stroke(line||lanes[laneIndex].line);
   ctx.restore();
  }
  // Les anciens reflets étaient assemblés par ~60 petits strokes séparés
@@ -148,17 +149,20 @@
   }
   return positions;
  }
- function drawRibbon(points,widthPx,color,opacity,blur,blend='screen'){
+ function drawRibbon(points,widthPx,color,opacity,blur,blend='screen',outset=0){
   const shape=new Path2D();
   for(let i=0;i<points.length;i++){
    const p=points[i];
    const radius=(widthPx+contourBoost)*p.envelope/2;
-   const x=p.x+p.nx*radius,y=p.y+p.ny*radius;
+   // Clockwise main ribbons have inward normals: shift only added width outward.
+   const offset=radius-outset*p.envelope;
+   const x=p.x+p.nx*offset,y=p.y+p.ny*offset;
    if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y);
   }
   for(let i=points.length-1;i>=0;i--){
    const p=points[i],radius=(widthPx+contourBoost)*p.envelope/2;
-   shape.lineTo(p.x-p.nx*radius,p.y-p.ny*radius);
+   const offset=radius+outset*p.envelope;
+   shape.lineTo(p.x-p.nx*offset,p.y-p.ny*offset);
   }
   shape.closePath();
   ctx.save();
@@ -242,18 +246,65 @@
     w.opacity*shape.lifeEnvelope,.32,'source-over');
   }
  }
+ // Long local inner reflections, independent of short crossing waves.
+ const MAX_INNER_WAVES=4;
+ let innerWaves=[],nextInnerWaveAt=null;
+ function spawnInnerWave(t){
+  return {born:t,life:range(1.8,4.2),center:Math.random(),span:range(.10,.22),
+   amplitude:range(.5,1.4),phase:range(0,TWO_PI),cycles:range(.7,1.2),
+   frequency:range(.45,.9),travel:range(-.012,.012),width:range(.24,.42),
+   opacity:range(.10,.22),shade:waveShades[Math.floor(range(0,waveShades.length))]};
+ }
+ function advanceInnerWaves(t){
+  innerWaves=innerWaves.filter(w=>t-w.born<w.life);
+  if(nextInnerWaveAt===null)nextInnerWaveAt=t+range(.12,.55);
+  if(t<nextInnerWaveAt)return;
+  if(innerWaves.length<MAX_INNER_WAVES)innerWaves.push(spawnInnerWave(t));
+  nextInnerWaveAt=t+(Math.random()<.18?range(.9,1.5):range(.35,.8));
+ }
+ function innerWaveShape(t,w){
+  const age=Math.max(0,Math.min(1,(t-w.born)/w.life));
+  const lifeEnvelope=Math.pow(Math.sin(Math.PI*age),1.2);
+  const center=wrap(w.center+w.travel*Math.sin(Math.PI*age));
+  const span=w.span*(.45+.55*lifeEnvelope),positions=[],samples=84;
+  // Stay within the perimeter gutter; closest internal rectangle starts
+  // at 2% of guide height (barcode/total bottom).
+  const safeDepth=Math.max(0,Math.min(2.0,(height-12)*.02-.55));
+  for(let i=0;i<=samples;i++){
+   const s=i/samples,u=center+(s-.5)*span,p=basePoint(u);
+   const envelope=Math.pow(Math.sin(Math.PI*s),1.45);
+   const oscillation=.76*Math.sin(TWO_PI*(w.cycles*age+w.frequency*s)+w.phase)
+    +.24*Math.sin(TWO_PI*(.5*age+1.25*s)-w.phase);
+   const depth=Math.min(safeDepth,(.42+w.amplitude*(.55+.45*oscillation)))*lifeEnvelope*envelope;
+   positions.push({x:p.x-p.nx*depth,y:p.y-p.ny*depth,nx:p.nx,ny:p.ny,envelope});
+  }
+  return {positions,lifeEnvelope,center,span,safeDepth};
+ }
+ function paintInnerWaves(t){
+  if(reduceMotion?.matches)return;
+  advanceInnerWaves(t);
+  for(const w of innerWaves){
+   const shape=innerWaveShape(t,w);
+   if(shape.lifeEnvelope<.01||shape.safeDepth<.35)continue;
+   drawRibbon(shape.positions,w.width*(.65+.35*shape.lifeEnvelope),w.shade,
+    w.opacity*shape.lifeEnvelope,.28,'source-over');
+  }
+ }
+ function resetWaves(){
+  looseFibres=[];nextWaveAt=null;innerWaves=[];nextInnerWaveAt=null;
+ }
  function paintChrome(t){
   // A single animated contour, made of thin overlapping metal fibres;
   // the gentle breathing keeps the full perimeter legible on light/dark paper.
-  baseFilament(0,.35+.045*Math.sin(t*.9),.90,'#303030');
-  baseFilament(1,.62+.065*Math.sin(t*.73+1.4),.68,'#dedede');
-  baseFilament(3,.34+.04*Math.sin(t*.61+2),.48,'#898989');
+  baseFilament(0,.35+.045*Math.sin(t*.9),1.02,'#303030',chromeOuterLines[0]);
+  baseFilament(1,.62+.065*Math.sin(t*.73+1.4),.76,'#dedede',chromeOuterLines[1]);
+  baseFilament(3,.34+.04*Math.sin(t*.61+2),.54,'#898989',chromeOuterLines[2]);
   for(const config of chromeReflections){
    const ribbon=ribbonGeometry(t,config);
-   drawRibbon(ribbon,1.9,config.tint,config.opacity*.44,1.5,'source-over');
-   drawRibbon(ribbon,.85,config.core,config.opacity,.35,'source-over');
+   drawRibbon(ribbon,2.15,config.tint,config.opacity*.44,1.5,'source-over',.125);
+   drawRibbon(ribbon,.95,config.core,config.opacity,.35,'source-over',.05);
   }
-  if(running)paintWaves(t);
+  if(running){paintWaves(t);paintInnerWaves(t);}
  }
  function paint(t){
   if(!width||!height)return;
@@ -316,7 +367,7 @@
    }
   }else{
    running=false;
-   if(isGemini){looseFibres=[];nextWaveAt=null;}
+   if(isGemini)resetWaves();
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
    if(!overlay.hidden&&guide.getClientRects().length&&measure())paint(elapsed);
@@ -327,7 +378,7 @@
  });
  document.addEventListener('visibilitychange',sync);
  window.addEventListener('pageshow',sync);
- window.addEventListener('pagehide',()=>{running=false;if(request)cancelAnimationFrame(request);request=0;lastTick=0;});
+ window.addEventListener('pagehide',()=>{running=false;if(isGemini)resetWaves();if(request)cancelAnimationFrame(request);request=0;lastTick=0;});
  window.addEventListener('resize',()=>{measure();sync();},{passive:true});
  // Le zoom par pincement n'émet pas forcément window.resize sur iOS.
  // La surface est rééchantillonnée uniquement quand son niveau change.

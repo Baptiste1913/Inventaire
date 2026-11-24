@@ -37,7 +37,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.56'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.57'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -52,7 +52,7 @@ const overlay={id:'iuGeminiCameraShell',hidden:false,dataset:{state:'scanning'},
 const doc={hidden:false,getElementById:k=>k===overlay.id?overlay:null,addEventListener(){}};
 const win={devicePixelRatio:3,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:()=>1,cancelAnimationFrame(){}};
 class Observer{observe(){}}
-const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isGemini)inspect({advanceWaves,waveShape,spawnWave,point,basePoint,wrap,active:()=>looseFibres,shades:waveShades});\n }\n})();');
+const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isGemini)inspect({advanceWaves,waveShape,spawnWave,point,basePoint,wrap,active:()=>looseFibres,shades:waveShades,advanceInnerWaves,innerWaveShape,spawnInnerWave,inner:()=>innerWaves,resetWaves});\n }\n})();');
 new Function('document','window','Path2D','MutationObserver','Math','inspect',instrument)(doc,win,TestPath,Observer,seeded,x=>{api=x});
 assert(api);assert.equal(api.shades.length,13);assert(api.shades.every(grey));
 let peak=0,births=new Set(),colors=new Set(),locations=new Set(),inside=false,outside=false;
@@ -76,3 +76,33 @@ assert(birth.lifeEnvelope<1e-8&&end.lifeEnvelope<1e-8);
 assert(middle.span>birth.span&&middle.span>end.span);
 api.advanceWaves(200);assert(api.active().length<=1,'Pas de rattrapage en rafale');
 console.log('OK : chrome monochrome, cycle aléatoire, vagues bidirectionnelles, mouvement réduit, OCR classique préservé');
+
+let longPeak=0,longBirths=new Set(),deepest=0;
+for(let i=0;i<1600;i++){
+ const now=i*.025;api.advanceInnerWaves(now);
+ longPeak=Math.max(longPeak,api.inner().length);
+ for(const w of api.inner()){
+  longBirths.add(w.born);
+  assert(w.span>=.10&&w.span<=.22&&w.width<=.42&&w.opacity<=.22);
+  const shape=api.innerWaveShape(now,w);
+  for(const j of [0,21,42,63,84]){
+   const u=shape.center+(j/84-.5)*shape.span,b=api.basePoint(u),p=shape.positions[j];
+   const d=(p.x-b.x)*b.nx+(p.y-b.y)*b.ny;
+   assert(d<=1e-8&&d>=-shape.safeDepth-1e-8);
+   deepest=Math.max(deepest,-d);
+  }
+ }
+}
+assert(longPeak>=2&&longPeak<=4);assert(longBirths.size>25);assert(deepest>.5);
+const long=api.spawnInnerWave(50),first=api.innerWaveShape(50,long),mid=api.innerWaveShape(50+long.life/2,long),last=api.innerWaveShape(50+long.life,long);
+assert(first.lifeEnvelope<1e-8&&last.lifeEnvelope<1e-8&&mid.span>first.span);
+api.resetWaves();assert.equal(api.inner().length,0);assert.equal(api.active().length,0);
+assert(source.includes("2.15,config.tint,config.opacity*.44,1.5,'source-over',.125"));
+assert(source.includes(".95,config.core,config.opacity,.35,'source-over',.05"));
+const update=css.slice(css.indexOf('/* v42.57'));
+assert(update.includes('opacity:.22!important;'));
+assert(update.includes('box-shadow:0 0 0 100vmax rgba(0,0,0,.24)!important;'));
+assert(update.includes('background:transparent!important;'));
+assert(update.includes('[data-state="scanning"]'));
+assert(update.includes('overflow:hidden!important;'));
+console.log('OK : longues fibres internes bornées, épaisseur extérieure et voile transparent au centre');

@@ -5706,3 +5706,27 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiCameraShell #iuGeminiExactGuide > .iu-gemini-outline-label::after {
  content:none!important;
 }
+
+/* v42.57 — repères intérieurs discrets et voile de cadrage extérieur.
+   Le voile est une ombre sans remplissage, limitée au bloc caméra.
+   Aucun filtre sur la vidéo, aucun changement de la capture. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell #iuGeminiExactGuide > .iu-gemini-outline-label > .iu-gemini-outline-rect {
+ opacity:.22!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell .iu-gemini-camera-stage {
+ overflow:hidden!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiCameraShell[data-state="scanning"] #iuGeminiExactGuide:has(> .iu-gemini-outline-label)::before {
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ border:0!important;
+ border-radius:7px!important;
+ background:transparent!important;
+ box-shadow:0 0 0 100vmax rgba(0,0,0,.24)!important;
+ pointer-events:none!important;
+ z-index:-1!important;
+}

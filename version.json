@@ -1,6 +1,6 @@
 {
-  "version": "42.56",
+  "version": "42.57",
   "published": "2026-11-24",
   "assets": 73,
-  "notes": "Contour chrome DIGI préservé, 13 nuances de micro-filaments transitoires, vagues locales aléatoires avec oscillation vers l’intérieur et l’extérieur, rétrécissement et extinction progressive. Maximum 6 filaments actifs, mouvement réduit respecté. Reconnaissance et cadrage inchangés."
+  "notes": "Chrome DIGI : longues fibres internes aléatoires, micro-vagues conservées, relief extérieur asymétrique, repères intérieurs à 22 % d’opacité, voile extérieur à 24 %. Géométrie et OCR inchangés. Aucun redéploiement Cloudflare."
 }
