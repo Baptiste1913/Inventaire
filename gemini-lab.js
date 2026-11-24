@@ -30,6 +30,7 @@
  let primaryBarcodePhoto=null,alternatePhotoTask=null,printedBusy=false;
  let cachedEncoding=null,cachedDetail=null,cachedEnhanced=null,cachedFocused=new Map(),cachedGuided=null;
  const guidedPhotos=new WeakSet();
+ let previewFocus=null;
  const guideHint=(source,reading)=>guidedPhotos.has(source)?{...reading,guideCrop:true}:reading;
  // Prepare a second, improved view for the exact same captured label.
  function samePhotoEnhanced(source,reading=null){
@@ -45,11 +46,14 @@
  }
  function samePhotoFocus(source,mode,reading){
   const found=cachedFocused.get(mode);if(found?.source===source)return found.promise;
+  if(!reading&&previewFocus?.source===source&&previewFocus.values?.[mode]){
+   const promise=Promise.resolve(previewFocus.values[mode]);cachedFocused.set(mode,{source,promise});return promise;
+  }
   reading=guideHint(source,reading);
   const owner=file;
   // Separate focused lane on capable devices. Keep the original serial
   // fallback and preferred enhanced view if the extra lane is unavailable.
-  const previous=mode==='numbers'?cachedFocused.get('ean')?.promise:null;
+  const previous=mode==='numbers'&&window.IUGeminiParallel?.profile?.()!==4?cachedFocused.get('ean')?.promise:null;
   const promise=Promise.resolve(previous).then(async()=>{
    if(file!==owner||!file)return null;
    const focused=window.IUGeminiParallel?.prepareFocused?.(source,reading,122000,mode);
@@ -261,7 +265,7 @@
   qualityLastSampleAt=0,qualityLastCachedAt=0,qualityPrevious=null,
   qualityCached=null,lastSelectedQuality=null;
  const qualityRing=[];
- const qualityRingLimit=Number(navigator.hardwareConcurrency||0)>=6&&(!navigator.deviceMemory||navigator.deviceMemory>=4)?3:1;
+ let qualityRingLimit=Number(navigator.hardwareConcurrency||0)>=6&&(!navigator.deviceMemory||navigator.deviceMemory>=4)?3:1;
  const localReader=window.IUGeminiLocalOCR||null;
  let localWorker=null,localWorkerPromise=null,localEngineGeneration=0,
   localOcrDisabled=false,localOcrBusy=false,localOcrToken=0,
@@ -862,7 +866,7 @@
   generation++;abort?.abort();abort=null;active=false;file=null;
   setAnalysisCameraClosed(false);
   lastRawResult=null;localBarcode=null;barcodeJob=null;repairFocus=null;manualCorrectedFields=[];
-  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;
+  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;previewFocus=null;
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   attempts.clear();photo.value='';latestLabelFields=null;
@@ -876,7 +880,7 @@
   say('');
  }
  function clear(){stopCamera();resetReading();}
- function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null,preparedEnhanced=null,guideCrop=false}={}){
+ function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null,preparedEnhanced=null,preparedFocus=null,guideCrop=false}={}){
   if(!chosen)return false;
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
@@ -907,6 +911,7 @@
   const barcodeSource=barcodePhoto||chosen;
   if(guideCrop){guidedPhotos.add(chosen);guidedPhotos.add(barcodeSource);}
   primaryBarcodePhoto=barcodeSource;alternatePhotoTask=alternatePhoto;
+  previewFocus=preparedFocus?{source:barcodeSource,values:preparedFocus}:null;
   barcodeJob=(preparedBarcode?Promise.resolve(preparedBarcode):
    (window.IUGeminiParallel?.barcode(barcodeSource)||
     Promise.resolve().then(()=>window.IUGeminiEAN?.read(barcodeSource)||null)))
@@ -1338,7 +1343,7 @@
     +(Number.isFinite(result.clientNetworkMs)?' · échange '+(result.clientNetworkMs/1000).toFixed(2)+' s':'')
     +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
     +(result.timing?' · préparation '+result.timing.preparationMs+' ms · première réponse '+result.timing.firstResponseMs+' ms · relecture '+result.timing.recoveryMs+' ms · analyse '+result.timing.totalMs+' ms'+(result.timing.captureMs!==null?' · capture '+result.timing.captureMs+' ms':''):'')
-    +(result.requestTimings?.length?' · réseau '+result.requestTimings.map((x,i)=>(i+1)+': préparation '+x.packetMs+' / réponse '+x.headersMs+' / JSON '+x.parseMs+' / Worker '+(x.workerMs??'—')+' ms').join(' ; '):'')
+    +(result.requestTimings?.length?' · réseau '+result.requestTimings.map((x,i)=>(i+1)+': préparation '+x.packetMs+' / réponse '+x.headersMs+' / JSON '+x.parseMs+' / Worker '+(x.workerMs??'—')+' ms'+(x.server?' (entrée '+x.server.ingressMs+' / Google '+x.server.upstreamMs+' / retour '+x.server.processingMs+' ms)':'')).join(' ; '):'')
     +(result.visualFirst?' · détail 1 : '+result.visualFirst:'')
     +(result.visualRecheck?' · détail 2 : '+result.visualRecheck:'')
     +(result.localDiagnostics?' · '+Object.entries(result.localDiagnostics).map(([k,v])=>k+' '+v).join(' / '):'')
@@ -1390,10 +1395,11 @@
   if(Number.isFinite(seconds)&&seconds>0)return Math.min(8000,Math.max(1000,Math.ceil(seconds*1000)));
   return attempt===1?1100:2600;
  }
+ let speculativeSupported=false,speculativeCooldown=0;
  async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,
-  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null,budgetMs=13000){
+  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null,budgetMs=13000,speculative=false){
   const payload={type:'iu-gemini-label-test',model:selectedModel,provider,
-   mimeType:'image/jpeg',imageBase64:encoded,budgetMs,
+   mimeType:'image/jpeg',imageBase64:encoded,budgetMs,...(speculative?{speculative:true}:{}),
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
    ...(focusFields?.length?{focusFields}:{}),
@@ -1431,12 +1437,14 @@
   }
   if(response.ok){
    transport?.observe(result);
+   speculativeSupported=result.speculativeReads===true;
    return {...result,clientNetworkMs:Math.round(networkNow()-networkStart),
     clientPayloadBytes:packet.size??null,clientTransport:packet.contentType==='application/octet-stream'?'binary':'json',
-    requestTimings:[{packetMs,headersMs,parseMs:Math.round(networkNow()-parseStart),workerMs:Number.isFinite(result.elapsedMs)?result.elapsedMs:null}]};
+    requestTimings:[{packetMs,headersMs,parseMs:Math.round(networkNow()-parseStart),workerMs:Number.isFinite(result.elapsedMs)?result.elapsedMs:null,server:result.serverTimings||null}]};
   }
   if(response.status===400||response.status===415)transport?.reset();
   const status=response.status,providerStatus=Number(result?.providerStatus);
+  if([429,503,504].includes(status)||[429,503,504].includes(providerStatus))speculativeCooldown=Date.now()+60000;
   const diagnostic=String(result?.error||'');
   const unreadable=status===422||
    /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération|JSON non reconnu/i.test(diagnostic);
@@ -1628,7 +1636,8 @@
   const currentAbort=abort;
   const guard=setTimeout(()=>currentAbort.abort(),24000);
   const start=performance.now();
-  let advancedJob=null;
+  let advancedJob=null,speculativeJob=null,speculativeTimer=null,speculativeAbort=null;
+  const stopSpeculative=()=>{clearTimeout(speculativeTimer);speculativeAbort?.abort();};
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
   try{
    // Gemini reçoit immédiatement l'image la plus complète possible.
@@ -1721,8 +1730,24 @@
    const focusEAN={kind:'EAN ciblé',task:track(samePhotoFocus(sourcePhoto,'ean',opticalReady))};
    const focusNumbers={kind:'chiffres ciblés',task:track(samePhotoFocus(sourcePhoto,'numbers',opticalReady))};
    let received,usedComplementaryRead=false,recheckView=null;
-   try{received=await receivedTask;}
+   // Only anticipate a difficult EAN after the primary request is in flight.
+   // Any unmatched or failed speculation leaves the original recovery intact.
+   if(speculativeSupported&&!targetField&&!resumeFields?.length&&Date.now()>=speculativeCooldown){
+    speculativeTimer=setTimeout(()=>{
+     if(!stillCurrent()||!opticalTask.done||trustedBarcodeEvidence(opticalTask.value)||opticalTask.value?.ambiguous)return;
+     const detail=safeDetail(focusEAN.task.value);
+     if(!detail||detail===firstDetail?.data)return;
+     const hints=catalogHints(null,opticalTask.value);
+     speculativeAbort=new AbortController();
+     const cancel=()=>speculativeAbort.abort();currentAbort.signal.addEventListener('abort',cancel,{once:true});
+     const promise=requestGeminiWithRecovery(encoded,access,selectedModel,speculativeAbort.signal,id,null,selectedProvider,detail,['ean'],hints,null,9000,true)
+      .then(value=>({value}),()=>({value:null})).finally(()=>currentAbort.signal.removeEventListener('abort',cancel));
+     speculativeJob={detail,hints:JSON.stringify(hints),promise};
+    },1100);
+   }
+   try{received=await receivedTask;clearTimeout(speculativeTimer);}
    catch(error){
+    stopSpeculative();speculativeJob=null;
     // A 422 is not a network failure. Try one DIFFERENT visual view,
     // with the original JPEG still present, without another user click.
     if((!error?.unreadable&&!error?.timeout)||id!==generation||currentAbort.signal.aborted||performance.now()-start>17500)throw error;
@@ -1856,6 +1881,7 @@
     }catch(_){}
    }
    let recoveryMs=0;
+   if(!targets.length)stopSpeculative();
    if(targets.length){
     const recoveryStart=performance.now();
     // Une seule relecture de tous les champs problématiques sur cette
@@ -1880,11 +1906,17 @@
      if(!recheckView)recheckView=await chooseVisualDetail(firstEnhanced?guidedView:enhancedView,
       normalView,detailEnd,until,safeDetail);
      if(id!==generation||currentAbort.signal.aborted)throw new DOMException('Analyse annulée','AbortError');
-     const focused=await requestGeminiWithRecovery(
+     const detail=safeDetail(recheckView?.data),hints=catalogHints(combined,localBarcode);
+     const positions=targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null;
+     let focused=null;
+     if(speculativeJob&&onlyEAN&&speculativeJob.detail===detail&&
+        speculativeJob.hints===JSON.stringify(hints)&&!positions?.length){
+      // No new validation path: the same exact request feeds the same merger.
+      focused=(await speculativeJob.promise).value;
+     }else stopSpeculative();
+     if(!focused)focused=await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
-      safeDetail(recheckView?.data),targets,
-      catalogHints(combined,localBarcode),
-      targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null,
+      detail,targets,hints,positions,
       Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))));
      if(id!==generation)return;
      combined=mergeRecoveredReading(combined,focused,targets);
@@ -1989,7 +2021,7 @@
     updateCardState('error');
    }
   }finally{
-   clearTimeout(guard);
+   stopSpeculative();clearTimeout(guard);
    if(id===generation){
     active=false;abort=null;setAnalysisCameraClosed(false);
     updateButton();validationState();refreshRepairPanel();
@@ -2342,7 +2374,7 @@
   proposal=null;file=null;
   lastRawResult=null;lastReadProblem=null;lastAnalysisError=null;lastSaveError=null;
   localBarcode=null;barcodeJob=null;repairFocus=null;manualCorrectedFields=[];
-  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;
+  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;previewFocus=null;
   attempts.clear();photo.value='';clearPreview();
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
@@ -2535,11 +2567,13 @@
  function scanQualityPreview(){
   if(!canMonitorQuality()||frameCaptureBusy||active)return;
   const now=performance.now();
-  if(now-qualityLastSampleAt<145)return;
+  if(now-qualityLastSampleAt<(qualityRingLimit===4?100:145))return;
   qualityLastSampleAt=now;
   try{
    const rating=sampleCameraQuality();
    if(!rating?.gray)return;
+   qualityRingLimit=window.IUGeminiParallel?.profile?.()||qualityRingLimit;
+   while(qualityRing.length>qualityRingLimit)qualityRing.shift();
    const moved=qualityPrevious&&
     qualityEngine.frameDistance(qualityPrevious.gray,rating.gray)>28;
    if(warmedCameraEpoch!==cameraEpoch){
@@ -2555,7 +2589,7 @@
    }
    if(moved){qualityCached=null;qualityRing.length=0;}
    qualityPrevious=rating;
-   if(!rating.usable||now-qualityLastCachedAt<(qualityRingLimit>1?160:360))return;
+   if(!rating.usable||now-qualityLastCachedAt<(qualityRingLimit===4?105:qualityRingLimit>1?160:360))return;
    // Bounded recent frames in RAM only; no additional background uploads.
    // One JPEG preparation per second remains the upper limit.
    if(qualityRingLimit>1||!qualityCached||now-qualityCached.at>320||
@@ -2563,7 +2597,7 @@
     const canvas=fullResolutionCameraFrame();
     qualityCached={canvas,rating,at:now,epoch:cameraEpoch};
     qualityRing.push(qualityCached);
-    while(qualityRing.length>qualityRingLimit||now-qualityRing[0].at>360)qualityRing.shift();
+    while(qualityRing.length>1&&(qualityRing.length>qualityRingLimit||now-qualityRing[0].at>360||qualityRing.reduce((n,c)=>n+c.canvas.width*c.canvas.height*4,0)>48*1024*1024))qualityRing.shift();
     qualityLastCachedAt=now;
     // Uniquement le JPEG de CETTE frame, au maximum une fois/seconde.
     // Aucune photo n'est envoyée avant le déclenchement manuel.
@@ -2573,12 +2607,20 @@
      previewBusy=true;previewLastAt=now;
      candidate.preparedBlob=new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.88));
      void candidate.preparedBlob.then(blob=>{
-      if(!blob||candidate.epoch!==cameraEpoch||active||frameCaptureBusy||qualityCached!==candidate)return null;
+      if(!blob||candidate.epoch!==cameraEpoch||active||frameCaptureBusy||!qualityRing.includes(candidate))return null;
       candidate.jpeg=blob;
       // Exact selected JPEG only; never send preview images to Gemini.
       if(blob.size<=490000&&window.IUGeminiParallel?.prepareDetail){
        candidate.preparedEnhanced=window.IUGeminiParallel.prepareDetail(blob,{guideCrop:true},122000)
         .then(result=>result?readParallelDetail(result):null).catch(()=>null);
+       // Exact same JPEG, never evidence from a different preview frame.
+       if(window.IUGeminiParallel.profile?.()===4){
+        candidate.preparedFocus={};
+        for(const mode of ['ean','numbers']){
+         const task=window.IUGeminiParallel.prepareFocused?.(blob,{guideCrop:true},122000,mode);
+         if(task)void task.then(b=>b?readParallelDetail(b):null).then(value=>{if(value)candidate.preparedFocus[mode]=value;}).catch(()=>{});
+        }
+       }
       }
       return window.IUGeminiParallel.previewBarcode(blob);
      }).then(reading=>{
@@ -2593,7 +2635,7 @@
    // Le filtre est facultatif : un iPhone peu puissant conserve le
    // déclencheur normal sans erreur ou permission supplémentaire.
    qualityPrevious=null;qualityCached=null;qualityRing.length=0;
-  }
+  }finally{window.IUGeminiParallel?.reportCost?.(performance.now()-now);}
  }
  function qualityCandidate(epoch){
   const rating=sampleCameraQuality();
@@ -2998,9 +3040,10 @@
     resetReading();
    }
    const used=setPhoto(nextPhoto,{confirmed:true,guideCrop:true,
-    barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null,alternatePhoto,
+    barcodePhoto:barcodeOriginal!==blob||chosen.jpeg===barcodeOriginal?barcodeOriginal:null,alternatePhoto,
     preparedBarcode:chosen.jpeg===barcodeOriginal?chosen.preparedBarcode:null,
-    preparedEnhanced:chosen.jpeg===barcodeOriginal?chosen.preparedEnhanced:null});
+    preparedEnhanced:chosen.jpeg===barcodeOriginal?chosen.preparedEnhanced:null,
+    preparedFocus:chosen.jpeg===barcodeOriginal?chosen.preparedFocus:null});
    if(used===false)setAutoHint('Capture non utilisée · réessaie','waiting');
   }catch(_){
    say('Photo impossible · recommence la capture.',true);

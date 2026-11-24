@@ -202,7 +202,7 @@
   if(typeof OffscreenCanvas!=='function'||typeof createImageBitmap!=='function')return null;
   let bmp;
   try{
-   bmp=await createImageBitmap(photo);
+   bmp=await (globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.acquire(photo):createImageBitmap(photo));
    const w=Math.min(1500,bmp.width),h=Math.round(bmp.height*w/bmp.width);
    if(w<450||h<250)return null;
    const cv=new OffscreenCanvas(w,h),ctx=cv.getContext('2d',{willReadFrequently:true});
@@ -242,7 +242,7 @@
    }
    return known>=6?{pattern,source:'optical-partial',confirmed:false,rows:rows.length,
     bitRows,disagreement}:null;
-  }catch(_){return null;}finally{bmp?.close?.();}
+  }catch(_){return null;}finally{(globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.release(bmp):bmp?.close?.());}
  }
  function detectPaper(original,iw,ih){
   const geom=(typeof window!=='undefined'?window:
@@ -279,7 +279,7 @@
   let bitmap=null,img=null,objectUrl=null;
   try{
    if(typeof createImageBitmap==='function'){
-    bitmap=await createImageBitmap(source);
+    bitmap=await (globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.acquire(source):createImageBitmap(source));
    }else{
     objectUrl=URL.createObjectURL(source);
     img=await new Promise((resolve,reject)=>{
@@ -318,7 +318,7 @@
    return attachPaperIfSafe(focused,paper);
   }catch(_){return null;}
   finally{
-   try{bitmap?.close?.();}catch(_){}
+   try{(globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.release(bitmap):bitmap?.close?.());}catch(_){}
    if(objectUrl)URL.revokeObjectURL(objectUrl);
   }
  }
@@ -348,7 +348,7 @@
   if(!source||typeof document==='undefined'||!reading?.bounds)return null;
   let bitmap=null,image=null,objectUrl=null;
   try{
-   if(typeof createImageBitmap==='function')bitmap=await createImageBitmap(source);
+   if(typeof createImageBitmap==='function')bitmap=await (globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.acquire(source):createImageBitmap(source));
    else{
     objectUrl=URL.createObjectURL(source);
     image=await new Promise((resolve,reject)=>{
@@ -375,7 +375,7 @@
    return new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'});
   }catch(_){return null;}
   finally{
-   try{bitmap?.close?.()}catch(_){}
+   try{(globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.release(bitmap):bitmap?.close?.())}catch(_){}
    if(objectUrl)URL.revokeObjectURL(objectUrl);
   }
  }

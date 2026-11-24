@@ -80,9 +80,9 @@ async function simulate(frames,cache,settings={}){
  assert(js.includes('requestVideoFrameCallback')&&
   js.includes("qualityMonitorId=setTimeout(()=>{"),
   'Suivi léger compatible avec Safari');
- assert(js.includes('if(now-qualityLastSampleAt<145)return;'),
+ assert(js.includes('if(now-qualityLastSampleAt<(qualityRingLimit===4?100:145))return;'),
   'Fréquence de contrôle bornée');
- assert(js.includes('now-qualityLastCachedAt<(qualityRingLimit>1?160:360)'),
+ assert(js.includes('now-qualityLastCachedAt<(qualityRingLimit===4?105:qualityRingLimit>1?160:360)'),
   'Tampon borné et fréquence adaptative');
  assert(js.includes('const factor=Math.min(1,maxEdge/Math.max(crop.width,crop.height))')&&
   js.includes('fullResolutionCameraFrame(localEdge)'),

@@ -7,11 +7,52 @@ importScripts('./gemini-label-geometry.js?v=42.58');
 // Dedicated detail instance does not download/initialize the barcode engines.
 const detailOnly=Boolean(self.location?.search?.includes('detail=1'));
 if(!detailOnly){
- importScripts('./gemini-ean.js?v=42.49');
- importScripts('./gemini-zxing.js?v=42.36');
- importScripts('./digi-digit-ocr.js?v=42.50');
+ importScripts('./gemini-ean.js?v=42.96');
+ importScripts('./gemini-zxing.js?v=42.96');
+ importScripts('./digi-digit-ocr.js?v=42.96');
 }
-function zoneToPixels(rect,w,h){
+// Shared read-only bitmap per exact JPEG identity, per worker.
+ // A leased bitmap is never closed by another concurrent operation.
+ const photoIds=new WeakMap(),leases=new WeakMap();
+ let cachedBitmap=null;
+ function evictBitmap(entry){
+  if(!entry)return;
+  if(cachedBitmap===entry)cachedBitmap=null;
+  entry.retired=true;clearTimeout(entry.timer);
+  if(!entry.refs)entry.promise.then(b=>b.close?.(),()=>{});
+ }
+ function expireBitmap(entry){
+  clearTimeout(entry.timer);
+  if(!entry.retired&&!entry.refs)entry.timer=setTimeout(()=>evictBitmap(entry),5000);
+ }
+ globalThis.IUWorkerBitmap={
+  async acquire(photo){
+   const key=photoIds.get(photo);
+   if(!key)return createImageBitmap(photo);
+   let entry=cachedBitmap;
+   if(!entry||entry.key!==key){
+    evictBitmap(entry);
+    entry={key,refs:0,retired:false,timer:null,promise:createImageBitmap(photo)};
+    cachedBitmap=entry;
+   }
+   clearTimeout(entry.timer);entry.refs++;
+   try{
+    const bitmap=await entry.promise;
+    leases.set(bitmap,entry);
+    if(bitmap.width*bitmap.height*4>32*1024*1024)evictBitmap(entry);
+    return bitmap;
+   }catch(error){entry.refs--;evictBitmap(entry);throw error;}
+  },
+  release(bitmap){
+   if(!bitmap)return;
+   const entry=leases.get(bitmap);
+   if(!entry){bitmap.close?.();return;}
+   entry.refs=Math.max(0,entry.refs-1);
+   if(!entry.refs&&entry.retired){leases.delete(bitmap);bitmap.close?.();}
+   else expireBitmap(entry);
+  }
+ };
+ function zoneToPixels(rect,w,h){
  if(!rect)return null;
  return {
   x:Math.max(0,Math.floor(rect.x*w)),
@@ -92,7 +133,7 @@ async function enhancedDetail(photo,reading,maxBytes=122000,mode='enhanced'){
  if(typeof OffscreenCanvas!=='function'||
     typeof createImageBitmap!=='function'||!self.IUGeminiLabelGeometry)
   return null;
- const bitmap=await createImageBitmap(photo);
+ const bitmap=await globalThis.IUWorkerBitmap.acquire(photo);
  try{
   const iw=bitmap.width,ih=bitmap.height;
   if(!(iw>=650&&ih>=350))return null;
@@ -202,10 +243,10 @@ async function enhancedDetail(photo,reading,maxBytes=122000,mode='enhanced'){
    if(jpeg.size>=100&&jpeg.size<=122000&&jpeg.size<=limit)return jpeg;
   }
   return null;
- }finally{bitmap.close?.();}
+ }finally{globalThis.IUWorkerBitmap.release(bitmap);}
 }
 self.onmessage=async event=>{
- const {id,kind,photo,reading,maxBytes,mode}=event.data||{};
+ const {id,kind,photo,photoKey,reading,maxBytes,mode}=event.data||{};
  if(!Number.isSafeInteger(id))return;
  if(kind==='warm-detail'){self.postMessage({id,result:null});return;}
  if(detailOnly&&kind!=='enhanced-detail')return;
@@ -220,6 +261,7 @@ self.onmessage=async event=>{
   return;
  }
  if(!photo)return;
+ if(Number.isSafeInteger(photoKey)&&photoKey>0)photoIds.set(photo,photoKey);
  try{
   if(typeof OffscreenCanvas!=='function'||
      typeof createImageBitmap!=='function'){

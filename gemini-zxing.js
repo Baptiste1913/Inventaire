@@ -67,7 +67,7 @@
      typeof root.createImageBitmap!=='function')return null;
   if(!await warm())return null;
   try{
-   const bitmap=await root.createImageBitmap(photo);
+   const bitmap=await (globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.acquire(photo):root.createImageBitmap(photo));
    try{
     const results=await root.ZXingWASM.readBarcodes(photo,{
      formats:['EAN13'],tryHarder:true,tryRotate:false,
@@ -90,7 +90,7 @@
      }
     }
     return evaluate(results,bitmap.width,bitmap.height,paper,geo);
-   }finally{bitmap.close?.();}
+   }finally{(globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.release(bitmap):bitmap?.close?.());}
   }catch(_){
    // Un problème avec l'image ou WASM laisse toujours le secours EAN agir.
    return null;

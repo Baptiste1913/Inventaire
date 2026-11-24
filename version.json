@@ -1,6 +1,6 @@
 {
-  "version": "42.95",
+  "version": "42.96",
   "published": "2026-11-24",
-  "assets": 95,
-  "notes": "Performance AI : JPEG binaires directs sans conversion aller-retour, réutilisation du décodage, tampon adaptatif de trois images, Workers supplémentaires bornés sur appareils compatibles, détails ciblés anticipés et diagnostics par étape. Qualité JPEG, modèle, validations et secours préservés. Pas d’appel Gemini spéculatif."
+  "assets": 96,
+  "notes": "Cache de bitmaps par JPEG exact dans les Workers, profil adaptatif 1/3/4 images, voie numérique séparée si capacité, préparation locale anticipée des zones. Relecture Gemini anticipée conditionnelle et négociée avec Worker, conservation du parcours de validation normal. Worker : chronométrage serveur, copie évitée et anticipation sans réessai fournisseur. Déploiement Cloudflare distinct."
 }
