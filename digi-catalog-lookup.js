@@ -1,6 +1,6 @@
-/* Inventaires U v42.44 — catalogue DIGI et récupération contrôlée d'EAN.
- * Les 13 chiffres EAN proviennent exclusivement de la lecture d'une étiquette.
- * Aucune association apprise, exemple, tarif ou approximation n'est autorisée.
+/* Inventaires U v42.46 — déduction DIGI exhaustive, bornée et traçable.
+ * Un EAN calculé n'est pas une lecture : code exact unique ou confirmation.
+ * Aucune association apprise, tarif historique ou poids/prix deviné.
  * L'index se rafraîchit dès qu'un import local remplace le catalogue.
  */
 (function(root,factory){
@@ -43,7 +43,7 @@
    cachedIndex={...empty,reason:'Catalogue DIGI invalide : réimporte le fichier'};
    return cachedIndex;
   }
-  const groups=new Map();
+  const groups=new Map(),byName=new Map();
   let count=0;
   for(const row of data.articles){
    if(!row||typeof row!=='object')continue;
@@ -56,9 +56,14 @@
    const item={plu,name,eanPrefix:prefix};
    // Un même PLU avec deux noms divergents est aussi ambigu.
    groups.get(prefix).set(plu+'|'+name,item);
+   const normalized=normalizeName(name);
+   if(normalized){
+    if(!byName.has(normalized))byName.set(normalized,new Map());
+    byName.get(normalized).set(prefix+'|'+plu+'|'+name,item);
+   }
    count++;
   }
-  cachedIndex={available:true,byPrefix:groups,count,
+  cachedIndex={available:true,byPrefix:groups,byName,count,
    reason:count?'':'Catalogue importé sans préfixe EAN DIGI utilisable'};
   return cachedIndex;
  }
@@ -105,7 +110,7 @@
   const value=raw.replace(/[\s\u00a0\u202f-]/g,'').replace(/[Xx_]/g,'?');
   return /^[\d?]{13}$/.test(value)?value:'';
  }
- function candidates({eanObserved='',name='',limit=5}={}){
+ function matchingCandidates({eanObserved='',name=''}={}){
   const catalog=index();
   if(!catalog.available||!catalog.count)return [];
   const pattern=observedPattern(eanObserved);
@@ -117,7 +122,7 @@
   if(!strictPrefix&&hint.length<6)return [];
   const out=[];
   for(const [prefix,items] of catalog.byPrefix){
-   if(strictPrefix&&[...prefix].some((digit,i)=>
+   if(pattern&&[...prefix].some((digit,i)=>
       pattern[i]!=='?'&&pattern[i]!==digit))continue;
    for(const record of items.values()){
     const similarity=hint?nameSimilarity(hint,record.name):0;
@@ -130,7 +135,12 @@
   }
   out.sort((a,b)=>b.prefixDigits-a.prefixDigits||
    b.nameScore-a.nameScore||a.eanPrefix.localeCompare(b.eanPrefix));
-  return out.slice(0,Math.min(5,Math.max(1,Number(limit)||5)));
+  return out;
+ }
+ // La limite de cinq ne concerne que les suggestions envoyées à Gemini.
+ // La décision d'unicité est toujours prise sur TOUS les candidats.
+ function candidates({eanObserved='',name='',limit=5}={}){
+  return matchingCandidates({eanObserved,name}).slice(0,Math.min(5,Math.max(1,Number(limit)||5)));
  }
  function checkDigit(first12){
   if(!/^\d{12}$/.test(first12))return '';
@@ -138,96 +148,130 @@
   for(let i=0;i<12;i++)sum+=Number(first12[i])*(i%2?3:1);
   return String((10-sum%10)%10);
  }
+ // Le nom n'est pas une identité. Un libellé partagé par plusieurs
+ // origines/préfixes ne constitue JAMAIS une contradiction avec un EAN.
+ function uniqueNameConflict(name,prefix){
+  const key=normalizeName(name),items=index().byName?.get(key);
+  if(!key||!items||items.size!==1)return false;
+  const only=items.values().next().value;
+  return only.eanPrefix!==prefix&&
+   ![...(index().byPrefix.get(prefix)||new Map()).values()]
+    .some(item=>normalizeName(item.name)===key);
+ }
+ function compatible(code,pattern){
+  return !pattern||[...pattern].every((d,i)=>d==='?'||d===code[i]);
+ }
+ // L'encodage DIGI 02 n'est pas injectif : 6 à 7 valeurs brutes par
+ // centime. Énumérer les valeurs compatibles avec la tolérance de
+ // lecture ET le calcul, puis vérifier la clé et chaque chiffre observé.
+ function amountVariants(prefix,total,computed,pattern){
+  if(!/^02\d{5}$/.test(prefix)||!Number.isSafeInteger(total)||
+     !Number.isSafeInteger(computed)||total<0||computed<0)return [];
+  const low=Math.max(0,total-1,computed-1),high=Math.min(total+1,computed+1);
+  if(low>high)return [];
+  const min=Math.max(0,Math.floor((low-.5)*655.36/100)-1);
+  const max=Math.min(99999,Math.ceil((high+.5)*655.36/100)+1);
+  const out=[];
+  for(let n=min;n<=max;n++){
+   const price=Math.round(n*100/655.36);
+   if(price<low||price>high)continue;
+   const first=prefix+String(n).padStart(5,'0'),code=first+checkDigit(first);
+   if(compatible(code,pattern))out.push(code);
+  }
+  // Une variante canonique, si compatible, est la première proposition.
+  // Elle n'est jamais une preuve de l'EAN imprimé.
+  const canonical=Math.round(total*655.36/100);
+  return out.sort((a,b)=>Math.abs(Number(a.slice(7,12))-canonical)-
+   Math.abs(Number(b.slice(7,12))-canonical)||a.localeCompare(b));
+ }
  function reconstruct(result,{allowProbable=false}={}){
   const fields={...(result?.fields||{})};
   const sources={name:'catalog',plu:'catalog',ean:'read',
-   weight:'read',rate:'read',total:'read'};
+   weight:'read',rate:'read',total:result?.digiRecovery?.sources?.total==='calculated'||
+    result?.recoveryProvenance?.total==='calculated'?'calculated':'read'};
   const grams=fields.weightGrams,rate=fields.pricePerKgCents;
-  // Aucun poids ni prix au kilo ne peut être créé par le catalogue.
-  if(!Number.isSafeInteger(grams)||grams<1||grams>30000||
-     !Number.isSafeInteger(rate)||rate<1||rate>1000000)
-   return {result,kind:'none',sources};
-  const computed=Math.round(grams*rate/1000);
-  if(!Number.isSafeInteger(computed)||computed<0)return {result,kind:'none',sources};
-  if(Number.isSafeInteger(fields.totalCents)&&
-     Math.abs(fields.totalCents-computed)>1)
-   return {result,kind:'conflict',sources,reason:'Montant et calcul contradictoires'};
-  if(fields.totalCents===null||fields.totalCents===undefined){
-   fields.totalCents=computed;sources.total='calculated';
-  }
   const ean=typeof fields.ean13==='string'?fields.ean13:'';
   const validOriginal=eanValid(ean);
-  const pattern=observedPattern(result?.eanObserved)||
-   (validOriginal?ean:'');
-  const possible=candidates({eanObserved:pattern,name:fields.name,limit:5});
-  // Une concordance TRÈS forte avec un AUTRE article du catalogue
-  // signale une étiquette voisine ou une lecture contradictoire.
-  // Ne pas sélectionner silencieusement un code mathématique.
-  const claimedPrefix=validOriginal?ean.slice(0,7):possible[0]?.eanPrefix;
-  if(claimedPrefix&&candidates({name:fields.name,limit:3})
-    .some(item=>item.eanPrefix!==claimedPrefix&&item.nameScore>=.90))
-   return {result:{...result,fields},kind:'conflict',sources,
-    reason:'Nom lu incompatible avec le préfixe DIGI'};
+  const pattern=observedPattern(result?.eanObserved)||(validOriginal?ean:'');
+  // Chercher l'identité et préparer les indices même si un chiffre de
+  // poids/prix manque ; ces deux valeurs ne sont JAMAIS déduites.
+  const possible=validOriginal?[]:matchingCandidates({eanObserved:pattern,name:fields.name});
+  const hints=possible.slice(0,5);
+  const outcome=(kind,extra={})=>({result:{...result,fields},kind,sources,candidates:hints,...extra});
+  if(!Number.isSafeInteger(grams)||grams<1||grams>30000||
+     !Number.isSafeInteger(rate)||rate<1||rate>1000000)
+   return outcome('none');
+  const computed=Math.round(grams*rate/1000);
+  if(!Number.isSafeInteger(computed)||computed<0)return outcome('none');
+  if(sources.total==='calculated'||fields.totalCents===null||fields.totalCents===undefined){
+   fields.totalCents=computed;sources.total='calculated';
+  }
+  if(!Number.isSafeInteger(fields.totalCents)||fields.totalCents<0||
+     Math.abs(fields.totalCents-computed)>1)
+   return outcome('conflict',{conflictField:'amount',reason:'Montant et calcul contradictoires'});
   if(validOriginal){
-   // Un code complet contredisant des chiffres imprimés partiels ne
-   // devient jamais vrai sous prétexte que son checksum est valide.
-   if(pattern&&[...pattern].some((digit,i)=>digit!=='?'&&digit!==ean[i]))
-    return {result:{...result,fields},kind:'conflict',sources,
-     reason:'EAN complet différent des chiffres observés'};
-   // Nom et PLU exclusivement depuis l'index officiel, rien à déduire.
    const exact=resolve(ean);
-   return {result:{...result,fields},kind:exact.ok
-    ?(sources.total==='calculated'?'calculated':'matched'):'none',
-    sources,candidates:exact.ok?[exact]:[]};
+   if(!compatible(ean,pattern))
+    return outcome('conflict',{conflictField:'ean',reason:'EAN complet différent des chiffres observés'});
+   if(exact.ok&&uniqueNameConflict(fields.name,exact.eanPrefix))
+    return outcome('conflict',{conflictField:'name',reason:'Nom lu incompatible avec le préfixe DIGI'});
+   if(ean.startsWith('02')&&Math.abs(Math.round(Number(ean.slice(7,12))*100/655.36)-fields.totalCents)>1)
+    return outcome('conflict',{conflictField:'amount',reason:'Prix encodé incompatible avec le montant'});
+   return outcome(exact.ok?(sources.total==='calculated'?'calculated':'matched'):'none',
+    {candidates:exact.ok?[exact]:[]});
   }
   if(!pattern||!possible.length)
-   return {result:{...result,fields},kind:sources.total==='calculated'
-    ?'calculated':'none',sources,candidates:possible};
-  const known=[...pattern.slice(0,12)].filter(c=>c!=='?').length;
-  const first=possible[0];
-  // Les suggestions ambiguës ne peuvent pas devenir un article.
-  const unique=possible.length===1&&!first.ambiguous;
-  const knownPrefix=first.prefixDigits;
-  const nameSupports=first.nameScore>=.82;
-  const prefixComplete=knownPrefix===7;
-  const minimumEvidence=known>=9&&
-   (prefixComplete||(knownPrefix===6&&nameSupports));
-  if(!unique||!minimumEvidence)
-   return {result:{...result,fields},kind:'candidate',sources,
-    candidates:possible,reason:'Préfixe ou chiffres insuffisamment confirmés'};
-  // Le codage du montant est vérifié uniquement pour la famille 02.
-  // Les autres préfixes variables DIGI ne sont pas supposés identiques.
-  if(!first.eanPrefix.startsWith('02'))
-   return {result:{...result,fields},kind:'candidate',sources,
-    candidates:possible,reason:'Règle du prix non vérifiée pour ce préfixe'};
-  // L'encodeur de l'EAN de prix Super U/DIGI de cette application.
-  const amount=Math.round(fields.totalCents*655.36/100);
-  if(amount<0||amount>99999)return {result,kind:'conflict',sources,
-   reason:'Montant DIGI non encodable'};
-  const first12=first.eanPrefix+String(amount).padStart(5,'0');
-  const rebuilt=first12+checkDigit(first12);
-  if([...pattern].some((digit,i)=>digit!=='?'&&digit!==rebuilt[i]))
-   return {result:{...result,fields},kind:'conflict',sources,
-    candidates:possible,reason:'Chiffres imprimés incompatibles avec le calcul DIGI'};
-  // Ne pas substituer une simple suggestion au code réellement imprimé.
-  const kind=prefixComplete?'reconstructed':'confirmation';
-  if(kind==='confirmation'&&!allowProbable)
-   return {result:{...result,fields},kind,sources,
-    proposedEAN:rebuilt,candidates:possible,
-    reason:'Préfixe partiel et libellé concordant : confirmation nécessaire'};
-  if(kind==='confirmation'&&!nameSupports)
-   return {result:{...result,fields},kind:'candidate',sources,candidates:possible};
-  const record=resolve(rebuilt);
+   return outcome(sources.total==='calculated'?'calculated':'none');
+  const known=[...pattern.slice(0,12)].filter(d=>d!=='?').length;
+  const prefixDigits=[...pattern.slice(0,7)].filter(d=>d!=='?').length;
+  // 5/7 = au moins trois chiffres d'identification au-delà du 02.
+  // Garder au moins 9 des 12 chiffres utiles. Le nom ne peut ni
+  // remplacer les chiffres observés ni départager deux origines.
+  if(prefixDigits<5||known<9)
+   return outcome('candidate',{reason:'Préfixe ou chiffres insuffisamment confirmés'});
+  const viable=[];
+  let unknownFamily=false,ambiguousReference=false;
+  for(const item of possible){
+   if(!item.eanPrefix.startsWith('02')){
+    // Aucun encodage montant supposé pour les autres familles.
+    // Une lecture intégralement observée peut en revanche être vérifiée.
+    if(!pattern.includes('?')&&eanValid(pattern)&&pattern.startsWith(item.eanPrefix))
+     viable.push({item,codes:[pattern]});
+    else unknownFamily=true;
+    continue;
+   }
+   const codes=amountVariants(item.eanPrefix,fields.totalCents,computed,pattern);
+   if(codes.length){viable.push({item,codes});if(item.ambiguous)ambiguousReference=true;}
+  }
+  if(!viable.length&&!unknownFamily){
+   return outcome('conflict',{conflictField:'ean',
+    reason:'Aucun EAN compatible avec les chiffres observés et les montants'});
+  }
+  if(unknownFamily||ambiguousReference||viable.length!==1||viable[0].item.ambiguous)
+   return outcome('candidate',{reason:'Plusieurs références possibles ou règle du prix non vérifiée'});
+  const {item:first,codes}=viable[0];
+  if(uniqueNameConflict(fields.name,first.eanPrefix))
+   return outcome('conflict',{conflictField:'name',reason:'Nom lu incompatible avec le préfixe DIGI'});
+  if(prefixDigits<7&&first.nameScore<.82)
+   return outcome('candidate',{reason:'Libellé insuffisamment concordant avec le préfixe partiel'});
+  const rebuilt=codes[0],record=resolve(rebuilt);
   if(!record.ok||record.plu!==first.plu||record.name!==first.name)
-   return {result:{...result,fields},kind:'conflict',sources,
-    reason:'Référence DIGI non unique après reconstruction'};
+   return outcome('candidate',{reason:'Référence DIGI non unique'});
+  // Même si l'article est certain, plusieurs valeurs EAN de prix
+  // peuvent correspondre au même montant. Ne jamais présenter un
+  // code arbitraire comme un original effectivement lu.
+  const kind=prefixDigits===7&&codes.length===1&&!result?.weakEANSupplement?'reconstructed':'confirmation';
+  const details={candidates:[first],proposedEAN:rebuilt,variantCount:codes.length,
+   prefixDigits,knownDigits:known,reason:kind==='confirmation'?
+    'Comparer l’article ET les 13 chiffres proposés à l’étiquette originale':null};
+  if(kind==='confirmation'&&!allowProbable)return outcome(kind,details);
   fields.ean13=rebuilt;
   sources.ean=kind==='reconstructed'?'calculated-verified':'confirmed-by-user';
   return {result:{...result,fields,
    checks:{...(result?.checks||{}),eanChecksumValid:true,
-    arithmeticConsistent:true,barcodePriceConsistent:true},
-   recoveryProvenance:sources},kind,sources,
-   candidates:possible,proposedEAN:rebuilt,confirmedByUser:allowProbable};
+    arithmeticConsistent:true,barcodePriceConsistent:true,digiConflict:false},
+   recoveryProvenance:sources},kind,sources,...details,
+   confirmedByUser:kind==='confirmation'&&allowProbable};
  }
  function verify(ean,plu,name){
   const record=resolve(ean);
@@ -238,5 +282,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
 });

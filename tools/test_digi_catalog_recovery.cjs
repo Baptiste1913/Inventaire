@@ -25,7 +25,7 @@ function code(prefix,cents){
 }
 const ean=code('0203476',299);
 assert.equal(digi.resolve(ean).name,'POIRE SANTA MARIA');
-const autoMask=ean.slice(0,9)+'???'+'?';
+const autoMask=ean.slice(0,12)+'?';
 const manualMask='02034?6'+ean.slice(7,11)+'??';
 const badMask='0203476'+'99999'+'?';
 assert.equal(autoMask.length,13);
@@ -49,6 +49,23 @@ assert.equal(auto.sources.total,'calculated');
 assert.equal(auto.sources.weight,'read');
 assert.equal(auto.sources.rate,'read');
 assert.equal(auto.sources.ean,'calculated-verified');
+// Un montant arrondi ne représente PAS un seul EAN de prix.
+const ambiguousAmount=digi.reconstruct({fields,eanObserved:ean.slice(0,9)+'????'});
+assert.equal(ambiguousAmount.kind,'confirmation');
+assert(ambiguousAmount.variantCount>1);
+assert.equal(ambiguousAmount.result.fields.ean13,null);
+const variants=digi.amountVariants('0203476',299,299,'0203476??????');
+assert(variants.length>1&&variants.includes(ean));
+const variant=variants.find(x=>x!==ean);
+const variantRead=digi.reconstruct({fields,eanObserved:variant.slice(0,12)+'?'});
+assert.equal(variantRead.kind,'reconstructed');
+assert.equal(variantRead.result.fields.ean13,variant,'Un EAN non canonique réellement compatible est récupérable');
+const five=digi.reconstruct({fields,eanObserved:'0203??6'+ean.slice(7)});
+assert.equal(five.kind,'confirmation','Préfixe 5/7 et nom concordant : validation humaine');
+assert.equal(five.result.fields.ean13,null);
+assert.equal(digi.reconstruct({fields:{...fields,name:''},eanObserved:'0203??6'+ean.slice(7)}).kind,'candidate');
+assert.equal(digi.reconstruct({fields,eanObserved:variant.slice(0,12)+'?',weakEANSupplement:true}).kind,'confirmation');
+assert.equal(digi.reconstruct({fields,eanObserved:'0203???'+ean.slice(7)}).result.fields.ean13,null);
 const maybe=digi.reconstruct({fields,eanObserved:manualMask});
 assert.equal(maybe.kind,'confirmation','Préfixe 6/7 : pas de sauvegarde directe');
 assert.equal(maybe.result.fields.ean13,null,'Le candidat reste en attente');
@@ -81,6 +98,14 @@ catalog=JSON.stringify({articles:[
 assert.equal(digi.resolve(ean).status,'ambiguous');
 assert.notEqual(digi.reconstruct({fields,eanObserved:autoMask}).kind,'reconstructed',
  'Préfixe associé à plusieurs produits : pas de sélection silencieuse');
+catalog=JSON.stringify({articles:[
+ {plu:'3476',libelle:'POIRE SANTA MARIA',eanPrefix:'0203476'},
+ {plu:'5678',libelle:'POIRE SANTA MARIA',eanPrefix:'0203576'}
+]});
+assert.notEqual(digi.reconstruct({fields:{...fields,ean13:ean},eanObserved:ean}).kind,'conflict',
+ 'Deux références partageant un nom ne rendent pas un EAN complet contradictoire');
+const generic=digi.reconstruct({fields,eanObserved:'0203??6'+ean.slice(7,12)+'?'});
+assert.equal(generic.kind,'candidate','Deux références compatibles : le nom seul ne choisit pas une origine');
 catalog=null;
 assert.equal(digi.reconstruct({fields,eanObserved:autoMask}).result.fields.ean13,null,
  'Catalogue absent : pas de nom ou code inventés');
@@ -113,4 +138,9 @@ assert(app.includes('digiEvidence:evidence,digiRecoveryKind:recoveryKind'),
  'L historique conserve une provenance informative, sans confiance supplémentaire');
 assert(app.includes('if(!digi?.ok||digi.plu!==plu||digi.name!==product'),
  'La provenance ne contourne jamais les validations d identité');
-console.log('OK : préfixes et montants stricts, confirmation explicite, catalogue minimal Gemini, refus ambiguïté');
+assert(js.includes('const unresolvedEAN=(targets.includes'));
+assert(js.includes('if(merged.conflict||!merged.pattern||merged.pattern===result.eanObserved)return result;'));
+assert(js.includes('checks.secondaryEANConflict=true'));
+assert(js.includes('recoveryInterruptedTargets:[...targets]'));
+assert(css.includes('small#iuGeminiCatalogDescription')&&css.includes('clip-path:none!important'));
+console.log('OK : variantes de montant, préfixes 5/7 à 7/7, confirmation EAN exact, noms partagés et priorité DIGI');

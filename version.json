@@ -1,6 +1,6 @@
 {
-  "version": "42.45",
-  "published": "2026-11-23",
+  "version": "42.46",
+  "published": "2026-11-24",
   "assets": 63,
-  "notes": "Capture multi-images locale et secours EAN sous contrôle de concordance, fusion de masques EAN optiques/OCR/Gemini, correction perspective à quatre bords, gris WebAssembly SIMD avec repli JS, PaddleOCR expérimental opt-in WebGPU/WASM. Gemini prioritaire, aucun appel cloud supplémentaire. Worker Cloudflare inchangé."
+  "notes": "DIGI prioritaire : recherche exhaustive des références et des variantes EAN de montant 02, récupération 5 à 7 chiffres du préfixe sous conditions, confirmation de l'EAN exact si ambigu, indices secondaires non bloquants, relecture ciblée et secours locaux réservés aux lacunes. WASM et WebGPU expérimental conservés. Worker Cloudflare inchangé."
 }

@@ -5679,3 +5679,12 @@ html body.is-focus-mode .app > :is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogCon
 html body #iuGeminiCatalogConfirm .iu-gemini-duplicate-confirm > p{
  overflow-wrap:anywhere!important;
 }
+
+/* v42.46 — Le code proposé est une preuve à vérifier visuellement.
+   Ne jamais cacher la description du dialogue DIGI. */
+html body #iuGeminiCatalogConfirm .iu-gemini-duplicate-confirm > small#iuGeminiCatalogDescription{
+ position:static!important;display:block!important;width:auto!important;height:auto!important;
+ clip-path:none!important;white-space:normal!important;overflow:visible!important;
+ margin:0 0 12px!important;padding:0!important;
+ font:600 12px/1.45 inherit;color:#50606d!important;overflow-wrap:anywhere!important;
+}

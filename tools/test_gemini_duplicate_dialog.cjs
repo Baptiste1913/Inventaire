@@ -25,7 +25,7 @@ assert(html.includes('data-indicator-icon="error"'));
 assert(css.includes('button#iuGeminiCapture.iu-weigh-scan-close.iu-gemini-shutter {\n left:auto!important;\n right:5px!important;'));
 assert(css.includes('> #iuGeminiDetected.iu-weigh-scan-detected-indicator {\n left:5px!important;\n right:auto!important;'));
 assert(css.includes('data-indicator="duplicate"')&&css.includes('data-indicator="error"'));
-assert(css.includes('#iuGeminiDuplicateConfirm.iu-gemini-duplicate-overlay[hidden]'));
+assert(css.includes(':is(#iuGeminiDuplicateConfirm,#iuGeminiCatalogConfirm).iu-gemini-duplicate-overlay[hidden]'));
 const validation=between(' function validationState(){', " $('basketSelect')?.addEventListener('change',validationState);");
 assert(validation.includes("showDetectedIndicator('duplicate'"));
 assert(validation.includes("showDetectedIndicator('error'"));
