@@ -394,7 +394,7 @@
   if(base)sources.push({mask:base,weight:3});
   for(const o of (Array.isArray(observations)?observations:[]).slice(0,6)){
    const mask=observedPattern(o?.pattern||o?.ean13);
-   if(mask)sources.push({mask,weight:o.source==='optical-partial'?2:o.source==='digit-template'?.35:1});
+   if(mask)sources.push({mask,weight:o.source==='optical-partial'?2:['digit-template','digi-advanced'].includes(o.source)?.35:1});
    if(Array.isArray(o?.bitRows))rows.push(...o.bitRows.slice(0,8));
    if(Array.isArray(o?.digitOptions)&&o.digitOptions.length===13)alternatives.push(o.digitOptions);
   }
@@ -453,6 +453,18 @@
    ranked:ranked.slice(0,5),observationCount:sources.length,barRows:Math.min(8,rows.length),
    truncated:pool.size>160};
  }
+ function compareAdvanced(result,observation){
+  const ranges=inverseRanges(result?.fields),keys={weight:'weightGrams',rate:'pricePerKgCents',total:'totalCents'},out={};
+  if(observation?.source!=='digi-advanced')return out;
+  for(const [kind,key] of Object.entries(keys)){
+   const value=observation.fields?.[kind]?.value;
+   if(!Number.isSafeInteger(value)||value<1)continue;
+   const actual=result?.fields?.[key],range=ranges[kind];
+   out[kind]={value,agrees:Number.isSafeInteger(actual)?value===actual:null,
+    withinRange:range?value>=range.min&&value<=range.max:null};
+  }
+  return out;
+ }
  function verify(ean,plu,name){
   const record=resolve(ean);
   return Boolean(record.ok&&record.plu===String(plu??'')&&
@@ -462,5 +474,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
 });

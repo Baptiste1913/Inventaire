@@ -11,6 +11,8 @@ on:
       - 'weigh-scan.js'
       - 'gemini-lab.js'
       - 'digi-digit-ocr.js'
+      - 'digi-advanced-*.js'
+      - 'tools/test_digi_advanced.cjs'
       - 'tools/test_digi_digit_ocr.cjs'
       - 'gemini-transport.js'
       - 'tools/test_gemini_transport.cjs'
@@ -88,6 +90,10 @@ jobs:
           node --check weigh-scan.js
           node --check gemini-lab.js
           node --check digi-digit-ocr.js
+          node --check digi-advanced-model.js
+          node --check digi-advanced-core.js
+          node --check digi-advanced-worker.js
+          node --check digi-advanced-lab.js
           node --check gemini-transport.js
           node --check gemini-latency.js
           node --check gemini-litert-lab.js
@@ -149,6 +155,7 @@ jobs:
           node tools/test_gemini_resilience.cjs
           node tools/test_digi_hypotheses.cjs
           node tools/test_digi_digit_ocr.cjs
+          node tools/test_digi_advanced.cjs
           node tools/test_gemini_latency.cjs
           node tools/test_gemini_recognition_core.cjs
       - name: Vérifier la sécurité et les routes du Worker Gemini dédié

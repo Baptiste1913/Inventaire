@@ -131,5 +131,5 @@ if __name__=='__main__':
     a=p.parse_args()
     if a.train: print(json.dumps(train(a.fonts)))
     else:
-        if not 1<=a.count<=20000:p.error('count must be 1..20000')
+        if not 1<=a.count<=50000:p.error('count must be 1..50000')
         generate(a.fonts,a.out,a.count)

@@ -1317,6 +1317,7 @@
     +(result.networkFailure?' · '+String(result.networkFailure.stage||'réseau')+' / '+Number(result.networkFailure.attempts||0)+' tentative(s)':'')
     +(result.digiPlan?' · DIGI : '+result.digiPlan.candidateCount+' candidat(s), '+result.digiPlan.observationCount+' observations, '+result.digiPlan.barRows+' lignes':'')
     +(result.digiDigitHint?' · OCR chiffres (indice) '+result.digiDigitHint:'')
+    +(result.digiAdvancedHint?' · Advanced '+result.digiAdvancedHint.elapsedMs+' ms · indices '+[result.digiAdvancedHint.pattern?'EAN '+result.digiAdvancedHint.pattern:null,...Object.entries(result.digiAdvancedHint.fields||{}).map(([k,x])=>({weight:'poids ',rate:'€/kg ',total:'montant '}[k]||'')+x.text)].filter(Boolean).join(' / '):'')
     +(result.digiPlan?.positions?.length?' · EAN positions '+result.digiPlan.positions.join(', '):'')
     +(result.digiPlan?.ranges?.weight?' · plage poids '+result.digiPlan.ranges.weight.min+'–'+result.digiPlan.ranges.weight.max+' g':'')
     +(result.digiPlan?.ranges?.rate?' · plage tarif '+result.digiPlan.ranges.rate.min+'–'+result.digiPlan.ranges.rate.max+' ct/kg':'')
@@ -1593,6 +1594,7 @@
   const currentAbort=abort;
   const guard=setTimeout(()=>currentAbort.abort(),15000);
   const start=performance.now();
+  let advancedJob=null;
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
   try{
    // Gemini reçoit immédiatement l'image la plus complète possible.
@@ -1659,11 +1661,15 @@
    if(id!==generation)return;
    const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
    say(providerName+' analyse l’étiquette…');
-   const received=await requestGeminiWithRecovery(
+   const receivedTask=requestGeminiWithRecovery(
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
     safeDetail(firstDetail),targetField?[targetField]:resumeFields?.length?resumeFields:null,
     catalogHints(oldResult,opticalReady),
     resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null);
+   // Start only after the primary Gemini request has been issued. No await
+   // on Advanced, no additional cloud call and no modified cloud JPEG.
+   advancedJob=track(window.IUDigiAdvanced?.read?.(sourcePhoto,opticalReady)||null);
+   const received=await receivedTask;
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
@@ -1769,7 +1775,7 @@
    if(resumeFields?.length)targets=[];
    if(targets.length){
     // The synthetic-trained OCR is an advisory observation only. Never fuse its mask into the primary reading.
-    const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value,digitJob?.value].filter(Boolean);
+    const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value,digitJob?.value,advancedJob?.value].filter(Boolean);
     try{
      const history=window.IUDigiRecentReferences?.()||[];
      combined={...combined,digiDigitHint:digitJob?.value?.pattern||null,digiPlan:window.IUDigiCatalogLookup?.solveHypotheses?.(combined,{observations,history})};
@@ -1829,6 +1835,8 @@
     }
    }
    let validated=combined;
+   if(advancedJob?.value)validated={...validated,digiAdvancedHint:advancedJob.value,
+    digiAdvancedComparison:window.IUDigiCatalogLookup?.compareAdvanced?.(validated,advancedJob.value)};
    const finalDeadline=performance.now()+110;
    if(printedJob){
     // Après la récupération Gemini, reprendre le résultat OCR déjà
@@ -1885,13 +1893,13 @@
      :String(error?.message||'Échec réseau').slice(0,140);
     lastAnalysisError=reason;
     repairFocus=null;
-    if(oldResult)display(reconcileBarcode({...oldResult,networkFailure:error?.networkStats||oldResult.networkFailure},localBarcode),performance.now()-start);
+    if(oldResult)display(reconcileBarcode({...oldResult,networkFailure:error?.networkStats||oldResult.networkFailure,digiAdvancedHint:advancedJob?.value||oldResult.digiAdvancedHint},localBarcode),performance.now()-start);
     else if(error?.transient){
      const local=await Promise.race([barcodeJob||Promise.resolve(null),new Promise(resolve=>setTimeout(()=>resolve(null),120))]);
      if(id!==generation)return;
      if(local)localBarcode=local;
      const partial=applyCatalogRecovery(reconcileBarcode({fields:{name:null,weightGrams:null,pricePerKgCents:null,totalCents:null,ean13:null},
-      source:'local-network-recovery',networkFailure:error.networkStats,checks:{recoveryInterrupted:true,
+      source:'local-network-recovery',digiAdvancedHint:advancedJob?.value||null,networkFailure:error.networkStats,checks:{recoveryInterrupted:true,
        recoveryInterruptedTargets:trustedBarcodeEvidence(localBarcode)?['weight','rate','total']:['name','weight','rate','total','ean']}},localBarcode));
      display(partial,performance.now()-start);
     }
@@ -1937,6 +1945,7 @@
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   releaseLocalOcr();
   window.IULiteRTLab?.close?.();
+  window.IUDigiAdvanced?.close?.();
   if(cameraStream){
    for(const track of cameraStream.getTracks())track.stop();
    cameraStream=null;
@@ -1968,6 +1977,7 @@
   if(cameraStarting||active)return;
   // Préchauffer ZXing dans le Web Worker sans retarder la caméra.
   try{window.IUGeminiParallel?.preloadBarcode?.();}catch(_){}
+  try{window.IUDigiAdvanced?.warm?.();}catch(_){}
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
   // getUserMedia tant que la caméra fonctionne dans cette session.
   if(cameraStream){
