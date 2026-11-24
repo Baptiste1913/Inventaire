@@ -1,6 +1,6 @@
 {
-  "version": "42.57",
+  "version": "42.58",
   "published": "2026-11-24",
   "assets": 73,
-  "notes": "Chrome DIGI : longues fibres internes aléatoires, micro-vagues conservées, relief extérieur asymétrique, repères intérieurs à 22 % d’opacité, voile extérieur à 24 %. Géométrie et OCR inchangés. Aucun redéploiement Cloudflare."
+  "notes": "Voile extérieur à 38 %, fréquence des micro-vagues légèrement accrue. Recadrage strict au repère pour toutes les captures caméra DIGI (prévisualisation, contrôle local, photo, secours et mode automatique), coins neutralisés, sans accès aux pixels extérieurs. Imports hors viseur inchangés."
 }

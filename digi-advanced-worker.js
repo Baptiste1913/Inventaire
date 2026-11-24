@@ -1,5 +1,5 @@
 'use strict';
-importScripts('./digi-advanced-model.js?v=42.51','./digi-advanced-core.js?v=42.53','./gemini-label-geometry.js?v=42.53');
+importScripts('./digi-advanced-model.js?v=42.51','./digi-advanced-core.js?v=42.58','./gemini-label-geometry.js?v=42.58');
 let busy=false;
 self.onmessage=async({data:m})=>{
  const {id,kind}=m||{};

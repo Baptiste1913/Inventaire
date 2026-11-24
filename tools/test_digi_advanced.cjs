@@ -32,6 +32,6 @@ assert(lab.includes('received=await receivedTask;'));
 assert(lab.includes('digitJob?.value,advancedJob?.value'));
 assert(!lab.includes('fuseEAN(result,advancedJob'));
 assert(!lab.includes('fuseEAN(combined,advancedJob'));
-assert(html.includes('digi-advanced-lab.js?v=42.53'));
-for(const file of ['digi-advanced-lab.js','digi-advanced-model.js','digi-advanced-core.js','digi-advanced-worker.js'])assert(sw.includes(file+'?v='+(file==='digi-advanced-model.js'?'42.51':'42.53')));
+assert(html.includes('digi-advanced-lab.js?v=42.58'));
+for(const file of ['digi-advanced-lab.js','digi-advanced-model.js','digi-advanced-core.js','digi-advanced-worker.js'])assert(sw.includes(file+'?v='+(file==='digi-advanced-model.js'?'42.51':'42.58')));
 console.log('OK : CNN quantifié, référence PyTorch, CTC, formats, ordre réseau, séparation des preuves');

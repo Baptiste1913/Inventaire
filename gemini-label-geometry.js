@@ -27,6 +27,21 @@
   ['date',.665,.535,.275,.145],['barcode',.06,.715,.43,.265],
   ['total',.525,.715,.415,.265]
  ].map(Object.freeze));
+ // Map the actual visible guide through object-fit:cover, center center.
+ function guideCrop(srcW,srcH,view,guide){
+  if(![srcW,srcH,view?.left,view?.top,view?.width,view?.height,guide?.left,guide?.top,guide?.width,guide?.height].every(Number.isFinite)
+    ||srcW<=0||srcH<=0||view.width<=0||view.height<=0||guide.width<40||guide.height<30)return null;
+  const dx=guide.left-view.left,dy=guide.top-view.top;
+  if(dx<-.5||dy<-.5||dx+guide.width>view.width+.5||dy+guide.height>view.height+.5)return null;
+  const scale=Math.max(view.width/srcW,view.height/srcH);
+  const ox=(srcW-view.width/scale)/2,oy=(srcH-view.height/scale)/2;
+  const x=Math.max(0,Math.ceil(ox+Math.max(0,dx)/scale));
+  const y=Math.max(0,Math.ceil(oy+Math.max(0,dy)/scale));
+  const right=Math.min(srcW,Math.floor(ox+Math.min(view.width,dx+guide.width)/scale));
+  const bottom=Math.min(srcH,Math.floor(oy+Math.min(view.height,dy+guide.height)/scale));
+  if(right-x<40||bottom-y<30)return null;
+  return {x,y,width:right-x,height:bottom-y,radius:7/scale,key:[srcW,srcH,x,y,right,bottom].join(':')};
+ }
  function validRect(r){return Boolean(r&&[r.x,r.y,r.w,r.h].every(Number.isFinite)&&r.w>0&&r.h>0&&r.x>=0&&r.y>=0&&r.x+r.w<=1.001&&r.y+r.h<=1.001);}
  function paperRect(rect){return validRect(rect?.paper)?rect.paper:validRect(rect)?rect:null;}
  function zoneRect(rect,kinds,pad=.02){
@@ -166,5 +181,5 @@
   const optical=opticalCrop(reading,w,h);
   return optical||detect(imageData);
  }
- return Object.freeze({detect,opticalCrop,crop,barcodeWithinLabel,aspect,guideScale,zones,guideZones,paperRect,zoneRect,aligned});
+ return Object.freeze({detect,opticalCrop,crop,barcodeWithinLabel,aspect,guideScale,zones,guideZones,guideCrop,paperRect,zoneRect,aligned});
 });

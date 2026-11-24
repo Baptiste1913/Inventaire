@@ -28,10 +28,13 @@
  let manualCorrectedFields=[];
  let primaryBarcodePhoto=null,alternatePhotoTask=null,printedBusy=false;
  let cachedEncoding=null,cachedDetail=null,cachedEnhanced=null,cachedFocused=new Map(),cachedGuided=null;
+ const guidedPhotos=new WeakSet();
+ const guideHint=(source,reading)=>guidedPhotos.has(source)?{...reading,guideCrop:true}:reading;
  // Prepare a second, improved view for the exact same captured label.
  function samePhotoEnhanced(source,reading=null){
   if(!source)return Promise.resolve(null);
   if(cachedEnhanced?.source===source)return cachedEnhanced.promise;
+  reading=guideHint(source,reading);
   // The cloud JPEG is never recompressed to make room for the detail.
   const maxBytes=file?.name==='etiquette-gemini.jpg'&&file.type==='image/jpeg'&&file.size<=490000?
    Math.max(100,Math.min(122000,Math.floor((750000-4*Math.ceil(file.size/3))/4)*3)):122000;
@@ -41,6 +44,7 @@
  }
  function samePhotoFocus(source,mode,reading){
   const found=cachedFocused.get(mode);if(found?.source===source)return found.promise;
+  reading=guideHint(source,reading);
   const owner=file;
   // One dedicated detail worker: serialize its optional crops.
   const previous=mode==='numbers'?cachedFocused.get('ean')?.promise:null;
@@ -842,7 +846,7 @@
   say('');
  }
  function clear(){stopCamera();resetReading();}
- function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null,preparedEnhanced=null}={}){
+ function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null,preparedEnhanced=null,guideCrop=false}={}){
   if(!chosen)return false;
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
@@ -871,6 +875,7 @@
   // La pleine résolution reste réservée à l'EAN LOCAL si le JPEG
   // envoyé à Gemini a été réduit pour respecter le budget Cloudflare.
   const barcodeSource=barcodePhoto||chosen;
+  if(guideCrop){guidedPhotos.add(chosen);guidedPhotos.add(barcodeSource);}
   primaryBarcodePhoto=barcodeSource;alternatePhotoTask=alternatePhoto;
   barcodeJob=(preparedBarcode?Promise.resolve(preparedBarcode):
    (window.IUGeminiParallel?.barcode(barcodeSource)||
@@ -1032,7 +1037,7 @@
   // Conservons la vue d'origine intégrale, indépendamment du détail.
   // Les contours réels sont recherchés sur une miniature puis acceptés
   // UNIQUEMENT si suffisamment nets et entourés de marges.
-  let cropX=Math.round(width*.065),cropY=Math.round(height*.07);
+  let cropX=guidedPhotos.has(source)?0:Math.round(width*.065),cropY=guidedPhotos.has(source)?0:Math.round(height*.07);
   let cropW=width-2*cropX,cropH=height-2*cropY;
   const geometry=window.IUGeminiLabelGeometry;
   if(geometry){
@@ -1641,7 +1646,7 @@
       const engine=TextDetector?null:await ensureLocalOcr();
       if(!stillCurrent()||(!engine&&!TextDetector))return null;
       return await window.IUGeminiPrintedEAN.read(sourcePhoto,{
-       engine,TextDetector,hint:localBarcode,verifyTwice:true
+       engine,TextDetector,hint:guideHint(sourcePhoto,localBarcode),verifyTwice:true
       });
      }finally{printedBusy=false;}
     })());
@@ -1650,10 +1655,10 @@
     if(!stillCurrent()||targetField||reading?.ambiguous||trustedBarcodeEvidence(reading))return;
     startPrinted();
     if(!partialJob)partialJob=track(window.IUGeminiParallel?.partial?.(sourcePhoto)||null);
-    if(!digitJob)digitJob=track(window.IUGeminiParallel?.digits?.(sourcePhoto,reading)||null);
+    if(!digitJob)digitJob=track(window.IUGeminiParallel?.digits?.(sourcePhoto,guideHint(sourcePhoto,reading))||null);
     if(!paddleJob){
      const engine=window.IULiteRTLab?.enabled?.()?window.IULiteRTLab:window.IUPaddleLab;
-     paddleJob=track(engine?.read?.(sourcePhoto,reading)||null);
+     paddleJob=track(engine?.read?.(sourcePhoto,guideHint(sourcePhoto,reading))||null);
     }
     if(!alternateJob&&alternatePhotoTask)alternateJob=track(Promise.resolve(alternatePhotoTask).then(photo=>
      photo&&stillCurrent()?window.IUGeminiParallel?.barcode(photo):null));
@@ -1680,7 +1685,7 @@
     resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null);
    // Start only after the primary Gemini request has been issued. No await
    // on Advanced, no additional cloud call and no modified cloud JPEG.
-   advancedJob=track(window.IUDigiAdvanced?.read?.(sourcePhoto,opticalReady)||null);
+   advancedJob=track(window.IUDigiAdvanced?.read?.(sourcePhoto,guideHint(sourcePhoto,opticalReady))||null);
    // Prepare focused crops in parallel with the primary network request.
    const focusEAN={kind:'EAN ciblé',task:track(samePhotoFocus(sourcePhoto,'ean',opticalReady))};
    const focusNumbers={kind:'chiffres ciblés',task:track(samePhotoFocus(sourcePhoto,'numbers',opticalReady))};
@@ -2361,23 +2366,26 @@
   say('Viseur fermé. Aucune photo envoyée.');
  });
  torch.addEventListener('click',()=>setTorch(!torchOn));
- // Reprendre le cadrage visible en direct, puis réduire les marges latérales.
- // Les étiquettes voisines ne doivent pas être envoyées si possible.
- function cameraCaptureCrop(srcW,srcH,viewW,viewH){
-  if(!Number.isFinite(srcW)||!Number.isFinite(srcH)||srcW<=0||srcH<=0)
-   throw Error('Dimensions de caméra indisponibles');
-  let x=0,y=0,width=srcW,height=srcH;
-  const ratio=Number.isFinite(viewW)&&Number.isFinite(viewH)&&viewW>0&&viewH>0
-   ?viewW/viewH:srcW/srcH;
-  if(width/height>ratio){width=height*ratio;x=(srcW-width)/2;}
-  else{height=width/ratio;y=(srcH-height)/2;}
-  // Préserver une marge pour le PLU vertical et les gardes EAN.
-  const focused=width*.96;
-  x+=(width-focused)/2;
-  width=focused;
-  return {x,y,width,height};
+ // One strict ROI for every camera input. Never fall back to the full view.
+ function cameraCaptureCrop(srcW,srcH,view){
+  const outline=exactGuide?.getBoundingClientRect();
+  const crop=labelLayout?.guideCrop(srcW,srcH,view,outline);
+  if(!crop)throw Error('Repère caméra indisponible · recadre l’étiquette');
+  return crop;
  }
-
+ function drawGuideFrame(ctx,crop,w,h){
+  // Rounded corners are neutralized too. Draw only video pixels, not UI.
+  const r=Math.min(w/4,h/4,Math.max(0,crop.radius*Math.min(w/crop.width,h/crop.height)));
+  ctx.save();
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+  ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(w-r,0);
+  ctx.quadraticCurveTo(w,0,w,r);ctx.lineTo(w,h-r);
+  ctx.quadraticCurveTo(w,h,w-r,h);ctx.lineTo(r,h);
+  ctx.quadraticCurveTo(0,h,0,h-r);ctx.lineTo(0,r);
+  ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.clip();
+  ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,w,h);
+  ctx.restore();
+ }
 
  // v42.30 — Capture intelligente iPhone Safari, sans photo supplémentaire
  // envoyée à Gemini. Le contrôle basse résolution vise seulement
@@ -2388,9 +2396,6 @@
    video.readyState>=2&&video.videoWidth>0&&video.videoHeight>0);
  }
  function qualityZones(view){
-  const outline=exactGuide?.getBoundingClientRect();
-  if(!outline||outline.width<40||outline.height<30||!view.width||!view.height)
-   return qualityEngine.expectedZones;
   const components={
    ean:labelOutlineZones.find(z=>z[0]==='barcode'),
    weight:labelOutlineZones.find(z=>z[0]==='weight'),
@@ -2398,22 +2403,17 @@
   };
   const mapped={};
   for(const [kind,z] of Object.entries(components)){
-   const centerX=(outline.left-view.left+outline.width*(z[1]+z[3]/2))/view.width;
-   const centerY=(outline.top-view.top+outline.height*(z[2]+z[4]/2))/view.height;
-   // Les zones sont volontairement élargies : une étiquette légèrement
-   // décalée dans le guide ne doit pas être prise pour du fond vide.
-   const w=Math.min(.48,outline.width*z[3]*(kind==='ean'?1.16:1.55)/view.width);
-   const h=Math.min(.35,outline.height*z[4]*(kind==='ean'?1.15:1.65)/view.height);
-   const x=Math.max(0,Math.min(1-w,((centerX-.02)/.96)-w/2));
-   const y=Math.max(0,Math.min(1-h,centerY-h/2));
-   mapped[kind]={x,y,w,h};
+   const w=Math.min(.60,z[3]*(kind==='ean'?1.12:1.25));
+   const h=Math.min(.35,z[4]*(kind==='ean'?1.12:1.25));
+   mapped[kind]={x:Math.max(0,Math.min(1-w,z[1]+(z[3]-w)/2)),
+    y:Math.max(0,Math.min(1-h,z[2]+(z[4]-h)/2)),w,h};
   }
   return mapped;
  }
  function sampleCameraQuality(){
   if(!qualityEngine||video.readyState<2||!video.videoWidth)return null;
   const view=video.getBoundingClientRect();
-  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,view.width,view.height);
+  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,view);
   // Maximum 360 pixels, mémoire et CPU bornés ; le JPEG reste à 1 920 px.
   const scale=Math.min(1,360/Math.max(crop.width,crop.height));
   const w=Math.max(1,Math.round(crop.width*scale));
@@ -2422,23 +2422,14 @@
   if(qualitySampleCanvas.height!==h)qualitySampleCanvas.height=h;
   const ctx=qualitySampleCanvas.getContext('2d',{willReadFrequently:true});
   if(!ctx)return null;
-  ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,w,h);
+  drawGuideFrame(ctx,crop,w,h);
   const image=ctx.getImageData(0,0,w,h);
   const rating=qualityEngine.evaluate(image,qualityZones(view),qualityPrevious?.gray);
-  // Bounded low-res outline check: feedback only, never auto capture.
-  if(exactGuide&&labelLayout&&performance.now()-guideLastCheck>500){
-   guideLastCheck=performance.now();
-   const b=exactGuide.getBoundingClientRect();
-   const guide={x:((b.left-view.left)/view.width-.02)/.96,y:(b.top-view.top)/view.height,w:b.width/view.width/.96,h:b.height/view.height};
-   const detected=labelLayout.detect(image);
-   exactGuide.dataset.aligned=String(labelLayout.aligned(detected,guide));
-  }
   return rating;
  }
  function fullResolutionCameraFrame(maxEdge=1920){
   const bounds=video.getBoundingClientRect();
-  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,
-   bounds.width,bounds.height);
+  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,bounds);
   const factor=Math.min(1,maxEdge/Math.max(crop.width,crop.height));
   const cv=document.createElement('canvas');
   cv.width=Math.max(1,Math.round(crop.width*factor));
@@ -2447,7 +2438,8 @@
   if(!ctx)throw Error('Capture caméra impossible');
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
-  ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
+  drawGuideFrame(ctx,crop,cv.width,cv.height);
+  cv.iuGuideCropKey=crop.key;
   return cv;
  }
  function clearQualityBuffer(){
@@ -2528,7 +2520,7 @@
       candidate.jpeg=blob;
       // Exact selected JPEG only; never send preview images to Gemini.
       if(blob.size<=490000&&window.IUGeminiParallel?.prepareDetail){
-       candidate.preparedEnhanced=window.IUGeminiParallel.prepareDetail(blob,null,122000)
+       candidate.preparedEnhanced=window.IUGeminiParallel.prepareDetail(blob,{guideCrop:true},122000)
         .then(result=>result?readParallelDetail(result):null).catch(()=>null);
       }
       return window.IUGeminiParallel.previewBarcode(blob);
@@ -2560,7 +2552,7 @@
   // Aucun traitement de rendu ne redémarre le MediaStream Safari.
   const current=qualityCandidate(epoch);
   if(!qualityEngine)return current;
-  const candidates=qualityCached?[qualityCached]:[];
+  const candidates=qualityCached&&qualityCached.canvas?.iuGuideCropKey===current.canvas?.iuGuideCropKey?[qualityCached]:[];
   let selected=qualityEngine.choose(candidates,current,current.at);
   // Les trois zones comptent : la netteté du seul nom ne suffit pas.
   // L'éventuelle nouvelle frame coûte 85 ms, jamais un délai infini.
@@ -2569,15 +2561,17 @@
    if(epoch===cameraEpoch&&!document.hidden&&cameraStream&&
       cameraShell.dataset.state==='scanning'&&video.readyState>=2){
     const later=qualityCandidate(epoch);
-    candidates.push(later);
-    selected=qualityEngine.choose([selected,later],current,later.at)||current;
+    if(later.canvas?.iuGuideCropKey===current.canvas?.iuGuideCropKey){
+     candidates.push(later);
+     selected=qualityEngine.choose([selected,later],current,later.at)||current;
+    }
    }
   }
   lastSelectedQuality=selected.rating?.regions||null;
   // Une autre image très proche peut être meilleure dans la zone EAN.
   // Le cliché principal fournit toujours les poids/prix et Gemini.
   const backup=[current,...candidates].filter(c=>c&&c!==selected&&c.canvas&&
-   c.epoch===epoch&&Math.abs(c.at-current.at)<=360&&
+   c.epoch===epoch&&c.canvas.iuGuideCropKey===current.canvas.iuGuideCropKey&&Math.abs(c.at-current.at)<=360&&
    qualityEngine.sameScene?.(selected.rating,c.rating,14)&&
    (c.rating?.regions?.ean||0)>(selected.rating?.regions?.ean||0)+.045)
    .sort((a,b)=>b.rating.regions.ean-a.rating.regions.ean)[0];
@@ -2645,7 +2639,7 @@
  }
  function liveFrameCanvas(){
   const view=video.getBoundingClientRect();
-  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,view.width,view.height);
+  const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,view);
   const factor=Math.min(1,1920/Math.max(crop.width,crop.height));
   const cv=document.createElement('canvas');
   cv.width=Math.max(1,Math.round(crop.width*factor));
@@ -2656,7 +2650,8 @@
   ctx.imageSmoothingQuality='high';
   ctx.fillStyle='#fff';
   ctx.fillRect(0,0,cv.width,cv.height);
-  ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,cv.width,cv.height);
+  drawGuideFrame(ctx,crop,cv.width,cv.height);
+  cv.iuGuideCropKey=crop.key;
   return cv;
  }
  async function decodeLocalBarcode(canvas){
@@ -2704,7 +2699,7 @@
   lastPhotoWasAuto=true;
   autoCapturePending=false;
   // Même contrôle et même validation manuelle que la photo traditionnelle.
-  setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}));
+  setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}),{guideCrop:true});
  }
  async function readLocalFrame(quality){
   // Mode automatique : la détection de stabilité reste locale et légère,
@@ -2803,14 +2798,13 @@
    if(!autoLocked&&!autoSuspended&&!active&&!file&&!proposal&&performance.now()>=autoEarliest){
     if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
      const bounds=video.getBoundingClientRect();
-     const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,bounds.width,bounds.height);
+     const crop=cameraCaptureCrop(video.videoWidth,video.videoHeight,bounds);
      if(autoSampleCanvas.width!==176)autoSampleCanvas.width=176;
      const sampleHeight=Math.max(78,Math.min(126,Math.round(176*crop.height/crop.width)));
      if(autoSampleCanvas.height!==sampleHeight)autoSampleCanvas.height=sampleHeight;
      const ctx=autoSampleCanvas.getContext('2d',{willReadFrequently:true});
      if(!ctx)throw Error('Canvas de contrôle indisponible');
-     ctx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,
-      autoSampleCanvas.width,autoSampleCanvas.height);
+     drawGuideFrame(ctx,crop,autoSampleCanvas.width,autoSampleCanvas.height);
      const quality=inspectAutoFrame(ctx.getImageData(0,0,autoSampleCanvas.width,autoSampleCanvas.height));
      const now=performance.now();
      if(autoNeedsChange){
@@ -2944,7 +2938,7 @@
     // sauvegarde. Les données existantes ne sont pas altérées.
     resetReading();
    }
-   const used=setPhoto(nextPhoto,{confirmed:true,
+   const used=setPhoto(nextPhoto,{confirmed:true,guideCrop:true,
     barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null,alternatePhoto,
     preparedBarcode:chosen.jpeg===barcodeOriginal?chosen.preparedBarcode:null,
     preparedEnhanced:chosen.jpeg===barcodeOriginal?chosen.preparedEnhanced:null});

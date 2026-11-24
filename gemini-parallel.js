@@ -49,7 +49,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.53');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.58');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
@@ -125,7 +125,7 @@
   if(detailUnavailable||!root?.Worker||!root?.OffscreenCanvas||!root?.createImageBitmap)return false;
   if(detailWorker)return true;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.53&detail=1');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.58&detail=1');
    detailWorker=instance;
    instance.onmessage=event=>{
     if(detailWorker!==instance)return;

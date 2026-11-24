@@ -214,7 +214,7 @@
   if(t<nextWaveAt)return;
   if(looseFibres.length<MAX_WAVES)looseFibres.push(spawnWave(t));
   // Occasionally a longer lull; no catch-up burst after a suspended tab.
-  nextWaveAt=t+(Math.random()<.14?range(1.0,1.8):range(.26,.72));
+  nextWaveAt=t+(Math.random()<.13?range(.95,1.7):range(.24,.66));
  }
  function waveShape(t,w){
   const age=Math.max(0,Math.min(1,(t-w.born)/w.life));

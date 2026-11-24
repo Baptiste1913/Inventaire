@@ -37,7 +37,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.57'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.58'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -101,7 +101,7 @@ assert(source.includes("2.15,config.tint,config.opacity*.44,1.5,'source-over',.1
 assert(source.includes(".95,config.core,config.opacity,.35,'source-over',.05"));
 const update=css.slice(css.indexOf('/* v42.57'));
 assert(update.includes('opacity:.22!important;'));
-assert(update.includes('box-shadow:0 0 0 100vmax rgba(0,0,0,.24)!important;'));
+assert(update.includes('box-shadow:0 0 0 100vmax rgba(0,0,0,.38)!important;'));
 assert(update.includes('background:transparent!important;'));
 assert(update.includes('[data-state="scanning"]'));
 assert(update.includes('overflow:hidden!important;'));

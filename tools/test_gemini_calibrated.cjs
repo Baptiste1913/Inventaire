@@ -29,11 +29,30 @@ assert(l.includes('for(const [kind,x,y,w,h] of cameraOutlineZones)'));
 assert(l.includes("ean:labelOutlineZones.find(z=>z[0]==='barcode')"));
 assert(l.includes('preparedEnhanced:chosen.jpeg===barcodeOriginal?chosen.preparedEnhanced:null'));
 const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-assert(html.includes('gemini-label-geometry.js?v=42.57'));
-assert(sw.includes('gemini-label-geometry.js?v=42.57')&&sw.includes('gemini-label-geometry.js?v=42.53'));
+assert(html.includes('gemini-label-geometry.js?v=42.58'));
+assert(sw.includes('gemini-label-geometry.js?v=42.58')&&sw.includes('gemini-label-geometry.js?v=42.53'));
 assert(l.includes('!error?.unreadable&&!error?.timeout'));
 assert(l.includes('currentAbort.abort(),24000'));
 assert(w.includes('deadline:started+budgetMs'));
 assert(w.includes('status===504?504'));
 assert(w.includes("model!=='gemini-3.5-flash-lite'"));
 console.log('OK : calibrated geometry, exact preview identity, bounded 504, Gemini only');
+
+// Sensor mapping: landscape, portrait and noninteger edges.
+const view={left:10,top:20,width:320,height:180},frame={left:100,top:35,width:140,height:150};
+let roi=g.guideCrop(1920,1080,view,frame);
+assert.equal(roi.x,540);assert.equal(roi.y,90);assert.equal(roi.width,840);assert.equal(roi.height,900);
+roi=g.guideCrop(1080,1920,view,frame);
+assert(roi.x>=0&&roi.y>=0&&roi.x+roi.width<=1080&&roi.y+roi.height<=1920);
+assert.equal(g.guideCrop(1920,1080,view,{...frame,left:0}),null);
+assert.equal(g.guideCrop(1920,1080,view,null),null);
+assert.equal((l.match(/ctx\.drawImage\(video,/g)||[]).length,1,'Only shared crop can read video pixels');
+assert.equal((l.match(/drawGuideFrame\(ctx,crop,/g)||[]).length,5);
+assert(l.includes('ctx.clip();'));assert(l.includes('iuGuideCropKey===current.canvas?.iuGuideCropKey'));
+
+assert(l.includes('if(guideCrop){guidedPhotos.add(chosen);guidedPhotos.add(barcodeSource);}'));
+assert(l.includes('const used=setPhoto(nextPhoto,{confirmed:true,guideCrop:true,'));
+assert(l.includes("setPhoto(new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'}),{guideCrop:true});"));
+assert(l.includes("prepareDetail(blob,{guideCrop:true},122000)"));
+assert(l.includes('guideHint(sourcePhoto,opticalReady)'));
+assert(l.includes('guideHint(sourcePhoto,reading)'));

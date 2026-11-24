@@ -5726,7 +5726,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  border:0!important;
  border-radius:7px!important;
  background:transparent!important;
- box-shadow:0 0 0 100vmax rgba(0,0,0,.24)!important;
+ box-shadow:0 0 0 100vmax rgba(0,0,0,.38)!important;
  pointer-events:none!important;
  z-index:-1!important;
 }

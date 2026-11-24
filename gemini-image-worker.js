@@ -3,7 +3,7 @@
  */
 'use strict';
 importScripts('./gemini-recognition-core.js?v=42.45');
-importScripts('./gemini-label-geometry.js?v=42.53');
+importScripts('./gemini-label-geometry.js?v=42.58');
 // Dedicated detail instance does not download/initialize the barcode engines.
 const detailOnly=Boolean(self.location?.search?.includes('detail=1'));
 if(!detailOnly){
@@ -110,8 +110,9 @@ async function enhancedDetail(photo,reading,maxBytes=122000,mode='enhanced'){
    }
   }
   if(mode==='ean'||mode==='numbers'){
-   if(rect?.source!=='paper-outline'||!rect.paper)return null;
-   const focus=geometry.zoneRect(rect,mode==='ean'?['barcode','ean']:['rate','weight','total'],.035);
+   const focusRect=rect?.source==='paper-outline'&&rect.paper?rect:reading?.guideCrop?{x:0,y:0,w:1,h:1}:null;
+   if(!focusRect)return null;
+   const focus=geometry.zoneRect(focusRect,mode==='ean'?['barcode','ean']:['rate','weight','total'],.035);
    if(!focus)return null;
    const b=zoneToPixels(focus,iw,ih);
    if(b.w<160||b.h<45||b.x+b.w>iw||b.y+b.h>ih)return null;
@@ -127,7 +128,7 @@ async function enhancedDetail(photo,reading,maxBytes=122000,mode='enhanced'){
   const located=Boolean(rect&&rect.x>=.008&&rect.y>=.008&&rect.x+rect.w<=.992&&rect.y+rect.h<=.992);
   // Same wide central crop as the raw detail if no trustworthy outline.
   // No perspective correction on a guessed rectangle.
-  if(!located)rect={x:.065,y:.07,w:.87,h:.86};
+  if(!located)rect=reading?.guideCrop?{x:0,y:0,w:1,h:1}:{x:.065,y:.07,w:.87,h:.86};
   // Perspective : quatre bords réels et marges sûres obligatoires.
   const core=self.IURecognitionCore;
   if(located&&core?.quad&&core?.warp){

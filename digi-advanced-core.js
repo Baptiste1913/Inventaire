@@ -84,7 +84,7 @@
  const ZONES={ean:[.02,.79,.61,.20],weight:[.34,.475,.26,.19],rate:[.055,.475,.26,.19],total:[.55,.74,.42,.25]};
  function readZone(bmp,label,field){
   const z=ZONES[field];
-  const calibrated=label?.paper&&root?.IUGeminiLabelGeometry?.zoneRect(label,[field],field==='ean'?.028:.025);
+  const calibrated=(label?.paper||label?.guideCrop)&&root?.IUGeminiLabelGeometry?.zoneRect(label,[field],field==='ean'?.028:.025);
   const r=calibrated||{x:label.x+z[0]*label.w,y:label.y+z[1]*label.h,w:z[2]*label.w,h:z[3]*label.h};
   const sx=Math.round(r.x*bmp.width),sy=Math.round(r.y*bmp.height),sw=Math.round(r.w*bmp.width),sh=Math.round(r.h*bmp.height);
   if(sx<0||sy<0||sw<50||sh<12||sx+sw>bmp.width||sy+sh>bmp.height)return null;
@@ -141,7 +141,7 @@
     const cv=new OffscreenCanvas(w,h),ctx=cv.getContext('2d',{willReadFrequently:true});
     if(ctx){ctx.drawImage(bmp,0,0,w,h);label=root.IUGeminiLabelGeometry.detect(ctx.getImageData(0,0,w,h));}
    }
-   if(!label)label={x:0,y:0,w:1,h:1};
+   if(!label)label={x:0,y:0,w:1,h:1,guideCrop:Boolean(hint?.guideCrop)};
    if(![label.x,label.y,label.w,label.h].every(Number.isFinite)||label.w<.3||label.h<.25||label.x<0||label.y<0||label.x+label.w>1.001||label.y+label.h>1.001)return null;
    const started=performance.now(),fields={};let ean=null;
    for(const field of ['ean','weight','rate','total']){

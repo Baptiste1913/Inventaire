@@ -36,6 +36,7 @@
   const label=hint?.labelRect;
   const calibrated=label?.paper&&root?.IUGeminiLabelGeometry?.zoneRect(label,['barcode','ean'],.025);
   if(calibrated)return calibrated;
+  if(hint?.guideCrop){const zone=root?.IUGeminiLabelGeometry?.zoneRect({x:0,y:0,w:1,h:1},['barcode','ean'],.035);if(zone)return zone;}
   if(label?.source==='paper-outline'&&label.w>.40&&label.h>.30)
    return {x:label.x+.01*label.w,y:label.y+.70*label.h,
     w:label.w*.84,h:label.h*.29};

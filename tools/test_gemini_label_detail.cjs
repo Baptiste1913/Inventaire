@@ -24,6 +24,7 @@ async function exercise(mode){
   }
  };
  const ctx={
+  guidedPhotos:{has:()=>mode==='guide'},
   window:{IUGeminiLabelGeometry:mode==='legacy'?null:geometry},
   decodePhoto:async()=>({naturalWidth:1200,naturalHeight:800}),
   document:{createElement:()=>({
@@ -55,6 +56,8 @@ async function exercise(mode){
  const legacy=await exercise('legacy');
  assert.deepEqual([legacy.x,legacy.y,legacy.w,legacy.h],
   [78,56,1044,688],'Ne pas modifier le recadrage habituel');
+ const guide=await exercise('guide');
+ assert.deepEqual([guide.x,guide.y,guide.w,guide.h],[0,0,1200,800],'Le recadrage strict conserve les bords du repère');
  const good=await exercise('good');
  assert.deepEqual([good.x,good.y,good.w,good.h],
   [228,112,756,592],'Le papier réel fournit un meilleur détail');
