@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.01'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.02'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -205,7 +205,7 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  const doc={hidden:false,getElementById:k=>k===canvas.id?canvas:null,addEventListener(){}};
  let visible;const win={devicePixelRatio:3,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.set(++req,fn);return req;},cancelAnimationFrame:id=>frames.delete(id),IntersectionObserver:class{constructor(fn){visible=fn;}observe(){}}};
  class Observer{observe(){}}
- const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isLogo)inspect({basePoint,loaderWidthScale,chromeReflections,logoInnerReflections,logoInnerLines,logoRibbonVertex});\n }\n})();');
+ const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isLogo)inspect({basePoint,loaderWidthScale,chromeReflections,logoInnerReflections,logoInnerLines,logoRibbonVertex,logoBreath,logoJoinCenter,logoJoinWeight,logoLinkedPoint});\n }\n})();');
  new Function('document','window','Path2D','MutationObserver','inspect',instrument)(doc,win,Path,Observer,x=>{debug=x;});
  assert.equal(frames.size,1);
  const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100);
@@ -216,6 +216,20 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  assert(paints.length-initial>=60*15,'60 rendus en une seconde');
  assert.equal(debug.loaderWidthScale,1.6);
  assert.equal(debug.logoInnerLines.length,3);assert.equal(debug.logoInnerReflections.length,3);
+ for(let k=0;k<3;k++)for(const time of [0,5,15,29,60]){
+  const u=debug.logoJoinCenter(time,k);
+  const a=debug.logoLinkedPoint(u,time,k),b=debug.logoLinkedPoint(u,time,k-1);
+  assert(Math.hypot(a.x-b.x,a.y-b.y)<1e-8,'Jonction réelle avec la fibre voisine');
+  const left=debug.logoLinkedPoint(u-.00001,time,k),right=debug.logoLinkedPoint(u+.00001,time,k);
+  assert(Math.hypot(left.x-right.x,left.y-right.y)<.005,'Jonction continue');
+  const x=debug.logoLinkedPoint(0,time,k),y=debug.logoLinkedPoint(1,time,k);
+  assert(Math.hypot(x.x-y.x,x.y-y.y)<1e-8,'Boucle fermée');
+  const breath=debug.logoBreath(time,k);
+  assert(breath>=.87-1e-8&&breath<=1.13+1e-8);
+  assert(Math.abs(debug.logoBreath(time+.0167,k)-breath)<.001,'Variation lente');
+ }
+ assert(Math.abs(debug.logoBreath(0,0)-debug.logoBreath(4,0))>.1);
+ assert(debug.logoBreath(0,0)!==debug.logoBreath(0,1),'Phases indépendantes');
  assert(paints.length-initial>=60*24,'Filaments supplémentaires à chaque frame');
  const vertex={x:19,y:13,nx:-1,ny:0,envelope:1};
  assert.deepEqual(debug.logoRibbonVertex(vertex,-1,.55),debug.logoRibbonVertex(vertex,-1,0),'Bord externe inchangé');

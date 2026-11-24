@@ -435,8 +435,8 @@
    // Shorter arcs and tighter halos preserve distinct dark/light fibres;
    // the width multiplier, palette, opacity and animation clock stay intact.
    const ribbon=ribbonGeometry(t,isLogo?{...config,span:config.span*.85}:config);
-   drawRibbon(ribbon,2.15,config.tint,config.opacity*.44,isLogo?.65:1.5,'source-over',.125,isLogo?.55:0);
-   drawRibbon(ribbon,.95,config.core,config.opacity,isLogo?.18:.35,'source-over',.05,isLogo?.35:0);
+   drawRibbon(ribbon,2.15,config.tint,config.opacity*.44,isLogo?.65:1.5,'source-over',.125,isLogo?.55*logoBreath(t,config.lane):0);
+   drawRibbon(ribbon,.95,config.core,config.opacity,isLogo?.18:.35,'source-over',.05,isLogo?.35*logoBreath(t,config.lane):0);
   }
   if(isLogo)paintLogoInner(t);
   if(running){paintWaves(t);paintInnerWaves(t);}
@@ -448,17 +448,56 @@
   {lane:7,start:.70,direction:-1,seconds:14.7,span:.14,samples:64,tint:'#aeaeae',core:'#343434',opacity:.65,depth:1.85},
   {lane:8,start:.43,direction:1,seconds:16.9,span:.18,samples:64,tint:'#777777',core:'#f2f2f2',opacity:.78,depth:2.35}
  ];
+ // Slow, phase-shifted breathing; never changes the external edge.
+ function logoBreath(t,index){
+  const period=18+(index%5)*3;
+  return 1+.13*Math.sin(TWO_PI*t/period+index*1.7);
+ }
+ const logoInnerSpecs=[[.94,.24,-.95],[3.82,.30,-1.65],[5.81,.20,-2.25]];
+ function logoJoinCenter(t,index){
+  return wrap(.12+index*.29+.035*Math.sin(TWO_PI*t/(24+index*5)+index*1.4));
+ }
+ function logoJoinWeight(u,t,index){
+  const center=logoJoinCenter(t,index);
+  const distance=c=>Math.abs(wrap(u-c+.5)-.5);
+  const d=Math.min(distance(center),distance(center+.5));
+  return d>=.115?0:.5+.5*Math.cos(Math.PI*d/.115);
+ }
+ function logoLinkedPoint(u,t,index){
+  if(index<0)return lanePoint(u,1.42,.49,.03);
+  const own=lanePoint(u,...logoInnerSpecs[index]);
+  const join=logoJoinWeight(u,t,index);
+  if(!join)return own;
+  const parent=logoLinkedPoint(u,t,index-1);
+  return {x:own.x+(parent.x-own.x)*join,y:own.y+(parent.y-own.y)*join};
+ }
+ function linkedLogoPath(t,index){
+  const path=new Path2D();
+  for(let i=0;i<96;i++){
+   const p=logoLinkedPoint(i/96,t,index);
+   if(!i)path.moveTo(p.x,p.y);else path.lineTo(p.x,p.y);
+  }
+  path.closePath();return path;
+ }
+ function linkedLogoRibbon(t,config,index){
+  const center=reflectionCenter(t,config),samples=config.samples||64,points=[];
+  for(let i=0;i<=samples;i++){
+   const s=i/samples,u=center+(s-.5)*config.span;
+   const p=logoLinkedPoint(u,t,index),a=logoLinkedPoint(u-.0005,t,index),b=logoLinkedPoint(u+.0005,t,index);
+   const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
+   points.push({...p,nx:-dy/len,ny:dx/len,envelope:Math.pow(Math.max(0,Math.sin(Math.PI*s)),1.65)});
+  }
+  return points;
+ }
  function paintLogoInner(t){
-  baseFilament(6,.44,.38,'#777777',logoInnerLines[0]);
-  baseFilament(5,.56,.34,'#d6d6d6',logoInnerLines[1]);
-  baseFilament(8,.36,.30,'#555555',logoInnerLines[2]);
-  for(const config of logoInnerReflections){
-   const ribbon=ribbonGeometry(t,config).map(p=>{
-    const dx=width/2-p.x,dy=height/2-p.y,length=Math.hypot(dx,dy)||1;
-    return {...p,x:p.x+dx/length*config.depth,y:p.y+dy/length*config.depth};
-   });
-   drawRibbon(ribbon,.72,config.tint,config.opacity*.48,.24,'source-over');
-   drawRibbon(ribbon,.38,config.core,config.opacity,.10,'source-over');
+  const phase=reduceMotion?.matches?0:t;
+  baseFilament(6,.44,.38*logoBreath(phase,6),'#777777',linkedLogoPath(phase,0));
+  baseFilament(5,.56,.34*logoBreath(phase,5),'#d6d6d6',linkedLogoPath(phase,1));
+  baseFilament(8,.36,.30*logoBreath(phase,8),'#555555',linkedLogoPath(phase,2));
+  for(const [index,config] of logoInnerReflections.entries()){
+   const ribbon=linkedLogoRibbon(phase,config,index),breath=logoBreath(phase,index+3);
+   drawRibbon(ribbon,.72*breath,config.tint,config.opacity*.48,.24,'source-over');
+   drawRibbon(ribbon,.38*breath,config.core,config.opacity,.10,'source-over');
   }
  }
  // Confiner les filaments au résultat sans modifier leur trajectoire
