@@ -209,6 +209,10 @@ self.onmessage=async event=>{
  if(!Number.isSafeInteger(id))return;
  if(kind==='warm-detail'){self.postMessage({id,result:null});return;}
  if(detailOnly&&kind!=='enhanced-detail')return;
+ if(kind==='warm-recovery'){
+  try{self.IUDigiDigitOCR?.warm?.();}catch(_){}
+  return;
+ }
  if(kind==='warm-zxing'){
   // Compiler le moteur sans photo et sans retarder le viseur.
   try{self.IUDigiDigitOCR?.warm?.();}catch(_){}

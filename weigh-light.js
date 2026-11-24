@@ -512,7 +512,8 @@
   }
   lastTick=now;
   // Avoid two full-rate canvases while the camera is also scanning.
-  const interval=isLogo?15:isBackdrop||isOuter||(isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning')?32:16;
+  const analyzing=document.getElementById('iuGeminiCameraShell')?.dataset.state==='analyzing';
+  const interval=analyzing&&!isLoader&&(isOuter||isGross||isLogo)?64:isLogo?15:isBackdrop||isOuter||(isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning')?32:16;
   if(now-lastPaint>=interval){
    lastPaint=now;
    paint(elapsed);

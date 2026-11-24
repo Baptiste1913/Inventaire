@@ -47,9 +47,14 @@
   const found=cachedFocused.get(mode);if(found?.source===source)return found.promise;
   reading=guideHint(source,reading);
   const owner=file;
-  // One dedicated detail worker: serialize its optional crops.
+  // Separate focused lane on capable devices. Keep the original serial
+  // fallback and preferred enhanced view if the extra lane is unavailable.
   const previous=mode==='numbers'?cachedFocused.get('ean')?.promise:null;
-  const promise=Promise.resolve(previous||samePhotoEnhanced(source,reading)).then(()=>{
+  const promise=Promise.resolve(previous).then(async()=>{
+   if(file!==owner||!file)return null;
+   const focused=window.IUGeminiParallel?.prepareFocused?.(source,reading,122000,mode);
+   if(focused){const blob=await focused;if(blob)return blob;}
+   await samePhotoEnhanced(source,reading);
    if(file!==owner||!file)return null;
    return window.IUGeminiParallel?.prepareDetail?.(source,reading,122000,mode)||null;
   }).then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
@@ -255,6 +260,8 @@
  let qualityMonitorId=0,qualityMonitorKind='',qualityMonitorToken=0,
   qualityLastSampleAt=0,qualityLastCachedAt=0,qualityPrevious=null,
   qualityCached=null,lastSelectedQuality=null;
+ const qualityRing=[];
+ const qualityRingLimit=Number(navigator.hardwareConcurrency||0)>=6&&(!navigator.deviceMemory||navigator.deviceMemory>=4)?3:1;
  const localReader=window.IUGeminiLocalOCR||null;
  let localWorker=null,localWorkerPromise=null,localEngineGeneration=0,
   localOcrDisabled=false,localOcrBusy=false,localOcrToken=0,
@@ -1019,14 +1026,17 @@
   panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
   if(!opening){if(retainedSavedLabel)stopCamera();else clear();}
  });
+ const decodedPhotos=new WeakMap();
  function decodePhoto(source){
-  return new Promise((resolve,reject)=>{
+  const existing=decodedPhotos.get(source);if(existing)return existing;
+  const task=new Promise((resolve,reject)=>{
    const localUrl=URL.createObjectURL(source);
    const img=new Image();
    img.onload=()=>{URL.revokeObjectURL(localUrl);resolve(img);};
    img.onerror=()=>{URL.revokeObjectURL(localUrl);reject(Error('Format photo non pris en charge'));};
    img.src=localUrl;
-  });
+  }).catch(error=>{decodedPhotos.delete(source);throw error;});
+  decodedPhotos.set(source,task);return task;
  }
  // Une vue centrale complémentaire est dérivée de la même capture. Ne
  // jamais couper l'image originale : c'est le seul repère géométrique sûr.
@@ -1091,6 +1101,8 @@
   for(const quality of [.84,.77,.69,.57]){
    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',quality));
    if(!blob||blob.size<100||blob.size>122000)continue;
+   const direct=window.IUGeminiTransport?.wrapJPEG?.(blob);
+   if(direct&&direct.length<=165000)return direct;
    const encoded=await new Promise((resolve,reject)=>{
     const reader=new FileReader();
     reader.onerror=()=>reject(Error('Image détail illisible'));
@@ -1105,6 +1117,8 @@
  // en base64 reste ici ; jamais plus de 122 Ko par vue secondaire.
  async function readParallelDetail(blob){
   if(!blob||blob.size<100||blob.size>122000)return null;
+  const direct=window.IUGeminiTransport?.wrapJPEG?.(blob);
+  if(direct&&direct.length<=165000)return direct;
   const encoded=await new Promise((resolve,reject)=>{
    const reader=new FileReader();
    reader.onerror=()=>reject(Error('Détail amélioré illisible'));
@@ -1119,6 +1133,8 @@
   // la limite Cloudflare (surtout sur Safari iPhone).
   if(source?.name==='etiquette-gemini.jpg'&&source.type==='image/jpeg'&&
      source.size>=100&&source.size<=490000){
+   const direct=window.IUGeminiTransport?.wrapJPEG?.(source);
+   if(direct&&direct.length<=690000)return direct;
    try{
     const encoded=await new Promise((resolve,reject)=>{
      const reader=new FileReader();
@@ -1321,6 +1337,8 @@
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +(Number.isFinite(result.clientNetworkMs)?' · échange '+(result.clientNetworkMs/1000).toFixed(2)+' s':'')
     +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
+    +(result.timing?' · préparation '+result.timing.preparationMs+' ms · première réponse '+result.timing.firstResponseMs+' ms · relecture '+result.timing.recoveryMs+' ms · analyse '+result.timing.totalMs+' ms'+(result.timing.captureMs!==null?' · capture '+result.timing.captureMs+' ms':''):'')
+    +(result.requestTimings?.length?' · réseau '+result.requestTimings.map((x,i)=>(i+1)+': préparation '+x.packetMs+' / réponse '+x.headersMs+' / JSON '+x.parseMs+' / Worker '+(x.workerMs??'—')+' ms').join(' ; '):'')
     +(result.visualFirst?' · détail 1 : '+result.visualFirst:'')
     +(result.visualRecheck?' · détail 2 : '+result.visualRecheck:'')
     +(result.localDiagnostics?' · '+Object.entries(result.localDiagnostics).map(([k,v])=>k+' '+v).join(' / '):'')
@@ -1382,14 +1400,15 @@
    ...(catalogCandidates?.length?{catalogCandidates:catalogCandidates.slice(0,5)}:{}),
    ...(digiPositions?.length?{digiPositions:digiPositions.slice(0,13)}:{})};
   const transport=typeof window!=='undefined'?window.IUGeminiTransport:null;
-  const packet=transport?.prepare(payload)||{body:JSON.stringify(payload),contentType:'application/json'};
+  const networkNow=()=>typeof performance!=='undefined'?performance.now():Date.now();
+  const packingStart=networkNow();
+  const packet=transport?.prepareAsync?await transport.prepareAsync(payload):transport?.prepare(payload)||{body:JSON.stringify(payload),contentType:'application/json'};
   // One request per logical reading. Only an explicit unreadable response
   // may trigger a complementary view in the outer analysis; no blind retry.
   if(signal.aborted||id!==generation)
    throw new DOMException('Analyse annulée','AbortError');
   let response;
-  const networkNow=()=>typeof performance!=='undefined'?performance.now():Date.now();
-  const networkStart=networkNow();
+  const networkStart=networkNow(),packetMs=Math.round(networkStart-packingStart);
   try{
    response=await fetch(endpoint,{
     method:'POST',signal,
@@ -1402,6 +1421,7 @@
   }
   if(signal.aborted||id!==generation)
    throw new DOMException('Analyse annulée','AbortError');
+  const headersMs=Math.round(networkNow()-networkStart),parseStart=networkNow();
   let result;
   try{result=await response.json()}
   catch(_){
@@ -1412,7 +1432,8 @@
   if(response.ok){
    transport?.observe(result);
    return {...result,clientNetworkMs:Math.round(networkNow()-networkStart),
-    clientPayloadBytes:packet.size??null,clientTransport:packet.contentType==='application/octet-stream'?'binary':'json'};
+    clientPayloadBytes:packet.size??null,clientTransport:packet.contentType==='application/octet-stream'?'binary':'json',
+    requestTimings:[{packetMs,headersMs,parseMs:Math.round(networkNow()-parseStart),workerMs:Number.isFinite(result.elapsedMs)?result.elapsedMs:null}]};
   }
   if(response.status===400||response.status===415)transport?.reset();
   const status=response.status,providerStatus=Number(result?.providerStatus);
@@ -1576,6 +1597,7 @@
    clientNetworkMs:Number(original?.clientNetworkMs||0)+Number(recheck?.clientNetworkMs||0),
    clientPayloadBytes:Number(original?.clientPayloadBytes||0)+Number(recheck?.clientPayloadBytes||0),
    clientTransport:original?.clientTransport===recheck?.clientTransport?original?.clientTransport:'mixte',
+   requestTimings:[...(original?.requestTimings||[]),...(recheck?.requestTimings||[])],
    checks:{...(original?.checks||{}),
     readingConflict:Boolean(original?.checks?.readingConflict||conflict),
     eanRechecked:eanRechecked||original?.checks?.eanRechecked===true,
@@ -1633,7 +1655,7 @@
    const opticalTask=track(job);
    const normalView={kind:'original',task:track(detailTask)};
    const enhancedView={kind:'amélioré',task:track(samePhotoEnhanced(sourcePhoto,localBarcode))};
-   let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null,digitJob=null;
+   let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null,digitJob=null,earlyPartialJob=null;
    const stillCurrent=()=>id===generation&&active&&!currentAbort.signal.aborted;
    function startPrinted(){
     if(printedJob||!stillCurrent()||targetField||localBarcode?.ambiguous||
@@ -1654,7 +1676,7 @@
    function startLocalRecovery(reading){
     if(!stillCurrent()||targetField||reading?.ambiguous||trustedBarcodeEvidence(reading))return;
     startPrinted();
-    if(!partialJob)partialJob=track(window.IUGeminiParallel?.partial?.(sourcePhoto)||null);
+    if(!partialJob)partialJob=earlyPartialJob||track(window.IUGeminiParallel?.partial?.(sourcePhoto)||null);
     if(!digitJob)digitJob=track(window.IUGeminiParallel?.digits?.(sourcePhoto,guideHint(sourcePhoto,reading))||null);
     if(!paddleJob){
      const engine=window.IULiteRTLab?.enabled?.()?window.IULiteRTLab:window.IUPaddleLab;
@@ -1669,7 +1691,15 @@
     if(stillCurrent()){opticalReady=reading;startLocalRecovery(reading);}
    });
    const earlyTimer=setTimeout(()=>{
-    if(stillCurrent()&&!opticalTask.done)startPrinted();
+    if(stillCurrent()&&!opticalTask.done){
+     startPrinted();
+     if(!targetField&&window.IUGeminiParallel?.parallelCapacity?.()&&!trustedBarcodeEvidence(localBarcode)&&!localBarcode?.ambiguous){
+      // Préparer uniquement les barres sans modifier le seuil d'utilisation.
+      // Le résultat ne devient une preuve qu'au déclenchement historique
+      // de startLocalRecovery ; Nano conserve ses indications optiques.
+      if(!earlyPartialJob&&!partialJob)earlyPartialJob=track(window.IUGeminiParallel.partial?.(sourcePhoto)||null);
+     }
+    }
    },220);
    void opticalTask.promise.then(()=>clearTimeout(earlyTimer));
    const detailDeadline=performance.now()+(lastSelectedQuality&&Object.values(lastSelectedQuality).some(r=>Number.isFinite(r)&&r<.45)?360:280);
@@ -1677,6 +1707,7 @@
    const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
    const firstDetail=await chooseVisualDetail(enhancedView,normalView,detailDeadline,until,safeDetail);
    if(id!==generation||currentAbort.signal.aborted)throw new DOMException('Analyse annulée','AbortError');
+   const preparationMs=Math.round(performance.now()-start);
    say(providerName+' analyse l’étiquette…');
    const receivedTask=requestGeminiWithRecovery(
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
@@ -1707,6 +1738,7 @@
      catalogHints(oldResult,opticalReady),resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null,
      Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))));
    }
+   const firstResponseMs=Math.round(performance.now()-start);
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
@@ -1823,7 +1855,9 @@
      combined={...combined,digiDigitHint:digitJob?.value?.pattern||null,digiPlan:window.IUDigiCatalogLookup?.solveHypotheses?.(combined,{observations,history})};
     }catch(_){}
    }
+   let recoveryMs=0;
    if(targets.length){
+    const recoveryStart=performance.now();
     // Une seule relecture de tous les champs problématiques sur cette
     // MEME photo. Ne pas perdre les valeurs fiables de la première.
     try{
@@ -1878,6 +1912,7 @@
      combined={...combined,networkFailure:error?.networkStats||null,checks:{...(combined.checks||{}),
       recoveryInterrupted:true,recoveryInterruptedTargets:[...targets]}};
     }
+    recoveryMs=Math.round(performance.now()-recoveryStart);
    }
    let validated={...combined,visualFirst:firstDetail?.kind||'photo entière',visualRecheck:recheckView?.kind||null,
     localDiagnostics:Object.fromEntries(Object.entries({ZXing:opticalTask,imprimé:printedJob,barres:partialJob,Nano:digitJob,Advanced:advancedJob,OCR:paddleJob,détail:enhancedView.task}).map(([k,t])=>[k,t?.done?(t.value?'lu':'sans résultat')+' '+(t.ms??0)+' ms':t?'en cours':'non lancé']))};
@@ -1918,6 +1953,7 @@
     independentMismatch:localChecks.independentMismatch||
      (priorMismatch&&!opticalResolved)};
    repairFocus=null;
+   validated.timing={preparationMs,firstResponseMs,recoveryMs,totalMs:Math.round(performance.now()-start),captureMs:Number.isFinite(file?.iuCaptureMs)?file.iuCaptureMs:null};
    display(validated,performance.now()-start);
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
    // L'utilisateur reste au même endroit, sans défilement forcé.
@@ -1992,7 +2028,7 @@
   releaseLocalOcr();
   window.IULiteRTLab?.close?.();
   window.IUDigiAdvanced?.close?.();
-  if(!active)window.IUGeminiParallel?.closeDetail?.();
+  if(!active){window.IUGeminiParallel?.closeDetail?.();window.IUGeminiParallel?.closeExtra?.();}
   if(cameraStream){
    for(const track of cameraStream.getTracks())track.stop();
    cameraStream=null;
@@ -2032,7 +2068,7 @@
  async function startCamera(){
   if(!isWeighingPage()||cameraStarting||active)return;
   // Préchauffer ZXing dans le Web Worker sans retarder la caméra.
-  try{window.IUGeminiParallel?.preloadBarcode?.();window.IUGeminiParallel?.warmDetail?.();}catch(_){}
+  try{window.IUGeminiParallel?.preloadBarcode?.();window.IUGeminiParallel?.warmDetail?.();window.IUGeminiParallel?.warmExtra?.();}catch(_){}
   try{window.IUDigiAdvanced?.warm?.();}catch(_){}
   // Réutiliser la même piste déjà autorisée : pas de nouvel appel
   // getUserMedia tant que la caméra fonctionne dans cette session.
@@ -2462,7 +2498,7 @@
   return cv;
  }
  function clearQualityBuffer(){
-  qualityPrevious=null;qualityCached=null;qualityLastSampleAt=0;
+  qualityPrevious=null;qualityCached=null;qualityRing.length=0;qualityLastSampleAt=0;
   qualityLastCachedAt=0;previewLastAt=0;
  }
  function stopQualityMonitor(){
@@ -2517,15 +2553,17 @@
      else void window.IUPaddleLab?.warm?.();
     },300);
    }
-   if(moved)qualityCached=null;
+   if(moved){qualityCached=null;qualityRing.length=0;}
    qualityPrevious=rating;
-   if(!rating.usable||now-qualityLastCachedAt<360)return;
-   // Aucune rafale encodée en arrière-plan : un unique canvas récent
-   // est remplacé au maximum toutes les 360 ms.
-   if(!qualityCached||now-qualityCached.at>320||
+   if(!rating.usable||now-qualityLastCachedAt<(qualityRingLimit>1?160:360))return;
+   // Bounded recent frames in RAM only; no additional background uploads.
+   // One JPEG preparation per second remains the upper limit.
+   if(qualityRingLimit>1||!qualityCached||now-qualityCached.at>320||
       rating.score>qualityCached.rating.score+.055){
     const canvas=fullResolutionCameraFrame();
     qualityCached={canvas,rating,at:now,epoch:cameraEpoch};
+    qualityRing.push(qualityCached);
+    while(qualityRing.length>qualityRingLimit||now-qualityRing[0].at>360)qualityRing.shift();
     qualityLastCachedAt=now;
     // Uniquement le JPEG de CETTE frame, au maximum une fois/seconde.
     // Aucune photo n'est envoyée avant le déclenchement manuel.
@@ -2554,7 +2592,7 @@
   }catch(_){
    // Le filtre est facultatif : un iPhone peu puissant conserve le
    // déclencheur normal sans erreur ou permission supplémentaire.
-   qualityPrevious=null;qualityCached=null;
+   qualityPrevious=null;qualityCached=null;qualityRing.length=0;
   }
  }
  function qualityCandidate(epoch){
@@ -2572,6 +2610,10 @@
   const current=qualityCandidate(epoch);
   if(!qualityEngine)return current;
   const candidates=qualityCached&&qualityCached.canvas?.iuGuideCropKey===current.canvas?.iuGuideCropKey?[qualityCached]:[];
+  if(typeof qualityRing!=='undefined')for(const c of qualityRing){
+   if(c!==qualityCached&&c.epoch===epoch&&c.canvas?.iuGuideCropKey===current.canvas?.iuGuideCropKey&&
+      Math.abs(current.at-c.at)<=360&&qualityEngine.sameScene(current.rating,c.rating,14))candidates.push(c);
+  }
   let selected=qualityEngine.choose(candidates,current,current.at);
   // Les trois zones comptent : la netteté du seul nom ne suffit pas.
   // L'éventuelle nouvelle frame coûte 85 ms, jamais un délai infini.
@@ -2916,6 +2958,7 @@
   if(!automatic)autoLastCaptured=autoLastFrame;
   try{
    if(qualityEngine)setAutoHint('Sélection de l’image la plus nette…','capturing');
+   const captureStarted=typeof performance!=='undefined'?performance.now():Date.now();
    const chosen=await chooseSharpCameraFrame(frameEpoch);
    const cv=chosen.canvas;
    const alternatePhoto=chosen.backup?.canvas?new Promise(resolve=>
@@ -2948,6 +2991,7 @@
       !cameraStream||cameraShell.hidden||document.hidden||
       cameraShell.dataset.state!=='scanning')return;
    const nextPhoto=new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'});
+   nextPhoto.iuCaptureMs=Math.round((typeof performance!=='undefined'?performance.now():Date.now())-captureStarted);
    if(proposal||latestLabelFields||file||retainedSavedLabel){
     // La nouvelle photo est prête : remplacer l'ancien résultat,
     // enregistré ou non, seulement maintenant.

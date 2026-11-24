@@ -12,6 +12,52 @@
  let worker=null,unavailable=false,nextId=0,warmStarted=false;
  let detailWorker=null,detailPending=null,detailUnavailable=false;
  const pending=new Map();
+ const extraLanes=new Map();
+ const extraEnabled=()=>Number(root?.navigator?.hardwareConcurrency||0)>=6&&(!root?.navigator?.deviceMemory||root.navigator.deviceMemory>=4);
+ function closeLane(name,failed=false){
+  const lane=extraLanes.get(name);if(!lane)return;
+  extraLanes.delete(name);try{lane.worker.terminate();}catch(_){}
+  for(const job of lane.jobs.values()){clearTimeout(job.timer);job.resolve(failed?{failed:true}:{cancelled:true});}
+  lane.jobs.clear();
+ }
+ const failedLanes=new Set();
+ function getLane(name){
+  if(!extraEnabled()||failedLanes.has(name)||!root?.Worker||!root?.OffscreenCanvas||!root?.createImageBitmap)return null;
+  if(extraLanes.has(name))return extraLanes.get(name);
+  try{
+   const worker=new root.Worker('gemini-image-worker.js?v=42.95'+(name==='focus'?'&detail=1':''));
+   const lane={worker,jobs:new Map()};extraLanes.set(name,lane);
+   const fail=()=>{if(extraLanes.get(name)!==lane)return;failedLanes.add(name);closeLane(name,true);};
+   worker.onerror=fail;
+   worker.onmessage=({data})=>{
+    if(extraLanes.get(name)!==lane)return;
+    if(data?.error==='unsupported'){fail();return;}
+    const job=lane.jobs.get(data?.id);if(!job)return;
+    lane.jobs.delete(data.id);clearTimeout(job.timer);job.resolve({value:data.result||null});
+   };
+   worker.postMessage({id:++nextId,kind:name==='focus'?'warm-detail':'warm-recovery'});
+   return lane;
+  }catch(_){failedLanes.add(name);closeLane(name);return null;}
+ }
+ function extra(name,kind,photo,reading,maxBytes,mode){
+  const lane=getLane(name);if(!lane||lane.jobs.size>=2)return null;
+  const id=++nextId;
+  return new Promise(resolve=>{
+   const timer=setTimeout(()=>{lane.jobs.delete(id);resolve({failed:true});},name==='focus'?1700:1400);
+   lane.jobs.set(id,{resolve,timer});
+   try{lane.worker.postMessage({id,kind,photo,reading,maxBytes,mode});}catch(_){clearTimeout(timer);lane.jobs.delete(id);resolve({failed:true});}
+  });
+ }
+ function warmExtra(){getLane('focus');getLane('recovery');}
+ function closeExtra(){for(const name of [...extraLanes.keys()])closeLane(name);}
+ function prepareFocused(photo,reading,maxBytes,mode){
+  const task=extra('focus','enhanced-detail',photo,reading,maxBytes,mode);
+  return task?task.then(result=>{if(result.cancelled)throw Error('Détail annulé');return result.value||null;}):null;
+ }
+ function recovery(kind,photo,reading){
+  const task=extra('recovery',kind,photo,reading);
+  return task?task.then(result=>result.cancelled?null:result.failed?dispatch(kind,photo,reading):result.value):dispatch(kind,photo,reading);
+ }
  // Le même JPEG ne doit jamais déclencher plusieurs relectures historiques
  // lorsqu'un Worker échoue pendant que Gemini est en cours.
  let legacyCache=new WeakMap();
@@ -49,7 +95,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.58');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.95');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
@@ -108,8 +154,8 @@
   if(!photo||pending.size)return Promise.resolve(null);
   return dispatch('preview-barcode',photo);
  }
- function partial(photo){return photo?dispatch('partial',photo):Promise.resolve(null);}
- function digits(photo,hint){return photo?dispatch('digit-template',photo,hint):Promise.resolve(null);}
+ function partial(photo){return photo?recovery('partial',photo):Promise.resolve(null);}
+ function digits(photo,hint){return photo?recovery('digit-template',photo,hint):Promise.resolve(null);}
  function enhancedDetail(photo,reading){
   if(!photo||!root?.OffscreenCanvas||
      !root?.createImageBitmap)return Promise.resolve(null);
@@ -125,7 +171,7 @@
   if(detailUnavailable||!root?.Worker||!root?.OffscreenCanvas||!root?.createImageBitmap)return false;
   if(detailWorker)return true;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.58&detail=1');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.95&detail=1');
    detailWorker=instance;
    instance.onmessage=event=>{
     if(detailWorker!==instance)return;
@@ -154,10 +200,11 @@
   return promise;
  }
  function close(){
+  closeExtra();
   closeDetail();detailUnavailable=false;
   dispose(false);
   legacyCache=new WeakMap();
  }
  function available(){return !unavailable&&Boolean(root?.Worker&&root?.OffscreenCanvas);}
- return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,warmDetail,prepareDetail,closeDetail,close,available});
+ return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,warmDetail,prepareDetail,prepareFocused,warmExtra,closeExtra,parallelCapacity:extraEnabled,closeDetail,close,available});
 });

@@ -82,8 +82,8 @@ async function simulate(frames,cache,settings={}){
   'Suivi léger compatible avec Safari');
  assert(js.includes('if(now-qualityLastSampleAt<145)return;'),
   'Fréquence de contrôle bornée');
- assert(js.includes('now-qualityLastCachedAt<360'),
-  'Une seule photo plein format conservée tous les 360 ms au maximum');
+ assert(js.includes('now-qualityLastCachedAt<(qualityRingLimit>1?160:360)'),
+  'Tampon borné et fréquence adaptative');
  assert(js.includes('const factor=Math.min(1,maxEdge/Math.max(crop.width,crop.height))')&&
   js.includes('fullResolutionCameraFrame(localEdge)'),
   'La photo du clic préserve davantage de pixels sans suréchantillonnage');

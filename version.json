@@ -1,6 +1,6 @@
 {
-  "version": "42.94",
+  "version": "42.95",
   "published": "2026-11-24",
-  "assets": 94,
-  "notes": "Étiquette et poids brut conservés après tout enregistrement AI, y compris doublon. Statut enregistré distinct, pas de double sauvegarde. Remplacement seulement après nouvelle photo réussie ou annulation du doublon ; conservation si capture échouée."
+  "assets": 95,
+  "notes": "Performance AI : JPEG binaires directs sans conversion aller-retour, réutilisation du décodage, tampon adaptatif de trois images, Workers supplémentaires bornés sur appareils compatibles, détails ciblés anticipés et diagnostics par étape. Qualité JPEG, modèle, validations et secours préservés. Pas d’appel Gemini spéculatif."
 }
