@@ -1,6 +1,6 @@
 {
-  "version": "42.96",
+  "version": "42.97",
   "published": "2026-11-24",
-  "assets": 96,
-  "notes": "Cache de bitmaps par JPEG exact dans les Workers, profil adaptatif 1/3/4 images, voie numérique séparée si capacité, préparation locale anticipée des zones. Relecture Gemini anticipée conditionnelle et négociée avec Worker, conservation du parcours de validation normal. Worker : chronométrage serveur, copie évitée et anticipation sans réessai fournisseur. Déploiement Cloudflare distinct."
+  "assets": 97,
+  "notes": "Stabilisation sur v42.95. Aucune photo ou preuve antérieure au déclenchement, une seule image sélectionnée après le clic pour tous les moteurs. Contradiction nom imprimé/EAN catalogue bloquante, nom initial conservé. Retour aux moteurs et Worker v42.95, diagnostics serveur optionnels conservés."
 }

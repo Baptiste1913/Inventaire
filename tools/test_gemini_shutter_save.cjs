@@ -14,7 +14,7 @@ async function scenario({duplicate=false,saveOk=true,cameraFail=false,valid=true
  saveVerifiedProposal(){events.push('save');return {ok:saveOk&&!raceDuplicate,duplicate:raceDuplicate};},
  announceSaveError(){events.push('save-error');},retainSavedWeigh(saved){events.push('retain');state.retainedSavedLabel=saved.duplicate?'Doublon confirmé':'Pesée enregistrée';state.proposal=null;state.file=null;state.generation++;},resetReading(){events.push('clear');state.retainedSavedLabel=false;state.proposal=null;state.file=null;state.latestLabelFields=null;state.generation++;},
  setLabelAlert(){},say(){},refreshCaptureButton(){},clearAutoTimer(){},setAutoHint(){},refreshLabelAlert(){},labelAlert:{dataset:{}},
- chooseSharpCameraFrame:async()=>{events.push('capture');if(cameraFail)throw Error('camera');return {canvas:{width:100,height:100},jpeg:{size:100}};},
+ chooseSharpCameraFrame:async()=>{events.push('capture');if(cameraFail)throw Error('camera');return {canvas:{width:100,height:100,toBlob(resolve){resolve({size:100});}}};},
  File:class{},setPhoto(){events.push('new-photo');return true;}
  };
  new Function('state','with(state){'+js.slice(start,end)+handler+'}')(state);

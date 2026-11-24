@@ -13,25 +13,7 @@
  let detailWorker=null,detailPending=null,detailUnavailable=false;
  const pending=new Map();
  const extraLanes=new Map();
- const capable=()=>Number(root?.navigator?.hardwareConcurrency||0)>=6&&(!root?.navigator?.deviceMemory||root.navigator.deviceMemory>=4);
- let pressureUntil=0,fastSamples=0,cost=0;
- const extraEnabled=()=>capable()&&Date.now()>=pressureUntil;
- function reportCost(ms){
-  if(!Number.isFinite(ms)||ms<0)return;
-  cost=cost?cost*.8+ms*.2:ms;
-  if(ms>100||cost>55){pressureUntil=Date.now()+12000;fastSamples=0;
-   for(const [name,lane] of extraLanes)if(!lane.jobs.size)closeLane(name);
-  }
-  else if(ms<30)fastSamples=Math.min(12,fastSamples+1);
-  else fastSamples=Math.max(0,fastSamples-1);
- }
- function profile(){return !extraEnabled()?1:fastSamples>=8?4:3;}
- const photoKeys=new WeakMap();let photoSequence=0;
- function photoKey(photo){
-  if(!photo||typeof photo!=='object')return null;
-  if(!photoKeys.has(photo))photoKeys.set(photo,++photoSequence);
-  return photoKeys.get(photo);
- }
+ const extraEnabled=()=>Number(root?.navigator?.hardwareConcurrency||0)>=6&&(!root?.navigator?.deviceMemory||root.navigator.deviceMemory>=4);
  function closeLane(name,failed=false){
   const lane=extraLanes.get(name);if(!lane)return;
   extraLanes.delete(name);try{lane.worker.terminate();}catch(_){}
@@ -43,7 +25,7 @@
   if(!extraEnabled()||failedLanes.has(name)||!root?.Worker||!root?.OffscreenCanvas||!root?.createImageBitmap)return null;
   if(extraLanes.has(name))return extraLanes.get(name);
   try{
-   const worker=new root.Worker('gemini-image-worker.js?v=42.96'+(name!=='recovery'?'&detail=1':''));
+   const worker=new root.Worker('gemini-image-worker.js?v=42.95'+(name==='focus'?'&detail=1':''));
    const lane={worker,jobs:new Map()};extraLanes.set(name,lane);
    const fail=()=>{if(extraLanes.get(name)!==lane)return;failedLanes.add(name);closeLane(name,true);};
    worker.onerror=fail;
@@ -53,7 +35,7 @@
     const job=lane.jobs.get(data?.id);if(!job)return;
     lane.jobs.delete(data.id);clearTimeout(job.timer);job.resolve({value:data.result||null});
    };
-   worker.postMessage({id:++nextId,kind:name!=='recovery'?'warm-detail':'warm-recovery'});
+   worker.postMessage({id:++nextId,kind:name==='focus'?'warm-detail':'warm-recovery'});
    return lane;
   }catch(_){failedLanes.add(name);closeLane(name);return null;}
  }
@@ -61,15 +43,15 @@
   const lane=getLane(name);if(!lane||lane.jobs.size>=2)return null;
   const id=++nextId;
   return new Promise(resolve=>{
-   const timer=setTimeout(()=>{lane.jobs.delete(id);resolve({failed:true});},name!=='recovery'?1700:1400);
+   const timer=setTimeout(()=>{lane.jobs.delete(id);resolve({failed:true});},name==='focus'?1700:1400);
    lane.jobs.set(id,{resolve,timer});
-   try{lane.worker.postMessage({id,kind,photo,photoKey:photoKey(photo),reading,maxBytes,mode});}catch(_){clearTimeout(timer);lane.jobs.delete(id);resolve({failed:true});}
+   try{lane.worker.postMessage({id,kind,photo,reading,maxBytes,mode});}catch(_){clearTimeout(timer);lane.jobs.delete(id);resolve({failed:true});}
   });
  }
  function warmExtra(){getLane('focus');getLane('recovery');}
  function closeExtra(){for(const name of [...extraLanes.keys()])closeLane(name);}
  function prepareFocused(photo,reading,maxBytes,mode){
-  const task=extra(mode==='numbers'&&profile()===4?'numbers':'focus','enhanced-detail',photo,reading,maxBytes,mode);
+  const task=extra('focus','enhanced-detail',photo,reading,maxBytes,mode);
   return task?task.then(result=>{if(result.cancelled)throw Error('Détail annulé');return result.value||null;}):null;
  }
  function recovery(kind,photo,reading){
@@ -113,7 +95,7 @@
   if(unavailable||!root||typeof root.Worker!=='function')return null;
   if(worker)return worker;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.96');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.95');
    instance.onmessage=event=>{
     const {id,result,error}=event.data||{};
     const item=pending.get(id);
@@ -146,7 +128,7 @@
     settle({kind,photo,resolve},null);
    },kind==='barcode'?4500:1400);
    pending.set(id,{kind,photo,resolve,timeout});
-   try{engine.postMessage({id,kind,photo,photoKey:photoKey(photo),reading});}
+   try{engine.postMessage({id,kind,photo,reading});}
    catch(_){
     clearTimeout(timeout);pending.delete(id);
     settle({kind,photo,resolve},null);
@@ -189,7 +171,7 @@
   if(detailUnavailable||!root?.Worker||!root?.OffscreenCanvas||!root?.createImageBitmap)return false;
   if(detailWorker)return true;
   try{
-   const instance=new root.Worker('gemini-image-worker.js?v=42.96&detail=1');
+   const instance=new root.Worker('gemini-image-worker.js?v=42.95&detail=1');
    detailWorker=instance;
    instance.onmessage=event=>{
     if(detailWorker!==instance)return;
@@ -214,7 +196,7 @@
   const promise=new Promise(done=>{resolve=done;});
   const timer=setTimeout(()=>{if(detailPending?.id===id)closeDetail();},1700);
   detailPending={id,photo,maxBytes,mode,promise,resolve,timer};
-  try{detailWorker.postMessage({id,kind:'enhanced-detail',photo,photoKey:photoKey(photo),reading,maxBytes,mode});}catch(_){closeDetail();}
+  try{detailWorker.postMessage({id,kind:'enhanced-detail',photo,reading,maxBytes,mode});}catch(_){closeDetail();}
   return promise;
  }
  function close(){
@@ -224,5 +206,5 @@
   legacyCache=new WeakMap();
  }
  function available(){return !unavailable&&Boolean(root?.Worker&&root?.OffscreenCanvas);}
- return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,warmDetail,prepareDetail,prepareFocused,warmExtra,closeExtra,parallelCapacity:extraEnabled,profile,reportCost,closeDetail,close,available});
+ return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,warmDetail,prepareDetail,prepareFocused,warmExtra,closeExtra,parallelCapacity:extraEnabled,closeDetail,close,available});
 });

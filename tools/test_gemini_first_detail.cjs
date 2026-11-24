@@ -20,7 +20,7 @@ const until=async(t,d)=>t.done?t.value:null,usable=d=>typeof d==='string'&&d.len
  assert(lab.includes('cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;attempts.clear();generation++'));
  assert(lab.includes('const encoded=await samePhotoTask(file)'));
  assert(lab.includes('safeDetail(firstDetail?.data)'));
- assert(parallel.includes('gemini-image-worker.js?v=42.96&detail=1'));
+ assert(parallel.includes('gemini-image-worker.js?v=42.95&detail=1'));
  assert(worker.includes('jpeg.size<=limit'));
  let imports=[],answers=[];
  class FakeCanvas{

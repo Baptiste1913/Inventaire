@@ -63,12 +63,12 @@ async function simulate(frames,cache,settings={}){
  assert.deepEqual(result.delay,[85],'Un seul délai additionnel de 85 ms');
  assert.equal(result.count,2,'Deux prises au plus après le clic');
  result=await simulate([blurry,candidate('autre',.27,true,1085)],earlier);
- assert.equal(result.id,'avant','Tampon antérieur plus net utilisé');
+ assert.equal(result.id,'autre','Aucune image antérieure au clic');
  result=await simulate([candidate('bonne',.73,true)],earlier);
  assert.equal(result.id,'bonne','Une bonne image n’attend pas une nouvelle frame');
  assert.equal(result.count,1);assert.deepEqual(result.delay,[]);
  result=await simulate([blurry],earlier,{interrupt:true});
- assert.equal(result.id,'avant','Caméra suspendue : aucune photo après interruption');
+ assert.equal(result.id,'clic','Caméra suspendue : aucune photo après interruption');
  assert.equal(result.count,1);
  result=await simulate([blurry],earlier,{noEngine:true});
  assert.equal(result.id,'clic','Fallback sans module de netteté');
@@ -80,10 +80,10 @@ async function simulate(frames,cache,settings={}){
  assert(js.includes('requestVideoFrameCallback')&&
   js.includes("qualityMonitorId=setTimeout(()=>{"),
   'Suivi léger compatible avec Safari');
- assert(js.includes('if(now-qualityLastSampleAt<(qualityRingLimit===4?100:145))return;'),
+ assert(js.includes('if(now-qualityLastSampleAt<145)return;'),
   'Fréquence de contrôle bornée');
- assert(js.includes('now-qualityLastCachedAt<(qualityRingLimit===4?105:qualityRingLimit>1?160:360)'),
-  'Tampon borné et fréquence adaptative');
+ assert(!selectSource.includes('qualityCached')&&!selectSource.includes('qualityRing'),
+  'Aucun tampon antérieur ne peut alimenter la capture');
  assert(js.includes('const factor=Math.min(1,maxEdge/Math.max(crop.width,crop.height))')&&
   js.includes('fullResolutionCameraFrame(localEdge)'),
   'La photo du clic préserve davantage de pixels sans suréchantillonnage');

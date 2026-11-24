@@ -123,7 +123,7 @@
  async function read(photo,hint){
   if(!photo||typeof createImageBitmap!=='function'||typeof OffscreenCanvas!=='function')return null;
   let bmp;try{
-   bmp=await (globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.acquire(photo):createImageBitmap(photo));
+   bmp=await createImageBitmap(photo);
    const label=hint?.labelRect;
    const z=label?.source==='paper-outline'?{x:label.x+.01*label.w,y:label.y+.70*label.h,w:.84*label.w,h:.29*label.h}:{x:.025,y:.67,w:.67,h:.315};
    const x=Math.round(z.x*bmp.width),y=Math.round((z.y+.37*z.h)*bmp.height),sw=Math.round(z.w*bmp.width),sh=Math.round(.61*z.h*bmp.height);
@@ -140,7 +140,7 @@
    if(a&&b&&a.pattern===b.pattern)return {...a,views:2};
    if(a&&b)return null;
    return a||b;
-  }catch(_){return null;}finally{(globalThis.IUWorkerBitmap?globalThis.IUWorkerBitmap.release(bmp):bmp?.close?.());}
+  }catch(_){return null;}finally{bmp?.close?.();}
  }
  return Object.freeze({warm,read,readRaster,classify,normalize,sharpen,modelSize:weights.length});
 });

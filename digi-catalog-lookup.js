@@ -166,14 +166,28 @@
  }
  // Le nom n'est pas une identité. Un libellé partagé par plusieurs
  // origines/préfixes ne constitue JAMAIS une contradiction avec un EAN.
- function uniqueNameConflict(name,prefix){
-  const key=normalizeName(name),items=index().byName?.get(key);
-  if(!key||!items||items.size!==1)return false;
-  const only=items.values().next().value;
-  return only.eanPrefix!==prefix&&
-   ![...(index().byPrefix.get(prefix)||new Map()).values()]
-    .some(item=>normalizeName(item.name)===key);
+ function fruitFamily(name){
+  const key=normalizeName(name);
+  if(/\b(?:CLEMENTINES?|MANDARINES?|SATSUMAS?)\b/.test(key))return 'mandarine';
+  if(/\b(?:CITRONS?|LIMES?)\b/.test(key))return 'citron';
+  if(/\bORANGES?\b/.test(key))return 'orange';
+  if(/\b(?:PAMPLEMOUSSES?|POMELOS?)\b/.test(key))return 'pomelo';
+  return null;
  }
+ function nameIdentityConflict(name,prefix){
+  const key=normalizeName(name);
+  if(!key||!prefix)return false;
+  const catalog=index(),official=[...(catalog.byPrefix.get(prefix)||new Map()).values()];
+  if(!official.length)return false;
+  if(official.some(item=>normalizeName(item.name)===key))return false;
+  const items=catalog.byName?.get(key);
+  if(items?.size&&![...items.values()].some(item=>item.eanPrefix===prefix))return true;
+  const family=fruitFamily(key);
+  return Boolean(family&&official.every(item=>{
+   const other=fruitFamily(item.name);return other&&other!==family;
+  }));
+ }
+ function uniqueNameConflict(name,prefix){return nameIdentityConflict(name,prefix);}
  function compatible(code,pattern){
   return !pattern||[...pattern].every((d,i)=>d==='?'||d===code[i]);
  }
@@ -474,5 +488,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,STORAGE_KEY});
 });

@@ -33,7 +33,7 @@ const lab=fs.readFileSync('gemini-lab.js','utf8'),parallel=fs.readFileSync('gemi
  assert(lab.includes('parallelCapacity?.()'));
  assert(lab.includes('partialJob=earlyPartialJob||track('));
  assert(!lab.slice(lab.indexOf('const earlyTimer='),lab.indexOf('void opticalTask.promise.then(()=>clearTimeout(earlyTimer))')).includes('digitJob=track('));
- assert(lab.includes('const qualityRing=[]')&&lab.includes('qualityRing.length>qualityRingLimit'));
+ assert(lab.includes('const qualityRing=[]')&&!lab.includes('qualityRing.push(qualityCached)'));
  assert(lab.includes('const localDeadline=performance.now()+350')&&lab.includes('const finalDeadline=performance.now()+110'));
  assert(lab.includes('const fixedModel=\'gemini-3.5-flash-lite\''));
  assert(lab.includes('validated.timing={preparationMs,firstResponseMs,recoveryMs'));

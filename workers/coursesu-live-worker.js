@@ -72,7 +72,6 @@ async function boundedBytes(request,limit){
    chunks.push(value);
   }
  }finally{reader.releaseLock();}
- if(chunks.length===1)return chunks[0];
  const bytes=new Uint8Array(length);let pos=0;
  for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.byteLength;}
  return bytes;
@@ -99,13 +98,13 @@ function parseBinary(bytes){
 const geminiCircuit={failures:0,until:0,probing:false};
 async function resilientGemini(url,options,{deadline,signal,now=Date.now,
  random=Math.random,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),
- send=fetch,circuit=geminiCircuit,maxAttempts=3}={}){
+ send=fetch,circuit=geminiCircuit}={}){
  const stats={attempts:0,retries:0,upstream503:0,waitMs:0,stage:'google_http'};
  if(circuit.until>now()||circuit.probing)return {response:null,stats:{...stats,stage:'circuit_open',retryAfterMs:Math.max(1000,circuit.until-now())}};
  const probe=circuit.failures>=3;
  if(probe)circuit.probing=true;
  try{
-  for(let i=0;i<maxAttempts;i++){
+  for(let i=0;i<3;i++){
    if(signal?.aborted||deadline-now()<600)break;
    stats.attempts++;
    let response;
@@ -126,7 +125,7 @@ async function resilientGemini(url,options,{deadline,signal,now=Date.now,
     header?Math.max(0,Date.parse(header)-now()):0;
    const backoff=Math.max(Number.isFinite(seconds)?seconds:0,
     Math.round((i===0?250:600)+random()*180));
-   if(i===maxAttempts-1||probe||deadline-now()<1500){
+   if(i===2||probe||deadline-now()<1500){
     if(circuit.failures>=3||seconds>0)circuit.until=now()+Math.min(30000,Math.max(3000,Number.isFinite(seconds)?seconds:0));
     return {response,stats};
    }
@@ -142,36 +141,7 @@ async function resilientGemini(url,options,{deadline,signal,now=Date.now,
   return {response:null,stats:{...stats,stage:'timeout'}};
  }finally{if(probe)circuit.probing=false;}
 }
- const generalPrompt='Lis UNE étiquette DIGI centrale de fruits et légumes Super U. '
-  +'Image 1 = photo entière. Une éventuelle image 2 est un agrandissement '
-  +'du CENTRE de la même photo et jamais une deuxième étiquette. '
-  +'Ne mélange aucune information de deux étiquettes différentes. '
-  +'Lis uniquement les données VISIBLES, sans déduire par calcul ni inventer : '
-  +'name = nom IMPRIMÉ visible (null si illisible, ne PAS le copier du catalogue) ; '
-  +'weightKg = poids net imprimé (ex. "1,058"), '
-  +'pricePerKgEur = prix imprimé €/kg (ex. "1,99"), totalEur = prix à payer '
-  +'imprimé (ex. "2,11"), ean13 = les 13 chiffres si TOUS visibles et certains. '
-  +'eanObserved = 13 positions EXACTES, chiffres réellement visibles et ? pour '
-  +'chaque position incertaine, sans ajouter, supprimer ni déplacer un chiffre ; '
-  +'null si l alignement des 13 positions ne peut être établi. '
-  +'Un EAN incertain doit être représenté par son masque eanObserved plutôt que perdu en entier ; ne suppose pas la clé. '
-  +'Si un caractère du poids ou du prix est ambigu, retourne null pour ce champ. '
-  +'Le catalogue n est qu une liste de candidats, JAMAIS une preuve : '
-  +'ne complète pas les chiffres EAN par le catalogue, par le montant '
-  +'ou par le nom ; chaque caractère observé doit venir des pixels. '
-  +'Ne soustrais pas la tare, ne génère jamais un EAN depuis le prix. '
-  +'Retourne seulement un objet JSON avec les six propriétés exactes.';
- const focusNames={name:'nom',weight:'poids net',rate:'prix au kilo',
-  total:'prix total',ean:'les 13 chiffres sous le code-barres'};
-  const nullableField={type:'STRING',nullable:true};
-  const responseSchema={type:'OBJECT',properties:{
-   name:nullableField,weightKg:nullableField,pricePerKgEur:nullableField,
-   totalEur:nullableField,ean13:nullableField,eanObserved:nullableField},
-   required:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved'],
-   propertyOrdering:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved']};
-
 async function geminiPilot(request,env,origin){
- const ingressStarted=Date.now();
  const closed={type:'inventaires-u-gemini-lab',actorExecuted:false,
   inventoryUpdated:false};
  if(env.GEMINI_LAB_ENABLED!=='true')
@@ -190,7 +160,6 @@ async function geminiPilot(request,env,origin){
    payload=JSON.parse(text);
   }
  }catch(_){return reply({...closed,error:'Image ou JSON invalide.'},400,origin)}
- const ingressMs=Date.now()-ingressStarted;
  const provider='gemini',model=payload?.model;
  if((payload?.provider&&payload.provider!=='gemini')||
     model!=='gemini-3.5-flash-lite'||
@@ -236,6 +205,27 @@ async function geminiPilot(request,env,origin){
     !validBase64(detail)||
     detail.length+payload.imageBase64.length>750000))
   return reply({...closed,error:'Agrandissement JPEG invalide ou trop volumineux.'},400,origin);
+ const generalPrompt='Lis UNE étiquette DIGI centrale de fruits et légumes Super U. '
+  +'Image 1 = photo entière. Une éventuelle image 2 est un agrandissement '
+  +'du CENTRE de la même photo et jamais une deuxième étiquette. '
+  +'Ne mélange aucune information de deux étiquettes différentes. '
+  +'Lis uniquement les données VISIBLES, sans déduire par calcul ni inventer : '
+  +'name = nom IMPRIMÉ visible (null si illisible, ne PAS le copier du catalogue) ; '
+  +'weightKg = poids net imprimé (ex. "1,058"), '
+  +'pricePerKgEur = prix imprimé €/kg (ex. "1,99"), totalEur = prix à payer '
+  +'imprimé (ex. "2,11"), ean13 = les 13 chiffres si TOUS visibles et certains. '
+  +'eanObserved = 13 positions EXACTES, chiffres réellement visibles et ? pour '
+  +'chaque position incertaine, sans ajouter, supprimer ni déplacer un chiffre ; '
+  +'null si l alignement des 13 positions ne peut être établi. '
+  +'Un EAN incertain doit être représenté par son masque eanObserved plutôt que perdu en entier ; ne suppose pas la clé. '
+  +'Si un caractère du poids ou du prix est ambigu, retourne null pour ce champ. '
+  +'Le catalogue n est qu une liste de candidats, JAMAIS une preuve : '
+  +'ne complète pas les chiffres EAN par le catalogue, par le montant '
+  +'ou par le nom ; chaque caractère observé doit venir des pixels. '
+  +'Ne soustrais pas la tare, ne génère jamais un EAN depuis le prix. '
+  +'Retourne seulement un objet JSON avec les six propriétés exactes.';
+ const focusNames={name:'nom',weight:'poids net',rate:'prix au kilo',
+  total:'prix total',ean:'les 13 chiffres sous le code-barres'};
  const candidateContext=catalogCandidates.length
   ?' AIDE DIGI : ces références locales sont des OPTIONS, pas le résultat. '
    +'Vérifie sur la photo si un préfixe et un libellé correspondent '
@@ -262,11 +252,16 @@ async function geminiPilot(request,env,origin){
  try{
 
   let extracted;
+  const nullableField={type:'STRING',nullable:true};
+  const responseSchema={type:'OBJECT',properties:{
+   name:nullableField,weightKg:nullableField,pricePerKgEur:nullableField,
+   totalEur:nullableField,ean13:nullableField,eanObserved:nullableField},
+   required:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved'],
+   propertyOrdering:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved']};
   const imageParts=[{inline_data:{mime_type:'image/jpeg',data:payload.imageBase64}}];
   if(detail)imageParts.push(
    {text:'Image 2 : détail de la MEME photo (étiquette entière, code-barres ou zone numérique). Utilise la première image pour situer les champs et le détail pour relire les pixels.'},
    {inline_data:{mime_type:'image/jpeg',data:detail}});
-  const upstreamStarted=Date.now();
   const attempt=await resilientGemini('https://generativelanguage.googleapis.com/v1beta/models/'
    +model+':generateContent',{
     method:'POST',signal:abort.signal,
@@ -276,9 +271,8 @@ async function geminiPilot(request,env,origin){
      generationConfig:{temperature:0,maxOutputTokens:1024,
       responseMimeType:'application/json',responseSchema}
     })
-   },{deadline:started+budgetMs,signal:abort.signal,maxAttempts:payload.speculative===true?1:3});
+   },{deadline:started+budgetMs,signal:abort.signal});
   networkStats=attempt.stats;
-  const upstreamMs=Date.now()-upstreamStarted;
   const res=attempt.response;
   if(!res){
    const status=abort.signal.aborted||networkStats.stage==='timeout'?504:503;
@@ -348,8 +342,7 @@ async function geminiPilot(request,env,origin){
    ?Math.round(Number(ean13.slice(7,12))*100/655.36):null;
   const barcodePriceConsistent=priceFromEAN!==null&&totalCents!==null
    ?Math.abs(priceFromEAN-totalCents)<=1:null;
-  return reply({...closed,provider,model,pipelineVersion:2,transport:'binary-v1',speculativeReads:true,
-   serverTimings:{ingressMs,upstreamMs,processingMs:Math.max(0,Date.now()-upstreamStarted-upstreamMs)},
+  return reply({...closed,provider,model,pipelineVersion:2,transport:'binary-v1',
    focusField:focus,focusFields,elapsedMs:Date.now()-started,networkStats,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    eanObserved,contextCandidates:catalogCandidates.length,
