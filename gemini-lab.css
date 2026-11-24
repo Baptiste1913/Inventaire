@@ -5780,11 +5780,34 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiLabelPanel #iuGeminiEmptyResult #iuGeminiGrossChrome .iu-gemini-gross-number > strong {
- font-size:clamp(28px,7.8vw,34px)!important;
- line-height:1.02!important;
- font-weight:900!important;
+ font-size:clamp(32px,8.8vw,38px)!important;
+ line-height:1!important;
+ font-weight:950!important;
+ -webkit-text-stroke:.18px currentColor;
  font-variant-numeric:tabular-nums!important;
  letter-spacing:-.65px!important;
+}
+/* v42.60 — même teinte que Brut / Tare dans result-card.css.
+   Garder le cadre de 62 px et les deux lignes centrées. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel > #iuGeminiEmptyResult
+ > .iu-gemini-gross-row > #iuGeminiGrossChrome.iu-gemini-gross-panel {
+ padding-block:4px!important;
+ gap:2px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult #iuGeminiGrossChrome.iu-gemini-gross-panel > span {
+ color:#546f7d!important;
+ -webkit-text-fill-color:#546f7d!important;
+ font-size:11px!important;
+ line-height:1.2!important;
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel #iuGeminiEmptyResult #iuGeminiGrossChrome.iu-gemini-gross-panel > span {
+  color:CanvasText!important;
+  -webkit-text-fill-color:CanvasText!important;
+ }
 }
 @media(forced-colors:active){
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone

@@ -1,6 +1,6 @@
 {
-  "version": "42.59",
+  "version": "42.60",
   "published": "2026-11-24",
   "assets": 73,
-  "notes": "Contour animé chrome du viseur réutilisé sur le poids brut à vérifier ; contour coloré statique supprimé. Hauteur poids et bouton 62 px (54 auparavant), résultat 28–34 px. Animation suspendue hors écran, respect du mouvement réduit. Reconnaissance et cadrage inchangés."
+  "notes": "Poids brut à vérifier : libellé 11 px, teinte #546f7d identique à Brut/Tare de la pesée classique ; valeur 32–38 px, graisse 950 et renforcement typographique discret. Hauteur 62 px, animation chrome et reconnaissance inchangées."
 }
