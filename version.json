@@ -1,6 +1,6 @@
 {
-  "version": "42.87",
+  "version": "42.88",
   "published": "2026-11-24",
-  "assets": 87,
-  "notes": "Titre doublon 18 px et gras, marge 15 px. Déclencheur réduit de 15 % à centre fixe. Remplacement des filaments et anciens halos de résultat par les trois lumières de Bienvenue en chrome monochrome, mêmes cycles 10/13/17 s. Logo jusqu’à 60 FPS à vitesse inchangée."
+  "assets": 88,
+  "notes": "Halos étendus hors du résultat et confinés à la carte AI. Raccourci caméra retiré, ouverture par le viseur, import conservé. Sélecteur natif de panier élargi et harmonisé avec la pesée classique, hauteur 60/56 px."
 }

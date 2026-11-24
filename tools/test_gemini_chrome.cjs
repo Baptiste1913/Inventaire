@@ -144,7 +144,7 @@ assert((section.match(/class="iu-ai-glow-orb /g)||[]).length===3);
 assert(section.indexOf('class="iu-gemini-welcome-glow"')<section.indexOf('class="iu-gemini-clear-glass"'));
 assert(section.indexOf('class="iu-gemini-clear-glass"')<section.indexOf('id="iuGeminiLabelPanel"'));
 assert(!section.includes('iu-welcome-dot-wave'));
-const newGlow=css.slice(css.indexOf('/* v42.87'));
+const newGlow=css.slice(css.indexOf('/* v42.87'),css.indexOf('/* v42.88'));
 for(const rule of ['iuHomeBackdropRed 10s ease-in-out -2s','iuHomeBackdropBlue 13s ease-in-out -6s','iuHomeBackdropGreen 17s ease-in-out -11s'])assert(newGlow.includes(rule));
 const palette=[...newGlow.matchAll(/rgba\((\d+),(\d+),(\d+),[^)]+\)/g)];
 assert(palette.length>=9&&palette.every(m=>m[1]===m[2]&&m[2]===m[3]));
@@ -152,7 +152,7 @@ assert(newGlow.includes('filter:blur(25px)!important'));
 assert(newGlow.includes('animation-play-state:paused!important'));
 assert(newGlow.includes('prefers-reduced-motion:reduce')&&newGlow.includes('prefers-reduced-transparency:reduce'));
 assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(1.25px)!important;'));
-for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=42.87'));
+for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=42.88'));
 {
  const hooks={},field={dataset:{}};let observer;
  const doc={hidden:false,querySelector:()=>field,addEventListener:(k,fn)=>hooks[k]=fn};
@@ -238,3 +238,9 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  dialog.hidden=true;observers.forEach(fn=>fn());assert.equal(frames.size,0);
  console.log('OK : bouton de doublon, même palette Chrome, arrêt à la fermeture.');
 }
+
+const spill=css.slice(css.indexOf('/* v42.88'));
+assert(newGlow.includes('inset:-64px -36px -65px!important'));
+assert(spill.includes('overflow:hidden!important;isolation:isolate!important;border-radius:20px!important'));
+assert(spill.includes('overflow:visible!important;isolation:auto!important;z-index:auto!important'));
+console.log('OK : halos débordants, clip de la carte complète, contrôles au premier plan.');

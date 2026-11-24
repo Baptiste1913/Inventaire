@@ -33,3 +33,8 @@ assert(css.includes('top:50%!important;bottom:auto!important;transform:translate
 assert(css.includes('flex:none!important;border-radius:13px!important;color:#111!important;'));
 assert(js.includes('if(duplicateForCurrent()){openDuplicateConfirm();return;}'));
 console.log('OK : couverture native portrait/paysage, crop préservé, déclencheur centré, statut unique.');
+
+assert(!html.includes('id="iuGeminiCameraShortcut"')&&!html.includes('id="iuGeminiOpenCamera"'));
+assert(js.includes("cameraIdle?.addEventListener('click',()=>{selectReadingMode('camera');void startCamera();})"));
+assert(html.includes('id="iuGeminiModePhoto"'));
+assert(js.includes("Touche le viseur pour la rouvrir."));

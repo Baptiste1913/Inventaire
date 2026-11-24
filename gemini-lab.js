@@ -95,7 +95,7 @@
  const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
- const openCamera=$('iuGeminiOpenCamera'),cameraShell=$('iuGeminiCameraShell'),
+ const cameraShell=$('iuGeminiCameraShell'),
   cameraIdle=$('iuGeminiCameraIdle'),
   video=$('iuGeminiVideo'),closeCamera=$('iuGeminiCloseCamera'),
   torch=$('iuGeminiTorch'),capture=$('iuGeminiCapture');
@@ -103,7 +103,7 @@
  let cameraPausedInBackground=false;
  const modeCamera=$('iuGeminiModeCamera'),modePhoto=$('iuGeminiModePhoto');
  const modeControl=$('iuGeminiModeCamera')?.closest('.iu-gemini-mode-control');
- const shortcut=$('iuGeminiCameraShortcut'),grossPreview=$('iuGeminiGrossPreview');
+ const grossPreview=$('iuGeminiGrossPreview');
  const nextWeigh=$('iuGeminiNext'),emptyResult=$('iuGeminiEmptyResult');
  const labelAlert=$('iuGeminiLabelAlert'),labelAlertText=$('iuGeminiLabelAlertText'),
   duplicateDialog=$('iuGeminiDuplicateConfirm'),
@@ -993,26 +993,7 @@
   pilotKey.focus({preventScroll:true});
  });
  // Le panier Gemini réutilise la sélection et les règles de tare de la pesée classique.
- const classicBasket=$('basketSelect'),geminiBasket=$('iuGeminiBasketSelect'),
-  geminiName=$('iuGeminiBasketName'),geminiTare=$('iuGeminiBasketTare');
- // Le <select> natif reste au premier plan pour le sélecteur Safari.
- // Seule la légende visible superposée présente le nom et la tare sur
- // deux lignes à l'intérieur de son cadre, sans changer les calculs.
- function updateGeminiBasketTare(){
-  const selected=geminiBasket?.selectedOptions?.[0];
-  const fullText=String(selected?.textContent||'Choisir un panier').trim();
-  const ctx=typeof window.IUWeighScanContext==='function'?window.IUWeighScanContext():null;
-  // Garder la tare dans chaque option native comme dans le panier
-  // classique ; l'affichage fermé reste sur deux lignes, sans doublon.
-  const name=String(ctx?.basketName||
-   fullText.replace(/\s+[—–-]\s+\d+(?:[.,]\d+)?\s*kg\s*$/i,'')).trim();
-  const grams=ctx?.tareGrams;
-  const tare=Number.isSafeInteger(grams)&&grams>=0
-   ?'Tare : '+formatWeight(grams):'Tare non définie';
-  if(geminiName)geminiName.textContent=name;
-  if(geminiTare)geminiTare.textContent=tare;
-  if(geminiBasket)geminiBasket.setAttribute('aria-label','Type de panier : '+name+'. '+tare);
- }
+ const classicBasket=$('basketSelect'),geminiBasket=$('iuGeminiBasketSelect');
  function syncGeminiBasket(){
   if(!classicBasket||!geminiBasket)return;
   // Les options (nom — 0,xxx kg) sont reprises à l'identique
@@ -1020,7 +1001,6 @@
   const options=Array.from(classicBasket.options,option=>option.cloneNode(true));
   geminiBasket.replaceChildren(...options);
   geminiBasket.value=classicBasket.value;
-  updateGeminiBasketTare();
  }
  if(classicBasket&&geminiBasket){
   syncGeminiBasket();
@@ -1028,8 +1008,7 @@
   geminiBasket.addEventListener('change',()=>{
    classicBasket.value=geminiBasket.value;
    classicBasket.dispatchEvent(new Event('change',{bubbles:true}));
-   updateGeminiBasketTare();
-  });
+   });
   new MutationObserver(()=>{syncGeminiBasket();validationState();}).observe(classicBasket,{childList:true,subtree:true});
  }
  if(toggle)toggle.addEventListener('click',()=>{
@@ -2020,10 +1999,7 @@
   cameraStarting=false;torchBusy=false;torchOn=false;
   cameraShell.dataset.state='idle';
   cameraShell.hidden=false; // viseur visible à vide, sans appeler getUserMedia
-  openCamera.hidden=true; // ouverture par le bouton scanner ou par le viseur vide
-  openCamera.disabled=false;
-  shortcut?.setAttribute('aria-pressed','false');
-  shortcut?.setAttribute('aria-expanded','true');
+  if(cameraIdle)cameraIdle.disabled=active;
   refreshTorch();
   refreshCameraAlert();
  }
@@ -2056,9 +2032,6 @@
     cameraShell.hidden=false;
     cameraShell.dataset.state='scanning';
     refreshCameraAlert();
-    shortcut?.setAttribute('aria-pressed','true');
-    shortcut?.setAttribute('aria-expanded','true');
-    shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
     try{await video.play();syncCameraCover();}catch(_){
      say('Vidéo suspendue par iOS. Réessaie de toucher le viseur.',true);
     }
@@ -2077,7 +2050,7 @@
   }
   cameraStarting=true;
   const epoch=++cameraEpoch;
-  openCamera.disabled=true;
+  if(cameraIdle)cameraIdle.disabled=true;
   say('Ouverture du viseur…');
   let obtained=null;
   try{
@@ -2109,15 +2082,13 @@
     if(cameraStream!==obtained||cameraShell.hidden||document.hidden)return;
     clearAutoTimer();
     autoLocked=true;
-    setAutoHint('Caméra interrompue · touche Scanner pour reprendre','error');
-    say('La caméra a été interrompue. Touche Scanner pour la rouvrir.',true);
+    stopCamera();
+    setAutoHint('Caméra interrompue · touche le viseur pour reprendre','error');
+    say('La caméra a été interrompue. Touche le viseur pour la rouvrir.',true);
    },{once:true});
    video.srcObject=obtained;
-   cameraShell.hidden=false;cameraShell.dataset.state='scanning';openCamera.hidden=true;
+   cameraShell.hidden=false;cameraShell.dataset.state='scanning';
    refreshCameraAlert();
-   shortcut?.setAttribute('aria-pressed','true');
-   shortcut?.setAttribute('aria-expanded','true');
-   shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
    await video.play();
    if(epoch!==cameraEpoch||panel.hidden)return;
    syncCameraCover();
@@ -2134,7 +2105,7 @@
     say('Caméra indisponible ou accès refusé. Tu peux utiliser la galerie.',true);
    }
   }finally{
-   if(epoch===cameraEpoch){cameraStarting=false;openCamera.disabled=false;}
+   if(epoch===cameraEpoch){cameraStarting=false;if(cameraIdle)cameraIdle.disabled=active;}
   }
  }
  async function setTorch(enabled){
@@ -2168,12 +2139,6 @@
   selectReadingMode('photo');
   autoSuspended=true;
   photo.click();
- });
- shortcut?.addEventListener('click',()=>{
-  selectReadingMode('camera');
-  // Ce raccourci doit toujours AFFICHER le viseur. Une seconde pression
-  // ne ferme plus la piste et ne provoque plus un nouveau prompt iOS.
-  startCamera();
  });
  // Réutiliser le même point d'enregistrement pour les deux gestes :
  // Enregistrer en dernier, ou Enregistrer + photographier via le viseur.
@@ -2393,8 +2358,7 @@
   say(saved.duplicate?'Doublon confirmé · prêt pour la suite.'
    :'Pesée enregistrée · prêt pour la suite.');
  });
- openCamera.addEventListener('click',startCamera);
- cameraIdle?.addEventListener('click',startCamera);
+ cameraIdle?.addEventListener('click',()=>{selectReadingMode('camera');void startCamera();});
  closeCamera.addEventListener('click',()=>{
   stopCamera();
   say('Viseur fermé. Aucune photo envoyée.');

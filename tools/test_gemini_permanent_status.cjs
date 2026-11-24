@@ -83,3 +83,14 @@ console.log('OK : pastille 32 px, logo réduit, surfaces exactes et sélection n
 state.retainedSavedLabel=true;state.latestLabelFields={weightGrams:1058};state.proposal=null;state.file=null;
 api.refreshLabelAlert();expect('success','Doublon confirmé');
 state.retainedSavedLabel=false;state.latestLabelFields=null;api.refreshLabelAlert();expect('idle','Caméra désactivée');
+
+assert(section.includes('<div class="iu-basket-select-wrap"><select id="iuGeminiBasketSelect"'));
+assert(!section.includes('iuGeminiBasketName')&&!section.includes('iuGeminiBasketTare'));
+assert(!section.includes('id="iuGeminiCameraShortcut"'));
+const classicNative=css.slice(css.indexOf('/* v42.88')).match(/> select#iuGeminiBasketSelect\s*\{([^}]+)\}/)[1];
+for(const k of ['border','border-radius','background-color','background-image','box-shadow','transition'])assert.equal(prop(classicNative,k).replace(/\s+/g,''),prop(basketStyle,k).replace(/\s+/g,''));
+assert(classicNative.includes('height:60px!important;min-height:60px!important;max-height:60px!important'));
+assert(classicNative.includes('opacity:1!important;appearance:auto!important;-webkit-appearance:menulist!important'));
+assert(js.includes('Array.from(classicBasket.options,option=>option.cloneNode(true))'));
+assert(js.includes("classicBasket.dispatchEvent(new Event('change',{bubbles:true}))"));
+console.log('OK : panier natif classique, options et tare synchronisées, accès caméra unique.');
