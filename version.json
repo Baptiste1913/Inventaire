@@ -1,6 +1,6 @@
 {
-  "version": "42.91",
+  "version": "42.92",
   "published": "2026-11-24",
-  "assets": 91,
-  "notes": "Halos AI réduits de 25 % en largeur et hauteur, centres et animations conservés. Carte AI limitée aux vues de pesée (accueil et session), masquée sur Administration, Planning, Marché et Compte. Caméra arrêtée hors pesée, étiquette conservée."
+  "assets": 92,
+  "notes": "Fin de défilement naturelle sur toutes les pages : suppression de la réserve permanente en session (320 px/48 svh) et des 90 px de l'ancien dock des sous-pages. Marges adaptées à la zone de sécurité iPhone et au dock d'accueil. Aucun changement des données ni de la reconnaissance."
 }

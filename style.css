@@ -15011,15 +15011,11 @@ html body .app > .calc-card :is(
 }
 
 
-/* V36.63 — Safari iPhone : conserver une réserve de défilement lorsque
-   le clavier numérique couvre le bas de l'écran. Sans cette réserve,
-   la disparition d'une alerte ou d'un résultat réduit la page et WebKit
-   rabat scrollY jusqu'en haut, cachant le champ encore actif.
-   Cette réserve existe uniquement en mode inventaire sur écran tactile,
-   et ne bascule pas à chaque focus ou pesée. */
+/* V36.63 / v42.92 — conserver la stabilité du résultat, sans réserve
+   permanente de plusieurs centaines de pixels sous la session. */
 @media (max-width:700px) and (pointer:coarse){
  body.is-focus-mode .app{
-  padding-bottom:max(320px,48svh,env(safe-area-inset-bottom))!important;
+  padding-bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 8px))!important;
  }
  /* Éviter une variation de hauteur du résultat entre vide et renseigné. */
  body.is-focus-mode .app > .calc-card .result{
@@ -29838,7 +29834,7 @@ html body:not(.is-focus-mode) .sessions-history-card .iu-inventory-controls-pane
 
 /* V39.62 — Navigation Apple-like translucide, accordée au retour existant. */
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode) main.app{
- padding-bottom:calc(116px + env(safe-area-inset-bottom,0px))!important;
+ padding-bottom:calc(84px + max(3px,calc(env(safe-area-inset-bottom,0px) - 5px)))!important;
 }
 html body #iuQuickDock.iu-quick-dock{
  position:fixed!important;
@@ -30378,9 +30374,9 @@ html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is
 html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode) #iuQuickDock.iu-quick-dock:not(:has(#iuQuickAdmin[hidden])){
  grid-template-columns:repeat(6,minmax(0,1fr))!important;
 }
-/* Laisser la fin des sous-pages lisible au-dessus de la navigation fixe. */
+/* v42.92 — la navigation fixe est masquée sur ces pages depuis v39.75. */
 html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode){
- padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)!important;
+ padding-bottom:0!important;
 }
 
 /* V39.75 — Dock seulement à l'accueil, cinq entrées, flou discret au retour. */
@@ -31646,3 +31642,21 @@ body.iu-weigh-scan-open{overflow:hidden!important}
 .iu-ean-learn p{font-size:10px;color:#748692}
 .iu-ean-action-primary{background:#325d73;color:white;border-color:#325d73}
 @media(max-width:360px){.iu-ean-result dl{grid-template-columns:1fr}.iu-ean-manual-form>div{flex-wrap:wrap}}
+
+/* v42.92 — Fin de page naturelle, sans réserve de défilement artificielle.
+   L'accueil seul réserve la hauteur du dock visible. Le clavier et
+   le défilement natifs restent gérés par le navigateur. */
+html body.is-focus-mode main.app{
+ padding-bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 8px))!important;
+}
+html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode) main.app{
+ min-height:0!important;
+ padding-bottom:0!important;
+}
+html body.is-admin-mode main.app > #planningAdminCard.card,
+html body.is-account-mode main.app > #accountCard.card,
+html body.is-events-mode main.app > #eventsPage.iu-events-page:not([hidden]),
+html body.is-alerts-mode main.app > #iuAlertsPage:not([hidden]){
+ min-height:0!important;
+ padding-bottom:max(16px,env(safe-area-inset-bottom,0px))!important;
+}

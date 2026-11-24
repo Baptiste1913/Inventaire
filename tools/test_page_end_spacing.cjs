@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const css=fs.readFileSync('style.css','utf8'),html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+assert(!css.includes('padding-bottom:max(320px,48svh'));
+assert(!css.includes('padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)'));
+const end=css.slice(css.indexOf('/* v42.92 — Fin de page naturelle'));
+assert(end.includes('html body.is-focus-mode main.app{\n padding-bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 8px))!important;'));
+assert(end.includes('min-height:0!important;\n padding-bottom:0!important;'));
+for(const id of ['#planningAdminCard','#accountCard','#eventsPage','#iuAlertsPage'])assert(end.includes(id));
+assert(end.includes('padding-bottom:max(16px,env(safe-area-inset-bottom,0px))!important;'));
+assert(css.includes('padding-bottom:calc(84px + max(3px,calc(env(safe-area-inset-bottom,0px) - 5px)))!important;'));
+assert(css.includes('html body:is(.is-admin-mode,.is-account-mode,.is-events-mode,.is-alerts-mode,.is-focus-mode) #iuQuickDock.iu-quick-dock{\n display:none!important;'));
+assert(html.includes('style.css?v=42.92')&&sw.includes('style.css?v=42.92'));
+assert(sw.includes('inventaires-u-offline-v42-92'));
+console.log('OK : réserves obsolètes supprimées, marge native et dock accueil conservés.');
