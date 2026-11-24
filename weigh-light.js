@@ -418,9 +418,12 @@
   baseFilament(1,.62+.065*Math.sin(t*.73+1.4),.76,'#dedede',chromeOuterLines[1]);
   baseFilament(3,.34+.04*Math.sin(t*.61+2),.54,'#898989',chromeOuterLines[2]);
   for(const config of chromeReflections){
-   const ribbon=ribbonGeometry(t,config);
-   drawRibbon(ribbon,2.15,config.tint,config.opacity*.44,1.5,'source-over',.125);
-   drawRibbon(ribbon,.95,config.core,config.opacity,.35,'source-over',.05);
+   // At a 12px ring, overlapping diffuse highlights flatten the metal.
+   // Shorter arcs and tighter halos preserve distinct dark/light fibres;
+   // the width multiplier, palette, opacity and animation clock stay intact.
+   const ribbon=ribbonGeometry(t,isLogo?{...config,span:config.span*.85}:config);
+   drawRibbon(ribbon,2.15,config.tint,config.opacity*.44,isLogo?.65:1.5,'source-over',.125);
+   drawRibbon(ribbon,.95,config.core,config.opacity,isLogo?.18:.35,'source-over',.05);
   }
   if(running){paintWaves(t);paintInnerWaves(t);}
  }
