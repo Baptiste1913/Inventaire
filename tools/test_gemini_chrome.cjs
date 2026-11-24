@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.74'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.75'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -296,7 +296,16 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  const before=debug.ribbonGeometry(seam-.00001,config),after=debug.ribbonGeometry(seam+.00001,config);
  assert(before.every(p=>p.envelope<1e-6)&&after.every(p=>p.envelope<1e-6),'Reflet invisible au raccord');
  for(let time=0;time<90;time+=.13){
-  const bottom=debug.projectMotion(debug.paths()[2],time);
+  const grouped=debug.paths().map(path=>debug.projectMotion(path,time));
+  const mean=points=>points.slice(1,-1).reduce((sum,p)=>sum+p.y,0)/(points.length-2);
+  const centres=grouped.map(mean);
+  assert(centres.every(y=>y>=.68*260&&y<=.94*260),'Faisceau dans le bas du canvas');
+  assert(Math.max(...centres)-Math.min(...centres)<.20*260,'Trajectoires rapprochées');
+  for(const points of grouped){
+   assert(points[0].x<0&&points[points.length-1].x>340);
+   assert(points.every(p=>Number.isFinite(p.y)&&p.y<=252));
+  }
+  const bottom=grouped[2];
   assert(bottom[0].x<0&&bottom[bottom.length-1].x>340);
   assert(bottom.every(p=>Number.isFinite(p.y)&&p.y<=252));
   const a=bottom[0],b=bottom[1],c=bottom[2],d=bottom[bottom.length-3],e=bottom[bottom.length-2],f=bottom[bottom.length-1];

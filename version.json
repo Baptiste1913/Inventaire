@@ -1,6 +1,6 @@
 {
-  "version": "42.74",
+  "version": "42.75",
   "published": "2026-11-24",
-  "assets": 74,
-  "notes": "Raccord des filaments au contour Chrome : découpe sur son axe à 1,8 px du bord au lieu de 5,5 px, coins alignés sur le rayon réel du contour. Courbes, opacité, épaisseur et verre 2 px conservés."
+  "assets": 75,
+  "notes": "Trois filaments Chrome regroupés dans une bande basse plus compacte, avec amplitude verticale resserrée et cycles indépendants conservés. Opacité, épaisseurs, reflets, verre et contour global inchangés."
 }

@@ -1,4 +1,4 @@
-/* Inventaires U 42.74 — chrome : raccord exact des filaments au contour.
+/* Inventaires U 42.75 — chrome : trois filaments regroupés vers le bas.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -93,12 +93,15 @@
   const ease=q*q*(3-2*q);
   return a.slice(1).map((v,k)=>v+(b[k+1]-v)*ease);
  }
+ // Regrouper les trajectoires de fond dans un faisceau souple.
+ // Phases, mouvement horizontal et rendu Chrome restent indépendants.
+ const backdropBands=[.76,.815,.87],backdropSpread=.42;
  function projectMotion(motion,t){
   const [tx,ty,sx,sy]=motionPose(t,motion.index),b=motion.box;
   const cx=b.x+b.w/2,cy=b.y+b.h/2;
   const pts=motion.local.map(p=>({x:(cx+(p.x-cx)*sx+tx*b.w)*width,
-   y:(cy+(p.y-cy)*sy+ty*b.h)*height}));
-  if(motion.index===2){
+   y:(backdropBands[motion.index]+((p.y-cy)*sy+ty*b.h)*backdropSpread)*height}));
+  {
    // Extend along the endpoint tangents, never along a horizontal shelf.
    // Translate the whole curve when needed, preserving all its curvature.
    const first=pts[0],next=pts[1],last=pts[pts.length-1],prev=pts[pts.length-2];
