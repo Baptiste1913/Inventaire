@@ -29,7 +29,7 @@ assert(zxing.includes("formats:['EAN13']")&&
  'Aucun format QR, DataMatrix ou Code39 ne doit être ajouté au flux EAN');
 assert(lab.includes('verifyTwice:true')&&lab.includes('await ensureLocalOcr()'),
  'L OCR imprimé ne démarre qu en secours et sur un moteur local');
-assert(lab.includes('new Promise(resolve=>setTimeout(()=>resolve(null),110))'),
+assert(lab.includes('const finalDeadline=performance.now()+110'),
  'Attente OCR bornée pour ne pas bloquer les inventaires');
 assert(printed.includes("tessedit_char_whitelist:'0123456789'")&&
  printed.includes("tessedit_pageseg_mode:'7'"),

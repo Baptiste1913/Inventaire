@@ -191,7 +191,10 @@ self.onmessage=async event=>{
    self.postMessage({id,error:'unsupported'});return;
   }
   let result=null;
-  if(kind==='barcode'){
+  if(kind==='preview-barcode'){
+   try{result=await self.IUZxingEAN?.read(photo)||null;}catch(_){}
+  }
+  else if(kind==='barcode'){
    // ZXing est le premier choix. Pas de second décodage si validé.
    // Une ambiguïté optique n'est jamais écrasée par une supposition.
    try{result=await self.IUZxingEAN?.read(photo)||null;}catch(_){}

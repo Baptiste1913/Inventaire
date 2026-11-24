@@ -1,6 +1,6 @@
 {
-  "version": "42.46",
+  "version": "42.47",
   "published": "2026-11-24",
-  "assets": 63,
-  "notes": "DIGI prioritaire : recherche exhaustive des références et des variantes EAN de montant 02, récupération 5 à 7 chiffres du préfixe sous conditions, confirmation de l'EAN exact si ambigu, indices secondaires non bloquants, relecture ciblée et secours locaux réservés aux lacunes. WASM et WebGPU expérimental conservés. Worker Cloudflare inchangé."
+  "assets": 66,
+  "notes": "Préparation locale pendant le cadrage, réutilisation du JPEG/EAN de la même frame, préchauffage DIGI/ZXing/Tesseract, secours locaux lancés pendant Gemini et échéances partagées. LiteRT.js PP-OCRv5 expérimental WebGPU/WASM, sans validation autonome. Vérifications DIGI conservées ; Cloudflare inchangé."
 }

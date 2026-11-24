@@ -27,6 +27,8 @@
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
  let primaryBarcodePhoto=null,alternatePhotoTask=null,printedBusy=false;
+ let previewLastAt=0,previewBusy=false,warmedCameraEpoch=-1;
+ const latency=window.IUGeminiLatency||null;
  const core=window.IURecognitionCore||null;
  let catalogDialogOpen=false,lastCatalogPromptGeneration=-1;
  const catalogDialog=$('iuGeminiCatalogConfirm'),
@@ -829,7 +831,7 @@
   say('');
  }
  function clear(){stopCamera();resetReading();}
- function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null}={}){
+ function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null}={}){
   if(!chosen)return false;
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
@@ -859,8 +861,9 @@
   // envoyé à Gemini a été réduit pour respecter le budget Cloudflare.
   const barcodeSource=barcodePhoto||chosen;
   primaryBarcodePhoto=barcodeSource;alternatePhotoTask=alternatePhoto;
-  barcodeJob=(window.IUGeminiParallel?.barcode(barcodeSource)||
-   Promise.resolve().then(()=>window.IUGeminiEAN?.read(barcodeSource)||null))
+  barcodeJob=(preparedBarcode?Promise.resolve(preparedBarcode):
+   (window.IUGeminiParallel?.barcode(barcodeSource)||
+    Promise.resolve().then(()=>window.IUGeminiEAN?.read(barcodeSource)||null)))
    .catch(()=>null);
   url=URL.createObjectURL(chosen);
   // Afficher immédiatement l'étiquette virtuelle vierge pendant le chargement.
@@ -1562,12 +1565,54 @@
    let opticalReady=null;
    void job.then(reading=>{if(id===generation)opticalReady=reading;});
    const detailTask=prepareLabelDetail(file).catch(()=>null);
-   const encoded=await imageBase64(file);
+   const sourcePhoto=primaryBarcodePhoto||file;
+   const track=promise=>latency?latency.track(promise):{done:false,value:null,promise:Promise.resolve(promise).catch(()=>null)};
+   const until=(task,deadline)=>latency?latency.until(task,deadline):
+    task?Promise.race([task.promise,new Promise(resolve=>setTimeout(()=>resolve(null),Math.max(0,deadline-performance.now())))]):Promise.resolve(null);
+   const opticalTask=track(job);
+   let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null;
+   const stillCurrent=()=>id===generation&&active&&!currentAbort.signal.aborted;
+   function startPrinted(){
+    if(printedJob||!stillCurrent()||targetField||localBarcode?.ambiguous||
+       trustedBarcodeEvidence(localBarcode)||!window.IUGeminiPrintedEAN)return;
+    printedJob=track((async()=>{
+     const TextDetector=window.TextDetector||null;
+     if(printedBusy||localOcrBusy)return null;
+     printedBusy=true;
+     try{
+      const engine=TextDetector?null:await ensureLocalOcr();
+      if(!stillCurrent()||(!engine&&!TextDetector))return null;
+      return await window.IUGeminiPrintedEAN.read(sourcePhoto,{
+       engine,TextDetector,hint:localBarcode,verifyTwice:true
+      });
+     }finally{printedBusy=false;}
+    })());
+   }
+   function startLocalRecovery(reading){
+    if(!stillCurrent()||targetField||reading?.ambiguous||trustedBarcodeEvidence(reading))return;
+    startPrinted();
+    if(!partialJob)partialJob=track(window.IUGeminiParallel?.partial?.(sourcePhoto)||null);
+    if(!paddleJob){
+     const engine=window.IULiteRTLab?.enabled?.()?window.IULiteRTLab:window.IUPaddleLab;
+     paddleJob=track(engine?.read?.(sourcePhoto,reading)||null);
+    }
+    if(!alternateJob&&alternatePhotoTask)alternateJob=track(Promise.resolve(alternatePhotoTask).then(photo=>
+     photo&&stillCurrent()?window.IUGeminiParallel?.barcode(photo):null));
+   }
+   // L'échec optique déclenche les secours aussitôt, pendant Gemini.
+   // Si ZXing est lent, OCR imprimé et réseau peuvent déjà progresser.
+   void opticalTask.promise.then(reading=>{
+    if(stillCurrent()){opticalReady=reading;startLocalRecovery(reading);}
+   });
+   const earlyTimer=setTimeout(()=>{
+    if(stillCurrent()&&!opticalTask.done)startPrinted();
+   },220);
+   void opticalTask.promise.then(()=>clearTimeout(earlyTimer));
+   const detailDeadline=performance.now()+180;
+   const [encoded,firstDetail]=await Promise.all([
+    imageBase64(file),until(track(detailTask),detailDeadline)
+   ]);
    if(id!==generation)return;
-   // Sur iPhone, ne jamais retarder la première requête de plus de 180 ms
-   // pour un agrandissement facultatif ; la pleine photo reste présente.
-   const firstDetail=await Promise.race([detailTask,
-    new Promise(resolve=>setTimeout(()=>resolve(null),180))]);
    const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
    say(providerName+' analyse l’étiquette…');
    const received=await requestGeminiWithRecovery(
@@ -1577,9 +1622,10 @@
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
+   // Une seule échéance pour les vérifications locales.
+   const localDeadline=performance.now()+350;
    if(!localBarcode){
-    const independent=await Promise.race([job,
-     new Promise(resolve=>setTimeout(()=>resolve(null),350))]);
+    const independent=await until(opticalTask,localDeadline);
     if(id!==generation)return;
     if(independent)localBarcode=independent;
    }
@@ -1609,53 +1655,22 @@
    combined=reconcileBarcode(combined,localBarcode);
    combined=applyCatalogRecovery(combined);
    let targets=!targetField?recoveryTargets(combined):[];
-   // Seulement après l'échec du lecteur EAN optique. Tesseract est
-   // chargé à la demande, dans son propre Worker ; aucune photo envoyée.
-   // Ni le premier appel Gemini ni la caméra ne l'attendent.
-   let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null;
-   const sourcePhoto=primaryBarcodePhoto||file;
-   // Les nouveaux moteurs lourds ne tournent que si DIGI n'a pas
-   // obtenu de référence utilisable, pas pour confirmer un EAN valide.
    const unresolvedEAN=(targets.includes('ean')||combined.digiRecovery?.kind==='confirmation')&&
     !readableValue('ean',combined.fields?.ean13)&&
     !combined.checks?.readingConflict&&!combined.checks?.independentMismatch;
-   if(unresolvedEAN&&!trustedBarcodeEvidence(localBarcode)&&!localBarcode?.ambiguous){
-    partialJob=window.IUGeminiParallel?.partial?.(sourcePhoto)||null;
-    paddleJob=window.IUPaddleLab?.read?.(sourcePhoto,localBarcode)||null;
-    if(alternatePhotoTask)alternateJob=Promise.resolve(alternatePhotoTask).then(photo=>
-     photo&&id===generation?window.IUGeminiParallel?.barcode(photo):null).catch(()=>null);
-   }
-   if((targets.includes('ean')||combined.digiRecovery?.kind==='confirmation')&&!localBarcode?.ambiguous&&
-      !trustedBarcodeEvidence(localBarcode)&&window.IUGeminiPrintedEAN){
-    printedJob=(async()=>{
-     const TextDetector=window.TextDetector||null;
-     if(printedBusy||localOcrBusy)return null;
-     printedBusy=true;
-     try{
-      const engine=TextDetector?null:await ensureLocalOcr();
-      if(id!==generation||(!engine&&!TextDetector))return null;
-      return await window.IUGeminiPrintedEAN.read(sourcePhoto,{
-       engine,TextDetector,hint:localBarcode,verifyTwice:true
-      });
-     }finally{printedBusy=false;}
-    })().catch(()=>null);
-    // Si l'OCR est déjà chaud, éviter la seconde requête Gemini.
-    // Premier chargement : au plus 110 ms d'attente facultative.
-    const printedFast=await Promise.race([printedJob,
-     new Promise(resolve=>setTimeout(()=>resolve(null),110))]);
+   if(unresolvedEAN)startLocalRecovery(localBarcode);
+   if((targets.includes('ean')||combined.digiRecovery?.kind==='confirmation')&&
+      !localBarcode?.ambiguous&&!trustedBarcodeEvidence(localBarcode)){
+    startPrinted();
+    const printedFast=await until(printedJob,localDeadline);
     if(id!==generation)return;
     if(printedFast?.ean13)combined=applyPrintedEAN(combined,printedFast);
     if(printedFast?.pattern)combined=fuseEAN(combined,printedFast.pattern);
     combined=applyCatalogRecovery(combined);
-    targets=recoveryTargets(combined);
+    targets=targetField?[]:recoveryTargets(combined);
    }
-   // Le décodage local travaille déjà en parallèle depuis la capture.
-   // S'il est presque terminé et que seul l'EAN nécessite confirmation,
-   // attendre très brièvement évite un aller-retour Gemini de plusieurs
-   // secondes. Si le lecteur a déjà échoué, aucune attente supplémentaire.
    if(!targetField&&!localBarcode&&targets.length===1&&targets[0]==='ean'){
-    const finalOptical=await Promise.race([job,
-     new Promise(resolve=>setTimeout(()=>resolve(null),165))]);
+    const finalOptical=await until(opticalTask,localDeadline);
     if(id!==generation)return;
     if(finalOptical){
      localBarcode=finalOptical;
@@ -1664,9 +1679,9 @@
      targets=recoveryTargets(combined);
     }
    }
-   async function consumeLocalEvidence(result,wait=0){
-    const timed=task=>task?Promise.race([task,new Promise(resolve=>setTimeout(()=>resolve(null),wait))]):null;
-    const [partial,paddle,alternate]=await Promise.all([timed(partialJob),timed(paddleJob),timed(alternateJob)]);
+   async function consumeLocalEvidence(result,deadline){
+    const [partial,paddle,alternate]=await Promise.all([
+     until(partialJob,deadline),until(paddleJob,deadline),until(alternateJob,deadline)]);
     if(id!==generation)return result;
     if(readableValue('ean',result.fields?.ean13))return result;
     if(partial?.pattern)result=fuseEAN(result,partial.pattern);
@@ -1690,8 +1705,8 @@
     }
     return applyCatalogRecovery(result);
    }
-   if(partialJob||paddleJob||alternateJob){
-    combined=await consumeLocalEvidence(combined,35);
+   if((partialJob||paddleJob||alternateJob)&&!readableValue('ean',combined.fields?.ean13)){
+    combined=await consumeLocalEvidence(combined,localDeadline);
     if(id!==generation)return;
     targets=recoveryTargets(combined);
    }
@@ -1709,17 +1724,12 @@
      const enhancedTask=((unresolvedEAN?window.IUGeminiParallel?.enhancedDetail(file,
       trustedBarcodeEvidence(localBarcode)?localBarcode:null):null)||Promise.resolve(null))
       .then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
-     let normalDetail=null,filteredDetail=null;
-     const normalReady=opticalDetail.then(value=>{normalDetail=value||null;});
-     const filteredReady=enhancedTask.then(value=>{filteredDetail=value||null;});
-     await Promise.race([
-      Promise.all([normalReady,filteredReady]),
-      normalReady.then(()=>new Promise(resolve=>setTimeout(resolve,45))),
-      new Promise(resolve=>setTimeout(resolve,220))
-     ]);
-     // Privilégier la vue historique pour une simple vérification
-     // de code complet ; réserver la perspective aux vraies lacunes.
-     const pendingDetail=unresolvedEAN?filteredDetail||normalDetail:normalDetail||filteredDetail;
+     const normalTask=track(opticalDetail),filteredTask=track(enhancedTask);
+     const detailEnd=performance.now()+220;
+     // Dès qu'un détail utile est prêt, commencer la relecture.
+     const pendingDetail=await Promise.race([normalTask.promise.then(v=>v||until(filteredTask,detailEnd)),
+      filteredTask.promise.then(v=>v||until(normalTask,detailEnd)),
+      new Promise(resolve=>setTimeout(()=>resolve(null),220))]);
      if(id!==generation)return;
      const focused=await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
@@ -1741,16 +1751,21 @@
     }
    }
    let validated=combined;
+   const finalDeadline=performance.now()+110;
    if(printedJob){
     // Après la récupération Gemini, reprendre le résultat OCR déjà
     // lancé, uniquement s'il est prêt : aucun traitement illimité.
-    const printed=await Promise.race([printedJob,
-     new Promise(resolve=>setTimeout(()=>resolve(null),110))]);
+    const printed=await until(printedJob,finalDeadline);
     if(id!==generation)return;
     if(printed?.ean13)validated=applyPrintedEAN(validated,printed);
     if(printed?.pattern)validated=fuseEAN(validated,printed.pattern);
    }
-   if(partialJob||paddleJob||alternateJob)validated=await consumeLocalEvidence(validated,20);
+   if((partialJob||paddleJob||alternateJob)&&!readableValue('ean',validated.fields?.ean13))validated=await consumeLocalEvidence(validated,finalDeadline);
+   if(opticalTask.done&&opticalTask.value&&opticalTask.value!==localBarcode&&
+      (trustedBarcodeEvidence(opticalTask.value)||opticalTask.value.ambiguous)){
+    localBarcode=opticalTask.value;
+    validated=reconcileBarcode(validated,localBarcode);
+   }
    if(id!==generation)return;
    validated=applyCatalogRecovery(validated);
    // Une relecture réseau interrompue n'invalide pas un EAN que le
@@ -1834,6 +1849,7 @@
   cameraEpoch++;
   localOcrToken++;localCandidate=null;localPasses=0;localOcrBusy=false;
   releaseLocalOcr();
+  window.IULiteRTLab?.close?.();
   if(cameraStream){
    for(const track of cameraStream.getTracks())track.stop();
    cameraStream=null;
@@ -2287,7 +2303,7 @@
  }
  function clearQualityBuffer(){
   qualityPrevious=null;qualityCached=null;qualityLastSampleAt=0;
-  qualityLastCachedAt=0;
+  qualityLastCachedAt=0;previewLastAt=0;
  }
  function stopQualityMonitor(){
   qualityMonitorToken++;
@@ -2330,6 +2346,17 @@
    if(!rating?.gray)return;
    const moved=qualityPrevious&&
     qualityEngine.frameDistance(qualityPrevious.gray,rating.gray)>28;
+   if(warmedCameraEpoch!==cameraEpoch){
+    warmedCameraEpoch=cameraEpoch;
+    try{window.IUDigiCatalogLookup?.info?.();}catch(_){}
+    const epoch=cameraEpoch;
+    setTimeout(()=>{
+     if(epoch!==cameraEpoch||!cameraStream||document.hidden)return;
+     if(!window.TextDetector)void ensureLocalOcr();
+     if(window.IULiteRTLab?.enabled?.())void window.IULiteRTLab.warm();
+     else void window.IUPaddleLab?.warm?.();
+    },300);
+   }
    if(moved)qualityCached=null;
    qualityPrevious=rating;
    if(!rating.usable||now-qualityLastCachedAt<360)return;
@@ -2340,6 +2367,24 @@
     const canvas=fullResolutionCameraFrame();
     qualityCached={canvas,rating,at:now,epoch:cameraEpoch};
     qualityLastCachedAt=now;
+    // Uniquement le JPEG de CETTE frame, au maximum une fois/seconde.
+    // Aucune photo n'est envoyée avant le déclenchement manuel.
+    if(!moved&&rating.score>=.49&&Number.isFinite(rating.motion)&&rating.motion<9&&
+       !previewBusy&&now-previewLastAt>=1000&&window.IUGeminiParallel?.previewBarcode){
+     const candidate=qualityCached;
+     previewBusy=true;previewLastAt=now;
+     candidate.preparedBlob=new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.88));
+     void candidate.preparedBlob.then(blob=>{
+      if(!blob||candidate.epoch!==cameraEpoch||active||frameCaptureBusy||qualityCached!==candidate)return null;
+      candidate.jpeg=blob;
+      return window.IUGeminiParallel.previewBarcode(blob);
+     }).then(reading=>{
+      if(candidate.epoch===cameraEpoch&&trustedBarcodeEvidence(reading)){
+       candidate.preparedBarcode=reading;
+       window.IUDigiCatalogLookup?.resolve?.(reading.ean13);
+      }
+     }).catch(()=>{}).finally(()=>{previewBusy=false;});
+    }
    }
   }catch(_){
    // Le filtre est facultatif : un iPhone peu puissant conserve le
@@ -2705,7 +2750,7 @@
     chosen.backup.canvas.toBlob(resolve,'image/jpeg',.86)):null;
    if(chosen.rating&&!chosen.rating.usable)
     setAutoHint('Meilleure image disponible · vérification Gemini','waiting');
-   let blob=await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.88));
+   let blob=chosen.jpeg||await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.88));
    // Conserver les pixels originaux uniquement pour ZXing local.
    // Gemini reçoit la variante 1 920 px si le JPEG dépasse le budget.
    const barcodeOriginal=blob;
@@ -2746,7 +2791,8 @@
     resetReading();
    }
    const used=setPhoto(nextPhoto,{confirmed:true,
-    barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null,alternatePhoto});
+    barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null,alternatePhoto,
+    preparedBarcode:chosen.jpeg===barcodeOriginal?chosen.preparedBarcode:null});
    if(used===false)setAutoHint('Capture non utilisée · réessaie','waiting');
   }catch(_){
    say('Photo impossible · recommence la capture.',true);
