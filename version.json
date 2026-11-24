@@ -1,6 +1,6 @@
 {
-  "version": "42.88",
+  "version": "42.89",
   "published": "2026-11-24",
-  "assets": 88,
-  "notes": "Halos étendus hors du résultat et confinés à la carte AI. Raccourci caméra retiré, ouverture par le viseur, import conservé. Sélecteur natif de panier élargi et harmonisé avec la pesée classique, hauteur 60/56 px."
+  "assets": 89,
+  "notes": "Écart panier/import réduit à 6/5 px, voile blanc de Bienvenue sur le résultat sans quadrillage, pastille AI en gris neutres, icône Planning ramenée à la boîte commune de 22 px. Halos, moteur AI et animations préservés."
 }

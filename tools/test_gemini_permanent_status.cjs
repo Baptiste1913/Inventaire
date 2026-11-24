@@ -94,3 +94,8 @@ assert(classicNative.includes('opacity:1!important;appearance:auto!important;-we
 assert(js.includes('Array.from(classicBasket.options,option=>option.cloneNode(true))'));
 assert(js.includes("classicBasket.dispatchEvent(new Event('change',{bubbles:true}))"));
 console.log('OK : panier natif classique, options et tare synchronisées, accès caméra unique.');
+
+const spacing=css.slice(css.indexOf('/* v42.88'),css.indexOf('/* v42.89'));
+assert(spacing.includes('align-items:stretch!important;gap:6px!important'));
+assert(spacing.includes('.iu-gemini-scan-row {gap:5px!important;}'));
+console.log('OK : espacement optique panier/import réduit, dimensions conservées.');

@@ -152,7 +152,7 @@ assert(newGlow.includes('filter:blur(25px)!important'));
 assert(newGlow.includes('animation-play-state:paused!important'));
 assert(newGlow.includes('prefers-reduced-motion:reduce')&&newGlow.includes('prefers-reduced-transparency:reduce'));
 assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(1.25px)!important;'));
-for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=42.88'));
+for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=42.89'));
 {
  const hooks={},field={dataset:{}};let observer;
  const doc={hidden:false,querySelector:()=>field,addEventListener:(k,fn)=>hooks[k]=fn};
@@ -244,3 +244,15 @@ assert(newGlow.includes('inset:-64px -36px -65px!important'));
 assert(spill.includes('overflow:hidden!important;isolation:isolate!important;border-radius:20px!important'));
 assert(spill.includes('overflow:visible!important;isolation:auto!important;z-index:auto!important'));
 console.log('OK : halos débordants, clip de la carte complète, contrôles au premier plan.');
+
+const finish=css.slice(css.indexOf('/* v42.89'));
+assert(finish.includes('background:linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important'));
+assert(!finish.includes('radial-gradient')&&!finish.includes('backdrop-filter'));
+const badge=finish.match(/> \.iu-gemini-title-badge\s*\{([^}]+)\}/)[1];
+assert([...badge.matchAll(/#([0-9a-f]{6})/g)].every(m=>grey('#'+m[1])));
+assert([...badge.matchAll(/rgba\((\d+),(\d+),(\d+),[^)]+\)/g)].every(m=>m[1]===m[2]&&m[2]===m[3]));
+assert(!/width:|height:|transform:/.test(badge));
+assert(finish.includes('#iuQuickEvents .iu-dock-custom-icon {\n width:22px!important;height:22px!important;flex:0 0 22px!important;'));
+assert(finish.includes('align-self:end!important;justify-self:center!important'));
+assert(finish.includes('#iuQuickEvents .iu-dock-custom-icon > path {\n transform:none!important;'));
+console.log('OK : voile blanc, pastille neutre, Planning 22 px.');
