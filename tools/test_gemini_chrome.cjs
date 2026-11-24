@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.76'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.80'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -229,22 +229,22 @@ assert(markup.includes(waves[0]+'\n<canvas id="iuGeminiBackdropChrome" class="iu
 const glassStyle=css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1];
 assert(glassStyle.includes('background:rgba(128,128,128,.002)!important;'));
 assert(glassStyle.includes('position:absolute!important;'));
-assert(glassStyle.includes('inset:5px 0 0!important;'));
+assert(glassStyle.includes('inset:0!important;'));
 assert(glassStyle.includes('z-index:1!important;'));
 assert(css.slice(css.indexOf('/* v42.67')).includes('z-index:2!important;'));
-assert(glassStyle.includes('backdrop-filter:blur(2px)!important;'));
+assert(glassStyle.includes('backdrop-filter:blur(1.25px)!important;'));
 assert(glassStyle.includes('pointer-events:none!important;'));
 assert(glassStyle.includes('overflow:hidden!important;'));
 assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.79'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.79'));
+assert(markup.includes('gemini-lab.css?v=42.80'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.80'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
-assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(2px)!important;'));
+assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(1.25px)!important;'));
 
 
 {
@@ -280,7 +280,7 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  const doc={hidden:false,getElementById:k=>k===bg.id?bg:k==='iuGeminiLabelPanel'?panel:k==='iuGeminiLab'?outer:null,addEventListener(){}};
  const win={devicePixelRatio:2,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.push(fn);return 1;},cancelAnimationFrame(){}};
  class Observer{observe(){}}
- const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isBackdrop)inspect({reflectionCenter,endFade,projectMotion,motionPose,ribbonGeometry,openPoint,centreThickness,backdropClipRect,paintBackdrop,backgroundBaseShape,paths:()=>motionPaths,setOpen:p=>{openPoints=p;}});\n }\n})();');
+ const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isBackdrop)inspect({reflectionCenter,endFade,projectMotion,motionPose,ribbonGeometry,openPoint,centreThickness,backdropClipRect,paintBackdrop,backgroundBaseShape,backdropWidthScale,spawnWave,waveShape,spawnInnerWave,innerWaveShape,point,basePoint,paths:()=>motionPaths,setOpen:p=>{openPoints=p;}});\n }\n})();');
  new Function('document','window','Path2D','MutationObserver','inspect',instrument)(doc,win,Path,Observer,x=>{debug=x});
  assert.equal(frames.length,1);frames.shift()(100);
  assert.equal(drawn.length,45);
@@ -301,12 +301,14 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
   const mean=points=>points.reduce((sum,p)=>sum+p.y,0)/points.length;
   assert(mean(top)<.45*260&&mean(middle)>.35*260,'Placement initial non regroupé');
   const bottom=debug.projectMotion(debug.paths()[2],time);
-  assert(bottom[0].x<0&&bottom[bottom.length-1].x>340);
   assert(bottom.every(p=>Number.isFinite(p.y)&&p.y<=252));
-  const a=bottom[0],b=bottom[1],c=bottom[2],d=bottom[bottom.length-3],e=bottom[bottom.length-2],f=bottom[bottom.length-1];
-  const slope=(a,b)=>(b.y-a.y)/(b.x-a.x);
-  assert(Math.abs(slope(a,b)-slope(b,c))<1e-8);
-  assert(Math.abs(slope(d,e)-slope(e,f))<1e-8);
+  for(const branch of [top,middle,bottom]){
+   assert(branch[0].x<=-12&&branch[branch.length-1].x>=352,'Les trois branches dépassent les limites latérales avant clip');
+   const a=branch[0],b=branch[1],c=branch[2],d=branch[branch.length-3],e=branch[branch.length-2],f=branch[branch.length-1];
+   const slope=(a,b)=>(b.y-a.y)/(b.x-a.x);
+   assert(Math.abs(slope(a,b)-slope(b,c))<1e-8);
+   assert(Math.abs(slope(d,e)-slope(e,f))<1e-8);
+  }
  }
  for(const [i,seconds,delay] of [[0,17,3],[1,23,12],[2,29,7]]){
   const left=debug.motionPose(seconds-delay-.00001,i),right=debug.motionPose(seconds-delay+.00001,i);
@@ -325,6 +327,22 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  assert(clips[0].some(p=>p.length===6),'Coins cubiques alignés sur le résultat');
  assert(source.includes("document.getElementById('iuGeminiLabelPanel')"));
  assert(css.includes('border-radius:20px!important;'));
+ assert.equal(debug.backdropWidthScale,.82);
+ for(let time=1;time<=12;time+=.2)debug.paintBackdrop(time);
+ for(const branch of debug.paths()){
+  assert(branch.loose.length>0&&branch.inner.length>0,'Chaque branche possède ses propres fibres');
+  debug.setOpen(debug.projectMotion(branch,5));
+  const w={...debug.spawnWave(5),center:.5,span:.1,amplitude:6,phase:Math.PI/2};
+  const shape=debug.waveShape(5+w.life/2,w);
+  const signed=shape.positions.map((p,i)=>{
+   const u=shape.center+(i/56-.5)*shape.span,b=debug.point(u,w.lane),n=debug.basePoint(u);
+   return (p.x-b.x)*n.nx+(p.y-b.y)*n.ny;
+  });
+  assert(signed.some(v=>Math.abs(v)>1),'Une ramification s’écarte de la branche');
+  const inner={...debug.spawnInnerWave(5),center:.5,side:-1};
+  assert(debug.innerWaveShape(5+inner.life/2,inner).safeDepth===5);
+ }
+ assert(debug.paths()[0].loose!==debug.paths()[1].loose&&debug.paths()[1].inner!==debug.paths()[2].inner);
  const count=drawn.length;panel.hidden=true;debug.paintBackdrop(1);assert.equal(drawn.length,count,'Pas de dessin hors résultat masqué');
  panel.hidden=false;panel.getBoundingClientRect=()=>({left:24,top:26,width:0,height:0});
  debug.paintBackdrop(2);assert.equal(drawn.length,count,'Pas de dessin si résultat sans dimensions');

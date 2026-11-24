@@ -39,3 +39,8 @@ assert(css.includes('margin:3px 0 1px!important;'));
 assert(css.includes('width:32px!important;height:32px!important;flex:none!important;fill:#fff!important;'));
 assert(idle.includes('width="32" height="32"'));
 console.log('OK : coins 13 px, marges verticales équilibrées, icône 32 px.');
+
+assert(css.includes(':not(:where(#iuGeminiLabStatus)):not(#iuGeminiOuterChrome)'));
+const diagnostic=css.slice(css.indexOf('/* v42.80')).match(/> #iuGeminiLabStatus\.iu-gemini-lab-status:not\(:empty\)\s*\{([^}]+)\}/)[1];
+assert(diagnostic.includes('position:absolute!important')&&diagnostic.includes('clip-path:inset(50%)!important'));
+console.log('OK : diagnostic hors flux dans tous les états, espace stable.');

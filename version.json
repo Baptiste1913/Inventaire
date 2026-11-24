@@ -1,6 +1,6 @@
 {
-  "version": "42.79",
+  "version": "42.80",
   "published": "2026-11-24",
-  "assets": 79,
-  "notes": "Bloc de statut moins arrondi (13 px), espacement vertical harmonisé entre caméra et résultat, icône caméra blanche réduite à 32 px. Animations et reconnaissance inchangées."
+  "assets": 80,
+  "notes": "Marge caméra/statut stabilisée, trois trajectoires prolongées par tangentes, filaments de fond affinés de 18 %, verre 1,25 px, ramifications aléatoires indépendantes renforcées sur les trois branches. Contours et reconnaissance préservés."
 }

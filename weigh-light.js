@@ -1,4 +1,4 @@
-/* Inventaires U 42.76 — chrome : trajectoires d’origine, limitées au résultat.
+/* Inventaires U 42.80 — chrome : fibres fines, ramifications et raccords continus.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -12,6 +12,7 @@
  const isPanelChrome=isGross||isOuter||isBackdrop;
  const isGemini=isPanelChrome||overlay.id==='iuGeminiCameraShell';
  const contourBoost=0;
+ const backdropWidthScale=.82;
  const guide=isBackdrop||isOuter?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
  const canvas=isBackdrop||isOuter?overlay:guide?.querySelector('.iu-weight-light');
@@ -98,18 +99,20 @@
   const cx=b.x+b.w/2,cy=b.y+b.h/2;
   const pts=motion.local.map(p=>({x:(cx+(p.x-cx)*sx+tx*b.w)*width,
    y:(cy+(p.y-cy)*sy+ty*b.h)*height}));
-  if(motion.index===2){
-   // Extend along the endpoint tangents, never along a horizontal shelf.
-   // Translate the whole curve when needed, preserving all its curvature.
+  {
+   // Chaque branche traverse les côtés du canvas avant le clip du résultat.
+   // Prolonger les tangentes évite la coupure prématurée et les plats.
    const first=pts[0],next=pts[1],last=pts[pts.length-1],prev=pts[pts.length-2];
-   const left=Math.min(-4,first.x-4),right=Math.max(width+4,last.x+4);
+   const left=Math.min(-12,first.x-4),right=Math.max(width+12,last.x+4);
    const slope=(a,b)=>Math.abs(b.x-a.x)>.001?(b.y-a.y)/(b.x-a.x):0;
    pts.unshift({x:left,y:first.y+(left-first.x)*slope(first,next)});
    pts.push({x:right,y:last.y+(right-last.x)*slope(prev,last)});
-   const maxY=Math.max(...pts.map(p=>p.y));
-   // A differentiable soft maximum avoids a stop at the lower limit.
-   const d=maxY-(height-8),shift=(d+Math.sqrt(d*d+16))/2;
-   for(const p of pts)p.y-=shift;
+   if(motion.index===2){
+    const maxY=Math.max(...pts.map(p=>p.y));
+    // Plafond doux du bas seulement, sans déformer les courbes.
+    const d=maxY-(height-8),shift=(d+Math.sqrt(d*d+16))/2;
+    for(const p of pts)p.y-=shift;
+   }
   }
   return pts;
  }
@@ -207,7 +210,7 @@
   ctx.lineJoin='round';
   ctx.lineWidth=widthPx+contourBoost;
   ctx.globalAlpha=alpha;
-  if(isBackdrop){ctx.fillStyle=color;ctx.fill(backgroundBaseShape(laneIndex,widthPx,laneIndex===0?.06:laneIndex===1?.04:.03));}
+  if(isBackdrop){ctx.fillStyle=color;ctx.fill(backgroundBaseShape(laneIndex,widthPx*backdropWidthScale,laneIndex===0?.06:laneIndex===1?.04:.03));}
   else ctx.stroke(line||lanes[laneIndex].line);
   ctx.restore();
  }
@@ -245,6 +248,7 @@
   return positions;
  }
  function drawRibbon(points,widthPx,color,opacity,blur,blend='screen',outset=0){
+  if(isBackdrop){widthPx*=backdropWidthScale;outset*=backdropWidthScale;blur*=.8;}
   const shape=new Path2D();
   for(let i=0;i<points.length;i++){
    const p=points[i];
@@ -298,9 +302,9 @@
  const range=(min,max)=>min+(max-min)*Math.random();
  function spawnWave(t){
   return {born:t,life:range(1.25,3.2),center:Math.random(),
-   lane:Math.floor(range(0,9)),span:range(.027,.072),amplitude:range(.85,2.2),
+   lane:Math.floor(range(0,9)),span:isBackdrop?range(.045,.10):range(.027,.072),amplitude:isBackdrop?range(3.2,6.2):range(.85,2.2),
    phase:range(0,TWO_PI),cycles:range(1.0,1.65),frequency:range(.65,1.3),
-   travel:range(-.018,.018),width:range(.26,.48),opacity:range(.16,.34),
+   travel:range(-.018,.018),width:isBackdrop?range(.34,.56):range(.26,.48),opacity:isBackdrop?range(.32,.55):range(.16,.34),
    shade:waveShades[Math.floor(range(0,waveShades.length))]};
  }
  function advanceWaves(t){
@@ -346,9 +350,10 @@
  let innerWaves=[],nextInnerWaveAt=null;
  function spawnInnerWave(t){
   return {born:t,life:range(1.8,4.2),center:Math.random(),span:range(.10,.22),
-   amplitude:range(.5,1.4),phase:range(0,TWO_PI),cycles:range(.7,1.2),
-   frequency:range(.45,.9),travel:range(-.012,.012),width:range(.24,.42),
-   opacity:range(.10,.22),shade:waveShades[Math.floor(range(0,waveShades.length))]};
+   amplitude:isBackdrop?range(2.2,4.4):range(.5,1.4),phase:range(0,TWO_PI),cycles:range(.7,1.2),
+   frequency:range(.45,.9),travel:range(-.012,.012),width:isBackdrop?range(.30,.50):range(.24,.42),
+   opacity:isBackdrop?range(.25,.43):range(.10,.22),shade:waveShades[Math.floor(range(0,waveShades.length))],
+   side:isBackdrop&&Math.random()<.5?-1:1};
  }
  function advanceInnerWaves(t){
   innerWaves=innerWaves.filter(w=>t-w.born<w.life);
@@ -364,14 +369,15 @@
   const span=w.span*(.45+.55*lifeEnvelope),positions=[],samples=84;
   // Stay within the perimeter gutter; closest internal rectangle starts
   // at 2% of guide height (barcode/total bottom).
-  const safeDepth=isPanelChrome?2.0:Math.max(0,Math.min(2.0,(height-12)*.02-.55));
+  const safeDepth=isBackdrop?5.0:isPanelChrome?2.0:Math.max(0,Math.min(2.0,(height-12)*.02-.55));
   for(let i=0;i<=samples;i++){
    const s=i/samples,u=center+(s-.5)*span,p=basePoint(u);
    const envelope=Math.pow(Math.sin(Math.PI*s),1.45)*endFade(u)*(isBackdrop?centreThickness(u):1);
    const oscillation=.76*Math.sin(TWO_PI*(w.cycles*age+w.frequency*s)+w.phase)
     +.24*Math.sin(TWO_PI*(.5*age+1.25*s)-w.phase);
    const depth=Math.min(safeDepth,(.42+w.amplitude*(.55+.45*oscillation)))*lifeEnvelope*envelope;
-   positions.push({x:p.x-p.nx*depth,y:p.y-p.ny*depth,nx:p.nx,ny:p.ny,envelope});
+   const side=isBackdrop?w.side:1;
+   positions.push({x:p.x-p.nx*depth*side,y:p.y-p.ny*depth*side,nx:p.nx,ny:p.ny,envelope});
   }
   return {positions,lifeEnvelope,center,span,safeDepth};
  }
@@ -431,7 +437,8 @@
   for(const motion of motionPaths){
    openPoints=projectMotion(motion,t);
    looseFibres=motion.loose;innerWaves=motion.inner;nextWaveAt=motion.next;nextInnerWaveAt=motion.nextInner;
-   // Exactly the same painting function, widths, palette and life cycles.
+   // Même moteur et palette, fibres de fond affinées ; chaque branche
+   // possède ses propres courtes et longues ramifications aléatoires.
    paintChrome(t);
    motion.loose=looseFibres;motion.inner=innerWaves;motion.next=nextWaveAt;motion.nextInner=nextInnerWaveAt;
   }

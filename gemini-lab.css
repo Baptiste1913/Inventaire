@@ -1661,7 +1661,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
 /* Empêcher les deux couches décoratives de recouvrir le titre, le panier,
    le viseur, les champs, les bilans ou les boutons de validation. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
- > :not(.iu-gemini-frame-gradient):not(.iu-gemini-frame-surface):not(.iu-gemini-hidden-photo-input):not(.iu-gemini-title-badge):not(#iuGeminiOuterChrome) {
+ > :not(.iu-gemini-frame-gradient):not(.iu-gemini-frame-surface):not(.iu-gemini-hidden-photo-input):not(.iu-gemini-title-badge):not(:where(#iuGeminiLabStatus)):not(#iuGeminiOuterChrome) {
  position:relative!important;
  z-index:2!important;
 }
@@ -5920,7 +5920,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > .iu-gemini-clear-glass {
  position:absolute!important;
- inset:5px 0 0!important;
+ inset:0!important;
  width:auto!important;height:auto!important;
  margin:0!important;padding:0!important;
  border:0!important;border-radius:20px!important;
@@ -5929,8 +5929,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;
  pointer-events:none!important;
  z-index:1!important;
- -webkit-backdrop-filter:blur(2px)!important;
- backdrop-filter:blur(2px)!important;
+ -webkit-backdrop-filter:blur(1.25px)!important;
+ backdrop-filter:blur(1.25px)!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
@@ -6086,4 +6086,15 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > #iuGeminiLabelAlert + .iu-result-glow-shell.iu-gemini-label-shell {
  margin-top:1px!important;
+}
+
+/* v42.80 — le diagnostic détaillé reste accessible sans créer de rangée
+   flex supplémentaire quand la caméra ou la lecture change d'état. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > #iuGeminiLabStatus.iu-gemini-lab-status:not(:empty) {
+ position:absolute!important;display:block!important;flex:none!important;
+ width:1px!important;height:1px!important;min-height:0!important;
+ margin:-1px!important;padding:0!important;border:0!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
+ pointer-events:none!important;
 }
