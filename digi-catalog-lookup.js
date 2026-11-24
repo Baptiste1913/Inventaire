@@ -394,7 +394,7 @@
   if(base)sources.push({mask:base,weight:3});
   for(const o of (Array.isArray(observations)?observations:[]).slice(0,6)){
    const mask=observedPattern(o?.pattern||o?.ean13);
-   if(mask)sources.push({mask,weight:o.source==='optical-partial'?2:1});
+   if(mask)sources.push({mask,weight:o.source==='optical-partial'?2:o.source==='digit-template'?.35:1});
    if(Array.isArray(o?.bitRows))rows.push(...o.bitRows.slice(0,8));
    if(Array.isArray(o?.digitOptions)&&o.digitOptions.length===13)alternatives.push(o.digitOptions);
   }
@@ -429,7 +429,9 @@
     const optical=barDistance(code,rows);
     let ocrLoss=0;
     for(const option of alternatives)for(let i=0;i<13;i++){
-     const opts=option[i];if(Array.isArray(opts)&&opts.length&& !opts.some(x=>String(x?.digit)===code[i]))ocrLoss++;
+     const opts=option[i];if(!Array.isArray(opts)||!opts.length||code[i]==='?')continue;
+     const rank=opts.findIndex(x=>String(x?.digit)===code[i]);
+     ocrLoss+=rank<0?1:rank*.25;
     }
     const score=loss*4+(optical??0)*1.5+ocrLoss+(1-(item.nameScore||0))*3;
     if(!best||score<best.score)best={code,score,barDistance:optical};

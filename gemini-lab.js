@@ -1316,6 +1316,7 @@
     +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
     +(result.networkFailure?' · '+String(result.networkFailure.stage||'réseau')+' / '+Number(result.networkFailure.attempts||0)+' tentative(s)':'')
     +(result.digiPlan?' · DIGI : '+result.digiPlan.candidateCount+' candidat(s), '+result.digiPlan.observationCount+' observations, '+result.digiPlan.barRows+' lignes':'')
+    +(result.digiDigitHint?' · OCR chiffres (indice) '+result.digiDigitHint:'')
     +(result.digiPlan?.positions?.length?' · EAN positions '+result.digiPlan.positions.join(', '):'')
     +(result.digiPlan?.ranges?.weight?' · plage poids '+result.digiPlan.ranges.weight.min+'–'+result.digiPlan.ranges.weight.max+' g':'')
     +(result.digiPlan?.ranges?.rate?' · plage tarif '+result.digiPlan.ranges.rate.min+'–'+result.digiPlan.ranges.rate.max+' ct/kg':'')
@@ -1612,7 +1613,7 @@
    const until=(task,deadline)=>latency?latency.until(task,deadline):
     task?Promise.race([task.promise,new Promise(resolve=>setTimeout(()=>resolve(null),Math.max(0,deadline-performance.now())))]):Promise.resolve(null);
    const opticalTask=track(job);
-   let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null;
+   let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null,digitJob=null;
    const stillCurrent=()=>id===generation&&active&&!currentAbort.signal.aborted;
    function startPrinted(){
     if(printedJob||!stillCurrent()||targetField||localBarcode?.ambiguous||
@@ -1634,6 +1635,7 @@
     if(!stillCurrent()||targetField||reading?.ambiguous||trustedBarcodeEvidence(reading))return;
     startPrinted();
     if(!partialJob)partialJob=track(window.IUGeminiParallel?.partial?.(sourcePhoto)||null);
+    if(!digitJob)digitJob=track(window.IUGeminiParallel?.digits?.(sourcePhoto,reading)||null);
     if(!paddleJob){
      const engine=window.IULiteRTLab?.enabled?.()?window.IULiteRTLab:window.IUPaddleLab;
      paddleJob=track(engine?.read?.(sourcePhoto,reading)||null);
@@ -1766,10 +1768,11 @@
    }
    if(resumeFields?.length)targets=[];
    if(targets.length){
-    const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value].filter(Boolean);
+    // The synthetic-trained OCR is an advisory observation only. Never fuse its mask into the primary reading.
+    const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value,digitJob?.value].filter(Boolean);
     try{
      const history=window.IUDigiRecentReferences?.()||[];
-     combined={...combined,digiPlan:window.IUDigiCatalogLookup?.solveHypotheses?.(combined,{observations,history})};
+     combined={...combined,digiDigitHint:digitJob?.value?.pattern||null,digiPlan:window.IUDigiCatalogLookup?.solveHypotheses?.(combined,{observations,history})};
     }catch(_){}
    }
    if(targets.length){

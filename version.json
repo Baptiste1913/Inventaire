@@ -1,6 +1,6 @@
 {
-  "version": "42.49",
+  "version": "42.50",
   "published": "2026-11-24",
-  "assets": 67,
-  "notes": "Gemini 3.5 Flash-Lite seul : réessais 503 bornés, temporisation aléatoire, circuit de protection, diagnostic et reprise des champs interrompus. DIGI : hypothèses par contraintes, distances des barres EAN, alternatives OCR, intervalles mathématiques, contexte local non probant, validation finale inchangée et contrôle du montant EAN à la sauvegarde. Redéployer le Worker Cloudflare."
+  "assets": 68,
+  "notes": "OCR DIGI de chiffres expérimental : comparaison de glyphes, classificateur préentraîné adapté à 4 000 caractères synthétiques, lecture locale accentuée et hypothèses pour le moteur de contraintes. Générateur d’étiquettes annotées et outil d’adaptation reproductible. JPEG Gemini et contrôles inchangés ; aucun nouveau redéploiement Cloudflare requis après v42.49."
 }

@@ -6,6 +6,7 @@ importScripts('./gemini-recognition-core.js?v=42.45');
 importScripts('./gemini-ean.js?v=42.49');
 importScripts('./gemini-label-geometry.js?v=42.33');
 importScripts('./gemini-zxing.js?v=42.36');
+importScripts('./digi-digit-ocr.js?v=42.50');
 function zoneToPixels(rect,w,h){
  if(!rect)return null;
  return {
@@ -181,6 +182,7 @@ self.onmessage=async event=>{
  if(!Number.isSafeInteger(id))return;
  if(kind==='warm-zxing'){
   // Compiler le moteur sans photo et sans retarder le viseur.
+  try{self.IUDigiDigitOCR?.warm?.();}catch(_){}
   try{await self.IUZxingEAN?.warm?.();}catch(_){}
   return;
  }
@@ -201,6 +203,7 @@ self.onmessage=async event=>{
    if(!result)result=await self.IUGeminiEAN.read(photo);
   }
   else if(kind==='partial')result=await self.IUGeminiEAN.readPartial?.(photo)||null;
+  else if(kind==='digit-template')result=await self.IUDigiDigitOCR?.read(photo,reading)||null;
   else if(kind==='enhanced-detail')result=await enhancedDetail(photo,reading);
   self.postMessage({id,result});
  }catch(_){
