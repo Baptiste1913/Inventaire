@@ -217,7 +217,7 @@ assert(chromeHalos.includes('width:52%!important;height:46%!important;'));
 assert(chromeHalos.includes('filter:blur(29px)!important;'));
 assert(chromeHalos.includes('rgba(87,87,87,0.592)'));
 assert(backdrop.includes('opacity:.88!important;'));
-assert(backdrop.includes('opacity:.43!important;'),'Quadrillage inchangé');
+assert(backdrop.includes('opacity:.43!important;'),'Opacité de secours conservée');
 assert(backdrop.includes('backdrop-filter:none!important;'),'Pas de filtre dynamique Safari');
 assert(fs.readFileSync('gemini-chrome-halos.js','utf8').includes('opacity:range(.72,1)'));
 console.log('OK : six fibres chromées par vague, voile allégé, halos plus petits et plus lumineux');
@@ -232,16 +232,27 @@ assert(glassStyle.includes('position:absolute!important;'));
 assert(glassStyle.includes('inset:5px 0 0!important;'));
 assert(glassStyle.includes('z-index:1!important;'));
 assert(css.slice(css.indexOf('/* v42.67')).includes('z-index:2!important;'));
-assert(glassStyle.includes('backdrop-filter:blur(25px)!important;'));
+assert(glassStyle.includes('backdrop-filter:blur(10px)!important;'));
 assert(glassStyle.includes('pointer-events:none!important;'));
 assert(glassStyle.includes('overflow:hidden!important;'));
 assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.67'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.67'));
+assert(markup.includes('gemini-lab.css?v=42.68'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.68'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
-assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(25px)!important;'));
+assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(10px)!important;'));
+
+{
+ const dotStyle=css.slice(css.indexOf('/* v42.68'));
+ assert(dotStyle.includes('filter:none!important;'));
+ assert(dotStyle.includes('-webkit-backdrop-filter:none!important;'));
+ assert(dotStyle.includes('opacity:.68!important;'));
+ assert(css.includes('rgba(92,121,147,.14) 0 .40px'));
+ assert(css.includes('transparent 1px)!important;'));
+ assert(dotStyle.includes('prefers-reduced-transparency:reduce'));
+ console.log('OK : trame nette, intensité renforcée, verre 10 px');
+}

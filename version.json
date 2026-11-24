@@ -1,6 +1,6 @@
 {
-  "version": "42.67",
+  "version": "42.68",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Correction du flou DIGI : le verre 25 px passe au-dessus des filaments, sous les contenus. Filaments nets hors panneau, floutés à travers le verre, sans voile blanc. Reconnaissance et animations inchangées."
+  "notes": "Verre du panneau DIGI : flou 25 → 10 px. Quadrillage de points net, plus contrasté et plus fin, calque animé sans filtre. Filaments, halos, contours et OCR inchangés."
 }

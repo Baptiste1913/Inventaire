@@ -4831,7 +4831,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
  background-color:transparent!important;
  background-image:
-  radial-gradient(circle,rgba(92,121,147,.042) .40px,rgba(92,121,147,.026) .96px,rgba(92,121,147,.009) 1.55px,transparent 2.15px)!important;
+  radial-gradient(circle,rgba(92,121,147,.14) 0 .40px,rgba(92,121,147,.095) .55px,rgba(92,121,147,.025) .85px,transparent 1px)!important;
  background-size:28px 28px!important;
  background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
  background-repeat:repeat!important;
@@ -5929,8 +5929,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;
  pointer-events:none!important;
  z-index:1!important;
- -webkit-backdrop-filter:blur(25px)!important;
- backdrop-filter:blur(25px)!important;
+ -webkit-backdrop-filter:blur(10px)!important;
+ backdrop-filter:blur(10px)!important;
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
@@ -5964,4 +5964,26 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
  z-index:2!important;
+}
+
+/* v42.68 — trame fine et nette, au-dessus du verre 10 px.
+   Le quadrillage ne participe plus à aucun flou de composition. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field,
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
+ filter:none!important;
+ -webkit-filter:none!important;
+ backdrop-filter:none!important;
+ -webkit-backdrop-filter:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
+ opacity:.68!important;
+}
+@media(prefers-reduced-transparency:reduce), (forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
+  opacity:.43!important;
+ }
 }
