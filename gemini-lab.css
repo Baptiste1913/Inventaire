@@ -3123,46 +3123,39 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  border:0!important;
  pointer-events:none!important;
 }
-/* Rouge Gemini en haut à gauche : intensité d'origine du rouge classique
-   .57/.28/.086. */
+/* Reflets diffus argent/acier : réservés au panneau DIGI.
+   Les quatre éléments d'origine restent en place, mais ne portent
+   plus aucune teinte rouge, jaune, verte ou bleue. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-home-glow-red {
- left:-15%!important;right:auto!important;
- top:-20%!important;bottom:auto!important;
+ left:-12%!important;right:auto!important;
+ top:-18%!important;bottom:auto!important;
  width:clamp(195px,60%,320px)!important;
  height:clamp(190px,59%,315px)!important;
  background:radial-gradient(ellipse at 47% 49%,
-  rgba(237,77,85,.228) 0%,rgba(237,77,85,.112) 33%,
-  rgba(237,77,85,.0344) 63%,transparent 91%)!important;
- animation:iuHomeBackdropRed 10s ease-in-out -2s infinite!important;
+  rgba(87,87,87,.24) 0%,rgba(125,125,125,.12) 35%,rgba(170,170,170,.035) 64%,transparent 91%)!important;
+ animation:iuChromeBackdropA 19s ease-in-out -2s infinite!important;
 }
-/* Jaune Gemini au milieu du côté gauche : puissance identique au bleu
-   classique (.55/.27/.083), animation lente et décalée. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-gemini-glow-yellow {
- left:-19%!important;right:auto!important;
- top:25%!important;bottom:auto!important;
+ left:-15%!important;right:auto!important;
+ top:24%!important;bottom:auto!important;
  width:clamp(185px,59%,300px)!important;
  height:clamp(170px,49%,295px)!important;
  background:radial-gradient(ellipse at 47% 51%,
-  rgba(249,192,23,.22) 0%,rgba(249,192,23,.108) 37%,
-  rgba(249,192,23,.0332) 65%,transparent 94%)!important;
- animation:iuHomeBackdropBlue 13s ease-in-out -9s infinite!important;
+  rgba(255,255,255,.65) 0%,rgba(240,240,240,.32) 37%,rgba(225,225,225,.06) 65%,transparent 94%)!important;
+ animation:iuChromeBackdropB 23s ease-in-out -9s infinite!important;
 }
-/* Vert Gemini en bas du côté gauche, même diffusion .54/.28/.086. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-home-glow-green {
- left:-16%!important;right:auto!important;
- top:auto!important;bottom:-20%!important;
+ left:-10%!important;right:auto!important;
+ top:auto!important;bottom:-18%!important;
  width:clamp(190px,63%,325px)!important;
  height:clamp(195px,58%,320px)!important;
  background:radial-gradient(ellipse at 50% 51%,
-  rgba(12,183,104,.216) 0%,rgba(12,183,104,.112) 37%,
-  rgba(12,183,104,.0344) 65%,transparent 92%)!important;
- animation:iuHomeBackdropGreen 17s ease-in-out -11s infinite!important;
+  rgba(55,55,55,.20) 0%,rgba(100,100,100,.10) 37%,rgba(145,145,145,.025) 65%,transparent 92%)!important;
+ animation:iuChromeBackdropC 27s ease-in-out -11s infinite!important;
 }
-/* Bleu Gemini dominant sur la droite, .55/.27/.083 comme le bleu
-   classique, sans bord droit coupé net. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  .iu-gemini-label-glow-field > .iu-home-glow-blue {
  left:auto!important;right:-16%!important;
@@ -3170,9 +3163,8 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  width:clamp(270px,79%,480px)!important;
  height:115%!important;
  background:radial-gradient(ellipse at 58% 53%,
-  rgba(50,135,254,.22) 0%,rgba(50,135,254,.108) 37%,
-  rgba(50,135,254,.0332) 65%,transparent 94%)!important;
- animation:iuHomeBackdropBlue 13s ease-in-out -6s infinite!important;
+  rgba(150,150,150,.28) 0%,rgba(180,180,180,.14) 37%,rgba(205,205,205,.04) 65%,transparent 94%)!important;
+ animation:iuChromeBackdropB 31s ease-in-out -6s infinite!important;
 }
 /* result-card.css applique déjà exactement le verre/translucidité,
    les petits points et le motif diagonal du résultat classique. */
@@ -5780,10 +5772,10 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 }
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiLabelPanel #iuGeminiEmptyResult #iuGeminiGrossChrome .iu-gemini-gross-number > strong {
- font-size:clamp(32px,8.8vw,38px)!important;
+ font-size:clamp(30px,8.2vw,35px)!important;
  line-height:1!important;
- font-weight:950!important;
- -webkit-text-stroke:.18px currentColor;
+ font-weight:1000!important;
+ -webkit-text-stroke:.42px currentColor!important;
  font-variant-numeric:tabular-nums!important;
  letter-spacing:-.65px!important;
 }
@@ -5817,6 +5809,80 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  }
  html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  #iuGeminiLabelPanel #iuGeminiEmptyResult #iuGeminiGrossChrome > canvas.iu-gemini-gross-light {
+  display:none!important;
+ }
+}
+
+/* v42.61 — chrome liquide d'ambiance, derrière les contenus DIGI.
+   Trois vagues fines, reflets argent et anthracite, sans nouveau canvas. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-label-glow-field.iu-result-glow-field {
+ opacity:.62!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel > .iu-result-light-field > svg.iu-gemini-chrome-backdrop {
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;height:100%!important;
+ max-width:none!important;max-height:none!important;
+ overflow:hidden!important;
+ pointer-events:none!important;
+ opacity:.31!important;
+ filter:blur(.65px)!important;
+}
+.iu-gemini-chrome-backdrop > g {
+ transform-box:fill-box;
+ transform-origin:center;
+}
+.iu-gemini-chrome-backdrop > .iu-chrome-flow-a {
+ animation:iuChromeFlowA 17s ease-in-out -3s infinite;
+}
+.iu-gemini-chrome-backdrop > .iu-chrome-flow-b {
+ animation:iuChromeFlowB 23s ease-in-out -12s infinite;
+}
+.iu-gemini-chrome-backdrop > .iu-chrome-flow-c {
+ animation:iuChromeFlowC 29s ease-in-out -7s infinite;
+}
+@keyframes iuChromeBackdropA {
+ 0%,100%{transform:translate3d(-3%,-2%,0) scale(.96);opacity:.67}
+ 50%{transform:translate3d(7%,5%,0) scale(1.08);opacity:1}
+}
+@keyframes iuChromeBackdropB {
+ 0%,100%{transform:translate3d(4%,2%,0) scale(1.02);opacity:.85}
+ 40%{transform:translate3d(-5%,6%,0) scale(1.09);opacity:.58}
+ 72%{transform:translate3d(1%,-4%,0) scale(.98);opacity:.92}
+}
+@keyframes iuChromeBackdropC {
+ 0%,100%{transform:translate3d(0,4%,0) scale(1.02);opacity:.72}
+ 55%{transform:translate3d(6%,-6%,0) scale(1.12);opacity:.94}
+}
+@keyframes iuChromeFlowA {
+ 0%,100%{transform:translate(-3px,-5px) scale(1.02,.88);opacity:.32}
+ 40%{transform:translate(7px,6px) scale(1.04,1.13);opacity:.83}
+ 75%{transform:translate(-4px,2px) scale(1,.96);opacity:.53}
+}
+@keyframes iuChromeFlowB {
+ 0%,100%{transform:translate(6px,4px) scale(1.03,1);opacity:.43}
+ 38%{transform:translate(-7px,-5px) scale(1.06,.88);opacity:.76}
+ 73%{transform:translate(2px,7px) scale(1.01,1.12);opacity:.31}
+}
+@keyframes iuChromeFlowC {
+ 0%,100%{transform:translate(-5px,3px) scale(1.03,.94);opacity:.29}
+ 50%{transform:translate(6px,-7px) scale(1.04,1.15);opacity:.74}
+}
+@media(prefers-reduced-motion:reduce) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ .iu-gemini-label-glow-field > .iu-home-glow-orb,
+ .iu-gemini-chrome-backdrop > g {
+  animation:none!important;
+  transform:none!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce), (forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > .iu-gemini-label-glow-field.iu-result-glow-field,
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ #iuGeminiLabelPanel > .iu-result-light-field > svg.iu-gemini-chrome-backdrop {
   display:none!important;
  }
 }

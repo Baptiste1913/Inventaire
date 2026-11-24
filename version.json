@@ -1,6 +1,6 @@
 {
-  "version": "42.60",
+  "version": "42.61",
   "published": "2026-11-24",
   "assets": 73,
-  "notes": "Poids brut à vérifier : libellé 11 px, teinte #546f7d identique à Brut/Tare de la pesée classique ; valeur 32–38 px, graisse 950 et renforcement typographique discret. Hauteur 62 px, animation chrome et reconnaissance inchangées."
+  "notes": "Poids brut 30–35 px, graisse 1000 et renforcement réel par trait de .42 px. Fond DIGI chrome monochrome : quatre halos argent/acier et trois vagues fines indépendantes, mouvement réduit respecté. Pesée classique, contours et reconnaissance inchangés."
 }
