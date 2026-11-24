@@ -1,6 +1,6 @@
 {
-  "version": "43.05",
+  "version": "43.06",
   "published": "2026-11-24",
-  "assets": 105,
-  "notes": "Optimisation réseau AI : préparation Cloudflare sans photo, négociation binaire anticipée, compression d’enveloppe sans perte si mesurable, Gemini Priority avec repli explicite, diagnostics par requête et statistiques locales. CORS, capture, modèle et validation inchangés. Worker à redéployer séparément."
+  "assets": 106,
+  "notes": "Gemini Standard uniquement ; réflexion minimale explicite, métriques de tokens/cache. Expériences facultatives Vertex AI, secours retardé, JSON compact, streaming et réflexion Low en relecture. Capture, contrôles d'identité et CORS préservés. Worker à déployer séparément."
 }

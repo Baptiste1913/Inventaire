@@ -173,11 +173,71 @@ async function resilientGemini(url,options,{deadline,signal,now=Date.now,
    required:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved'],
    propertyOrdering:['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved']};
 
-const requestedTier=env=>env.GEMINI_SERVICE_TIER==='standard'?'standard':'priority';
-let priorityUnavailableUntil=0;
-function priorityRejected(status,text){
- return [400,403].includes(status)&&/service[_ -]?tier|priority (?:inference|tier)|tier.{0,20}priority/i.test(text)
-  &&/not supported|unsupported|not available|not eligible|not enabled|invalid|not allowed|requires|permission|unknown|only available|available only|unrecognized/i.test(text);
+const requestedTier=()=>'standard';
+const compactKeys={name:'n',weightKg:'w',pricePerKgEur:'p',totalEur:'t',ean13:'e',eanObserved:'o'};
+const compactSchema={...responseSchema,properties:Object.fromEntries(Object.entries(compactKeys).map(([k,v])=>[v,responseSchema.properties[k]])),required:Object.values(compactKeys),propertyOrdering:Object.values(compactKeys)};
+function expandReading(value,compact){
+ if(!compact)return value;
+ if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(compactKeys).some(k=>!Object.prototype.hasOwnProperty.call(value,compactKeys[k])))throw Error('JSON compact incomplet');
+ return Object.fromEntries(Object.entries(compactKeys).map(([k,v])=>[k,value[v]]));
+}
+function usageOf(data){
+ const usage=data?.usageMetadata||{},out={};
+ for(const k of ['promptTokenCount','candidatesTokenCount','thoughtsTokenCount','cachedContentTokenCount','totalTokenCount'])if(Number.isSafeInteger(usage[k])&&usage[k]>=0)out[k]=usage[k];
+ return out;
+}
+function vertexEndpoint(env,model){
+ if(!env.VERTEX_API_KEY)return null;
+ // Express key by default; a project-scoped key can use the explicit global endpoint.
+ const project=env.VERTEX_PROJECT_ID;
+ if(project&&!/^[a-z][a-z0-9-]{4,28}[a-z0-9]$|^\d{6,20}$/.test(project))return null;
+ return 'https://aiplatform.googleapis.com/v1/'+(project?'projects/'+project+'/locations/global/':'')+'publishers/google/models/'+model;
+}
+function routingMode(env,model){
+ return vertexEndpoint(env,model)&&['vertex','hedge'].includes(env.GEMINI_ROUTE)?env.GEMINI_ROUTE:'developer';
+}
+const vertexCircuit={failures:0,until:0,probing:false};
+let hedgeCooldown=0;
+async function readStream(res,signal){
+ const reader=res.body?.getReader();if(!reader)throw Error('Flux absent');
+ const decoder=new TextDecoder();let buffer='',answer='',finishReason=null,usageMetadata={},count=0,firstTokenMs=null;
+ const start=Date.now();
+ function event(line){
+  if(!line.startsWith('data:'))return;
+  const text=line.slice(5).trim();if(!text||text==='[DONE]')return;
+  const data=JSON.parse(text);if(data.error)throw Error('Erreur de flux');
+  const candidate=data.candidates?.[0];
+  for(const part of candidate?.content?.parts||[])if(!part.thought&&typeof part.text==='string'){
+   if(part.text&&firstTokenMs===null)firstTokenMs=Date.now()-start;
+   answer+=part.text;if(answer.length>5000)throw Error('Flux trop volumineux');
+  }
+  if(candidate?.finishReason)finishReason=candidate.finishReason;
+  if(data.usageMetadata)usageMetadata={...usageMetadata,...data.usageMetadata};
+ }
+ try{
+  for(;;){
+   if(signal.aborted)throw Error('Flux annulé');
+   const {value,done}=await reader.read();if(done)break;
+   count+=value.byteLength;if(count>131072)throw Error('Flux trop volumineux');
+   buffer+=decoder.decode(value,{stream:true});let i;
+   while((i=buffer.indexOf('\n'))>=0){event(buffer.slice(0,i).trimEnd());buffer=buffer.slice(i+1);}
+  }
+  buffer+=decoder.decode();if(buffer.trim())event(buffer.trimEnd());
+  if(finishReason!=='STOP'&&finishReason!=='MAX_TOKENS')throw Error('Flux incomplet');
+  return {data:{candidates:[{finishReason,content:{parts:[{text:answer}]}}],usageMetadata},firstTokenMs};
+ }finally{try{await reader.cancel();}catch(_){}reader.releaseLock();}
+}
+// A hedge may win only with a complete internally consistent reading.
+// The client still applies every existing identity and optical validation.
+function completeHedge(data,compact){
+ try{
+  const c=data?.candidates?.[0];if(c?.finishReason!=='STOP')return false;
+  const raw=(c.content?.parts||[]).filter(p=>!p.thought&&typeof p.text==='string').map(p=>p.text).join('');
+  const r=expandReading(JSON.parse(raw),compact);
+  if(!geminiLabName(r.name)||!validEAN13(r.ean13))return false;
+  const w=geminiLabValue(r.weightKg,'weight'),p=geminiLabValue(r.pricePerKgEur,'rate'),t=geminiLabValue(r.totalEur,'total');
+  return w!==null&&p!==null&&t!==null&&Math.abs(Math.round(w*p/1000)-t)<=1;
+ }catch(_){return false;}
 }
 async function decodeEnvelope(request){
  const bytes=await boundedBytes(request,800000);
@@ -208,8 +268,8 @@ async function geminiPilot(request,env,origin){
  }catch(_){return reply({...closed,error:'Image ou JSON invalide.'},400,origin)}
  const ingressMs=Date.now()-ingressStarted,validationStarted=Date.now();
  if(payload?.type==='iu-gemini-network-warmup'){
-  if(!env.GEMINI_API_KEY)return reply({...closed,error:'Gemini non configuré.'},503,origin);
-  return reply({type:'iu-gemini-network-warmup',transport:'binary-v1',gzipEnvelope:typeof DecompressionStream==='function',requestedTier:requestedTier(env)},200,origin);
+  if(!env.GEMINI_API_KEY&&!vertexEndpoint(env,'gemini-3.5-flash-lite'))return reply({...closed,error:'Gemini non configuré.'},503,origin);
+  return reply({type:'iu-gemini-network-warmup',transport:'binary-v1',gzipEnvelope:typeof DecompressionStream==='function',requestedTier:requestedTier(env),route:routingMode(env,'gemini-3.5-flash-lite')},200,origin);
  }
  const provider='gemini',model=payload?.model;
  if((payload?.provider&&payload.provider!=='gemini')||
@@ -219,7 +279,7 @@ async function geminiPilot(request,env,origin){
     typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
     payload.imageBase64.length<100||!validBase64(payload.imageBase64))
   return reply({...closed,error:'Modèle ou image JPEG incorrect.'},400,origin);
- if(!env.GEMINI_API_KEY)
+ if(!env.GEMINI_API_KEY&&!(routingMode(env,model)==='vertex'&&vertexEndpoint(env,model)))
   return reply({...closed,provider,error:'GEMINI_API_KEY non configurée.'},503,origin);
  const photoBytes=payload.imageBase64.length*3/4;
  if(photoBytes>525000)return reply({...closed,error:'Photo trop volumineuse.'},413,origin);
@@ -286,36 +346,85 @@ async function geminiPilot(request,env,origin){
   if(detail)imageParts.push(
    {text:'Image 2 : détail de la MEME photo (étiquette entière, code-barres ou zone numérique). Utilise la première image pour situer les champs et le détail pour relire les pixels.'},
    {inline_data:{mime_type:'image/jpeg',data:detail}});
-  const body={contents:[{role:'user',parts:[{text:prompt},...imageParts]}],
-   generationConfig:{temperature:0,maxOutputTokens:1024,responseMimeType:'application/json',responseSchema}};
-  const googleURL='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent';
-  const wanted=requestedTier(env);
-  let actualRequest=wanted==='priority'&&Date.now()>=priorityUnavailableUntil?'priority':'standard';
-  const options=tier=>({method:'POST',signal:abort.signal,
-   headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
-   body:JSON.stringify(tier==='priority'?{...body,service_tier:'priority'}:body)});
-  const requestOptions=options(actualRequest);
+  const compact=env.GEMINI_COMPACT_JSON==='true';
+  const streaming=env.GEMINI_STREAM==='true';
+  const thinkingLevel=focusFields.length&&env.GEMINI_RECOVERY_THINKING==='low'?'LOW':'MINIMAL';
+  // Preserve the literal production prompt; compact is an explicit experiment.
+  const effectivePrompt=compact?prompt+' Utilise les clés JSON courtes suivantes à la place des clés longues : '+JSON.stringify(compactKeys)+'.':prompt;
+  const body={contents:[{role:'user',parts:[{text:effectivePrompt},...imageParts]}],
+   generationConfig:{temperature:0,maxOutputTokens:1024,responseMimeType:'application/json',responseSchema:compact?compactSchema:responseSchema,thinkingConfig:{thinkingLevel}}};
+  const mode=routingMode(env,model);
+  const developer='https://generativelanguage.googleapis.com/v1beta/models/'+model;
+  const vertex=vertexEndpoint(env,model);
+  const method=streaming?':streamGenerateContent?alt=sse':':generateContent';
+  const serialized=JSON.stringify(body);
   const preparationMs=Date.now()-validationStarted,upstreamStarted=Date.now();
-  let attempt=await resilientGemini(googleURL,requestOptions,{deadline:started+budgetMs,signal:abort.signal});
-  let res=attempt.response,tierFallback=false;
-  // Explicit option rejection only; never replay successful or ambiguous requests.
-  // Preserve the original overall budget and retry limit.
-  if(actualRequest==='priority'&&res&&[400,403].includes(res.status)&&attempt.stats.attempts===1&&!abort.signal.aborted){
-   let rejection='';try{rejection=await res.text();}catch(_){}
-   if(priorityRejected(res.status,rejection)&&Date.now()<started+budgetMs-1500){
-    priorityUnavailableUntil=Date.now()+300000;tierFallback=true;actualRequest='standard';
-    const previous=attempt.stats;
-    attempt=await resilientGemini(googleURL,options('standard'),{deadline:started+budgetMs,signal:abort.signal,maxAttempts:2});
-    res=attempt.response;
-    attempt.stats={...attempt.stats,attempts:previous.attempts+attempt.stats.attempts,retries:previous.retries+attempt.stats.retries,
-     upstream503:previous.upstream503+attempt.stats.upstream503,waitMs:previous.waitMs+attempt.stats.waitMs};
+  const controllers=[];
+  const stopAll=()=>controllers.forEach(c=>c.abort());
+  abort.signal.addEventListener('abort',stopAll,{once:true});
+  async function call(route,maxAttempts){
+   const control=new AbortController();controllers.push(control);
+   if(abort.signal.aborted)control.abort();
+   const url=(route==='vertex'?vertex:developer)+method;
+   const key=route==='vertex'?env.VERTEX_API_KEY:env.GEMINI_API_KEY;
+   const began=Date.now();
+   const attempt=await resilientGemini(url,{method:'POST',signal:control.signal,
+    headers:{'Content-Type':'application/json','x-goog-api-key':key},body:serialized},
+    {deadline:started+budgetMs,signal:control.signal,circuit:route==='vertex'?vertexCircuit:geminiCircuit,maxAttempts});
+   const res=attempt.response,headersMs=Date.now()-began;let data=null,firstTokenMs=null,bodyError=false;
+   if(res?.ok){
+    try{
+     if(streaming){const stream=await readStream(res,control.signal);data=stream.data;firstTokenMs=stream.firstTokenMs===null?null:headersMs+stream.firstTokenMs;}
+     else{const raw=await res.text();if(raw.length>16000)throw Error('Réponse trop volumineuse');data=JSON.parse(raw);}
+    }catch(_){bodyError=true;}
    }
+   return {route,attempt,res,data,headersMs,firstTokenMs,bodyError,totalMs:Date.now()-began,control};
   }
+  let selected,hedgeStarted=false,hedgeWinner=false;
+  try{
+   const canHedge=mode==='hedge'&&!focusFields.length&&Date.now()>=hedgeCooldown&&budgetMs>=5000;
+   if(!canHedge)selected=await call(mode==='vertex'?'vertex':'developer',3);
+   else{
+    // Only one extra inference, same serialized request, no stale photo.
+    // Delay is configurable for a controlled comparison, not a default race.
+    const delay=Math.max(1200,Math.min(5000,Number(env.GEMINI_HEDGE_DELAY_MS)||2200));
+    let timer;
+    const primary=call('developer',1);
+    const first=await Promise.race([primary.then(value=>({value})),new Promise(resolve=>{timer=setTimeout(()=>resolve(null),delay);})]);
+    clearTimeout(timer);
+    if(first)selected=first.value;
+    else if(abort.signal.aborted)selected=await primary;
+    else{
+     hedgeStarted=true;
+     const secondary=call('vertex',1);
+     const raced=await Promise.race([primary,secondary]);
+     if(raced.route==='vertex'&&raced.res?.ok&&completeHedge(raced.data,compact)){
+      selected=raced;hedgeWinner=true;
+     }else if(raced.route==='developer'&&raced.res?.ok&&!raced.bodyError){
+      selected=raced;
+     }else{
+      const main=await primary;
+      selected=main;
+      // If the principal failed, accept only a complete secondary response.
+      if(!main.res?.ok||main.bodyError){
+       const backup=await secondary;
+       if(backup.res?.ok&&completeHedge(backup.data,compact)){selected=backup;hedgeWinner=true;}
+      }
+     }
+     if(!selected.res?.ok||selected.attempt.stats.upstream503)hedgeCooldown=Date.now()+30000;
+    }
+   }
+  }finally{
+   // Response bodies have already been collected; abort only outstanding work.
+   stopAll();abort.signal.removeEventListener('abort',stopAll);
+  }
+  const res=selected.res,attempt=selected.attempt;
   networkStats=attempt.stats;
-  const upstreamMs=Date.now()-upstreamStarted;
-  const confirmedTier=res?.headers?.get('x-gemini-service-tier')?.toLowerCase();
-  const serviceTier=['priority','standard'].includes(confirmedTier)?confirmedTier:'unknown';
-  const googleMeta={requestedTier:wanted,sentTier:actualRequest,serviceTier,tierFallback};
+  const upstreamMs=selected.headersMs,responseMs=Math.max(0,selected.totalMs-upstreamMs),routingWallMs=Date.now()-upstreamStarted;
+  const processingStarted=Date.now();
+  const googleMeta={requestedTier:'standard',sentTier:'standard',serviceTier:res?.headers?.get('x-gemini-service-tier')==='standard'?'standard':'unknown',
+   inferenceRoute:selected.route,routingMode:mode,hedgeStarted,hedgeWinner,thinkingLevel,compact,streaming,
+   firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data)};
   if(!res){
    const status=abort.signal.aborted||networkStats.stage==='timeout'?504:503;
    return reply({...closed,provider,model,networkStats,error:networkStats.stage==='circuit_open'?
@@ -335,11 +444,8 @@ async function geminiPilot(request,env,origin){
    return reply({...closed,error:diagnostic,providerStatus:status,model,networkStats},outputStatus,origin);
   }
   providerAnswered=true;
-  const responseStarted=Date.now();
-  const raw=await res.text();
-  const responseMs=Date.now()-responseStarted,processingStarted=Date.now();
-  if(raw.length>16000)throw Error('Réponse trop volumineuse');
-  const data=JSON.parse(raw);
+  if(selected.bodyError||!selected.data)throw Error('Réponse incomplète');
+  const data=selected.data;
   const candidate=data?.candidates?.[0];
   // Une réponse interrompue par la limite de tokens ne peut pas être
   // interprétée comme une étiquette fiable, même si le JSON est partiel.
@@ -347,7 +453,7 @@ async function geminiPilot(request,env,origin){
    return reply({...closed,error:'Réponse Gemini incomplète (limite de génération). Recadrez l’étiquette et réessayez.',
     model},422,origin);
   const parts=candidate?.content?.parts||[];
-  const answer=parts.filter(p=>typeof p?.text==='string').map(p=>p.text).join('');
+  const answer=parts.filter(p=>!p?.thought&&typeof p?.text==='string').map(p=>p.text).join('');
   if(!answer.trim())
    return reply({...closed,error:'Réponse Gemini vide. Centrez l’étiquette et réessayez.',
     model},422,origin);
@@ -366,6 +472,7 @@ async function geminiPilot(request,env,origin){
      model},422,origin);
    }
   }
+  extracted=expandReading(extracted,compact);
   if(!extracted||typeof extracted!=='object'||Array.isArray(extracted))throw Error('JSON non reconnu');
   const weightGrams=geminiLabValue(extracted.weightKg,'weight');
   const pricePerKgCents=geminiLabValue(extracted.pricePerKgEur,'rate');
@@ -388,7 +495,7 @@ async function geminiPilot(request,env,origin){
    ?Math.abs(priceFromEAN-totalCents)<=1:null;
   return reply({...closed,provider,model,pipelineVersion:2,transport:'binary-v1',gzipEnvelope:typeof DecompressionStream==='function',
    focusField:focus,focusFields,elapsedMs:Date.now()-started,networkStats,...googleMeta,
-   serverTimings:{ingressMs,preparationMs,upstreamMs,responseMs,processingMs:Date.now()-processingStarted},
+   serverTimings:{ingressMs,preparationMs,upstreamMs,responseMs,routingWallMs,processingMs:Date.now()-processingStarted},
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    eanObserved,contextCandidates:catalogCandidates.length,
    checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null,

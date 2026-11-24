@@ -118,8 +118,10 @@
    lines.push('Médiane / P95 échange : '+fmt(quantile(samples.map(x=>x.ms),.5))+' / '+fmt(quantile(samples.map(x=>x.ms),.95)));
    lines.push('Dernière requête : '+latest.ms+' ms · '+latest.bytes+' octets · '+latest.transport);
    lines.push('Gemini demandé : '+latest.requested+' · confirmé : '+latest.tier);
-   lines.push('Priority confirmé : '+samples.filter(x=>x.tier==='priority').length+' / '+samples.length);
-   if(latest.server)lines.push('Worker : entrée '+fmt(latest.server.ingressMs)+' · préparation '+fmt(latest.server.preparationMs)+' · Google (réseau + calcul) '+fmt(latest.server.upstreamMs)+' · réponse '+fmt(latest.server.responseMs)+' · traitement '+fmt(latest.server.processingMs));
+   lines.push('Infrastructure : '+latest.route+' · secours '+samples.filter(x=>x.hedge).length+' / '+samples.length+' · gagnés '+samples.filter(x=>x.winner).length);
+   if(latest.usage)lines.push('Tokens : entrée '+(latest.usage.promptTokenCount??'—')+' · sortie '+(latest.usage.candidatesTokenCount??'—')+' · réflexion '+(latest.usage.thoughtsTokenCount??'—')+' · cache '+(latest.usage.cachedContentTokenCount??'—'));
+   if(latest.thinking)lines.push('Réflexion '+latest.thinking+' · JSON '+(latest.compact?'compact':'normal')+' · '+(latest.streaming?'streaming':'normal')+(Number.isFinite(latest.firstToken)?' · premier token '+latest.firstToken+' ms':''));
+   if(latest.server)lines.push('Worker : entrée '+fmt(latest.server.ingressMs)+' · préparation '+fmt(latest.server.preparationMs)+' · Google (réseau + calcul) '+fmt(latest.server.upstreamMs)+' · réponse '+fmt(latest.server.responseMs)+' · traitement '+fmt(latest.server.processingMs)+(Number.isFinite(latest.server.routingWallMs)?' · attente totale '+fmt(latest.server.routingWallMs):''));
   }
   node.textContent=lines.join(' | ');
  }
@@ -1465,7 +1467,7 @@
    const tier=['priority','standard'].includes(result.serviceTier)?result.serviceTier:'non confirmé';
    const requested=['priority','standard'].includes(result.requestedTier)?result.requestedTier:'non communiqué';
    try{
-    networkSamples.push({ms,bytes:packet.size??null,transport:protocol,tier,requested,server:result.serverTimings||null});
+    networkSamples.push({ms,bytes:packet.size??null,transport:protocol,tier,requested,server:result.serverTimings||null,route:result.inferenceRoute||'developer (ancien Worker)',hedge:result.hedgeStarted===true,winner:result.hedgeWinner===true,usage:result.usage||null,thinking:result.thinkingLevel,compact:result.compact,streaming:result.streaming,firstToken:result.firstTokenMs});
     if(networkSamples.length>100)networkSamples.shift();
     renderNetworkDiagnostic();
    }catch(_){}

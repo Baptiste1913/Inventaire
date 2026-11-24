@@ -18,24 +18,19 @@ function setup(queue){
  const request=(body,token='test',type='application/json',overrides={})=>ctx.worker.fetch(new Request(endpoint,{method:'POST',headers:{Origin:origin,'X-IU-Pilot-Key':token,'Content-Type':type},body:type==='application/json'?JSON.stringify(body):body}),{...env,...overrides});
  return {ctx,calls,request};
 }
-let a=setup([success('priority')]);
+let a=setup([success('standard')]);
 let r=await a.request({type:'iu-gemini-network-warmup'});
 assert.equal(r.status,200);assert.equal(a.calls.length,0);
 assert.equal((await r.json()).gzipEnvelope,true);
 assert.equal((await a.request({type:'iu-gemini-network-warmup'},'wrong')).status,401);
 r=await a.request(payload);let data=await r.json();
-assert.equal(data.serviceTier,'priority');assert.equal(a.calls[0].service_tier,'priority');
+assert.equal(data.requestedTier,'standard');assert.equal(a.calls[0].service_tier,undefined);
+assert.equal(a.calls[0].generationConfig.thinkingConfig.thinkingLevel,'MINIMAL');
 assert.equal(data.fields.weightGrams,264);assert(r.headers.get('Server-Timing'));
 assert.equal(a.calls[0].contents[0].parts[1].inline_data.data,imageBase64);
-a=setup([success('standard')]);data=await (await a.request(payload)).json();
-assert.equal(a.calls.length,1);assert.equal(data.serviceTier,'standard');
-a=setup([new Response('service_tier priority not available for this project',{status:400}),success('standard'),success('standard')]);
-data=await (await a.request(payload)).json();assert.equal(data.tierFallback,true);assert.equal(data.networkStats.attempts,2);
-assert.deepEqual(a.calls[0].contents,a.calls[1].contents);assert.equal(a.calls[1].service_tier,undefined);
-await a.request(payload);assert.equal(a.calls[2].service_tier,undefined);
 a=setup([new Response('Invalid API key',{status:403})]);assert.equal((await a.request(payload)).status,403);assert.equal(a.calls.length,1);
 a=setup([new Response('quota',{status:429})]);assert.equal((await a.request(payload)).status,429);assert.equal(a.calls.length,1);
-a=setup([success()]);data=await (await a.request(payload,'test','application/json',{GEMINI_SERVICE_TIER:'standard'})).json();assert.equal(data.serviceTier,'unknown');assert.equal(a.calls[0].service_tier,undefined);
+a=setup([success('standard')]);data=await (await a.request(payload,'test','application/json',{GEMINI_SERVICE_TIER:'priority'})).json();assert.equal(data.requestedTier,'standard');assert.equal(a.calls[0].service_tier,undefined);
 transport.reset();
 let warms=0;
 await transport.warm(endpoint,'test',{send:async(url,opt)=>{warms++;assert.deepEqual(JSON.parse(opt.body),{type:'iu-gemini-network-warmup'});return new Response(JSON.stringify({type:'iu-gemini-network-warmup',transport:'binary-v1',gzipEnvelope:true}));}});
@@ -51,4 +46,4 @@ const packet=await transport.prepareAsync({...payload,imageBase64:transport.wrap
 assert.equal(packet.contentType,'application/octet-stream');
 const bytes=packet.compressed?await new Response(packet.body.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer():await packet.body.arrayBuffer();
 assert.deepEqual(new Uint8Array(bytes),new Uint8Array(await raw.body.arrayBuffer()));
-console.log('OK: warmup, Priority, fallback, timing, gzip round-trip and decompression limit.');
+console.log('OK: warmup, Standard, timing, gzip round-trip and decompression limit.');
