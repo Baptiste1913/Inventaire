@@ -5966,112 +5966,47 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  z-index:2!important;
 }
 
-/* v42.68 — trame fine et nette, au-dessus du verre 10 px.
-   Le quadrillage ne participe plus à aucun flou de composition. */
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
- #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field,
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
- #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
- filter:none!important;
- -webkit-filter:none!important;
- backdrop-filter:none!important;
- -webkit-backdrop-filter:none!important;
-}
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
- #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
- opacity:.68!important;
-}
-@media(prefers-reduced-transparency:reduce), (forced-colors:active) {
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
- #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
-  opacity:.43!important;
- }
-}
-
-/* v42.70 — trame continue derrière les sous-blocs opaques.
-   La vague reprend exactement les deux masques et les keyframes
-   iuWelcomeDiagonalLines de style.css, sans nouveau moteur. */
+/* v42.71 — un même moteur Chrome, sans quadrillage.
+   Le SVG ne peint plus : il donne seulement les trajectoires animées
+   au canvas. Les fils gardent une épaisseur en pixels CSS constante. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
  background-image:none!important;
 }
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
- position:absolute!important;
- inset:0!important;
- width:auto!important;
- height:auto!important;
- max-width:none!important;
- max-height:none!important;
- margin:0!important;
- padding:0!important;
- z-index:1!important;
- overflow:hidden!important;
- border-radius:inherit!important;
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > svg.iu-gemini-chrome-backdrop {
+ opacity:0!important;
  pointer-events:none!important;
- contain:paint!important;
- filter:none!important;
- -webkit-filter:none!important;
- backdrop-filter:none!important;
- -webkit-backdrop-filter:none!important;
- mask:none!important;
- -webkit-mask:none!important;
- clip-path:none!important;
- transform:none!important;
- background-image:radial-gradient(circle,rgba(92,121,147,.16) 0 .42px,rgba(92,121,147,.11) .58px,rgba(92,121,147,.03) .88px,transparent 1.02px)!important;
- background-color:transparent!important;
- background-size:28px 28px!important;
- background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
- background-repeat:repeat!important;
- opacity:.82!important;
 }
-/* Les contenus sont au-dessus de la trame. Leurs fonds opaques existants
-   cachent les points sans modifier le papier ni les boutons. */
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact > :not(.iu-result-light-field) {
- z-index:3!important;
-}
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > canvas.iu-gemini-backdrop-light {
  position:absolute!important;
- inset:0!important;
- display:block!important;
- pointer-events:none!important;
- background-size:28px 28px!important;
- background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px)!important;
- background-repeat:repeat!important;
- opacity:.68!important;
- animation:iuWelcomeDiagonalLines 18s linear infinite!important;
+ inset:-26px -24px!important;
+ width:calc(100% + 48px)!important;height:calc(100% + 52px)!important;
+ max-width:none!important;max-height:none!important;
+ margin:0!important;padding:0!important;border:0!important;
+ background:transparent!important;box-shadow:none!important;
+ filter:none!important;-webkit-filter:none!important;
+ pointer-events:none!important;z-index:0!important;
+ opacity:1!important;
 }
-/* Même taille et diffusion radiale des deux vagues de Bienvenue ;
-   intensité adaptée à la trame plus contrastée du résultat DIGI. */
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i:first-child {
- background-image:radial-gradient(circle,rgba(92,121,147,.22) 1.05px,rgba(92,121,147,.13) 2.45px,rgba(92,121,147,.026) 3.75px,transparent 4.65px)!important;
+/* Remplace les deux anneaux colorés par le canvas du même moteur. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {
+ border:0!important;
+ outline:0!important;
+ background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)!important;
+ box-shadow:-3px -3px 7px rgba(255,255,255,.98),-6px -6px 13px rgba(255,255,255,.60),4px 5px 11px rgba(91,108,120,.22),1px 2px 4px rgba(72,92,108,.15)!important;
 }
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i:last-child {
- background-image:radial-gradient(circle,rgba(92,121,147,.22) 1.65px,rgba(92,121,147,.123) 3.50px,rgba(92,121,147,.026) 5.00px,transparent 6.05px)!important;
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > canvas.iu-gemini-outer-light {
+ position:absolute!important;
+ inset:0!important;width:100%!important;height:100%!important;
+ max-width:none!important;max-height:none!important;
+ margin:0!important;padding:0!important;border:0!important;
+ background:transparent!important;box-shadow:none!important;
+ filter:none!important;transform:none!important;
+ z-index:4!important;pointer-events:none!important;opacity:1!important;
 }
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field::before,
-html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field::after {
- display:none!important;
-}
-@media(prefers-reduced-motion:reduce) {
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
-  display:block!important;
- }
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
-  display:none!important;
-  animation:none!important;
- }
-}
-@media(prefers-reduced-transparency:reduce) {
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
-  display:block!important;
-  opacity:.45!important;
- }
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field > i {
-  display:none!important;
-  animation:none!important;
- }
+@media(prefers-reduced-transparency:reduce),(forced-colors:active) {
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > canvas.iu-gemini-backdrop-light {display:none!important;}
 }
 @media(forced-colors:active) {
- html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone #iuGeminiLabelPanel.result.iu-result-compact > .iu-result-light-field {
-  display:none!important;
- }
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone {border:1px solid CanvasText!important;background:Canvas!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > canvas.iu-gemini-outer-light {display:none!important;}
 }

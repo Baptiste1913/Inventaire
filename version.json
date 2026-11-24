@@ -1,6 +1,6 @@
 {
-  "version": "42.70",
+  "version": "42.71",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Quadrillage DIGI derrière les sous-blocs opaques, vague diagonale de Bienvenue (18 s, pas 28 px, deux masques partagés), contraste conservé. Flou du verre réduit à 2 px. Filaments, halos et OCR inchangés."
+  "notes": "Moteur Chrome partagé pour les trois courbes du fond (trajectoires SVG préservées, opacité du canvas 100 %) et le contour global. Quadrillage supprimé. Statut Étiquette prête • PLU dynamique, mentions de vérification conservées. Verre 2 px et OCR inchangés."
 }

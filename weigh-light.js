@@ -1,17 +1,20 @@
-/* Inventaires U 42.59 — chrome partagé entre viseur DIGI et contrôle du poids.
+/* Inventaires U 42.71 — chrome partagé : viseur, poids, carte et fond DIGI.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiLab'),document.getElementById('iuGeminiBackdropChrome')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
  const isGross=overlay.id==='iuGeminiGrossChrome';
- const isGemini=isGross||overlay.id==='iuGeminiCameraShell';
+ const isOuter=overlay.id==='iuGeminiLab';
+ const isBackdrop=overlay.id==='iuGeminiBackdropChrome';
+ const isPanelChrome=isGross||isOuter||isBackdrop;
+ const isGemini=isPanelChrome||overlay.id==='iuGeminiCameraShell';
  const contourBoost=0;
- const guide=isGross?overlay:overlay.querySelector(isGemini
+ const guide=isBackdrop?overlay.parentElement:isGross||isOuter?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
- const canvas=guide?.querySelector('.iu-weight-light');
+ const canvas=isBackdrop?overlay:guide?.querySelector(isOuter?'.iu-gemini-outer-light':'.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
  const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
  if(!ctx)return;
@@ -21,13 +24,16 @@
  let width=0,height=0,renderScale=0;
  let lanes=[],chromeOuterLines=[],running=false,request=0,lastTick=0,lastPaint=0,elapsed=0;
  let inViewport=true,lastVisibilityCheck=0;
+ let motionPaths=[],openPoints=null;
+ const laneSpecs=[[.28,.37],[2.35,.58],[4.5,.22],[1.42,.49],[5.32,.30],[3.82,.41],[.94,.26],[2.93,.34],[5.81,.23]];
  function wrap(u){return ((u%1)+1)%1;}
  // Contour arrondi à paramétrisation par longueur d'arc réelle :
  // les déplacements restent continus, y compris dans les quatre coins.
  function basePoint(u){
-  const inset=isGemini?6:7;
+  if(isBackdrop&&openPoints)return openPoint(u);
+  const inset=isOuter?1.8:isGemini?6:7;
   const left=inset,top=inset,right=width-inset,bottom=height-inset;
-  const r=Math.max(2,Math.min(isGross?12:isGemini?7:9,(right-left)/5,(bottom-top)/3));
+  const r=Math.max(2,Math.min(isOuter?19:isGross?12:isGemini?7:9,(right-left)/5,(bottom-top)/3));
   const horizontal=Math.max(1,right-left-2*r);
   const vertical=Math.max(1,bottom-top-2*r);
   const arc=Math.PI*r/2;
@@ -50,11 +56,37 @@
   d-=vertical;
   return corner(left+r,top+r,Math.PI+d/r);
  }
+ // Open paths are sampled from the original SVG curves. Their animated
+ // screen matrices preserve the old placement and the three CSS motions.
+ function openPoint(u){
+  const n=openPoints.length-1,k=Math.max(0,Math.min(n-1,Math.floor(u*n)));
+  const a=openPoints[k],b=openPoints[k+1],fraction=u*n-k;
+  const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
+  return {x:a.x+dx*fraction,y:a.y+dy*fraction,nx:dy/len,ny:-dx/len};
+ }
+ function sampleMotionPaths(){
+  const svg=guide.querySelector('.iu-gemini-chrome-backdrop');
+  if(!svg)return [];
+  return Array.from(svg.querySelectorAll('g.iu-chrome-flow-a,g.iu-chrome-flow-b,g.iu-chrome-flow-c')).map(group=>{
+   const path=group.querySelector('path');
+   if(!path||!path.getTotalLength||!path.getPointAtLength)return null;
+   const len=path.getTotalLength();
+   if(!Number.isFinite(len)||len<=0)return null;
+   return {path,local:Array.from({length:129},(_,i)=>{const p=path.getPointAtLength(len*i/128);return{x:p.x,y:p.y};}),
+    loose:[],inner:[],next:null,nextInner:null};
+  }).filter(Boolean);
+ }
+ function lanePoint(u,phase,amplitude,outset=0){
+  const p=basePoint(u);
+  const d=amplitude*(.77*Math.sin(TWO_PI*3*u+phase)+.23*Math.sin(TWO_PI*7*u-phase*.4))+outset;
+  return {x:p.x+p.nx*d,y:p.y+p.ny*d};
+ }
  function buildLane(phase,amplitude,outset=0){
   const points=[];
   const line=new Path2D();
-  for(let i=0;i<COUNT;i++){
-   const u=i/COUNT;
+  const count=isBackdrop?129:COUNT;
+  for(let i=0;i<count;i++){
+   const u=i/(isBackdrop?count-1:count);
    const p=basePoint(u);
    // Une très légère ondulation fixée une seule fois : ni déformation
    // ni saut à chaque image. Fréquences entières => boucle fermée.
@@ -64,10 +96,11 @@
    points.push({x,y});
    if(i===0)line.moveTo(x,y);else line.lineTo(x,y);
   }
-  line.closePath();
+  if(!isBackdrop)line.closePath();
   return {points,line};
  }
  function point(u,laneIndex){
+  if(isBackdrop)return lanePoint(u,...laneSpecs[laneIndex]);
   const a=wrap(u)*COUNT;
   const i=Math.floor(a),frac=a-i;
   const lane=lanes[laneIndex].points;
@@ -90,7 +123,7 @@
   ));
   const pxW=Math.round(w*scale),pxH=Math.round(h*scale);
   if(width===w&&height===h&&renderScale===scale&&
-     canvas.width===pxW&&canvas.height===pxH&&lanes.length===9)return true;
+     canvas.width===pxW&&canvas.height===pxH&&(isBackdrop?motionPaths.length===3:lanes.length===9))return true;
   const geometryChanged=w!==width||h!==height||lanes.length!==9;
   width=w;height=h;renderScale=scale;
   if(canvas.width!==pxW)canvas.width=pxW;
@@ -98,6 +131,7 @@
   ctx.setTransform(pxW/w,0,0,pxH/h,0,0);
   ctx.imageSmoothingEnabled=true;
   ctx.imageSmoothingQuality='high';
+  if(isBackdrop){if(!motionPaths.length)motionPaths=sampleMotionPaths();return motionPaths.length>0;}
   if(geometryChanged){
    lanes=[
     buildLane(.28,.37),
@@ -271,7 +305,7 @@
   const span=w.span*(.45+.55*lifeEnvelope),positions=[],samples=84;
   // Stay within the perimeter gutter; closest internal rectangle starts
   // at 2% of guide height (barcode/total bottom).
-  const safeDepth=isGross?2.0:Math.max(0,Math.min(2.0,(height-12)*.02-.55));
+  const safeDepth=isPanelChrome?2.0:Math.max(0,Math.min(2.0,(height-12)*.02-.55));
   for(let i=0;i<=samples;i++){
    const s=i/samples,u=center+(s-.5)*span,p=basePoint(u);
    const envelope=Math.pow(Math.sin(Math.PI*s),1.45);
@@ -294,6 +328,7 @@
  }
  function resetWaves(){
   looseFibres=[];nextWaveAt=null;innerWaves=[];nextInnerWaveAt=null;
+  if(isBackdrop)for(const p of motionPaths){p.loose=[];p.inner=[];p.next=null;p.nextInner=null;}
  }
  function paintChrome(t){
   // A single animated contour, made of thin overlapping metal fibres;
@@ -308,9 +343,26 @@
   }
   if(running){paintWaves(t);paintInnerWaves(t);}
  }
+ function paintBackdrop(t){
+  const bounds=canvas.getBoundingClientRect();
+  if(!bounds.width||!bounds.height)return;
+  for(const motion of motionPaths){
+   const m=motion.path.getScreenCTM?.();
+   if(!m)continue;
+   openPoints=motion.local.map(p=>({x:(m.a*p.x+m.c*p.y+m.e-bounds.left)*width/bounds.width,
+    y:(m.b*p.x+m.d*p.y+m.f-bounds.top)*height/bounds.height}));
+   chromeOuterLines=[buildLane(.28,.37,.06).line,buildLane(2.35,.58,.04).line,buildLane(1.42,.49,.03).line];
+   looseFibres=motion.loose;innerWaves=motion.inner;nextWaveAt=motion.next;nextInnerWaveAt=motion.nextInner;
+   // Exactly the same painting function, widths, palette and life cycles.
+   paintChrome(t);
+   motion.loose=looseFibres;motion.inner=innerWaves;motion.next=nextWaveAt;motion.nextInner=nextInnerWaveAt;
+  }
+  openPoints=null;
+ }
  function paint(t){
   if(!width||!height)return;
   ctx.clearRect(0,0,width,height);
+  if(isBackdrop){paintBackdrop(t);return;}
   if(isGemini){paintChrome(t);return;}
   // Deux fibres anthracite sous la nacre : contraste subtil lorsque
   // l'étiquette est claire. Tracés animés inchangés, aucun bord statique.
@@ -343,12 +395,12 @@
  }
  function isActive(){
   return !document.hidden&&!overlay.hidden&&
-    (isGross?inViewport:overlay.dataset.state==='scanning')&&!reduceMotion?.matches&&
+    (isPanelChrome?inViewport:overlay.dataset.state==='scanning')&&!reduceMotion?.matches&&
     guide.getClientRects().length>0;
  }
  function frame(now){
   if(!running)return;
-  if(isGross&&now-lastVisibilityCheck>=250){
+  if(isPanelChrome&&now-lastVisibilityCheck>=250){
    lastVisibilityCheck=now;
    if(!isActive()){sync();return;}
   }
@@ -359,7 +411,7 @@
   }
   lastTick=now;
   // Avoid two full-rate canvases while the camera is also scanning.
-  const interval=isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning'?32:16;
+  const interval=isBackdrop||isOuter||(isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning')?32:16;
   if(now-lastPaint>=interval){
    lastPaint=now;
    paint(elapsed);
@@ -378,14 +430,14 @@
    if(isGemini)resetWaves();
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
-   if(!document.hidden&&!overlay.hidden&&(!isGross||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
+   if(!document.hidden&&!overlay.hidden&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
   }
  }
  const visibilityObserver=new MutationObserver(sync);
  visibilityObserver.observe(overlay,{attributes:true,attributeFilter:['hidden','data-state']});
- if(isGross){
+ if(isPanelChrome){
   const section=document.getElementById('iuGeminiLab');
-  if(section)visibilityObserver.observe(section,{attributes:true,attributeFilter:['hidden','class','data-scan-state','style']});
+  if(section&&section!==overlay)visibilityObserver.observe(section,{attributes:true,attributeFilter:['hidden','class','data-scan-state','style']});
   const result=document.getElementById('iuGeminiEmptyResult');
   if(result)visibilityObserver.observe(result,{attributes:true,attributeFilter:['hidden','class','style']});
   if(window.IntersectionObserver)new window.IntersectionObserver(entries=>{
@@ -403,9 +455,9 @@
  }
  if(reduceMotion?.addEventListener)reduceMotion.addEventListener('change',sync);
  else reduceMotion?.addListener?.(sync);
- if(window.ResizeObserver)new ResizeObserver(()=>{
+ if(window.ResizeObserver)new window.ResizeObserver(()=>{
   // Recalcule uniquement si la taille CSS change vraiment.
-  if(isGross){sync();}else if(guide.getClientRects().length){measure();if(!running)paint(elapsed);}
+  if(isPanelChrome){sync();}else if(guide.getClientRects().length){measure();if(!running)paint(elapsed);}
  }).observe(guide);
  sync();
  }

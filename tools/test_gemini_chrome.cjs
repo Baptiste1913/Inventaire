@@ -9,7 +9,7 @@ function run(id,reduce=false){
   fill(){paints.push({color:this.fillStyle,mode:this.globalCompositeOperation,alpha:this.globalAlpha});}};
  const canvas={getContext:()=>ctx,getBoundingClientRect:()=>({width:212,height:172})};
  const guide={querySelector:()=>canvas,getClientRects:()=>[{}]};
- const overlay={id,hidden:false,dataset:{state:id==='iuGeminiGrossChrome'?'idle':'scanning'},querySelector:()=>id==='iuGeminiGrossChrome'?canvas:guide,getClientRects:()=>[{}]};
+ const overlay={id,hidden:false,dataset:{state:id==='iuGeminiGrossChrome'?'idle':'scanning'},querySelector:()=>id==='iuGeminiGrossChrome'||id==='iuGeminiLab'?canvas:guide,getClientRects:()=>[{}]};
  const document={hidden:false,getElementById:k=>k===id?overlay:null,addEventListener:(k,fn)=>{events[k]=fn;}};
  const window={devicePixelRatio:3,matchMedia:()=>({matches:reduce}),addEventListener(){},
   requestAnimationFrame:fn=>{frames.push(fn);return ++requests;},cancelAnimationFrame(){}};
@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.59'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.71'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -225,7 +225,7 @@ console.log('OK : six fibres chromées par vague, voile allégé, halos plus pet
 
 {
 const glassMarkup='<div class="iu-gemini-clear-glass" aria-hidden="true"></div>';
-assert(markup.includes(waves[0]+'\n'+glassMarkup+'\n<div id="iuGeminiLabelPanel"'));
+assert(markup.includes(waves[0]+'\n<canvas id="iuGeminiBackdropChrome" class="iu-gemini-backdrop-light" aria-hidden="true"></canvas>\n'+glassMarkup+'\n<div id="iuGeminiLabelPanel"'));
 const glassStyle=css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1];
 assert(glassStyle.includes('background:rgba(128,128,128,.002)!important;'));
 assert(glassStyle.includes('position:absolute!important;'));
@@ -239,41 +239,50 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.70'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.70'));
+assert(markup.includes('gemini-lab.css?v=42.71'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.71'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
 assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(2px)!important;'));
 
+
 {
- const dotStyle=css.slice(css.indexOf('/* v42.68'));
- assert(dotStyle.includes('filter:none!important;'));
- assert(dotStyle.includes('-webkit-backdrop-filter:none!important;'));
- assert(dotStyle.includes('opacity:.68!important;'));
- assert(css.includes('rgba(92,121,147,.14) 0 .40px'));
- assert(css.includes('transparent 1px)!important;'));
- assert(dotStyle.includes('prefers-reduced-transparency:reduce'));
- console.log('OK : trame nette, intensité renforcée, verre 2 px');
+const final=css.slice(css.indexOf('/* v42.71'));
+assert(final.includes('background-image:none!important;'));
+assert(final.includes('opacity:0!important;'));
+assert(final.includes('opacity:1!important;'));
+assert(final.includes('pointer-events:none!important;'));
+assert(!markup.slice(markup.indexOf('id="iuGeminiLabelPanel"'),markup.indexOf('id="iuGeminiEmptyResult"')).includes('iu-welcome-dot-wave'));
+assert(!markup.includes('<span class="iu-gemini-frame-gradient"'));
+assert(!markup.includes('<span class="iu-gemini-frame-surface"'));
+assert(markup.includes('class="iu-weight-light iu-gemini-outer-light"'));
+assert(fs.readFileSync('gemini-lab.js','utf8').includes("setLabelAlert('success','Étiquette prête • PLU '+proposal.plu+note);"));
+assert(source.includes('if(isBackdrop){paintBackdrop(t);return;}'));
+const whole=run('iuGeminiLab');
+assert.deepEqual(whole.paints,gross.paints,'Grand contour : mêmes couches que le poids');
+const wholeReduced=run('iuGeminiLab',true);
+assert.equal(wholeReduced.requests,0);
+assert(wholeReduced.paints.length>=15);
+console.log('OK : suppression du quadrillage, contour global chrome partagé et statut PLU');
 }
 
 {
- const full=css.slice(css.indexOf('/* v42.70'));
- const field=full.match(/#iuGeminiLabelPanel\.result\.iu-result-compact > \.iu-result-light-field \{([^}]+)\}/)[1];
- for(const value of ['position:absolute!important;','inset:0!important;','width:auto!important;','height:auto!important;','z-index:1!important;','mask:none!important;','-webkit-mask:none!important;','clip-path:none!important;','pointer-events:none!important;','background-size:28px 28px!important;','background-repeat:repeat!important;','opacity:.82!important;','filter:none!important;','backdrop-filter:none!important;'])assert(field.includes(value),value);
- assert(full.includes('background-image:none!important;'));
- assert(full.includes('> .iu-result-light-field > i {'));
- assert(full.includes('animation:iuWelcomeDiagonalLines 18s linear infinite!important;'));
- assert(full.includes('> :not(.iu-result-light-field) {\n z-index:3!important;'));
- assert(full.includes('> i:first-child')&&full.includes('> i:last-child'));
- assert(full.includes('@media(prefers-reduced-motion:reduce)'));
- assert(markup.includes('<div class="iu-result-light-field iu-welcome-dot-wave" aria-hidden="true"><i></i><i></i></div>'));
- const home=fs.readFileSync('style.css','utf8');
- assert(home.includes('animation:iuWelcomeDiagonalLines 18s linear infinite;'));
- assert(home.includes('@keyframes iuWelcomeDiagonalLines{'));
- assert(home.includes('mask-position:118.794px 118.794px;'));
- assert(full.includes('rgba(92,121,147,.16)'));
- assert(full.includes('@media(forced-colors:active)'));
- assert(full.includes('display:none!important;'));
- console.log('OK : quadrillage plein panneau derrière les contenus, même vague que Bienvenue');
+ const drawn=[],frames=[];
+ class Path{moveTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));}lineTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));}closePath(){}}
+ const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){drawn.push([this.strokeStyle,this.lineWidth,this.globalAlpha]);},fill(){drawn.push([this.fillStyle,null,this.globalAlpha]);}};
+ const motion=[0,1,2].map(i=>({getTotalLength:()=>340,getPointAtLength:d=>({x:d,y:70+i*75+10*Math.sin(d/40)}),getScreenCTM:()=>({a:1,b:0,c:0,d:1,e:0,f:0})}));
+ const svg={querySelectorAll:()=>motion.map(p=>({querySelector:()=>p}))};
+ const guide={querySelector:()=>svg,getClientRects:()=>[{}]};
+ const bg={id:'iuGeminiBackdropChrome',parentElement:guide,hidden:false,getContext:()=>ctx,getBoundingClientRect:()=>({width:340,height:260,left:0,top:0})};
+ const doc={hidden:false,getElementById:k=>k===bg.id?bg:null,addEventListener(){}};
+ const win={devicePixelRatio:2,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.push(fn);return 1;},cancelAnimationFrame(){}};
+ class Observer{observe(){}}
+ new Function('document','window','Path2D','MutationObserver',source)(doc,win,Path,Observer);
+ assert.equal(frames.length,1);frames.shift()(100);
+ assert.equal(drawn.length,45);
+ for(let i=0;i<3;i++){assert.deepEqual(drawn.slice(i*15,i*15+15),drawn.slice(0,15));}
+ assert(drawn.every(p=>grey(p[0])&&p[2]>=0&&p[2]<=1));
+ assert.equal(drawn[0][1],1.02);assert.equal(drawn[1][1],.76);assert.equal(drawn[2][1],.54);
+ console.log('OK : trois trajectoires ouvertes, mêmes couches chrome et épaisseurs');
 }

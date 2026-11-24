@@ -525,7 +525,7 @@
   const note=lastRawResult?.digiRecovery?.kind==='reconstructed'
    ?' · EAN reconstitué':lastRawResult?.digiRecovery?.sources?.total==='calculated'
    ?' · montant calculé':'';
-  setLabelAlert('success','DIGI · PLU '+proposal.plu+' · étiquette prête'+note);
+  setLabelAlert('success','Étiquette prête • PLU '+proposal.plu+note);
  }
  function validateResult(result){
   const f=result?.fields||{},checks=result?.checks||{};
