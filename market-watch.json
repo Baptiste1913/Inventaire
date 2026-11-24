@@ -1,7 +1,20 @@
 {
   "schema": 1,
-  "generatedAt": "2026-11-24T03:22:18+00:00",
+  "generatedAt": "2026-11-24T15:58:52+00:00",
   "recalls": [
+    {
+      "type": "recall",
+      "id": "2026-11-0168",
+      "title": "pomme de terre rouge 2.5 kg",
+      "description": "côté marché · autre risque",
+      "date": "2026-11-24",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/24162/interne",
+      "source": "RappelConso",
+      "distributors": "voir liste des magasins en pièce jointe",
+      "brand": "côté marché",
+      "packaging": "sachet 2.5 kg",
+      "scope": "supplier"
+    },
     {
       "type": "recall",
       "id": "2026-11-0149",
@@ -52,9 +65,9 @@
   ],
   "water": [],
   "checks": {
-    "recalls": "2026-11-24T03:22:18+00:00",
+    "recalls": "2026-11-24T15:58:52+00:00",
     "prices": null,
     "shortages": null,
-    "supply": "2026-11-24T03:22:18+00:00"
+    "supply": "2026-11-24T15:58:52+00:00"
   }
 }
