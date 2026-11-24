@@ -65,9 +65,9 @@ async function exercise(mode){
  const bad=await exercise('bad');
  assert.deepEqual([bad.x,bad.y,bad.w,bad.h],
   [78,56,1044,688],'Étiquette en bordure : repli sans risque');
- assert(js.includes("const detailTask=prepareLabelDetail(file).catch(()=>null)"));
+ assert(js.includes("const detailTask=samePhotoTask(file,true)"));
  assert(js.includes("prepareLabelDetail(file,localBarcode).catch(()=>null)"));
- assert(js.includes("const encoded=await imageBase64(file);"));
+ assert(js.includes("samePhotoTask(file),until(track(detailTask),detailDeadline)"));
  assert(js.includes("const safeDetail=detail=>detail&&detail.length+encoded.length<=750000"));
  assert(js.includes("targets.length===1&&targets[0]==='ean'"));
  console.log('OK : photo entière conservée, détail optique/papier, repli géométrique');

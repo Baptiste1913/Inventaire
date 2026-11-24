@@ -4,7 +4,7 @@ import vm from 'node:vm';
 
 const source=fs.readFileSync('workers/coursesu-live-worker.js','utf8');
 const archived=fs.readFileSync('workers/coursesu-apify-worker.js','utf8');
-assert(source.length<15000,'Worker Gemini doit rester minimal');
+assert(source.length<24000,'Worker Gemini doit rester minimal');
 for(const token of ['APIFY_TOKEN','OPENAI_API_KEY','api.apify.com','api.openai.com',
  'COURSESU_LIVE_ENABLED','function lookup(','function authCheck(','function htmlCheck('])
  assert(!source.includes(token),'Code historique dans Gemini : '+token);
@@ -98,8 +98,7 @@ assert.equal((await call('/gemini-lab',body(),{method:'GET'})).status,405);
 assert.equal((await call('/gemini-lab',body(),{
  origin:'https://not-approved.example'})).status,403);
 const flash=await call('/gemini-lab',body({model:'gemini-3.8-flash'}));
-assert.equal(flash.status,200);
-assert.equal(flash.json.model,'gemini-3.8-flash');
+assert.equal(flash.status,400,'Seul Gemini 3.5 Flash-Lite est autorisé');
 remoteStatus=429;
 const limited=await call();
 assert.equal(limited.status,429);

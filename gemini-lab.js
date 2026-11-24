@@ -27,6 +27,18 @@
  let lastRawResult=null,localBarcode=null,barcodeJob=null,repairFocus=null;
  let manualCorrectedFields=[];
  let primaryBarcodePhoto=null,alternatePhotoTask=null,printedBusy=false;
+ let cachedEncoding=null,cachedDetail=null;
+ function samePhotoTask(source,detail=false){
+  const stored=detail?cachedDetail:cachedEncoding;
+  if(stored?.source===source)return stored.promise;
+  const promise=(detail?prepareLabelDetail(source):imageBase64(source)).catch(error=>{
+   if(detail&&cachedDetail?.source===source)cachedDetail=null;
+   if(!detail&&cachedEncoding?.source===source)cachedEncoding=null;
+   if(detail)return null;throw error;
+  });
+  if(detail)cachedDetail={source,promise};else cachedEncoding={source,promise};
+  return promise;
+ }
  let previewLastAt=0,previewBusy=false,warmedCameraEpoch=-1;
  const latency=window.IUGeminiLatency||null;
  const core=window.IURecognitionCore||null;
@@ -585,7 +597,7 @@
   const eanObserved=String(trustedBarcodeEvidence(reading)?reading.ean13:
    result?.eanObserved||result?.fields?.ean13||'');
   const name=String(result?.fields?.name||'');
-  const guide=result&&!trustedBarcodeEvidence(reading)?catalog.recheckPlan?.(result):null;
+  const guide=result&&!trustedBarcodeEvidence(reading)?result.digiPlan||catalog.recheckPlan?.(result):null;
   return (guide?.candidates?.length?guide.candidates:catalog.candidates({eanObserved,name,limit:5}))
    .filter(c=>c.name.length<=90&&/^[\p{L}\d .'\-(),/]+$/u.test(c.name))
    .map(c=>({eanPrefix:c.eanPrefix,plu:c.plu,name:c.name}));
@@ -817,7 +829,7 @@
   generation++;abort?.abort();abort=null;active=false;file=null;
   setAnalysisCameraClosed(false);
   lastRawResult=null;localBarcode=null;barcodeJob=null;repairFocus=null;manualCorrectedFields=[];
-  primaryBarcodePhoto=null;alternatePhotoTask=null;
+  primaryBarcodePhoto=null;alternatePhotoTask=null;cachedEncoding=null;cachedDetail=null;
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   attempts.clear();photo.value='';latestLabelFields=null;
@@ -855,7 +867,7 @@
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   analyze.textContent='Analyser l’étiquette';
-  clearPreview();file=chosen;attempts.clear();generation++;
+  clearPreview();file=chosen;cachedEncoding=null;cachedDetail=null;attempts.clear();generation++;
   // Lire l'EAN en local en parallèle du réseau, sans envoi ni bibliothèque.
   // La pleine résolution reste réservée à l'EAN LOCAL si le JPEG
   // envoyé à Gemini a été réduit pour respecter le budget Cloudflare.
@@ -1301,6 +1313,12 @@
    networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +(Number.isFinite(result.clientNetworkMs)?' · échange '+(result.clientNetworkMs/1000).toFixed(2)+' s':'')
+    +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
+    +(result.networkFailure?' · '+String(result.networkFailure.stage||'réseau')+' / '+Number(result.networkFailure.attempts||0)+' tentative(s)':'')
+    +(result.digiPlan?' · DIGI : '+result.digiPlan.candidateCount+' candidat(s), '+result.digiPlan.observationCount+' observations, '+result.digiPlan.barRows+' lignes':'')
+    +(result.digiPlan?.positions?.length?' · EAN positions '+result.digiPlan.positions.join(', '):'')
+    +(result.digiPlan?.ranges?.weight?' · plage poids '+result.digiPlan.ranges.weight.min+'–'+result.digiPlan.ranges.weight.max+' g':'')
+    +(result.digiPlan?.ranges?.rate?' · plage tarif '+result.digiPlan.ranges.rate.min+'–'+result.digiPlan.ranges.rate.max+' ct/kg':'')
     +(Number.isFinite(result.clientPayloadBytes)?' · '+Math.round(result.clientPayloadBytes/1024)+' Kio '+(result.clientTransport||''):'')
     +' · modèle '+usedModel
     +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser')
@@ -1402,10 +1420,13 @@
    throw Error('Modèle '+(provider==='openai'?'OpenAI':'Gemini')+' indisponible');
   if(status===504||providerStatus===504)
    throw Error('Délai Gemini dépassé (504) · conserve cette photo et réessaie');
-  if(status===503||providerStatus===503)
-   throw Error(providerStatus
-    ?'Gemini temporairement indisponible (503) · réessaie cette photo'
-    :'Liaison Cloudflare–Gemini indisponible (503) · réessaie cette photo');
+  if(status===503||providerStatus===503){
+   const stats=result?.networkStats||{};
+   const e=Error(stats.stage==='circuit_open'?'Gemini saturé · photo conservée, réessaie dans quelques secondes':
+    providerStatus?'Gemini temporairement indisponible (503) · photo conservée':
+    'Liaison Cloudflare–Gemini indisponible (503) · photo conservée');
+   e.networkStats=stats;e.transient=true;throw e;
+  }
   if(status>=500&&status<=599)
    throw Error('Erreur du service Gemini (HTTP '+status+
     (providerStatus?' / fournisseur '+providerStatus:'')+') · réessaie cette photo');
@@ -1535,6 +1556,10 @@
   return {...original,fields,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,source:'gemini-recovery',
    pipelineVersion:recheck?.pipelineVersion||original?.pipelineVersion,
    elapsedMs:Number(original?.elapsedMs||0)+Number(recheck?.elapsedMs||0),
+   networkStats:{attempts:Number(original?.networkStats?.attempts||0)+Number(recheck?.networkStats?.attempts||0),
+    retries:Number(original?.networkStats?.retries||0)+Number(recheck?.networkStats?.retries||0),
+    upstream503:Number(original?.networkStats?.upstream503||0)+Number(recheck?.networkStats?.upstream503||0),
+    waitMs:Number(original?.networkStats?.waitMs||0)+Number(recheck?.networkStats?.waitMs||0),stage:recheck?.networkStats?.stage||'google_http'},
    clientNetworkMs:Number(original?.clientNetworkMs||0)+Number(recheck?.clientNetworkMs||0),
    clientPayloadBytes:Number(original?.clientPayloadBytes||0)+Number(recheck?.clientPayloadBytes||0),
    clientTransport:original?.clientTransport===recheck?.clientTransport?original?.clientTransport:'mixte',
@@ -1551,7 +1576,10 @@
   const selectedProvider='gemini';
   const providerName=selectedProvider==='openai'?'OpenAI':'Gemini';
   const targetField=repairFocus&&lastRawResult?repairFocus:null;
-  const oldResult=targetField?lastRawResult:null;
+  const resumeFields=!targetField&&lastRawResult?.checks?.recoveryInterrupted&&
+   (lastRawResult.source!=='local-network-recovery'||trustedBarcodeEvidence(localBarcode))&&
+   Array.isArray(lastRawResult.checks.recoveryInterruptedTargets)?lastRawResult.checks.recoveryInterruptedTargets.filter(k=>Object.prototype.hasOwnProperty.call(fieldKeys,k)):null;
+  const oldResult=targetField||resumeFields?.length?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
   resetDetectedIndicator();updateButton();setAnalysisCameraClosed(true);
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
@@ -1578,7 +1606,7 @@
    // référence officielle sans attendre ZXing ni retarder le réseau.
    let opticalReady=null;
    void job.then(reading=>{if(id===generation)opticalReady=reading;});
-   const detailTask=prepareLabelDetail(file).catch(()=>null);
+   const detailTask=samePhotoTask(file,true);
    const sourcePhoto=primaryBarcodePhoto||file;
    const track=promise=>latency?latency.track(promise):{done:false,value:null,promise:Promise.resolve(promise).catch(()=>null)};
    const until=(task,deadline)=>latency?latency.until(task,deadline):
@@ -1624,15 +1652,16 @@
    void opticalTask.promise.then(()=>clearTimeout(earlyTimer));
    const detailDeadline=performance.now()+180;
    const [encoded,firstDetail]=await Promise.all([
-    imageBase64(file),until(track(detailTask),detailDeadline)
+    samePhotoTask(file),until(track(detailTask),detailDeadline)
    ]);
    if(id!==generation)return;
    const safeDetail=detail=>detail&&detail.length+encoded.length<=750000?detail:null;
    say(providerName+' analyse l’étiquette…');
    const received=await requestGeminiWithRecovery(
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
-    safeDetail(firstDetail),targetField?[targetField]:null,
-    catalogHints(null,opticalReady));
+    safeDetail(firstDetail),targetField?[targetField]:resumeFields?.length?resumeFields:null,
+    catalogHints(oldResult,opticalReady),
+    resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null);
    if(id!==generation)return;
    // Attendre brièvement la lecture locale après Gemini ; jamais de long
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
@@ -1664,11 +1693,19 @@
       combined={...combined,fields:{...combined.fields,totalCents:null},digiRecovery:null};
     }
    }
+   if(resumeFields?.length&&oldResult){
+    combined=mergeRecoveredReading(oldResult,received,resumeFields);
+    const pending=resumeFields.filter(k=>!readableValue(k,received?.fields?.[fieldKeys[k]]));
+    combined={...combined,checks:{...combined.checks,recoveryInterrupted:pending.length>0,recoveryInterruptedTargets:pending}};
+    if(resumeFields.includes('ean'))combined=fuseEAN(combined,received?.eanObserved);
+    if(pending.length===0)combined={...combined,networkFailure:null};
+   }
    // Comparer les chiffres indépendamment, sans jamais remplacer un
    // EAN Gemini confirmé et contradictoire par simple supposition.
    combined=reconcileBarcode(combined,localBarcode);
    combined=applyCatalogRecovery(combined);
    let targets=!targetField?recoveryTargets(combined):[];
+   if(resumeFields?.length)targets=[]; // pas de deuxième reprise automatique
    const unresolvedEAN=(targets.includes('ean')||combined.digiRecovery?.kind==='confirmation')&&
     !readableValue('ean',combined.fields?.ean13)&&
     !combined.checks?.readingConflict&&!combined.checks?.independentMismatch;
@@ -1681,7 +1718,7 @@
     if(printedFast?.ean13)combined=applyPrintedEAN(combined,printedFast);
     if(printedFast?.pattern)combined=fuseEAN(combined,printedFast.pattern);
     combined=applyCatalogRecovery(combined);
-    targets=targetField?[]:recoveryTargets(combined);
+    targets=targetField||resumeFields?.length?[]:recoveryTargets(combined);
    }
    if(!targetField&&!localBarcode&&targets.length===1&&targets[0]==='ean'){
     const finalOptical=await until(opticalTask,localDeadline);
@@ -1698,7 +1735,10 @@
      until(partialJob,deadline),until(paddleJob,deadline),until(alternateJob,deadline)]);
     if(id!==generation)return result;
     if(readableValue('ean',result.fields?.ean13))return result;
-    if(partial?.pattern)result=fuseEAN(result,partial.pattern);
+    if(partial?.pattern){
+     const next=fuseEAN(result,partial.pattern);
+     result=partial.disagreement&&next!==result?{...next,weakEANSupplement:true}:next;
+    }
     // Un moteur expérimental ou une image voisine ne peut inventer
     // un préfixe, ni apporter une identité sans preuves principales.
     // Paddle et une autre image sont encore moins probants : ne
@@ -1723,6 +1763,14 @@
     combined=await consumeLocalEvidence(combined,localDeadline);
     if(id!==generation)return;
     targets=recoveryTargets(combined);
+   }
+   if(resumeFields?.length)targets=[];
+   if(targets.length){
+    const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value].filter(Boolean);
+    try{
+     const history=window.IUDigiRecentReferences?.()||[];
+     combined={...combined,digiPlan:window.IUDigiCatalogLookup?.solveHypotheses?.(combined,{observations,history})};
+    }catch(_){}
    }
    if(targets.length){
     // Une seule relecture de tous les champs problématiques sur cette
@@ -1749,7 +1797,7 @@
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
       safeDetail(pendingDetail),targets,
       catalogHints(combined,localBarcode),
-      targets.includes('ean')?window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions:null);
+      targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null);
      if(id!==generation)return;
      combined=mergeRecoveredReading(combined,focused,targets);
      if(targets.includes('ean')){
@@ -1773,7 +1821,7 @@
      // lecture : ne jamais effacer les champs déjà obtenus de Gemini.
      // En revanche, interdire l'enregistrement tant que la confirmation
      // additionnelle n'a pas été obtenue.
-     combined={...combined,checks:{...(combined.checks||{}),
+     combined={...combined,networkFailure:error?.networkStats||null,checks:{...(combined.checks||{}),
       recoveryInterrupted:true,recoveryInterruptedTargets:[...targets]}};
     }
    }
@@ -1834,7 +1882,16 @@
      :String(error?.message||'Échec réseau').slice(0,140);
     lastAnalysisError=reason;
     repairFocus=null;
-    if(oldResult)display(reconcileBarcode(oldResult,localBarcode),performance.now()-start);
+    if(oldResult)display(reconcileBarcode({...oldResult,networkFailure:error?.networkStats||oldResult.networkFailure},localBarcode),performance.now()-start);
+    else if(error?.transient){
+     const local=await Promise.race([barcodeJob||Promise.resolve(null),new Promise(resolve=>setTimeout(()=>resolve(null),120))]);
+     if(id!==generation)return;
+     if(local)localBarcode=local;
+     const partial=applyCatalogRecovery(reconcileBarcode({fields:{name:null,weightGrams:null,pricePerKgCents:null,totalCents:null,ean13:null},
+      source:'local-network-recovery',networkFailure:error.networkStats,checks:{recoveryInterrupted:true,
+       recoveryInterruptedTargets:trustedBarcodeEvidence(localBarcode)?['weight','rate','total']:['name','weight','rate','total','ean']}},localBarcode));
+     display(partial,performance.now()-start);
+    }
     say(lastAnalysisError,true);
     updateCardState('error');
    }

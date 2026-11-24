@@ -145,6 +145,12 @@ function iuGeminiDuplicate(ean,gross,rate,total){
  // Hors session : secours limité aux acquisitions très récentes.
  return history.find(x=>match(x)&&Date.now()-x.at<15*60*1000)||null;
 }
+window.IUDigiRecentReferences=()=>{
+ const session=getActiveSession();
+ return [...(session?.entries||[]).slice(-185).reverse(),...history].slice(0,200)
+  .filter(x=>x?.source==='gemini'&&/^\d{7}$/.test(String(x.catalogPrefix||'')))
+  .map(x=>({catalogPrefix:x.catalogPrefix}));
+};
 window.IUGeminiDuplicateInfo=payload=>({
  duplicate:Boolean(iuGeminiDuplicate(payload?.ean13,payload?.gross,
   payload?.pricePerKgCents,payload?.totalCents))
@@ -166,6 +172,8 @@ window.IUGeminiSaveWeigh=payload=>{
  const net=gross-b.tare;
  if(Math.abs(Math.round(gross*rate/1000)-total)>1)
   return {ok:false,reason:'Prix original incohérent'};
+ if(ean.startsWith('02')&&Math.abs(Math.round(Number(ean.slice(7,12))*100/655.36)-total)>1)
+  return {ok:false,reason:'Montant de l’EAN original incohérent'};
  // Le montant et la clé EAN reconstitués doivent correspondre EXACTEMENT
  // au poids net et au prix de cette pesée, même si l'appelant est modifié.
  const correctedTotal=Math.round(net*rate/1000);

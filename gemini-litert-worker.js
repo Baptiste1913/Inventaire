@@ -9,7 +9,7 @@ let model=null,Tensor=null,dict=null,backend='',busy=false;
 function decodeCTC(data,chars){
  const n=chars.length;
  if(n<2||data.length%n||data.length/n>256||!data.length)return null;
- let prev=-1,text='',confidence=1;
+ let prev=-1,text='',confidence=1;const digitOptions=[];
  for(let t=0;t<data.length;t+=n){
   let max=-Infinity,id=-1,min=Infinity,sum=0;
   for(let j=0;j<n;j++){
@@ -21,14 +21,21 @@ function decodeCTC(data,chars){
    if(min>=0&&max<=1.0001&&Math.abs(sum-1)<.03)probability=max;
    else{let denom=0;for(let j=0;j<n;j++)denom+=Math.exp(data[t+j]-max);probability=1/denom;}
    confidence=Math.min(confidence,probability);
-   text+=chars[id];
+   const character=chars[id];
+   if(/^\d$/.test(character)){
+    const options=[];
+    for(let j=1;j<n;j++)if(/^\d$/.test(chars[j]))options.push({digit:chars[j],score:data[t+j]});
+    options.sort((a,b)=>b.score-a.score);
+    digitOptions.push(options.slice(0,3));
+   }
+   text+=character;
   }
   prev=id;
  }
  const normalized=text.normalize('NFKC').trim();
  if(!/^[0-9 \t\u00a0\u202f-]{13,24}$/.test(normalized))return null;
  const pattern=normalized.replace(/\D/g,'');
- return pattern.length===13&&confidence>=.80?{pattern,confidence}:null;
+ return pattern.length===13&&confidence>=.80?{pattern,confidence,digitOptions}:null;
 }
 async function initialize(){
  if(model)return {backend};
@@ -82,7 +89,7 @@ async function read(photo,zone){
   const x=Math.round(z.x*bmp.width),w=Math.round(z.w*bmp.width);
   const a=await recognizeBand(bmp,x,Math.round((z.y+.48*z.h)*bmp.height),w,Math.round(.49*z.h*bmp.height));
   const b=await recognizeBand(bmp,x,Math.round((z.y+.57*z.h)*bmp.height),w,Math.round(.40*z.h*bmp.height));
-  if(a&&b&&a.pattern===b.pattern)return {pattern:a.pattern,confidence:Math.min(a.confidence,b.confidence),source:'litert',confirmed:false,backend};
+  if(a&&b&&a.pattern===b.pattern)return {pattern:a.pattern,confidence:Math.min(a.confidence,b.confidence),digitOptions:a.digitOptions,source:'litert',confirmed:false,backend};
   return null;
  }finally{bmp?.close?.();busy=false;}
 }

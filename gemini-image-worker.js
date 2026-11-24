@@ -3,7 +3,7 @@
  */
 'use strict';
 importScripts('./gemini-recognition-core.js?v=42.45');
-importScripts('./gemini-ean.js?v=42.45');
+importScripts('./gemini-ean.js?v=42.49');
 importScripts('./gemini-label-geometry.js?v=42.33');
 importScripts('./gemini-zxing.js?v=42.36');
 function zoneToPixels(rect,w,h){

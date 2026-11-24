@@ -85,7 +85,7 @@ async function simulate(frames,cache,settings={}){
  assert(js.includes('now-qualityLastCachedAt<360'),
   'Une seule photo plein format conservée tous les 360 ms au maximum');
  assert(js.includes('const factor=Math.min(1,maxEdge/Math.max(crop.width,crop.height))')&&
-  js.includes('fullResolutionCameraFrame(2160)'),
+  js.includes('fullResolutionCameraFrame(localEdge)'),
   'La photo du clic préserve davantage de pixels sans suréchantillonnage');
  assert(js.includes('blob?.size>490000&&Math.max(cv.width,cv.height)>1920')&&
   js.includes("fallback.toBlob(resolve,'image/jpeg',.86)"),

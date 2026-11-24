@@ -346,6 +346,111 @@
   return {candidates:ranked.slice(0,5).map(x=>({...x.item})),
    positions:[...positions].sort((a,b)=>a-b),candidateCount:ranked.length};
  }
+ // All hypotheses below are ADVISORY. Only reconstruct() may resolve
+ // the original EAN, and it retains its existing admission rules.
+ const BARS_L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+ const BARS_G=['0100111','0110011','0011011','0100001','0011101','0111001','0000101','0010001','0001001','0010111'];
+ const BARS_R=BARS_L.map(s=>[...s].map(x=>x==='0'?'1':'0').join(''));
+ const PARITIES=['LLLLLL','LLGLGG','LLGGLG','LLGGGL','LGLLGG','LGGLLG','LGGGLL','LGLGLG','LGLGGL','LGGLGL'];
+ function encodeBars(ean){
+  if(!eanValid(ean))return '';
+  const parity=PARITIES[+ean[0]];
+  return '101'+[...ean.slice(1,7)].map((d,i)=>(parity[i]==='L'?BARS_L:BARS_G)[+d]).join('')+
+   '01010'+[...ean.slice(7)].map(d=>BARS_R[+d]).join('')+'101';
+ }
+ function barDistance(code,rows){
+  const bits=encodeBars(code);
+  const good=(Array.isArray(rows)?rows:[]).slice(0,8).filter(x=>typeof x==='string'&&/^[01]{95}$/.test(x)&&
+   x.slice(0,3)==='101'&&x.slice(45,50)==='01010'&&x.slice(92)==='101');
+  if(!bits||good.length<2)return null;
+  const distances=good.map(row=>[...row].reduce((n,d,i)=>n+(d!==bits[i]?1:0),0)).sort((a,b)=>a-b);
+  return distances[Math.floor(distances.length/2)];
+ }
+ // Rounding intervals include the existing +/-1 cent tolerance.
+ // No inverse-calculated weight or price is installed in fields.
+ function inverseRanges(fields){
+  const g=fields?.weightGrams,r=fields?.pricePerKgCents,t=fields?.totalCents;
+  const e=fields?.ean13;
+  const totals=[];
+  if(Number.isSafeInteger(t)&&t>=0)totals.push(t);
+  if(eanValid(e)&&e.startsWith('02'))totals.push(Math.round(Number(e.slice(7,12))*100/655.36));
+  const ranges={};
+  if(totals.length){
+   const lo=Math.max(0,...totals.map(v=>v-1)),hi=Math.min(...totals.map(v=>v+1));
+   if(lo>hi)return {conflict:true};
+   const range=(den,max)=>({min:Math.max(1,Math.ceil((lo-.5)*1000/den)),max:Math.min(max,Math.ceil((hi+.5)*1000/den)-1)});
+   if(Number.isSafeInteger(r)&&r>0)ranges.weight=range(r,30000);
+   if(Number.isSafeInteger(g)&&g>0)ranges.rate=range(g,1000000);
+   ranges.total={min:lo,max:hi};
+  }
+  if(Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0)
+   ranges.computedTotal=Math.round(g*r/1000);
+  return ranges;
+ }
+ function solveHypotheses(result,{observations=[],history=[]}={}){
+  const fields=result?.fields||{},base=observedPattern(result?.eanObserved)||observedPattern(fields.ean13);
+  const guide=recheckPlan(result),ranges=inverseRanges(fields);
+  const sources=[],rows=[],alternatives=[];
+  if(base)sources.push({mask:base,weight:3});
+  for(const o of (Array.isArray(observations)?observations:[]).slice(0,6)){
+   const mask=observedPattern(o?.pattern||o?.ean13);
+   if(mask)sources.push({mask,weight:o.source==='optical-partial'?2:1});
+   if(Array.isArray(o?.bitRows))rows.push(...o.bitRows.slice(0,8));
+   if(Array.isArray(o?.digitOptions)&&o.digitOptions.length===13)alternatives.push(o.digitOptions);
+  }
+  const catalogue=index();
+  if(!catalogue.available)return {...guide,ranges,ranked:[],observationCount:sources.length};
+  const recent=new Map();
+  for(const e of (Array.isArray(history)?history:[]).slice(0,200)){
+   const prefix=catalogPrefix(e?.catalogPrefix);
+   if(prefix)recent.set(prefix,Math.min(10,(recent.get(prefix)||0)+1));
+  }
+  const pool=new Map();
+  const add=c=>pool.set(c.eanPrefix+'|'+c.plu+'|'+c.name,c);
+  // All strict matches, not just the top 5. Also consider alternate
+  // observed masks and nearby candidates. Bound CPU; never infer uniqueness.
+  for(const source of sources)for(const c of matchingCandidates({eanObserved:source.mask,name:fields.name}))add(c);
+  for(const c of guide.candidates)add(c);
+  if(!pool.size)for(const c of matchingCandidates({name:fields.name}))add(c);
+  const ranked=[],g=fields.weightGrams,r=fields.pricePerKgCents;
+  const computed=Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0?Math.round(g*r/1000):null;
+  const total=Number.isSafeInteger(fields.totalCents)?fields.totalCents:computed;
+  const comparable=Number.isSafeInteger(total)&&Number.isSafeInteger(computed)&&Math.abs(total-computed)<=1;
+  function mismatch(code,source){
+   return [...source.mask].reduce((n,d,i)=>n+(d!=='?'&&code[i]!==d?source.weight:0),0);
+  }
+  for(const item of [...pool.values()].slice(0,160)){
+   let codes=comparable&&item.eanPrefix.startsWith('02')?amountVariants(item.eanPrefix,total,computed,''):[];
+   if(!codes.length&&eanValid(base)&&base.startsWith(item.eanPrefix))codes=[base];
+   if(!codes.length)codes=[item.eanPrefix+'??????'];
+   let best=null;
+   for(const code of codes){
+    const loss=sources.reduce((n,o)=>n+mismatch(code.slice(0,13),o),0);
+    const optical=barDistance(code,rows);
+    let ocrLoss=0;
+    for(const option of alternatives)for(let i=0;i<13;i++){
+     const opts=option[i];if(Array.isArray(opts)&&opts.length&& !opts.some(x=>String(x?.digit)===code[i]))ocrLoss++;
+    }
+    const score=loss*4+(optical??0)*1.5+ocrLoss+(1-(item.nameScore||0))*3;
+    if(!best||score<best.score)best={code,score,barDistance:optical};
+   }
+   ranked.push({...item,...best,recent:recent.get(item.eanPrefix)||0});
+  }
+  ranked.sort((a,b)=>a.score-b.score||b.recent-a.recent||a.eanPrefix.localeCompare(b.eanPrefix));
+  const positions=new Set(guide.positions);
+  for(let i=0;i<13;i++){
+   const observed=new Set(sources.map(x=>x.mask[i]).filter(x=>x&&x!=='?'));
+   if(observed.size>1)positions.add(i+1);
+  }
+  // Do not send candidate EANs or scores as evidence. Only positions
+  // and official product references guide the next visual reading.
+  for(const item of ranked.slice(0,5))if(base)for(let i=0;i<13;i++)
+   if(item.code[i]!=='?'&&base[i]!=='?'&&item.code[i]!==base[i])positions.add(i+1);
+  return {candidates:ranked.slice(0,5).map(({eanPrefix,plu,name})=>({eanPrefix,plu,name})),
+   positions:[...positions].sort((a,b)=>a-b),candidateCount:pool.size,ranges,
+   ranked:ranked.slice(0,5),observationCount:sources.length,barRows:Math.min(8,rows.length),
+   truncated:pool.size>160};
+ }
  function verify(ean,plu,name){
   const record=resolve(ean);
   return Boolean(record.ok&&record.plu===String(plu??'')&&
@@ -355,5 +460,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
 });

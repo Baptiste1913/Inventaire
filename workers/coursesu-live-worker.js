@@ -1,4 +1,4 @@
-/* Inventaires U v42.48 — Worker Gemini, contexte DIGI ciblé et JPEG binaire sans perte.
+/* Inventaires U v42.49 — Worker Gemini, contexte DIGI ciblé et JPEG binaire sans perte.
  * Route : POST /gemini-lab, authentifiée par COURSESU_TEST_TOKEN.
  * Images et contrôles stricts du moteur Gemini inchangés.
  * Les opérations Courses U / Apify sont désormais un fichier séparé.
@@ -92,6 +92,55 @@ function parseBinary(bytes){
  if(!jpeg(a)||(detail&&!jpeg(b)))throw Error('JPEG invalide');
  return {...data,imageBase64:bytesBase64(a),detailImageBase64:detail?bytesBase64(b):undefined};
 }
+// A single model, a single serialized image payload, at most three calls.
+ // Only explicit upstream 503/UNAVAILABLE is automatically replayed.
+ // An in-memory breaker is best-effort per isolate, not a global service.
+const geminiCircuit={failures:0,until:0,probing:false};
+async function resilientGemini(url,options,{deadline,signal,now=Date.now,
+ random=Math.random,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),
+ send=fetch,circuit=geminiCircuit}={}){
+ const stats={attempts:0,retries:0,upstream503:0,waitMs:0,stage:'google_http'};
+ if(circuit.until>now()||circuit.probing)return {response:null,stats:{...stats,stage:'circuit_open',retryAfterMs:Math.max(1000,circuit.until-now())}};
+ const probe=circuit.failures>=3;
+ if(probe)circuit.probing=true;
+ try{
+  for(let i=0;i<3;i++){
+   if(signal?.aborted||deadline-now()<600)break;
+   stats.attempts++;
+   let response;
+   try{response=await send(url,options);}
+   catch(error){
+    stats.stage=signal?.aborted?'timeout':'cloudflare_google_network';
+    return {response:null,stats,networkError:true};
+   }
+   if(response.status!==503){
+    // A response proves the link is alive; quota or bad input is not
+    // overload and must never cause an automatic model retry.
+    circuit.failures=0;circuit.until=0;
+    return {response,stats};
+   }
+   stats.upstream503++;circuit.failures++;
+   const header=response.headers?.get('Retry-After');
+   const seconds=header&&/^\d+(?:\.\d+)?$/.test(header)?Number(header)*1000:
+    header?Math.max(0,Date.parse(header)-now()):0;
+   const backoff=Math.max(Number.isFinite(seconds)?seconds:0,
+    Math.round((i===0?250:600)+random()*180));
+   if(i===2||probe||deadline-now()<1500){
+    if(circuit.failures>=3||seconds>0)circuit.until=now()+Math.min(30000,Math.max(3000,Number.isFinite(seconds)?seconds:0));
+    return {response,stats};
+   }
+   // Honor a long Retry-After by returning control, never sleeping
+   // beyond the request budget.
+   if(backoff>1800||deadline-now()<backoff+1100){
+    circuit.until=now()+Math.min(30000,Math.max(1000,backoff));
+    return {response,stats:{...stats,retryAfterMs:backoff}};
+   }
+   try{await response.body?.cancel?.();}catch(_){}
+   stats.retries++;stats.waitMs+=backoff;await wait(backoff);
+  }
+  return {response:null,stats:{...stats,stage:'timeout'}};
+ }finally{if(probe)circuit.probing=false;}
+}
 async function geminiPilot(request,env,origin){
  const closed={type:'inventaires-u-gemini-lab',actorExecuted:false,
   inventoryUpdated:false};
@@ -113,7 +162,7 @@ async function geminiPilot(request,env,origin){
  }catch(_){return reply({...closed,error:'Image ou JSON invalide.'},400,origin)}
  const provider='gemini',model=payload?.model;
  if((payload?.provider&&payload.provider!=='gemini')||
-    !['gemini-3.8-flash','gemini-3.5-flash-lite'].includes(model)||
+    model!=='gemini-3.5-flash-lite'||
     payload?.type!=='iu-gemini-label-test'||
     payload?.mimeType!=='image/jpeg'||
     typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
@@ -194,8 +243,11 @@ async function geminiPilot(request,env,origin){
    +'Retourne la lecture complète si elle est visible, sinon un masque de 13 positions avec ?. '
    :'');
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),13000);
+ const incomingSignal=request.signal;
+ const cancel=()=>abort.abort();
+ if(incomingSignal?.aborted)cancel();else incomingSignal?.addEventListener('abort',cancel,{once:true});
  const started=Date.now();
- let providerAnswered=false;
+ let providerAnswered=false,networkStats={attempts:0,retries:0,upstream503:0,waitMs:0,stage:'google_http'};
  try{
 
   let extracted;
@@ -209,7 +261,7 @@ async function geminiPilot(request,env,origin){
   if(detail)imageParts.push(
    {text:'Image 2 : agrandissement central de la MEME photo, pour relire les chiffres fins.'},
    {inline_data:{mime_type:'image/jpeg',data:detail}});
-  const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'
+  const attempt=await resilientGemini('https://generativelanguage.googleapis.com/v1beta/models/'
    +model+':generateContent',{
     method:'POST',signal:abort.signal,
     headers:{'Content-Type':'application/json','x-goog-api-key':env.GEMINI_API_KEY},
@@ -218,7 +270,14 @@ async function geminiPilot(request,env,origin){
      generationConfig:{temperature:0,maxOutputTokens:1024,
       responseMimeType:'application/json',responseSchema}
     })
-   });
+   },{deadline:started+13000,signal:abort.signal});
+  networkStats=attempt.stats;
+  const res=attempt.response;
+  if(!res){
+   const status=abort.signal.aborted||networkStats.stage==='timeout'?504:503;
+   return reply({...closed,provider,model,networkStats,error:networkStats.stage==='circuit_open'?
+    'Gemini en récupération temporaire.':status===504?'Délai Gemini dépassé.':'Liaison Cloudflare–Gemini indisponible.'},status,origin);
+  }
   if(!res.ok){
    const status=res.status;
    // Ne pas faire fuiter le corps de la réponse, qui peut contenir des données du compte.
@@ -230,7 +289,7 @@ async function geminiPilot(request,env,origin){
    // Ne pas transformer un refus d’accès/quota en fausse panne HTTP 502.
    const outputStatus=status===429?429:[401,403].includes(status)?403
     :status===404?404:status===400?400:[500,502,503,504].includes(status)?503:502;
-   return reply({...closed,error:diagnostic,providerStatus:status,model},outputStatus,origin);
+   return reply({...closed,error:diagnostic,providerStatus:status,model,networkStats},outputStatus,origin);
   }
   providerAnswered=true;
   const raw=await res.text();
@@ -283,7 +342,7 @@ async function geminiPilot(request,env,origin){
   const barcodePriceConsistent=priceFromEAN!==null&&totalCents!==null
    ?Math.abs(priceFromEAN-totalCents)<=1:null;
   return reply({...closed,provider,model,pipelineVersion:2,transport:'binary-v1',
-   focusField:focus,focusFields,elapsedMs:Date.now()-started,
+   focusField:focus,focusFields,elapsedMs:Date.now()-started,networkStats,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    eanObserved,contextCandidates:catalogCandidates.length,
    checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null,
@@ -295,8 +354,8 @@ async function geminiPilot(request,env,origin){
   const label='Gemini';
   const message=abort.signal.aborted?'Délai '+label+' dépassé.'
    :providerAnswered?'Réponse '+label+' non exploitable.':'Service '+label+' indisponible.';
-  return reply({...closed,provider,error:message,model},status,origin);
- }finally{clearTimeout(timeout)}
+  return reply({...closed,provider,error:message,model,networkStats},status,origin);
+ }finally{clearTimeout(timeout);incomingSignal?.removeEventListener('abort',cancel);}
 }
 
 export default {

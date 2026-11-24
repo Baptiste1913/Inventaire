@@ -21,8 +21,9 @@ assert(lab.includes('preparedBarcode:chosen.jpeg===barcodeOriginal?chosen.prepar
 assert(lab.includes('const localDeadline=performance.now()+350'));
 assert(lab.includes('const finalDeadline=performance.now()+110'));
 assert(lab.indexOf('void opticalTask.promise.then(reading=>')<lab.indexOf('const received=await requestGeminiWithRecovery'));
-for(const name of ['gemini-latency.js','gemini-litert-lab.js'])assert(html.includes(name+'?v=42.47')&&sw.includes(name+'?v=42.47'));
-assert(sw.includes('gemini-litert-worker.js?v=42.47'));
+assert(html.includes('gemini-latency.js?v=42.47')&&sw.includes('gemini-latency.js?v=42.47'));
+assert(html.includes('gemini-litert-lab.js?v=42.49')&&sw.includes('gemini-litert-lab.js?v=42.49'));
+assert(sw.includes('gemini-litert-worker.js?v=42.49'));
 (async()=>{
  let resolve;
  const task=latency.track(new Promise(r=>{resolve=r}));

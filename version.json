@@ -1,6 +1,6 @@
 {
-  "version": "42.48",
+  "version": "42.49",
   "published": "2026-11-24",
   "assets": 67,
-  "notes": "DIGI : index de préfixes et cache invalidé à chaque import, relecture Gemini guidée par les positions EAN discriminantes et candidats proches non probants, récupération de la clé seule sur les autres préfixes, transport JPEG binaire négocié sans recompression et préconnexion Cloudflare. Worker Cloudflare à redéployer pour activer le nouveau transport et le prompt."
+  "notes": "Gemini 3.5 Flash-Lite seul : réessais 503 bornés, temporisation aléatoire, circuit de protection, diagnostic et reprise des champs interrompus. DIGI : hypothèses par contraintes, distances des barres EAN, alternatives OCR, intervalles mathématiques, contexte local non probant, validation finale inchangée et contrôle du montant EAN à la sauvegarde. Redéployer le Worker Cloudflare."
 }

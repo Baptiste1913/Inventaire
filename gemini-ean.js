@@ -92,8 +92,8 @@
     bits.push(binary[center]?'1':'0');
    }
    const code=decode95(bits.join(''));
-   if(code)results.push({code,start,end});
-   else if(partial){const pattern=decodePartial95(bits.join(''));if(pattern)results.push({pattern,start,end});}
+   if(code)results.push({code,start,end,...(partial?{bits:bits.join('')}: {})});
+   else if(partial){const pattern=decodePartial95(bits.join(''));if(pattern)results.push({pattern,start,end,bits:bits.join('')});}
   }
   return results;
  }
@@ -208,7 +208,7 @@
    const cv=new OffscreenCanvas(w,h),ctx=cv.getContext('2d',{willReadFrequently:true});
    if(!ctx)return null;
    ctx.drawImage(bmp,0,0,w,h);
-   const pixels=ctx.getImageData(0,0,w,h).data,rows=[];
+   const pixels=ctx.getImageData(0,0,w,h).data,rows=[],bitRows=[];
    let anchor=null;
    for(const fraction of [.60,.63,.66,.69,.72,.75,.78,.81,.84,.87,.90]){
     const row=Math.round(h*fraction),found=[];
@@ -231,15 +231,17 @@
     if(found.some(x=>Math.abs(x.start-hit.start)>w*.07||Math.abs(x.end-hit.end)>w*.07||
        [...x.pattern].some((c,i)=>c!=='?'&&hit.pattern[i]!=='?'&&c!==hit.pattern[i])))return null;
     rows.push(hit.pattern);
+    if(hit.bits&&bitRows.length<8)bitRows.push(hit.bits);
    }
    if(rows.length<2)return null;
-   let pattern='',known=0;
+   let pattern='',known=0,disagreement=false;
    for(let i=0;i<13;i++){
     const vals=rows.map(r=>r[i]).filter(c=>c!=='?'),unique=new Set(vals);
-    if(unique.size>1)return null;
-    const digit=vals.length>=2?vals[0]:'?';pattern+=digit;if(digit!=='?')known++;
+    if(unique.size>1)disagreement=true;
+    const digit=vals.length>=2&&unique.size===1?vals[0]:'?';pattern+=digit;if(digit!=='?')known++;
    }
-   return known>=6?{pattern,source:'optical-partial',confirmed:false,rows:rows.length}:null;
+   return known>=6?{pattern,source:'optical-partial',confirmed:false,rows:rows.length,
+    bitRows,disagreement}:null;
   }catch(_){return null;}finally{bmp?.close?.();}
  }
  function detectPaper(original,iw,ih){

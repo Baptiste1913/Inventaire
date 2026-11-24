@@ -30,7 +30,7 @@
   const token=epoch;
   status('LiteRT · téléchargement et préparation du modèle…');
   try{
-   worker=new Worker(new URL('gemini-litert-worker.js?v=42.47',document.baseURI),{type:'module'});
+   worker=new Worker(new URL('gemini-litert-worker.js?v=42.49',document.baseURI),{type:'module'});
    worker.onmessage=e=>{
     const {id,result,error}=e.data||{},p=pending.get(id);if(!p)return;
     clearTimeout(p.timer);pending.delete(id);p.resolve(error?null:result);

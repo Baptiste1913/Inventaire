@@ -12,6 +12,8 @@ on:
       - 'gemini-lab.js'
       - 'gemini-transport.js'
       - 'tools/test_gemini_transport.cjs'
+      - 'tools/test_gemini_resilience.cjs'
+      - 'tools/test_digi_hypotheses.cjs'
       - 'gemini-latency.js'
       - 'gemini-litert-lab.js'
       - 'gemini-litert-worker.js'
@@ -141,6 +143,8 @@ jobs:
           node tools/test_digi_catalog_integration.cjs
           node tools/test_digi_catalog_recovery.cjs
           node tools/test_gemini_transport.cjs
+          node tools/test_gemini_resilience.cjs
+          node tools/test_digi_hypotheses.cjs
           node tools/test_gemini_latency.cjs
           node tools/test_gemini_recognition_core.cjs
       - name: Vérifier la sécurité et les routes du Worker Gemini dédié
