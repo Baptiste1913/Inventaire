@@ -1,4 +1,4 @@
-/* Inventaires U 42.75 — chrome : trois filaments regroupés vers le bas.
+/* Inventaires U 42.76 — chrome : trajectoires d’origine, limitées au résultat.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -93,15 +93,12 @@
   const ease=q*q*(3-2*q);
   return a.slice(1).map((v,k)=>v+(b[k+1]-v)*ease);
  }
- // Regrouper les trajectoires de fond dans un faisceau souple.
- // Phases, mouvement horizontal et rendu Chrome restent indépendants.
- const backdropBands=[.76,.815,.87],backdropSpread=.42;
  function projectMotion(motion,t){
   const [tx,ty,sx,sy]=motionPose(t,motion.index),b=motion.box;
   const cx=b.x+b.w/2,cy=b.y+b.h/2;
   const pts=motion.local.map(p=>({x:(cx+(p.x-cx)*sx+tx*b.w)*width,
-   y:(backdropBands[motion.index]+((p.y-cy)*sy+ty*b.h)*backdropSpread)*height}));
-  {
+   y:(cy+(p.y-cy)*sy+ty*b.h)*height}));
+  if(motion.index===2){
    // Extend along the endpoint tangents, never along a horizontal shelf.
    // Translate the whole curve when needed, preserving all its curvature.
    const first=pts[0],next=pts[1],last=pts[pts.length-1],prev=pts[pts.length-2];
@@ -405,32 +402,32 @@
   }
   if(running){paintWaves(t);paintInnerWaves(t);}
  }
- // Clip at the centreline of the outer chrome, not 3.7 px inside it.
- // The outer canvas is drawn above this one and covers the junction.
- function backdropClipRect(outer,bounds){
-  const sx=width/bounds.width,sy=height/bounds.height,margin=1.8;
-  const w=outer.width-2*margin,h=outer.height-2*margin;
-  const radius=Math.max(2,Math.min(19,w/5,h/3));
-  return {x:(outer.left-bounds.left+margin)*sx,y:(outer.top-bounds.top+margin)*sy,
+ // Confiner les filaments au résultat sans modifier leur trajectoire
+ // ni déplacer le canvas derrière le verre. Rayon CSS du panneau : 20 px.
+ function backdropClipRect(panel,bounds){
+  const sx=width/bounds.width,sy=height/bounds.height;
+  const w=panel.width,h=panel.height;
+  const radius=Math.min(20,w/2,h/2);
+  return {x:(panel.left-bounds.left)*sx,y:(panel.top-bounds.top)*sy,
    w:w*sx,h:h*sy,rx:radius*sx,ry:radius*sy};
  }
  function clipBackdrop(){
-  const outer=document.getElementById('iuGeminiOuterChrome')||document.getElementById('iuGeminiLab');
-  if(!outer||!ctx.clip)return;
-  const bounds=canvas.getBoundingClientRect(),box=outer.getBoundingClientRect();
-  if(!bounds.width||!bounds.height||box.width<=11||box.height<=11)return;
+  const panel=document.getElementById('iuGeminiLabelPanel');
+  if(!panel||panel.hidden||!ctx.clip)return false;
+  const bounds=canvas.getBoundingClientRect(),box=panel.getBoundingClientRect();
+  if(!bounds.width||!bounds.height||box.width<=0||box.height<=0)return false;
   const {x,y,w,h,rx,ry}=backdropClipRect(box,bounds);
   const clip=new Path2D(),k=.5522847498307936,R=x+w,B=y+h;
-  // Cubic quarter-circle approximation matching the chrome arc.
+  // Coins arrondis alignés sur le panneau de résultat.
   clip.moveTo(x+rx,y);clip.lineTo(R-rx,y);
   clip.bezierCurveTo(R-rx+k*rx,y,R,y+ry-k*ry,R,y+ry);
   clip.lineTo(R,B-ry);clip.bezierCurveTo(R,B-ry+k*ry,R-rx+k*rx,B,R-rx,B);
   clip.lineTo(x+rx,B);clip.bezierCurveTo(x+rx-k*rx,B,x,B-ry+k*ry,x,B-ry);
   clip.lineTo(x,y+ry);clip.bezierCurveTo(x,y+ry-k*ry,x+rx-k*rx,y,x+rx,y);clip.closePath();
-  ctx.clip(clip);
+  ctx.clip(clip);return true;
  }
  function paintBackdrop(t){
-  ctx.save();clipBackdrop();
+  ctx.save();if(!clipBackdrop()){ctx.restore();return;}
   for(const motion of motionPaths){
    openPoints=projectMotion(motion,t);
    looseFibres=motion.loose;innerWaves=motion.inner;nextWaveAt=motion.next;nextInnerWaveAt=motion.nextInner;

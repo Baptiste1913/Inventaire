@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.75'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.76'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -275,11 +275,12 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  const svg={querySelectorAll:()=>motion.map(p=>({querySelector:()=>p}))};
  const guide={querySelector:()=>svg,getClientRects:()=>[{}]};
  const bg={id:'iuGeminiBackdropChrome',parentElement:guide,hidden:false,getContext:()=>ctx,getBoundingClientRect:()=>({width:340,height:260,left:0,top:0})};
+ const panel={hidden:false,getBoundingClientRect:()=>({left:24,top:26,width:292,height:208})};
  const outer={getBoundingClientRect:()=>({left:10,top:-100,width:320,height:352})};
- const doc={hidden:false,getElementById:k=>k===bg.id?bg:k==='iuGeminiLab'?outer:null,addEventListener(){}};
+ const doc={hidden:false,getElementById:k=>k===bg.id?bg:k==='iuGeminiLabelPanel'?panel:k==='iuGeminiLab'?outer:null,addEventListener(){}};
  const win={devicePixelRatio:2,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.push(fn);return 1;},cancelAnimationFrame(){}};
  class Observer{observe(){}}
- const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isBackdrop)inspect({reflectionCenter,endFade,projectMotion,motionPose,ribbonGeometry,openPoint,centreThickness,backdropClipRect,backgroundBaseShape,paths:()=>motionPaths,setOpen:p=>{openPoints=p;}});\n }\n})();');
+ const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isBackdrop)inspect({reflectionCenter,endFade,projectMotion,motionPose,ribbonGeometry,openPoint,centreThickness,backdropClipRect,paintBackdrop,backgroundBaseShape,paths:()=>motionPaths,setOpen:p=>{openPoints=p;}});\n }\n})();');
  new Function('document','window','Path2D','MutationObserver','inspect',instrument)(doc,win,Path,Observer,x=>{debug=x});
  assert.equal(frames.length,1);frames.shift()(100);
  assert.equal(drawn.length,45);
@@ -296,16 +297,10 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  const before=debug.ribbonGeometry(seam-.00001,config),after=debug.ribbonGeometry(seam+.00001,config);
  assert(before.every(p=>p.envelope<1e-6)&&after.every(p=>p.envelope<1e-6),'Reflet invisible au raccord');
  for(let time=0;time<90;time+=.13){
-  const grouped=debug.paths().map(path=>debug.projectMotion(path,time));
-  const mean=points=>points.slice(1,-1).reduce((sum,p)=>sum+p.y,0)/(points.length-2);
-  const centres=grouped.map(mean);
-  assert(centres.every(y=>y>=.68*260&&y<=.94*260),'Faisceau dans le bas du canvas');
-  assert(Math.max(...centres)-Math.min(...centres)<.20*260,'Trajectoires rapprochées');
-  for(const points of grouped){
-   assert(points[0].x<0&&points[points.length-1].x>340);
-   assert(points.every(p=>Number.isFinite(p.y)&&p.y<=252));
-  }
-  const bottom=grouped[2];
+  const top=debug.projectMotion(debug.paths()[0],time),middle=debug.projectMotion(debug.paths()[1],time);
+  const mean=points=>points.reduce((sum,p)=>sum+p.y,0)/points.length;
+  assert(mean(top)<.45*260&&mean(middle)>.35*260,'Placement initial non regroupé');
+  const bottom=debug.projectMotion(debug.paths()[2],time);
   assert(bottom[0].x<0&&bottom[bottom.length-1].x>340);
   assert(bottom.every(p=>Number.isFinite(p.y)&&p.y<=252));
   const a=bottom[0],b=bottom[1],c=bottom[2],d=bottom[bottom.length-3],e=bottom[bottom.length-2],f=bottom[bottom.length-1];
@@ -323,12 +318,17 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  const distance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
  assert(Math.abs(distance(shape[0],shape[257])-1.02)<1e-8);
  assert(Math.abs(distance(shape[64],shape[193])-.714)<1e-8);
- const clip=debug.backdropClipRect(outer.getBoundingClientRect(),bg.getBoundingClientRect());
- for(const [key,expected] of Object.entries({x:11.8,y:-98.2,w:316.4,h:348.4,rx:19,ry:19}))assert(Math.abs(clip[key]-expected)<1e-8,key);
- assert(Math.abs(clip.x-outer.getBoundingClientRect().left-1.8)<1e-8);
- assert(clips[0].some(p=>p.length===6),'Coins cubiques alignés sur le contour');
- assert(source.includes("document.getElementById('iuGeminiOuterChrome')||document.getElementById('iuGeminiLab')"));
- console.log('OK : tangentes continues sans aplatissement, clip intérieur et largeur variable au centre');
+ const clip=debug.backdropClipRect(panel.getBoundingClientRect(),bg.getBoundingClientRect());
+ for(const [key,expected] of Object.entries({x:24,y:26,w:292,h:208,rx:20,ry:20}))assert(Math.abs(clip[key]-expected)<1e-8,key);
+ const coords=clips[0].flat();
+ for(let i=0;i<coords.length;i+=2)assert(coords[i]>=24&&coords[i]<=316&&coords[i+1]>=26&&coords[i+1]<=234,'Clip limité au résultat');
+ assert(clips[0].some(p=>p.length===6),'Coins cubiques alignés sur le résultat');
+ assert(source.includes("document.getElementById('iuGeminiLabelPanel')"));
+ assert(css.includes('border-radius:20px!important;'));
+ const count=drawn.length;panel.hidden=true;debug.paintBackdrop(1);assert.equal(drawn.length,count,'Pas de dessin hors résultat masqué');
+ panel.hidden=false;panel.getBoundingClientRect=()=>({left:24,top:26,width:0,height:0});
+ debug.paintBackdrop(2);assert.equal(drawn.length,count,'Pas de dessin si résultat sans dimensions');
+ console.log('OK : trajectoires initiales, tangentes continues, clip strict du résultat, largeur variable au centre');
 }
 
 assert(css.includes(':not(#iuGeminiOuterChrome) {'));
