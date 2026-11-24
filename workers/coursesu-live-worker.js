@@ -1,4 +1,4 @@
-/* Inventaires U v42.44 — Worker Cloudflare dédié à Gemini et contexte DIGI minimal.
+/* Inventaires U v42.48 — Worker Gemini, contexte DIGI ciblé et JPEG binaire sans perte.
  * Route : POST /gemini-lab, authentifiée par COURSESU_TEST_TOKEN.
  * Images et contrôles stricts du moteur Gemini inchangés.
  * Les opérations Courses U / Apify sont désormais un fichier séparé.
@@ -46,6 +46,52 @@ function geminiLabName(value){
  const name=value.trim();
  return name.length>=2&&name.length<=70&&/^[\p{L}\d '.\-]+$/u.test(name)?name:null;
 }
+// Binary envelope: 4-byte big-endian metadata length, UTF-8 JSON,
+// exact JPEG bytes, optional exact detail JPEG bytes. No decompression,
+// resizing or re-encoding. Legacy JSON remains fully supported.
+function validBase64(value){
+ return typeof value==='string'&&value.length%4===0&&/^[A-Za-z0-9+/]+={0,2}$/.test(value);
+}
+function bytesBase64(bytes){
+ let text='';
+ for(let i=0;i<bytes.length;i+=16384)
+  text+=String.fromCharCode(...bytes.subarray(i,i+16384));
+ return btoa(text);
+}
+async function boundedBytes(request,limit){
+ if(!request.body?.getReader){
+  const bytes=new Uint8Array(await request.arrayBuffer());
+  if(bytes.length>limit)throw Error('Image trop volumineuse');
+  return bytes;
+ }
+ const reader=request.body.getReader(),chunks=[];let length=0;
+ try{
+  for(;;){
+   const {value,done}=await reader.read();if(done)break;
+   length+=value.byteLength;if(length>limit){await reader.cancel();throw Error('Image trop volumineuse');}
+   chunks.push(value);
+  }
+ }finally{reader.releaseLock();}
+ const bytes=new Uint8Array(length);let pos=0;
+ for(const chunk of chunks){bytes.set(chunk,pos);pos+=chunk.byteLength;}
+ return bytes;
+}
+function parseBinary(bytes){
+ if(bytes.length<4||bytes.length>800000)throw Error('Envelope invalide');
+ const metaLength=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength).getUint32(0);
+ if(metaLength<2||metaLength>16384||4+metaLength>bytes.length)throw Error('Métadonnées invalides');
+ const data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes.subarray(4,4+metaLength)));
+ if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Métadonnées invalides');
+ const main=data.imageBytes,detail=data.detailBytes??0,start=4+metaLength;
+ if(!Number.isSafeInteger(main)||main<75||main>525000||
+    !Number.isSafeInteger(detail)||detail<0||detail>127500||
+    (detail>0&&detail<75)||main+detail>562500||start+main+detail!==bytes.length)
+  throw Error('Taille JPEG invalide');
+ const a=bytes.subarray(start,start+main),b=bytes.subarray(start+main);
+ const jpeg=x=>x[0]===255&&x[1]===216;
+ if(!jpeg(a)||(detail&&!jpeg(b)))throw Error('JPEG invalide');
+ return {...data,imageBase64:bytesBase64(a),detailImageBase64:detail?bytesBase64(b):undefined};
+}
 async function geminiPilot(request,env,origin){
  const closed={type:'inventaires-u-gemini-lab',actorExecuted:false,
   inventoryUpdated:false};
@@ -57,9 +103,13 @@ async function geminiPilot(request,env,origin){
  try{
   const length=Number(request.headers.get('content-length')||0);
   if(length>800000)throw Error('Image trop volumineuse');
-  const text=await request.text();
-  if(text.length>800000)throw Error('Image trop volumineuse');
-  payload=JSON.parse(text);
+  if(request.headers.get('Content-Type')?.split(';')[0].trim()==='application/octet-stream'){
+   payload=parseBinary(await boundedBytes(request,800000));
+  }else{
+   const text=await request.text();
+   if(text.length>800000)throw Error('Image trop volumineuse');
+   payload=JSON.parse(text);
+  }
  }catch(_){return reply({...closed,error:'Image ou JSON invalide.'},400,origin)}
  const provider='gemini',model=payload?.model;
  if((payload?.provider&&payload.provider!=='gemini')||
@@ -67,7 +117,7 @@ async function geminiPilot(request,env,origin){
     payload?.type!=='iu-gemini-label-test'||
     payload?.mimeType!=='image/jpeg'||
     typeof payload?.imageBase64!=='string'||payload.imageBase64.length>700000||
-    payload.imageBase64.length<100||!/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(payload.imageBase64))
+    payload.imageBase64.length<100||!validBase64(payload.imageBase64))
   return reply({...closed,error:'Modèle ou image JPEG incorrect.'},400,origin);
  if(!env.GEMINI_API_KEY)
   return reply({...closed,provider,error:'GEMINI_API_KEY non configurée.'},503,origin);
@@ -81,6 +131,11 @@ async function geminiPilot(request,env,origin){
     new Set(requested).size!==requested.length))
   return reply({...closed,error:'Champs de relecture incorrects.'},400,origin);
  const focusFields=Array.isArray(requested)?requested:(focus?[focus]:[]);
+ const positions=payload?.digiPositions;
+ if(positions!==undefined&&(!Array.isArray(positions)||positions.length>13||
+    positions.some(n=>!Number.isSafeInteger(n)||n<1||n>13)||new Set(positions).size!==positions.length))
+  return reply({...closed,error:'Positions DIGI incorrectes.'},400,origin);
+ const digiPositions=focusFields.includes('ean')&&Array.isArray(positions)?positions:[];
  // Le catalogue complet, les prix et l'historique restent sur l'appareil.
  // Au plus cinq entrées officielles neutres, fournies UNIQUEMENT comme
  // indices de lecture et jamais comme une vérité ni une instruction.
@@ -98,7 +153,7 @@ async function geminiPilot(request,env,origin){
  const detail=payload?.detailImageBase64;
  if(detail!==undefined&&(typeof detail!=='string'||
     detail.length<100||detail.length>170000||
-    !/^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(detail)||
+    !validBase64(detail)||
     detail.length+payload.imageBase64.length>750000))
   return reply({...closed,error:'Agrandissement JPEG invalide ou trop volumineux.'},400,origin);
  const generalPrompt='Lis UNE étiquette DIGI centrale de fruits et légumes Super U. '
@@ -113,7 +168,8 @@ async function geminiPilot(request,env,origin){
   +'eanObserved = 13 positions EXACTES, chiffres réellement visibles et ? pour '
   +'chaque position incertaine, sans ajouter, supprimer ni déplacer un chiffre ; '
   +'null si l alignement des 13 positions ne peut être établi. '
-  +'Si un caractère est ambigu, retourne null pour ce champ. '
+  +'Un EAN incertain doit être représenté par son masque eanObserved plutôt que perdu en entier ; ne suppose pas la clé. '
+  +'Si un caractère du poids ou du prix est ambigu, retourne null pour ce champ. '
   +'Le catalogue n est qu une liste de candidats, JAMAIS une preuve : '
   +'ne complète pas les chiffres EAN par le catalogue, par le montant '
   +'ou par le nom ; chaque caractère observé doit venir des pixels. '
@@ -132,7 +188,11 @@ async function geminiPilot(request,env,origin){
   ' RELECTURE CIBLÉE : relis uniquement '+focusFields.map(k=>focusNames[k]).join(', ')+
   '. Mets tous les autres champs à null sauf eanObserved si l EAN est ciblé. '
   +'En cas de doute, retourne null.'
-  :generalPrompt)+candidateContext;
+  :generalPrompt)+candidateContext+(digiPositions.length?
+   ' CONTRÔLE DIGI : relis les 13 positions de gauche à droite. Les positions suivantes demandent une attention particulière : '
+   +digiPositions.join(', ')+'. Examine leurs pixels, sans compléter depuis les candidats ni faire de calcul. '
+   +'Retourne la lecture complète si elle est visible, sinon un masque de 13 positions avec ?. '
+   :'');
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),13000);
  const started=Date.now();
  let providerAnswered=false;
@@ -212,15 +272,17 @@ async function geminiPilot(request,env,origin){
   const rawObserved=typeof extracted.eanObserved==='string'?
    extracted.eanObserved.replace(/[ \u00a0\u202f-]/g,''):null;
   const eanObserved=rawObserved&&/^[0-9?]{13}$/.test(rawObserved)&&
-   [...rawObserved.slice(0,7)].filter(d=>d!=='?').length>=5
-   ?rawObserved:null;
+   ([...rawObserved.slice(0,7)].filter(d=>d!=='?').length>=4||
+    ([...rawObserved].filter(d=>d!=='?').length>=6&&/\d/.test(rawObserved.slice(2,7))))
+   ?rawObserved:(typeof extracted.ean13==='string'&&/^\d{13}$/.test(extracted.ean13)?
+    extracted.ean13:null);
   const coherent=weightGrams!==null&&pricePerKgCents!==null&&totalCents!==null
     &&Math.abs(Math.round(weightGrams*pricePerKgCents/1000)-totalCents)<=1;
   const priceFromEAN=ean13?.startsWith('02')
    ?Math.round(Number(ean13.slice(7,12))*100/655.36):null;
   const barcodePriceConsistent=priceFromEAN!==null&&totalCents!==null
    ?Math.abs(priceFromEAN-totalCents)<=1:null;
-  return reply({...closed,provider,model,pipelineVersion:2,
+  return reply({...closed,provider,model,pipelineVersion:2,transport:'binary-v1',
    focusField:focus,focusFields,elapsedMs:Date.now()-started,
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    eanObserved,contextCandidates:catalogCandidates.length,

@@ -582,11 +582,11 @@
  function catalogHints(result,reading=null){
   const catalog=window.IUDigiCatalogLookup;
   if(!catalog?.candidates)return [];
-  const eanObserved=String(result?.eanObserved||
-    (trustedBarcodeEvidence(reading)?reading.ean13:
-     result?.fields?.ean13||''));
+  const eanObserved=String(trustedBarcodeEvidence(reading)?reading.ean13:
+   result?.eanObserved||result?.fields?.ean13||'');
   const name=String(result?.fields?.name||'');
-  return catalog.candidates({eanObserved,name,limit:5})
+  const guide=result&&!trustedBarcodeEvidence(reading)?catalog.recheckPlan?.(result):null;
+  return (guide?.candidates?.length?guide.candidates:catalog.candidates({eanObserved,name,limit:5}))
    .filter(c=>c.name.length<=90&&/^[\p{L}\d .'\-(),/]+$/u.test(c.name))
    .map(c=>({eanPrefix:c.eanPrefix,plu:c.plu,name:c.name}));
  }
@@ -1300,8 +1300,11 @@
    const usedProvider=usedModel.startsWith('gpt-')?'OpenAI':'Gemini';
    networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
+    +(Number.isFinite(result.clientNetworkMs)?' · échange '+(result.clientNetworkMs/1000).toFixed(2)+' s':'')
+    +(Number.isFinite(result.clientPayloadBytes)?' · '+Math.round(result.clientPayloadBytes/1024)+' Kio '+(result.clientTransport||''):'')
     +' · modèle '+usedModel
     +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser')
+    +(result.transport==='binary-v1'?'':' · transport amélioré : Worker à actualiser')
     +(result?.digiRecovery?.kind==='reconstructed'?' · EAN récupéré par DIGI'
       :result?.digiRecovery?.kind==='confirmed'?' · article confirmé'
       :result?.digiRecovery?.kind==='confirmation'?' · confirmation DIGI requise'
@@ -1340,23 +1343,28 @@
   return attempt===1?1100:2600;
  }
  async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,
-  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null){
-  const body=JSON.stringify({type:'iu-gemini-label-test',model:selectedModel,provider,
+  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null){
+  const payload={type:'iu-gemini-label-test',model:selectedModel,provider,
    mimeType:'image/jpeg',imageBase64:encoded,
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
    ...(focusFields?.length?{focusFields}:{}),
-   ...(catalogCandidates?.length?{catalogCandidates:catalogCandidates.slice(0,5)}:{})});
+   ...(catalogCandidates?.length?{catalogCandidates:catalogCandidates.slice(0,5)}:{}),
+   ...(digiPositions?.length?{digiPositions:digiPositions.slice(0,13)}:{})};
+  const transport=typeof window!=='undefined'?window.IUGeminiTransport:null;
+  const packet=transport?.prepare(payload)||{body:JSON.stringify(payload),contentType:'application/json'};
   // Une seule requête par pression : HTTP 502 peut cacher un échec de
   // lecture et ne doit jamais provoquer une deuxième analyse automatique.
   if(signal.aborted||id!==generation)
    throw new DOMException('Analyse annulée','AbortError');
   let response;
+  const networkNow=()=>typeof performance!=='undefined'?performance.now():Date.now();
+  const networkStart=networkNow();
   try{
    response=await fetch(endpoint,{
     method:'POST',signal,
-    headers:{'Content-Type':'application/json','X-IU-Pilot-Key':access},
-    body
+    headers:{'Content-Type':packet.contentType,'X-IU-Pilot-Key':access},
+    body:packet.body
    });
   }catch(error){
    if(signal.aborted||id!==generation||error?.name==='AbortError')throw error;
@@ -1371,7 +1379,12 @@
    // illisible. Montrer le code HTTP sans exposer de données sensibles.
    throw Error('Réponse Cloudflare illisible (HTTP '+response.status+') · réessaie cette photo');
   }
-  if(response.ok)return result;
+  if(response.ok){
+   transport?.observe(result);
+   return {...result,clientNetworkMs:Math.round(networkNow()-networkStart),
+    clientPayloadBytes:packet.size??null,clientTransport:packet.contentType==='application/octet-stream'?'binary':'json'};
+  }
+  if(response.status===400||response.status===415)transport?.reset();
   const status=response.status,providerStatus=Number(result?.providerStatus);
   const diagnostic=String(result?.error||'');
   const unreadable=status===422||
@@ -1426,12 +1439,10 @@
    else if(kind==='amount')targets.push('weight','rate','total','ean');
    else targets.push('ean');
   }
-  // Si une référence unique reste à vérifier humainement, ne pas
-  // imposer une nouvelle requête cloud qui pourrait échouer.
-  if(result?.digiRecovery?.kind==='confirmation'&&allAmounts&&checks.arithmeticConsistent&&
-     !result.checks?.readingConflict&&!result.checks?.independentMismatch&&
-     !result.checks?.digiConflict&&!localBarcode?.ambiguous)
-   return [...new Set(targets)].filter(kind=>kind!=='ean');
+  // Une proposition DIGI ambiguë bénéficie de l'unique relecture
+  // ciblée existante : lire les positions qui départagent les codes.
+  // Si le réseau échoue, une confirmation humaine reste possible.
+  if(result?.digiRecovery?.kind==='confirmation')targets.push('ean');
   // Quand Safari ne décode pas le code-barres indépendamment, la
   // deuxième lecture Gemini vérifie ces 13 chiffres sans nouvelle photo.
   // Un EAN contradictoire bloque l'enregistrement au lieu de choisir
@@ -1524,6 +1535,9 @@
   return {...original,fields,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,source:'gemini-recovery',
    pipelineVersion:recheck?.pipelineVersion||original?.pipelineVersion,
    elapsedMs:Number(original?.elapsedMs||0)+Number(recheck?.elapsedMs||0),
+   clientNetworkMs:Number(original?.clientNetworkMs||0)+Number(recheck?.clientNetworkMs||0),
+   clientPayloadBytes:Number(original?.clientPayloadBytes||0)+Number(recheck?.clientPayloadBytes||0),
+   clientTransport:original?.clientTransport===recheck?.clientTransport?original?.clientTransport:'mixte',
    checks:{...(original?.checks||{}),
     readingConflict:Boolean(original?.checks?.readingConflict||conflict),
     eanRechecked:eanRechecked||original?.checks?.eanRechecked===true,
@@ -1734,10 +1748,23 @@
      const focused=await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
       safeDetail(pendingDetail),targets,
-      catalogHints(combined,localBarcode));
+      catalogHints(combined,localBarcode),
+      targets.includes('ean')?window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions:null);
      if(id!==generation)return;
      combined=mergeRecoveredReading(combined,focused,targets);
-     if(targets.includes('ean'))combined=fuseEAN(combined,focused?.eanObserved);
+     if(targets.includes('ean')){
+      const merged=fuseEAN(combined,focused?.eanObserved);
+      // Une ancienne lecture partielle erronée ne doit pas verrouiller
+      // une nouvelle proposition. Elle exige néanmoins une confirmation
+      // humaine, même si la seconde lecture permet une déduction unique.
+      if(merged===combined&&!readableValue('ean',combined.fields?.ean13)&&focused?.eanObserved&&
+         !combined.checks?.independentMismatch&&!combined.checks?.readingConflict){
+       const alternate={...combined,eanObserved:focused.eanObserved,
+        weakEANSupplement:true,digiRecovery:null};
+       const candidate=window.IUDigiCatalogLookup?.reconstruct?.(alternate);
+       if(candidate?.kind==='confirmation'&&combined.digiRecovery?.kind!=='confirmation')combined=alternate;
+      }else combined=merged;
+     }
      combined=reconcileBarcode(combined,localBarcode);
      combined=applyCatalogRecovery(combined);
     }catch(error){

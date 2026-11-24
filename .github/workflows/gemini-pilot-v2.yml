@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'gemini-lab.js'
+      - 'gemini-transport.js'
+      - 'tools/test_gemini_transport.cjs'
       - 'gemini-latency.js'
       - 'gemini-litert-lab.js'
       - 'gemini-litert-worker.js'
@@ -55,6 +57,7 @@ jobs:
       - name: Vérification JavaScript
         run: |
           node --check gemini-lab.js
+          node --check gemini-transport.js
           node --check gemini-latency.js
           node --check gemini-litert-lab.js
           node --check gemini-litert-worker.js
@@ -98,6 +101,7 @@ jobs:
           node tools/test_digi_catalog_lookup.cjs
           node tools/test_digi_catalog_integration.cjs
           node tools/test_digi_catalog_recovery.cjs
+          node tools/test_gemini_transport.cjs
           node tools/test_gemini_latency.cjs
           node tools/test_gemini_recognition_core.cjs
       - name: Vérifier le code-barres et le détail Gemini à recadrage sûr

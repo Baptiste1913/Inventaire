@@ -106,6 +106,25 @@ assert.notEqual(digi.reconstruct({fields:{...fields,ean13:ean},eanObserved:ean})
  'Deux références partageant un nom ne rendent pas un EAN complet contradictoire');
 const generic=digi.reconstruct({fields,eanObserved:'0203??6'+ean.slice(7,12)+'?'});
 assert.equal(generic.kind,'candidate','Deux références compatibles : le nom seul ne choisit pas une origine');
+catalog=JSON.stringify({articles:[
+ {plu:'3476',libelle:'POIRE SANTA MARIA',eanPrefix:'0203476'},
+ {plu:'9991',libelle:'BANANE CAVENDISH',eanPrefix:'2453091'}
+]});
+const guide=digi.recheckPlan({fields,eanObserved:ean.slice(0,9)+'????'});
+assert.equal(guide.candidates[0].eanPrefix,'0203476');
+assert.deepEqual(guide.positions,[10,11,12,13]);
+const typo='0209476'+ean.slice(7);
+const near=digi.recheckPlan({fields,eanObserved:typo});
+assert(near.candidates.some(c=>c.eanPrefix==='0203476'));
+assert(near.positions.includes(4));
+assert.equal(digi.reconstruct({fields,eanObserved:typo}).result.fields.ean13,null,
+ 'Un préfixe proche aide uniquement la relecture');
+const other=digi.reconstruct({fields:{...fields,name:'BANANE CAVENDISH'},eanObserved:'245309100123?'});
+assert.equal(other.kind,'reconstructed');
+assert(other.result.fields.ean13.startsWith('245309100123'));
+assert(digi.eanValid(other.result.fields.ean13));
+catalog=JSON.stringify({articles:[{plu:'7777',libelle:'NOUVEL ARTICLE',eanPrefix:'0203476'}]});
+assert.equal(digi.candidates({eanObserved:ean,name:fields.name})[0].plu,'7777','Cache invalidé par import');
 catalog=null;
 assert.equal(digi.reconstruct({fields,eanObserved:autoMask}).result.fields.ean13,null,
  'Catalogue absent : pas de nom ou code inventés');

@@ -1,4 +1,4 @@
-/* Inventaires U v42.46 — déduction DIGI exhaustive, bornée et traçable.
+/* Inventaires U v42.48 — déduction DIGI exhaustive, bornée et traçable.
  * Un EAN calculé n'est pas une lecture : code exact unique ou confirmation.
  * Aucune association apprise, tarif historique ou poids/prix deviné.
  * L'index se rafraîchit dès qu'un import local remplace le catalogue.
@@ -12,6 +12,7 @@
  'use strict';
  const STORAGE_KEY='iu-plu-catalogue-local-v1';
  let cachedRaw=null,cachedIndex=null;
+ const queryCache=new Map();
  function eanValid(code){
   if(typeof code!=='string'||!/^\d{13}$/.test(code))return false;
   let sum=0;
@@ -29,7 +30,7 @@
   try{raw=localStorage.getItem(STORAGE_KEY)||''}
   catch(_){return {available:false,reason:'Stockage du catalogue DIGI inaccessible'};}
   if(raw===cachedRaw&&cachedIndex)return cachedIndex;
-  cachedRaw=raw;
+  cachedRaw=raw;queryCache.clear();
   const empty={available:false,reason:'Importe le catalogue DIGI sur cet iPhone',
    byPrefix:new Map(),count:0};
   if(!raw){cachedIndex=empty;return cachedIndex}
@@ -53,10 +54,10 @@
     row['Préfixe EAN']??row.Gencod??row.gencod);
    if(!/^[0-9]{1,8}$/.test(plu)||!name||name.length>145||!prefix)continue;
    if(!groups.has(prefix))groups.set(prefix,new Map());
-   const item={plu,name,eanPrefix:prefix};
+   const item={plu,name,eanPrefix:prefix,normalizedName:normalizeName(name)};
    // Un même PLU avec deux noms divergents est aussi ambigu.
    groups.get(prefix).set(plu+'|'+name,item);
-   const normalized=normalizeName(name);
+   const normalized=item.normalizedName;
    if(normalized){
     if(!byName.has(normalized))byName.set(normalized,new Map());
     byName.get(normalized).set(prefix+'|'+plu+'|'+name,item);
@@ -90,7 +91,9 @@
    .toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().slice(0,85);
  }
  function nameSimilarity(a,b){
-  const x=normalizeName(a),y=normalizeName(b);
+  return normalizedSimilarity(normalizeName(a),normalizeName(b));
+ }
+ function normalizedSimilarity(x,y){
   if(x.length<4||y.length<4)return 0;
   if(x===y)return 1;
   // Distance d'édition bornée, sans bibliothèque ni appel réseau.
@@ -110,37 +113,50 @@
   const value=raw.replace(/[\s\u00a0\u202f-]/g,'').replace(/[Xx_]/g,'?');
   return /^[\d?]{13}$/.test(value)?value:'';
  }
+ // For a partial prefix with at most two unknown digits, look up
+ // at most 100 keys rather than scanning every item in the catalogue.
+ function prefixGroups(catalog,pattern){
+  if(!pattern)return catalog.byPrefix;
+  const prefix=pattern.slice(0,7),missing=[...prefix].filter(d=>d==='?').length;
+  if(missing>2)return catalog.byPrefix;
+  const groups=[];
+  function expand(p){
+   const i=p.indexOf('?');
+   if(i<0){const items=catalog.byPrefix.get(p);if(items)groups.push([p,items]);return;}
+   for(let d=0;d<10;d++)expand(p.slice(0,i)+d+p.slice(i+1));
+  }
+  expand(prefix);return groups;
+ }
  function matchingCandidates({eanObserved='',name=''}={}){
   const catalog=index();
   if(!catalog.available||!catalog.count)return [];
   const pattern=observedPattern(eanObserved);
   const knownPrefix=pattern?[...pattern.slice(0,7)].filter(c=>c!=='?').length:0;
-  // Si au moins cinq caractères sont observés dans le préfixe, le
-  // nom ne doit JAMAIS faire accepter un préfixe contradictoire.
-  const strictPrefix=knownPrefix>=5;
-  const hint=normalizeName(name);
+  const strictPrefix=knownPrefix>=5,hint=normalizeName(name);
   if(!strictPrefix&&hint.length<6)return [];
+  const key=pattern.slice(0,7)+'|'+hint;
+  if(queryCache.has(key))return queryCache.get(key);
   const out=[];
-  for(const [prefix,items] of catalog.byPrefix){
+  for(const [prefix,items] of prefixGroups(catalog,pattern)){
    if(pattern&&[...prefix].some((digit,i)=>
       pattern[i]!=='?'&&pattern[i]!==digit))continue;
    for(const record of items.values()){
-    const similarity=hint?nameSimilarity(hint,record.name):0;
+    const similarity=hint?normalizedSimilarity(hint,record.normalizedName):0;
     if(!strictPrefix&&similarity<.74)continue;
     out.push({eanPrefix:prefix,plu:record.plu,name:record.name,
-     prefixDigits:strictPrefix?knownPrefix:0,
-     nameScore:similarity,ambiguous:items.size!==1,
+     prefixDigits:knownPrefix,nameScore:similarity,ambiguous:items.size!==1,
      source:'digi-import'});
    }
   }
   out.sort((a,b)=>b.prefixDigits-a.prefixDigits||
    b.nameScore-a.nameScore||a.eanPrefix.localeCompare(b.eanPrefix));
-  return out;
+  if(queryCache.size>=32)queryCache.delete(queryCache.keys().next().value);
+  queryCache.set(key,out);return out;
  }
  // La limite de cinq ne concerne que les suggestions envoyées à Gemini.
  // La décision d'unicité est toujours prise sur TOUS les candidats.
  function candidates({eanObserved='',name='',limit=5}={}){
-  return matchingCandidates({eanObserved,name}).slice(0,Math.min(5,Math.max(1,Number(limit)||5)));
+  return matchingCandidates({eanObserved,name}).slice(0,Math.min(5,Math.max(1,Number(limit)||5))).map(c=>({...c}));
  }
  function checkDigit(first12){
   if(!/^\d{12}$/.test(first12))return '';
@@ -235,8 +251,10 @@
    if(!item.eanPrefix.startsWith('02')){
     // Aucun encodage montant supposé pour les autres familles.
     // Une lecture intégralement observée peut en revanche être vérifiée.
-    if(!pattern.includes('?')&&eanValid(pattern)&&pattern.startsWith(item.eanPrefix))
-     viable.push({item,codes:[pattern]});
+    const observedComplete=!pattern.includes('?')?pattern:
+     /^\d{12}\?$/.test(pattern)?pattern.slice(0,12)+checkDigit(pattern.slice(0,12)):null;
+    if(observedComplete&&eanValid(observedComplete)&&observedComplete.startsWith(item.eanPrefix))
+     viable.push({item,codes:[observedComplete]});
     else unknownFamily=true;
     continue;
    }
@@ -273,6 +291,61 @@
    recoveryProvenance:sources},kind,sources,...details,
    confirmedByUser:kind==='confirmation'&&allowProbable};
  }
+ // Search strategy for a new reading of the SAME image. All hints
+ // are advisory, never used as validation. A wrong observed digit can
+ // prevent a strict match: allow a one-digit-near prefix as a hint only.
+ function recheckPlan(result){
+  const fields=result?.fields||{};
+  const pattern=observedPattern(result?.eanObserved)||observedPattern(fields.ean13);
+  const catalog=index();
+  if(!catalog.available||!catalog.count)return {candidates:[],positions:[]};
+  let pool=matchingCandidates({eanObserved:pattern,name:fields.name});
+  const grams=fields.weightGrams,rate=fields.pricePerKgCents,total=fields.totalCents;
+  const computed=Number.isSafeInteger(grams)&&grams>0&&Number.isSafeInteger(rate)&&rate>0?
+   Math.round(grams*rate/1000):null;
+  const cents=Number.isSafeInteger(total)&&total>=0?total:computed;
+  const comparable=computed!==null&&cents!==null&&Math.abs(cents-computed)<=1;
+  let ranked=pool.map(item=>({item,codes:comparable&&item.eanPrefix.startsWith('02')?
+   amountVariants(item.eanPrefix,cents,computed,pattern):null}));
+  const viable=ranked.filter(x=>x.codes===null||x.codes.length);
+  // If a strict observed prefix fails, suggest nearby codes, but never
+  // reconstruct from them. Similar name only influences ranking.
+  if(!viable.length&&pattern){
+   const known=[...pattern.slice(0,7)].filter(d=>d!=='?').length,hint=normalizeName(fields.name);
+   if(known>=5){
+    ranked=[];
+    for(const [prefix,items] of catalog.byPrefix){
+     const differences=[...prefix].reduce((n,d,i)=>n+(pattern[i]!=='?'&&d!==pattern[i]?1:0),0);
+     if(differences!==1)continue;
+     for(const r of items.values()){
+      const nameScore=hint?normalizedSimilarity(hint,r.normalizedName):0;
+      ranked.push({item:{eanPrefix:prefix,plu:r.plu,name:r.name,nameScore,prefixDigits:known-1,ambiguous:items.size!==1},codes:null});
+     }
+    }
+    ranked.sort((a,b)=>b.item.nameScore-a.item.nameScore||a.item.eanPrefix.localeCompare(b.item.eanPrefix));
+    if(!ranked.length)ranked=pool.map(item=>({item,codes:null}));
+   }else ranked=viable;
+  }else ranked=viable;
+  const positions=new Set();
+  for(let i=0;i<13;i++)if(!pattern||pattern[i]==='?')positions.add(i+1);
+  // Request pixels at discriminating positions (including an apparent
+  // misread). Don't transmit calculated candidate EANs or price values.
+  for(const {item} of ranked){
+   if(pattern)for(let i=0;i<7;i++)if(pattern[i]!=='?'&&item.eanPrefix[i]!==pattern[i])positions.add(i+1);
+  }
+  let firstCode=null;
+  for(const entry of ranked)for(const code of entry.codes||[]){
+   if(!firstCode){firstCode=code;continue;}
+   for(let i=0;i<13;i++)if(code[i]!==firstCode[i])positions.add(i+1);
+  }
+  if(!viable.length&&comparable&&pool.length)for(let i=8;i<=13;i++)positions.add(i);
+  // A full code with a bad checksum/unknown catalogue prefix needs
+  // a fresh read of the entire line, not a forced correction.
+  if(!positions.size&&(!eanValid(pattern)||!resolve(pattern).ok))
+   for(let i=1;i<=13;i++)positions.add(i);
+  return {candidates:ranked.slice(0,5).map(x=>({...x.item})),
+   positions:[...positions].sort((a,b)=>a-b),candidateCount:ranked.length};
+ }
  function verify(ean,plu,name){
   const record=resolve(ean);
   return Boolean(record.ok&&record.plu===String(plu??'')&&
@@ -282,5 +355,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,amountVariants,observedPattern,normalizeName,nameSimilarity,STORAGE_KEY});
 });
