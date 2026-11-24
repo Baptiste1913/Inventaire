@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.72'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.73'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -239,8 +239,8 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.72'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.72'));
+assert(markup.includes('gemini-lab.css?v=42.73'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.73'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 
@@ -268,23 +268,25 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
 }
 
 {
- const drawn=[],frames=[];let debug;
- class Path{moveTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));}lineTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));}closePath(){}}
- const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){drawn.push([this.strokeStyle,this.lineWidth,this.globalAlpha]);},fill(){drawn.push([this.fillStyle,null,this.globalAlpha]);}};
+ const drawn=[],frames=[],clips=[];let debug;
+ class Path{constructor(){this.points=[];}moveTo(x,y){assert(Number.isFinite(x)&&Number.isFinite(y));this.points.push([x,y]);}lineTo(x,y){this.moveTo(x,y);}quadraticCurveTo(...args){this.points.push(args);}closePath(){}}
+ const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){drawn.push([this.strokeStyle,this.lineWidth,this.globalAlpha]);},fill(){drawn.push([this.fillStyle,null,this.globalAlpha]);},clip(p){clips.push(p.points);}};
  const motion=[0,1,2].map(i=>({getTotalLength:()=>340,getPointAtLength:d=>({x:d,y:70+i*75+10*Math.sin(d/40)}),getScreenCTM:()=>({a:1,b:0,c:0,d:1,e:0,f:0})}));
  const svg={querySelectorAll:()=>motion.map(p=>({querySelector:()=>p}))};
  const guide={querySelector:()=>svg,getClientRects:()=>[{}]};
  const bg={id:'iuGeminiBackdropChrome',parentElement:guide,hidden:false,getContext:()=>ctx,getBoundingClientRect:()=>({width:340,height:260,left:0,top:0})};
- const doc={hidden:false,getElementById:k=>k===bg.id?bg:null,addEventListener(){}};
+ const outer={getBoundingClientRect:()=>({left:10,top:-100,width:320,height:352})};
+ const doc={hidden:false,getElementById:k=>k===bg.id?bg:k==='iuGeminiLab'?outer:null,addEventListener(){}};
  const win={devicePixelRatio:2,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.push(fn);return 1;},cancelAnimationFrame(){}};
  class Observer{observe(){}}
- const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isBackdrop)inspect({reflectionCenter,endFade,projectMotion,motionPose,ribbonGeometry,openPoint,paths:()=>motionPaths,setOpen:p=>{openPoints=p;}});\n }\n})();');
+ const instrument=source.replace(' sync();\n }\n})();',' sync();\n if(isBackdrop)inspect({reflectionCenter,endFade,projectMotion,motionPose,ribbonGeometry,openPoint,centreThickness,backdropClipRect,backgroundBaseShape,paths:()=>motionPaths,setOpen:p=>{openPoints=p;}});\n }\n})();');
  new Function('document','window','Path2D','MutationObserver','inspect',instrument)(doc,win,Path,Observer,x=>{debug=x});
  assert.equal(frames.length,1);frames.shift()(100);
  assert.equal(drawn.length,45);
  for(let i=0;i<3;i++){assert.deepEqual(drawn.slice(i*15,i*15+15),drawn.slice(0,15));}
  assert(drawn.every(p=>grey(p[0])&&p[2]>=0&&p[2]<=1));
- assert.equal(drawn[0][1],1.02);assert.equal(drawn[1][1],.76);assert.equal(drawn[2][1],.54);
+ assert.equal(drawn[0][0],'#303030');assert.equal(drawn[1][0],'#dedede');assert.equal(drawn[2][0],'#898989');
+ assert.equal(clips.length,1);assert(clips[0].every(p=>p.every(Number.isFinite)));
  assert(debug);
  const config={start:.07,direction:1,seconds:10.2,span:.26,lane:0};
  const local=debug.projectMotion(debug.paths()[0],0);debug.setOpen(local);
@@ -296,13 +298,25 @@ console.log('OK : suppression du quadrillage, contour global chrome partagé et 
  for(let time=0;time<90;time+=.13){
   const bottom=debug.projectMotion(debug.paths()[2],time);
   assert(bottom[0].x<0&&bottom[bottom.length-1].x>340);
-  assert(bottom.every(p=>p.y<=257&&p.y>=0));
+  assert(bottom.every(p=>Number.isFinite(p.y)&&p.y<=252));
+  const a=bottom[0],b=bottom[1],c=bottom[2],d=bottom[bottom.length-3],e=bottom[bottom.length-2],f=bottom[bottom.length-1];
+  const slope=(a,b)=>(b.y-a.y)/(b.x-a.x);
+  assert(Math.abs(slope(a,b)-slope(b,c))<1e-8);
+  assert(Math.abs(slope(d,e)-slope(e,f))<1e-8);
  }
  for(const [i,seconds,delay] of [[0,17,3],[1,23,12],[2,29,7]]){
   const left=debug.motionPose(seconds-delay-.00001,i),right=debug.motionPose(seconds-delay+.00001,i);
   assert(left.every((x,k)=>Math.abs(x-right[k])<.0001));
  }
- console.log('OK : extrémités bornées, reflet invisible au raccord, bas raccordé aux bords');
+ assert.equal(debug.centreThickness(0),1);assert.equal(debug.centreThickness(.5),.7);assert.equal(debug.centreThickness(1),1);
+ assert(debug.centreThickness(.25)>.7&&debug.centreThickness(.25)<1);
+ const shape=debug.backgroundBaseShape(0,1.02,.06).points;
+ const distance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ assert(Math.abs(distance(shape[0],shape[257])-1.02)<1e-8);
+ assert(Math.abs(distance(shape[64],shape[193])-.714)<1e-8);
+ const clip=debug.backdropClipRect(outer.getBoundingClientRect(),bg.getBoundingClientRect());
+ assert.deepEqual(clip,{x:15.5,y:-94.5,w:309,h:341,r:14.5});
+ console.log('OK : tangentes continues sans aplatissement, clip intérieur et largeur variable au centre');
 }
 
 assert(css.includes(':not(#iuGeminiOuterChrome) {'));

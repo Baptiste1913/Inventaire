@@ -1,6 +1,6 @@
 {
-  "version": "42.72",
+  "version": "42.73",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Chrome : contour global hors flux, courbes ouvertes sans raccord brusque, horloge continue et filament inférieur prolongé aux bords. Verre 2 px, statut PLU et OCR inchangés."
+  "notes": "Filaments de fond : prolongement tangent et translation globale douce sans aplatissement, découpe arrondie à l'intérieur du contour global, épaisseur réduite progressivement de 30 % au centre. Verre 2 px, opacité et autres contours conservés."
 }

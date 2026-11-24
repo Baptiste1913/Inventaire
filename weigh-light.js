@@ -1,4 +1,4 @@
-/* Inventaires U 42.72 — chrome continu : courbes ouvertes et contour hors flux.
+/* Inventaires U 42.73 — chrome : courbure préservée, découpe intérieure et centre affiné.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
@@ -99,11 +99,17 @@
   const pts=motion.local.map(p=>({x:(cx+(p.x-cx)*sx+tx*b.w)*width,
    y:(cy+(p.y-cy)*sy+ty*b.h)*height}));
   if(motion.index===2){
-   const limit=y=>Math.max(0,Math.min(height-3,y));
-   for(const p of pts)p.y=limit(p.y);
-   const first=pts[0],last=pts[pts.length-1];
-   pts.unshift({x:Math.min(-4,first.x-4),y:first.y});
-   pts.push({x:Math.max(width+4,last.x+4),y:last.y});
+   // Extend along the endpoint tangents, never along a horizontal shelf.
+   // Translate the whole curve when needed, preserving all its curvature.
+   const first=pts[0],next=pts[1],last=pts[pts.length-1],prev=pts[pts.length-2];
+   const left=Math.min(-4,first.x-4),right=Math.max(width+4,last.x+4);
+   const slope=(a,b)=>Math.abs(b.x-a.x)>.001?(b.y-a.y)/(b.x-a.x):0;
+   pts.unshift({x:left,y:first.y+(left-first.x)*slope(first,next)});
+   pts.push({x:right,y:last.y+(right-last.x)*slope(prev,last)});
+   const maxY=Math.max(...pts.map(p=>p.y));
+   // A differentiable soft maximum avoids a stop at the lower limit.
+   const d=maxY-(height-8),shift=(d+Math.sqrt(d*d+16))/2;
+   for(const p of pts)p.y-=shift;
   }
   return pts;
  }
@@ -179,6 +185,21 @@
   }
   return true;
  }
+ // Width profile for background strands only; the three perimeter
+ // animations keep their original thickness. No change in opacity.
+ function centreThickness(u){return 1-.30*Math.pow(Math.sin(Math.PI*Math.max(0,Math.min(1,u))),2);}
+ function backgroundBaseShape(laneIndex,widthPx,outset){
+  const [phase,amp]=laneSpecs[laneIndex],shape=new Path2D(),points=[];
+  for(let i=0;i<=128;i++){
+   const u=i/128,p=lanePoint(u,phase,amp,outset),n=basePoint(u);
+   const r=widthPx*centreThickness(u)/2;
+   points.push({x:p.x,y:p.y,nx:n.nx,ny:n.ny,r});
+   const x=p.x+n.nx*r,y=p.y+n.ny*r;
+   if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y);
+  }
+  for(let i=points.length-1;i>=0;i--){const p=points[i];shape.lineTo(p.x-p.nx*p.r,p.y-p.ny*p.r);}
+  shape.closePath();return shape;
+ }
  function baseFilament(laneIndex,alpha,widthPx,color='#f0f5f7',line=null){
   ctx.save();
   ctx.globalCompositeOperation='source-over';
@@ -186,7 +207,8 @@
   ctx.lineJoin='round';
   ctx.lineWidth=widthPx+contourBoost;
   ctx.globalAlpha=alpha;
-  ctx.stroke(line||lanes[laneIndex].line);
+  if(isBackdrop){ctx.fillStyle=color;ctx.fill(backgroundBaseShape(laneIndex,widthPx,laneIndex===0?.06:laneIndex===1?.04:.03));}
+  else ctx.stroke(line||lanes[laneIndex].line);
   ctx.restore();
  }
  // Les anciens reflets étaient assemblés par ~60 petits strokes séparés
@@ -214,7 +236,7 @@
    const magnitude=Math.hypot(tx,ty)||1;
    tx/=magnitude;ty/=magnitude;
    // La largeur évolue progressivement : aucune césure lumineuse.
-   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*s)),1.65)*endFade(u);
+   const envelope=Math.pow(Math.max(0,Math.sin(Math.PI*s)),1.65)*endFade(u)*(isBackdrop?centreThickness(u):1);
    // Detached fibres peel away gently and return, with no discontinuity.
    const drift=(config.drift||0)*Math.pow(Math.sin(Math.PI*s),2)*
     (.68+.32*Math.sin(TWO_PI*s*1.4+t*.7+(config.start||0)*TWO_PI));
@@ -298,7 +320,7 @@
   for(let i=0;i<=samples;i++){
    const s=i/samples,u=center+(s-.5)*span;
    const p=point(u,w.lane),normal=basePoint(u);
-   const envelope=Math.pow(Math.sin(Math.PI*s),1.7)*endFade(u);
+   const envelope=Math.pow(Math.sin(Math.PI*s),1.7)*endFade(u)*(isBackdrop?centreThickness(u):1);
    // Signed normal displacement: crosses the contour in BOTH directions.
    // Spatial and temporal waves blend; the ends remain attached.
    const oscillation=.72*Math.sin(TWO_PI*(w.cycles*age+w.frequency*s)+w.phase)
@@ -345,7 +367,7 @@
   const safeDepth=isPanelChrome?2.0:Math.max(0,Math.min(2.0,(height-12)*.02-.55));
   for(let i=0;i<=samples;i++){
    const s=i/samples,u=center+(s-.5)*span,p=basePoint(u);
-   const envelope=Math.pow(Math.sin(Math.PI*s),1.45)*endFade(u);
+   const envelope=Math.pow(Math.sin(Math.PI*s),1.45)*endFade(u)*(isBackdrop?centreThickness(u):1);
    const oscillation=.76*Math.sin(TWO_PI*(w.cycles*age+w.frequency*s)+w.phase)
     +.24*Math.sin(TWO_PI*(.5*age+1.25*s)-w.phase);
    const depth=Math.min(safeDepth,(.42+w.amplitude*(.55+.45*oscillation)))*lifeEnvelope*envelope;
@@ -380,16 +402,37 @@
   }
   if(running){paintWaves(t);paintInnerWaves(t);}
  }
+ // The actual outer chrome centreline lies 1.8 CSS px inside its
+ // card. Reserve a further 3.7 px for fibre/shadow and 2 px glass blur.
+ function backdropClipRect(outer,bounds){
+  const sx=width/bounds.width,sy=height/bounds.height,margin=5.5;
+  return {x:(outer.left-bounds.left+margin)*sx,y:(outer.top-bounds.top+margin)*sy,
+   w:(outer.width-2*margin)*sx,h:(outer.height-2*margin)*sy,r:14.5*Math.min(sx,sy)};
+ }
+ function clipBackdrop(){
+  const outer=document.getElementById('iuGeminiLab');
+  if(!outer||!ctx.clip)return;
+  const bounds=canvas.getBoundingClientRect(),box=outer.getBoundingClientRect();
+  if(!bounds.width||!bounds.height||box.width<=11||box.height<=11)return;
+  const {x,y,w,h,r}=backdropClipRect(box,bounds);
+  const clip=new Path2D(),radius=Math.min(r,w/2,h/2);
+  // Manual rounded rectangle works also on Safari without roundRect.
+  clip.moveTo(x+radius,y);clip.lineTo(x+w-radius,y);clip.quadraticCurveTo(x+w,y,x+w,y+radius);
+  clip.lineTo(x+w,y+h-radius);clip.quadraticCurveTo(x+w,y+h,x+w-radius,y+h);
+  clip.lineTo(x+radius,y+h);clip.quadraticCurveTo(x,y+h,x,y+h-radius);
+  clip.lineTo(x,y+radius);clip.quadraticCurveTo(x,y,x+radius,y);clip.closePath();
+  ctx.clip(clip);
+ }
  function paintBackdrop(t){
+  ctx.save();clipBackdrop();
   for(const motion of motionPaths){
    openPoints=projectMotion(motion,t);
-   chromeOuterLines=[buildLane(.28,.37,.06).line,buildLane(2.35,.58,.04).line,buildLane(1.42,.49,.03).line];
    looseFibres=motion.loose;innerWaves=motion.inner;nextWaveAt=motion.next;nextInnerWaveAt=motion.nextInner;
    // Exactly the same painting function, widths, palette and life cycles.
    paintChrome(t);
    motion.loose=looseFibres;motion.inner=innerWaves;motion.next=nextWaveAt;motion.nextInner=nextInnerWaveAt;
   }
-  openPoints=null;
+  openPoints=null;ctx.restore();
  }
  function paint(t){
   if(!width||!height)return;
