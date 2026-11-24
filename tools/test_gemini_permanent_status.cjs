@@ -65,7 +65,7 @@ console.log('OK : identité AI et commandes de correction sous le résultat, sur
 
 assert(section.includes('class="iu-gemini-ai-logo" width="26" height="26"'));
 assert(css.includes('width:32px!important;height:32px!important;min-height:32px!important'));
-assert(section.includes('<div class="iu-gemini-repair-select-wrap"><select id="iuGeminiRepairField"'));
+assert(section.includes('<div class="iu-gemini-repair-select-wrap"><svg class="iu-gemini-repair-chevron"'));
 const repairRules=css.slice(css.indexOf('/* v42.85'));
 const basketStyle=css.match(/\.iu-gemini-basket-stack > \.iu-basket-select-wrap\.iu-gemini-select-wrap\s*\{([^}]+)\}/)[1];
 const nextStyle=css.match(/> \.iu-gemini-gross-row > button#iuGeminiNext\.new-weigh-btn\.iu-gemini-confirm-next\s*\{([^}]+)\}/)[1];
@@ -99,3 +99,32 @@ const spacing=css.slice(css.indexOf('/* v42.88'),css.indexOf('/* v42.89'));
 assert(spacing.includes('align-items:stretch!important;gap:6px!important'));
 assert(spacing.includes('.iu-gemini-scan-row {gap:5px!important;}'));
 console.log('OK : espacement optique panier/import réduit, dimensions conservées.');
+
+const last=css.slice(css.indexOf('/* v42.90'));
+assert(!css.slice(css.indexOf('/* v42.89')).includes('rgba(255,255,255,.64) 54%'));
+assert(last.includes('background:linear-gradient(145deg,#fff 0%,#f8fafb 34%,#e5ebef 100%)'));
+assert(section.includes('M3 6L8 11L13 6')&&last.includes('::after {content:none!important;display:none!important;}'));
+assert(section.includes('id="iuGeminiRepairApply"><canvas class="iu-weight-light iu-gemini-repair-light"'));
+assert(last.includes('padding:14px 16px!important;border:1px solid #dce1e5!important'));
+assert(last.includes('border-radius:13px!important;background:#f8f9fa!important'));
+assert(last.includes('font-size:16px!important'));
+assert(last.includes('box-shadow:0 0 0 3px rgba(101,115,125,.10)!important;outline:none!important'));
+assert(last.includes('align-items:stretch!important;gap:8px!important')&&last.includes('align-self:stretch!important'));
+assert(last.includes('margin:4px 0 0!important'));
+{
+ const hooks={},panel={hidden:true},manual={hidden:true},field={value:'ean',addEventListener:(k,f)=>hooks.change=f};
+ let focuses=0;
+ const input={value:'',focus(){focuses++},select(){}};
+ const edit={addEventListener:(k,f)=>hooks.edit=f};
+ const state={active:false,file:{},lastRawResult:{},lastReadProblem:'total',repairFocus:null,latestLabelFields:{totalCents:100,weightGrams:504,ean13:'0203476006556'}};
+ const start=js.indexOf(' function refreshRepairPanel()'),end=js.indexOf(" repairApply?.addEventListener('click'",start);
+ const api=new Function('state','repairPanel','repairManual','repairField','repairValue','repairEdit','fieldForProblem','with(state){'+js.slice(start,end)+';return {refreshRepairPanel};}')(state,panel,manual,field,input,edit,x=>x);
+ api.refreshRepairPanel();assert(!panel.hidden&&!manual.hidden);assert.equal(input.value,'1.00');assert.equal(focuses,0);
+ field.value='weight';hooks.change();assert.equal(input.value,'0.504');assert(!manual.hidden);
+ input.value='0.700';api.refreshRepairPanel();assert.equal(input.value,'0.700');assert.equal(field.value,'weight');
+ hooks.edit();assert.equal(focuses,1);assert.equal(input.value,'0.700');
+ field.value='ean';hooks.change();assert.equal(input.inputMode,'numeric');
+ state.active=true;api.refreshRepairPanel();assert(panel.hidden&&manual.hidden);
+ state.active=false;api.refreshRepairPanel();assert(!panel.hidden&&!manual.hidden);assert.equal(input.value,'1.00');
+}
+console.log('OK : champ visible dès erreur, changement de champ, saisie préservée, aucun focus automatique.');

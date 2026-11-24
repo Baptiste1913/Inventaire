@@ -1,6 +1,6 @@
 {
-  "version": "42.89",
+  "version": "42.90",
   "published": "2026-11-24",
-  "assets": 89,
-  "notes": "Écart panier/import réduit à 6/5 px, voile blanc de Bienvenue sur le résultat sans quadrillage, pastille AI en gris neutres, icône Planning ramenée à la boîte commune de 22 px. Halos, moteur AI et animations préservés."
+  "assets": 90,
+  "notes": "Verre transparent restauré, pastille AI assortie à la carte, chevron SVG continu. Correction manuelle visible dès le panneau d'erreur, champ Mes paniers avec focus gris et bouton Valider de hauteur égale, contour Chrome partagé. Aucune ouverture automatique du clavier."
 }

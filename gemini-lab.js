@@ -696,13 +696,14 @@
  function refreshRepairPanel(){
   if(!repairPanel)return;
   const eligible=!active&&!!file&&!!lastRawResult&&!!lastReadProblem;
+  const opening=repairPanel.hidden||repairManual?.hidden;
   repairPanel.hidden=!eligible;
-  if(!eligible){
-   if(repairManual)repairManual.hidden=true;
-   return;
-  }
-  if(repairField&&!repairFocus)
+  if(repairManual)repairManual.hidden=!eligible;
+  if(!eligible)return;
+  const previous=repairField?.value;
+  if(repairField&&!repairFocus&&opening)
    repairField.value=fieldForProblem(lastReadProblem);
+  if(opening||previous!==repairField?.value)fillRepairValue();
  }
  function parseManualValue(key,value){
   const raw=String(value||'').trim();
@@ -727,24 +728,25 @@
  }
  const fieldKeys={name:'name',weight:'weightGrams',rate:'pricePerKgCents',
   total:'totalCents',ean:'ean13'};
+ function fillRepairValue(){
+  if(!repairValue||!repairField)return;
+  const key=fieldKeys[repairField.value],val=latestLabelFields?.[key];
+  repairValue.inputMode=key==='ean13'?'numeric':key==='name'?'text':'decimal';
+  repairValue.value=val===null||val===undefined?''
+   :key==='ean13'||key==='name'?String(val)
+   :key==='weightGrams'?(val/1000).toFixed(3):(val/100).toFixed(2);
+ }
  repairField?.addEventListener('change',()=>{
   repairFocus=null;
-  if(repairManual)repairManual.hidden=true;
-  if(repairValue)repairValue.value='';
+  fillRepairValue();
  });
  repairEdit?.addEventListener('click',()=>{
-  if(!lastRawResult||!repairManual)return;
+  if(!lastRawResult||!repairManual||repairPanel?.hidden||active)return;
   repairManual.hidden=false;
-  if(repairValue){
-   const key=fieldKeys[repairField?.value],val=latestLabelFields?.[key];
-   repairValue.value=val===null||val===undefined?''
-    :key==='ean13'||key==='name'?String(val)
-    :key==='weightGrams'?(val/1000).toFixed(3):(val/100).toFixed(2);
-   repairValue.focus();repairValue.select();
-  }
+  repairValue?.focus();repairValue?.select();
  });
  repairApply?.addEventListener('click',()=>{
-  if(!lastRawResult||!repairField||active)return;
+  if(!lastRawResult||!repairField||repairPanel?.hidden||active)return;
   const kind=repairField.value,key=fieldKeys[kind];
   const value=parseManualValue(kind,repairValue?.value);
   if(value===null){setLabelAlert('warning','Valeur invalide · vérifie l’étiquette');return;}
@@ -758,6 +760,7 @@
   manualCorrectedFields=[...new Set([...manualCorrectedFields,kind])];
   repairFocus=null;
   display(next,0);
+  if(repairPanel&&!repairPanel.hidden&&repairField){repairField.value=fieldForProblem(lastReadProblem);fillRepairValue();}
   const corrected=correctedCurrentProposal();
   const error=validateResult(next).error;
   setLabelAlert(corrected?'success':'warning',corrected

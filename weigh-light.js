@@ -2,13 +2,16 @@
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept'),document.getElementById('iuGeminiRepairApply')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
  const isDuplicate=overlay.id==='iuGeminiDuplicateAccept';
  const duplicateDialog=isDuplicate?document.getElementById('iuGeminiDuplicateConfirm'):null;
- const isGross=overlay.id==='iuGeminiGrossChrome'||isDuplicate;
+ const isRepair=overlay.id==='iuGeminiRepairApply';
+ const repairPanel=isRepair?document.getElementById('iuGeminiRepair'):null;
+ const repairManual=isRepair?document.getElementById('iuGeminiRepairManual'):null;
+ const isGross=overlay.id==='iuGeminiGrossChrome'||isDuplicate||isRepair;
  const isOuter=overlay.id==='iuGeminiOuterChrome';
  const isBackdrop=overlay.id==='iuGeminiBackdropChrome';
  const isLoader=overlay.id==='iuGeminiLoadingChrome';
@@ -492,7 +495,7 @@
     tint:'#59dcb8',core:'#ecfff8',opacity:.54});
  }
  function isActive(){
-  return !document.hidden&&!overlay.hidden&&(!isDuplicate||duplicateDialog?.hidden===false)&&
+  return !document.hidden&&!overlay.hidden&&(!isDuplicate||duplicateDialog?.hidden===false)&&(!isRepair||(repairPanel?.hidden===false&&repairManual?.hidden===false))&&
     (isLoader?loaderShell?.dataset.state==='analyzing'&&inViewport:isPanelChrome?inViewport:overlay.dataset.state==='scanning')&&!reduceMotion?.matches&&
     guide.getClientRects().length>0;
  }
@@ -528,13 +531,15 @@
    if(isGemini&&!isBackdrop)resetWaves();
    if(request)window.cancelAnimationFrame(request);
    request=0;lastTick=0;
-   if(!document.hidden&&!overlay.hidden&&(!isDuplicate||duplicateDialog?.hidden===false)&&(!isLoader||loaderShell?.dataset.state==='analyzing')&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
+   if(!document.hidden&&!overlay.hidden&&(!isDuplicate||duplicateDialog?.hidden===false)&&(!isRepair||(repairPanel?.hidden===false&&repairManual?.hidden===false))&&(!isLoader||loaderShell?.dataset.state==='analyzing')&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
   }
  }
  const visibilityObserver=new MutationObserver(sync);
  visibilityObserver.observe(overlay,{attributes:true,attributeFilter:['hidden','data-state']});
  if(loaderShell)visibilityObserver.observe(loaderShell,{attributes:true,attributeFilter:['hidden','data-state']});
  if(duplicateDialog)visibilityObserver.observe(duplicateDialog,{attributes:true,attributeFilter:['hidden']});
+ if(repairPanel)visibilityObserver.observe(repairPanel,{attributes:true,attributeFilter:['hidden']});
+ if(repairManual)visibilityObserver.observe(repairManual,{attributes:true,attributeFilter:['hidden']});
  if(isPanelChrome){
   const section=document.getElementById('iuGeminiLab');
   if(section&&section!==overlay)visibilityObserver.observe(section,{attributes:true,attributeFilter:['hidden','class','data-scan-state','style']});

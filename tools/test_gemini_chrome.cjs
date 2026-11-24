@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.87'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=42.90'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -152,7 +152,7 @@ assert(newGlow.includes('filter:blur(25px)!important'));
 assert(newGlow.includes('animation-play-state:paused!important'));
 assert(newGlow.includes('prefers-reduced-motion:reduce')&&newGlow.includes('prefers-reduced-transparency:reduce'));
 assert(css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1].includes('-webkit-backdrop-filter:blur(1.25px)!important;'));
-for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=42.89'));
+for(const f of ['index.html','sw.js'])assert(fs.readFileSync(f,'utf8').includes('gemini-chrome-halos.js?v=42.87')&&fs.readFileSync(f,'utf8').includes('gemini-lab.css?v=42.90'));
 {
  const hooks={},field={dataset:{}};let observer;
  const doc={hidden:false,querySelector:()=>field,addEventListener:(k,fn)=>hooks[k]=fn};
@@ -246,13 +246,26 @@ assert(spill.includes('overflow:visible!important;isolation:auto!important;z-ind
 console.log('OK : halos débordants, clip de la carte complète, contrôles au premier plan.');
 
 const finish=css.slice(css.indexOf('/* v42.89'));
-assert(finish.includes('background:linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important'));
-assert(!finish.includes('radial-gradient')&&!finish.includes('backdrop-filter'));
-const badge=finish.match(/> \.iu-gemini-title-badge\s*\{([^}]+)\}/)[1];
-assert([...badge.matchAll(/#([0-9a-f]{6})/g)].every(m=>grey('#'+m[1])));
-assert([...badge.matchAll(/rgba\((\d+),(\d+),(\d+),[^)]+\)/g)].every(m=>m[1]===m[2]&&m[2]===m[3]));
-assert(!/width:|height:|transform:/.test(badge));
 assert(finish.includes('#iuQuickEvents .iu-dock-custom-icon {\n width:22px!important;height:22px!important;flex:0 0 22px!important;'));
 assert(finish.includes('align-self:end!important;justify-self:center!important'));
 assert(finish.includes('#iuQuickEvents .iu-dock-custom-icon > path {\n transform:none!important;'));
-console.log('OK : voile blanc, pastille neutre, Planning 22 px.');
+console.log('OK : Planning 22 px conservé.');
+
+{
+ const frames=new Map(),colors=[],observers=[];let req=0;
+ class Path{moveTo(){}lineTo(){}closePath(){}}
+ const ctx={save(){},restore(){},clearRect(){},setTransform(){},stroke(){colors.push(this.strokeStyle);},fill(){colors.push(this.fillStyle);}};
+ const panel={hidden:true},manual={hidden:true};
+ const canvas={getContext:()=>ctx,getBoundingClientRect:()=>({width:85,height:60})};
+ const button={id:'iuGeminiRepairApply',hidden:false,querySelector:()=>canvas,getClientRects:()=>!panel.hidden&&!manual.hidden?[{}]:[]};
+ const doc={hidden:false,getElementById:k=>({iuGeminiRepairApply:button,iuGeminiRepair:panel,iuGeminiRepairManual:manual})[k]||null,addEventListener(){}};
+ const win={devicePixelRatio:2,matchMedia:()=>({matches:false}),addEventListener(){},requestAnimationFrame:fn=>{frames.set(++req,fn);return req;},cancelAnimationFrame:id=>frames.delete(id)};
+ class Observer{constructor(fn){this.fn=fn;}observe(node){if(node===panel||node===manual)observers.push(this.fn);}}
+ new Function('document','window','Path2D','MutationObserver',source)(doc,win,Path,Observer);
+ assert.equal(frames.size,0);
+ panel.hidden=false;manual.hidden=false;observers.forEach(fn=>fn());assert.equal(frames.size,1);
+ const [id,fn]=frames.entries().next().value;frames.delete(id);fn(100);
+ assert.deepEqual(colors.slice(0,15),gross.paints.slice(0,15).map(p=>p.color));
+ manual.hidden=true;observers.forEach(fn=>fn());assert.equal(frames.size,0);
+ console.log('OK : correction manuelle, contour identique et arrêt quand masqué.');
+}
