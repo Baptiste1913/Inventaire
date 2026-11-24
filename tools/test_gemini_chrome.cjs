@@ -154,7 +154,7 @@ assert(shades.length>=8&&shades.every(m=>grey('#'+m[1])));
 for(const n of ['A','B','C'])assert(backdrop.includes('@keyframes iuChromeFlow'+n));
 console.log('OK : fond DIGI monochrome, trois vagues, accessibilité, typographie');
 
-assert(markup.includes(waves[0]+'\n<div id="iuGeminiLabelPanel"'),'SVG frère du panneau');
+assert(markup.indexOf(waves[0])<markup.indexOf('id="iuGeminiLabelPanel"'),'SVG frère du panneau');
 assert(backdrop.includes('> .iu-gemini-label-shell > svg.iu-gemini-chrome-backdrop'));
 assert(backdrop.includes('inset:-26px -24px!important;'));
 assert(backdrop.includes('width:calc(100% + 48px)!important;height:calc(100% + 52px)!important;'));
@@ -225,11 +225,13 @@ console.log('OK : six fibres chromées par vague, voile allégé, halos plus pet
 
 {
 const glassMarkup='<div class="iu-gemini-clear-glass" aria-hidden="true"></div>';
-assert(markup.includes(glassMarkup+'\n'+waves[0]));
+assert(markup.includes(waves[0]+'\n'+glassMarkup+'\n<div id="iuGeminiLabelPanel"'));
 const glassStyle=css.match(/> \.iu-gemini-label-shell > \.iu-gemini-clear-glass \{([^}]+)\}/)[1];
-assert(glassStyle.includes('background:transparent!important;'));
+assert(glassStyle.includes('background:rgba(128,128,128,.002)!important;'));
 assert(glassStyle.includes('position:absolute!important;'));
-assert(glassStyle.includes('inset:0!important;'));
+assert(glassStyle.includes('inset:5px 0 0!important;'));
+assert(glassStyle.includes('z-index:1!important;'));
+assert(css.slice(css.indexOf('/* v42.67')).includes('z-index:2!important;'));
 assert(glassStyle.includes('backdrop-filter:blur(25px)!important;'));
 assert(glassStyle.includes('pointer-events:none!important;'));
 assert(glassStyle.includes('overflow:hidden!important;'));
@@ -237,8 +239,8 @@ assert(backdrop.includes('background-color:transparent!important;'));
 assert(backdrop.includes('-webkit-backdrop-filter:none!important;'));
 assert(backdrop.includes('opacity:.94!important;'));
 assert(backdrop.includes('prefers-reduced-transparency:reduce'));
-assert(markup.includes('gemini-lab.css?v=42.66'));
-assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.66'));
+assert(markup.includes('gemini-lab.css?v=42.67'));
+assert(fs.readFileSync('sw.js','utf8').includes('gemini-lab.css?v=42.67'));
 console.log('OK : verre transparent flou séparé, filaments renforcés et accessibilité');
 }
 

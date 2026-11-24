@@ -5815,7 +5815,7 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  overflow:hidden!important;
  z-index:0!important;
  pointer-events:none!important;
- /* Filaments nets, au-dessus du verre flou mais derrière les contenus. */
+ /* Filaments derrière le verre : flous dans le panneau, nets à l'extérieur. */
  opacity:.94!important;
  filter:none!important;-webkit-filter:none!important;
 }
@@ -5915,20 +5915,20 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
 }
 
 /* v42.65 — verre réellement transparent, sans voile blanc.
-   Le flou est sur une surface fixe, séparée des filaments animés.
+   Le flou est au-dessus des filaments et sous les contenus du panneau.
    Le panneau de contenu n'est ni flouté ni recomposé avec le SVG. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  > .iu-gemini-label-shell > .iu-gemini-clear-glass {
  position:absolute!important;
- inset:0!important;
+ inset:5px 0 0!important;
  width:auto!important;height:auto!important;
  margin:0!important;padding:0!important;
  border:0!important;border-radius:20px!important;
- background:transparent!important;
+ background:rgba(128,128,128,.002)!important;
  box-shadow:none!important;
  overflow:hidden!important;
  pointer-events:none!important;
- z-index:0!important;
+ z-index:1!important;
  -webkit-backdrop-filter:blur(25px)!important;
  backdrop-filter:blur(25px)!important;
 }
@@ -5958,4 +5958,10 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
   background-color:Canvas!important;
   background-image:none!important;
  }
+}
+
+/* v42.67 — ordre de composition explicite : halo / fibres / verre / contenu. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+ > .iu-gemini-label-shell > #iuGeminiLabelPanel.result.iu-result-compact {
+ z-index:2!important;
 }

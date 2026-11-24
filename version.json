@@ -1,6 +1,6 @@
 {
-  "version": "42.66",
+  "version": "42.67",
   "published": "2026-11-24",
   "assets": 74,
-  "notes": "Flou du verre transparent du panneau DIGI augmenté de 15 px (10 à 25 px). Filaments, halos, textes, contours et OCR inchangés."
+  "notes": "Correction du flou DIGI : le verre 25 px passe au-dessus des filaments, sous les contenus. Filaments nets hors panneau, floutés à travers le verre, sans voile blanc. Reconnaissance et animations inchangées."
 }
