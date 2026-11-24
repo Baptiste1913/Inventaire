@@ -48,7 +48,7 @@ assert(diagnostic.includes('position:absolute!important')&&diagnostic.includes('
 console.log('OK : diagnostic hors flux dans tous les états, espace stable.');
 
 const section=html.slice(html.indexOf('<section id="iuGeminiLab"'),html.indexOf('</section>',html.indexOf('<section id="iuGeminiLab"')));
-assert(section.includes('>service U / Calcul AI</span><h2 id="iu-gemini-section-title">Nouvelle pesée AI</h2>'));
+assert(section.includes('>SERVICES U / CALCUL AI</span><h2 id="iu-gemini-section-title">Nouvelle pesée AI</h2>'));
 assert(section.includes('id="iuGeminiAIChrome"')&&!section.includes('iu-gemini-title-text')&&!section.includes('iu-gemini-brand-mark'));
 const resultEnd=section.indexOf('</article>',section.indexOf('id="iuGeminiLabelPanel"'));
 assert(resultEnd>0&&section.indexOf('id="iuGeminiRepair"')>resultEnd);

@@ -4020,6 +4020,10 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  white-space:nowrap!important;
  text-transform:none!important;
 }
+@media(max-width:380px){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
+  > .card-heading .section-kicker {font-size:10px!important;}
+}
 /* V34.28 : titre de la pesée classique, mêmes dimensions, couleur
    et espacement. L'ancienne règle Gemini à 21–27px est neutralisée. */
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone

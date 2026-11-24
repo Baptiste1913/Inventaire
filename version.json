@@ -1,6 +1,6 @@
 {
-  "version": "42.92",
+  "version": "42.93",
   "published": "2026-11-24",
-  "assets": 92,
-  "notes": "Fin de défilement naturelle sur toutes les pages : suppression de la réserve permanente en session (320 px/48 svh) et des 90 px de l'ancien dock des sous-pages. Marges adaptées à la zone de sécurité iPhone et au dock d'accueil. Aucun changement des données ni de la reconnaissance."
+  "assets": 93,
+  "notes": "Surtitre SERVICES U / CALCUL AI harmonisé. Le déclencheur photo enregistre et efface d'abord la pesée valide en attente, via la même transaction que Enregistrer, puis capture la suivante. Doublons, échecs d'enregistrement et lectures incertaines protégés."
 }

@@ -2336,6 +2336,19 @@
    }
   }
  });
+ // Les deux commandes utilisent la même transaction synchrone.
+ // N'effacer le résultat qu'après confirmation de l'enregistrement.
+ function saveAndClearCurrentWeigh(){
+  if(duplicateForCurrent()){openDuplicateConfirm();return null;}
+  const saved=saveVerifiedProposal();
+  if(!saved?.ok){
+   if(saved?.duplicate)openDuplicateConfirm();
+   else announceSaveError(saved);
+   return null;
+  }
+  resetReading();
+  return saved;
+ }
  nextWeigh?.addEventListener('click',()=>{
   if(active||frameCaptureBusy||duplicateDialogOpen||catalogDialogOpen)return;
   const corrected=validationState();
@@ -2359,14 +2372,8 @@
    else capture?.focus();
    return;
   }
-  if(duplicateForCurrent()){openDuplicateConfirm();return;}
-  const saved=saveVerifiedProposal();
-  if(!saved?.ok){
-   if(saved?.duplicate)openDuplicateConfirm();
-   else announceSaveError(saved);
-   return;
-  }
-  resetReading();
+  const saved=saveAndClearCurrentWeigh();
+  if(!saved)return;
   if(cameraStream&&cameraMode==='auto')armAutoScanner(true);
   setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
   say(saved.duplicate?'Doublon confirmé · prêt pour la suite.'
@@ -2886,15 +2893,19 @@
    say('Analyse annulée · reprends une photo.');
    return;
   }
-  // Le déclencheur ne valide jamais silencieusement un doublon.
-  if(hasSavableProposal()&&duplicateForCurrent()){
-   openDuplicateConfirm();return;
+  // Comme Enregistrer : valider et vider la pesée précédente AVANT
+  // de capturer la suivante. Un échec photo ne perd plus cette pesée.
+  // Un doublon exige toujours sa confirmation explicite.
+  if(hasSavableProposal()){
+   if(duplicateForCurrent()){openDuplicateConfirm();return;}
+   const saved=saveAndClearCurrentWeigh();
+   if(!saved)return;
+   setLabelAlert('success',saved.duplicate?'Doublon confirmé':'Pesée enregistrée');
+   say('Pesée enregistrée · photo suivante.');
   }
-  // Photographier d'abord, puis enregistrer une pesée valide précédente.
   const priorProposal=proposal;
   const frameGeneration=generation,frameEpoch=cameraEpoch;
   const priorBasket=$('basketSelect')?.value;
-  const priorWasSavable=Boolean(correctedCurrentProposal());
   frameCaptureBusy=true;
   setLabelAlert('working','Analyse…');
   refreshCaptureButton();
@@ -2931,22 +2942,13 @@
    }
    if(!blob)throw Error('Capture impossible');
    // Si le panier, la session, le flux caméra ou la lecture a changé
-   // pendant toBlob, n'enregistrer ni ne remplacer quoi que ce soit.
+   // pendant toBlob, ne pas remplacer la lecture ou la session courante.
    if(frameEpoch!==cameraEpoch||frameGeneration!==generation||
       proposal!==priorProposal||priorBasket!==$('basketSelect')?.value||
       !cameraStream||cameraShell.hidden||document.hidden||
       cameraShell.dataset.state!=='scanning')return;
    const nextPhoto=new File([blob],'etiquette-gemini.jpg',{type:'image/jpeg'});
-   if(priorWasSavable){
-    const saved=saveVerifiedProposal({fromCapture:true});
-    if(!saved?.ok){
-     if(saved.duplicate)openDuplicateConfirm();
-     else announceSaveError(saved);
-     return;
-    }
-    resetReading();
-    say(saved.duplicate?'Doublon confirmé · photo suivante.':'Pesée enregistrée · photo suivante.');
-   }else if(proposal||latestLabelFields||file){
+   if(proposal||latestLabelFields||file||retainedSavedLabel){
     // Résultat incorrect ou analyse échouée : nouvelle photo, aucune
     // sauvegarde. Les données existantes ne sont pas altérées.
     resetReading();
