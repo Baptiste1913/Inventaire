@@ -43,7 +43,7 @@ const outer=css.slice(css.indexOf('/* v42.55'));
 assert(outer.includes('> .iu-gemini-outline-label {'));
 assert(outer.includes('border:0!important;')&&outer.includes('outline:0!important;'));
 assert(!css.includes('data-aligned="true"] .iu-gemini-outline-label{border-color:rgba(155,243,198'));
-for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.03'));
+for(const file of ['index.html','sw.js'])assert(fs.readFileSync(file,'utf8').includes('weigh-light.js?v=43.04'));
 // Inspect the real wave lifecycle with seeded randomness and a mocked canvas.
 // The debug hook exists only in this test's local copy.
 let state=42;
@@ -218,6 +218,8 @@ assert(source.includes('if(isGemini&&!isBackdrop)resetWaves();'));
  assert.equal(debug.logoInnerLines.length,5);assert.equal(debug.logoInnerReflections.length,5);
  for(let k=0;k<5;k++)for(const time of [0,5,15,29,60]){
   const u=debug.logoJoinCenter(time,k);
+  assert(debug.logoJoinWeight(u+.12,time,k)>0,'Jonction élargie');
+  assert.equal(debug.logoJoinWeight(u+.14,time,k),0,'Jonction localisée');
   const a=debug.logoLinkedPoint(u,time,k),b=debug.logoLinkedPoint(u,time,k-1);
   assert(Math.hypot(a.x-b.x,a.y-b.y)<1e-8,'Jonction réelle avec la fibre voisine');
   const left=debug.logoLinkedPoint(u-.00001,time,k),right=debug.logoLinkedPoint(u+.00001,time,k);
@@ -301,3 +303,6 @@ console.log('OK : contour import, absence de relief, filaments intérieurs et ca
 assert(source.includes('widthPx*loaderWidthScale*(isLogo?.85:1)'));
 assert(source.includes('if(isLogo){widthPx*=.85;innerExtra*=.85;}'));
 console.log('OK : cinq fibres intérieures liées, cinq reflets, épaisseur réduite uniquement sur le logo.');
+
+assert(source.includes('const logoInnerSpecs=[[.94,.24,-.60],[3.82,.25,-1.00],[5.81,.20,-1.38],[2.35,.18,-1.74],[4.50,.16,-2.02]];'));
+console.log('OK : trajectoires intérieures rapprochées, jonctions élargies.');

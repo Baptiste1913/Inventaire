@@ -456,7 +456,7 @@
   const period=18+(index%5)*3;
   return 1+.13*Math.sin(TWO_PI*t/period+index*1.7);
  }
- const logoInnerSpecs=[[.94,.24,-.68],[3.82,.25,-1.14],[5.81,.20,-1.60],[2.35,.18,-2.06],[4.50,.16,-2.52]];
+ const logoInnerSpecs=[[.94,.24,-.60],[3.82,.25,-1.00],[5.81,.20,-1.38],[2.35,.18,-1.74],[4.50,.16,-2.02]];
  function logoJoinCenter(t,index){
   return wrap(.12+index*.29+.035*Math.sin(TWO_PI*t/(24+index*5)+index*1.4));
  }
@@ -464,7 +464,7 @@
   const center=logoJoinCenter(t,index);
   const distance=c=>Math.abs(wrap(u-c+.5)-.5);
   const d=Math.min(distance(center),distance(center+.5));
-  return d>=.115?0:.5+.5*Math.cos(Math.PI*d/.115);
+  return d>=.135?0:.5+.5*Math.cos(Math.PI*d/.135);
  }
  function logoLinkedPoint(u,t,index){
   if(index<0)return lanePoint(u,1.42,.49,.03);
