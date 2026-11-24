@@ -242,10 +242,10 @@
   status.textContent=message;
   status.classList.toggle('is-error',error);
   if(error&&!active)showDetectedIndicator('error',message||'Erreur de lecture');
-  // Le texte de statut était masqué par les styles : réutiliser le voyant
-  // réellement visible pendant une analyse plutôt que laisser « Aucune pesée ».
-  // L'unique « Analyse… » visible est déjà au centre du viseur fermé.
-  if(active&&!latestLabelFields)setLabelAlert('idle','');
+  // Le voyant permanent indique le chargement et les erreurs de capture.
+  if(active)setLabelAlert('working','Chargement');
+  else if(error&&['idle','working'].includes(labelAlert?.dataset.state))
+   setLabelAlert('warning',message||'Erreur de lecture');
  };
  // Safari iOS peut afficher des bandes noires après pause()/play() ou
  // track.enabled=false/true sur un MediaStream. Pendant l'analyse, masquer
@@ -446,24 +446,49 @@
  }
  function setLabelAlert(state,message){
   if(!labelAlert||!labelAlertText)return;
-  const type=['idle','working','success','warning'].includes(state)?state:'warning';
+  const detail=String(message||'');
+  let type=['idle','working','success','warning','duplicate'].includes(state)?state:'warning';
+  let visibleMessage;
+  if(type==='idle'){
+   visibleMessage=cameraShell?.dataset.state==='scanning'?'Caméra active':'Caméra désactivée';
+  }else if(type==='working'){
+   visibleMessage='Chargement';
+  }else if(type==='success'){
+   visibleMessage=/doublon/i.test(detail)?'Doublon confirmé':
+    /enregistr/i.test(detail)?'Pesée enregistrée':'Étiquette prête';
+  }else if(type==='duplicate'||/doublon|déjà (?:été )?enregistr/i.test(detail)){
+   type='duplicate';visibleMessage='Doublon détecté';
+  }else{
+   visibleMessage=/tare trop élevée|mauvais panier/i.test(detail)?'Tare trop élevée':
+    /choisis un panier|panier requis/i.test(detail)?'Panier requis':
+    /clé|cloudflare nécessaire/i.test(detail)?'Clé Gemini requise':
+    /référence DIGI|catalogue DIGI|catalogue ou/i.test(detail)?'Référence à vérifier':
+    /enregistrement|stockage|non enregistrée/i.test(detail)?'Enregistrement impossible':
+    /caméra|viseur|vidéo|accès refusé/i.test(detail)?'Caméra indisponible':
+    /photo impossible|capture.*impossible|choisis une image/i.test(detail)?'Photo impossible':
+    /réseau|503|429|indisponible|timeout|fetch|trop longue/i.test(detail)?'Erreur réseau':
+    /pesée prête/i.test(detail)?'Pesée à enregistrer':
+    /lecture|poids|valeur|incertain|incompl|invalide|EAN|prix/i.test(detail)?'Données incertaines':
+    'Erreur de lecture';
+  }
   if(labelAlert.dataset.state!==type){
    labelAlert.dataset.state=type;
-   labelAlert.classList.toggle('is-idle',type==='idle');
-   labelAlert.classList.toggle('is-success',type==='success');
-   labelAlert.classList.toggle('is-warning',type==='warning');
-   labelAlert.classList.toggle('is-working',type==='working');
+   for(const key of ['idle','working','success','warning','duplicate'])
+    labelAlert.classList.toggle('is-'+key,type===key);
   }
-  // Simplifier uniquement l'avertissement destiné à l'interface :
-  // conserver l'erreur détaillée pour la correction et les diagnostics.
-  const visibleMessage=message==='Lecture non validable · Poids lu sur l’étiquette manquant ou invalide.'
-   ?'Données incertaines':message;
-  labelAlertText.textContent=visibleMessage;
-  labelAlert.hidden=type==='idle'&&!visibleMessage;
-  // Les erreurs visibles utilisent systématiquement le carré rouge.
+  if(labelAlertText.textContent!==visibleMessage)labelAlertText.textContent=visibleMessage;
+  labelAlert.title=detail||visibleMessage;
+  labelAlert.hidden=false;
+  // Préserver les diagnostics et le voyant du viseur, indépendamment du résumé.
   if(type==='warning'&&!active&&
-     /erreur|invalide|impossible|indisponible|incomplet|non reconn|incorrect|échec|trop élev|manquant|incohér|non valid|non conforme|réessaie|choisis un panier/i.test(message))
-   showDetectedIndicator('error',message);
+     /erreur|invalide|impossible|indisponible|incomplet|non reconn|incorrect|échec|trop élev|manquant|incohér|non valid|non conforme|réessaie|choisis un panier/i.test(detail))
+   showDetectedIndicator('error',detail);
+ }
+ function refreshCameraAlert(){
+  if(active){setLabelAlert('working','Chargement');return;}
+  // Les résultats d'une photo importée ou conservée restent prioritaires.
+  if(file||proposal||latestLabelFields)return;
+  setLabelAlert('idle','');
  }
  function duplicateForCurrent(){
   if(!proposal||typeof window.IUGeminiDuplicateInfo!=='function')return false;
@@ -473,7 +498,7 @@
   })?.duplicate===true;}catch(_){return false;}
  }
  function refreshLabelAlert(){
-  if(active){setLabelAlert('idle','');return;}
+  if(active){setLabelAlert('working','Chargement');return;}
   // Si un résultat a déjà été lu pour CETTE photo, un panier plus
   // lourd que le brut est une erreur métier certaine, pas une panne IA.
   // Cela évite de masquer la tare lors d'une relecture réseau échouée.
@@ -1595,6 +1620,7 @@
    Array.isArray(lastRawResult.checks.recoveryInterruptedTargets)?lastRawResult.checks.recoveryInterruptedTargets.filter(k=>Object.prototype.hasOwnProperty.call(fieldKeys,k)):null;
   const oldResult=targetField||resumeFields?.length?lastRawResult:null;
   attempts.add(selectedModel);active=true;lastReadProblem=null;lastAnalysisError=null;
+  setLabelAlert('working','Chargement');
   resetDetectedIndicator();updateButton();setAnalysisCameraClosed(true);
    // Nouvelle lecture verrouillée jusqu'à validation ou erreur de reconnaissance.
   // Laisser l'étiquette vierge affichée jusqu'au remplacement par le résultat.
@@ -2008,6 +2034,7 @@
   shortcut?.setAttribute('aria-pressed','false');
   shortcut?.setAttribute('aria-expanded','true');
   refreshTorch();
+  refreshCameraAlert();
  }
  // Comme le scanner OCR classique, demander la mise au point continue
  // uniquement lorsqu'elle est officiellement prise en charge par le capteur.
@@ -2037,6 +2064,7 @@
     video.srcObject=cameraStream;
     cameraShell.hidden=false;
     cameraShell.dataset.state='scanning';
+    refreshCameraAlert();
     shortcut?.setAttribute('aria-pressed','true');
     shortcut?.setAttribute('aria-expanded','true');
     shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
@@ -2095,6 +2123,7 @@
    },{once:true});
    video.srcObject=obtained;
    cameraShell.hidden=false;cameraShell.dataset.state='scanning';openCamera.hidden=true;
+   refreshCameraAlert();
    shortcut?.setAttribute('aria-pressed','true');
    shortcut?.setAttribute('aria-expanded','true');
    shortcut?.setAttribute('aria-label','Afficher le viseur Gemini');
@@ -2884,6 +2913,7 @@
   const priorBasket=$('basketSelect')?.value;
   const priorWasSavable=Boolean(correctedCurrentProposal());
   frameCaptureBusy=true;
+  setLabelAlert('working','Chargement');
   refreshCaptureButton();
   const automatic=autoCapturePending;
   autoCapturePending=false;autoLocked=true;autoSuspended=true;
@@ -2948,6 +2978,7 @@
    setAutoHint('Capture impossible · réessaie','error');
   }finally{
    frameCaptureBusy=false;
+   if(!active&&labelAlert?.dataset.state==='working')refreshLabelAlert();
    refreshCaptureButton();
   }
  });
@@ -2976,6 +3007,7 @@
    }
    track.enabled=true;
    cameraShell.dataset.state='scanning';
+   refreshCameraAlert();
    video.srcObject=cameraStream;
    Promise.resolve(video.play()).then(()=>{
     startQualityMonitor();

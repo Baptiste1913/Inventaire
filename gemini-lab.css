@@ -6016,3 +6016,33 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > c
 html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-label-shell > svg.iu-gemini-chrome-backdrop > g {
  animation:none!important;transform:none!important;
 }
+
+/* v42.77 — indicateur permanent entre viseur et résultat. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabelAlert.iu-gemini-label-alert {
+ order:0!important;display:flex!important;align-items:center!important;
+ width:100%!important;min-width:0!important;min-height:40px!important;
+ box-sizing:border-box!important;flex:0 0 auto!important;
+ margin:3px 0!important;padding:8px 11px!important;gap:10px!important;
+ border-radius:12px!important;border:1px solid rgba(255,255,255,.95)!important;
+ background:linear-gradient(145deg,#fff 0%,#f5f8fa 50%,#eaf0f4 100%)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.9),1px 3px 7px rgba(73,103,119,.08)!important;
+ font-size:12px!important;font-weight:700!important;line-height:1.3!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabelAlert.is-working {
+ color:#758893!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabelAlert.is-working .iu-gemini-alert-led {
+ background:#a6b4bc!important;border-color:rgba(109,129,142,.32)!important;
+ box-shadow:0 0 0 3px rgba(162,180,190,.12)!important;
+ animation:iu-gemini-working-pulse 1.6s ease-in-out infinite!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabelAlert.is-duplicate {
+ color:#98601d!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabelAlert.is-duplicate .iu-gemini-alert-led {
+ background:#e7a044!important;border-color:#cb862f!important;
+ box-shadow:0 0 0 3px rgba(231,160,68,.16),0 0 8px rgba(203,134,47,.23)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiLabelAlert .iu-gemini-alert-led {animation:none!important;}
+}
