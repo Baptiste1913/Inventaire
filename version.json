@@ -1,6 +1,6 @@
 {
-  "version": "42.77",
+  "version": "42.78",
   "published": "2026-11-24",
-  "assets": 77,
-  "notes": "Voyant permanent entre caméra et résultat, hauteur 40 px, états gris caméra/chargement, vert validation, orange doublon et rouge erreur. Libellés courts, détails conservés."
+  "assets": 78,
+  "notes": "Indicateur permanent assorti au cadre caméra, halo de la pastille Aucune session réutilisé dans toutes les couleurs, icône caméra désactivée blanche à la place du texte dans le viseur."
 }

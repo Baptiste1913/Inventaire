@@ -280,7 +280,7 @@
   analysisCameraClosed=false;
   const wasLive=restoreCameraAfterAnalysis;
   restoreCameraAfterAnalysis=false;
-  if(title)title.textContent='Caméra désactivée';
+  if(title)title.textContent='';
   if(cameraIdle){
    cameraIdle.disabled=false;
    cameraIdle.setAttribute('aria-label','Activer la caméra, actuellement désactivée');

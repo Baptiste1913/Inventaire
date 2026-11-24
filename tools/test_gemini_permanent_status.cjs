@@ -15,5 +15,20 @@ camera.dataset.state='idle';api.refreshCameraAlert();expect('success','Étiquett
 for(const [type,msg,result,short] of [['warning','Doublon détecté · validation nécessaire','duplicate','Doublon détecté'],['warning','Lecture non validable · Poids lu sur l’étiquette manquant ou invalide.','warning','Données incertaines'],['warning','Tare trop élevée · change de panier','warning','Tare trop élevée'],['warning','Analyse trop longue · réessaie cette photo','warning','Erreur réseau'],['success','Pesée enregistrée','success','Pesée enregistrée'],['warning','Configure la clé Gemini','warning','Clé Gemini requise']]){api.setLabelAlert(type,msg);expect(result,short);assert.equal(light.title,msg);}
 state.file=state.proposal=state.latestLabelFields=null;api.refreshCameraAlert();expect('idle','Caméra désactivée');
 const pos=html.indexOf('id="iuGeminiLabelAlert"');assert(html.indexOf('id="iuGeminiCameraShell"')<pos&&pos<html.indexOf('class="iu-result-glow-shell iu-gemini-label-shell"'));assert.equal((html.match(/id="iuGeminiLabelAlert"/g)||[]).length,1);
-assert(!html.slice(pos,html.indexOf('</div>',pos)).includes(' hidden'));assert(css.includes('min-height:40px!important'));assert(css.includes('> #iuGeminiLabelAlert.is-duplicate .iu-gemini-alert-led'));
+assert(!html.slice(pos,html.indexOf('</div>',pos)).includes(' hidden'));assert(css.includes('min-height:40px!important'));assert(css.includes('> #iuGeminiLabelAlert.is-duplicate {'));
 console.log('OK : indicateur permanent, états courts, diagnostic et caméra, doublon orange.');
+
+const cameraStyle=css.match(/\.calc-card \.iu-gemini-camera-shell\.iu-weigh-scan-inline\s*\{([^}]+)\}/)[1];
+const statusStyle=css.slice(css.indexOf('/* v42.78')).match(/> #iuGeminiLabelAlert\.iu-gemini-label-alert\s*\{([^}]+)\}/)[1];
+for(const property of ['border','background','box-shadow']){
+ const read=s=>s.match(new RegExp('(?:^|[;\\s])'+property+':([^;]+);'))[1].replace(/\\s+/g,'');
+ assert.equal(read(statusStyle),read(cameraStyle),'Même '+property+' que le cadre caméra');
+}
+assert(statusStyle.includes('border-radius:20px!important'));
+assert(css.includes('animation:iu-v3559-session-glow 2.25s ease-in-out infinite!important'));
+assert(css.includes('--iu-alert-dot:#9caab3')&&css.includes('--iu-alert-dot:#34bd8a')&&css.includes('--iu-alert-dot:#e45465')&&css.includes('--iu-alert-dot:#d9a960'));
+const idle=html.match(/<button type="button" id="iuGeminiCameraIdle"[\s\S]*?<\/button>/)[0];
+assert(idle.includes('iu-gemini-camera-off-icon')&&idle.includes('fill="#fff"')&&idle.includes('aria-label="Activer la caméra, actuellement désactivée"'));
+assert(!idle.includes('>Caméra désactivée<'));
+assert(js.includes("if(title)title.textContent='Analyse…';")&&js.includes("if(title)title.textContent='';"));
+console.log('OK : cadre identique, halo partagé, icône blanche et analyse préservée.');
