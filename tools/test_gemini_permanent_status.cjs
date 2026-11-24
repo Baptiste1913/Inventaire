@@ -46,3 +46,19 @@ assert(css.includes(':not(:where(#iuGeminiLabStatus)):not(#iuGeminiOuterChrome)'
 const diagnostic=css.slice(css.indexOf('/* v42.80')).match(/> #iuGeminiLabStatus\.iu-gemini-lab-status:not\(:empty\)\s*\{([^}]+)\}/)[1];
 assert(diagnostic.includes('position:absolute!important')&&diagnostic.includes('clip-path:inset(50%)!important'));
 console.log('OK : diagnostic hors flux dans tous les états, espace stable.');
+
+const section=html.slice(html.indexOf('<section id="iuGeminiLab"'),html.indexOf('</section>',html.indexOf('<section id="iuGeminiLab"')));
+assert(section.includes('>service U / Calcul AI</span><h2 id="iu-gemini-section-title">Nouvelle pesée AI</h2>'));
+assert(section.includes('id="iuGeminiAIChrome"')&&!section.includes('iu-gemini-title-text')&&!section.includes('iu-gemini-brand-mark'));
+const resultEnd=section.indexOf('</article>',section.indexOf('id="iuGeminiLabelPanel"'));
+assert(resultEnd>0&&section.indexOf('id="iuGeminiRepair"')>resultEnd);
+assert(/<div id="iuGeminiRepair"[^>]* hidden>/.test(section));
+for(const id of ['iuGeminiRepairField','iuGeminiRepairRead','iuGeminiRepairEdit','iuGeminiRepairManual','iuGeminiRepairValue','iuGeminiRepairApply'])assert.equal((section.match(new RegExp('id="'+id+'"','g'))||[]).length,1);
+const repairStyle=css.slice(css.indexOf('/* v42.84')).match(/> #iuGeminiRepair\.iu-gemini-repair\s*\{([^}]+)\}/)[1];
+for(const property of ['border','border-radius','background','box-shadow']){
+ const read=s=>s.match(new RegExp('(?:^|[;\\s])'+property+':([^;]+);'))[1].replace(/\\s+/g,'');
+ assert.equal(read(repairStyle),read(statusStyle));
+}
+assert(repairStyle.includes('margin:4px 0 3px!important'));
+assert(css.includes('> #iuGeminiRepair.iu-gemini-repair[hidden] {\n display:none!important;'));
+console.log('OK : identité AI et commandes de correction sous le résultat, surface et marges harmonisées.');

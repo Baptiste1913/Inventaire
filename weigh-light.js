@@ -1,8 +1,8 @@
-/* Inventaires U 42.82 — chrome : anneau de chargement plus compact et épais.
+/* Inventaires U 42.84 — chrome : anneau de chargement et logo AI miniature.
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome'),document.getElementById('iuGeminiLoadingChrome')]){
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiBackdropChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome')]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
@@ -11,14 +11,16 @@
  const isBackdrop=overlay.id==='iuGeminiBackdropChrome';
  const isLoader=overlay.id==='iuGeminiLoadingChrome';
  const loaderShell=isLoader?document.getElementById('iuGeminiCameraShell'):null;
- const isPanelChrome=isGross||isOuter||isBackdrop||isLoader;
+ const isLogo=overlay.id==='iuGeminiAIChrome';
+ const isRing=isLoader||isLogo;
+ const isPanelChrome=isGross||isOuter||isBackdrop||isRing;
  const isGemini=isPanelChrome||overlay.id==='iuGeminiCameraShell';
  const contourBoost=0;
  const backdropWidthScale=.82;
- const loaderWidthScale=isLoader?1.6:1;
- const guide=isBackdrop||isOuter||isLoader?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
+ const loaderWidthScale=isRing?1.6:1;
+ const guide=isBackdrop||isOuter||isRing?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
- const canvas=isBackdrop||isOuter||isLoader?overlay:guide?.querySelector('.iu-weight-light');
+ const canvas=isBackdrop||isOuter||isRing?overlay:guide?.querySelector('.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
  const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
  if(!ctx)return;
@@ -35,8 +37,8 @@
  // les déplacements restent continus, y compris dans les quatre coins.
  function basePoint(u){
   if(isBackdrop&&openPoints)return openPoint(u);
-  if(isLoader){
-   const angle=wrap(u)*TWO_PI-Math.PI/2,r=Math.min(width,height)/2-6;
+  if(isRing){
+   const angle=wrap(u)*TWO_PI-Math.PI/2,r=Math.min(width,height)/2-(isLogo?5:6);
    const nx=Math.cos(angle),ny=Math.sin(angle);
    return {x:width/2+r*nx,y:height/2+r*ny,nx,ny};
   }
@@ -257,7 +259,7 @@
  }
  function drawRibbon(points,widthPx,color,opacity,blur,blend='screen',outset=0){
   if(isBackdrop){widthPx*=backdropWidthScale;outset*=backdropWidthScale;blur*=.8;}
-  if(isLoader){widthPx*=loaderWidthScale;outset*=loaderWidthScale;}
+  if(isRing){widthPx*=loaderWidthScale;outset*=loaderWidthScale;}
   const shape=new Path2D();
   for(let i=0;i<points.length;i++){
    const p=points[i];
@@ -505,7 +507,7 @@
   }
   lastTick=now;
   // Avoid two full-rate canvases while the camera is also scanning.
-  const interval=isBackdrop||isOuter||(isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning')?32:16;
+  const interval=isLogo?48:isBackdrop||isOuter||(isGross&&document.getElementById('iuGeminiCameraShell')?.dataset.state==='scanning')?32:16;
   if(now-lastPaint>=interval){
    lastPaint=now;
    paint(elapsed);

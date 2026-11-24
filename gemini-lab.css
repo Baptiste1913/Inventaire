@@ -6163,3 +6163,36 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone
  color:ButtonText!important;
  }
 }
+
+/* v42.84 — logo AI circulaire et panneau de correction autonome. */
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge {
+ width:36px!important;height:36px!important;min-height:36px!important;
+ padding:2px!important;gap:0!important;border-radius:50%!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge > canvas.iu-gemini-ai-logo {
+ display:block!important;position:static!important;flex:0 0 30px!important;
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ max-width:30px!important;max-height:30px!important;margin:0!important;padding:0!important;
+ border:0!important;background:transparent!important;box-shadow:none!important;transform:none!important;
+ pointer-events:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .card-heading {
+ padding-right:40px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair {
+ order:0!important;display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+ width:100%!important;min-width:0!important;min-height:40px!important;
+ box-sizing:border-box!important;flex:0 0 auto!important;
+ margin:4px 0 3px!important;padding:8px 11px!important;gap:6px!important;
+ border-radius:13px!important;border:1px solid rgba(255,255,255,.92)!important;
+ background:linear-gradient(148deg,#f9fbfd 0%,#f2f6f9 49%,#edf3f6 100%)!important;
+ box-shadow:-4px -4px 11px rgba(255,255,255,.88),5px 7px 18px rgba(101,128,148,.13),
+ inset 0 1px 0 rgba(255,255,255,.94),inset 0 0 0 1px rgba(146,170,183,.16)!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair[hidden] {
+ display:none!important;
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .iu-gemini-title-badge > canvas.iu-gemini-ai-logo {border:1px solid CanvasText!important;border-radius:50%!important;}
+ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > #iuGeminiRepair.iu-gemini-repair {background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;}
+}
