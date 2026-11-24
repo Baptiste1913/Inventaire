@@ -1,6 +1,6 @@
 {
-  "version": "42.53",
+  "version": "42.54",
   "published": "2026-11-24",
   "assets": 73,
-  "notes": "Viseur DIGI agrandi et calibré sur les étiquettes filmées, géométrie commune, EAN imprimé distinct, alignement indicatif. Préparation locale en visée, cache exact, vues EAN/chiffres ciblées, budget 504 et relecture bornée, diagnostics par moteur. Gemini 3.5 prioritaire. Redéploiement Worker Cloudflare recommandé pour le budget 504."
+  "notes": "Viseur DIGI : échelle 85 %, ratio 1,24, libellé remonté, rangées alignées, contour unique code-barres et EAN. Zones OCR et moteur Gemini 3.5 inchangés. Aucun nouveau redéploiement Cloudflare après v42.53."
 }

@@ -127,13 +127,21 @@
   ['date',.665,.535,.285,.145],['barcode',.075,.725,.435,.20],
   ['ean',.055,.925,.465,.055],['total',.52,.725,.405,.245]
  ];
+ // The displayed rectangles and the OCR crops serve different purposes:
+ // a single visible EAN box, independent fine OCR/quality sampling zones.
+ const cameraOutlineZones=labelLayout?.guideZones||[
+  ['store',.49,.035,.45,.15],['product',.06,.245,.88,.145],
+  ['rate',.06,.535,.29,.145],['weight',.385,.535,.245,.145],
+  ['date',.665,.535,.275,.145],['barcode',.06,.715,.43,.265],
+  ['total',.525,.715,.415,.265]
+ ];
  function buildExactCameraOutline(source){
-  const width=source.getBoundingClientRect().width,height=width/(labelLayout?.aspect||1.28);
+  const width=source.getBoundingClientRect().width,height=width/(labelLayout?.aspect||1.24);
   if(width<=60)return null;
   const wireframe=document.createElement('div');wireframe.className='iu-gemini-outline-label';
   wireframe.style.width=width+'px';wireframe.style.height=height+'px';
   wireframe.style.borderRadius='7px';
-  for(const [kind,x,y,w,h] of labelOutlineZones){
+  for(const [kind,x,y,w,h] of cameraOutlineZones){
    const outline=document.createElement('span');outline.className='iu-gemini-outline-rect iu-gemini-outline-'+kind;
    outline.style.left=(x*width)+'px';outline.style.top=(y*height)+'px';
    outline.style.width=(w*width)+'px';outline.style.height=(h*height)+'px';wireframe.appendChild(outline);
@@ -164,9 +172,9 @@
    }
   }
   if(!guideSnapshot||!guideSize)return;
-  // Repère agrandi de 70 à 82 % du cadrage maximal, ratio physique fixe.
+  // Repère agrandi de 82 à 85 % ; ratio légèrement resserré (1.24).
   // Ce calcul ne modifie pas la capture photo ni sa résolution.
-  const scale=(labelLayout?.guideScale||.82)*Math.min((stage.width-8)/guideSize.width,
+  const scale=(labelLayout?.guideScale||.85)*Math.min((stage.width-8)/guideSize.width,
    (stage.height-8)/guideSize.height);
   if(!(scale>0))return;
   exactGuide.style.width=(guideSize.width*scale)+'px';

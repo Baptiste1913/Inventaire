@@ -11,12 +11,21 @@
  'use strict';
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
  // Calibrated against the visible real DIGI labels, 24 Nov 2026.
- const aspect=1.28,guideScale=.82;
+ const aspect=1.24,guideScale=.85;
  const zones=Object.freeze([
   ['store',.49,.035,.45,.15],['product',.11,.265,.78,.145],
   ['rate',.065,.535,.275,.145],['weight',.395,.535,.245,.145],
   ['date',.665,.535,.285,.145],['barcode',.075,.725,.435,.20],
   ['ean',.055,.925,.465,.055],['total',.52,.725,.405,.245]
+ ].map(Object.freeze));
+ // Visual guide only: common outer edges, equal row gaps and one
+ // barcode + printed EAN contour. The independent OCR zones above
+ // remain unchanged, so fine digit crops never include the bars.
+ const guideZones=Object.freeze([
+  ['store',.49,.035,.45,.15],['product',.06,.245,.88,.145],
+  ['rate',.06,.535,.29,.145],['weight',.385,.535,.245,.145],
+  ['date',.665,.535,.275,.145],['barcode',.06,.715,.43,.265],
+  ['total',.525,.715,.415,.265]
  ].map(Object.freeze));
  function validRect(r){return Boolean(r&&[r.x,r.y,r.w,r.h].every(Number.isFinite)&&r.w>0&&r.h>0&&r.x>=0&&r.y>=0&&r.x+r.w<=1.001&&r.y+r.h<=1.001);}
  function paperRect(rect){return validRect(rect?.paper)?rect.paper:validRect(rect)?rect:null;}
@@ -157,5 +166,5 @@
   const optical=opticalCrop(reading,w,h);
   return optical||detect(imageData);
  }
- return Object.freeze({detect,opticalCrop,crop,barcodeWithinLabel,aspect,guideScale,zones,paperRect,zoneRect,aligned});
+ return Object.freeze({detect,opticalCrop,crop,barcodeWithinLabel,aspect,guideScale,zones,guideZones,paperRect,zoneRect,aligned});
 });
