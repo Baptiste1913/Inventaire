@@ -1,6 +1,6 @@
 {
-  "version": "43.17",
+  "version": "43.18",
   "published": "2026-11-25",
   "assets": 110,
-  "notes": "Correction du tracé des icônes de modification et suppression pendant le glissement des paniers. Sauvegarde harmonisée avec les bilans : dégradé continu, panneaux, résumé, boutons et options. Données, exports, restauration et Worker inchangés."
+  "notes": "Fiabilité AI : normalisation décimale exacte, diagnostic des blocages finaux après déverrouillage, isolation logique des étiquettes voisines et mode comparatif des paramètres Gemini 42.95. Contrôles DIGI, JPEG, transport et CORS conservés. Worker à redéployer."
 }

@@ -19,29 +19,27 @@ function validEAN13(code){
 }
 // Conversion stricte des données lues sur l'étiquette DIGI.
 function geminiLabValue(raw,kind){
- // Les réponses Gemini utilisent parfois les unités imprimées :
- // « 0,714 kg », « 5,99 €/kg » ou « 4,28 € ». Ne jamais perdre ces
- // valeurs valides pour une simple différence de présentation.
- if(typeof raw!=='string')return null;
- const text=raw.trim().replace(/[\u00a0\u202f\s]+/g,'')
-  .replace(/,/g,'.').replace(/€/g,'€');
- if(kind==='weight'){
-  let grams=null;
-  const kg=text.match(/^(\d{1,2})\.(\d{3})(?:kg)?$/i);
-  const gram=text.match(/^(\d{1,5})g$/i);
-  if(kg)grams=Number(kg[1])*1000+Number(kg[2]);
-  else if(gram)grams=Number(gram[1]);
-  return Number.isSafeInteger(grams)&&grams>=1&&grams<=30000?grams:null;
- }
- // €/kg ne peut s'appliquer qu'au prix unitaire ; jamais au prix total.
+ // Les clés du schéma fixent l'unité : kg et euros. Une différence de
+ // représentation ne doit pas supprimer une mesure. Aucun arrondi ni OCR inventé.
+ if(typeof raw!=='string'&&typeof raw!=='number')return null;
+ if(typeof raw==='number'&&!Number.isFinite(raw))return null;
+ const text=String(raw).trim();
+ if(text.length>40)return null;
+ const space='[ \\u00a0\\u202f]*';
  const rate=kind==='rate'||kind==='money';
- const pattern=rate
-  ?/^(\d{1,3})\.(\d{2})(?:€(?:\/kg|\/kilo|kg)?)?$/i
-  :/^(\d{1,3})\.(\d{2})(?:€)?$/i;
- const match=text.match(pattern);
- if(!match)return null;
- const cents=Number(match[1])*100+Number(match[2]);
- return cents>0&&cents<=99999?cents:null;
+ if(kind!=='weight'&&!rate&&kind!=='total')return null;
+ if(kind==='weight'){
+  const gram=text.match(new RegExp('^(\\d{1,5})'+space+'g$','i'));
+  if(gram){const n=Number(gram[1]);return n>=1&&n<=30000?n:null;}
+ }
+ // Pas de séparateurs de milliers, d'exposant, de signe ou de chiffres
+ // séparés par des espaces. Un entier nu en chaîne reste ambigu (kg/g).
+ const suffix=kind==='weight'?'kg':rate?'(?:€(?:'+space+'/(?:'+space+')(?:kg|kilo)|kg)?|EUR(?:'+space+'/'+space+'kg)?)':'(?:€|EUR)';
+ const m=text.match(new RegExp('^(\\d{1,'+(kind==='weight'?2:3)+'})(?:[.,](\\d{1,'+(kind==='weight'?3:2)+'}))?('+space+suffix+')?$','i'));
+ if(!m||(!m[2]&&!m[3]&&typeof raw==='string'))return null;
+ const digits=kind==='weight'?3:2,scale=10**digits;
+ const value=Number(m[1])*scale+Number((m[2]||'').padEnd(digits,'0'));
+ return Number.isSafeInteger(value)&&value>=1&&value<=(kind==='weight'?30000:99999)?value:null;
 }
 function geminiLabName(value){
  if(typeof value!=='string')return null;
@@ -255,12 +253,12 @@ function fieldDiagnostics(raw,parsed,focusFields){
   const present=Object.prototype.hasOwnProperty.call(raw,key),v=raw[key];
   const type=!present?'absent':v===null?'null':Array.isArray(v)?'array':typeof v;
   const expected=!focusFields.length||focusFields.includes(kind);
-  const state=!expected?'not_requested':!present?'missing':v===null?'unreadable':type!=='string'?'wrong_type':parsed[key]==null?'invalid_format':'accepted';
+  const state=!expected?'not_requested':!present?'missing':v===null?'unreadable':(type!=='string'&&!(type==='number'&&['weight','rate','total'].includes(kind)))?'wrong_type':parsed[key]==null?'invalid_format':'accepted';
   return [key,{type,state}];
  }));
 }
 function hybridEnabled(env,model){
- return env.GEMINI_HYBRID_RECOVERY!=='false'&&env.GEMINI_API_MODE==='interactions'&&routingMode(env,model)==='developer'&&!env.GEMINI_DIGI_CACHE;
+ return env.GEMINI_BASELINE_4295!=='true'&&env.GEMINI_HYBRID_RECOVERY!=='false'&&env.GEMINI_API_MODE==='interactions'&&routingMode(env,model)==='developer'&&!env.GEMINI_DIGI_CACHE;
 }
 function usageOf(data){
  const usage=data?.usageMetadata||{},out={};
@@ -430,30 +428,32 @@ async function geminiPilot(request,env,origin){
   if(detail)imageParts.push(
    {text:'Image 2 : détail de la MEME photo (étiquette entière, code-barres ou zone numérique). Utilise la première image pour situer les champs et le détail pour relire les pixels.'},
    {inline_data:{mime_type:'image/jpeg',data:detail}});
+  const baseline=env.GEMINI_BASELINE_4295==='true'&&routingMode(env,model)==='developer';
   const hybridRecovery=hybridEnabled(env,model);
   const reinforced=hybridRecovery&&!speculative&&(payload.recovery===true||focusFields.length>0);
-  const recoveryProfile=reinforced?'reinforced':'normal';
-  const delimited=!reinforced&&env.GEMINI_OUTPUT_FORMAT==='delimited';
-  const compact=!reinforced&&!delimited&&env.GEMINI_COMPACT_JSON==='true';
+  const recoveryProfile=baseline?'baseline':reinforced?'reinforced':'normal';
+  const delimited=!baseline&&!reinforced&&env.GEMINI_OUTPUT_FORMAT==='delimited';
+  const compact=!baseline&&!reinforced&&!delimited&&env.GEMINI_COMPACT_JSON==='true';
   const format=delimited?'delimited':compact?'compact':'json';
-  const streaming=!reinforced&&env.GEMINI_STREAM==='true';
+  const streaming=!baseline&&!reinforced&&env.GEMINI_STREAM==='true';
   const adaptive=env.GEMINI_ADAPTIVE_THINKING==='true';
-  const thinkingLevel=reinforced?(payload.strongRecovery===true||env.GEMINI_RECOVERY_THINKING==='low'||(difficulty!==null&&difficulty>=75)?'LOW':'MINIMAL'):!speculative&&((focusFields.length&&env.GEMINI_RECOVERY_THINKING==='low')||(adaptive&&difficulty!==null&&difficulty>=75))?'LOW':'MINIMAL';
+  const thinkingLevel=baseline?null:reinforced?(payload.strongRecovery===true||env.GEMINI_RECOVERY_THINKING==='low'||(difficulty!==null&&difficulty>=75)?'LOW':'MINIMAL'):!speculative&&((focusFields.length&&env.GEMINI_RECOVERY_THINKING==='low')||(adaptive&&difficulty!==null&&difficulty>=75))?'LOW':'MINIMAL';
   // Preserve the literal production prompt; compact is an explicit experiment.
   const mode=routingMode(env,model);
-  const cache=configuredCache(env,mode,format);
-  const effectivePrompt=delimited?prompt.replace('Retourne seulement un objet JSON avec les six propriétés exactes.','Retourne UNE ligne sans titre ni guillemets, exactement six champs séparés par ; dans cet ordre : name;weightKg;pricePerKgEur;totalEur;ean13;eanObserved. Remplace chaque champ inconnu ou non ciblé par ? et conserve sa position. Aucun autre texte.'):compact?prompt+' Utilise les clés JSON courtes suivantes à la place des clés longues : '+JSON.stringify(compactKeys)+'.':prompt;
-  const temperature=reinforced?0:temperatureOption(env),maxOutputTokens=reinforced?1024:outputLimit(env,format,thinkingLevel);
-  const generationConfig={...(temperature===null?{}:{temperature}),maxOutputTokens,responseMimeType:delimited?'text/plain':'application/json',...(delimited?{}:{responseSchema:compact?compactSchema:responseSchema}),thinkingConfig:{thinkingLevel}};
-  const body={contents:[{role:'user',parts:[{text:effectivePrompt},...imageParts]}],generationConfig};
+  const cache=baseline?null:configuredCache(env,mode,format);
+  const effectivePrompt=baseline?prompt:delimited?prompt.replace('Retourne seulement un objet JSON avec les six propriétés exactes.','Retourne UNE ligne sans titre ni guillemets, exactement six champs séparés par ; dans cet ordre : name;weightKg;pricePerKgEur;totalEur;ean13;eanObserved. Remplace chaque champ inconnu ou non ciblé par ? et conserve sa position. Aucun autre texte.'):compact?prompt+' Utilise les clés JSON courtes suivantes à la place des clés longues : '+JSON.stringify(compactKeys)+'.':prompt;
+  const temperature=baseline||reinforced?0:temperatureOption(env),maxOutputTokens=baseline||reinforced?1024:outputLimit(env,format,thinkingLevel);
+  const generationConfig={...(temperature===null?{}:{temperature}),maxOutputTokens,responseMimeType:delimited?'text/plain':'application/json',...(delimited?{}:{responseSchema:compact?compactSchema:responseSchema}),...(baseline?{}:{thinkingConfig:{thinkingLevel}})};
+  const isolatedPrompt=baseline?effectivePrompt:effectivePrompt+' Ignore les étiquettes voisines et les fragments hors du contour de l étiquette centrale. Si la zone détaillée ne peut pas être rattachée sans ambiguïté à cette même étiquette, ne l utilise pas. Ne mélange jamais leurs champs.';
+  const body={contents:[{role:'user',parts:[{text:isolatedPrompt},...imageParts]}],generationConfig};
   // Explicit cache is opt-in; the immutable original prompt stays available for fallback.
   const cachedBody=cache?{...body,cachedContent:cache,contents:[{role:'user',parts:[{text:'Applique les instructions DIGI en cache à cette nouvelle photo uniquement. '+prompt.slice(generalPrompt.length)},...imageParts]}]}:null;
   const developer='https://generativelanguage.googleapis.com/v1beta/models/'+model;
   const vertex=vertexEndpoint(env,model);
   const method=streaming?':streamGenerateContent?alt=sse':':generateContent';
   // Keep experiments independent from optional legacy Vertex/cache/racing paths.
-  const plan=reinforced?{main:'high',detail:detail?(env.GEMINI_DETAIL_RESOLUTION==='ultra_high'?'ultra_high':'high'):null}:mode==='developer'&&!cache?visualPlan(env,difficulty,focusFields,Boolean(detail)):null;
-  const useInteractions=!reinforced&&mode==='developer'&&!cache&&env.GEMINI_API_MODE==='interactions';
+  const plan=baseline?null:reinforced?{main:'high',detail:detail?(env.GEMINI_DETAIL_RESOLUTION==='ultra_high'?'ultra_high':'high'):null}:mode==='developer'&&!cache?visualPlan(env,difficulty,focusFields,Boolean(detail)):null;
+  const useInteractions=!baseline&&!reinforced&&mode==='developer'&&!cache&&env.GEMINI_API_MODE==='interactions';
   const experimentAPI=useInteractions?'interactions':plan?'generateContent-alpha':'generateContent';
   const serialized=JSON.stringify(body);
   const preparationMs=Date.now()-validationStarted,upstreamStarted=Date.now();
@@ -545,8 +545,8 @@ async function geminiPilot(request,env,origin){
   const upstreamMs=selected.headersMs,responseMs=Math.max(0,selected.totalMs-upstreamMs),routingWallMs=Date.now()-upstreamStarted;
   const processingStarted=Date.now();
   const googleMeta={requestedTier:'standard',sentTier:'standard',serviceTier:res?.headers?.get('x-gemini-service-tier')==='standard'?'standard':'unknown',
-   inferenceRoute:selected.route,routingMode:mode,hedgeStarted,hedgeWinner,thinkingLevel,compact,streaming:streaming&&selected.api!=='interactions',api:selected.api,apiFallback:selected.apiFallback,mediaRequested:plan,media: selected.media,maxOutputTokens,temperature:selected.api==='interactions'?'default':temperature===null?'default':temperature,
-   firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data),format,difficulty,speculative,cacheRequested:Boolean(cache),cacheFallback:selected.cacheFallback===true,speculativeEAN:speculativeEnabled(env),hybridRecovery,recoveryProfile};
+   inferenceRoute:selected.route,routingMode:mode,hedgeStarted,hedgeWinner,thinkingLevel:thinkingLevel||'DEFAULT',compact,streaming:streaming&&selected.api!=='interactions',api:selected.api,apiFallback:selected.apiFallback,mediaRequested:plan,media: selected.media,maxOutputTokens,temperature:selected.api==='interactions'?'default':temperature===null?'default':temperature,
+   firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data),format,difficulty,speculative,cacheRequested:Boolean(cache),cacheFallback:selected.cacheFallback===true,speculativeEAN:speculativeEnabled(env),hybridRecovery,recoveryProfile,numericNormalization:'exact-v1'};
   diagnosticMeta={...googleMeta,elapsedMs:Date.now()-started,serverTimings:{ingressMs,preparationMs,upstreamMs,responseMs,routingWallMs}};
   if(!res){
    const status=abort.signal.aborted||networkStats.stage==='timeout'?504:503;

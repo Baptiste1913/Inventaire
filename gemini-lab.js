@@ -108,7 +108,7 @@
   const fields=Object.fromEntries(allowed.flatMap(k=>{const f=result?.fieldDiagnostics?.[k];return types.includes(f?.type)&&states.includes(f?.state)?[[k,{type:f.type,state:f.state}]]:[];}));
   const stages=['upstream','provider_http','provider_body','max_tokens','finish_reason','empty_output','output_parse','timeout','circuit_open','cloudflare_google_network','fetch','http_json','google_http'];
   const reason=stage||result?.failureStage;
-  addDiagnostic(requestOutcomes,{status,ms,api:['interactions','generateContent','generateContent-alpha'].includes(result?.api)?result.api:'—',profile:result?.recoveryProfile==='reinforced'?'reinforced':'normal',reason:stages.includes(reason)?reason:null,fields});
+  addDiagnostic(requestOutcomes,{status,ms,api:['interactions','generateContent','generateContent-alpha'].includes(result?.api)?result.api:'—',profile:['reinforced','baseline'].includes(result?.recoveryProfile)?result.recoveryProfile:'normal',reason:stages.includes(reason)?reason:null,fields});
  }
  const photoDifficulty=new WeakMap();let speculativeEnabled=false,speculativeCooldown=0;
  // Only contemporaneous quality metrics; never treat them as identity evidence.
@@ -150,6 +150,10 @@
   const failures=requestOutcomes.filter(x=>x.status<200||x.status>=300);
   const invalid=requestOutcomes.filter(x=>Object.values(x.fields).some(f=>['missing','unreadable','wrong_type','invalid_format'].includes(f.state)));
   const reinforced=requestOutcomes.filter(x=>x.profile==='reinforced');
+  const baselines=requestOutcomes.filter(x=>x.profile==='baseline');
+  const normalized=requestOutcomes.filter(x=>Object.values(x.fields).some(f=>f.type==='number'&&f.state==='accepted'));
+  if(baselines.length)lines.push('Comparatif historique : '+baselines.length+' requêtes');
+  if(normalized.length)lines.push('Valeurs JSON numériques acceptées : '+normalized.length+' requêtes');
   lines.push('Fiabilité : '+requestOutcomes.length+' requêtes · '+failures.length+' erreurs HTTP/transport · '+invalid.length+' lectures avec champ rejeté/manquant · '+reinforced.length+' secours renforcés');
   const lastFailure=failures[failures.length-1],lastInvalid=invalid[invalid.length-1];
   if(lastFailure)lines.push('Dernier échec : '+lastFailure.api+' · '+(lastFailure.status||'transport')+' · '+(lastFailure.reason||'non précisé')+' · '+fmt(lastFailure.ms));
@@ -157,6 +161,9 @@
   if(analysisOutcomes.length){
    const ready=analysisOutcomes.filter(x=>x.ready),recovered=analysisOutcomes.filter(x=>x.recovered);
    lines.push('Analyses terminées : '+ready.length+'/'+analysisOutcomes.length+' prêtes à valider (panier inclus) · '+recovered.filter(x=>x.ready).length+'/'+recovered.length+' après secours · médiane toutes analyses '+fmt(quantile(analysisOutcomes.map(x=>x.ms),.5)));
+   const reasons={};for(const x of analysisOutcomes)if(!x.ready){const k=x.reason||'non précisé';reasons[k]=(reasons[k]||0)+1;}
+   if(Object.keys(reasons).length)lines.push('Blocages finaux : '+Object.entries(reasons).map(([k,n])=>k+' '+n).join(', '));
+   const last=analysisOutcomes[analysisOutcomes.length-1];if(last?.presence)lines.push('Dernière lecture finale : '+last.presence+' · '+(last.reason||'prête'));
   }
   node.textContent=lines.join(' | ');
  }
@@ -617,6 +624,19 @@
    ?' · EAN reconstitué':lastRawResult?.digiRecovery?.sources?.total==='calculated'
    ?' · montant calculé':'';
   setLabelAlert('success','Étiquette prête • PLU '+proposal.plu+note);
+ }
+ // Metadata only: the virtual label hides the corrected amount and barcode
+ // until full validation. Count actual fields independently of that UI.
+ function finalReadingDiagnostic(result,ready,technical=false){
+  const f=result?.fields||{},c=result?.checks||{};
+  const keys=['weight','rate','total','ean'];
+  const presence=keys.map(k=>k+' '+(readableValue(k,f[fieldKeys[k]])?'lu':'absent')).join(' / ');
+  if(ready)return {presence,reason:null};
+  if(technical)return {presence,reason:'erreur technique'};
+  const verified=validateResult(result);
+  const error=verified.error||'';
+  let reason=!error?'panier/tare':/Poids lu/.test(error)?'poids':/Prix au kilo/.test(error)?'prix/montant':/EAN complet/.test(error)?'EAN':/Article contradictoire/.test(error)?'identité contradictoire':/Calcul prix/.test(error)?'calcul incohérent':/lecture indépendante/.test(error)?'EAN contradictoire':/Lectures contradictoires/.test(error)?'lectures contradictoires':/interrompue/.test(error)?'relecture interrompue':/Prix de l.EAN/.test(error)?'prix EAN':/Catalogue DIGI/.test(error)?'catalogue DIGI':'autre contrôle';
+  return {presence,reason};
  }
  function validateResult(result){
   const f=result?.fields||{},checks=result?.checks||{};
@@ -1708,7 +1728,7 @@
   const currentAbort=abort;
   const guard=setTimeout(()=>currentAbort.abort(),24000);
   const start=performance.now();
-  let advancedJob=null,speculativeJob=null,speculativeAbort=null,primarySettled=false,analysisRecovered=false,analysisRecorded=false;
+  let advancedJob=null,speculativeJob=null,speculativeAbort=null,primarySettled=false,analysisRecovered=false,completedReading=null;
   const stopSpeculative=()=>speculativeAbort?.abort();
   currentAbort.signal.addEventListener('abort',stopSpeculative,{once:true});
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
@@ -2069,12 +2089,7 @@
    // La validation reste MANUELLE ; en auto, placer le bouton à portée de doigt.
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
-   const saveReady=Boolean(validationState());
-   addDiagnostic(analysisOutcomes,{ready:saveReady,recovered:analysisRecovered,ms:Math.round(performance.now()-start)});analysisRecorded=true;
-   const usedLegacyGemini=selectedProvider==='openai'&&!String(received?.model||'').startsWith('gpt-');
-   say(usedLegacyGemini?'Lecture faite par Gemini · Worker Cloudflare à mettre à jour'
-    :saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),
-    usedLegacyGemini||!saveReady);
+   completedReading={result:validated,usedLegacyGemini:selectedProvider==='openai'&&!String(received?.model||'').startsWith('gpt-')};
 
   }catch(error){
    if(id===generation){
@@ -2103,9 +2118,15 @@
   }finally{
    clearTimeout(guard);stopSpeculative();currentAbort.signal.removeEventListener('abort',stopSpeculative);
    if(id===generation){
-    if(!analysisRecorded)addDiagnostic(analysisOutcomes,{ready:false,recovered:analysisRecovered,ms:Math.round(performance.now()-start)});
     active=false;abort=null;setAnalysisCameraClosed(false);
-    updateButton();validationState();refreshRepairPanel();
+    updateButton();const saveReady=Boolean(validationState())&&Boolean(completedReading);refreshRepairPanel();
+    addDiagnostic(analysisOutcomes,{ready:saveReady,recovered:analysisRecovered,ms:Math.round(performance.now()-start),...finalReadingDiagnostic(completedReading?.result||lastRawResult,saveReady,!completedReading)});
+    if(completedReading){
+     const usedLegacyGemini=completedReading.usedLegacyGemini;
+     say(usedLegacyGemini?'Lecture faite par Gemini · Worker Cloudflare à mettre à jour'
+      :saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),
+      usedLegacyGemini||!saveReady);
+    }
     if(lastRawResult?.digiRecovery?.kind==='confirmation'&&
        generation!==lastCatalogPromptGeneration)
      openCatalogConfirm();
