@@ -649,12 +649,16 @@
   const ean=String(f.ean13||'');
   if(!/^\d{13}$/.test(ean)||eanCheck(ean.slice(0,12))!==ean[12])
    return {error:'EAN complet non reconnu ou clé EAN incorrecte.'};
-  // Identité officielle UNIQUEMENT depuis un préfixe unique du catalogue DIGI.
-  const digi=window.IUDigiCatalogLookup?.resolve(ean);
+  // Un préfixe unique n'est pas une preuve suffisante du libellé imprimé.
+  const catalog=window.IUDigiCatalogLookup,digi=catalog?.resolve(ean);
   if(!digi?.ok)return {error:'Catalogue DIGI · '+(digi?.reason||
    'module indisponible sur cet appareil')};
-  if([result?.printedName,f.name].some(name=>window.IUDigiCatalogLookup?.nameIdentityConflict?.(name,digi.eanPrefix)))
+  const printed=result?.printedName||f.name;
+  const identity=catalog.identityEvidence(printed,ean);
+  if(identity.status==='conflict'||[result?.printedName,f.name].some(name=>catalog.nameIdentityConflict(name,digi.eanPrefix)))
    return {error:'Article contradictoire : nom imprimé et EAN différents.'};
+  if(identity.status!=='confirmed'||catalog.identityEvidence(f.name,ean).status!=='confirmed')
+   return {error:'Article à vérifier : libellé imprimé non confirmé par le catalogue DIGI.'};
   if(Math.abs(Math.round(grams*rate/1000)-total)>1)
    return {error:'Calcul prix × poids incohérent.'};
   if(checks.independentMismatch===true)
@@ -777,6 +781,7 @@
   };
  }
  function fieldForProblem(error){
+  if(/Article contradictoire|Article à vérifier/i.test(error))return 'name';
   if(/EAN|code-barres|indépendante/i.test(error))return 'ean';
   if(/Poids/i.test(error))return 'weight';
   if(/Prix au kilo|montant manquant|Calcul prix/i.test(error))return 'rate';
@@ -844,7 +849,9 @@
   if(['weight','rate'].includes(kind)&&lastRawResult.digiRecovery?.sources?.total==='calculated')
    fields.totalCents=null;
   const evidence=kind==='total'?null:lastRawResult.recoveryProvenance;
-  const next=applyCatalogRecovery({...lastRawResult,fields,checks:fieldsChecks(fields),
+  const next=applyCatalogRecovery({...lastRawResult,fields,
+   ...(kind==='name'?{printedName:value,initialPrintedName:lastRawResult.initialPrintedName||lastRawResult.printedName||null}:{}),
+   checks:fieldsChecks(fields),
    digiRecovery:null,recoveryProvenance:evidence,
    eanObserved:kind==='ean'?value:lastRawResult.eanObserved,source:'manual'});
   manualCorrectedFields=[...new Set([...manualCorrectedFields,kind])];
@@ -1365,11 +1372,18 @@
   add(top,'span','iu-gemini-label-store','SUPER U');
   add(top,'span','iu-gemini-label-address','10120 ST GERMAIN');
   const digiMatch=window.IUDigiCatalogLookup?.resolve(String(fields.ean13||''));
-  const identityConflict=Boolean(digiMatch?.ok&&[result?.printedName,fields.name].some(n=>window.IUDigiCatalogLookup?.nameIdentityConflict?.(n,digiMatch.eanPrefix)));
-  const name=identityConflict?'ARTICLE À VÉRIFIER':digiMatch?.ok?digiMatch.name:'ARTICLE NON IDENTIFIÉ';
+  const printed=String(result?.printedName||fields.name||'').trim().slice(0,120);
+  const identity=window.IUDigiCatalogLookup?.identityEvidence(printed,String(fields.ean13||''));
+  const confirmed=identity?.status==='confirmed'&&window.IUDigiCatalogLookup?.identityEvidence(fields.name,String(fields.ean13||'')).status==='confirmed';
+  const name=confirmed?digiMatch.name:printed||'ARTICLE NON IDENTIFIÉ';
   const nameNode=add(label,'div','iu-gemini-label-name',name);
-  if(identityConflict){
-   nameNode.title='Nom lu : '+(result.printedName||fields.name||'—')+' · Catalogue : '+digiMatch.name;
+  if(!confirmed){
+   const detail=digiMatch?.ok?'Catalogue DIGI : '+digiMatch.name:
+    digiMatch?.status==='unknown'?'Article absent du catalogue DIGI':'Identité non confirmée';
+   const info='Nom lu : '+(printed||'—')+' · '+detail;
+   nameNode.title=info;
+   label.setAttribute('aria-label',info);
+   add(label,'small','iu-gemini-label-caption',detail);
   }else if(digiMatch?.ok){
    nameNode.title='Catalogue DIGI · PLU '+digiMatch.plu;
    label.setAttribute('aria-label','Étiquette virtuelle · '+digiMatch.name+
@@ -1484,7 +1498,8 @@
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
    ...(focusFields?.length?{focusFields}:{}),
-   ...(catalogCandidates?.length?{catalogCandidates:catalogCandidates.slice(0,5)}:{}),
+   // Aucune suggestion d'identité n'est transmise à Gemini : les candidats
+   // DIGI restent locaux. Les positions de relecture EAN restent disponibles.
    ...(digiPositions?.length?{digiPositions:digiPositions.slice(0,13)}:{})};
   const transport=typeof window!=='undefined'?window.IUGeminiTransport:null;
   const networkNow=()=>typeof performance!=='undefined'?performance.now():Date.now();
@@ -1577,12 +1592,12 @@
  function recoveryTargets(result){
   const f=result?.fields||{},checks=fieldsChecks(f),targets=[];
   for(const [kind,key] of Object.entries(fieldKeys)){
-   if(kind==='name')continue; // Nom exclusivement depuis le catalogue DIGI.
    if(!readableValue(kind,f[key]))targets.push(kind);
   }
   if(readableValue('ean',f.ean13)){
    const ref=window.IUDigiCatalogLookup?.resolve(f.ean13);
    if(ref?.status==='unknown')targets.push('ean');
+   if(ref?.ok&&window.IUDigiCatalogLookup.identityEvidence(result?.printedName||f.name,f.ean13).status!=='confirmed')targets.push('name');
   }
   const allAmounts=['weight','rate','total'].every(k=>readableValue(k,f[fieldKeys[k]]));
   if(allAmounts&&!checks.arithmeticConsistent)targets.push('weight','rate','total');
@@ -1670,12 +1685,10 @@
    }
    // Une première proposition DIGI ne doit jamais battre un code
    // réellement relu, ni un nom officiel relu sur l'étiquette.
-   if(kind==='name'&&original?.digiRecovery?.conflictField==='name'){
-    const official=window.IUDigiCatalogLookup?.resolve(fields.ean13);
-    const normalize=window.IUDigiCatalogLookup?.normalizeName;
-    if(official?.ok&&normalize&&normalize(next)===normalize(official.name)){
-     fields[key]=next;nameRechecked=true;continue;
-    }
+   if(kind==='name'&&window.IUDigiCatalogLookup?.normalizeName(current)===window.IUDigiCatalogLookup?.normalizeName(next)){
+    // Seules deux lectures équivalentes sont fusionnées. La concordance
+    // avec le catalogue ne départage jamais deux noms différents.
+    nameRechecked=true;continue;
    }
    // Remplacer un EAN seulement si la seconde lecture Gemini ET le
    // décodeur optique indépendant confirment les mêmes 13 chiffres.

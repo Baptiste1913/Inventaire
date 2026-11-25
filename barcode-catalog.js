@@ -19,21 +19,29 @@
  let imported=false,standalone=false;
  const normalizeItem=item=>{
   if(!item||typeof item!=='object')return null;
-  const plu=String(item.plu??item.PLU??'').trim();
-  const name=String(item.libelle??item['Libellé']??'').trim();
-  if(!/^[0-9]{1,8}$/.test(plu)||!name||name.length>145)return null;
+  const plu=String(item.plu??item.PLU??item['PLU Bal.']??'').trim();
+  const name=String(item.libelle??item['Libellé']??item['Libellé étiquette']??'').trim();
+  if(!/^[0-9]{1,8}$/.test(plu)||Number(plu)===0||!name||name.length>145)return null;
   const status=item.actif??item.sur_clavier_actuel??item['Sur clavier actuel'];
   const active=status===true||status==='Oui'||status==='oui';
   const rawEAN=String(item.eanPrefix??item.ean_prefix??item['Préfixe EAN']??item.Gencod??item.gencod??'').trim();
   const eanPrefix=/^\d{7}$/.test(rawEAN)?rawEAN:
    (/^\d{13}$/.test(rawEAN)&&rawEAN.endsWith('000000')?rawEAN.slice(0,7):'');
   const validPrefix=/^(?:02|2\d)\d{5}$/.test(eanPrefix)?eanPrefix:'';
-  return {plu,name,active,clavier:String(item.clavier??item.Clavier??'').slice(0,50),eanPrefix:validPrefix};
+  const etat=String(item.etatArticle??item['Etat Article']??'').trim().toUpperCase();
+  return {plu,name,active,clavier:String(item.clavier??item.Clavier??'').slice(0,50),eanPrefix:validPrefix,
+   etatArticle:etat==='A'||etat==='I'?etat:'inconnu'};
  };
  const fillCatalog=items=>{
   if(!Array.isArray(items)||items.length>10000)throw Error('Liste d’articles invalide ou trop volumineuse.');
   const records=new Map();
-  items.forEach(item=>{const normalized=normalizeItem(item);if(normalized)records.set(normalized.plu,normalized)});
+  items.forEach(item=>{
+   const normalized=normalizeItem(item);if(!normalized)return;
+   const prev=records.get(normalized.plu);
+   if(prev&&(prev.name!==normalized.name||prev.eanPrefix!==normalized.eanPrefix))
+    throw Error('PLU '+normalized.plu+' : libellés ou préfixes contradictoires.');
+   records.set(normalized.plu,normalized);
+  });
   if(records.size<1)throw Error('Aucun PLU lisible dans ce fichier.');
   return records;
  };
@@ -56,7 +64,9 @@
  function updateCount(){
   const active=Array.from(catalog.values()).filter(item=>item.active).length;
   $s('iuEanCatalogCount',imported?catalog.size+' références PLU disponibles':'Catalogue non importé');
-  $s('iuEanCatalogActive',imported?active+' sur les claviers lors de l’export · '+eanIndex.size+' préfixes EAN importés · '+Object.keys(learned).length+' association(s) ajoutée(s) localement':'3 correspondances vérifiées sur étiquettes disponibles pour essai.');
+  const states=Array.from(catalog.values()).filter(item=>item.etatArticle==='A'||item.etatArticle==='I');
+  const activeText=states.length?states.filter(item=>item.etatArticle==='A').length+' articles actifs · ':'';
+  $s('iuEanCatalogActive',imported?activeText+active+' sur les claviers lors de l’export DIGI · '+eanIndex.size+' préfixes EAN importés · '+Object.keys(learned).length+' association(s) ajoutée(s) localement':'3 correspondances vérifiées sur étiquettes disponibles pour essai.');
  }
  const initial=readStorage(keyCatalog);
  if(initial&&Array.isArray(initial.articles)){
@@ -86,7 +96,20 @@
    const text=await file.text();
    const items=file.name.toLowerCase().endsWith('.csv')?parseCSV(text):(JSON.parse(text).articles??JSON.parse(text));
    const records=fillCatalog(items);
-   const serializable=Array.from(records.values()).map(item=>({plu:item.plu,libelle:item.name,actif:item.active,clavier:item.clavier,eanPrefix:item.eanPrefix}));
+   // Un export commercial Excel enregistré en CSV n'est pas un export
+   // des claviers DIGI : préserver leurs informations sans les confondre
+   // avec l'état actif/inactif. Les dates et prix ne sont jamais importés.
+   if(items.some(item=>item&&Object.hasOwn(item,'PLU Bal.')&&Object.hasOwn(item,'Libellé étiquette'))){
+    const previous=readStorage(keyCatalog);
+    if(Array.isArray(previous?.articles)){
+     for(const [plu,old] of fillCatalog(previous.articles)){
+      const updated=records.get(plu);
+      if(!updated)records.set(plu,{...old,etatArticle:'inconnu'});
+      else{updated.active=old.active;updated.clavier=old.clavier;}
+     }
+    }
+   }
+   const serializable=Array.from(records.values()).map(item=>({plu:item.plu,libelle:item.name,actif:item.active,clavier:item.clavier,eanPrefix:item.eanPrefix,etatArticle:item.etatArticle}));
    // Les données sont conservées dans une clé distincte de tous les inventaires.
    localStorage.setItem(keyCatalog,JSON.stringify({articles:serializable}));
    populate(records);
@@ -114,7 +137,7 @@
    const btn=document.createElement('button');btn.type='button';
    const name=document.createElement('strong'),detail=document.createElement('small');
    name.textContent=item.name;
-   detail.textContent='PLU '+item.plu+(item.eanPrefix?' · EAN '+item.eanPrefix:'')+(item.active?' · Clavier lors de l’export':'');
+   detail.textContent='PLU '+item.plu+(item.eanPrefix?' · EAN '+item.eanPrefix:'')+(item.active?' · Clavier lors de l’export':'')+(item.etatArticle==='A'?' · Actif':item.etatArticle==='I'?' · Inactif':'');
    btn.append(name,detail);
    btn.addEventListener('click',()=>{
     if(canLink){associate(item);}

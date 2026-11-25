@@ -18,7 +18,7 @@ function code(prefix,cents){
  return first+String((10-sum%10)%10);
 }
 const ean=code('0203476',1382);
-const fields={name:'NOM FAUX INVENTÉ PAR GEMINI',ean13:ean,
+const fields={name:'CITRON PRIMOFIORI',ean13:ean,
  weightGrams:3960,pricePerKgCents:349,totalCents:1382};
 function source(a,b){
  const start=js.indexOf(a),end=js.indexOf(b,start);
@@ -33,7 +33,9 @@ vm.runInContext(
  'globalThis.validateResult=validateResult;',ctx);
 const read=ctx.validateResult({fields,checks:{}});
 assert.equal(read.error,undefined,'Une étiquette cohérente est recevable');
-assert.equal(read.name,'CITRON PRIMOFIORI','Le nom Gemini n’est jamais une source');
+assert.equal(read.name,'CITRON PRIMOFIORI','Le nom lu confirme le catalogue');
+assert(ctx.validateResult({fields:{...fields,name:'NOM FAUX INVENTÉ PAR GEMINI'},checks:{}}).error);
+assert(ctx.validateResult({fields:{...fields,name:null},checks:{}}).error);
 assert.equal(read.plu,'3476','Le PLU provient uniquement du catalogue');
 assert.equal(read.catalogPrefix,'0203476');
 assert.equal(read.grams,3960);
@@ -49,7 +51,7 @@ assert(ctx.validateResult({fields,checks:{}}).error.includes('Importe le catalog
 const render=source('function renderEanBars(container,ean,officialPLU){','function display(result,wallMs)');
 assert(render.includes('String(officialPLU)'));
 assert(!render.includes('ean.slice(3,7)'),'PLU non déduit du préfixe EAN');
-assert(js.includes("if(kind==='name')continue;"),'Ne pas relire inutilement le nom');
+assert(!js.includes("if(kind==='name')continue;"),'Relire le nom manquant');
 assert(js.includes('plu:proposal.plu'),'PLU transmis au suivi');
 assert(app.includes('digi.plu!==plu||digi.name!==product'),'Nom forgé bloqué au stockage');
 assert(app.includes("if(x.source==='gemini')"),'Conserver les informations dans les bilans');
@@ -58,5 +60,5 @@ assert(html.includes('digi-catalog-lookup.js?v='+version));
 assert(html.indexOf('digi-catalog-lookup.js?v='+version)<
  html.indexOf('gemini-lab.js?v='+version));
 assert(sw.includes('digi-catalog-lookup.js?v='+version));
-assert(!html.includes('<option value="name">Article</option>'));
+assert(html.includes('<option value="name">Article</option>'));
 console.log('OK : EAN lu complet, nom/PLU DIGI uniques, aucune identité déduite');

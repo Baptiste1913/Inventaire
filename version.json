@@ -1,6 +1,6 @@
 {
-  "version": "43.18",
+  "version": "43.19",
   "published": "2026-11-25",
   "assets": 110,
-  "notes": "Fiabilité AI : normalisation décimale exacte, diagnostic des blocages finaux après déverrouillage, isolation logique des étiquettes voisines et mode comparatif des paramètres Gemini 42.95. Contrôles DIGI, JPEG, transport et CORS conservés. Worker à redéployer."
+  "notes": "Catalogue DIGI : contrôle indépendant du nom imprimé, détection des discordances de variétés, identité inconnue affichée sans substitution, import JSON/CSV Excel avec état article et sans dates de vente ou livraison. Gemini 3.5, protections numériques et transport inchangés."
 }

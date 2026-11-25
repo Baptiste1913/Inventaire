@@ -183,9 +183,23 @@
   const items=catalog.byName?.get(key);
   if(items?.size&&![...items.values()].some(item=>item.eanPrefix===prefix))return true;
   const family=fruitFamily(key);
+  const variety=k=>normalizeName(k).replace(/\b(?:ORANGES?|CITRONS?|LIMES?|CLEMENTINES?|MANDARINES?|SATSUMAS?|PAMPLEMOUSSES?|POMELOS?|A|DE|DU|DES|FEUILLES?|BIO|NTAR)\b/g,' ').replace(/\s+/g,' ').trim();
   return Boolean(family&&official.every(item=>{
-   const other=fruitFamily(item.name);return other&&other!==family;
+   const other=fruitFamily(item.name);
+   if(!other)return false;
+   if(other!==family)return true;
+   // Deux libellés spécifiques de la même famille peuvent se contredire.
+   const a=variety(key),b=variety(item.name);
+   return Boolean(a&&b&&a!==b&&!(' '+a+' ').includes(' '+b+' ')&&!(' '+b+' ').includes(' '+a+' '));
   }));
+ }
+ // Un libellé absent ou simplement proche n'est jamais une confirmation.
+ function identityEvidence(name,ean){
+  const key=normalizeName(name),record=resolve(ean);
+  if(!record.ok)return {status:record.status,record};
+  if(!key||key.length<3)return {status:'unread',record};
+  if(key===normalizeName(record.name))return {status:'confirmed',record};
+  return {status:nameIdentityConflict(name,record.eanPrefix)?'conflict':'uncertain',record};
  }
  function uniqueNameConflict(name,prefix){return nameIdentityConflict(name,prefix);}
  function compatible(code,pattern){
@@ -488,5 +502,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,STORAGE_KEY});
 });
