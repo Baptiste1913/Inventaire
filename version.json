@@ -1,8 +1,8 @@
 {
-  "version": "43.33",
+  "version": "43.34",
   "published": "2026-11-25",
   "assets": 78,
-  "notes": "Fiabilité AI : lecture optique prioritaire avant déduction, collecte locale ordonnée, remplacement des EAN calculés par preuve optique, relectures aveugles en cas de doute, invalidation des déductions périmées, workers gardés chauds. Orchestrateur et calculateur conservés, modèle et Worker inchangés.",
-  "bytes": 4227541,
+  "notes": "Essai comparatif : ordonnanceur des lectures, délais et workers restaurés à la v43.20. Déducteur v43.33, contraintes EAN, suggestions de poids et protections de provenance conservés. Interface, données, Gemini et Worker Cloudflare inchangés.",
+  "bytes": 4221756,
   "resourceScope": "pwa-local-v1"
 }

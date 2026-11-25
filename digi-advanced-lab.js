@@ -34,7 +34,7 @@
   const id=++nextId,w=engine;
   return new Promise(resolve=>{
    const timer=setTimeout(()=>{if(active?.id!==id)return;close();show('DIGI Advanced · délai local dépassé');},1600);
-   active={id,resolve,timer,photo};
+   active={id,resolve,timer};
    try{w.postMessage({id,kind:'read',photo,hint});}catch(_){close();}
   });
  }
@@ -47,7 +47,6 @@
    if(checkbox.checked)warm();else{close();show('DIGI Advanced désactivé');}
   });
  }
- function cancelPhoto(photo){if(active?.photo!==photo)return false;close();return true;}
- root.IUDigiAdvanced=Object.freeze({warm,read,close,cancelPhoto,enabled,ready:()=>ready});
+ root.IUDigiAdvanced=Object.freeze({warm,read,close,enabled,ready:()=>ready});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })(typeof window!=='undefined'?window:null);
