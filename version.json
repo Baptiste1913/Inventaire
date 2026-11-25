@@ -1,6 +1,6 @@
 {
-  "version": "43.14",
+  "version": "43.15",
   "published": "2026-11-25",
   "assets": 108,
-  "notes": "Historique : commande sous les cinq premières pesées, dépliage animé uniquement des pesées supplémentaires, défilement conditionnel vers la première nouvelle fiche. Styles et données préservés."
+  "notes": "Bilans d’inventaires enrichis : couverture AI, références et poids, montants au prix de vente après tare, classement par article et traçabilité des doublons/corrections. Aucun changement de stockage, de calcul métier ni du Worker."
 }

@@ -1894,6 +1894,96 @@ function finishSession(){
 }
 function sessionBreakdown(s){const map=new Map();for(const e of s.entries)map.set(e.name,(map.get(e.name)||0)+1);return [...map.entries()].sort((a,b)=>b[1]-a[1]);}
 function makeStat(label,value){const box=document.createElement('div');box.className='v22-stat';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;box.append(small,strong);return box;}
+// v43.15 — statistiques de consultation uniquement, à partir des pesées sauvegardées.
+// Les montants sont des prix de vente après tare, pas des coûts d'achat.
+function iuInventoryAIStats(entries){
+ const result={total:entries.length,ai:0,classic:0,net:0,aiNet:0,priced:0,pricedNet:0,value:0,unidentified:0,duplicates:0,corrections:0,correctionKnown:0,duplicateKnown:0,products:[]};
+ const products=new Map();
+ for(const e of entries){
+  result.net+=e.net;
+  if(e.source!=='gemini'){result.classic++;continue;}
+  result.ai++;result.aiNet+=e.net;
+  const priced=e.net>=0&&Number.isSafeInteger(e.correctedTotalCents)&&e.correctedTotalCents>=0;
+  if(priced){result.priced++;result.value+=e.correctedTotalCents;result.pricedNet+=e.net;}
+  if(typeof e.duplicateConfirmed==='boolean'){result.duplicateKnown++;if(e.duplicateConfirmed)result.duplicates++;}
+  if(Array.isArray(e.manualCorrectedFields)){result.correctionKnown++;if(e.manualCorrectedFields.length)result.corrections++;}
+  const name=typeof e.product==='string'?e.product.trim():'';
+  const plu=typeof e.plu==='string'&&/^\d{1,8}$/.test(e.plu)?e.plu:'';
+  const prefix=typeof e.catalogPrefix==='string'&&/^\d{7}$/.test(e.catalogPrefix)?e.catalogPrefix:'';
+  if(!name||!plu){result.unidentified++;continue;}
+  // Group only exact saved identities. Never infer a product from a name or price.
+  const key=JSON.stringify([plu,name.normalize('NFC').toLocaleUpperCase('fr-FR'),prefix]);
+  if(!products.has(key))products.set(key,{name,plu,prefix,count:0,net:0,priced:0,value:0});
+  const p=products.get(key);p.count++;p.net+=e.net;if(priced){p.priced++;p.value+=e.correctedTotalCents;}
+ }
+ result.products=[...products.values()].sort((a,b)=>b.net-a.net||a.name.localeCompare(b.name,'fr')||a.plu.localeCompare(b.plu));
+ return result;
+}
+function iuInventoryAIElement(entries){
+ const data=iuInventoryAIStats(entries);
+ if(!data.ai)return null; // historical classic-only reports retain their original appearance.
+ const node=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;};
+ const money=cents=>(cents/100).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+ const percent=(a,b)=>b?Math.round(a*100/b)+' %':'—';
+ const section=node('section','iu-ai-bilan');
+ const header=node('div','iu-ai-bilan-head');
+ const title=node('div','iu-ai-bilan-title');
+ title.append(node('small','','SERVICES U / ANALYSE AI'),node('h4','','Statistiques des articles'));
+ header.append(title);
+ const badge=node('span','iu-weigh-record-ai');badge.setAttribute('role','img');badge.setAttribute('aria-label','Analyse AI');
+ const mark=node('span','iu-weigh-record-ai-mark','AI');mark.setAttribute('aria-hidden','true');
+ const canvas=node('canvas','iu-weigh-record-ai-canvas');canvas.width=26;canvas.height=26;canvas.setAttribute('aria-hidden','true');badge.append(mark,canvas);header.append(badge);section.append(header);
+ const coverage=node('div','iu-ai-bilan-coverage');
+ const counts=node('div','iu-ai-bilan-counts');
+ counts.append(node('strong','',percent(data.ai,data.total)+' AI'),node('span','',data.ai+' AI · '+data.classic+' classiques'));coverage.append(counts);
+ const track=node('div','iu-ai-bilan-track');track.setAttribute('role','img');track.setAttribute('aria-label',data.ai+' pesées AI sur '+data.total);
+ const fill=node('div','iu-ai-bilan-fill');fill.style.width=(100*data.ai/data.total)+'%';track.append(fill);coverage.append(track);section.append(coverage);
+ const grid=node('div','v22-stats-grid iu-ai-bilan-grid');
+ for(const [label,value] of [
+ ['Références identifiées',String(data.products.length)],
+ ['Poids net AI',fmt(data.aiNet)+' kg'],
+ ['Moyenne / pesée AI',fmt(Math.round(data.aiNet/data.ai))+' kg'],
+ ['Valeur au prix de vente',data.priced?money(data.value):'—'],
+ ['Pesées avec montant',data.priced+' / '+data.total],
+ ['Poids net valorisé',data.priced?fmt(data.pricedNet)+' kg':'—']
+ ])grid.append(makeStat(label,value));
+ section.append(grid,node('p','iu-ai-bilan-note','Montants enregistrés après tare, au prix de vente. Les pesées sans montant (dont les pesées classiques) ne sont pas valorisées. Ce total n’est ni un coût d’achat ni une valeur comptable du stock.'));
+ section.append(node('p','iu-ai-bilan-note','Regroupement par PLU, nom enregistré et préfixe DIGI lorsque disponible. Les variantes non concordantes restent séparées.'));
+ if(data.unidentified)section.append(node('p','iu-ai-bilan-note',data.unidentified+' pesée(s) AI sans identité complète, non classée(s) par article.'));
+ if(data.products.length){
+  const products=node('div','iu-ai-bilan-products');
+  const productHeader=node('div','iu-ai-bilan-product-head');
+  productHeader.append(node('h4','','Répartition par article'));
+  const sort=node('select','iu-ai-bilan-sort');sort.setAttribute('aria-label','Trier les articles');
+  for(const [key,label] of [['net','Poids net'],['count','Pesées'],['value','Valeur connue']]){const option=node('option','',label);option.value=key;sort.append(option);}sort.value='net';productHeader.append(sort);products.append(productHeader);
+  const rows=node('div','iu-ai-bilan-product-list');
+  const toggle=node('button','outline-btn iu-ai-bilan-toggle');toggle.type='button';toggle.setAttribute('aria-expanded','false');
+  let expanded=false;
+  function render(){
+   const key=['net','count','value'].includes(sort.value)?sort.value:'net';
+   const ordered=[...data.products].sort((a,b)=>(key==='value'?Number(b.priced>0)-Number(a.priced>0):0)||b[key]-a[key]||a.name.localeCompare(b.name,'fr'));
+   rows.replaceChildren();
+   const max=ordered.reduce((m,p)=>Math.max(m,key==='value'&&!p.priced?0:p[key]),0);
+   for(const p of (expanded?ordered:ordered.slice(0,5))){
+    const row=node('div','iu-ai-bilan-product');
+    const top=node('div','iu-ai-bilan-product-top');
+    const id=node('div','iu-ai-bilan-product-id');id.append(node('strong','',p.name),node('small','','PLU '+p.plu));
+    top.append(id,node('strong','iu-ai-bilan-product-weight',fmt(p.net)+' kg'));row.append(top);
+    const bar=node('div','iu-ai-bilan-track');bar.setAttribute('aria-hidden','true');
+    const progress=node('div','iu-ai-bilan-fill');progress.style.width=(max?Math.max(0,p[key])/max*100:0)+'%';bar.append(progress);row.append(bar);
+    const meta=node('div','iu-ai-bilan-product-meta');meta.append(node('span','',p.count+' pesée'+(p.count>1?'s':'')),node('span','',p.priced?money(p.value)+(p.priced<p.count?' · partiel':''):'Montant inconnu'));row.append(meta);rows.append(row);
+   }
+   toggle.hidden=data.products.length<=5;toggle.textContent=expanded?'Réduire la liste':'Voir les '+data.products.length+' références';
+   toggle.setAttribute('aria-expanded',String(expanded));
+  }
+  sort.addEventListener('change',render);toggle.addEventListener('click',()=>{expanded=!expanded;render();});products.append(rows,toggle);render();section.append(products);
+ }
+ const trace=node('div','iu-ai-bilan-trace');trace.append(node('h4','','Traçabilité des pesées AI'));
+ const traceGrid=node('div','v22-stats-grid iu-ai-bilan-grid');
+ traceGrid.append(makeStat('Doublons confirmés',String(data.duplicates)),makeStat('Corrections manuelles',String(data.corrections)));
+ trace.append(traceGrid,node('p','iu-ai-bilan-note','Nombre de pesées portant une confirmation ou une correction enregistrée. Les anciens bilans peuvent ne pas conserver tous ces statuts. Ce n’est pas le taux de réussite de la reconnaissance.'));section.append(trace);
+ return section;
+}
 function summaryElement(s){const stats=activeStats(s);const box=document.createElement('div');box.className='v22-bilan';const grid=document.createElement('div');grid.className='v22-stats-grid';
  for(const [label,value] of [['Début',dateLabel(s.startedAt)],['Fin',s.endedAt?dateLabel(s.endedAt):'—'],['Durée active',durationLabel(stats.duration)],['Pesées',String(stats.count)],['Poids brut',`${fmt(stats.gross)} kg`],['Tares cumulées',`${fmt(stats.tare)} kg`],['Poids net',`${fmt(stats.net)} kg`],['Moyenne / pesée',stats.count?`${fmt(stats.average)} kg`:'—'],['Plus petite',stats.count?`${fmt(stats.min)} kg`:'—'],['Plus grande',stats.count?`${fmt(stats.max)} kg`:'—'],['Pesées / heure',stats.duration&&stats.count?((stats.count*3600000)/stats.duration).toFixed(1).replace('.',','):'—']]) grid.append(makeStat(label,value));
  const refArea=document.createElement('div');refArea.className='iu-bilan-reference';refArea.append(iuReferenceSelector(s,'Mois de référence (modifiable)'));const actual=document.createElement('small');actual.textContent='Réalisé le '+dateLabel(s.startedAt);refArea.append(actual);box.append(refArea,grid);
@@ -1902,7 +1992,7 @@ function summaryElement(s){const stats=activeStats(s);const box=document.createE
  const bins=new Map();for(const e of s.entries){const d=new Date(e.at);d.setMinutes(Math.floor(d.getMinutes()/30)*30,0,0);const key=d.getTime();bins.set(key,(bins.get(key)||0)+1);}
  const sorted=[...bins.entries()].sort((a,b)=>a[0]-b[0]);const max=Math.max(1,...sorted.map(x=>x[1]));for(const [at,count] of sorted){const row=document.createElement('div');row.className='v22-bar-row';const label=document.createElement('span');label.textContent=new Date(at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});const bar=document.createElement('div');bar.className='v22-bar-track';const fill=document.createElement('div');fill.className='v22-bar-fill';fill.style.width=`${count/max*100}%`;bar.append(fill);const amount=document.createElement('strong');amount.textContent=String(count);row.append(label,bar,amount);hist.append(row);}
  if(!sorted.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Aucune pesée dans cette session.';hist.append(empty);}
- box.append(hist,weighArchiveElement(s.entries));const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:30,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
+ box.append(hist);const aiStats=iuInventoryAIElement(s.entries);if(aiStats)box.append(aiStats);box.append(weighArchiveElement(s.entries));const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:30,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
 function deleteSession(id){
  const index=sessions.findIndex(s=>s.id===id&&Boolean(s.endedAt));
  if(index<0)return;
