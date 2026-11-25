@@ -1,6 +1,6 @@
 {
-  "version": "43.25",
+  "version": "43.26",
   "published": "2026-11-25",
-  "assets": 112,
-  "notes": "Footer : titre UTILITAIRE D’INVENTAIRE aligné exactement sur la typographie responsive du header, marge supérieure portée à 76 px. Reconnaissance AI, DIGI et Worker inchangés."
+  "assets": 110,
+  "notes": "Retrait de l’essai Prix Courses U en direct de l’administration et des résultats expérimentaux du scanner. Suppression de son chargement et de son cache PWA. Catalogue DIGI, autres outils de prix, reconnaissance AI et Worker conservés."
 }
