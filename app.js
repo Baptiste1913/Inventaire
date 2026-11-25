@@ -243,23 +243,32 @@ function weighRecordElement(entry){
  const row=node('article','history-item iu-weigh-record'+(ai?' history-item-gemini':''));
  const head=node('div','iu-weigh-record-head'),identity=node('div','iu-weigh-record-identity');
  const titleLine=node('div','iu-weigh-record-titleline');
- if(ai){
-  const badge=node('span','iu-weigh-record-ai');badge.setAttribute('role','img');badge.setAttribute('aria-label','Pesée AI');
-  const mark=node('span','iu-weigh-record-ai-mark','AI');mark.setAttribute('aria-hidden','true');badge.append(mark);titleLine.append(badge);
- }
+
  titleLine.append(node('strong','iu-weigh-record-title',ai&&entry.product?entry.product:entry.name));
  identity.append(titleLine);
  if(ai&&entry.product)identity.append(node('span','iu-weigh-record-basket',entry.name));
  const date=new Date(entry.at);
  identity.append(node('span','iu-weigh-record-date',date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})+' · '+date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})));
- const result=node('div','iu-weigh-record-net');
- result.append(node('small','','Poids net'),node('strong','',fmt(entry.net)+' kg'));head.append(identity,result);row.append(head);
+ head.append(identity);
+ if(ai){
+  const badge=node('span','iu-weigh-record-ai');badge.setAttribute('role','img');badge.setAttribute('aria-label','Pesée AI');
+  const mark=node('span','iu-weigh-record-ai-mark','AI');mark.setAttribute('aria-hidden','true');
+  const canvas=node('canvas','iu-weigh-record-ai-canvas');canvas.width=26;canvas.height=26;canvas.setAttribute('aria-hidden','true');
+  badge.append(mark,canvas);head.append(badge);
+ }
+ row.append(head);
  const metrics=node('div','iu-weigh-record-metrics');
- const metric=(label,value)=>{const cell=node('div','iu-weigh-record-metric');cell.append(node('small','',label),node('strong','',value));metrics.append(cell);};
- metric('Brut',fmt(entry.gross)+' kg');metric('Tare',fmt(entry.tare)+' kg');
- if(ai&&Number.isInteger(entry.pricePerKgCents))metric('Prix / kg',(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €');
- if(ai&&Number.isInteger(entry.correctedTotalCents))metric('Total après tare',(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' €');
- row.append(metrics);
+ const metric=(parent,label,value)=>{const cell=node('div','iu-weigh-record-metric');cell.append(node('small','',label),node('strong','',value));parent.append(cell);};
+ metric(metrics,'Brut',fmt(entry.gross)+' kg');metric(metrics,'Tare',fmt(entry.tare)+' kg');row.append(metrics);
+ const result=node('div','iu-weigh-record-net');
+ const netLine=node('div','iu-weigh-record-netline');netLine.append(node('strong','',fmt(entry.net)),node('span','','kg'));
+ result.append(node('small','','Poids net'),netLine);row.append(result);
+ if(ai){
+  const prices=node('div','iu-weigh-record-metrics iu-weigh-record-prices');
+  if(Number.isInteger(entry.pricePerKgCents))metric(prices,'Prix / kg',(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €');
+  if(Number.isInteger(entry.correctedTotalCents))metric(prices,'Total après tare',(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' €');
+  if(prices.childNodes.length)row.append(prices);
+ }
  if(ai){
   const foot=node('div','iu-weigh-record-foot');
   if(entry.plu)foot.append(node('span','iu-weigh-record-plu','PLU '+entry.plu));

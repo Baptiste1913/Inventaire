@@ -2,8 +2,8 @@
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- // One immutable logo frame for the history, drawn with the exact main renderer.
- // No extra animation loops, observers or per-row canvases.
+ // History badges share one offscreen instance of the original chrome renderer.
+ // Only visible canvases receive copies; no per-record animation loops.
  const historyLogo=document.createElement('canvas');
  for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept'),document.getElementById('iuGeminiRepairApply'),historyLogo]){
  if(!overlay)continue;
@@ -621,13 +621,108 @@
   }
  }
  if(isHistoryLogo){
-  try{
-   if(measure()){
-    paint(2.4);
-    document.documentElement.style.setProperty('--iu-history-ai-image','url("'+canvas.toDataURL('image/png')+'")');
-    document.documentElement.classList.add('iu-history-ai-ready');
+  const selector='.iu-weigh-record-ai-canvas';
+  const root=document.querySelector('main.app')||document.body;
+  const registered=new Map(),visible=new Set();
+  const forced=window.matchMedia?.('(forced-colors: active)');
+  let suspended=false;
+  function copyFrame(target){
+   const dest=registered.get(target);if(!dest)return;
+   if(target.width!==canvas.width)target.width=canvas.width;
+   if(target.height!==canvas.height)target.height=canvas.height;
+   dest.clearRect(0,0,target.width,target.height);
+   dest.drawImage(canvas,0,0);
+   if(target.dataset.ready!=='true')target.dataset.ready='true';
+  }
+  function stopHistory(){
+   running=false;
+   if(request)window.cancelAnimationFrame(request);
+   request=0;lastTick=0;
+  }
+  function historyFrame(now){
+   request=0;
+   if(!running||suspended||document.hidden||forced?.matches||reduceMotion?.matches||!visible.size){stopHistory();return;}
+   if(lastTick)elapsed+=Math.min(48,Math.max(0,now-lastTick))/1000;
+   lastTick=now;
+   const analyzing=document.getElementById('iuGeminiCameraShell')?.dataset.state==='analyzing';
+   const interval=analyzing?64:15;
+   if(now-lastPaint>=interval){
+    lastPaint=now;
+    if(measure()){
+     paint(elapsed);
+     for(const target of visible)if(target.isConnected)copyFrame(target);
+    }
    }
-  }catch(_){/* Accessible monochrome AI text fallback. */}
+   request=window.requestAnimationFrame(historyFrame);
+  }
+  function syncHistory(){
+   if(suspended||document.hidden||forced?.matches||!visible.size){stopHistory();return;}
+   if(!measure())return;
+   if(reduceMotion?.matches)stopHistory();
+   paint(elapsed);
+   for(const target of visible)if(target.isConnected)copyFrame(target);
+   if(!reduceMotion?.matches&&!running){
+    running=true;lastTick=0;lastPaint=0;
+    request=window.requestAnimationFrame(historyFrame);
+   }
+  }
+  const observer=typeof window.IntersectionObserver==='function'?new window.IntersectionObserver(entries=>{
+   for(const entry of entries){
+    if(entry.isIntersecting&&entry.target.isConnected&&registered.has(entry.target))visible.add(entry.target);
+    else visible.delete(entry.target);
+   }
+   syncHistory();
+  }):null;
+  function scanVisible(){
+   if(observer)return;
+   visible.clear();
+   for(const target of registered.keys()){
+    if(!target.isConnected||!target.getClientRects().length)continue;
+    const r=target.getBoundingClientRect();
+    if(r.width&&r.height&&r.bottom>0&&r.right>0&&r.top<window.innerHeight&&r.left<window.innerWidth)visible.add(target);
+   }
+   syncHistory();
+  }
+  function add(target){
+   if(registered.has(target)||!target.isConnected)return;
+   const dest=target.getContext('2d',{alpha:true});
+   if(!dest)return;
+   registered.set(target,dest);
+   if(observer)observer.observe(target);
+  }
+  function remove(target){
+   if(target.isConnected&&root.contains(target))return;
+   observer?.unobserve(target);visible.delete(target);registered.delete(target);
+  }
+  function visit(node,fn){
+   if(node.nodeType!==1)return;
+   if(node.matches(selector))fn(node);
+   for(const target of node.querySelectorAll(selector))fn(target);
+  }
+  try{
+   for(const target of root.querySelectorAll(selector))add(target);
+   new MutationObserver(records=>{
+    for(const record of records){
+     for(const node of record.removedNodes)visit(node,remove);
+     for(const node of record.addedNodes)visit(node,add);
+    }
+    if(observer){if(!visible.size)stopHistory();}else scanVisible();
+   }).observe(root,{childList:true,subtree:true});
+   document.addEventListener('visibilitychange',()=>{if(observer)syncHistory();else scanVisible();});
+   window.addEventListener('pagehide',()=>{suspended=true;stopHistory();});
+   window.addEventListener('pageshow',()=>{suspended=false;if(observer)syncHistory();else scanVisible();});
+   window.addEventListener('resize',()=>{if(observer)syncHistory();else scanVisible();},{passive:true});
+   window.visualViewport?.addEventListener('resize',()=>{if(observer)syncHistory();else scanVisible();},{passive:true});
+   if(!observer){
+    document.addEventListener('scroll',scanVisible,{capture:true,passive:true});
+    document.addEventListener('toggle',scanVisible,true);
+    scanVisible();
+   }
+   for(const media of [reduceMotion,forced]){
+    if(media?.addEventListener)media.addEventListener('change',syncHistory);
+    else media?.addListener?.(syncHistory);
+   }
+  }catch(_){stopHistory();/* Accessible AI text fallback. */}
   continue;
  }
  const visibilityObserver=new MutationObserver(sync);

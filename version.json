@@ -1,6 +1,6 @@
 {
-  "version": "43.10",
+  "version": "43.11",
   "published": "2026-11-25",
   "assets": 108,
-  "notes": "Fiches de pesées harmonisées dans l'historique et les bilans : poids net, données structurées, détails EAN dépliables, logo AI chrome partagé et statique en liste, résultat classique harmonisé. Moteur Gemini et Worker inchangés."
+  "notes": "Historique et bilans inspirés du résultat classique : en-tête, brut/tare, net et compléments. Logo AI animé en haut à droite, rendu chrome partagé et limité aux pastilles visibles. Reconnaissance, calculs et Worker inchangés."
 }
