@@ -470,6 +470,9 @@ function cleanWeigh(x){
 const iuMonthNames=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 function iuReferenceValid(value){return typeof value==='string'&&/^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(value);}
 function iuSuggestedReference(date=new Date()){
+ const iso=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+ const planned=window.InventairesPlanning?window.InventairesPlanning.inventoryForDate?.(iso):window.IUInventorySchedule?.byDate(iso);
+ if(iuReferenceValid(planned?.referenceMonth))return planned.referenceMonth;
  // Suggestion modifiable : tout début de mois peut concerner le mois précédent.
  const year=date.getFullYear(),month=date.getMonth()-(date.getDate()<=7?1:0);
  const d=new Date(year,month,1,12);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');

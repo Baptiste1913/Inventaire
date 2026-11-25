@@ -4,6 +4,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const fallback=window.INVENTAIRES_U_EVENTS||{inventories:[],events:[]};
+const schedule=window.IUInventorySchedule;
 const CACHE='inventaires-u-planning-cache-v33.35';
 const date=s=>new Date(String(s)+'T12:00:00');
 const long=new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -15,7 +16,7 @@ const today=()=>{const d=new Date();d.setHours(12,0,0,0);return d;};
 const dayKey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const eventEnd=e=>date(e.end||e.start);
 const intersects=(e,start,end)=>date(e.start)<=end&&eventEnd(e)>=start;
-const datePeriod=e=>e.start===(e.end||e.start)?cap(short.format(date(e.start))):'Du '+short.format(date(e.start))+' au '+short.format(eventEnd(e));
+const datePeriod=e=>(e.start===(e.end||e.start)?cap(short.format(date(e.start))):'Du '+short.format(date(e.start))+' au '+short.format(eventEnd(e)))+(e.kind==='inventory'&&e.moment?' · '+schedule.momentLabel(e.moment):'');
 const countLabel=n=>n+' événement'+(n>1?'s':'');
 const daysBetween=(from,to)=>Math.round((Date.UTC(to.getFullYear(),to.getMonth(),to.getDate())-Date.UTC(from.getFullYear(),from.getMonth(),from.getDate()))/86400000);
 const eventKey=e=>String(e.id??[e.title,e.start,e.end||e.start].join('|'));
@@ -35,8 +36,11 @@ const calendarItems=data=>{
  const purchases=usable(data?.events).filter(powerPurchase).map(e=>({...e,kind:'purchase'}));
  const inventories=[...new Set(Array.isArray(data?.inventories)?data.inventories:[])]
   .filter(value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(date(value).getTime()))
-  .map(value=>({id:'inventory:'+value,title:'Inventaire Fruits et Légumes',
-   start:value,end:value,kind:'inventory'}));
+  .map(value=>{
+   const meta=data.inventoryDetails?.[value];
+   return {id:'inventory:'+value,title:meta?.referenceMonth?schedule.label(meta.referenceMonth):'Inventaire Fruits et Légumes',
+    start:value,end:value,kind:'inventory',moment:meta?.moment||'',referenceMonth:meta?.referenceMonth||''};
+  });
  return sorted([...purchases,...inventories]);
 };
 let lastRefresh=0,loading=false;
@@ -310,11 +314,18 @@ function changeMonth(direction){
  renderPage();
 }
 function render(data){
- latestData=data||fallback;
+ latestData=schedule?.withOfficial(data||fallback)||data||fallback;
  refreshInventoryProgress();
  const now=today();
  const next=(latestData.inventories||[]).map(date).filter(d=>Number.isFinite(d.getTime())).sort((a,b)=>a-b).find(d=>d>=now&&!completedInventoryDays.has(dayKey(d)));
  $('calendarNextDate').textContent=next?cap(long.format(next)):'Date à confirmer';
+ const meta=next?latestData.inventoryDetails?.[dayKey(next)]:null;
+ const tile=$('calendarNextTile'),day=$('calendarNextDay'),mon=$('calendarNextMonth');
+ if(tile){tile.hidden=!next;if(next){day.textContent=String(next.getDate()).padStart(2,'0');mon.textContent=next.toLocaleDateString('fr-FR',{month:'short'}).toUpperCase();}}
+ const ref=$('calendarNextReference'),moment=$('calendarNextMoment'),detail=$('calendarNextMeta');
+ if(ref){ref.textContent=meta?.referenceMonth?schedule.label(meta.referenceMonth):'';ref.hidden=!ref.textContent;}
+ if(moment){moment.textContent=schedule?.momentLabel(meta?.moment)||'';moment.hidden=!moment.textContent;}
+ if(detail)detail.hidden=!(ref?.textContent||moment?.textContent);
  const countdown=$('calendarNextCountdown');
  if(countdown){
   if(!next){countdown.hidden=true;countdown.textContent='';}
@@ -329,17 +340,14 @@ function render(data){
  renderPage();
  window.dispatchEvent(new Event('iu-planning-updated'));
 }
-function rowsToData(rows){return {
- inventories:rows.filter(r=>r.enabled&&r.kind==='inventory').map(r=>r.starts_on),
- events:rows.filter(r=>r.enabled&&r.kind==='store').map(r=>({id:r.id,title:r.title,start:r.starts_on,end:r.ends_on||r.starts_on}))
-};}
+function rowsToData(rows){return schedule.rowsToData(rows);}
 async function refresh(force=false){
  if(loading||!navigator.onLine||(!force&&Date.now()-lastRefresh<30000))return;
  loading=true;
  try{
   const auth=window.InventairesAuth;if(!auth?.getClient)return;
   const client=await auth.getClient();
-  const {data,error}=await client.from('inventory_push_events').select('id,kind,title,starts_on,ends_on,enabled').eq('enabled',true).order('starts_on').limit(1000);
+  const {data,error}=await client.from('inventory_push_events').select('id,kind,title,starts_on,ends_on,enabled').order('starts_on').limit(1000);
   if(error)throw error;
   const next=rowsToData(data||[]);
   localStorage.setItem(CACHE,JSON.stringify(next));render(next);lastRefresh=Date.now();
@@ -353,7 +361,8 @@ $('eventsCalendarToday')?.addEventListener('click',()=>{
  selectedKey=dayKey(now);renderPage();
 });
 render(readCache()||fallback);
-window.InventairesPlanning={refresh,render,renderPage,preparePage,isPlannedInventoryCompleted};
+window.InventairesPlanning={refresh,render,renderPage,preparePage,isPlannedInventoryCompleted,
+ inventoryForDate(iso){return latestData.inventories?.includes(iso)?latestData.inventoryDetails?.[iso]||null:null;}};
 window.dispatchEvent(new Event('iu-planning-updated'));
 window.addEventListener('iu-inventory-progress-changed',()=>render(latestData));
 refresh(true);

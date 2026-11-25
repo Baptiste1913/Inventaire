@@ -39,7 +39,16 @@ function safeCode(raw){
  return s;
 }
 function normalize(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,65)||'operation';}
-function inventoryRow(iso){checkDates(iso,iso);return {id:'inventory:'+iso,kind:'inventory',title:'Inventaire du '+dateLabel(iso),starts_on:iso,ends_on:iso,enabled:true,updated_at:new Date().toISOString()};}
+const schedule=()=>window.IUInventorySchedule;
+function inventoryRow(iso,reference='',moment='',previous=null){
+ checkDates(iso,iso);
+ if(reference&&!schedule().validRef(reference))throw Error('Mois de référence invalide.');
+ if(moment&&!['matin','soir'].includes(moment))throw Error('Moment invalide.');
+ if(moment&&!reference)throw Error('Indique aussi le mois de référence.');
+ const official=schedule().parseTitle(previous?.title)?.official===true;
+ if(official&&!reference)throw Error('Le mois de référence du planning officiel est requis.');
+ return {id:official?previous.id:'inventory:'+iso,kind:'inventory',title:reference?schedule().title(reference,moment,official):'Inventaire du '+dateLabel(iso),starts_on:iso,ends_on:iso,enabled:true,updated_at:new Date().toISOString()};
+}
 function storeRow(title,start,end,code='',imported=false){
  title=String(title||'').trim();if(!title||title.length>240)throw Error('Le titre doit contenir entre 1 et 240 caractères.');
  checkDates(start,end);
@@ -48,7 +57,7 @@ function storeRow(title,start,end,code='',imported=false){
 }
 function resetEventForm(){editingEvent=null;$('planningEventForm').reset();$('planningEventCode').disabled=false;$('planningEventSubmit').textContent='Ajouter l’événement';$('planningEventCancel').hidden=true;}
 function resetInventoryForm(){editingInventory=null;$('planningInventoryForm').reset();$('planningInventorySubmit').textContent='Ajouter l’inventaire';$('planningInventoryCancel').hidden=true;}
-function setBusy(value){busy=value;card.querySelectorAll('button, input, textarea').forEach(el=>{
+function setBusy(value){busy=value;card.querySelectorAll('button, input, textarea, select').forEach(el=>{
  if(el.id==='planningImportConfirm'){el.disabled=value||!pendingImport?.length;return;}
  if(el.id==='planningEventCode'&&editingEvent){el.disabled=true;return;}
  el.disabled=value;
@@ -85,8 +94,9 @@ function renderRows(){
   const details=document.createElement('div');details.className='planning-list-text';
   const badge=document.createElement('span');badge.className='planning-kind';badge.textContent=r.kind==='inventory'?'Inventaire':'Événement';
   if(!r.enabled){badge.textContent+=' · Annulé';badge.classList.add('is-cancelled');}
-  const title=document.createElement('strong');title.textContent=r.kind==='inventory'?'Inventaire':r.title;
-  const period=document.createElement('span');period.textContent=r.starts_on===r.ends_on?dateLabel(r.starts_on):dateLabel(r.starts_on)+' – '+dateLabel(r.ends_on);
+  const meta=r.kind==='inventory'?schedule().parseTitle(r.title)||schedule().byDate(r.starts_on):null;
+  const title=document.createElement('strong');title.textContent=r.kind==='inventory'?(meta?schedule().label(meta.referenceMonth):'Inventaire'):r.title;
+  const period=document.createElement('span');period.textContent=(r.starts_on===r.ends_on?dateLabel(r.starts_on):dateLabel(r.starts_on)+' – '+dateLabel(r.ends_on))+(meta?.moment?' · '+schedule().momentLabel(meta.moment):'');
   const state=document.createElement('span');state.className='planning-event-state '+(r.starts_on<=cutoff?'is-current':'is-upcoming');state.textContent=r.starts_on<=cutoff?'En cours':'À venir';
   if(!r.enabled){state.textContent='Annulé';state.className='planning-event-state is-cancelled';}
   details.append(badge,state,title,period);
@@ -95,6 +105,8 @@ function renderRows(){
   edit.addEventListener('click',()=>{
    if(r.kind==='inventory'){
     resetInventoryForm();editingInventory=r.id;$('planningInventoryDate').value=r.starts_on;
+    $('planningInventoryReference').value=meta?.referenceMonth||'';
+    $('planningInventoryMoment').value=meta?.moment||'';
     $('planningInventorySubmit').textContent='Modifier la date';$('planningInventoryCancel').hidden=false;
     revealEditor('planningInventoryForm');
    }else{
@@ -141,7 +153,9 @@ $('planningCopyExample')?.addEventListener('click',async()=>{
 $('planningInventoryForm').addEventListener('submit',e=>{
  e.preventDefault();const iso=$('planningInventoryDate').value;
  mutate(async()=>{
-  const row=inventoryRow(iso);
+  const previous=rows.find(r=>r.id===editingInventory);
+  const row=inventoryRow(iso,$('planningInventoryReference').value,$('planningInventoryMoment').value,previous);
+  if(rows.some(r=>r.kind==='inventory'&&r.enabled&&r.starts_on===iso&&r.id!==row.id&&r.id!==editingInventory))throw Error('Un inventaire existe déjà à cette date.');
   const {error}=await client.from('inventory_push_events').upsert(row,{onConflict:'id'});
   if(error)throw error;
   if(editingInventory&&editingInventory!==row.id){
@@ -260,11 +274,13 @@ function renderPreview(){
  box.hidden=false;$('planningImportConfirm').disabled=false;
  const summary=document.createElement('strong');summary.textContent=pendingImport.length+' élément(s) prêt(s) à importer';box.append(summary);
  const note=document.createElement('p');note.textContent='Les lignes ayant le même code seront mises à jour. Les autres événements seront conservés.';box.append(note);
- for(const r of pendingImport.slice(0,6)){
+ for(const r of pendingImport.slice(0,pendingImport.some(r=>schedule().parseTitle(r.title)?.official)?13:6)){
   const line=document.createElement('div');line.className='planning-preview-row';
-  line.textContent=(r.kind==='inventory'?'Inventaire':r.title)+' · '+dateLabel(r.starts_on)+(r.ends_on!==r.starts_on?' au '+dateLabel(r.ends_on):'');box.append(line);
+  const meta=r.kind==='inventory'?schedule().parseTitle(r.title):null;
+  line.textContent=(r.kind==='inventory'?(meta?schedule().label(meta.referenceMonth):'Inventaire'):r.title)+' · '+dateLabel(r.starts_on)+(meta?.moment?' · '+schedule().momentLabel(meta.moment):'')+(r.enabled===false?' · Annulé (conservé)':'')+(r.ends_on!==r.starts_on?' au '+dateLabel(r.ends_on):'');box.append(line);
  }
- if(pendingImport.length>6){const more=document.createElement('small');more.textContent='… et '+(pendingImport.length-6)+' autres';box.append(more);}
+ const shown=pendingImport.some(r=>schedule().parseTitle(r.title)?.official)?13:6;
+ if(pendingImport.length>shown){const more=document.createElement('small');more.textContent='… et '+(pendingImport.length-shown)+' autres';box.append(more);}
 }
 $('planningImportFile').addEventListener('change',async e=>{
  const file=e.target.files?.[0];if(!file)return;
@@ -277,10 +293,28 @@ $('planningImportPreviewButton').addEventListener('click',()=>{
  try{pendingImport=parseImport($('planningImportText').value);renderPreview();status('Tableau vérifié. Confirme l’importation pour enregistrer les données.');}
  catch(e){pendingImport=null;renderPreview();status(e.message,true);}
 });
+$('planningOfficial2027')?.addEventListener('click',async()=>{
+ if(busy)return;
+ try{
+  requireOnline();setBusy(true);await loadRows();
+  pendingImport=schedule().officialRows(rows);
+  $('planningImportText').value='';
+  renderPreview();
+  status(pendingImport.length?pendingImport.length+' date(s) à synchroniser. Vérifie puis confirme l’importation. Les autres événements et annulations sont conservés.':'Planning frais 2027 déjà synchronisé.');
+ }catch(e){pendingImport=null;renderPreview();status(e.message,true);}
+ finally{setBusy(false);}
+});
 $('planningImportConfirm').addEventListener('click',()=>{
  if(!pendingImport?.length)return;
  const data=[...pendingImport];
  mutate(async()=>{
+  if(data.some(r=>schedule().parseTitle(r.title)?.official)){
+   // Re-read before saving; never overwrite a concurrent date or cancellation.
+   await loadRows();
+   const refreshed=schedule().officialRows(rows);
+   const comparable=arr=>JSON.stringify(arr.map(({updated_at,...r})=>r));
+   if(comparable(refreshed)!==comparable(data))throw Error('Le planning a changé. Relance la préparation du planning 2027.');
+  }
   for(let i=0;i<data.length;i+=50){
    const {error}=await client.from('inventory_push_events').upsert(data.slice(i,i+50),{onConflict:'id'});
    if(error)throw Error('Importation interrompue après '+i+' ligne(s) : '+error.message);

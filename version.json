@@ -1,6 +1,6 @@
 {
-  "version": "43.26",
+  "version": "43.27",
   "published": "2026-11-25",
-  "assets": 110,
-  "notes": "Retrait de l’essai Prix Courses U en direct de l’administration et des résultats expérimentaux du scanner. Suppression de son chargement et de son cache PWA. Catalogue DIGI, autres outils de prix, reconnaissance AI et Worker conservés."
+  "assets": 111,
+  "notes": "Planning frais 2027 : 13 dates réelles avec mois de référence et matin/soir, échéance d’accueil modernisée, rattachement automatique des nouvelles sessions, import protégé du planning vers Supabase pour les rappels J-7. Dates disponibles hors ligne ; événements et annulations existants conservés."
 }

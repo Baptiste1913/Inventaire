@@ -1,10 +1,22 @@
 /* Planning magasin 2026 : transcription de la photographie fournie.
    Les opérations explicitement annulées ne sont pas affichées.
-   Inventaires 2027 : compléter les dates après confirmation. */
+   Inventaires 2027 : planning frais communiqué par le magasin. */
 window.INVENTAIRES_U_EVENTS = {
   "inventories": [
     "2026-12-01",
-    "2027-01-04"
+    "2027-01-04",
+    "2027-02-01",
+    "2027-03-01",
+    "2027-03-31",
+    "2027-04-30",
+    "2027-06-01",
+    "2027-06-30",
+    "2027-08-02",
+    "2027-09-01",
+    "2027-10-01",
+    "2027-11-02",
+    "2027-12-01",
+    "2028-01-03"
   ],
   "events": [
     {
@@ -459,3 +471,141 @@ window.INVENTAIRES_U_EVENTS = {
     }
   ]
 };
+
+/* Dates réelles et mois de rattachement, indépendants du mois civil.
+   Métadonnées dans le titre existant de Supabase : aucune migration SQL. */
+(function(root){
+ 'use strict';
+ const entries=Object.freeze([
+  {
+    "referenceMonth": "2026-12",
+    "date": "2027-01-04",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-01",
+    "date": "2027-02-01",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-02",
+    "date": "2027-03-01",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-03",
+    "date": "2027-03-31",
+    "moment": "soir"
+  },
+  {
+    "referenceMonth": "2027-04",
+    "date": "2027-04-30",
+    "moment": "soir"
+  },
+  {
+    "referenceMonth": "2027-05",
+    "date": "2027-06-01",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-06",
+    "date": "2027-06-30",
+    "moment": "soir"
+  },
+  {
+    "referenceMonth": "2027-07",
+    "date": "2027-08-02",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-08",
+    "date": "2027-09-01",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-09",
+    "date": "2027-10-01",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-10",
+    "date": "2027-11-02",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-11",
+    "date": "2027-12-01",
+    "moment": "matin"
+  },
+  {
+    "referenceMonth": "2027-12",
+    "date": "2028-01-03",
+    "moment": "matin"
+  }
+].map(Object.freeze));
+ const refs=new Set(entries.map(e=>e.referenceMonth));
+ const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+ const validRef=v=>typeof v==='string'&&/^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(v);
+ const byDate=iso=>entries.find(e=>e.date===iso)||null;
+ const referenceLabel=ref=>validRef(ref)?months[Number(ref.slice(5))-1]+' '+ref.slice(0,4):'';
+ const momentLabel=v=>v==='matin'?'Matin':v==='soir'?'Soir':'';
+ const label=ref=>{const m=referenceLabel(ref);return m?'Inventaire '+(/^(avril|août|octobre)/.test(m)?'d’':'de ')+m:'Inventaire Fruits et Légumes';};
+ const title=(ref,moment,official=false)=>label(ref)+(momentLabel(moment)?' · '+momentLabel(moment):'')+(official?' · Planning frais 2027':'');
+ function parseTitle(value){
+  const s=String(value||'');
+  const match=/^Inventaire (?:de |d[’'])([a-zéûô]+) (\d{4})(?: · (Matin|Soir))?( · Planning frais 2027)?$/i.exec(s);
+  if(!match)return null;
+  const i=months.indexOf(match[1].toLowerCase());
+  if(i<0)return null;
+  const ref=match[2]+'-'+String(i+1).padStart(2,'0');
+  if(!validRef(ref))return null;
+  return {referenceMonth:ref,moment:match[3]?.toLowerCase()||'',official:Boolean(match[4]&&refs.has(ref))};
+ }
+ function withOfficial(data){
+  const inventories=new Set(Array.isArray(data?.inventories)?data.inventories:[]);
+  const details={...(data?.inventoryDetails||{})};
+  const blocked=new Set(data?.cancelledInventoryDays||[]);
+  const existingRefs=new Set(Object.values(details).map(x=>x.referenceMonth).filter(Boolean));
+  if(!data?.officialPublished)for(const e of entries){
+   if(blocked.has(e.date))continue;
+   if(existingRefs.has(e.referenceMonth)&&!inventories.has(e.date))continue;
+   inventories.add(e.date);
+   if(!details[e.date])details[e.date]=e;
+  }
+  for(const iso of blocked)inventories.delete(iso);
+  return {...data,inventories:[...inventories].sort(),inventoryDetails:details};
+ }
+ function rowsToData(rows){
+  const inv=rows.filter(r=>r.kind==='inventory'),inventoryDetails={};
+  const enabled=inv.filter(r=>r.enabled);
+  const activeDays=new Set(enabled.map(r=>r.starts_on));
+  let officialPublished=inv.some(r=>parseTitle(r.title)?.official);
+  for(const r of enabled){
+   const meta=parseTitle(r.title)||byDate(r.starts_on);
+   if(meta)inventoryDetails[r.starts_on]={...meta,date:r.starts_on};
+  }
+  // When visible, cancelled rows override the embedded schedule.
+  const cancelledInventoryDays=inv.filter(r=>!r.enabled&&!activeDays.has(r.starts_on)).map(r=>r.starts_on);
+  return {inventories:[...activeDays],inventoryDetails,cancelledInventoryDays,officialPublished,
+   events:rows.filter(r=>r.enabled&&r.kind==='store').map(r=>({id:r.id,title:r.title,start:r.starts_on,end:r.ends_on||r.starts_on}))};
+ }
+ function officialRows(rows){
+  const inventory=rows.filter(r=>r.kind==='inventory'),out=[];
+  for(const e of entries){
+   // Respect existing edits, cancellations and explicit monthly references.
+   const same=inventory.filter(r=>parseTitle(r.title)?.referenceMonth===e.referenceMonth);
+   const dated=inventory.filter(r=>r.starts_on===e.date);
+   const choices=same.length?same:dated;
+   if(choices.length>1)throw Error('Plusieurs inventaires pour '+referenceLabel(e.referenceMonth)+' : vérifie les doublons avant publication.');
+   const old=choices[0];
+   if(old){
+    const meta=parseTitle(old.title);
+    if(meta&&meta.referenceMonth!==e.referenceMonth)throw Error('Référence différente le '+e.date+' : vérifie le planning.');
+    if(meta?.official)continue;
+    out.push({id:old.id,kind:'inventory',title:title(e.referenceMonth,meta?.moment||e.moment,true),starts_on:old.starts_on,ends_on:old.ends_on||old.starts_on,enabled:old.enabled,updated_at:new Date().toISOString()});
+   }else out.push({id:'inventory:'+e.date,kind:'inventory',title:title(e.referenceMonth,e.moment,true),starts_on:e.date,ends_on:e.date,enabled:true,updated_at:new Date().toISOString()});
+  }
+  return out;
+ }
+ root.IUInventorySchedule=Object.freeze({entries,byDate,referenceLabel,momentLabel,label,title,parseTitle,withOfficial,rowsToData,officialRows,validRef});
+})(typeof window!=='undefined'?window:globalThis);
