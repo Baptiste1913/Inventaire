@@ -19,5 +19,5 @@ assert.equal(d.deductionPlan({fields:{...fields,weightGrams:30000,totalCents:897
 (async()=>{let finish;const slow=l.track(new Promise(r=>{finish=r})),fast=l.track(Promise.resolve('ok'));await fast.promise;let found;
 const x=await l.collect({tasks:()=>[['fast',fast],['slow',slow]],consume:(k,v)=>{found=v},ready:()=>found==='ok',deadline:1000,now:()=>0});
 assert.equal(x.reason,'ready');assert(!slow.done);finish(null);
-const js=fs.readFileSync('gemini-lab.js','utf8');assert(js.includes('cloudReadAvoided:true'));assert(js.includes('cancelPhoto?.(sourcePhoto)'));
+const js=fs.readFileSync('gemini-lab.js','utf8');assert(js.includes('cloudReadAvoided:true'));assert(js.includes('workersKeptWarm:true'));
 console.log('OK: orchestration et déductions DIGI, sans preuve circulaire');})().catch(e=>{console.error(e);process.exitCode=1});

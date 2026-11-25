@@ -140,15 +140,13 @@
   const key=pattern.slice(0,7)+'|'+hint;
   if(queryCache.has(key))return queryCache.get(key);
   const out=[];
-  const groups=!strictPrefix&&exact?.size?
-   [...new Set([...exact.values()].map(r=>r.eanPrefix))].map(prefix=>[prefix,catalog.byPrefix.get(prefix)]):
-   prefixGroups(catalog,pattern);
+  const groups=prefixGroups(catalog,pattern);
   for(const [prefix,items] of groups){
    if(pattern&&[...prefix].some((digit,i)=>
       pattern[i]!=='?'&&pattern[i]!==digit))continue;
    for(const record of items.values()){
     const similarity=hint===record.normalizedName?1:hint?normalizedSimilarity(hint,record.normalizedName):0;
-    if(!strictPrefix&&(exact?.size?hint!==record.normalizedName:similarity<.74))continue;
+    if(!strictPrefix&&hint!==record.normalizedName&&similarity<.74)continue;
     out.push({eanPrefix:prefix,plu:record.plu,name:record.name,
      prefixDigits:knownPrefix,nameScore:similarity,ambiguous:items.size!==1,
      source:'digi-import'});
@@ -611,7 +609,10 @@
   for(const o of (Array.isArray(observations)?observations:[]).slice(0,6)){
    const mask=observedPattern(o?.pattern||o?.ean13);
    if(mask)sources.push({mask,weight:o.source==='optical-partial'?2:['digit-template','digi-advanced'].includes(o.source)?.35:1});
-   if(Array.isArray(o?.bitRows))rows.push(...o.bitRows.slice(0,8));
+   if(Array.isArray(o?.bitRows))for(const row of o.bitRows.slice(0,8)){
+    if(rows.length>=8)break;
+    if(typeof row==='string'&&/^[01]{95}$/.test(row))rows.push(row);
+   }
    if(Array.isArray(o?.digitOptions)&&o.digitOptions.length===13)alternatives.push(o.digitOptions);
   }
   const catalogue=index();
@@ -667,7 +668,7 @@
   const constraints=constraintPlan(result,{observations});
   // Highest-information positions first. The full list is retained for
   // the worker; no inferred digits are injected into eanObserved.
-  const priority=[...new Set([...constraints.positions,...[...positions].sort((a,b)=>a-b)])];
+  const priority=[...new Set([...(!constraints.complete?[]:constraints.positions),...[...positions].sort((a,b)=>a-b)])];
   return {candidates:ranked.slice(0,5).map(({eanPrefix,plu,name})=>({eanPrefix,plu,name})),
    positions:priority,candidateCount:pool.size,ranges,constraints,
    ranked:ranked.slice(0,5),observationCount:sources.length,barRows:Math.min(8,rows.length),

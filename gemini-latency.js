@@ -33,6 +33,7 @@
     seen.add(task);count++;consume(key,task.value);
     if(!current())return {count,reason:'stale'};
    }
+   if(!current())return {count,reason:'stale'};
    if(ready())return {count,reason:'ready'};
    const pending=tasks().filter(([,task])=>task&&!seen.has(task)&&!task.done);
    const remaining=deadline-now();
