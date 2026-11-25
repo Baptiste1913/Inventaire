@@ -1,17 +1,18 @@
-/* v43.28 — prochaine échéance, sans changer le double contour existant. */
+/* v43.29 — prochaine échéance, sans changer le double contour existant. */
 #inventoryCalendar .iu-next-inventory-line{display:flex;align-items:center;gap:11px;min-width:0;width:100%;padding:5px 0 0;box-sizing:border-box}
 #inventoryCalendar .iu-next-inventory-tile{flex:0 0 48px;display:grid;justify-items:center;align-content:center;gap:1px;min-height:52px;border-radius:11px;border:1px solid rgba(139,162,176,.25);background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(224,234,240,.55));box-shadow:inset 0 1px 1px rgba(255,255,255,.9);color:#546f7d;box-sizing:border-box}
 #inventoryCalendar .iu-next-inventory-tile[hidden],#inventoryCalendar .iu-next-inventory-meta[hidden],#inventoryCalendar .iu-next-inventory-meta [hidden]{display:none!important}
 #inventoryCalendar #calendarNextMonth{font-size:9px;font-weight:750;letter-spacing:.04em;line-height:1.1}
 #inventoryCalendar #calendarNextDay{font-size:25px;font-weight:850;letter-spacing:-.7px;line-height:1.05;color:#273039;font-variant-numeric:tabular-nums}
 #inventoryCalendar .iu-next-inventory-copy{flex:1;min-width:0;display:grid;gap:4px}
-html body:not(.is-events-mode) #inventoryCalendar .iu-next-inventory-copy #calendarNextDate{display:block!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;color:#28333c!important;font-size:clamp(15px,4.1vw,20px)!important;font-weight:850!important;line-height:1.18!important;letter-spacing:-.35px!important;overflow-wrap:break-word!important}
-#inventoryCalendar .iu-next-inventory-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 7px;font-size:11px;color:#546f7d;font-weight:550;line-height:1.4}
+html body:not(.is-events-mode) #inventoryCalendar .iu-next-inventory-copy #calendarNextDate{display:block!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;transform:none!important;text-align:left!important;color:#28333c!important;font-size:clamp(15px,4.1vw,20px)!important;font-weight:850!important;line-height:1.18!important;letter-spacing:-.35px!important;overflow-wrap:break-word!important}
+#inventoryCalendar .iu-next-inventory-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;text-align:left;margin:0;padding:0;gap:4px 7px;font-size:11px;color:#546f7d;font-weight:550;line-height:1.4}
 #inventoryCalendar .iu-next-inventory-moment{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:rgba(119,146,162,.12);padding:2px 7px;font-size:10px;font-weight:700;color:#465f6e}
-#inventoryCalendar .iu-next-inventory-moment::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7}
+#inventoryCalendar .iu-next-inventory-moment::before{content:none!important;display:none!important}
+#inventoryCalendar #calendarNextReference{margin:0!important;padding:0!important;text-align:left!important;transform:none!important}
 /* Même surface et mêmes métriques que #planningEventTitle (style.css).
    Le contrôle reste un select natif pour le sélecteur iOS. */
-html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content #planningInventoryMoment{
+html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content :is(#planningInventoryMoment,#planningInventoryReference){
  -webkit-appearance:none!important;
  appearance:none!important;
  box-sizing:border-box!important;
@@ -39,14 +40,28 @@ html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-c
  outline:none!important;
  transition:border-color .35s ease,box-shadow .35s ease!important;
 }
-html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content #planningInventoryMoment:focus{
+html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content :is(#planningInventoryMoment,#planningInventoryReference):focus{
  border-color:#87949d!important;
  background:#f8f9fa!important;
  box-shadow:0 0 0 3px rgba(101,115,125,.10)!important;
  outline:none!important;
 }
 @media(prefers-reduced-motion:reduce){
- html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content #planningInventoryMoment{transition:none!important}
+ html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content :is(#planningInventoryMoment,#planningInventoryReference){transition:none!important}
 }
 #planningAdminCard .iu-official-import{margin-top:8px;width:100%;white-space:normal}
 @media(max-width:350px){#inventoryCalendar .iu-next-inventory-line{gap:8px}#inventoryCalendar .iu-next-inventory-tile{flex-basis:42px;min-height:48px}}
+
+/* iOS conserve le sélecteur natif du mois et aligne sa valeur comme un champ texte. */
+html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content #planningInventoryReference{
+ color-scheme:light!important;
+}
+html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content #planningInventoryReference::-webkit-date-and-time-value{
+ min-width:0!important;
+ min-height:1.4em;
+ margin:0;
+ text-align:left!important;
+}
+html body.is-admin-mode #planningAdminCard.planning-admin-card .planning-panel-content #planningInventoryReference::-webkit-datetime-edit{
+ padding:0;
+}
