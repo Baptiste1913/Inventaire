@@ -1,6 +1,6 @@
 {
-  "version": "43.12",
+  "version": "43.13",
   "published": "2026-11-25",
   "assets": 108,
-  "notes": "Historique et bilans compacts : surface continue, séparateurs fins, poids net à droite, brut/tare à gauche, détails sur une ligne, styles natifs de l'application. Logo AI animé conservé. Calculs, données et Worker inchangés."
+  "notes": "Historique aéré : surfaces, ombres, boutons et contours repris de Mes inventaires. Dégradé continu de l'en-tête au contenu, fiches légèrement agrandies, logo AI et données inchangés."
 }
