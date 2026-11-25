@@ -1,6 +1,6 @@
 {
-  "version": "43.24",
+  "version": "43.25",
   "published": "2026-11-25",
   "assets": 112,
-  "notes": "Footer : marge supérieure augmentée, logo U transparent fourni par l’utilisateur sans cadre, crédits en lignes de réglages Liquid Glass et espacement harmonisé. Version interactive conservée. Aucun changement AI, DIGI ou Worker."
+  "notes": "Footer : titre UTILITAIRE D’INVENTAIRE aligné exactement sur la typographie responsive du header, marge supérieure portée à 76 px. Reconnaissance AI, DIGI et Worker inchangés."
 }

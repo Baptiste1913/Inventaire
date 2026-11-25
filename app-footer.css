@@ -1,11 +1,11 @@
-/* Inventaires U v43.24 — Signature d'accueil, indépendante des cartes. */
+/* Inventaires U v43.25 — Signature d'accueil, indépendante des cartes. */
 .app > footer.iu-app-footer {
   box-sizing: border-box;
   grid-column: 1 / -1;
   position: relative;
   isolation: isolate;
   min-width: 0;
-  margin: 34px 0 0;
+  margin: 76px 0 0;
   padding: 22px 12px 19px;
   text-align: left;
   color: #435a68;
@@ -60,11 +60,16 @@
   gap: 2px;
 }
 .iu-app-footer .iu-footer-brand strong {
-  font-size: 20px;
-  font-weight: 780;
-  letter-spacing: -.65px;
-  color: #23343f;
-  line-height: 1.15;
+  /* Match .header .brand h1, including its responsive breakpoints. */
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(17px, 3.9vw, 22px) !important;
+  font-weight: 900 !important;
+  -webkit-text-stroke: .65px currentColor;
+  text-rendering: geometricPrecision;
+  letter-spacing: -.45px !important;
+  color: #273039 !important;
+  line-height: 1.13 !important;
+  margin: 0 !important;
   overflow-wrap: anywhere;
 }
 .iu-app-footer .iu-footer-brand > span {
@@ -162,12 +167,17 @@
 }
 .iu-app-footer .iu-footer-legal svg { flex: 0 0 13px; width: 13px; height: 13px; }
 .iu-app-footer .iu-footer-legal span { min-width: 0; overflow-wrap: break-word; }
+@media(max-width: 600px) {
+  .iu-app-footer .iu-footer-brand strong { font-size: clamp(16px, 4.4vw, 20px) !important; }
+}
+@media(max-width: 380px) {
+  .iu-app-footer .iu-footer-brand strong { font-size: clamp(15px, 4.5vw, 18px) !important; }
+}
 @media(max-width: 350px) {
   .app > footer.iu-app-footer { padding-inline: 5px; }
   .iu-app-footer .iu-footer-brand-row { gap: 8px; }
   .iu-app-footer .iu-footer-logo { flex-basis: 36px; width: 36px; height: 36px; }
   .iu-app-footer .iu-footer-logo img { width: 36px; max-height: 36px; }
-  .iu-app-footer .iu-footer-brand strong { font-size: 17px; }
   .iu-app-footer .iu-footer-credits { padding-inline: 9px; }
   .iu-app-footer .iu-footer-credits > div { gap: 6px; }
 }
