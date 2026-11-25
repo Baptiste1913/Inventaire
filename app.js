@@ -236,16 +236,66 @@ window.IUGeminiSaveWeigh=payload=>{
  if($('backupCard')?.open)renderBackupSummary();
  return {ok:true,id:entry.id,net,duplicate};
 };
+// v43.10 — presentation commune, sans mutation des pesées sauvegardées.
+function weighRecordElement(entry){
+ const ai=entry.source==='gemini';
+ const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
+ const row=node('article','history-item iu-weigh-record'+(ai?' history-item-gemini':''));
+ const head=node('div','iu-weigh-record-head'),identity=node('div','iu-weigh-record-identity');
+ const titleLine=node('div','iu-weigh-record-titleline');
+ if(ai){
+  const badge=node('span','iu-weigh-record-ai');badge.setAttribute('role','img');badge.setAttribute('aria-label','Pesée AI');
+  const mark=node('span','iu-weigh-record-ai-mark','AI');mark.setAttribute('aria-hidden','true');badge.append(mark);titleLine.append(badge);
+ }
+ titleLine.append(node('strong','iu-weigh-record-title',ai&&entry.product?entry.product:entry.name));
+ identity.append(titleLine);
+ if(ai&&entry.product)identity.append(node('span','iu-weigh-record-basket',entry.name));
+ const date=new Date(entry.at);
+ identity.append(node('span','iu-weigh-record-date',date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})+' · '+date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})));
+ const result=node('div','iu-weigh-record-net');
+ result.append(node('small','','Poids net'),node('strong','',fmt(entry.net)+' kg'));head.append(identity,result);row.append(head);
+ const metrics=node('div','iu-weigh-record-metrics');
+ const metric=(label,value)=>{const cell=node('div','iu-weigh-record-metric');cell.append(node('small','',label),node('strong','',value));metrics.append(cell);};
+ metric('Brut',fmt(entry.gross)+' kg');metric('Tare',fmt(entry.tare)+' kg');
+ if(ai&&Number.isInteger(entry.pricePerKgCents))metric('Prix / kg',(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €');
+ if(ai&&Number.isInteger(entry.correctedTotalCents))metric('Total après tare',(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' €');
+ row.append(metrics);
+ if(ai){
+  const foot=node('div','iu-weigh-record-foot');
+  if(entry.plu)foot.append(node('span','iu-weigh-record-plu','PLU '+entry.plu));
+  if(entry.duplicateConfirmed)foot.append(node('span','iu-weigh-record-status','Doublon confirmé'));
+  if(Array.isArray(entry.manualCorrectedFields)&&entry.manualCorrectedFields.length)foot.append(node('span','iu-weigh-record-status','Valeur vérifiée'));
+  if(foot.childNodes.length)row.append(foot);
+  if(entry.ean13||entry.correctedEan13||Number.isInteger(entry.originalTotalCents)){
+   const details=node('div','iu-weigh-record-details'),btn=node('button','iu-weigh-record-expand','Détails de l’étiquette');
+   btn.type='button';btn.setAttribute('aria-expanded','false');
+   const content=node('div','iu-weigh-record-codes');content.hidden=true;
+   const line=(label,value)=>{const cell=node('div','iu-weigh-record-code');cell.append(node('small','',label),node('span','',value));content.append(cell);};
+   if(entry.ean13)line('EAN lu',entry.ean13);
+   if(entry.correctedEan13)line('EAN après tare',entry.correctedEan13);
+   if(Number.isInteger(entry.originalTotalCents))line('Total brut',(entry.originalTotalCents/100).toFixed(2).replace('.',',')+' €');
+   btn.addEventListener('click',()=>{content.hidden=!content.hidden;btn.setAttribute('aria-expanded',String(!content.hidden));btn.textContent=content.hidden?'Détails de l’étiquette':'Masquer les détails';});
+   details.append(btn,content);row.append(details);
+  }
+ }
+ return row;
+}
+function weighArchiveElement(entries){
+ const section=document.createElement('section');section.className='iu-weigh-archive';
+ const title=document.createElement('h4');title.textContent='Détail des pesées';
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='iu-weigh-archive-toggle outline-btn';
+ toggle.textContent='Voir les '+entries.length+' pesée'+(entries.length>1?'s':'');toggle.setAttribute('aria-expanded','false');toggle.disabled=!entries.length;
+ const list=document.createElement('div');list.className='iu-weigh-record-list';list.hidden=true;
+ const more=document.createElement('button');more.type='button';more.className='iu-weigh-archive-more outline-btn';more.hidden=true;
+ const ordered=[...entries].reverse();let shown=0;
+ function appendPage(){const end=Math.min(shown+20,ordered.length);const fragment=document.createDocumentFragment();for(;shown<end;shown++)fragment.append(weighRecordElement(ordered[shown]));list.append(fragment);more.hidden=list.hidden||shown>=ordered.length;more.textContent='Voir '+Math.min(20,ordered.length-shown)+' pesées supplémentaires ('+shown+'/'+ordered.length+')';}
+ toggle.addEventListener('click',()=>{list.hidden=!list.hidden;toggle.setAttribute('aria-expanded',String(!list.hidden));toggle.textContent=list.hidden?'Voir les '+entries.length+' pesée'+(entries.length>1?'s':''):'Masquer les pesées';if(!list.hidden&&!shown)appendPage();more.hidden=list.hidden||shown>=ordered.length;});
+ more.addEventListener('click',appendPage);section.append(title,toggle,list,more);return section;
+}
 function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
 const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('aria-expanded',String(historyExpanded));const label=btn.querySelector('.history-toggle-label');if(label)label.textContent=historyExpanded?'Réduire l’historique':`Voir les ${history.length} pesées`;
 if(!history.length){const p=document.createElement('p');p.className='empty history-empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
-for(const entry of (historyExpanded?history:history.slice(0,5))){const row=document.createElement('article');row.className='history-item'+(entry.source==='gemini'?' history-item-gemini':'');const info=document.createElement('div');info.className='history-info';const name=document.createElement('strong');name.className='history-name';name.textContent=entry.name;const meta=document.createElement('div');meta.className='history-meta';const date=document.createElement('span');date.className='history-chip';date.textContent=new Date(entry.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit'});const detail=document.createElement('span');detail.className='history-chip history-chip-detail';detail.textContent=`Brut ${fmt(entry.gross)} kg · Tare ${fmt(entry.tare)} kg`;meta.append(date,detail);if(entry.source==='gemini'){const badge=document.createElement('span');badge.className='history-chip history-chip-gemini';badge.textContent='✧ Gemini';meta.prepend(badge);if(entry.duplicateConfirmed){
- const confirmed=document.createElement('span');confirmed.className='history-chip history-chip-detail';
- confirmed.textContent='Doublon confirmé';meta.append(confirmed);if(Array.isArray(entry.manualCorrectedFields)&&entry.manualCorrectedFields.length){
- const audit=document.createElement('span');audit.className='history-chip history-chip-detail';
- audit.textContent='Valeur vérifiée';meta.append(audit);
-}
-}const extra=document.createElement('div');extra.className='history-gemini-extra';extra.textContent=[entry.product,entry.plu?'PLU '+entry.plu:null,entry.ean13?'EAN '+entry.ean13:null,entry.correctedEan13?'Corrigé '+entry.correctedEan13:null,Number.isInteger(entry.pricePerKgCents)?(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €/kg':null,Number.isInteger(entry.correctedTotalCents)?(entry.correctedTotalCents/100).toFixed(2).replace('.',',')+' € après tare':null].filter(Boolean).join(' · ');info.append(name,meta,extra);}else info.append(name,meta);const result=document.createElement('div');result.className='history-result';const resultLabel=document.createElement('small');resultLabel.textContent='Poids net';const resultValue=document.createElement('strong');resultValue.className='history-net';resultValue.textContent=`${fmt(entry.net)} kg`;result.append(resultLabel,resultValue);if(entry.source==='gemini'){const star=document.createElement('span');star.className='iu-gemini-star-badge iu-gemini-history-star';star.setAttribute('role','img');star.setAttribute('aria-label','Pesée réalisée par Gemini');star.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><linearGradient id="iuGeminiHistoryGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f45e6b"/><stop offset=".32" stop-color="#ffbd34"/><stop offset=".53" stop-color="#39bf85"/><stop offset=".72" stop-color="#3286f8"/><stop offset="1" stop-color="#6d80f5"/></linearGradient></defs><path d="M50 1C54 24 76 46 99 50C76 54 54 76 50 99C46 76 24 54 1 50C24 46 46 24 50 1Z" fill="url(#iuGeminiHistoryGradient)"/></svg>';row.append(star);}row.append(info,result);list.append(row);}}
+for(const entry of (historyExpanded?history:history.slice(0,5)))list.append(weighRecordElement(entry));}
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
 function persist(){
  try{safeSetItem(STORAGE_KEY,JSON.stringify(baskets));render();return true;}
@@ -1780,7 +1830,7 @@ function summaryElement(s){const stats=activeStats(s);const box=document.createE
  const bins=new Map();for(const e of s.entries){const d=new Date(e.at);d.setMinutes(Math.floor(d.getMinutes()/30)*30,0,0);const key=d.getTime();bins.set(key,(bins.get(key)||0)+1);}
  const sorted=[...bins.entries()].sort((a,b)=>a[0]-b[0]);const max=Math.max(1,...sorted.map(x=>x[1]));for(const [at,count] of sorted){const row=document.createElement('div');row.className='v22-bar-row';const label=document.createElement('span');label.textContent=new Date(at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});const bar=document.createElement('div');bar.className='v22-bar-track';const fill=document.createElement('div');fill.className='v22-bar-fill';fill.style.width=`${count/max*100}%`;bar.append(fill);const amount=document.createElement('strong');amount.textContent=String(count);row.append(label,bar,amount);hist.append(row);}
  if(!sorted.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Aucune pesée dans cette session.';hist.append(empty);}
- box.append(hist);const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:30,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
+ box.append(hist,weighArchiveElement(s.entries));const actions=document.createElement('div');actions.className='v22-session-export';const csv=document.createElement('button');csv.type='button';csv.className='outline-btn';csv.textContent='Exporter en CSV';csv.addEventListener('click',()=>exportCSV([s],`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.csv`));const json=document.createElement('button');json.type='button';json.className='outline-btn';json.textContent='Bilan JSON';json.addEventListener('click',()=>download(JSON.stringify({app:'Inventaires U',version:30,sessions:[s]},null,2),`inventaire-u-${new Date(s.startedAt).toISOString().slice(0,10)}.json`,'application/json'));const remove=document.createElement('button');remove.type='button';remove.className='delete-session-btn';remove.textContent='Supprimer ce bilan';remove.setAttribute('aria-label',`Supprimer le bilan du ${dateLabel(s.startedAt)}`);remove.addEventListener('click',()=>deleteSession(s.id));actions.append(csv,json);box.append(actions,remove);return box;}
 function deleteSession(id){
  const index=sessions.findIndex(s=>s.id===id&&Boolean(s.endedAt));
  if(index<0)return;

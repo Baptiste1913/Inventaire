@@ -1,6 +1,6 @@
 {
-  "version": "43.09",
+  "version": "43.10",
   "published": "2026-11-25",
-  "assets": 107,
-  "notes": "Fiabilité Gemini : Interactions en première lecture, GenerateContent renforcé en secours, relecture finale bornée après réponse inutilisable, diagnostics des types, rejets, erreurs et analyses. Capture, contrôles DIGI, transport et CORS conservés. Worker à redéployer."
+  "assets": 108,
+  "notes": "Fiches de pesées harmonisées dans l'historique et les bilans : poids net, données structurées, détails EAN dépliables, logo AI chrome partagé et statique en liste, résultat classique harmonisé. Moteur Gemini et Worker inchangés."
 }

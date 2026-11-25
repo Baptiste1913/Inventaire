@@ -2,7 +2,10 @@
    Les réflexions se déplacent, jamais la géométrie du viseur. Aucun accès OCR. */
 (()=>{
  'use strict';
- for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept'),document.getElementById('iuGeminiRepairApply')]){
+ // One immutable logo frame for the history, drawn with the exact main renderer.
+ // No extra animation loops, observers or per-row canvases.
+ const historyLogo=document.createElement('canvas');
+ for(const overlay of [document.getElementById('iuWeighScanOverlay'),document.getElementById('iuGeminiCameraShell'),document.getElementById('iuGeminiGrossChrome'),document.getElementById('iuGeminiOuterChrome'),document.getElementById('iuGeminiLoadingChrome'),document.getElementById('iuGeminiAIChrome'),document.getElementById('iuGeminiDuplicateAccept'),document.getElementById('iuGeminiRepairApply'),historyLogo]){
  if(!overlay)continue;
  // Même trajectoire et mêmes fibres lumineuses pour le poids OCR et
  // pour le pourtour de l'étiquette DIGI, sans dupliquer l'animation.
@@ -16,19 +19,20 @@
  const isBackdrop=overlay.id==='iuGeminiBackdropChrome';
  const isLoader=overlay.id==='iuGeminiLoadingChrome';
  const loaderShell=isLoader?document.getElementById('iuGeminiCameraShell'):null;
- const isLogo=overlay.id==='iuGeminiAIChrome';
+ const isHistoryLogo=overlay===historyLogo;
+ const isLogo=overlay.id==='iuGeminiAIChrome'||isHistoryLogo;
  const isRing=isLoader||isLogo;
  const isPanelChrome=isGross||isOuter||isBackdrop||isRing;
  const isGemini=isPanelChrome||overlay.id==='iuGeminiCameraShell';
  const contourBoost=0;
  const backdropWidthScale=.82;
  const loaderWidthScale=isRing?1.6:1;
- const guide=isBackdrop||isOuter||isRing?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
+ const guide=isHistoryLogo?overlay:isBackdrop||isOuter||isRing?overlay.parentElement:isGross?overlay:overlay.querySelector(isGemini
    ?'.iu-gemini-camera-exact-guide':'.iu-weigh-scan-guide');
  const canvas=isBackdrop||isOuter||isRing?overlay:guide?.querySelector('.iu-weight-light');
  if(!overlay||!guide||!canvas||typeof Path2D==='undefined')continue;
  const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});
- if(!ctx)return;
+ if(!ctx){if(isHistoryLogo)continue;return;}
  const reduceMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
  const TWO_PI=Math.PI*2;
  const COUNT=1280;
@@ -163,7 +167,7 @@
   return {x:p.x+(q.x-p.x)*frac,y:p.y+(q.y-p.y)*frac};
  }
  function measure(){
-  const bounds=canvas.getBoundingClientRect();
+  const bounds=isHistoryLogo?{width:26,height:26}:canvas.getBoundingClientRect();
   const w=Math.round(bounds.width),h=Math.round(bounds.height);
   if(w<20||h<15){width=height=0;return false;}
   // Respecter la densité native ET le zoom réel de Safari. Un canvas
@@ -615,6 +619,16 @@
    request=0;lastTick=0;
    if(!document.hidden&&!overlay.hidden&&(!isDuplicate||duplicateDialog?.hidden===false)&&(!isRepair||(repairPanel?.hidden===false&&repairManual?.hidden===false))&&(!isLoader||loaderShell?.dataset.state==='analyzing')&&(!isPanelChrome||inViewport)&&guide.getClientRects().length&&measure())paint(elapsed);
   }
+ }
+ if(isHistoryLogo){
+  try{
+   if(measure()){
+    paint(2.4);
+    document.documentElement.style.setProperty('--iu-history-ai-image','url("'+canvas.toDataURL('image/png')+'")');
+    document.documentElement.classList.add('iu-history-ai-ready');
+   }
+  }catch(_){/* Accessible monochrome AI text fallback. */}
+  continue;
  }
  const visibilityObserver=new MutationObserver(sync);
  visibilityObserver.observe(overlay,{attributes:true,attributeFilter:['hidden','data-state']});

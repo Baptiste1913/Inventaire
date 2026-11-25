@@ -1,0 +1,48 @@
+/* Inventaires U 43.10 — fiches de pesées communes. Aucun calcul métier. */
+html body .app .iu-weigh-record-list{display:grid;gap:8px;min-width:0;margin-top:9px;}
+html body .app .iu-weigh-record-list[hidden],html body .app .iu-weigh-archive [hidden],html body .app .iu-weigh-record [hidden]{display:none!important;}
+html body .app article.history-item.iu-weigh-record{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important;
+ gap:11px!important;position:relative!important;min-width:0!important;width:100%!important;box-sizing:border-box!important;
+ margin:0!important;padding:14px!important;border:1px solid rgba(172,192,205,.47)!important;
+ border-radius:16px!important;background:linear-gradient(145deg,#fbfcfd,#f0f4f7)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.95)!important;color:#26343e!important;
+}
+html body .app #historyList{display:grid!important;gap:8px!important;border:0!important;background:none!important;box-shadow:none!important;overflow:visible!important;}
+html body .app .iu-weigh-record-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:10px;}
+html body .app .iu-weigh-record-identity{display:grid;gap:4px;min-width:0;}
+html body .app .iu-weigh-record-titleline{display:flex;align-items:center;gap:7px;min-width:0;}
+html body .app .iu-weigh-record-title{display:block;min-width:0;color:#25333d;font-size:15px;font-weight:850;line-height:1.28;letter-spacing:-.018em;overflow-wrap:anywhere;}
+html body .app .iu-weigh-record-basket,html body .app .iu-weigh-record-date{display:block;color:#667986;font-size:11px;font-weight:600;line-height:1.35;overflow-wrap:anywhere;}
+html body .app .iu-weigh-record-ai{display:grid;place-items:center;box-sizing:border-box;flex:0 0 32px;width:32px;height:32px;padding:2px;border:1px solid rgba(214,224,231,.95);border-radius:50%;background:rgba(128,128,128,.002);pointer-events:none;}
+html body .app .iu-weigh-record-ai-mark{display:grid;place-items:center;width:26px;height:26px;color:#46545c;font-size:9px;font-weight:850;line-height:1;background:var(--iu-history-ai-image,none) center/contain no-repeat;}
+html.iu-history-ai-ready body .app .iu-weigh-record-ai-mark{color:transparent;}
+html body .app .iu-weigh-record-net{text-align:right;display:grid;gap:4px;min-width:0;}
+html body .app .iu-weigh-record-net small,html body .app .iu-weigh-record-metric small{color:#657986;font-size:10px;font-weight:750;line-height:1.25;letter-spacing:.035em;text-transform:uppercase;}
+html body .app .iu-weigh-record-net strong{color:#21313d;font-size:clamp(19px,5vw,26px);font-weight:880;letter-spacing:-.035em;line-height:1.12;font-variant-numeric:tabular-nums;white-space:nowrap;}
+html body .app .iu-weigh-record-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-top:10px;border-top:1px solid rgba(142,163,176,.23);}
+html body .app .iu-weigh-record-metric{display:grid;gap:3px;min-width:0;}
+html body .app .iu-weigh-record-metric strong{font-size:14px;font-weight:750;line-height:1.3;color:#344855;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+html body .app .iu-weigh-record-foot{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0;}
+html body .app .iu-weigh-record-plu{font-size:11px;font-weight:720;color:#687b88;padding-right:4px;}
+html body .app .iu-weigh-record-status{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid rgba(166,183,195,.45);border-radius:999px;background:rgba(224,233,239,.48);color:#4e616e;font-size:10px;font-weight:700;line-height:1.4;}
+html body .app .iu-weigh-record-details{min-width:0;}
+html body .app button.iu-weigh-record-expand{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:32px;margin:0;padding:5px 0;border:0;border-top:1px solid rgba(142,163,176,.18);border-radius:0;background:none;box-shadow:none;color:#5b6f7b;font:700 11px/1.35 inherit;font-family:inherit;font-size:11px;font-weight:700;text-align:left;cursor:pointer;}
+html body .app button.iu-weigh-record-expand::after{content:'';display:block;width:6px;height:6px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(45deg);margin-right:3px;}
+html body .app button.iu-weigh-record-expand[aria-expanded=true]::after{transform:rotate(225deg);}
+html body .app .iu-weigh-record-codes{display:grid;gap:6px;padding:7px 0 2px;}
+html body .app .iu-weigh-record-code{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;line-height:1.4;color:#526875;}
+html body .app .iu-weigh-record-code small{font-size:11px;font-weight:650;}
+html body .app .iu-weigh-record-code span{font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+html body .app .iu-weigh-archive{min-width:0;margin:16px 0;}
+html body .app .iu-weigh-archive>h4{margin:0 0 9px;color:#344855;}
+html body .app .iu-weigh-archive-toggle,html body .app .iu-weigh-archive-more{width:100%;margin:0;min-height:42px;}
+html body .app .iu-weigh-archive-more{margin-top:9px;}
+/* Classic live result: same labels and hierarchy, existing result glass and actions remain. */
+html body .app > section.calc-card .result.iu-result-compact.iu-classic-result-record .iu-result-weights{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;}
+html body .app > section.calc-card .result.iu-result-compact.iu-classic-result-record .iu-result-weights>span{display:grid!important;gap:4px!important;font-size:11px!important;letter-spacing:.035em!important;text-transform:uppercase!important;font-weight:750!important;}
+html body .app > section.calc-card .result.iu-result-compact.iu-classic-result-record .iu-result-weights>span strong{font-size:clamp(17px,4.7vw,21px)!important;text-transform:none!important;overflow-wrap:anywhere!important;white-space:normal!important;}
+html body .app > section.calc-card .result.iu-result-compact.iu-classic-result-record .result-heading>span{font-size:11px!important;letter-spacing:.035em!important;text-transform:uppercase!important;}
+@media(min-width:650px){html body .app .iu-weigh-record-metrics{grid-template-columns:repeat(auto-fit,minmax(90px,1fr));}}
+@media(max-width:350px){html body .app article.history-item.iu-weigh-record{padding:11px!important;gap:9px!important;}html body .app .iu-weigh-record-head{grid-template-columns:minmax(0,1fr);gap:7px;}html body .app .iu-weigh-record-net{text-align:left;grid-template-columns:auto 1fr;align-items:baseline;gap:8px;} }
+@media(forced-colors:active){html body .app article.history-item.iu-weigh-record,html body .app .iu-weigh-record-ai,html body .app .iu-weigh-record-status{background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;color:CanvasText!important;}html body .app .iu-weigh-record *{color:CanvasText!important;}html body .app .iu-weigh-record-ai-mark{background:none!important;color:CanvasText!important;}}
