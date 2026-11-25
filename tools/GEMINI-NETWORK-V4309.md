@@ -1,0 +1,11 @@
+# v43.09 — fiabilité Gemini
+
+Conserver GEMINI_API_MODE=interactions, GEMINI_ROUTE=developer (ou absent), GEMINI_MEDIA_RESOLUTION=adaptive, GEMINI_DETAIL_RESOLUTION=ultra_high, sans GEMINI_TOKEN_LIMIT. Redéployer le Worker. Aucun nouveau secret. Hybride actif automatiquement dans ce mode sans cache explicite. GEMINI_HYBRID_RECOVERY=false désactive le parcours renforcé (les diagnostics restent actifs).
+
+Première lecture inchangée. Relectures ciblées ou complémentaires : GenerateContent, JSON historique, température 0, 1024 tokens, High sur la photo et High/Ultra High sur le détail. LOW si plusieurs valeurs numériques manquent, difficulté élevée, échec total ou option Low explicite. Sur rejet HTTP explicite du paramètre média, retour v1beta sans résolution imposée dans le budget existant. Pas de secours automatique sur refus d'authentification/quota.
+
+Une réponse illisible peut déclencher une lecture complète de secours de la même photo, puis une seule relecture ciblée finale si la lecture renforcée reste incomplète et qu'il reste du temps (début avant 15,5 s, garde globale 24 s). Une réponse invalide n'est jamais une confirmation indépendante. Fusion métier existante inchangée; l'interruption n'est levée que si tous les champs ciblés sont lus, que les contrôles ne demandent plus de relecture et qu'aucune contradiction n'existe. Aucun nouveau cliché. Pas de réutilisation spéculative EAN pour le chemin hybride.
+
+Diagnostics RAM, 100 entrées par catégorie : requêtes (HTTP, réseau, phase), champs demandés avec type et motif de rejet, analyses prêtes à valider ou non (inclut les conditions panier), secours et médiane des analyses terminées. Valeurs brutes, photos, noms, EAN et clés ne sont jamais conservés dans ces métriques. Les nombres JSON restent rejetés : vérifier le type réel avant tout assouplissement. Un null sur un champ non demandé n'est pas un échec. Les statistiques de requêtes incluent les relectures; celles d'analyse comptent chaque déclenchement terminé, pas chaque article unique.
+
+Tester en Wi-Fi les mêmes étiquettes, en particulier coloquintes/citrons/clémentines, noter les tentatives, vérifications manuelles et erreurs. Le taux prêt à valider dépend aussi du panier ; ce n'est pas un taux d'OCR exact. Pas de garantie de performance avant test réel.

@@ -1,6 +1,6 @@
 {
-  "version": "43.08",
+  "version": "43.09",
   "published": "2026-11-25",
   "assets": 107,
-  "notes": "Gemini Standard : préchauffage binaire dès l'ouverture, options de résolution par image, Interactions sans état, température et plafond de tokens, diagnostics comparatifs. Réglages expérimentaux désactivés par défaut. Worker à redéployer."
+  "notes": "Fiabilité Gemini : Interactions en première lecture, GenerateContent renforcé en secours, relecture finale bornée après réponse inutilisable, diagnostics des types, rejets, erreurs et analyses. Capture, contrôles DIGI, transport et CORS conservés. Worker à redéployer."
 }

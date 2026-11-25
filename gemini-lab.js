@@ -100,7 +100,16 @@
  const providerPreferenceKey='iu-ai-provider-v1';
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
- const networkSamples=[];let warmDiagnostic=null;
+ const networkSamples=[],requestOutcomes=[],analysisOutcomes=[];let warmDiagnostic=null;
+ function addDiagnostic(list,item){list.push(item);if(list.length>100)list.shift();try{renderNetworkDiagnostic();}catch(_){}}
+ function requestOutcome(status,ms,result=null,stage=null){
+  const allowed=['name','weightKg','pricePerKgEur','totalEur','ean13','eanObserved'];
+  const types=['absent','null','string','number','boolean','object','array'],states=['not_requested','missing','unreadable','wrong_type','invalid_format','accepted'];
+  const fields=Object.fromEntries(allowed.flatMap(k=>{const f=result?.fieldDiagnostics?.[k];return types.includes(f?.type)&&states.includes(f?.state)?[[k,{type:f.type,state:f.state}]]:[];}));
+  const stages=['upstream','provider_http','provider_body','max_tokens','finish_reason','empty_output','output_parse','timeout','circuit_open','cloudflare_google_network','fetch','http_json','google_http'];
+  const reason=stage||result?.failureStage;
+  addDiagnostic(requestOutcomes,{status,ms,api:['interactions','generateContent','generateContent-alpha'].includes(result?.api)?result.api:'—',profile:result?.recoveryProfile==='reinforced'?'reinforced':'normal',reason:stages.includes(reason)?reason:null,fields});
+ }
  const photoDifficulty=new WeakMap();let speculativeEnabled=false,speculativeCooldown=0;
  // Only contemporaneous quality metrics; never treat them as identity evidence.
  function difficultyScore(regions,opticalDone,reading){
@@ -137,6 +146,17 @@
    if(Number.isFinite(latest.difficulty))lines.push('Difficulté estimée '+latest.difficulty+'/100');
    if(latest.cacheRequested)lines.push('Cache explicite demandé'+(latest.cacheFallback?' · repli sans cache':''));
    lines.push('Relectures anticipées réussies : '+samples.filter(x=>x.speculative).length);
+  }
+  const failures=requestOutcomes.filter(x=>x.status<200||x.status>=300);
+  const invalid=requestOutcomes.filter(x=>Object.values(x.fields).some(f=>['missing','unreadable','wrong_type','invalid_format'].includes(f.state)));
+  const reinforced=requestOutcomes.filter(x=>x.profile==='reinforced');
+  lines.push('Fiabilité : '+requestOutcomes.length+' requêtes · '+failures.length+' erreurs HTTP/transport · '+invalid.length+' lectures avec champ rejeté/manquant · '+reinforced.length+' secours renforcés');
+  const lastFailure=failures[failures.length-1],lastInvalid=invalid[invalid.length-1];
+  if(lastFailure)lines.push('Dernier échec : '+lastFailure.api+' · '+(lastFailure.status||'transport')+' · '+(lastFailure.reason||'non précisé')+' · '+fmt(lastFailure.ms));
+  if(lastInvalid)lines.push('Derniers champs rejetés : '+lastInvalid.api+' · '+Object.entries(lastInvalid.fields).filter(([,f])=>['missing','unreadable','wrong_type','invalid_format'].includes(f.state)).map(([k,f])=>k+' '+f.type+'/'+f.state).join(', '));
+  if(analysisOutcomes.length){
+   const ready=analysisOutcomes.filter(x=>x.ready),recovered=analysisOutcomes.filter(x=>x.recovered);
+   lines.push('Analyses terminées : '+ready.length+'/'+analysisOutcomes.length+' prêtes à valider (panier inclus) · '+recovered.filter(x=>x.ready).length+'/'+recovered.length+' après secours · médiane toutes analyses '+fmt(quantile(analysisOutcomes.map(x=>x.ms),.5)));
   }
   node.textContent=lines.join(' | ');
  }
@@ -1440,7 +1460,7 @@
   provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null,budgetMs=13000,experiment=null){
   const payload={type:'iu-gemini-label-test',model:selectedModel,provider,
    mimeType:'image/jpeg',imageBase64:encoded,budgetMs,
-   ...(Number.isSafeInteger(experiment?.difficulty)?{difficulty:experiment.difficulty}:{}),...(experiment?.speculative?{speculative:true}:{}),
+   ...(Number.isSafeInteger(experiment?.difficulty)?{difficulty:experiment.difficulty}:{}),...(experiment?.speculative?{speculative:true}:{}),...(experiment?.recovery?{recovery:true}:{}),...(experiment?.strongRecovery?{strongRecovery:true}:{}),
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
    ...(focusFields?.length?{focusFields}:{}),
@@ -1464,6 +1484,7 @@
    });
   }catch(error){
    if(signal.aborted||id!==generation||error?.name==='AbortError')throw error;
+   requestOutcome(0,Math.round(networkNow()-networkStart),null,'fetch');
    throw Error('Connexion interrompue · réessaie cette photo');
   }
   if(signal.aborted||id!==generation)
@@ -1474,10 +1495,12 @@
   catch(_){
    // Un refus réseau/CDN non JSON ne signifie pas qu'un chiffre est
    // illisible. Montrer le code HTTP sans exposer de données sensibles.
+   if(!signal.aborted&&id===generation)requestOutcome(response.ok?502:response.status,Math.round(networkNow()-networkStart),null,'http_json');
    throw Error('Réponse Cloudflare illisible (HTTP '+response.status+') · réessaie cette photo');
   }
+  if(signal.aborted||id!==generation)throw new DOMException('Analyse annulée','AbortError');
+  requestOutcome(response.status,Math.round(networkNow()-networkStart),result);
   if(response.ok){
-   if(signal.aborted||id!==generation)throw new DOMException('Analyse annulée','AbortError');
    transport?.observe(result);if(typeof result.speculativeEAN==='boolean')speculativeEnabled=result.speculativeEAN;
    const ms=Math.round(networkNow()-networkStart),parseMs=Math.round(networkNow()-parseStart);
    const protocol=packet.compressed?'gzip-binary':packet.contentType==='application/octet-stream'?'binary':'json';
@@ -1497,7 +1520,7 @@
   const diagnostic=String(result?.error||'');
   const unreadable=status===422||
    /Réponse Gemini non exploitable|Réponse Gemini incomplète|Réponse Gemini vide|limite de génération|JSON non reconnu/i.test(diagnostic);
-  if(unreadable){const e=Error('Étiquette non lue · réessaie cette photo');e.unreadable=true;throw e;}
+  if(unreadable){const e=Error('Étiquette non lue · réessaie cette photo');e.unreadable=true;e.hybridRecovery=result?.hybridRecovery===true;e.api=result?.api;throw e;}
   if(provider==='openai'&&diagnostic.includes('OPENAI_API_KEY'))
    throw Error('OpenAI non configuré sur Cloudflare · utilise Gemini en attendant');
   if([401,403].includes(status)||[401,403].includes(providerStatus))
@@ -1509,7 +1532,7 @@
   if(status===404||providerStatus===404)
    throw Error('Modèle '+(provider==='openai'?'OpenAI':'Gemini')+' indisponible');
   if(status===504||providerStatus===504){
-   const e=Error('Délai Gemini dépassé (504) · photo conservée');e.transient=true;e.timeout=true;e.networkStats=result?.networkStats||{stage:'timeout',attempts:1};throw e;
+   const e=Error('Délai Gemini dépassé (504) · photo conservée');e.transient=true;e.timeout=true;e.hybridRecovery=result?.hybridRecovery===true;e.api=result?.api;e.networkStats=result?.networkStats||{stage:'timeout',attempts:1};throw e;
   }
   if(status===503||providerStatus===503){
    const stats=result?.networkStats||{};
@@ -1685,7 +1708,7 @@
   const currentAbort=abort;
   const guard=setTimeout(()=>currentAbort.abort(),24000);
   const start=performance.now();
-  let advancedJob=null,speculativeJob=null,speculativeAbort=null,primarySettled=false;
+  let advancedJob=null,speculativeJob=null,speculativeAbort=null,primarySettled=false,analysisRecovered=false,analysisRecorded=false;
   const stopSpeculative=()=>speculativeAbort?.abort();
   currentAbort.signal.addEventListener('abort',stopSpeculative,{once:true});
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
@@ -1792,7 +1815,7 @@
      speculativeJob=track(task.catch(error=>{if(error?.transient||/quota|503|429/i.test(error?.message||''))speculativeCooldown=Date.now()+60000;return null;}));
     }).catch(()=>{});
    }
-   let received,usedComplementaryRead=false,recheckView=null;
+   let received,usedComplementaryRead=false,recheckView=null,complementaryDetail=null;
    try{received=await receivedTask;}
    catch(error){
     // A 422 is not a network failure. Try one DIFFERENT visual view,
@@ -1802,13 +1825,13 @@
     const firstEnhanced=firstDetail?.kind==='amélioré';
     recheckView=await chooseVisualDetail(firstEnhanced?normalView:enhancedView,
      firstEnhanced?enhancedView:normalView,deadline,until,safeDetail,firstDetail?.data||null);
-    if((!recheckView&&!error?.timeout)||id!==generation||currentAbort.signal.aborted)throw error;
-    usedComplementaryRead=true;
+    if((!recheckView&&!error?.timeout&&!(error?.hybridRecovery&&error?.api==='interactions'))||id!==generation||currentAbort.signal.aborted)throw error;
+    usedComplementaryRead=true;analysisRecovered=true;complementaryDetail=recheckView?.data||null;
     say(providerName+' · seconde vue préparée…');
     received=await requestGeminiWithRecovery(encoded,access,selectedModel,currentAbort.signal,id,targetField,selectedProvider,
      recheckView?.data||null,targetField?[targetField]:resumeFields?.length?resumeFields:null,
      catalogHints(oldResult,opticalReady),resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null,
-     Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))));
+     Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))),{difficulty,recovery:true,strongRecovery:true});
    }
    const firstResponseMs=Math.round(performance.now()-start);
    if(id!==generation)return;
@@ -1918,7 +1941,9 @@
     // not a second independent EAN verification. Keep that gate closed.
     combined={...combined,checks:{...combined.checks,recoveryInterrupted:true,recoveryInterruptedTargets:[...targets]}};
    }
-   if(resumeFields?.length||usedComplementaryRead)targets=[];
+   // A failed first response is never independent evidence. One final targeted read is allowed only after a real reinforced response.
+   const allowFinalRecovery=usedComplementaryRead&&received?.hybridRecovery===true&&received?.recoveryProfile==='reinforced'&&!targetField&&!resumeFields?.length&&performance.now()-start<=15500;
+   if(resumeFields?.length||(usedComplementaryRead&&!allowFinalRecovery))targets=[];
    if(targets.length){
     // The synthetic-trained OCR is an advisory observation only. Never fuse its mask into the primary reading.
     const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value,digitJob?.value,advancedJob?.value].filter(Boolean);
@@ -1930,6 +1955,7 @@
    let recoveryMs=0;
    if(targets.length!==1||targets[0]!=='ean')stopSpeculative();
    if(targets.length){
+    analysisRecovered=true;
     const recoveryStart=performance.now();
     // Une seule relecture de tous les champs problématiques sur cette
     // MEME photo. Ne pas perdre les valeurs fiables de la première.
@@ -1946,7 +1972,7 @@
      const onlyEAN=targets.every(k=>k==='ean'),onlyNumbers=targets.every(k=>['weight','rate','total'].includes(k));
      const focusedView=onlyEAN?focusEAN:onlyNumbers?focusNumbers:null;
      recheckView=await chooseVisualDetail(focusedView||(firstEnhanced?guidedView:enhancedView),
-      firstEnhanced?guidedView:enhancedView,detailEnd,until,safeDetail,firstDetail?.data||null);
+      firstEnhanced?guidedView:enhancedView,detailEnd,until,safeDetail,usedComplementaryRead?complementaryDetail:firstDetail?.data||null);
      if(performance.now()-start>18500)throw Error('Budget de relecture épuisé');
      // If the same picture is the only available detail, keep the useful
      // crop and existing focused prompt rather than sending no detail.
@@ -1956,14 +1982,14 @@
      // Reuse only a completed independent confirmation of the existing valid EAN.
      // Never introduce a new identity, override a conflict or skip a planned DIGI targeted read.
      const speculativeResult=speculativeJob?.done?speculativeJob.value:null;
-     const reuse=onlyEAN&&!combined.checks?.independentMismatch&&!combined.checks?.readingConflict&&!combined.checks?.digiConflict&&combined.digiRecovery?.kind!=='confirmation'&&!(combined.digiPlan?.positions?.length)&&readableValue('ean',combined.fields?.ean13)&&speculativeResult?.fields?.ean13===combined.fields.ean13;
+     const reuse=!usedComplementaryRead&&received?.hybridRecovery!==true&&onlyEAN&&!combined.checks?.independentMismatch&&!combined.checks?.readingConflict&&!combined.checks?.digiConflict&&combined.digiRecovery?.kind!=='confirmation'&&!(combined.digiPlan?.positions?.length)&&readableValue('ean',combined.fields?.ean13)&&speculativeResult?.fields?.ean13===combined.fields.ean13;
      stopSpeculative();
      const focused=reuse?speculativeResult:await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
       safeDetail(recheckView?.data),targets,
       catalogHints(combined,localBarcode),
       targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null,
-      Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))));
+      Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))),{difficulty,recovery:true,strongRecovery:targets.filter(k=>['weight','rate','total'].includes(k)&&!readableValue(k,combined.fields?.[fieldKeys[k]])).length>=2});
      if(id!==generation)return;
      combined=mergeRecoveredReading(combined,focused,targets);
      if(targets.includes('ean')){
@@ -1981,6 +2007,13 @@
      }
      combined=reconcileBarcode(combined,localBarcode);
      combined=applyCatalogRecovery(combined);
+     // Clear only the interruption created for this additional read, never a contradiction.
+     if(allowFinalRecovery){
+      const unresolved=targets.filter(k=>!readableValue(k,focused?.fields?.[fieldKeys[k]]));
+      const pending=[...new Set([...unresolved,...recoveryTargets(combined)])];
+      const conflict=combined.checks?.readingConflict||combined.checks?.independentMismatch||combined.checks?.digiConflict;
+      combined={...combined,checks:{...combined.checks,recoveryInterrupted:Boolean(conflict||pending.length),recoveryInterruptedTargets:conflict?targets:pending}};
+     }
     }catch(error){
      if(error?.name==='AbortError'&&id!==generation)throw error;
      // L'expiration globale de 24 s peut arriver pendant la SECONDE
@@ -2037,6 +2070,7 @@
    // L'utilisateur reste au même endroit, sans défilement forcé.
    // L'analyse prépare un brouillon uniquement : aucun enregistrement implicite.
    const saveReady=Boolean(validationState());
+   addDiagnostic(analysisOutcomes,{ready:saveReady,recovered:analysisRecovered,ms:Math.round(performance.now()-start)});analysisRecorded=true;
    const usedLegacyGemini=selectedProvider==='openai'&&!String(received?.model||'').startsWith('gpt-');
    say(usedLegacyGemini?'Lecture faite par Gemini · Worker Cloudflare à mettre à jour'
     :saveReady?'Étiquette prête':('Lecture à vérifier · '+(lastReadProblem||'change de panier si nécessaire')),
@@ -2069,6 +2103,7 @@
   }finally{
    clearTimeout(guard);stopSpeculative();currentAbort.signal.removeEventListener('abort',stopSpeculative);
    if(id===generation){
+    if(!analysisRecorded)addDiagnostic(analysisOutcomes,{ready:false,recovered:analysisRecovered,ms:Math.round(performance.now()-start)});
     active=false;abort=null;setAnalysisCameraClosed(false);
     updateButton();validationState();refreshRepairPanel();
     if(lastRawResult?.digiRecovery?.kind==='confirmation'&&

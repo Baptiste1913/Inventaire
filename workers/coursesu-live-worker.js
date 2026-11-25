@@ -248,6 +248,20 @@ function mediaBody(body,plan){
   return {...p,mediaResolution:{level:'MEDIA_RESOLUTION_'+level.toUpperCase()}};
  })}))};
 }
+// Only metadata; never retain label values or provider error text.
+function fieldDiagnostics(raw,parsed,focusFields){
+ const map={name:'name',weightKg:'weight',pricePerKgEur:'rate',totalEur:'total',ean13:'ean',eanObserved:'ean'};
+ return Object.fromEntries(Object.entries(map).map(([key,kind])=>{
+  const present=Object.prototype.hasOwnProperty.call(raw,key),v=raw[key];
+  const type=!present?'absent':v===null?'null':Array.isArray(v)?'array':typeof v;
+  const expected=!focusFields.length||focusFields.includes(kind);
+  const state=!expected?'not_requested':!present?'missing':v===null?'unreadable':type!=='string'?'wrong_type':parsed[key]==null?'invalid_format':'accepted';
+  return [key,{type,state}];
+ }));
+}
+function hybridEnabled(env,model){
+ return env.GEMINI_HYBRID_RECOVERY!=='false'&&env.GEMINI_API_MODE==='interactions'&&routingMode(env,model)==='developer'&&!env.GEMINI_DIGI_CACHE;
+}
 function usageOf(data){
  const usage=data?.usageMetadata||{},out={};
  for(const k of ['promptTokenCount','candidatesTokenCount','thoughtsTokenCount','cachedContentTokenCount','totalTokenCount'])if(Number.isSafeInteger(usage[k])&&usage[k]>=0)out[k]=usage[k];
@@ -408,7 +422,7 @@ async function geminiPilot(request,env,origin){
  const cancel=()=>abort.abort();
  if(incomingSignal?.aborted)cancel();else incomingSignal?.addEventListener('abort',cancel,{once:true});
  const started=Date.now();
- let providerAnswered=false,networkStats={attempts:0,retries:0,upstream503:0,waitMs:0,stage:'google_http'};
+ let providerAnswered=false,networkStats={attempts:0,retries:0,upstream503:0,waitMs:0,stage:'google_http'},diagnosticMeta={},failureStage='upstream';
  try{
 
   let extracted;
@@ -416,17 +430,20 @@ async function geminiPilot(request,env,origin){
   if(detail)imageParts.push(
    {text:'Image 2 : détail de la MEME photo (étiquette entière, code-barres ou zone numérique). Utilise la première image pour situer les champs et le détail pour relire les pixels.'},
    {inline_data:{mime_type:'image/jpeg',data:detail}});
-  const delimited=env.GEMINI_OUTPUT_FORMAT==='delimited';
-  const compact=!delimited&&env.GEMINI_COMPACT_JSON==='true';
+  const hybridRecovery=hybridEnabled(env,model);
+  const reinforced=hybridRecovery&&!speculative&&(payload.recovery===true||focusFields.length>0);
+  const recoveryProfile=reinforced?'reinforced':'normal';
+  const delimited=!reinforced&&env.GEMINI_OUTPUT_FORMAT==='delimited';
+  const compact=!reinforced&&!delimited&&env.GEMINI_COMPACT_JSON==='true';
   const format=delimited?'delimited':compact?'compact':'json';
-  const streaming=env.GEMINI_STREAM==='true';
+  const streaming=!reinforced&&env.GEMINI_STREAM==='true';
   const adaptive=env.GEMINI_ADAPTIVE_THINKING==='true';
-  const thinkingLevel=!speculative&&((focusFields.length&&env.GEMINI_RECOVERY_THINKING==='low')||(adaptive&&difficulty!==null&&difficulty>=75))?'LOW':'MINIMAL';
+  const thinkingLevel=reinforced?(payload.strongRecovery===true||env.GEMINI_RECOVERY_THINKING==='low'||(difficulty!==null&&difficulty>=75)?'LOW':'MINIMAL'):!speculative&&((focusFields.length&&env.GEMINI_RECOVERY_THINKING==='low')||(adaptive&&difficulty!==null&&difficulty>=75))?'LOW':'MINIMAL';
   // Preserve the literal production prompt; compact is an explicit experiment.
   const mode=routingMode(env,model);
   const cache=configuredCache(env,mode,format);
   const effectivePrompt=delimited?prompt.replace('Retourne seulement un objet JSON avec les six propriétés exactes.','Retourne UNE ligne sans titre ni guillemets, exactement six champs séparés par ; dans cet ordre : name;weightKg;pricePerKgEur;totalEur;ean13;eanObserved. Remplace chaque champ inconnu ou non ciblé par ? et conserve sa position. Aucun autre texte.'):compact?prompt+' Utilise les clés JSON courtes suivantes à la place des clés longues : '+JSON.stringify(compactKeys)+'.':prompt;
-  const temperature=temperatureOption(env),maxOutputTokens=outputLimit(env,format,thinkingLevel);
+  const temperature=reinforced?0:temperatureOption(env),maxOutputTokens=reinforced?1024:outputLimit(env,format,thinkingLevel);
   const generationConfig={...(temperature===null?{}:{temperature}),maxOutputTokens,responseMimeType:delimited?'text/plain':'application/json',...(delimited?{}:{responseSchema:compact?compactSchema:responseSchema}),thinkingConfig:{thinkingLevel}};
   const body={contents:[{role:'user',parts:[{text:effectivePrompt},...imageParts]}],generationConfig};
   // Explicit cache is opt-in; the immutable original prompt stays available for fallback.
@@ -435,8 +452,8 @@ async function geminiPilot(request,env,origin){
   const vertex=vertexEndpoint(env,model);
   const method=streaming?':streamGenerateContent?alt=sse':':generateContent';
   // Keep experiments independent from optional legacy Vertex/cache/racing paths.
-  const plan=mode==='developer'&&!cache?visualPlan(env,difficulty,focusFields,Boolean(detail)):null;
-  const useInteractions=mode==='developer'&&!cache&&env.GEMINI_API_MODE==='interactions';
+  const plan=reinforced?{main:'high',detail:detail?(env.GEMINI_DETAIL_RESOLUTION==='ultra_high'?'ultra_high':'high'):null}:mode==='developer'&&!cache?visualPlan(env,difficulty,focusFields,Boolean(detail)):null;
+  const useInteractions=!reinforced&&mode==='developer'&&!cache&&env.GEMINI_API_MODE==='interactions';
   const experimentAPI=useInteractions?'interactions':plan?'generateContent-alpha':'generateContent';
   const serialized=JSON.stringify(body);
   const preparationMs=Date.now()-validationStarted,upstreamStarted=Date.now();
@@ -529,10 +546,11 @@ async function geminiPilot(request,env,origin){
   const processingStarted=Date.now();
   const googleMeta={requestedTier:'standard',sentTier:'standard',serviceTier:res?.headers?.get('x-gemini-service-tier')==='standard'?'standard':'unknown',
    inferenceRoute:selected.route,routingMode:mode,hedgeStarted,hedgeWinner,thinkingLevel,compact,streaming:streaming&&selected.api!=='interactions',api:selected.api,apiFallback:selected.apiFallback,mediaRequested:plan,media: selected.media,maxOutputTokens,temperature:selected.api==='interactions'?'default':temperature===null?'default':temperature,
-   firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data),format,difficulty,speculative,cacheRequested:Boolean(cache),cacheFallback:selected.cacheFallback===true,speculativeEAN:speculativeEnabled(env)};
+   firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data),format,difficulty,speculative,cacheRequested:Boolean(cache),cacheFallback:selected.cacheFallback===true,speculativeEAN:speculativeEnabled(env),hybridRecovery,recoveryProfile};
+  diagnosticMeta={...googleMeta,elapsedMs:Date.now()-started,serverTimings:{ingressMs,preparationMs,upstreamMs,responseMs,routingWallMs}};
   if(!res){
    const status=abort.signal.aborted||networkStats.stage==='timeout'?504:503;
-   return reply({...closed,provider,model,networkStats,error:networkStats.stage==='circuit_open'?
+   return reply({...closed,...diagnosticMeta,provider,model,networkStats,failureStage:networkStats.stage||'upstream',error:networkStats.stage==='circuit_open'?
     'Gemini en récupération temporaire.':status===504?'Délai Gemini dépassé.':'Liaison Cloudflare–Gemini indisponible.'},status,origin);
   }
   if(!res.ok){
@@ -546,9 +564,9 @@ async function geminiPilot(request,env,origin){
    // Ne pas transformer un refus d’accès/quota en fausse panne HTTP 502.
    const outputStatus=status===429?429:[401,403].includes(status)?403
     :status===404?404:status===400?400:status===504?504:[500,502,503].includes(status)?503:502;
-   return reply({...closed,error:diagnostic,providerStatus:status,model,networkStats},outputStatus,origin);
+   return reply({...closed,...diagnosticMeta,error:diagnostic,providerStatus:status,model,networkStats,failureStage:'provider_http'},outputStatus,origin);
   }
-  providerAnswered=true;
+  providerAnswered=true;failureStage='provider_body';
   if(selected.bodyError||!selected.data)throw Error('Réponse incomplète');
   const data=selected.data;
   const candidate=data?.candidates?.[0];
@@ -556,26 +574,28 @@ async function geminiPilot(request,env,origin){
   // interprétée comme une étiquette fiable, même si le JSON est partiel.
   if(candidate?.finishReason==='MAX_TOKENS')
    return reply({...closed,error:'Réponse Gemini incomplète (limite de génération). Recadrez l’étiquette et réessayez.',
-    model},422,origin);
+    ...diagnosticMeta,failureStage:'max_tokens',model},422,origin);
+  if(candidate?.finishReason&&candidate.finishReason!=='STOP')return reply({...closed,...diagnosticMeta,model,failureStage:'finish_reason',error:'Réponse Gemini incomplète.'},422,origin);
   const parts=candidate?.content?.parts||[];
   const answer=parts.filter(p=>!p?.thought&&typeof p?.text==='string').map(p=>p.text).join('');
   if(!answer.trim())
    return reply({...closed,error:'Réponse Gemini vide. Centrez l’étiquette et réessayez.',
-    model},422,origin);
+    ...diagnosticMeta,failureStage:'empty_output',model},422,origin);
   if(answer.length>5000)throw Error('Réponse trop longue');
   // Certaines réponses textuelles conservent des balises Markdown malgré
   // responseMimeType. Accepter le JSON strict puis, à défaut, le bloc JSON.
+  failureStage='output_parse';
   if(delimited)extracted=parseDelimited(answer);
   else try{extracted=JSON.parse(answer)}
   catch(_){
    const match=answer.trim().match(/^(?:```(?:json)?\s*)?(\{[\s\S]*\})(?:\s*```)?$/i);
    if(!match)
     return reply({...closed,error:'Réponse Gemini non exploitable. Recadrez l’étiquette et réessayez.',
-     model},422,origin);
+     ...diagnosticMeta,failureStage:'output_parse',model},422,origin);
    try{extracted=JSON.parse(match[1])}
    catch(_){
     return reply({...closed,error:'Réponse Gemini incomplète. Recadrez l’étiquette et réessayez.',
-     model},422,origin);
+     ...diagnosticMeta,failureStage:'output_parse',model},422,origin);
    }
   }
   extracted=expandReading(extracted,compact);
@@ -604,6 +624,7 @@ async function geminiPilot(request,env,origin){
    serverTimings:{ingressMs,preparationMs,upstreamMs,responseMs,routingWallMs,processingMs:Date.now()-processingStarted},
    fields:{name:geminiLabName(extracted.name),weightGrams,pricePerKgCents,totalCents,ean13},
    eanObserved,contextCandidates:catalogCandidates.length,
+   fieldDiagnostics:fieldDiagnostics(extracted,{name:geminiLabName(extracted.name),weightKg:weightGrams,pricePerKgEur:pricePerKgCents,totalEur:totalCents,ean13,eanObserved},focusFields),
    checks:{arithmeticConsistent:coherent,eanChecksumValid:ean13!==null,
     barcodePriceConsistent},
    verifiedForInventory:false,warning:'Données indicatives : vérifier visuellement chaque chiffre avant toute utilisation.'},
@@ -613,7 +634,7 @@ async function geminiPilot(request,env,origin){
   const label='Gemini';
   const message=abort.signal.aborted?'Délai '+label+' dépassé.'
    :providerAnswered?'Réponse '+label+' non exploitable.':'Service '+label+' indisponible.';
-  return reply({...closed,provider,error:message,model,networkStats},status,origin);
+  return reply({...closed,...diagnosticMeta,provider,error:message,model,networkStats,failureStage:abort.signal.aborted?'timeout':failureStage},status,origin);
  }finally{clearTimeout(timeout);incomingSignal?.removeEventListener('abort',cancel);}
 }
 
