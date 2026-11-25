@@ -16,6 +16,26 @@
  const $=id=>document.getElementById(id);
  const main=$('iuUpdateButton'),secondary=$('iuUpdateReload');if(!main)return;
  const ADMIN=$('planningAdminCard');
+ // Footer reports the installed HTML build, not the latest remote release.
+ // Reuse the protected admin route; never expose it to local/guest users.
+ const footerVersion=$('iuFooterVersion'),footerVersionText=$('iuFooterVersionText');
+ if(footerVersion&&footerVersionText){
+  footerVersionText.textContent='v'+VERSION;
+  const canOpen=()=>Boolean(ADMIN&&!ADMIN.hidden&&ADMIN.dataset.adminLoading==='false'&&!$('iuAdminProtectedBody')?.inert&&typeof window.IUOpenAdminPage==='function');
+  const refreshFooterVersion=()=>{
+   const allowed=canOpen();
+   footerVersion.disabled=!allowed;
+   footerVersion.setAttribute('aria-label','Version installée '+VERSION+(allowed?' · Ouvrir le gestionnaire de mises à jour':''));
+  };
+  refreshFooterVersion();
+  footerVersion.addEventListener('click',()=>{if(canOpen())window.IUOpenAdminPage();});
+  if(ADMIN){
+   const footerAccessObserver=new MutationObserver(refreshFooterVersion);
+   footerAccessObserver.observe(ADMIN,{attributes:true,attributeFilter:['hidden','data-admin-loading']});
+   const body=$('iuAdminProtectedBody');
+   if(body)footerAccessObserver.observe(body,{attributes:true,attributeFilter:['inert']});
+  }
+ }
  let busy=false, knownPublished='', notes='', ready=false, lastChecked='', publication='',reg=null, state='idle';
  const log=type=>window.IUTechnicalLog?.(type);
  const sessionSafe=()=>window.IUCanSafelyUpdate?.()===true;

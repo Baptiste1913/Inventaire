@@ -1,0 +1,157 @@
+/* Inventaires U v43.23 — Signature d'accueil, indépendante des cartes. */
+.app > footer.iu-app-footer {
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 22px 12px 15px;
+  text-align: left;
+  color: #435a68;
+  background: radial-gradient(ellipse at 50% 35%, rgba(157,185,202,.13) 0%, rgba(183,206,219,.05) 48%, transparent 76%);
+  border: 0;
+  box-shadow: none;
+  font-family: inherit;
+}
+.app > footer.iu-app-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(125,155,172,.55) 50%, transparent);
+  pointer-events: none;
+}
+.iu-app-footer .iu-footer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.iu-app-footer .iu-footer-logo {
+  box-sizing: border-box;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  border: 1px solid rgba(144,169,183,.25);
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(233,241,246,.70));
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 3px 10px rgba(69,95,110,.07);
+}
+.iu-app-footer .iu-footer-logo img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+.iu-app-footer .iu-footer-brand {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+.iu-app-footer .iu-footer-brand strong {
+  font-size: 19px;
+  font-weight: 760;
+  letter-spacing: -.65px;
+  color: #23343f;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.iu-app-footer .iu-footer-brand > span {
+  font-size: 11px;
+  font-weight: 500;
+  color: #657d8c;
+  line-height: 1.35;
+}
+.iu-app-footer button.iu-footer-version {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: auto;
+  min-width: 57px;
+  min-height: 30px;
+  margin: 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(140,164,179,.24);
+  border-radius: 999px;
+  background: linear-gradient(150deg, #f2f6f8, #e3ebf0);
+  color: #465f6e;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 2px 6px rgba(72,102,119,.06);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease;
+}
+.iu-app-footer button.iu-footer-version:disabled {
+  opacity: 1;
+  cursor: default;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9);
+}
+.iu-app-footer button.iu-footer-version:disabled svg { display: none; }
+.iu-app-footer .iu-footer-version svg { flex: 0 0 13px; width: 13px; height: 13px; }
+.iu-app-footer button.iu-footer-version:not(:disabled):active { transform: scale(.96); }
+.iu-app-footer button.iu-footer-version:focus-visible { outline: 2px solid #546f7d; outline-offset: 3px; }
+.iu-app-footer .iu-footer-credits {
+  display: grid;
+  grid-template-columns: minmax(0,1.12fr) minmax(0,1fr);
+  gap: 10px;
+  padding-top: 13px;
+  margin-top: 13px;
+  border-top: 1px solid rgba(149,174,189,.25);
+}
+.iu-app-footer .iu-footer-credits > div {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+.iu-app-footer .iu-footer-credits span {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #657d8c;
+  overflow-wrap: break-word;
+}
+.iu-app-footer .iu-footer-credits strong {
+  color: #435a68;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 650;
+  overflow-wrap: break-word;
+}
+.iu-app-footer .iu-footer-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 17px 0 0;
+  color: #657d8c;
+  font-size: 10px;
+  font-weight: 450;
+  line-height: 1.45;
+  text-align: center;
+}
+.iu-app-footer .iu-footer-legal svg { flex: 0 0 13px; width: 13px; height: 13px; }
+.iu-app-footer .iu-footer-legal span { min-width: 0; overflow-wrap: break-word; }
+@media(max-width: 350px) {
+  .app > footer.iu-app-footer { padding-inline: 5px; }
+  .iu-app-footer .iu-footer-brand-row { gap: 8px; }
+  .iu-app-footer .iu-footer-logo { flex-basis: 40px; width: 40px; height: 40px; }
+  .iu-app-footer .iu-footer-brand strong { font-size: 17px; }
+  .iu-app-footer .iu-footer-credits { gap: 8px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .iu-app-footer button.iu-footer-version { transition: none; }
+}

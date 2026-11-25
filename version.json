@@ -1,6 +1,6 @@
 {
-  "version": "43.22",
+  "version": "43.23",
   "published": "2026-11-25",
-  "assets": 110,
-  "notes": "Calculateur DIGI : ensemble borné de variantes EAN, comparaison optique par code, positions discriminantes prioritaires, propositions de poids par intervalle exact, départage de deux lectures de poids à 50 g maximum avec EAN 02 corroboré et montant imprimé. Aucune valeur estimée enregistrée automatiquement, contrôles prix et identité conservés. Worker Cloudflare v43.20 à redéployer si nécessaire."
+  "assets": 111,
+  "notes": "Refonte du pied de page : logo U, identité Inventaires U Fruits & Légumes, version installée interactive pour les administrateurs, crédits réorganisés, séparation dégradée et halo discret. Mention de stockage local retirée. Reconnaissance AI, calculateur DIGI et Worker inchangés."
 }
