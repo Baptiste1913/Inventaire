@@ -649,16 +649,14 @@
   const ean=String(f.ean13||'');
   if(!/^\d{13}$/.test(ean)||eanCheck(ean.slice(0,12))!==ean[12])
    return {error:'EAN complet non reconnu ou clé EAN incorrecte.'};
-  // Un préfixe unique n'est pas une preuve suffisante du libellé imprimé.
-  const catalog=window.IUDigiCatalogLookup,digi=catalog?.resolve(ean);
+  const identity=fusedIdentity(result),digi=identity?.record;
   if(!digi?.ok)return {error:'Catalogue DIGI · '+(digi?.reason||
    'module indisponible sur cet appareil')};
-  const printed=result?.printedName||f.name;
-  const identity=catalog.identityEvidence(printed,ean);
-  if(identity.status==='conflict'||[result?.printedName,f.name].some(name=>catalog.nameIdentityConflict(name,digi.eanPrefix)))
-   return {error:'Article contradictoire : nom imprimé et EAN différents.'};
-  if(identity.status!=='confirmed'||catalog.identityEvidence(f.name,ean).status!=='confirmed')
-   return {error:'Article à vérifier : libellé imprimé non confirmé par le catalogue DIGI.'};
+  if(identity.status==='conflict')return {error:'Article contradictoire : nom imprimé et EAN différents.'};
+  if(!identity.ok)return {error:'Article à vérifier : identité non confirmée.'};
+  if(result?.guidedEAN&&!verifiedIdentityEAN(result)&&
+     !(result.guidedPrefixVerified&&identity.source==='gemini-digi'))
+   return {error:'EAN complet à confirmer indépendamment.'};
   if(Math.abs(Math.round(grams*rate/1000)-total)>1)
    return {error:'Calcul prix × poids incohérent.'};
   if(checks.independentMismatch===true)
@@ -696,6 +694,22 @@
   return window.IUGeminiLabelGeometry?.barcodeWithinLabel?.(
    reading,reading.labelRect)===true;
  }
+ function verifiedIdentityEAN(result){
+  const ean=result?.fields?.ean13;
+  if(!ean||!window.IUDigiCatalogLookup?.eanValid(ean))return false;
+  if(result?.checks?.independentMismatch||result?.checks?.readingConflict||localBarcode?.ambiguous)return false;
+  if(trustedBarcodeEvidence(localBarcode)&&localBarcode.ean13===ean)return true;
+  if(result?.manualEANVerified===ean)return true;
+  if(result?.digiRecovery?.kind==='confirmed'&&result.digiRecovery.confirmedByUser===true)return true;
+  if(result?.digiRecovery?.kind==='reconstructed'&&result.digiRecovery.prefixDigits===7&&!result.weakEANSupplement&&!result.guidedEAN)return true;
+  return result?.checks?.eanRechecked===true&&!result.guidedEAN;
+ }
+ function fusedIdentity(result){
+  return window.IUDigiCatalogLookup?.fuseIdentity({
+   ean:result?.fields?.ean13,printedName:result?.printedName,
+   fieldName:result?.fields?.name,eanVerified:verifiedIdentityEAN(result)
+  });
+ }
  function reconcileBarcode(result,reading){
   const fields={...(result?.fields||{})},checks={...(result?.checks||{})};
   const incoming=String(fields.ean13||'');
@@ -716,6 +730,8 @@
   if(!catalog?.candidates)return [];
   const eanObserved=String(trustedBarcodeEvidence(reading)?reading.ean13:
    result?.eanObserved||result?.fields?.ean13||'');
+  // A complete EAN must be reread blind.
+  if(window.IUDigiCatalogLookup?.eanValid(eanObserved))return [];
   const name=String(result?.fields?.name||'');
   const guide=result&&!trustedBarcodeEvidence(reading)?result.digiPlan||catalog.recheckPlan?.(result):null;
   return (guide?.candidates?.length?guide.candidates:catalog.candidates({eanObserved,name,limit:5}))
@@ -851,6 +867,7 @@
   const evidence=kind==='total'?null:lastRawResult.recoveryProvenance;
   const next=applyCatalogRecovery({...lastRawResult,fields,
    ...(kind==='name'?{printedName:value,initialPrintedName:lastRawResult.initialPrintedName||lastRawResult.printedName||null}:{}),
+   ...(kind==='ean'?{manualEANVerified:value,guidedEAN:false,guidedPrefixVerified:false}:{}),
    checks:fieldsChecks(fields),
    digiRecovery:null,recoveryProvenance:evidence,
    eanObserved:kind==='ean'?value:lastRawResult.eanObserved,source:'manual'});
@@ -1373,19 +1390,19 @@
   add(top,'span','iu-gemini-label-address','10120 ST GERMAIN');
   const digiMatch=window.IUDigiCatalogLookup?.resolve(String(fields.ean13||''));
   const printed=String(result?.printedName||fields.name||'').trim().slice(0,120);
-  const identity=window.IUDigiCatalogLookup?.identityEvidence(printed,String(fields.ean13||''));
-  const confirmed=identity?.status==='confirmed'&&window.IUDigiCatalogLookup?.identityEvidence(fields.name,String(fields.ean13||'')).status==='confirmed';
-  const name=confirmed?digiMatch.name:printed||'ARTICLE NON IDENTIFIÉ';
+  const identity=fusedIdentity(result);
+  const confirmed=identity?.ok===true;
+  const name=confirmed?digiMatch.name:printed||(digiMatch?.ok?'ARTICLE À CONFIRMER':'ARTICLE NON IDENTIFIÉ');
   const nameNode=add(label,'div','iu-gemini-label-name',name);
   if(!confirmed){
-   const detail=digiMatch?.ok?'Catalogue DIGI : '+digiMatch.name:
+   const detail=digiMatch?.ok?'Hypothèse DIGI : '+digiMatch.name:
     digiMatch?.status==='unknown'?'Article absent du catalogue DIGI':'Identité non confirmée';
    const info='Nom lu : '+(printed||'—')+' · '+detail;
    nameNode.title=info;
    label.setAttribute('aria-label',info);
    add(label,'small','iu-gemini-label-caption',detail);
   }else if(digiMatch?.ok){
-   nameNode.title='Catalogue DIGI · PLU '+digiMatch.plu;
+   nameNode.title=(identity.source==='digi-verified-ean'?'Identité DIGI par EAN vérifié':'Gemini + DIGI concordants')+' · PLU '+digiMatch.plu;
    label.setAttribute('aria-label','Étiquette virtuelle · '+digiMatch.name+
     ' · PLU '+digiMatch.plu+' · à comparer à la photo');
   }
@@ -1433,7 +1450,7 @@
   }else{
    const usedModel=String(result?.model||fixedModel);
    const usedProvider=usedModel.startsWith('gpt-')?'OpenAI':'Gemini';
-   networkTime.textContent=usedProvider+' · lecture principale : '+(Number(result.elapsedMs)/1000).toFixed(2)+' s'
+   networkTime.textContent=usedProvider+' · lecture principale : '+(Number.isFinite(result.elapsedMs)?(result.elapsedMs/1000).toFixed(2)+' s':'non disponible')
     +' · photo + réseau : '+(wallMs/1000).toFixed(2)+' s'
     +(Number.isFinite(result.clientNetworkMs)?' · échange '+(result.clientNetworkMs/1000).toFixed(2)+' s':'')
     +(result.networkStats?.retries?' · '+result.networkStats.retries+' réessai(s) 503':'')
@@ -1451,7 +1468,7 @@
     +(result.digiPlan?.ranges?.rate?' · plage tarif '+result.digiPlan.ranges.rate.min+'–'+result.digiPlan.ranges.rate.max+' ct/kg':'')
     +(Number.isFinite(result.clientPayloadBytes)?' · '+Math.round(result.clientPayloadBytes/1024)+' Kio '+(result.clientTransport||''):'')
     +' · modèle '+usedModel
-    +(result.pipelineVersion===2?' · lecture renforcée':' · Worker Cloudflare à actualiser')
+    +(result.pipelineVersion===2?' · lecture renforcée':result.pipelineVersion!=null?' · Worker Cloudflare à actualiser':'')
     +(result.transport==='binary-v1'?'':' · transport amélioré : Worker à actualiser')
     +(result?.digiRecovery?.kind==='reconstructed'?' · EAN récupéré par DIGI'
       :result?.digiRecovery?.kind==='confirmed'?' · article confirmé'
@@ -1498,8 +1515,9 @@
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
    ...(focusFields?.length?{focusFields}:{}),
-   // Aucune suggestion d'identité n'est transmise à Gemini : les candidats
-   // DIGI restent locaux. Les positions de relecture EAN restent disponibles.
+   // First and name reads stay blind; EAN-only recovery may use hints.
+   ...((focusField==='ean'||(!focusField&&focusFields?.length===1&&focusFields[0]==='ean'))&&catalogCandidates?.length?
+    {catalogCandidates:catalogCandidates.slice(0,5)}:{}),
    ...(digiPositions?.length?{digiPositions:digiPositions.slice(0,13)}:{})};
   const transport=typeof window!=='undefined'?window.IUGeminiTransport:null;
   const networkNow=()=>typeof performance!=='undefined'?performance.now():Date.now();
@@ -1520,7 +1538,8 @@
   }catch(error){
    if(signal.aborted||id!==generation||error?.name==='AbortError')throw error;
    requestOutcome(0,Math.round(networkNow()-networkStart),null,'fetch');
-   throw Error('Connexion interrompue · réessaie cette photo');
+   const e=Error('Connexion interrompue · réessaie cette photo');
+   e.transient=true;e.networkStats={stage:'fetch',attempts:0};throw e;
   }
   if(signal.aborted||id!==generation)
    throw new DOMException('Analyse annulée','AbortError');
@@ -1546,7 +1565,7 @@
     if(networkSamples.length>100)networkSamples.shift();
     renderNetworkDiagnostic();
    }catch(_){}
-   return {...result,clientNetworkMs:ms,
+   return {...result,catalogGuided:Boolean(payload.catalogCandidates?.length),clientNetworkMs:ms,
     clientPayloadBytes:packet.size??null,clientTransport:protocol,
     requestTimings:[{packetMs,headersMs,parseMs,workerMs:Number.isFinite(result.elapsedMs)?result.elapsedMs:null,server:result.serverTimings||null,tier,requested}]};
   }
@@ -1591,13 +1610,21 @@
  }
  function recoveryTargets(result){
   const f=result?.fields||{},checks=fieldsChecks(f),targets=[];
+  const identity=fusedIdentity(result),hasEAN=readableValue('ean',f.ean13);
   for(const [kind,key] of Object.entries(fieldKeys)){
+   if(kind==='name'){
+    if(!identity?.ok&&(!hasEAN||!identity?.record?.ok||
+       identity.status==='conflict'||(readableValue('name',f.name)&&window.IUDigiCatalogLookup?.identityEvidence(f.name,f.ean13).status==='uncertain')))targets.push('name');
+    continue;
+   }
    if(!readableValue(kind,f[key]))targets.push(kind);
   }
-  if(readableValue('ean',f.ean13)){
-   const ref=window.IUDigiCatalogLookup?.resolve(f.ean13);
-   if(ref?.status==='unknown')targets.push('ean');
-   if(ref?.ok&&window.IUDigiCatalogLookup.identityEvidence(result?.printedName||f.name,f.ean13).status!=='confirmed')targets.push('name');
+  if(hasEAN){
+   const ref=identity?.record;
+   if(ref?.status==='unknown'&&!verifiedIdentityEAN(result))targets.push('ean');
+   if(ref?.ok&&!identity?.ok&&!verifiedIdentityEAN(result))targets.push('ean');
+   if(ref?.ok&&!identity?.ok&&verifiedIdentityEAN(result))targets.push('name');
+   if(result?.guidedEAN&&!verifiedIdentityEAN(result)&&!result.guidedPrefixVerified)targets.push('ean');
   }
   const allAmounts=['weight','rate','total'].every(k=>readableValue(k,f[fieldKeys[k]]));
   if(allAmounts&&!checks.arithmeticConsistent)targets.push('weight','rate','total');
@@ -1617,9 +1644,8 @@
   // deuxième lecture Gemini vérifie ces 13 chiffres sans nouvelle photo.
   // Un EAN contradictoire bloque l'enregistrement au lieu de choisir
   // arbitrairement une lecture cohérente par hasard.
-  if(!trustedBarcodeEvidence(localBarcode)&&readableValue('ean',f.ean13)&&
-     result?.digiRecovery?.kind!=='reconstructed'&&result?.digiRecovery?.kind!=='confirmed'&&
-     result?.checks?.eanRechecked!==true)
+  if(!verifiedIdentityEAN(result)&&readableValue('ean',f.ean13)&&
+     !(result?.guidedEAN&&result.guidedPrefixVerified&&identity?.source==='gemini-digi'))
    targets.push('ean');
   return [...new Set(targets)];
  }
@@ -1663,6 +1689,7 @@
   const fields={...(original?.fields||{})};
   let conflict=false,opticallyConfirmed=false,eanRechecked=false,nameRechecked=false;
   let recovery=original?.digiRecovery,observed=original?.eanObserved;
+  let guidedEAN=Boolean(original?.guidedEAN),guidedPrefixVerified=Boolean(original?.guidedPrefixVerified);
   let provenance=original?.recoveryProvenance;
   for(const kind of targets){
    const key=fieldKeys[kind],next=recheck?.fields?.[key];
@@ -1670,7 +1697,12 @@
    const current=fields[key];
    if(!readableValue(kind,current)){
     fields[key]=next;
-    if(kind==='ean'){observed=next;eanRechecked=true;recovery=null;}
+    if(kind==='ean'){
+     const prior=window.IUDigiCatalogLookup?.observedPattern(observed)||'';
+     guidedEAN=recheck?.catalogGuided===true;
+     guidedPrefixVerified=Boolean(guidedEAN&&/^\d{7}/.test(prior)&&[...prior].every((d,i)=>d==='?'||d===next[i]));
+     observed=next;recovery=null;eanRechecked=false;
+    }
     continue;
    }
    if(kind==='total'&&(recovery?.sources?.total==='calculated'||provenance?.total==='calculated')&&
@@ -1680,27 +1712,30 @@
     continue;
    }
    if(current===next){
-    if(kind==='ean'){observed=next;eanRechecked=true;}
+    if(kind==='ean'){observed=next;eanRechecked=!recheck?.catalogGuided&&!guidedEAN;}
     continue;
    }
    // Une première proposition DIGI ne doit jamais battre un code
    // réellement relu, ni un nom officiel relu sur l'étiquette.
-   if(kind==='name'&&window.IUDigiCatalogLookup?.normalizeName(current)===window.IUDigiCatalogLookup?.normalizeName(next)){
-    // Seules deux lectures équivalentes sont fusionnées. La concordance
-    // avec le catalogue ne départage jamais deux noms différents.
-    nameRechecked=true;continue;
+   if(kind==='name'){
+    const cat=window.IUDigiCatalogLookup,first=cat?.identityEvidence(current,fields.ean13),second=cat?.identityEvidence(next,fields.ean13);
+    if(cat?.normalizeName(current)===cat?.normalizeName(next)||
+       (['confirmed','compatible'].includes(first?.status)&&['confirmed','compatible'].includes(second?.status)&&cat?.compatibleName(current,next))){
+     if(second?.status==='confirmed')fields[key]=next;
+     nameRechecked=true;continue;
+    }
    }
    // Remplacer un EAN seulement si la seconde lecture Gemini ET le
    // décodeur optique indépendant confirment les mêmes 13 chiffres.
    if(kind==='ean'&&trustedBarcodeEvidence(localBarcode)&&
       localBarcode.ean13===next){
-    fields[key]=next;opticallyConfirmed=true;observed=next;eanRechecked=true;recovery=null;
+    fields[key]=next;opticallyConfirmed=true;observed=next;eanRechecked=true;recovery=null;guidedEAN=false;guidedPrefixVerified=false;
    }else{
     // Deux lectures contradictoires ne deviennent pas vraies par un calcul.
     conflict=true;
    }
   }
-  return {...original,fields,printedName:original?.printedName||original?.fields?.name||recheck?.fields?.name||null,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,source:'gemini-recovery',
+  return {...original,fields,printedName:original?.printedName||original?.fields?.name||recheck?.fields?.name||null,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,guidedEAN,guidedPrefixVerified,source:'gemini-recovery',
    pipelineVersion:recheck?.pipelineVersion||original?.pipelineVersion,
    elapsedMs:Number(original?.elapsedMs||0)+Number(recheck?.elapsedMs||0),
    networkStats:{attempts:Number(original?.networkStats?.attempts||0)+Number(recheck?.networkStats?.attempts||0),
@@ -1887,11 +1922,16 @@
      :{...oldResult,source:'gemini-focused',focusField:targetField};
     if(targetField==='ean'){
      // Ne pas conserver la déduction d'une ancienne lecture ciblée.
-     if(readableValue('ean',value))combined={...combined,eanObserved:value,
-      digiRecovery:null,recoveryProvenance:null,
-      checks:{...combined.checks,eanRechecked:true,digiConflict:false}};
+     if(readableValue('ean',value)){
+      const prior=window.IUDigiCatalogLookup?.observedPattern(oldResult.eanObserved)||'';
+      combined={...combined,eanObserved:value,guidedEAN:received.catalogGuided===true,
+       guidedPrefixVerified:Boolean(received.catalogGuided&&/^\d{7}/.test(prior)&&[...prior].every((d,i)=>d==='?'||d===value[i])),
+       digiRecovery:null,recoveryProvenance:null,
+       checks:{...combined.checks,eanRechecked:!received.catalogGuided&&!oldResult.guidedEAN&&oldResult.fields?.ean13===value,digiConflict:false}};
+     }
      else combined=fuseEAN(combined,received?.eanObserved);
     }else if(value!==null&&value!==undefined&&value!==''){
+     if(targetField==='name')combined=mergeRecoveredReading(oldResult,received,['name']);
      // Recalcul du montant dérivé lorsque poids ou tarif est relu.
      if(targetField==='total')combined={...combined,digiRecovery:null,recoveryProvenance:null};
      else if(oldResult.digiRecovery?.sources?.total==='calculated')
@@ -2083,11 +2123,11 @@
    // lecteur local a entre-temps confirmé, ou que DIGI a résolu sans
    // ambiguïté. Jamais lever un conflit fort ni un échec poids/prix.
    const interrupted=validated.checks?.recoveryInterruptedTargets;
-   if(validated.checks?.recoveryInterrupted&&interrupted?.length===1&&interrupted[0]==='ean'&&
-      !validated.checks?.readingConflict&&!validated.checks?.independentMismatch&&!validated.checks?.digiConflict&&
-      (trustedBarcodeEvidence(localBarcode)&&localBarcode.ean13===validated.fields?.ean13||
-       ['reconstructed','confirmation'].includes(validated.digiRecovery?.kind))){
-    validated={...validated,checks:{...validated.checks,recoveryInterrupted:false}};
+   if(validated.checks?.recoveryInterrupted&&interrupted?.length&&
+      !validated.checks?.readingConflict&&!validated.checks?.independentMismatch&&!validated.checks?.digiConflict){
+    const pending=recoveryTargets(validated);
+    if(!pending.length)validated={...validated,checks:{...validated.checks,recoveryInterrupted:false,recoveryInterruptedTargets:[]}};
+    else validated={...validated,checks:{...validated.checks,recoveryInterruptedTargets:pending}};
    }
    const priorMismatch=validated.checks?.independentMismatch===true;
    const localChecks=fieldsChecks(validated.fields);

@@ -174,6 +174,28 @@
   if(/\b(?:PAMPLEMOUSSES?|POMELOS?)\b/.test(key))return 'pomelo';
   return null;
  }
+ // Compatibility is advisory; a short or slightly misread name needs
+ // independently corroborated code evidence before it can identify a PLU.
+ function compatibleName(a,b){
+  const x=normalizeName(a),y=normalizeName(b);
+  if(!x||!y)return false;
+  if(x===y)return true;
+  const tokens=s=>s.split(' ').filter(t=>!['A','DE','DU','DES','D','L','LE','LA','LES'].includes(t));
+  const u=tokens(x),v=tokens(y);
+  if(!u.length||!v.length||u[0]!==v[0])return false;
+  if((/^POMMES? DE TERRE\b/.test(x))!==(/^POMMES? DE TERRE\b/.test(y)))return false;
+  const close=(s,t)=>s===t||(Math.min(s.length,t.length)>=4&&Math.max(s.length,t.length)>=5&&
+   s.slice(0,3)===t.slice(0,3)&&Math.max(s.length,t.length)*(1-normalizedSimilarity(s,t))<=1.00001);
+  const shorter=u.length<=v.length?u:v,longer=u.length<=v.length?v:u;
+  let j=0,edits=0;
+  for(const token of shorter){
+   while(j<longer.length&&!close(token,longer[j]))j++;
+   if(j===longer.length)return false;
+   if(token!==longer[j]&&++edits>1)return false;
+   j++;
+  }
+  return true;
+ }
  function nameIdentityConflict(name,prefix){
   const key=normalizeName(name);
   if(!key||!prefix)return false;
@@ -181,7 +203,9 @@
   if(!official.length)return false;
   if(official.some(item=>normalizeName(item.name)===key))return false;
   const items=catalog.byName?.get(key);
-  if(items?.size&&![...items.values()].some(item=>item.eanPrefix===prefix))return true;
+  if(items?.size&&![...items.values()].some(item=>item.eanPrefix===prefix)&&
+     !official.some(item=>normalizeName(item.name).startsWith(key+' ')))return true;
+  if(official.some(item=>compatibleName(key,item.name)))return false;
   const family=fruitFamily(key);
   const variety=k=>normalizeName(k).replace(/\b(?:ORANGES?|CITRONS?|LIMES?|CLEMENTINES?|MANDARINES?|SATSUMAS?|PAMPLEMOUSSES?|POMELOS?|A|DE|DU|DES|FEUILLES?|BIO|NTAR)\b/g,' ').replace(/\s+/g,' ').trim();
   return Boolean(family&&official.every(item=>{
@@ -199,7 +223,21 @@
   if(!record.ok)return {status:record.status,record};
   if(!key||key.length<3)return {status:'unread',record};
   if(key===normalizeName(record.name))return {status:'confirmed',record};
-  return {status:nameIdentityConflict(name,record.eanPrefix)?'conflict':'uncertain',record};
+  if(nameIdentityConflict(name,record.eanPrefix))return {status:'conflict',record};
+  return {status:compatibleName(name,record.name)?'compatible':'uncertain',record};
+ }
+ function fuseIdentity({ean,printedName,fieldName,eanVerified=false}={}){
+  const record=resolve(ean);
+  if(!record.ok)return {ok:false,status:record.status,record};
+  const names=[...new Set([printedName,fieldName].filter(n=>normalizeName(n)))];
+  const statuses=names.map(n=>identityEvidence(n,ean).status);
+  if(statuses.includes('conflict'))return {ok:false,status:'conflict',record};
+  if(statuses.includes('uncertain'))return {ok:false,status:'uncertain',record};
+  if(statuses.includes('confirmed')&&statuses.every(s=>s==='confirmed'||s==='compatible'))
+   return {ok:true,status:'confirmed',record,source:'gemini-digi'};
+  if(eanVerified&&statuses.every(s=>s==='compatible'))
+   return {ok:true,status:'confirmed',record,source:'digi-verified-ean'};
+  return {ok:false,status:names.length?'uncertain':'unread',record};
  }
  function uniqueNameConflict(name,prefix){return nameIdentityConflict(name,prefix);}
  function compatible(code,pattern){
@@ -502,5 +540,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,compatibleName,fuseIdentity,STORAGE_KEY});
 });

@@ -1,6 +1,6 @@
 {
-  "version": "43.19",
+  "version": "43.20",
   "published": "2026-11-25",
   "assets": 110,
-  "notes": "Catalogue DIGI : contrôle indépendant du nom imprimé, détection des discordances de variétés, identité inconnue affichée sans substitution, import JSON/CSV Excel avec état article et sans dates de vente ou livraison. Gemini 3.5, protections numériques et transport inchangés."
+  "notes": "Fusion Gemini/DIGI : identité compatible ou nom absent avec EAN corroboré, guidage ciblé sans preuve circulaire, déduction conservée, relectures facultatives non bloquantes si preuves suffisantes, circuits Interactions/GenerateContent séparés et secours borné. Worker à redéployer."
 }

@@ -98,6 +98,8 @@ function parseBinary(bytes){
  // Only explicit upstream 503/UNAVAILABLE is automatically replayed.
  // An in-memory breaker is best-effort per isolate, not a global service.
 const geminiCircuit={failures:0,until:0,probing:false};
+const interactionsCircuit={failures:0,until:0,probing:false};
+const developerCircuit=api=>api==='interactions'?interactionsCircuit:geminiCircuit;
 async function resilientGemini(url,options,{deadline,signal,now=Date.now,
  random=Math.random,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms)),
  send=fetch,circuit=geminiCircuit,maxAttempts=3}={}){
@@ -121,20 +123,21 @@ async function resilientGemini(url,options,{deadline,signal,now=Date.now,
     circuit.failures=0;circuit.until=0;
     return {response,stats};
    }
-   stats.upstream503++;circuit.failures++;
+   stats.upstream503++;
+   if(stats.upstream503===1)circuit.failures++; // one logical request
    const header=response.headers?.get('Retry-After');
    const seconds=header&&/^\d+(?:\.\d+)?$/.test(header)?Number(header)*1000:
     header?Math.max(0,Date.parse(header)-now()):0;
    const backoff=Math.max(Number.isFinite(seconds)?seconds:0,
     Math.round((i===0?250:600)+random()*180));
    if(i===maxAttempts-1||probe||deadline-now()<1500){
-    if(circuit.failures>=3||seconds>0)circuit.until=now()+Math.min(30000,Math.max(3000,Number.isFinite(seconds)?seconds:0));
+    if(circuit.failures>=3||seconds>0)circuit.until=now()+Math.max(3000,Number.isFinite(seconds)?seconds:0);
     return {response,stats};
    }
    // Honor a long Retry-After by returning control, never sleeping
    // beyond the request budget.
    if(backoff>1800||deadline-now()<backoff+1100){
-    circuit.until=now()+Math.min(30000,Math.max(1000,backoff));
+    circuit.until=now()+Math.max(1000,backoff);
     return {response,stats:{...stats,retryAfterMs:backoff}};
    }
    try{await response.body?.cancel?.();}catch(_){}
@@ -471,8 +474,21 @@ async function geminiPilot(request,env,origin){
    let url=api==='interactions'?'https://generativelanguage.googleapis.com/v1beta/interactions':api==='generateContent-alpha'?standardURL.replace('/v1beta/','/v1alpha/'):standardURL;
    let sentBody=api==='interactions'?JSON.stringify(interactionBody(model,body,media)):media?JSON.stringify(mediaBody(body,media)):cachedBody?JSON.stringify(cachedBody):serialized;
    const opts={method:'POST',signal:control.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key,...(api==='interactions'?{'Api-Revision':'2026-05-20'}:{})},body:sentBody};
-   const limits={deadline:started+budgetMs,signal:control.signal,circuit:route==='vertex'?vertexCircuit:geminiCircuit,maxAttempts};
-   let attempt=await resilientGemini(url,opts,limits),cacheFallback=false;
+   const limits={deadline:started+budgetMs,signal:control.signal,circuit:route==='vertex'?vertexCircuit:developerCircuit(api),maxAttempts};
+   const hybridFallback=route==='developer'&&api==='interactions'&&hybridRecovery&&!speculative;
+   let attempt=await resilientGemini(url,opts,{...limits,maxAttempts:hybridFallback?1:maxAttempts}),cacheFallback=false;
+   // Explicit 503/open circuit: bounded fallback on a separate circuit.
+   if(hybridFallback&&(attempt.response?.status===503||attempt.stats.stage==='circuit_open')&&
+      Date.now()<started+budgetMs-1500&&!control.signal.aborted){
+    const previous=attempt.stats;
+    try{await attempt.response?.body?.cancel?.();}catch(_){}
+    apiFallback=true;api='generateContent';media=null;url=standardURL;
+    const {['Api-Revision']:revision,...headers}=opts.headers;
+    attempt=await resilientGemini(url,{...opts,headers,body:serialized},{...limits,circuit:geminiCircuit,maxAttempts:2});
+    attempt.stats={...attempt.stats,attempts:previous.attempts+attempt.stats.attempts,
+     retries:previous.retries+attempt.stats.retries,upstream503:previous.upstream503+attempt.stats.upstream503,
+     waitMs:previous.waitMs+attempt.stats.waitMs,fallbackFrom:'interactions',primaryStage:previous.stage};
+   }
    // Experimental endpoints/options may not be enabled for this project.
    // Revert only on explicit 400/404 option/endpoint rejection, once, within the original budget.
    if(api!=='generateContent'&&[400,404].includes(attempt.response?.status)&&attempt.stats.attempts===1&&Date.now()<started+budgetMs-1500&&!control.signal.aborted){
@@ -480,7 +496,7 @@ async function geminiPilot(request,env,origin){
     if(/media.?resolution|resolution|interaction|response.?format|generation.?config|unknown field|not found|not supported|invalid argument/i.test(reason)){
      const previous=attempt.stats;apiFallback=true;api='generateContent';media=null;
      const {['Api-Revision']:revision,...headers}=opts.headers;
-     attempt=await resilientGemini(standardURL,{...opts,headers,body:serialized},{...limits,maxAttempts:1});
+     attempt=await resilientGemini(standardURL,{...opts,headers,body:serialized},{...limits,circuit:route==='vertex'?vertexCircuit:geminiCircuit,maxAttempts:1});
      attempt.stats={...attempt.stats,attempts:previous.attempts+attempt.stats.attempts,upstream503:previous.upstream503+attempt.stats.upstream503,waitMs:previous.waitMs+attempt.stats.waitMs};
     }
    }

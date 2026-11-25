@@ -21,6 +21,12 @@ vm.runInNewContext("function eanCheck(s){let n=0;for(let i=0;i<12;i++)n+=Number(
 const first='0203476'+String(Math.round(100*655.36/100)).padStart(5,'0');
 const fields={name:'CITRON PRIMOFIORI',ean13:first+ctx.eanCheck(first),weightGrams:500,pricePerKgCents:200,totalCents:100};
 assert(!ctx.validate({fields,checks:{}}).error);
+assert(!ctx.validate({fields:{...fields,name:null},checks:{eanRechecked:true}}).error);
+assert(!ctx.validate({fields:{...fields,name:'CITRON'},checks:{eanRechecked:true}}).error);
+assert(ctx.validate({fields:{...fields,name:'CLEMENTINE'},checks:{eanRechecked:true}}).error);
+assert(ctx.validate({fields:{...fields,name:null},guidedEAN:true,checks:{eanRechecked:true}}).error);
+assert(catalog.compatibleName('POIRE SANTA MARA','POIRE SANTA MARIA'));
+assert(!catalog.compatibleName('ORANGE CAMBRIA','ORANGE NAVEL'));
 assert(ctx.validate({fields:{...fields,name:'CLEMENTINE A FEUILLES'},checks:{}}).error.includes('Article contradictoire'));
 assert(ctx.validate({fields,printedName:'CLEMENTINE A FEUILLES',checks:{}}).error.includes('Article contradictoire'));
 assert(js.includes("validateResult(lastRawResult).error"));

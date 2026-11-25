@@ -19,6 +19,9 @@ async function run(statuses,circuit={failures:0,until:0,probing:false},after=nul
  x=await run([400]);assert.equal(x.calls.length,1);
  x=await run([503,503,503]);assert.equal(x.calls.length,3);
  const breaker=x.circuit;
+ assert.equal(breaker.failures,1);
+ x=await run([503,503,503],breaker);assert.equal(breaker.failures,2);
+ x=await run([503,503,503],breaker);assert.equal(breaker.failures,3);
  x=await run([200],breaker);assert.equal(x.calls.length,0);assert.equal(x.result.stats.stage,'circuit_open');
  time=breaker.until+1;
  x=await run([200],breaker);assert.equal(x.calls.length,1);assert.equal(breaker.failures,0);
