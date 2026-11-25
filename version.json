@@ -1,6 +1,6 @@
 {
-  "version": "43.11",
+  "version": "43.12",
   "published": "2026-11-25",
   "assets": 108,
-  "notes": "Historique et bilans inspirés du résultat classique : en-tête, brut/tare, net et compléments. Logo AI animé en haut à droite, rendu chrome partagé et limité aux pastilles visibles. Reconnaissance, calculs et Worker inchangés."
+  "notes": "Historique et bilans compacts : surface continue, séparateurs fins, poids net à droite, brut/tare à gauche, détails sur une ligne, styles natifs de l'application. Logo AI animé conservé. Calculs, données et Worker inchangés."
 }

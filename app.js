@@ -259,10 +259,11 @@ function weighRecordElement(entry){
  row.append(head);
  const metrics=node('div','iu-weigh-record-metrics');
  const metric=(parent,label,value)=>{const cell=node('div','iu-weigh-record-metric');cell.append(node('small','',label),node('strong','',value));parent.append(cell);};
- metric(metrics,'Brut',fmt(entry.gross)+' kg');metric(metrics,'Tare',fmt(entry.tare)+' kg');row.append(metrics);
+ metric(metrics,'Brut',fmt(entry.gross)+' kg');metric(metrics,'Tare',fmt(entry.tare)+' kg');
+ const weights=node('div','iu-weigh-record-weights');weights.append(metrics);
  const result=node('div','iu-weigh-record-net');
  const netLine=node('div','iu-weigh-record-netline');netLine.append(node('strong','',fmt(entry.net)),node('span','','kg'));
- result.append(node('small','','Poids net'),netLine);row.append(result);
+ result.append(node('small','','Poids net'),netLine);weights.append(result);row.append(weights);
  if(ai){
   const prices=node('div','iu-weigh-record-metrics iu-weigh-record-prices');
   if(Number.isInteger(entry.pricePerKgCents))metric(prices,'Prix / kg',(entry.pricePerKgCents/100).toFixed(2).replace('.',',')+' €');
@@ -274,17 +275,19 @@ function weighRecordElement(entry){
   if(entry.plu)foot.append(node('span','iu-weigh-record-plu','PLU '+entry.plu));
   if(entry.duplicateConfirmed)foot.append(node('span','iu-weigh-record-status','Doublon confirmé'));
   if(Array.isArray(entry.manualCorrectedFields)&&entry.manualCorrectedFields.length)foot.append(node('span','iu-weigh-record-status','Valeur vérifiée'));
-  if(foot.childNodes.length)row.append(foot);
+  const hasDetails=Boolean(entry.ean13||entry.correctedEan13||Number.isInteger(entry.originalTotalCents));
+  if(foot.childNodes.length||hasDetails)row.append(foot);
   if(entry.ean13||entry.correctedEan13||Number.isInteger(entry.originalTotalCents)){
-   const details=node('div','iu-weigh-record-details'),btn=node('button','iu-weigh-record-expand','Détails de l’étiquette');
-   btn.type='button';btn.setAttribute('aria-expanded','false');
+   const details=node('div','iu-weigh-record-details'),btn=node('button','iu-weigh-record-expand','Détails');
+   btn.setAttribute('aria-label','Détails de l’étiquette');
+   btn.type='button';btn.setAttribute('aria-expanded','false');details.hidden=true;
    const content=node('div','iu-weigh-record-codes');content.hidden=true;
    const line=(label,value)=>{const cell=node('div','iu-weigh-record-code');cell.append(node('small','',label),node('span','',value));content.append(cell);};
    if(entry.ean13)line('EAN lu',entry.ean13);
    if(entry.correctedEan13)line('EAN après tare',entry.correctedEan13);
    if(Number.isInteger(entry.originalTotalCents))line('Total brut',(entry.originalTotalCents/100).toFixed(2).replace('.',',')+' €');
-   btn.addEventListener('click',()=>{content.hidden=!content.hidden;btn.setAttribute('aria-expanded',String(!content.hidden));btn.textContent=content.hidden?'Détails de l’étiquette':'Masquer les détails';});
-   details.append(btn,content);row.append(details);
+   btn.addEventListener('click',()=>{content.hidden=!content.hidden;details.hidden=content.hidden;btn.setAttribute('aria-expanded',String(!content.hidden));btn.setAttribute('aria-label',content.hidden?'Détails de l’étiquette':'Masquer les détails de l’étiquette');btn.textContent=content.hidden?'Détails':'Fermer';});
+   foot.append(btn);details.append(content);row.append(details);
   }
  }
  return row;
