@@ -1,6 +1,6 @@
 {
-  "version": "43.20",
+  "version": "43.21",
   "published": "2026-11-25",
   "assets": 110,
-  "notes": "Fusion Gemini/DIGI : identité compatible ou nom absent avec EAN corroboré, guidage ciblé sans preuve circulaire, déduction conservée, relectures facultatives non bloquantes si preuves suffisantes, circuits Interactions/GenerateContent séparés et secours borné. Worker à redéployer."
+  "notes": "Orchestration locale événementielle : fusion immédiate des moteurs, échéance commune, relecture cloud évitée si preuves suffisantes, arrêt ciblé des Workers facultatifs. Déduction DIGI libellé/préfixe, variantes prix/EAN, plages inverses et confirmation des cas uniques faibles. Protections et Gemini 3.5 inchangés. Worker Cloudflare v43.20 à redéployer si nécessaire."
 }

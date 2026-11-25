@@ -133,16 +133,22 @@
   const pattern=observedPattern(eanObserved);
   const knownPrefix=pattern?[...pattern.slice(0,7)].filter(c=>c!=='?').length:0;
   const strictPrefix=knownPrefix>=5,hint=normalizeName(name);
-  if(!strictPrefix&&hint.length<6)return [];
+  // Exact names (even short ones such as COING) can identify a catalogue
+  // prefix without an EAN read. This is a candidate, never an observed code.
+  const exact=hint?catalog.byName?.get(hint):null;
+  if(!strictPrefix&&hint.length<6&&!exact?.size)return [];
   const key=pattern.slice(0,7)+'|'+hint;
   if(queryCache.has(key))return queryCache.get(key);
   const out=[];
-  for(const [prefix,items] of prefixGroups(catalog,pattern)){
+  const groups=!strictPrefix&&exact?.size?
+   [...new Set([...exact.values()].map(r=>r.eanPrefix))].map(prefix=>[prefix,catalog.byPrefix.get(prefix)]):
+   prefixGroups(catalog,pattern);
+  for(const [prefix,items] of groups){
    if(pattern&&[...prefix].some((digit,i)=>
       pattern[i]!=='?'&&pattern[i]!==digit))continue;
    for(const record of items.values()){
-    const similarity=hint?normalizedSimilarity(hint,record.normalizedName):0;
-    if(!strictPrefix&&similarity<.74)continue;
+    const similarity=hint===record.normalizedName?1:hint?normalizedSimilarity(hint,record.normalizedName):0;
+    if(!strictPrefix&&(exact?.size?hint!==record.normalizedName:similarity<.74))continue;
     out.push({eanPrefix:prefix,plu:record.plu,name:record.name,
      prefixDigits:knownPrefix,nameScore:similarity,ambiguous:items.size!==1,
      source:'digi-import'});
@@ -303,14 +309,34 @@
     {candidates:exact.ok?[exact]:[]});
   }
   if(!pattern||!possible.length)
-   return outcome(sources.total==='calculated'?'calculated':'none');
+   return outcome(possible.length?'candidate':sources.total==='calculated'?'calculated':'none',
+    possible.length?{reason:'Libellé retrouvé : préfixe proposé, EAN original à observer'}:{});
+
   const known=[...pattern.slice(0,12)].filter(d=>d!=='?').length;
   const prefixDigits=[...pattern.slice(0,7)].filter(d=>d!=='?').length;
   // 5/7 = au moins trois chiffres d'identification au-delà du 02.
   // Garder au moins 9 des 12 chiffres utiles. Le nom ne peut ni
   // remplacer les chiffres observés ni départager deux origines.
-  if(prefixDigits<5||known<9)
+  if(prefixDigits<5||known<9){
+   // A unique exact name plus actual digits and both printed measurements
+   // can narrow the missing EAN. Only a human may confirm this weaker
+   // route, and only when the exact original candidate is unique.
+   const exactNames=index().byName?.get(normalizeName(fields.name));
+   if(exactNames?.size===1&&!result?.guidedEAN){
+    const item=exactNames.values().next().value;
+    const independentSuffix=[...pattern.slice(7)].filter(d=>d!=='?').length;
+    const codes=amountVariants(item.eanPrefix,fields.totalCents,computed,pattern);
+    const record=codes.length===1?resolve(codes[0]):null;
+    if(independentSuffix>=2&&record?.ok&&!uniqueNameConflict(result?.printedName||fields.name,item.eanPrefix)){
+     const details={candidates:[item],proposedEAN:codes[0],variantCount:1,prefixDigits,knownDigits:known,
+      reason:'Libellé unique et montant concordants : vérifier les 13 chiffres imprimés'};
+     if(!allowProbable)return outcome('confirmation',details);
+     fields.ean13=codes[0];sources.ean='confirmed-by-user';
+     return {result:{...result,fields,recoveryProvenance:sources},kind:'confirmation',sources,...details,confirmedByUser:true};
+    }
+   }
    return outcome('candidate',{reason:'Préfixe ou chiffres insuffisamment confirmés'});
+  }
   const viable=[];
   let unknownFamily=false,ambiguousReference=false;
   for(const item of possible){
@@ -370,9 +396,9 @@
   const computed=Number.isSafeInteger(grams)&&grams>0&&Number.isSafeInteger(rate)&&rate>0?
    Math.round(grams*rate/1000):null;
   const cents=Number.isSafeInteger(total)&&total>=0?total:computed;
-  const comparable=computed!==null&&cents!==null&&Math.abs(cents-computed)<=1;
+  const comparable=cents!==null&&(computed===null||Math.abs(cents-computed)<=1);
   let ranked=pool.map(item=>({item,codes:comparable&&item.eanPrefix.startsWith('02')?
-   amountVariants(item.eanPrefix,cents,computed,pattern):null}));
+   amountVariants(item.eanPrefix,cents,computed??cents,pattern):null}));
   const viable=ranked.filter(x=>x.codes===null||x.codes.length);
   // If a strict observed prefix fails, suggest nearby codes, but never
   // reconstruct from them. Similar name only influences ranking.
@@ -453,6 +479,35 @@
    ranges.computedTotal=Math.round(g*r/1000);
   return ranges;
  }
+ // Mathematical candidates are not measurements. Inverse ranges retain
+ // the existing one-cent tolerance and all rounded possibilities.
+ function deductionPlan(result){
+  const f=result?.fields||{},pattern=observedPattern(result?.eanObserved)||observedPattern(f.ean13);
+  const exact=index().byName?.get(normalizeName(f.name));
+  const items=matchingCandidates({eanObserved:pattern,name:f.name});
+  const prefixCandidates=[...new Set(items.map(x=>x.eanPrefix))];
+  const ranges=inverseRanges(f),g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents;
+  const computed=Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0?Math.round(g*r/1000):null;
+  const encodedTotal=eanValid(f.ean13)&&f.ean13.startsWith('02')?Math.round(Number(f.ean13.slice(7,12))*100/655.36):null;
+  const cents=Number.isSafeInteger(t)&&t>=0?t:computed;
+  const codes=new Set();let unresolved=false;
+  if(cents!==null&&(computed===null||Math.abs(cents-computed)<=1)&&items.length<=80){
+   for(const item of items){
+    if(item.ambiguous||!item.eanPrefix.startsWith('02')){unresolved=true;continue;}
+    for(const code of amountVariants(item.eanPrefix,cents,computed??cents,pattern))codes.add(code);
+   }
+  }else unresolved=true;
+  const variants=[...codes],consensus=variants.length&&!unresolved?
+   Array.from({length:13},(_,i)=>variants.every(code=>code[i]===variants[0][i])?variants[0][i]:'?').join(''):null;
+  const uniqueValues={};
+  for(const key of ['weight','rate']){
+   const range=ranges[key],field=key==='weight'?'weightGrams':'pricePerKgCents';
+   if((f[field]===null||f[field]===undefined)&&range&&range.min===range.max&&range.min>0)uniqueValues[key]=range.min;
+  }
+  return {prefixCandidates:prefixCandidates.slice(0,12),prefixCount:prefixCandidates.length,
+   exactNameCount:exact?.size||0,variantCount:unresolved?null:variants.length,
+   consensus,encodedTotal,ranges,uniqueValues};
+ }
  function solveHypotheses(result,{observations=[],history=[]}={}){
   const fields=result?.fields||{},base=observedPattern(result?.eanObserved)||observedPattern(fields.ean13);
   const guide=recheckPlan(result),ranges=inverseRanges(fields);
@@ -481,12 +536,12 @@
   const ranked=[],g=fields.weightGrams,r=fields.pricePerKgCents;
   const computed=Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0?Math.round(g*r/1000):null;
   const total=Number.isSafeInteger(fields.totalCents)?fields.totalCents:computed;
-  const comparable=Number.isSafeInteger(total)&&Number.isSafeInteger(computed)&&Math.abs(total-computed)<=1;
+  const comparable=Number.isSafeInteger(total)&&(computed===null||Math.abs(total-computed)<=1);
   function mismatch(code,source){
    return [...source.mask].reduce((n,d,i)=>n+(d!=='?'&&code[i]!==d?source.weight:0),0);
   }
   for(const item of [...pool.values()].slice(0,160)){
-   let codes=comparable&&item.eanPrefix.startsWith('02')?amountVariants(item.eanPrefix,total,computed,''):[];
+   let codes=comparable&&item.eanPrefix.startsWith('02')?amountVariants(item.eanPrefix,total,computed??total,''):[];
    if(!codes.length&&eanValid(base)&&base.startsWith(item.eanPrefix))codes=[base];
    if(!codes.length)codes=[item.eanPrefix+'??????'];
    let best=null;
@@ -540,5 +595,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,compatibleName,fuseIdentity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,deductionPlan,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,compatibleName,fuseIdentity,STORAGE_KEY});
 });
