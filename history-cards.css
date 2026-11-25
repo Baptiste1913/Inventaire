@@ -101,3 +101,13 @@ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-
 html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > details.history-card.card.fold-card #historyToggleTop.history-toggle[hidden],html body .app .iu-weigh-archive [hidden]{display:none!important;}
 @media(prefers-reduced-motion:reduce){html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > details.history-card.card.fold-card #historyToggleTop.history-toggle,html body main.app :is(#historyList,.iu-weigh-record-list) button.iu-weigh-record-expand,html body .app .iu-weigh-archive :is(.iu-weigh-archive-toggle,.iu-weigh-archive-more){transition:none!important;transform:none!important;}}
 @media(forced-colors:active){html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > details.history-card.card.fold-card,html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > details.history-card.card.fold-card > .fold-summary #historyCount,html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > details.history-card.card.fold-card #historyToggleTop.history-toggle,html body .app .iu-weigh-archive :is(.iu-weigh-archive-toggle,.iu-weigh-archive-more),html body main.app :is(#historyList,.iu-weigh-record-list) > article.history-item.iu-weigh-record,html body main.app :is(#historyList,.iu-weigh-record-list) button.iu-weigh-record-expand{background:Canvas!important;border:1px solid CanvasText!important;box-shadow:none!important;color:CanvasText!important;}}
+
+/* v43.14 — la commande reste au raccord entre l'aperçu et les nouvelles pesées. */
+html body main.app .history-card #historyMoreRegion[hidden]{display:none!important;}
+html body main.app .history-card #historyMoreRegion{display:flow-root;min-width:0;overflow-anchor:none;}
+html body main.app .history-card #historyMoreList{margin-top:12px!important;}
+html body main.app .history-card #historyMoreList>.iu-weigh-record{scroll-margin-bottom:112px;}
+html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode) main.app > details.history-card.card.fold-card #historyToggleTop.history-toggle{margin:12px 0 2px!important;overflow-anchor:none;}
+html body main.app .history-card #historyToggleTop .history-chevron{transition:transform .28s cubic-bezier(.28,.72,.24,1);}
+html body main.app .history-card #historyToggleTop[aria-expanded=true] .history-chevron{transform:rotate(180deg)!important;}
+@media(prefers-reduced-motion:reduce){html body main.app .history-card #historyToggleTop .history-chevron{transition:none!important;}}

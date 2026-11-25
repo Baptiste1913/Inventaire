@@ -127,6 +127,8 @@ function loadBaskets(){for(const key of [STORAGE_KEY,LEGACY_KEY]){try{const raw=
 let baskets=loadBaskets(),editingId=null,netGrams=null,dragId=null;
 function loadHistory(){try{const a=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(a)?a.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.net)&&Number.isFinite(x.gross)&&Number.isFinite(x.tare)&&typeof x.at==='number').slice(0,15):[];}catch{return [];}}
 let history=loadHistory(),historyExpanded=false,autoSaveTimer=null,currentWeighId=null;
+let historyRevealMotion=null;
+const HISTORY_PREVIEW_COUNT=5;
 function persistHistory(){try{safeSetItem(HISTORY_KEY,JSON.stringify(history));renderHistory();return true;}catch{$('weighStatus').textContent='Impossible de sauvegarder cet historique sur cet appareil.';return false;}}
 // Recherche d'un doublon dans l'inventaire courant et dans l'historique récent.
 // C'est une information de vigilance, jamais un blocage de validation volontaire.
@@ -304,10 +306,68 @@ function weighArchiveElement(entries){
  toggle.addEventListener('click',()=>{list.hidden=!list.hidden;toggle.setAttribute('aria-expanded',String(!list.hidden));toggle.textContent=list.hidden?'Voir les '+entries.length+' pesée'+(entries.length>1?'s':''):'Masquer les pesées';if(!list.hidden&&!shown)appendPage();more.hidden=list.hidden||shown>=ordered.length;});
  more.addEventListener('click',appendPage);section.append(title,toggle,list,more);return section;
 }
-function renderHistory(){const list=$('historyList');list.replaceChildren();$('historyCount').textContent=`${history.length} pesée${history.length>1?'s':''}`;$('clearHistoryBtn').hidden=!history.length;
-const btn=$('historyToggleTop');btn.hidden=history.length<=5;btn.setAttribute('aria-expanded',String(historyExpanded));const label=btn.querySelector('.history-toggle-label');if(label)label.textContent=historyExpanded?'Réduire l’historique':`Voir les ${history.length} pesées`;
-if(!history.length){const p=document.createElement('p');p.className='empty history-empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
-for(const entry of (historyExpanded?history:history.slice(0,5)))list.append(weighRecordElement(entry));}
+// The preview stays mounted while only the additional records expand/collapse.
+function updateHistoryToggle(){
+ const btn=$('historyToggleTop'),remaining=Math.max(0,history.length-HISTORY_PREVIEW_COUNT);
+ btn.hidden=!remaining;
+ btn.setAttribute('aria-expanded',String(historyExpanded&&remaining>0));
+ const label=btn.querySelector('.history-toggle-label');
+ if(label)label.textContent=(historyExpanded?'Masquer ':'Afficher ')+(remaining===1?'la dernière pesée':'les '+remaining+' autres pesées');
+}
+function stopHistoryReveal(){
+ const motion=historyRevealMotion;historyRevealMotion=null;
+ if(motion){motion.onfinish=null;motion.cancel();}
+ const reveal=$('historyMoreRegion');
+ reveal.style.removeProperty('height');reveal.style.removeProperty('overflow');reveal.style.removeProperty('opacity');
+}
+function fillHistoryMore(){
+ const list=$('historyMoreList');list.replaceChildren();
+ for(const entry of history.slice(HISTORY_PREVIEW_COUNT))list.append(weighRecordElement(entry));
+}
+function renderHistory(){
+ const list=$('historyList'),reveal=$('historyMoreRegion'),extra=$('historyMoreList');
+ stopHistoryReveal();list.replaceChildren();extra.replaceChildren();
+ if(history.length<=HISTORY_PREVIEW_COUNT)historyExpanded=false;
+ $('historyCount').textContent=history.length+' pesée'+(history.length>1?'s':'');
+ $('clearHistoryBtn').hidden=!history.length;
+ updateHistoryToggle();
+ reveal.hidden=!historyExpanded;reveal.inert=!historyExpanded;
+ if(!history.length){const p=document.createElement('p');p.className='empty history-empty';p.textContent='Aucune pesée enregistrée pour le moment.';list.append(p);return;}
+ for(const entry of history.slice(0,HISTORY_PREVIEW_COUNT))list.append(weighRecordElement(entry));
+ if(historyExpanded)fillHistoryMore();
+}
+function toggleHistoryMore(){
+ if(history.length<=HISTORY_PREVIEW_COUNT)return;
+ const reveal=$('historyMoreRegion'),list=$('historyMoreList'),opening=!historyExpanded;
+ const from=reveal.hidden?0:reveal.getBoundingClientRect().height;
+ const opacity=reveal.hidden?0:Number(getComputedStyle(reveal).opacity)||0;
+ stopHistoryReveal();historyExpanded=opening;updateHistoryToggle();
+ const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const initialScroll=window.scrollY;
+ if(opening){
+  if(list.childElementCount!==history.length-HISTORY_PREVIEW_COUNT)fillHistoryMore();
+  reveal.hidden=false;reveal.inert=false;
+ }else reveal.inert=true;
+ function finish(){
+  if(historyExpanded!==opening)return;
+  stopHistoryReveal();
+  if(!opening){reveal.hidden=true;list.replaceChildren();return;}
+  // Only reveal the first new entry if it is below the usable viewport.
+  // Do not override a user's scroll gesture during the expansion.
+  const first=list.firstElementChild;
+  const viewport=window.visualViewport;
+  const bottom=viewport?viewport.offsetTop+viewport.height:window.innerHeight;
+  if(first&&reveal.getClientRects().length&&Math.abs(window.scrollY-initialScroll)<24&&first.getBoundingClientRect().top>bottom-145){
+   first.scrollIntoView({behavior:reduce?'instant':'smooth',block:'nearest',inline:'nearest'});
+  }
+ }
+ const to=opening?reveal.scrollHeight:0;
+ if(reduce||typeof reveal.animate!=='function'||Math.abs(to-from)<1){finish();return;}
+ reveal.style.height=from+'px';reveal.style.overflow='hidden';
+ const motion=reveal.animate([{height:from+'px',opacity},{height:to+'px',opacity:opening?1:0}],{duration:420,easing:'cubic-bezier(.28,.72,.24,1)',fill:'both'});
+ historyRevealMotion=motion;
+ motion.onfinish=()=>{if(historyRevealMotion===motion)finish();};
+}
 function animateConfirmation(){const result=document.querySelector('.result');result.classList.remove('result-confirmed');void result.offsetWidth;result.classList.add('result-confirmed');setTimeout(()=>result.classList.remove('result-confirmed'),850);}
 function persist(){
  try{safeSetItem(STORAGE_KEY,JSON.stringify(baskets));render();return true;}
@@ -2315,7 +2375,7 @@ function animateExpandedList(id,renderChange){
   list.style.removeProperty('height');list.style.removeProperty('overflow');
  };
 }
-$('historyToggleTop').addEventListener('click',()=>animateExpandedList('historyList',()=>{historyExpanded=!historyExpanded;renderHistory();}));
+$('historyToggleTop').addEventListener('click',toggleHistoryMore);
 $('clearHistoryBtn').addEventListener('click',()=>{
  if(!history.length)return;
  const previous=history.map(e=>({...e})),previousExpanded=historyExpanded;

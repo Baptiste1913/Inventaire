@@ -1,6 +1,6 @@
 {
-  "version": "43.13",
+  "version": "43.14",
   "published": "2026-11-25",
   "assets": 108,
-  "notes": "Historique aéré : surfaces, ombres, boutons et contours repris de Mes inventaires. Dégradé continu de l'en-tête au contenu, fiches légèrement agrandies, logo AI et données inchangés."
+  "notes": "Historique : commande sous les cinq premières pesées, dépliage animé uniquement des pesées supplémentaires, défilement conditionnel vers la première nouvelle fiche. Styles et données préservés."
 }
