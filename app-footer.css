@@ -1,4 +1,4 @@
-/* Inventaires U v43.25 — Signature d'accueil, indépendante des cartes. */
+/* Inventaires U v43.28 — Signature d'accueil, indépendante des cartes. */
 .app > footer.iu-app-footer {
   box-sizing: border-box;
   grid-column: 1 / -1;
@@ -60,9 +60,9 @@
   gap: 2px;
 }
 .iu-app-footer .iu-footer-brand strong {
-  /* Match .header .brand h1, including its responsive breakpoints. */
+  /* Même identité typographique que le header, en taille réduite. */
   font-family: Arial, Helvetica, sans-serif;
-  font-size: clamp(17px, 3.9vw, 22px) !important;
+  font-size: clamp(13px, 3.1vw, 17px) !important;
   font-weight: 900 !important;
   -webkit-text-stroke: .65px currentColor;
   text-rendering: geometricPrecision;
@@ -168,10 +168,10 @@
 .iu-app-footer .iu-footer-legal svg { flex: 0 0 13px; width: 13px; height: 13px; }
 .iu-app-footer .iu-footer-legal span { min-width: 0; overflow-wrap: break-word; }
 @media(max-width: 600px) {
-  .iu-app-footer .iu-footer-brand strong { font-size: clamp(16px, 4.4vw, 20px) !important; }
+  .iu-app-footer .iu-footer-brand strong { font-size: clamp(12px, 3.5vw, 16px) !important; }
 }
 @media(max-width: 380px) {
-  .iu-app-footer .iu-footer-brand strong { font-size: clamp(15px, 4.5vw, 18px) !important; }
+  .iu-app-footer .iu-footer-brand strong { font-size: clamp(12px, 3.6vw, 15px) !important; }
 }
 @media(max-width: 350px) {
   .app > footer.iu-app-footer { padding-inline: 5px; }

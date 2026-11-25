@@ -546,7 +546,10 @@ window.INVENTAIRES_U_EVENTS = {
  const refs=new Set(entries.map(e=>e.referenceMonth));
  const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
  const validRef=v=>typeof v==='string'&&/^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(v);
- const byDate=iso=>entries.find(e=>e.date===iso)||null;
+ // Inventaire de novembre 2026 : aperçu du créneau du soir demandé.
+ // Hors du lot officiel 2027 ; ne crée ni nouvelle date ni rappel.
+ const decemberPreview=Object.freeze({referenceMonth:'2026-11',date:'2026-12-01',moment:'soir'});
+ const byDate=iso=>entries.find(e=>e.date===iso)||(iso===decemberPreview.date?decemberPreview:null);
  const referenceLabel=ref=>validRef(ref)?months[Number(ref.slice(5))-1]+' '+ref.slice(0,4):'';
  const momentLabel=v=>v==='matin'?'Matin':v==='soir'?'Soir':'';
  const label=ref=>{const m=referenceLabel(ref);return m?'Inventaire '+(/^(avril|août|octobre)/.test(m)?'d’':'de ')+m:'Inventaire Fruits et Légumes';};
@@ -572,6 +575,10 @@ window.INVENTAIRES_U_EVENTS = {
    inventories.add(e.date);
    if(!details[e.date])details[e.date]=e;
   }
+  // Compléter aussi le cache antérieur, sans ressusciter une date annulée
+  // ni remplacer un créneau explicitement défini dans l'administration.
+  if(inventories.has(decemberPreview.date)&&!blocked.has(decemberPreview.date)&&!details[decemberPreview.date])
+   details[decemberPreview.date]=decemberPreview;
   for(const iso of blocked)inventories.delete(iso);
   return {...data,inventories:[...inventories].sort(),inventoryDetails:details};
  }

@@ -1,6 +1,6 @@
 {
-  "version": "43.27",
+  "version": "43.28",
   "published": "2026-11-25",
   "assets": 111,
-  "notes": "Planning frais 2027 : 13 dates réelles avec mois de référence et matin/soir, échéance d’accueil modernisée, rattachement automatique des nouvelles sessions, import protégé du planning vers Supabase pour les rappels J-7. Dates disponibles hors ligne ; événements et annulations existants conservés."
+  "notes": "Aperçu du créneau Soir pour l’inventaire du 1er décembre 2026, titre du footer réduit, sélecteur du moment harmonisé avec le champ Nom de l’événement. Planning officiel 2027, rappels et reconnaissance AI inchangés."
 }
