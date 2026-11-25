@@ -1,6 +1,6 @@
 {
-  "version": "43.23",
+  "version": "43.24",
   "published": "2026-11-25",
-  "assets": 111,
-  "notes": "Refonte du pied de page : logo U, identité Inventaires U Fruits & Légumes, version installée interactive pour les administrateurs, crédits réorganisés, séparation dégradée et halo discret. Mention de stockage local retirée. Reconnaissance AI, calculateur DIGI et Worker inchangés."
+  "assets": 112,
+  "notes": "Footer : marge supérieure augmentée, logo U transparent fourni par l’utilisateur sans cadre, crédits en lignes de réglages Liquid Glass et espacement harmonisé. Version interactive conservée. Aucun changement AI, DIGI ou Worker."
 }

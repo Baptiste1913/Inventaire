@@ -1,12 +1,12 @@
-/* Inventaires U v43.23 — Signature d'accueil, indépendante des cartes. */
+/* Inventaires U v43.24 — Signature d'accueil, indépendante des cartes. */
 .app > footer.iu-app-footer {
   box-sizing: border-box;
   grid-column: 1 / -1;
   position: relative;
   isolation: isolate;
   min-width: 0;
-  margin: 12px 0 0;
-  padding: 22px 12px 15px;
+  margin: 34px 0 0;
+  padding: 22px 12px 19px;
   text-align: left;
   color: #435a68;
   background: radial-gradient(ellipse at 50% 35%, rgba(157,185,202,.13) 0%, rgba(183,206,219,.05) 48%, transparent 76%);
@@ -27,24 +27,31 @@
   align-items: center;
   gap: 11px;
   min-width: 0;
+  padding: 0 3px;
 }
 .iu-app-footer .iu-footer-logo {
   box-sizing: border-box;
-  flex: 0 0 44px;
-  width: 44px;
-  height: 44px;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
-  border-radius: 13px;
-  border: 1px solid rgba(144,169,183,.25);
-  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(233,241,246,.70));
-  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 3px 10px rgba(69,95,110,.07);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 .iu-app-footer .iu-footer-logo img {
   display: block;
-  width: 30px;
-  height: 30px;
+  width: 42px;
+  height: auto;
+  max-height: 42px;
   object-fit: contain;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 .iu-app-footer .iu-footer-brand {
   min-width: 0;
@@ -53,8 +60,8 @@
   gap: 2px;
 }
 .iu-app-footer .iu-footer-brand strong {
-  font-size: 19px;
-  font-weight: 760;
+  font-size: 20px;
+  font-weight: 780;
   letter-spacing: -.65px;
   color: #23343f;
   line-height: 1.15;
@@ -105,38 +112,48 @@
 .iu-app-footer button.iu-footer-version:focus-visible { outline: 2px solid #546f7d; outline-offset: 3px; }
 .iu-app-footer .iu-footer-credits {
   display: grid;
-  grid-template-columns: minmax(0,1.12fr) minmax(0,1fr);
-  gap: 10px;
-  padding-top: 13px;
-  margin-top: 13px;
-  border-top: 1px solid rgba(149,174,189,.25);
+  margin: 18px 0 0;
+  padding: 2px 12px;
+  gap: 0;
+  border: 1px solid rgba(152,177,192,.16);
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(225,237,244,.27));
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9);
 }
 .iu-app-footer .iu-footer-credits > div {
   min-width: 0;
   display: grid;
-  align-content: start;
-  gap: 4px;
+  grid-template-columns: minmax(0,1.08fr) minmax(0,1fr);
+  align-items: center;
+  gap: 9px;
+  padding: 10px 0;
 }
-.iu-app-footer .iu-footer-credits span {
+.iu-app-footer .iu-footer-credits > div + div {
+  border-top: 1px solid rgba(148,173,188,.20);
+}
+.iu-app-footer .iu-footer-credits dt {
+  margin: 0;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 550;
   line-height: 1.4;
   color: #657d8c;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
-.iu-app-footer .iu-footer-credits strong {
-  color: #435a68;
+.iu-app-footer .iu-footer-credits dd {
+  margin: 0;
+  text-align: right;
+  color: #354f5f;
   font-size: 12px;
   line-height: 1.4;
   font-weight: 650;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 .iu-app-footer .iu-footer-legal {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  margin: 17px 0 0;
+  margin: 14px 0 0;
   color: #657d8c;
   font-size: 10px;
   font-weight: 450;
@@ -148,9 +165,11 @@
 @media(max-width: 350px) {
   .app > footer.iu-app-footer { padding-inline: 5px; }
   .iu-app-footer .iu-footer-brand-row { gap: 8px; }
-  .iu-app-footer .iu-footer-logo { flex-basis: 40px; width: 40px; height: 40px; }
+  .iu-app-footer .iu-footer-logo { flex-basis: 36px; width: 36px; height: 36px; }
+  .iu-app-footer .iu-footer-logo img { width: 36px; max-height: 36px; }
   .iu-app-footer .iu-footer-brand strong { font-size: 17px; }
-  .iu-app-footer .iu-footer-credits { gap: 8px; }
+  .iu-app-footer .iu-footer-credits { padding-inline: 9px; }
+  .iu-app-footer .iu-footer-credits > div { gap: 6px; }
 }
 @media(prefers-reduced-motion:reduce) {
   .iu-app-footer button.iu-footer-version { transition: none; }
