@@ -1,6 +1,6 @@
 {
-  "version": "43.16",
+  "version": "43.17",
   "published": "2026-11-25",
-  "assets": 109,
-  "notes": "Mes paniers : fiches individuelles neumorphiques, tare mise en valeur, commandes réorganisées, formulaire harmonisé et dégradé continu. Gestion, stockage, calculs et Worker inchangés."
+  "assets": 110,
+  "notes": "Correction du tracé des icônes de modification et suppression pendant le glissement des paniers. Sauvegarde harmonisée avec les bilans : dégradé continu, panneaux, résumé, boutons et options. Données, exports, restauration et Worker inchangés."
 }
