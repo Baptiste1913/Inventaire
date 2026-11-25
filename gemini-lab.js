@@ -131,6 +131,9 @@
    if(latest.usage)lines.push('Tokens : entrée '+(latest.usage.promptTokenCount??'—')+' · sortie '+(latest.usage.candidatesTokenCount??'—')+' · réflexion '+(latest.usage.thoughtsTokenCount??'—')+' · cache '+(latest.usage.cachedContentTokenCount??'—'));
    if(latest.thinking)lines.push('Réflexion '+latest.thinking+' · format '+(latest.format||(latest.compact?'compact':'json'))+' · '+(latest.streaming?'streaming':'normal')+(Number.isFinite(latest.firstToken)?' · premier token '+latest.firstToken+' ms':''));
    if(latest.server)lines.push('Worker : entrée '+fmt(latest.server.ingressMs)+' · préparation '+fmt(latest.server.preparationMs)+' · Google (réseau + calcul) '+fmt(latest.server.upstreamMs)+' · réponse '+fmt(latest.server.responseMs)+' · traitement '+fmt(latest.server.processingMs)+(Number.isFinite(latest.server.routingWallMs)?' · attente totale '+fmt(latest.server.routingWallMs):''));
+   if(latest.api)lines.push('API '+latest.api+(latest.apiFallback?' · repli':'')+' · température '+latest.temperature+' · plafond '+latest.maxOutputTokens+' tokens');
+   if(latest.mediaRequested)lines.push('Résolution demandée '+latest.mediaRequested.main+(latest.mediaRequested.detail?' / '+latest.mediaRequested.detail:'')+' · utilisée '+(latest.media?latest.media.main+(latest.media.detail?' / '+latest.media.detail:''):'défaut'));
+   if(Number.isFinite(latest.firstToken)&&Number.isFinite(latest.server?.routingWallMs))lines.push('Après premier token : '+fmt(Math.max(0,latest.server.routingWallMs-latest.firstToken)));
    if(Number.isFinite(latest.difficulty))lines.push('Difficulté estimée '+latest.difficulty+'/100');
    if(latest.cacheRequested)lines.push('Cache explicite demandé'+(latest.cacheFallback?' · repli sans cache':''));
    lines.push('Relectures anticipées réussies : '+samples.filter(x=>x.speculative).length);
@@ -1481,7 +1484,7 @@
    const tier=['priority','standard'].includes(result.serviceTier)?result.serviceTier:'non confirmé';
    const requested=['priority','standard'].includes(result.requestedTier)?result.requestedTier:'non communiqué';
    try{
-    networkSamples.push({ms,bytes:packet.size??null,transport:protocol,tier,requested,server:result.serverTimings||null,route:result.inferenceRoute||'developer (ancien Worker)',hedge:result.hedgeStarted===true,winner:result.hedgeWinner===true,usage:result.usage||null,thinking:result.thinkingLevel,compact:result.compact,streaming:result.streaming,firstToken:result.firstTokenMs,format:result.format,difficulty:result.difficulty,speculative:result.speculative,cacheRequested:result.cacheRequested,cacheFallback:result.cacheFallback});
+    networkSamples.push({ms,bytes:packet.size??null,transport:protocol,tier,requested,server:result.serverTimings||null,route:result.inferenceRoute||'developer (ancien Worker)',hedge:result.hedgeStarted===true,winner:result.hedgeWinner===true,usage:result.usage||null,thinking:result.thinkingLevel,compact:result.compact,streaming:result.streaming,firstToken:result.firstTokenMs,format:result.format,difficulty:result.difficulty,speculative:result.speculative,cacheRequested:result.cacheRequested,cacheFallback:result.cacheFallback,api:result.api,apiFallback:result.apiFallback,media:result.media,mediaRequested:result.mediaRequested,maxOutputTokens:result.maxOutputTokens,temperature:result.temperature});
     if(networkSamples.length>100)networkSamples.shift();
     renderNetworkDiagnostic();
    }catch(_){}
@@ -2134,7 +2137,7 @@
    .some(mode=>document.body.classList.contains(mode));
  }
  function syncWeighingPage(){
-  if(isWeighingPage())return;
+  if(isWeighingPage()){warmNetwork();return;}
   // Ne pas effacer la photo, l'étiquette ou la proposition non enregistrée.
   // Arrêter aussi une demande getUserMedia encore en attente via cameraEpoch.
   if(cameraStream||cameraStarting||analysisCameraClosed)stopCamera();
@@ -3036,6 +3039,7 @@
   }
  });
  document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&isWeighingPage())warmNetwork(true);
   if(!isWeighingPage()){syncWeighingPage();return;}
   if(document.hidden&&cameraStream){
    stopQualityMonitor();
@@ -3082,4 +3086,6 @@
   routeObserver.observe(panel,{attributes:true,attributeFilter:['hidden']});
  }
  syncWeighingPage();
+ // Negotiate transport at app startup, with stored key only; no photo or Google call.
+ if(readStoredKey()&&pilotKey.value.trim()===readStoredKey())warmNetwork();
 })();

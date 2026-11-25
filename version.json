@@ -1,6 +1,6 @@
 {
-  "version": "43.07",
+  "version": "43.08",
   "published": "2026-11-25",
   "assets": 107,
-  "notes": "Expériences Gemini Standard : format texte strict, score de difficulté de la photo courante, réflexion adaptative, anticipation EAN conservatrice et cache explicite facultatif. Aucun changement de modèle, capture, CORS ni contrôles d'identité. Worker à redéployer."
+  "notes": "Gemini Standard : préchauffage binaire dès l'ouverture, options de résolution par image, Interactions sans état, température et plafond de tokens, diagnostics comparatifs. Réglages expérimentaux désactivés par défaut. Worker à redéployer."
 }

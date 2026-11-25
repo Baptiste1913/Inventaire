@@ -202,6 +202,52 @@ function configuredCache(env,mode,format){
 function speculativeEnabled(env){
  return env.GEMINI_SPECULATIVE_EAN==='true'&&env.GEMINI_ROUTE!=='hedge';
 }
+// All experiments are opt-in. No changes to JPEG bytes or identity checks.
+function visualPlan(env,difficulty,focusFields,detail){
+ const mode=env.GEMINI_MEDIA_RESOLUTION;
+ if(!['medium','high','adaptive'].includes(mode))return null;
+ const focused=focusFields.length>0;
+ const easy=Number.isSafeInteger(difficulty)&&difficulty<=54;
+ const main=mode==='adaptive'?(easy&&detail&&!focused?'medium':'high'):mode;
+ const secondary=detail?(focused&&env.GEMINI_DETAIL_RESOLUTION==='ultra_high'?'ultra_high':'high'):null;
+ return {main,detail:secondary};
+}
+function outputLimit(env,format,thinkingLevel){
+ return env.GEMINI_TOKEN_LIMIT==='adaptive'&&thinkingLevel==='MINIMAL'?({json:256,compact:192,delimited:128}[format]||1024):1024;
+}
+function temperatureOption(env){
+ return env.GEMINI_TEMPERATURE==='default'?null:env.GEMINI_TEMPERATURE==='0.5'?.5:0;
+}
+function interactionBody(model,body,plan){
+ const cfg=body.generationConfig, schema=cfg.responseSchema;
+ let imageIndex=0;
+ const input=body.contents[0].parts.map(p=>{
+  if(typeof p.text==='string')return {type:'text',text:p.text};
+  const resolution=imageIndex++===0?plan?.main:plan?.detail;
+  return {type:'image',data:p.inline_data.data,mime_type:p.inline_data.mime_type,...(resolution?{resolution}:{})};
+ });
+ const response_format=schema?{type:'text',mime_type:'application/json',schema:{type:'object',
+  properties:Object.fromEntries(Object.keys(schema.properties).map(k=>[k,{type:['string','null']}])),required:schema.required}}:{type:'text',mime_type:'text/plain'};
+ // Interactions uses its own wire schema; omit legacy sampling options.
+ return {model,input,store:false,stream:false,response_format,generation_config:{thinking_level:cfg.thinkingConfig.thinkingLevel.toLowerCase(),max_output_tokens:cfg.maxOutputTokens}};
+}
+function normalizeInteraction(data){
+ if(data?.status!=='completed'||!Array.isArray(data.steps))throw Error('Interaction non terminée');
+ const steps=data.steps.filter(s=>s.type==='model_output');
+ if(steps.length!==1||!Array.isArray(steps[0].content)||steps[0].content.some(p=>p.type!=='text'||typeof p.text!=='string'))throw Error('Sortie Interaction non exploitable');
+ const text=steps[0].content.map(p=>p.text).join('');
+ if(!text.trim()||text.length>5000)throw Error('Sortie Interaction vide ou trop longue');
+ const u=data.usage||{};
+ return {candidates:[{finishReason:'STOP',content:{parts:[{text}]}}],usageMetadata:{promptTokenCount:u.total_input_tokens,candidatesTokenCount:u.total_output_tokens,thoughtsTokenCount:u.total_thought_tokens,cachedContentTokenCount:u.total_cached_tokens,totalTokenCount:u.total_tokens}};
+}
+function mediaBody(body,plan){
+ let i=0;
+ return {...body,contents:body.contents.map(c=>({...c,parts:c.parts.map(p=>{
+  if(!p.inline_data)return p;
+  const level=i++===0?plan.main:plan.detail;
+  return {...p,mediaResolution:{level:'MEDIA_RESOLUTION_'+level.toUpperCase()}};
+ })}))};
+}
 function usageOf(data){
  const usage=data?.usageMetadata||{},out={};
  for(const k of ['promptTokenCount','candidatesTokenCount','thoughtsTokenCount','cachedContentTokenCount','totalTokenCount'])if(Number.isSafeInteger(usage[k])&&usage[k]>=0)out[k]=usage[k];
@@ -380,13 +426,18 @@ async function geminiPilot(request,env,origin){
   const mode=routingMode(env,model);
   const cache=configuredCache(env,mode,format);
   const effectivePrompt=delimited?prompt.replace('Retourne seulement un objet JSON avec les six propriétés exactes.','Retourne UNE ligne sans titre ni guillemets, exactement six champs séparés par ; dans cet ordre : name;weightKg;pricePerKgEur;totalEur;ean13;eanObserved. Remplace chaque champ inconnu ou non ciblé par ? et conserve sa position. Aucun autre texte.'):compact?prompt+' Utilise les clés JSON courtes suivantes à la place des clés longues : '+JSON.stringify(compactKeys)+'.':prompt;
-  const generationConfig={temperature:0,maxOutputTokens:1024,responseMimeType:delimited?'text/plain':'application/json',...(delimited?{}:{responseSchema:compact?compactSchema:responseSchema}),thinkingConfig:{thinkingLevel}};
+  const temperature=temperatureOption(env),maxOutputTokens=outputLimit(env,format,thinkingLevel);
+  const generationConfig={...(temperature===null?{}:{temperature}),maxOutputTokens,responseMimeType:delimited?'text/plain':'application/json',...(delimited?{}:{responseSchema:compact?compactSchema:responseSchema}),thinkingConfig:{thinkingLevel}};
   const body={contents:[{role:'user',parts:[{text:effectivePrompt},...imageParts]}],generationConfig};
   // Explicit cache is opt-in; the immutable original prompt stays available for fallback.
   const cachedBody=cache?{...body,cachedContent:cache,contents:[{role:'user',parts:[{text:'Applique les instructions DIGI en cache à cette nouvelle photo uniquement. '+prompt.slice(generalPrompt.length)},...imageParts]}]}:null;
   const developer='https://generativelanguage.googleapis.com/v1beta/models/'+model;
   const vertex=vertexEndpoint(env,model);
   const method=streaming?':streamGenerateContent?alt=sse':':generateContent';
+  // Keep experiments independent from optional legacy Vertex/cache/racing paths.
+  const plan=mode==='developer'&&!cache?visualPlan(env,difficulty,focusFields,Boolean(detail)):null;
+  const useInteractions=mode==='developer'&&!cache&&env.GEMINI_API_MODE==='interactions';
+  const experimentAPI=useInteractions?'interactions':plan?'generateContent-alpha':'generateContent';
   const serialized=JSON.stringify(body);
   const preparationMs=Date.now()-validationStarted,upstreamStarted=Date.now();
   const controllers=[];
@@ -395,12 +446,27 @@ async function geminiPilot(request,env,origin){
   async function call(route,maxAttempts){
    const control=new AbortController();controllers.push(control);
    if(abort.signal.aborted)control.abort();
-   const url=(route==='vertex'?vertex:developer)+method;
+   const standardURL=(route==='vertex'?vertex:developer)+method;
    const key=route==='vertex'?env.VERTEX_API_KEY:env.GEMINI_API_KEY;
    const began=Date.now();
-   const opts={method:'POST',signal:control.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:cachedBody?JSON.stringify(cachedBody):serialized};
+   let api=route==='developer'?experimentAPI:'generateContent',media=route==='developer'?plan:null;
+   let apiFallback=false;
+   let url=api==='interactions'?'https://generativelanguage.googleapis.com/v1beta/interactions':api==='generateContent-alpha'?standardURL.replace('/v1beta/','/v1alpha/'):standardURL;
+   let sentBody=api==='interactions'?JSON.stringify(interactionBody(model,body,media)):media?JSON.stringify(mediaBody(body,media)):cachedBody?JSON.stringify(cachedBody):serialized;
+   const opts={method:'POST',signal:control.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key,...(api==='interactions'?{'Api-Revision':'2026-05-20'}:{})},body:sentBody};
    const limits={deadline:started+budgetMs,signal:control.signal,circuit:route==='vertex'?vertexCircuit:geminiCircuit,maxAttempts};
    let attempt=await resilientGemini(url,opts,limits),cacheFallback=false;
+   // Experimental endpoints/options may not be enabled for this project.
+   // Revert only on explicit 400/404 option/endpoint rejection, once, within the original budget.
+   if(api!=='generateContent'&&[400,404].includes(attempt.response?.status)&&attempt.stats.attempts===1&&Date.now()<started+budgetMs-1500&&!control.signal.aborted){
+    const reason=await attempt.response.text().catch(()=>'');
+    if(/media.?resolution|resolution|interaction|response.?format|generation.?config|unknown field|not found|not supported|invalid argument/i.test(reason)){
+     const previous=attempt.stats;apiFallback=true;api='generateContent';media=null;
+     const {['Api-Revision']:revision,...headers}=opts.headers;
+     attempt=await resilientGemini(standardURL,{...opts,headers,body:serialized},{...limits,maxAttempts:1});
+     attempt.stats={...attempt.stats,attempts:previous.attempts+attempt.stats.attempts,upstream503:previous.upstream503+attempt.stats.upstream503,waitMs:previous.waitMs+attempt.stats.waitMs};
+    }
+   }
    // Reissue only on explicit cache rejection, not a successful or ambiguous request.
    if(cachedBody&&[400,404].includes(attempt.response?.status)&&attempt.stats.attempts===1&&Date.now()<started+budgetMs-1500){
     const reason=await attempt.response.text().catch(()=>'');
@@ -413,11 +479,11 @@ async function geminiPilot(request,env,origin){
    const res=attempt.response,headersMs=Date.now()-began;let data=null,firstTokenMs=null,bodyError=false;
    if(res?.ok){
     try{
-     if(streaming){const stream=await readStream(res,control.signal);data=stream.data;firstTokenMs=stream.firstTokenMs===null?null:headersMs+stream.firstTokenMs;}
-     else{const raw=await res.text();if(raw.length>16000)throw Error('Réponse trop volumineuse');data=JSON.parse(raw);}
+     if(streaming&&api!=='interactions'){const stream=await readStream(res,control.signal);data=stream.data;firstTokenMs=stream.firstTokenMs===null?null:headersMs+stream.firstTokenMs;}
+     else{const raw=await res.text();if(raw.length>(api==='interactions'?65536:16000))throw Error('Réponse trop volumineuse');data=JSON.parse(raw);if(api==='interactions')data=normalizeInteraction(data);}
     }catch(_){bodyError=true;}
    }
-   return {route,attempt,res,data,headersMs,firstTokenMs,bodyError,cacheFallback,totalMs:Date.now()-began,control};
+   return {route,attempt,res,data,headersMs,firstTokenMs,bodyError,cacheFallback,api,apiFallback,media,totalMs:Date.now()-began,control};
   }
   let selected,hedgeStarted=false,hedgeWinner=false;
   try{
@@ -462,7 +528,7 @@ async function geminiPilot(request,env,origin){
   const upstreamMs=selected.headersMs,responseMs=Math.max(0,selected.totalMs-upstreamMs),routingWallMs=Date.now()-upstreamStarted;
   const processingStarted=Date.now();
   const googleMeta={requestedTier:'standard',sentTier:'standard',serviceTier:res?.headers?.get('x-gemini-service-tier')==='standard'?'standard':'unknown',
-   inferenceRoute:selected.route,routingMode:mode,hedgeStarted,hedgeWinner,thinkingLevel,compact,streaming,
+   inferenceRoute:selected.route,routingMode:mode,hedgeStarted,hedgeWinner,thinkingLevel,compact,streaming:streaming&&selected.api!=='interactions',api:selected.api,apiFallback:selected.apiFallback,mediaRequested:plan,media: selected.media,maxOutputTokens,temperature:selected.api==='interactions'?'default':temperature===null?'default':temperature,
    firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data),format,difficulty,speculative,cacheRequested:Boolean(cache),cacheFallback:selected.cacheFallback===true,speculativeEAN:speculativeEnabled(env)};
   if(!res){
    const status=abort.signal.aborted||networkStats.stage==='timeout'?504:503;
