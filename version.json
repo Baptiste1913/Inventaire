@@ -1,6 +1,6 @@
 {
-  "version": "43.21",
+  "version": "43.22",
   "published": "2026-11-25",
   "assets": 110,
-  "notes": "Orchestration locale événementielle : fusion immédiate des moteurs, échéance commune, relecture cloud évitée si preuves suffisantes, arrêt ciblé des Workers facultatifs. Déduction DIGI libellé/préfixe, variantes prix/EAN, plages inverses et confirmation des cas uniques faibles. Protections et Gemini 3.5 inchangés. Worker Cloudflare v43.20 à redéployer si nécessaire."
+  "notes": "Calculateur DIGI : ensemble borné de variantes EAN, comparaison optique par code, positions discriminantes prioritaires, propositions de poids par intervalle exact, départage de deux lectures de poids à 50 g maximum avec EAN 02 corroboré et montant imprimé. Aucune valeur estimée enregistrée automatiquement, contrôles prix et identité conservés. Worker Cloudflare v43.20 à redéployer si nécessaire."
 }

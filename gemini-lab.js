@@ -844,11 +844,16 @@
   if(!repairValue||!repairField)return;
   const key=fieldKeys[repairField.value],val=latestLabelFields?.[key];
   repairValue.inputMode=key==='ean13'?'numeric':key==='name'?'text':'decimal';
-  const inferred=window.IUDigiCatalogLookup?.deductionPlan?.(lastRawResult)?.uniqueValues?.[repairField.value];
+  const deduction=window.IUDigiCatalogLookup?.deductionPlan?.(lastRawResult);
+  const weightHint=repairField.value==='weight'?window.IUDigiCatalogLookup?.weightProposal?.(lastRawResult?.fields):null;
+  const inferred=deduction?.uniqueValues?.[repairField.value]??(weightHint?.eligible?weightHint.suggested:null);
   repairValue.placeholder=val==null&&Number.isSafeInteger(inferred)?
    'À vérifier : '+(key==='weightGrams'?(inferred/1000).toFixed(3):(inferred/100).toFixed(2)):'';
-  repairValue.title=val==null&&Number.isSafeInteger(inferred)?
-   'Valeur mathématique possible, à comparer aux chiffres imprimés avant validation.':'';
+  repairValue.title=Number.isSafeInteger(inferred)?
+   'Valeur mathématique possible : '+(key==='weightGrams'?(inferred/1000).toFixed(3):(inferred/100).toFixed(2))+' · à comparer aux chiffres imprimés avant validation.':'';
+  if(weightHint?.eligible&&val!==weightHint.suggested&&repairValue.title)
+   repairValue.setAttribute('aria-description',repairValue.title);
+  else repairValue.removeAttribute('aria-description');
   repairValue.value=val===null||val===undefined?''
    :key==='ean13'||key==='name'?String(val)
    :key==='weightGrams'?(val/1000).toFixed(3):(val/100).toFixed(2);
@@ -1471,6 +1476,9 @@
     +(result.digiPlan?' · DIGI : '+result.digiPlan.candidateCount+' candidat(s), '+result.digiPlan.observationCount+' observations, '+result.digiPlan.barRows+' lignes':'')
     +(result.digiDigitHint?' · OCR chiffres (indice) '+result.digiDigitHint:'')
     +(result.digiAdvancedHint?' · Advanced '+result.digiAdvancedHint.elapsedMs+' ms · indices '+[result.digiAdvancedHint.pattern?'EAN '+result.digiAdvancedHint.pattern:null,...Object.entries(result.digiAdvancedHint.fields||{}).map(([k,x])=>({weight:'poids ',rate:'€/kg ',total:'montant '}[k]||'')+x.text)].filter(Boolean).join(' / '):'')
+    +(result.digiPlan?.constraints?' · contraintes : '+(result.digiPlan.constraints.variantCount??'indéterminé')+' EAN possible(s) / '+result.digiPlan.constraints.barRows+' lignes optiques'+(result.digiPlan.constraints.consensus?' / commun '+result.digiPlan.constraints.consensus:''):'')
+    +(result.weightResolution?' · poids lu départagé par le calcul (écart '+result.weightResolution.delta+' g)':'')
+    +(result.weightSuggestion?.eligible&&result.weightSuggestion.observed!==result.weightSuggestion.suggested?' · poids théorique '+(result.weightSuggestion.suggested/1000).toFixed(3)+' kg à vérifier ('+result.weightSuggestion.min+'–'+result.weightSuggestion.max+' g)':'')
     +(result.digiPlan?.positions?.length?' · EAN positions '+result.digiPlan.positions.join(', '):'')
     +(result.digiPlan?.ranges?.weight?' · plage poids '+result.digiPlan.ranges.weight.min+'–'+result.digiPlan.ranges.weight.max+' g':'')
     +(result.digiPlan?.ranges?.rate?' · plage tarif '+result.digiPlan.ranges.rate.min+'–'+result.digiPlan.ranges.rate.max+' ct/kg':'')
@@ -1698,7 +1706,7 @@
   let conflict=false,opticallyConfirmed=false,eanRechecked=false,nameRechecked=false;
   let recovery=original?.digiRecovery,observed=original?.eanObserved;
   let guidedEAN=Boolean(original?.guidedEAN),guidedPrefixVerified=Boolean(original?.guidedPrefixVerified);
-  let provenance=original?.recoveryProvenance;
+  let provenance=original?.recoveryProvenance,weightResolution=original?.weightResolution;
   for(const kind of targets){
    const key=fieldKeys[kind],next=recheck?.fields?.[key];
    if(!readableValue(kind,next))continue;
@@ -1723,6 +1731,15 @@
     if(kind==='ean'){observed=next;eanRechecked=!recheck?.catalogGuided&&!guidedEAN;}
     continue;
    }
+   if(kind==='weight'&&!original?.checks?.readingConflict&&!original?.checks?.independentMismatch&&
+      // If price or amount also changed, neither weight can yet be adjudicated.
+      (!readableValue('rate',recheck?.fields?.pricePerKgCents)||recheck.fields.pricePerKgCents===fields.pricePerKgCents)&&
+      (!readableValue('total',recheck?.fields?.totalCents)||recheck.fields.totalCents===fields.totalCents)){
+    const pick=window.IUDigiCatalogLookup?.chooseObservedWeight?.(fields,next,{
+     eanVerified:verifiedIdentityEAN(original),
+     printedTotal:recovery?.sources?.total!=='calculated'&&provenance?.total!=='calculated'});
+    if(pick){fields[key]=pick.value;weightResolution=pick;continue;}
+   }
    // Une première proposition DIGI ne doit jamais battre un code
    // réellement relu, ni un nom officiel relu sur l'étiquette.
    if(kind==='name'){
@@ -1743,7 +1760,7 @@
     conflict=true;
    }
   }
-  return {...original,fields,printedName:original?.printedName||original?.fields?.name||recheck?.fields?.name||null,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,guidedEAN,guidedPrefixVerified,source:'gemini-recovery',
+  return {...original,fields,printedName:original?.printedName||original?.fields?.name||recheck?.fields?.name||null,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,guidedEAN,guidedPrefixVerified,weightResolution,source:'gemini-recovery',
    pipelineVersion:recheck?.pipelineVersion||original?.pipelineVersion,
    elapsedMs:Number(original?.elapsedMs||0)+Number(recheck?.elapsedMs||0),
    networkStats:{attempts:Number(original?.networkStats?.attempts||0)+Number(recheck?.networkStats?.attempts||0),
@@ -2073,6 +2090,11 @@
       combined={...combined,orchestration:{...combined.orchestration,cloudReadAvoided:true}};
      }else{
      if(refreshed.length)targets=refreshed;
+     // Refresh constraints with new evidence obtained during crop prep.
+     if(targets.includes('ean')){
+      const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value,digitJob?.value,advancedJob?.value].filter(Boolean);
+      try{combined={...combined,digiPlan:window.IUDigiCatalogLookup?.solveHypotheses?.(combined,{observations,history:window.IUDigiRecentReferences?.()||[]})};}catch(_){}
+     }
      // Reuse only a completed independent confirmation of the existing valid EAN.
      // Never introduce a new identity, override a conflict or skip a planned DIGI targeted read.
      const speculativeResult=speculativeJob?.done?speculativeJob.value:null;
@@ -2170,7 +2192,8 @@
     cachedFocused.clear();
     if(cachedEnhanced?.source===sourcePhoto)cachedEnhanced=null;
    }
-   validated={...validated,digiDeduction:window.IUDigiCatalogLookup?.deductionPlan?.(validated)};
+   validated={...validated,digiDeduction:window.IUDigiCatalogLookup?.deductionPlan?.(validated),
+    weightSuggestion:window.IUDigiCatalogLookup?.weightProposal?.(validated.fields)};
    repairFocus=null;
    validated.timing={preparationMs,firstResponseMs,recoveryMs,totalMs:Math.round(performance.now()-start),captureMs:Number.isFinite(file?.iuCaptureMs)?file.iuCaptureMs:null};
    display(validated,performance.now()-start);

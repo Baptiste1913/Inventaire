@@ -508,6 +508,101 @@
    exactNameCount:exact?.size||0,variantCount:unresolved?null:variants.length,
    consensus,encodedTotal,ranges,uniqueValues};
  }
+ // Solve within integer grams/cents. The +/-50 g policy is a
+ // search/review window, never a relaxation of price or EAN validation.
+ const WEIGHT_REVIEW_GRAMS=50;
+ function weightProposal(fields){
+  const f=fields||{},g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents;
+  if(!Number.isSafeInteger(r)||r<1||r>1000000||!Number.isSafeInteger(t)||t<0)return null;
+  const broad=inverseRanges(f).weight;
+  if(!broad||broad.min>broad.max)return null;
+  // Prefer an exact printed cent amount, not the tolerance endpoints.
+  const exact={min:Math.max(broad.min,Math.ceil((t-.5)*1000/r)),
+   max:Math.min(broad.max,Math.ceil((t+.5)*1000/r)-1)};
+  if(exact.min>exact.max)return null;
+  const observed=Number.isSafeInteger(g)&&g>0&&g<=30000;
+  const min=exact.min,max=exact.max;
+  const suggested=observed?Math.max(min,Math.min(max,g)):Math.round((min+max)/2);
+  const delta=observed?Math.abs(suggested-g):null;
+  const maxError=Math.max(suggested-min,max-suggested);
+  const eligible=observed?delta<=WEIGHT_REVIEW_GRAMS:maxError<=WEIGHT_REVIEW_GRAMS;
+  return {min,max,suggested,delta,maxError,eligible,observed:observed?g:null,unique:min===max,tolerance:WEIGHT_REVIEW_GRAMS};
+ }
+ // Two actual readings may be adjudicated using independent EAN and
+ // unmodified printed price/total. Never average or synthesize a weight.
+ function chooseObservedWeight(fields,other,{eanVerified=false,printedTotal=true}={}){
+  const f=fields||{},g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents,e=f.ean13;
+  if(!eanVerified||!printedTotal||!eanValid(e)||!e.startsWith('02')||!resolve(e).ok||
+     !Number.isSafeInteger(g)||g<1||g>30000||!Number.isSafeInteger(other)||other<1||other>30000||
+     !Number.isSafeInteger(r)||r<1||r>1000000||!Number.isSafeInteger(t)||t<0||
+     Math.abs(g-other)>WEIGHT_REVIEW_GRAMS||Math.round(Number(e.slice(7,12))*100/655.36)!==t)return null;
+  const a=Math.abs(Math.round(g*r/1000)-t),b=Math.abs(Math.round(other*r/1000)-t);
+  // If both satisfy the existing one-cent rule, no unique winner.
+  if(a<=1&&b<=1)return null;
+  if(a===0&&b>1)return {value:g,delta:Math.abs(g-other),source:'read-verified-by-math'};
+  if(b===0&&a>1)return {value:other,delta:Math.abs(g-other),source:'read-verified-by-math'};
+  return null;
+ }
+ // Full bounded solution set, with explicit truncation. Weak OCR evidence
+ // can rank hypotheses, but is never substituted into the observed mask.
+ function constraintPlan(result,{observations=[]}={}){
+  const f=result?.fields||{},base=observedPattern(result?.eanObserved)||observedPattern(f.ean13);
+  const items=matchingCandidates({eanObserved:base,name:f.name});
+  const g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents;
+  const computed=Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0?Math.round(g*r/1000):null;
+  const total=Number.isSafeInteger(t)&&t>=0?t:computed;
+  const weight=weightProposal(f);
+  const comparable=total!==null&&(computed===null||Math.abs(computed-total)<=1);
+  const rows=[],masks=[];
+  for(const o of observations.slice(0,6)){
+   const mask=observedPattern(o?.pattern||o?.ean13);
+   if(mask)masks.push({mask,weight:o.source==='optical-partial'?2:['digit-template','digi-advanced'].includes(o.source)?.35:1});
+   if(Array.isArray(o?.bitRows))for(const row of o.bitRows){
+    if(rows.length>=8)break;
+    if(typeof row==='string'&&/^[01]{95}$/.test(row)&&row.slice(0,3)==='101'&&row.slice(45,50)==='01010'&&row.slice(92)==='101')rows.push(row);
+   }
+  }
+  const all=new Map();let incomplete=!comparable||!items.length||items.length>80;
+  if(comparable&&items.length<=80)for(const item of items){
+   if(item.ambiguous){incomplete=true;continue;}
+   if(uniqueNameConflict(f.name,item.eanPrefix))continue;
+   if(!item.eanPrefix.startsWith('02')){
+    const complete=/^\d{12}\?$/.test(base)?base.slice(0,12)+checkDigit(base.slice(0,12)):base;
+    if(eanValid(complete)&&complete.startsWith(item.eanPrefix))all.set(complete,item);
+    else incomplete=true;
+    continue;
+   }
+   for(const code of amountVariants(item.eanPrefix,total,computed??total,base)){
+    all.set(code,item);if(all.size>1600){incomplete=true;break;}
+   }
+   if(all.size>1600)break;
+  }
+  const variants=[...all].slice(0,1600);
+  // Score every complete EAN variant, not only one per prefix.
+  const ranked=variants.map(([code,item])=>{
+   const optical=barDistance(code,rows),bits=encodeBars(code);
+   const exactRows=rows.filter(row=>row===bits).length;
+   const loss=masks.reduce((sum,o)=>sum+[...o.mask].reduce((n,d,i)=>n+(d!=='?'&&d!==code[i]?o.weight:0),0),0);
+   return {code,plu:item.plu,eanPrefix:item.eanPrefix,name:item.name,barDistance:optical,exactRows,score:loss*4+(optical??0)*1.5+(1-(item.nameScore||0))*3};
+  }).sort((a,b)=>a.score-b.score||a.code.localeCompare(b.code));
+  const consensus=!incomplete&&variants.length?Array.from({length:13},(_,i)=>variants.every(([code])=>code[i]===variants[0][0][i])?variants[0][0][i]:'?').join(''):null;
+  // Entropy ranks only discriminating positions; keep all unknowns as a
+  // fallback. A mathematically common digit is not a pixel observation.
+  const positionScores=[];
+  if(!incomplete&&variants.length>1)for(let i=0;i<13;i++){
+   if(base&&base[i]!=='?')continue;
+   const counts=new Map();for(const [code] of variants)counts.set(code[i],(counts.get(code[i])||0)+1);
+   const entropy=-[...counts.values()].reduce((s,n)=>{const p=n/variants.length;return s+p*Math.log2(p)},0);
+   if(entropy>0)positionScores.push({position:i+1,entropy});
+  }
+  positionScores.sort((a,b)=>b.entropy-a.entropy||a.position-b.position);
+  const weightObservations=observations.filter(o=>o?.source==='digi-advanced').map(o=>o.fields?.weight?.value)
+   .filter(v=>Number.isSafeInteger(v)&&v>0&&v<=30000);
+  const matchingWeights=weight? [...new Set(weightObservations.filter(v=>v>=weight.min&&v<=weight.max))]:[];
+  return {complete:!incomplete,variantCount:incomplete?null:variants.length,consensus,
+   ranked:ranked.slice(0,8),positions:positionScores.map(p=>p.position),barRows:rows.length,
+   weight,matchingWeights,unsupportedPrefixes:[...new Set(items.filter(i=>!i.eanPrefix.startsWith('02')).map(i=>i.eanPrefix))].slice(0,12)};
+ }
  function solveHypotheses(result,{observations=[],history=[]}={}){
   const fields=result?.fields||{},base=observedPattern(result?.eanObserved)||observedPattern(fields.ean13);
   const guide=recheckPlan(result),ranges=inverseRanges(fields);
@@ -569,8 +664,12 @@
   // and official product references guide the next visual reading.
   for(const item of ranked.slice(0,5))if(base)for(let i=0;i<13;i++)
    if(item.code[i]!=='?'&&base[i]!=='?'&&item.code[i]!==base[i])positions.add(i+1);
+  const constraints=constraintPlan(result,{observations});
+  // Highest-information positions first. The full list is retained for
+  // the worker; no inferred digits are injected into eanObserved.
+  const priority=[...new Set([...constraints.positions,...[...positions].sort((a,b)=>a-b)])];
   return {candidates:ranked.slice(0,5).map(({eanPrefix,plu,name})=>({eanPrefix,plu,name})),
-   positions:[...positions].sort((a,b)=>a-b),candidateCount:pool.size,ranges,
+   positions:priority,candidateCount:pool.size,ranges,constraints,
    ranked:ranked.slice(0,5),observationCount:sources.length,barRows:Math.min(8,rows.length),
    truncated:pool.size>160};
  }
@@ -595,5 +694,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,deductionPlan,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,compatibleName,fuseIdentity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,deductionPlan,constraintPlan,weightProposal,chooseObservedWeight,WEIGHT_REVIEW_GRAMS,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,compatibleName,fuseIdentity,STORAGE_KEY});
 });
