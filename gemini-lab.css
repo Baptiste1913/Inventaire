@@ -6517,3 +6517,57 @@ html body main.app > section#iuGeminiLab.card.calc-card.iu-gemini-standalone > .
   box-shadow:none!important;
  }
 }
+
+/* v43.32 — Accès Cloudflare : même champ que la limite de poids brut.
+   La clé reste masquée et les actions de stockage existantes sont conservées. */
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions #iuGeminiKeyConfig{
+ gap:7px!important;min-width:0!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions .iu-gemini-key-row{
+ display:flex!important;align-items:center!important;gap:8px!important;
+ box-sizing:border-box!important;width:calc(100% - 4px)!important;min-width:0!important;
+ margin:0 2px 5px!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions .iu-gemini-key-row > #iuGeminiPilotKey{
+ display:block!important;box-sizing:border-box!important;flex:1 1 0!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ margin:0!important;padding:14px 16px!important;
+ border:1px solid #dce1e5!important;border-radius:13px!important;
+ background:#f8f9fa!important;color:#303b44!important;
+ font-family:inherit!important;font-size:16px!important;font-weight:400!important;
+ line-height:1.4!important;letter-spacing:normal!important;
+ box-shadow:inset 0 1px 0 #fff!important;outline:none!important;
+ transition:border-color .35s ease,box-shadow .35s ease!important;
+ -webkit-appearance:none;appearance:none;
+}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions .iu-gemini-key-row > #iuGeminiPilotKey:focus{
+ border-color:#87949d!important;background:#f8f9fa!important;
+ box-shadow:0 0 0 3px rgba(101,115,125,.10)!important;outline:none!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions .iu-gemini-key-row > #iuGeminiPilotKey::placeholder{
+ color:#b6c1c7!important;opacity:1!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions #iuGeminiForgetKey:not([hidden]){
+ display:grid!important;place-items:center!important;box-sizing:border-box!important;
+ flex:0 0 44px!important;width:44px!important;min-width:44px!important;max-width:44px!important;
+ height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;
+ border:1px solid #ebcdd0!important;border-radius:12px!important;
+ background:linear-gradient(145deg,#fff7f7,#f4dfe1)!important;
+ color:#a54b55!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 2px 5px rgba(148,65,75,.09)!important;
+ cursor:pointer;transition:transform .18s ease,background .18s ease!important;
+}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions #iuGeminiForgetKey[hidden]{display:none!important}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions #iuGeminiForgetKey svg{
+ display:block!important;width:19px!important;height:19px!important;flex:none!important;pointer-events:none;
+}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions #iuGeminiForgetKey:not([hidden]):active{transform:scale(.94)}
+html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions #iuGeminiForgetKey:focus-visible{outline:2px solid #a54b55!important;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){
+ html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions :is(#iuGeminiPilotKey,#iuGeminiForgetKey){transition:none!important}
+}
+@media(forced-colors:active){
+ html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions :is(#iuGeminiPilotKey,#iuGeminiForgetKey){
+  border-color:CanvasText!important;background:Canvas!important;color:CanvasText!important;box-shadow:none!important;
+ }
+ html body main.app > section#iuGeminiLab.card.calc-card #iuGeminiOptions :is(#iuGeminiPilotKey,#iuGeminiForgetKey):focus{outline:2px solid Highlight!important;outline-offset:2px!important}
+}

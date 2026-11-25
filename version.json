@@ -1,8 +1,8 @@
 {
-  "version": "43.31",
+  "version": "43.32",
   "published": "2026-11-25",
   "assets": 78,
-  "notes": "Pastilles version et sessions harmonisées avec pesées et paniers. Taille des ressources rétablie depuis les tailles réelles des fichiers PWA, sans doublons, repli hors ligne et outil de recalcul. Reconnaissance et Worker inchangés.",
-  "bytes": 4220652,
+  "notes": "Footer : sous-titre Fruits & Légumes harmonisé. Accès Cloudflare : champ de clé aligné sur la limite de poids brut, suppression par icône rouge à droite, retrait du long texte explicatif. Clé masquée, stockage et moteurs inchangés.",
+  "bytes": 4223729,
   "resourceScope": "pwa-local-v1"
 }

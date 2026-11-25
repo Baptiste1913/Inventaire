@@ -1,4 +1,4 @@
-/* Inventaires U v43.31 — Signature d'accueil, indépendante des cartes. */
+/* Inventaires U v43.32 — Signature d'accueil, indépendante des cartes. */
 .app > footer.iu-app-footer {
   box-sizing: border-box;
   grid-column: 1 / -1;
@@ -74,7 +74,7 @@
 }
 .iu-app-footer .iu-footer-brand > span {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 550;
   color: #657d8c;
   line-height: 1.35;
 }
