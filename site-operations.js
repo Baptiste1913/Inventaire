@@ -184,7 +184,14 @@
   // Repousser les écritures à l'image suivante, après la fin du repli.
   requestAnimationFrame(flushAdminPresentation);
  });
- const formatBytes=n=>n>=1048576?(n/1048576).toFixed(2)+' Mo':Math.round(n/1024)+' Ko';
+ const formatBytes=n=>n>=1048576?(n/1048576).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' Mo':Math.round(n/1024).toLocaleString('fr-FR')+' Ko';
+ const validResources=m=>Number.isSafeInteger(m?.assets)&&m.assets>0&&Number.isSafeInteger(m?.bytes)&&m.bytes>0;
+ function showResources(m,cached=false){
+  value('opsAssets',cached?'muted':'normal',Number.isSafeInteger(m?.assets)&&m.assets>0?String(m.assets):'—');
+  value('opsSize',cached?'muted':'normal',Number.isSafeInteger(m?.bytes)&&m.bytes>0?formatBytes(m.bytes):'—');
+  for(const id of ['opsAssets','opsSize']){const el=$(id);if(el)el.title=(m?.resourceScope==='pwa-local-v1'?'Fichiers locaux référencés par le cache PWA, sans doublons, service worker inclus. Taille non compressée, hors données personnelles et services externes.':'Métadonnées de la version')+(cached?' · dernière version mise en cache':'');}
+ }
+ async function cachedManifest(){try{if(!('caches' in window))return null;const hit=await caches.match(new URL('./version.json',location.href).href);return hit?await hit.json():null;}catch(_){return null;}}
  let refreshing=false;
  const fetchTimed=async(url,options={})=>{
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),4500);
@@ -227,8 +234,8 @@
    value('opsWorker',controlled?'success':'warning',controlled?'Actif':r?'Installé, non actif':'Non installé');
   }catch{value('opsWorker','warning','Indisponible');}
   await Promise.all([
-   (async()=>{try{const m=await manifest();value('opsHosting','success','Accessible');value('opsVersion','normal',m.version||VERSION);value('opsAssets','normal',String(m.assets||'—'));value('opsSize','normal',Number.isFinite(m.bytes)?formatBytes(m.bytes):'—');}
-     catch{window.IUTechnicalLog?.('hosting');value('opsHosting','warning',navigator.onLine?'Non vérifiable':'Hors ligne');value('opsAssets','muted','—');value('opsSize','muted','—');}})(),
+   (async()=>{try{const m=await manifest();value('opsHosting','success','Accessible');value('opsVersion','normal',m.version||VERSION);showResources(m);}
+     catch{window.IUTechnicalLog?.('hosting');value('opsHosting','warning',navigator.onLine?'Non vérifiable':'Hors ligne');const cached=await cachedManifest();if(validResources(cached))showResources(cached,true);else{value('opsAssets','muted','—');value('opsSize','muted','—');}}})(),
    (async()=>{if(!navigator.onLine){value('opsSupabase','muted','Hors ligne');return;}
     const config=window.INVENTAIRES_AUTH_CONFIG;
     if(!config?.supabaseUrl){value('opsSupabase','muted','Non configuré');return;}

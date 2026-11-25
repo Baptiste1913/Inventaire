@@ -1,6 +1,8 @@
 {
-  "version": "43.30",
+  "version": "43.31",
   "published": "2026-11-25",
-  "assets": 111,
-  "notes": "Accueil et résultat classique : suppression des trames fixes et animées, conservation du verre et des halos. Footer transparent et séparateur atténué. Mois de référence affiché sans année sur la prochaine échéance ; données comptables intactes."
+  "assets": 78,
+  "notes": "Pastilles version et sessions harmonisées avec pesées et paniers. Taille des ressources rétablie depuis les tailles réelles des fichiers PWA, sans doublons, repli hors ligne et outil de recalcul. Reconnaissance et Worker inchangés.",
+  "bytes": 4220652,
+  "resourceScope": "pwa-local-v1"
 }
