@@ -323,7 +323,7 @@ function render(data){
  const tile=$('calendarNextTile'),day=$('calendarNextDay'),mon=$('calendarNextMonth');
  if(tile){tile.hidden=!next;if(next){day.textContent=String(next.getDate()).padStart(2,'0');mon.textContent=next.toLocaleDateString('fr-FR',{month:'short'}).toUpperCase();}}
  const ref=$('calendarNextReference'),moment=$('calendarNextMoment'),detail=$('calendarNextMeta');
- if(ref){ref.textContent=meta?.referenceMonth?schedule.label(meta.referenceMonth):'';ref.hidden=!ref.textContent;}
+ if(ref){ref.textContent=meta?.referenceMonth?schedule.label(meta.referenceMonth).replace(/ \d{4}$/,''):'';ref.hidden=!ref.textContent;}
  if(moment){moment.textContent=schedule?.momentLabel(meta?.moment)||'';moment.hidden=!moment.textContent;}
  if(detail)detail.hidden=!(ref?.textContent||moment?.textContent);
  const countdown=$('calendarNextCountdown');

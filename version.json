@@ -1,6 +1,6 @@
 {
-  "version": "43.29",
+  "version": "43.30",
   "published": "2026-11-25",
   "assets": 111,
-  "notes": "Planning : champ Mois de référence harmonisé avec le sélecteur du moment et le champ Nom de l’événement, alignement de la date et du mois de référence, pastilles Matin/Soir sans point. Données et reconnaissance inchangées."
+  "notes": "Accueil et résultat classique : suppression des trames fixes et animées, conservation du verre et des halos. Footer transparent et séparateur atténué. Mois de référence affiché sans année sur la prochaine échéance ; données comptables intactes."
 }

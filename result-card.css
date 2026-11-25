@@ -101,12 +101,10 @@ html body .app > section.calc-card .result.iu-result-compact {
  border:1px solid rgba(255,255,255,.94)!important;
  border-radius:20px!important;
  background-color:transparent!important;
- background-image:
-  radial-gradient(circle,rgba(92,121,147,.062) .40px,rgba(92,121,147,.038) .96px,rgba(92,121,147,.012) 1.55px,transparent 2.15px),
-  linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important;
- background-size:28px 28px,100% 100%!important;
- background-position:calc(50% + var(--iu-welcome-dot-x,0px)) var(--iu-welcome-dot-y,0px),center top!important;
- background-repeat:repeat,no-repeat!important;
+ background-image:linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important;
+ background-size:100% 100%!important;
+ background-position:center top!important;
+ background-repeat:no-repeat!important;
  color:#253a45!important;
  -webkit-backdrop-filter:blur(27px) saturate(109%)!important;
  backdrop-filter:blur(27px) saturate(109%)!important;
@@ -125,28 +123,7 @@ html body .app > section.calc-card .result.iu-result-compact::after {
  background:none!important;
  box-shadow:none!important;
 }
-/* Trame mobile partagee avec l'accueil, mais environ 40 % plus discrète. */
-html body .app > section.calc-card .result.iu-result-compact > .iu-result-light-field {
- position:absolute!important;
- inset:0!important;
- z-index:1!important;
- overflow:hidden!important;
- border:0!important;
- border-radius:inherit!important;
- pointer-events:none!important;
- user-select:none!important;
- contain:paint!important;
- background:none!important;
- box-shadow:none!important;
- opacity:1!important;
- transform:none!important;
- /* Les deux <i> réutilisent directement le motif, le masque et
-    l'animation iuWelcomeDiagonalLines du bloc Bienvenue. */
-}
-html body .app > section.calc-card .iu-result-glow-shell .iu-result-light-field > i {
- opacity:.43!important;
-}
-html body .app > section.calc-card .result.iu-result-compact > :not(.iu-result-light-field) {
+html body .app > section.calc-card .result.iu-result-compact > * {
  position:relative!important;
  z-index:3!important;
 }
@@ -374,5 +351,16 @@ html body .app > section.calc-card .result.iu-result-compact [hidden] {
 @media (forced-colors:active) {
  html body .app > section.calc-card .iu-result-glow-field {
   display:none!important;
+ }
+}
+
+/* v43.30 — Même verre de Bienvenue, sans trame fixe ni vague de points.
+   Les trois halos et leurs animations restent dans le calque indépendant. */
+@media not all and (forced-colors:active) {
+ html body:not(.is-focus-mode):not(.is-admin-mode):not(.is-account-mode):not(.is-events-mode):not(.is-alerts-mode) main.app > section.intro.intro-smart.intro-aurora[data-intro-state="before"] .iu-home-welcome {
+  background-image:linear-gradient(122deg,rgba(255,255,255,.54) 0%,rgba(255,255,255,.64) 54%,rgba(255,255,255,.54) 100%)!important;
+  background-size:100% 100%!important;
+  background-position:center top!important;
+  background-repeat:no-repeat!important;
  }
 }

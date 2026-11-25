@@ -1,4 +1,4 @@
-/* Inventaires U v43.28 — Signature d'accueil, indépendante des cartes. */
+/* Inventaires U v43.30 — Signature d'accueil, indépendante des cartes. */
 .app > footer.iu-app-footer {
   box-sizing: border-box;
   grid-column: 1 / -1;
@@ -9,7 +9,7 @@
   padding: 22px 12px 19px;
   text-align: left;
   color: #435a68;
-  background: radial-gradient(ellipse at 50% 35%, rgba(157,185,202,.13) 0%, rgba(183,206,219,.05) 48%, transparent 76%);
+  background: transparent;
   border: 0;
   box-shadow: none;
   font-family: inherit;
@@ -19,7 +19,7 @@
   position: absolute;
   inset: 0 0 auto;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(125,155,172,.55) 50%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(125,155,172,.26) 50%, transparent);
   pointer-events: none;
 }
 .iu-app-footer .iu-footer-brand-row {
