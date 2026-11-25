@@ -133,20 +133,16 @@
   const pattern=observedPattern(eanObserved);
   const knownPrefix=pattern?[...pattern.slice(0,7)].filter(c=>c!=='?').length:0;
   const strictPrefix=knownPrefix>=5,hint=normalizeName(name);
-  // Exact names (even short ones such as COING) can identify a catalogue
-  // prefix without an EAN read. This is a candidate, never an observed code.
-  const exact=hint?catalog.byName?.get(hint):null;
-  if(!strictPrefix&&hint.length<6&&!exact?.size)return [];
+  if(!strictPrefix&&hint.length<6)return [];
   const key=pattern.slice(0,7)+'|'+hint;
   if(queryCache.has(key))return queryCache.get(key);
   const out=[];
-  const groups=prefixGroups(catalog,pattern);
-  for(const [prefix,items] of groups){
+  for(const [prefix,items] of prefixGroups(catalog,pattern)){
    if(pattern&&[...prefix].some((digit,i)=>
       pattern[i]!=='?'&&pattern[i]!==digit))continue;
    for(const record of items.values()){
-    const similarity=hint===record.normalizedName?1:hint?normalizedSimilarity(hint,record.normalizedName):0;
-    if(!strictPrefix&&hint!==record.normalizedName&&similarity<.74)continue;
+    const similarity=hint?normalizedSimilarity(hint,record.normalizedName):0;
+    if(!strictPrefix&&similarity<.74)continue;
     out.push({eanPrefix:prefix,plu:record.plu,name:record.name,
      prefixDigits:knownPrefix,nameScore:similarity,ambiguous:items.size!==1,
      source:'digi-import'});
@@ -307,34 +303,14 @@
     {candidates:exact.ok?[exact]:[]});
   }
   if(!pattern||!possible.length)
-   return outcome(possible.length?'candidate':sources.total==='calculated'?'calculated':'none',
-    possible.length?{reason:'Libellé retrouvé : préfixe proposé, EAN original à observer'}:{});
-
+   return outcome(sources.total==='calculated'?'calculated':'none');
   const known=[...pattern.slice(0,12)].filter(d=>d!=='?').length;
   const prefixDigits=[...pattern.slice(0,7)].filter(d=>d!=='?').length;
   // 5/7 = au moins trois chiffres d'identification au-delà du 02.
   // Garder au moins 9 des 12 chiffres utiles. Le nom ne peut ni
   // remplacer les chiffres observés ni départager deux origines.
-  if(prefixDigits<5||known<9){
-   // A unique exact name plus actual digits and both printed measurements
-   // can narrow the missing EAN. Only a human may confirm this weaker
-   // route, and only when the exact original candidate is unique.
-   const exactNames=index().byName?.get(normalizeName(fields.name));
-   if(exactNames?.size===1&&!result?.guidedEAN){
-    const item=exactNames.values().next().value;
-    const independentSuffix=[...pattern.slice(7)].filter(d=>d!=='?').length;
-    const codes=amountVariants(item.eanPrefix,fields.totalCents,computed,pattern);
-    const record=codes.length===1?resolve(codes[0]):null;
-    if(independentSuffix>=2&&record?.ok&&!uniqueNameConflict(result?.printedName||fields.name,item.eanPrefix)){
-     const details={candidates:[item],proposedEAN:codes[0],variantCount:1,prefixDigits,knownDigits:known,
-      reason:'Libellé unique et montant concordants : vérifier les 13 chiffres imprimés'};
-     if(!allowProbable)return outcome('confirmation',details);
-     fields.ean13=codes[0];sources.ean='confirmed-by-user';
-     return {result:{...result,fields,recoveryProvenance:sources},kind:'confirmation',sources,...details,confirmedByUser:true};
-    }
-   }
+  if(prefixDigits<5||known<9)
    return outcome('candidate',{reason:'Préfixe ou chiffres insuffisamment confirmés'});
-  }
   const viable=[];
   let unknownFamily=false,ambiguousReference=false;
   for(const item of possible){
@@ -394,9 +370,9 @@
   const computed=Number.isSafeInteger(grams)&&grams>0&&Number.isSafeInteger(rate)&&rate>0?
    Math.round(grams*rate/1000):null;
   const cents=Number.isSafeInteger(total)&&total>=0?total:computed;
-  const comparable=cents!==null&&(computed===null||Math.abs(cents-computed)<=1);
+  const comparable=computed!==null&&cents!==null&&Math.abs(cents-computed)<=1;
   let ranked=pool.map(item=>({item,codes:comparable&&item.eanPrefix.startsWith('02')?
-   amountVariants(item.eanPrefix,cents,computed??cents,pattern):null}));
+   amountVariants(item.eanPrefix,cents,computed,pattern):null}));
   const viable=ranked.filter(x=>x.codes===null||x.codes.length);
   // If a strict observed prefix fails, suggest nearby codes, but never
   // reconstruct from them. Similar name only influences ranking.
@@ -477,130 +453,6 @@
    ranges.computedTotal=Math.round(g*r/1000);
   return ranges;
  }
- // Mathematical candidates are not measurements. Inverse ranges retain
- // the existing one-cent tolerance and all rounded possibilities.
- function deductionPlan(result){
-  const f=result?.fields||{},pattern=observedPattern(result?.eanObserved)||observedPattern(f.ean13);
-  const exact=index().byName?.get(normalizeName(f.name));
-  const items=matchingCandidates({eanObserved:pattern,name:f.name});
-  const prefixCandidates=[...new Set(items.map(x=>x.eanPrefix))];
-  const ranges=inverseRanges(f),g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents;
-  const computed=Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0?Math.round(g*r/1000):null;
-  const encodedTotal=eanValid(f.ean13)&&f.ean13.startsWith('02')?Math.round(Number(f.ean13.slice(7,12))*100/655.36):null;
-  const cents=Number.isSafeInteger(t)&&t>=0?t:computed;
-  const codes=new Set();let unresolved=false;
-  if(cents!==null&&(computed===null||Math.abs(cents-computed)<=1)&&items.length<=80){
-   for(const item of items){
-    if(item.ambiguous||!item.eanPrefix.startsWith('02')){unresolved=true;continue;}
-    for(const code of amountVariants(item.eanPrefix,cents,computed??cents,pattern))codes.add(code);
-   }
-  }else unresolved=true;
-  const variants=[...codes],consensus=variants.length&&!unresolved?
-   Array.from({length:13},(_,i)=>variants.every(code=>code[i]===variants[0][i])?variants[0][i]:'?').join(''):null;
-  const uniqueValues={};
-  for(const key of ['weight','rate']){
-   const range=ranges[key],field=key==='weight'?'weightGrams':'pricePerKgCents';
-   if((f[field]===null||f[field]===undefined)&&range&&range.min===range.max&&range.min>0)uniqueValues[key]=range.min;
-  }
-  return {prefixCandidates:prefixCandidates.slice(0,12),prefixCount:prefixCandidates.length,
-   exactNameCount:exact?.size||0,variantCount:unresolved?null:variants.length,
-   consensus,encodedTotal,ranges,uniqueValues};
- }
- // Solve within integer grams/cents. The +/-50 g policy is a
- // search/review window, never a relaxation of price or EAN validation.
- const WEIGHT_REVIEW_GRAMS=50;
- function weightProposal(fields){
-  const f=fields||{},g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents;
-  if(!Number.isSafeInteger(r)||r<1||r>1000000||!Number.isSafeInteger(t)||t<0)return null;
-  const broad=inverseRanges(f).weight;
-  if(!broad||broad.min>broad.max)return null;
-  // Prefer an exact printed cent amount, not the tolerance endpoints.
-  const exact={min:Math.max(broad.min,Math.ceil((t-.5)*1000/r)),
-   max:Math.min(broad.max,Math.ceil((t+.5)*1000/r)-1)};
-  if(exact.min>exact.max)return null;
-  const observed=Number.isSafeInteger(g)&&g>0&&g<=30000;
-  const min=exact.min,max=exact.max;
-  const suggested=observed?Math.max(min,Math.min(max,g)):Math.round((min+max)/2);
-  const delta=observed?Math.abs(suggested-g):null;
-  const maxError=Math.max(suggested-min,max-suggested);
-  const eligible=observed?delta<=WEIGHT_REVIEW_GRAMS:maxError<=WEIGHT_REVIEW_GRAMS;
-  return {min,max,suggested,delta,maxError,eligible,observed:observed?g:null,unique:min===max,tolerance:WEIGHT_REVIEW_GRAMS};
- }
- // Two actual readings may be adjudicated using independent EAN and
- // unmodified printed price/total. Never average or synthesize a weight.
- function chooseObservedWeight(fields,other,{eanVerified=false,printedTotal=true}={}){
-  const f=fields||{},g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents,e=f.ean13;
-  if(!eanVerified||!printedTotal||!eanValid(e)||!e.startsWith('02')||!resolve(e).ok||
-     !Number.isSafeInteger(g)||g<1||g>30000||!Number.isSafeInteger(other)||other<1||other>30000||
-     !Number.isSafeInteger(r)||r<1||r>1000000||!Number.isSafeInteger(t)||t<0||
-     Math.abs(g-other)>WEIGHT_REVIEW_GRAMS||Math.round(Number(e.slice(7,12))*100/655.36)!==t)return null;
-  const a=Math.abs(Math.round(g*r/1000)-t),b=Math.abs(Math.round(other*r/1000)-t);
-  // If both satisfy the existing one-cent rule, no unique winner.
-  if(a<=1&&b<=1)return null;
-  if(a===0&&b>1)return {value:g,delta:Math.abs(g-other),source:'read-verified-by-math'};
-  if(b===0&&a>1)return {value:other,delta:Math.abs(g-other),source:'read-verified-by-math'};
-  return null;
- }
- // Full bounded solution set, with explicit truncation. Weak OCR evidence
- // can rank hypotheses, but is never substituted into the observed mask.
- function constraintPlan(result,{observations=[]}={}){
-  const f=result?.fields||{},base=observedPattern(result?.eanObserved)||observedPattern(f.ean13);
-  const items=matchingCandidates({eanObserved:base,name:f.name});
-  const g=f.weightGrams,r=f.pricePerKgCents,t=f.totalCents;
-  const computed=Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0?Math.round(g*r/1000):null;
-  const total=Number.isSafeInteger(t)&&t>=0?t:computed;
-  const weight=weightProposal(f);
-  const comparable=total!==null&&(computed===null||Math.abs(computed-total)<=1);
-  const rows=[],masks=[];
-  for(const o of observations.slice(0,6)){
-   const mask=observedPattern(o?.pattern||o?.ean13);
-   if(mask)masks.push({mask,weight:o.source==='optical-partial'?2:['digit-template','digi-advanced'].includes(o.source)?.35:1});
-   if(Array.isArray(o?.bitRows))for(const row of o.bitRows){
-    if(rows.length>=8)break;
-    if(typeof row==='string'&&/^[01]{95}$/.test(row)&&row.slice(0,3)==='101'&&row.slice(45,50)==='01010'&&row.slice(92)==='101')rows.push(row);
-   }
-  }
-  const all=new Map();let incomplete=!comparable||!items.length||items.length>80;
-  if(comparable&&items.length<=80)for(const item of items){
-   if(item.ambiguous){incomplete=true;continue;}
-   if(uniqueNameConflict(f.name,item.eanPrefix))continue;
-   if(!item.eanPrefix.startsWith('02')){
-    const complete=/^\d{12}\?$/.test(base)?base.slice(0,12)+checkDigit(base.slice(0,12)):base;
-    if(eanValid(complete)&&complete.startsWith(item.eanPrefix))all.set(complete,item);
-    else incomplete=true;
-    continue;
-   }
-   for(const code of amountVariants(item.eanPrefix,total,computed??total,base)){
-    all.set(code,item);if(all.size>1600){incomplete=true;break;}
-   }
-   if(all.size>1600)break;
-  }
-  const variants=[...all].slice(0,1600);
-  // Score every complete EAN variant, not only one per prefix.
-  const ranked=variants.map(([code,item])=>{
-   const optical=barDistance(code,rows),bits=encodeBars(code);
-   const exactRows=rows.filter(row=>row===bits).length;
-   const loss=masks.reduce((sum,o)=>sum+[...o.mask].reduce((n,d,i)=>n+(d!=='?'&&d!==code[i]?o.weight:0),0),0);
-   return {code,plu:item.plu,eanPrefix:item.eanPrefix,name:item.name,barDistance:optical,exactRows,score:loss*4+(optical??0)*1.5+(1-(item.nameScore||0))*3};
-  }).sort((a,b)=>a.score-b.score||a.code.localeCompare(b.code));
-  const consensus=!incomplete&&variants.length?Array.from({length:13},(_,i)=>variants.every(([code])=>code[i]===variants[0][0][i])?variants[0][0][i]:'?').join(''):null;
-  // Entropy ranks only discriminating positions; keep all unknowns as a
-  // fallback. A mathematically common digit is not a pixel observation.
-  const positionScores=[];
-  if(!incomplete&&variants.length>1)for(let i=0;i<13;i++){
-   if(base&&base[i]!=='?')continue;
-   const counts=new Map();for(const [code] of variants)counts.set(code[i],(counts.get(code[i])||0)+1);
-   const entropy=-[...counts.values()].reduce((s,n)=>{const p=n/variants.length;return s+p*Math.log2(p)},0);
-   if(entropy>0)positionScores.push({position:i+1,entropy});
-  }
-  positionScores.sort((a,b)=>b.entropy-a.entropy||a.position-b.position);
-  const weightObservations=observations.filter(o=>o?.source==='digi-advanced').map(o=>o.fields?.weight?.value)
-   .filter(v=>Number.isSafeInteger(v)&&v>0&&v<=30000);
-  const matchingWeights=weight? [...new Set(weightObservations.filter(v=>v>=weight.min&&v<=weight.max))]:[];
-  return {complete:!incomplete,variantCount:incomplete?null:variants.length,consensus,
-   ranked:ranked.slice(0,8),positions:positionScores.map(p=>p.position),barRows:rows.length,
-   weight,matchingWeights,unsupportedPrefixes:[...new Set(items.filter(i=>!i.eanPrefix.startsWith('02')).map(i=>i.eanPrefix))].slice(0,12)};
- }
  function solveHypotheses(result,{observations=[],history=[]}={}){
   const fields=result?.fields||{},base=observedPattern(result?.eanObserved)||observedPattern(fields.ean13);
   const guide=recheckPlan(result),ranges=inverseRanges(fields);
@@ -609,10 +461,7 @@
   for(const o of (Array.isArray(observations)?observations:[]).slice(0,6)){
    const mask=observedPattern(o?.pattern||o?.ean13);
    if(mask)sources.push({mask,weight:o.source==='optical-partial'?2:['digit-template','digi-advanced'].includes(o.source)?.35:1});
-   if(Array.isArray(o?.bitRows))for(const row of o.bitRows.slice(0,8)){
-    if(rows.length>=8)break;
-    if(typeof row==='string'&&/^[01]{95}$/.test(row))rows.push(row);
-   }
+   if(Array.isArray(o?.bitRows))rows.push(...o.bitRows.slice(0,8));
    if(Array.isArray(o?.digitOptions)&&o.digitOptions.length===13)alternatives.push(o.digitOptions);
   }
   const catalogue=index();
@@ -632,12 +481,12 @@
   const ranked=[],g=fields.weightGrams,r=fields.pricePerKgCents;
   const computed=Number.isSafeInteger(g)&&g>0&&Number.isSafeInteger(r)&&r>0?Math.round(g*r/1000):null;
   const total=Number.isSafeInteger(fields.totalCents)?fields.totalCents:computed;
-  const comparable=Number.isSafeInteger(total)&&(computed===null||Math.abs(total-computed)<=1);
+  const comparable=Number.isSafeInteger(total)&&Number.isSafeInteger(computed)&&Math.abs(total-computed)<=1;
   function mismatch(code,source){
    return [...source.mask].reduce((n,d,i)=>n+(d!=='?'&&code[i]!==d?source.weight:0),0);
   }
   for(const item of [...pool.values()].slice(0,160)){
-   let codes=comparable&&item.eanPrefix.startsWith('02')?amountVariants(item.eanPrefix,total,computed??total,''):[];
+   let codes=comparable&&item.eanPrefix.startsWith('02')?amountVariants(item.eanPrefix,total,computed,''):[];
    if(!codes.length&&eanValid(base)&&base.startsWith(item.eanPrefix))codes=[base];
    if(!codes.length)codes=[item.eanPrefix+'??????'];
    let best=null;
@@ -665,12 +514,8 @@
   // and official product references guide the next visual reading.
   for(const item of ranked.slice(0,5))if(base)for(let i=0;i<13;i++)
    if(item.code[i]!=='?'&&base[i]!=='?'&&item.code[i]!==base[i])positions.add(i+1);
-  const constraints=constraintPlan(result,{observations});
-  // Highest-information positions first. The full list is retained for
-  // the worker; no inferred digits are injected into eanObserved.
-  const priority=[...new Set([...(!constraints.complete?[]:constraints.positions),...[...positions].sort((a,b)=>a-b)])];
   return {candidates:ranked.slice(0,5).map(({eanPrefix,plu,name})=>({eanPrefix,plu,name})),
-   positions:priority,candidateCount:pool.size,ranges,constraints,
+   positions:[...positions].sort((a,b)=>a-b),candidateCount:pool.size,ranges,
    ranked:ranked.slice(0,5),observationCount:sources.length,barRows:Math.min(8,rows.length),
    truncated:pool.size>160};
  }
@@ -695,5 +540,5 @@
   const catalog=index();
   return {available:catalog.available,count:catalog.count,reason:catalog.reason};
  }
- return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,deductionPlan,constraintPlan,weightProposal,chooseObservedWeight,WEIGHT_REVIEW_GRAMS,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,compatibleName,fuseIdentity,STORAGE_KEY});
+ return Object.freeze({resolve,verify,info,eanValid,catalogPrefix,candidates,reconstruct,recheckPlan,solveHypotheses,inverseRanges,compareAdvanced,encodeBars,barDistance,amountVariants,observedPattern,normalizeName,nameSimilarity,nameIdentityConflict,identityEvidence,compatibleName,fuseIdentity,STORAGE_KEY});
 });

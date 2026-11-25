@@ -46,16 +46,17 @@
  function samePhotoFocus(source,mode,reading){
   const found=cachedFocused.get(mode);if(found?.source===source)return found.promise;
   reading=guideHint(source,reading);
-  const owner=file;
+  const owner=file,ownerGeneration=generation;
+  const current=()=>file===owner&&generation===ownerGeneration&&active;
   // Separate focused lane on capable devices. Keep the original serial
   // fallback and preferred enhanced view if the extra lane is unavailable.
   const previous=mode==='numbers'?cachedFocused.get('ean')?.promise:null;
   const promise=Promise.resolve(previous).then(async()=>{
-   if(file!==owner||!file)return null;
+   if(!current())return null;
    const focused=window.IUGeminiParallel?.prepareFocused?.(source,reading,122000,mode);
    if(focused){const blob=await focused;if(blob)return blob;}
    await samePhotoEnhanced(source,reading);
-   if(file!==owner||!file)return null;
+   if(!current())return null;
    return window.IUGeminiParallel?.prepareDetail?.(source,reading,122000,mode)||null;
   }).then(blob=>blob?readParallelDetail(blob):null).catch(()=>null);
   cachedFocused.set(mode,{source,promise});return promise;
@@ -716,13 +717,6 @@
   return result?.digiRecovery?.kind==='reconstructed'||
    result?.recoveryProvenance?.ean==='calculated-verified';
  }
- function independentlyObservedEAN(result){
-  const ean=result?.fields?.ean13;
-  return readableValue('ean',ean)&&!result?.checks?.readingConflict&&!result?.checks?.independentMismatch&&
-   !localBarcode?.ambiguous&&((trustedBarcodeEvidence(localBarcode)&&localBarcode.ean13===ean)||
-   result?.manualEANVerified===ean||result?.digiRecovery?.confirmedByUser===true||
-   (result?.checks?.eanRechecked===true&&!result.guidedEAN&&!provisionalEAN(result)));
- }
  function reconcileBarcode(result,reading){
   const fields={...(result?.fields||{})},checks={...(result?.checks||{})};
   const incoming=String(fields.ean13||'');
@@ -759,27 +753,10 @@
   // A complete EAN must be reread blind.
   if(window.IUDigiCatalogLookup?.eanValid(eanObserved))return [];
   const name=String(result?.fields?.name||'');
-  // Do not anchor Gemini on a ranking built from a conflicting mask,
-  // weak OCR or a price discrepancy. A blind read remains available.
-  if(!result||result.weakEANSupplement||result.checks?.readingConflict||result.checks?.independentMismatch||result.checks?.digiConflict)return [];
-  const pattern=catalog.observedPattern(eanObserved);
-  if(!pattern||[...pattern.slice(0,7)].filter(d=>d!=='?').length<5)return [];
-  const guide=catalog.recheckPlan?.(result);
-  return (guide?.candidates||[])
-   .filter(c=>[...c.eanPrefix].every((d,i)=>pattern[i]==='?'||pattern[i]===d))
-   .filter(c=>!name||catalog.compatibleName(name,c.name)||catalog.normalizeName(name)===catalog.normalizeName(c.name))
+  const guide=result&&!trustedBarcodeEvidence(reading)?result.digiPlan||catalog.recheckPlan?.(result):null;
+  return (guide?.candidates?.length?guide.candidates:catalog.candidates({eanObserved,name,limit:5}))
    .filter(c=>c.name.length<=90&&/^[\p{L}\d .'\-(),/]+$/u.test(c.name))
    .map(c=>({eanPrefix:c.eanPrefix,plu:c.plu,name:c.name}));
- }
- function safeRecheckPositions(result){
-  const cat=window.IUDigiCatalogLookup;
-  if(!result||!cat||result.weakEANSupplement||result.checks?.readingConflict||
-   result.checks?.independentMismatch||result.checks?.digiConflict||readableValue('ean',result.fields?.ean13))return null;
-  const mask=cat.observedPattern(result.eanObserved);
-  if(!mask||[...mask.slice(0,7)].filter(d=>d!=='?').length<5)return null;
-  // Solver can order positions, never remove unknown or conflicting ones.
-  const base=cat.recheckPlan?.(result)?.positions||[];
-  return [...new Set([...(result.digiPlan?.positions||[]),...base])].filter(i=>Number.isInteger(i)&&i>=1&&i<=13);
  }
  // Les masques secondaires restent des indices : une lecture
  // contradictoire ne doit pas transformer un bon résultat en échec.
@@ -812,7 +789,7 @@
    candidates:recovered.candidates||[],proposedEAN:recovered.proposedEAN||null,
    variantCount:recovered.variantCount||0,prefixDigits:recovered.prefixDigits||0,
    knownDigits:recovered.knownDigits||0,conflictField:recovered.conflictField||null,
-   reason:recovered.reason||null};
+   reason:recovered.reason||null,confirmedByUser:recovered.confirmedByUser===true};
   // Un échec de déduction n'est pas une contradiction irréversible.
   // Recalculer après une vraie relecture ; les conflits entre lectures
   // complètes et mesures restent bloquants.
@@ -886,19 +863,6 @@
   if(!repairValue||!repairField)return;
   const key=fieldKeys[repairField.value],val=latestLabelFields?.[key];
   repairValue.inputMode=key==='ean13'?'numeric':key==='name'?'text':'decimal';
-  let deduction=null,weightHint=null;
-  try{
-   deduction=window.IUDigiCatalogLookup?.deductionPlan?.(lastRawResult);
-   if(repairField.value==='weight')weightHint=window.IUDigiCatalogLookup?.weightProposal?.(lastRawResult?.fields);
-  }catch(_){} 
-  const inferred=deduction?.uniqueValues?.[repairField.value]??(weightHint?.eligible?weightHint.suggested:null);
-  repairValue.placeholder=val==null&&Number.isSafeInteger(inferred)?
-   'À vérifier : '+(key==='weightGrams'?(inferred/1000).toFixed(3):(inferred/100).toFixed(2)):'';
-  repairValue.title=Number.isSafeInteger(inferred)?
-   'Valeur mathématique possible : '+(key==='weightGrams'?(inferred/1000).toFixed(3):(inferred/100).toFixed(2))+' · à comparer aux chiffres imprimés avant validation.':'';
-  if(weightHint?.eligible&&val!==weightHint.suggested&&repairValue.title)
-   repairValue.setAttribute('aria-description',repairValue.title);
-  else repairValue.removeAttribute('aria-description');
   repairValue.value=val===null||val===undefined?''
    :key==='ean13'||key==='name'?String(val)
    :key==='weightGrams'?(val/1000).toFixed(3):(val/100).toFixed(2);
@@ -1516,9 +1480,14 @@
     +(result.visualRecheck?' · détail 2 : '+result.visualRecheck:'')
     +(result.localDiagnostics?' · '+Object.entries(result.localDiagnostics).map(([k,v])=>k+' '+v).join(' / '):'')
     +(result.networkFailure?' · '+String(result.networkFailure.stage||'réseau')+' / '+Number(result.networkFailure.attempts||0)+' tentative(s)':'')
+    +(result.orchestration?' · orchestration '+result.orchestration.localStop+' / '+result.orchestration.localResults+' résultat(s)'+(result.orchestration.cloudReadAvoided?' / appel évité':'')+' / '+(result.orchestration.cancelled||0)+' tâche(s) arrêtée(s)':'')
+    +(result.digiDeduction?' · déduction DIGI : '+result.digiDeduction.prefixCount+' préfixe(s), '+(result.digiDeduction.variantCount??'indéterminé')+' variante(s)'+(result.digiDeduction.consensus?' / masque calculé '+result.digiDeduction.consensus:''):'')
     +(result.digiPlan?' · DIGI : '+result.digiPlan.candidateCount+' candidat(s), '+result.digiPlan.observationCount+' observations, '+result.digiPlan.barRows+' lignes':'')
     +(result.digiDigitHint?' · OCR chiffres (indice) '+result.digiDigitHint:'')
     +(result.digiAdvancedHint?' · Advanced '+result.digiAdvancedHint.elapsedMs+' ms · indices '+[result.digiAdvancedHint.pattern?'EAN '+result.digiAdvancedHint.pattern:null,...Object.entries(result.digiAdvancedHint.fields||{}).map(([k,x])=>({weight:'poids ',rate:'€/kg ',total:'montant '}[k]||'')+x.text)].filter(Boolean).join(' / '):'')
+    +(result.digiPlan?.constraints?' · contraintes : '+(result.digiPlan.constraints.variantCount??'indéterminé')+' EAN possible(s) / '+result.digiPlan.constraints.barRows+' lignes optiques'+(result.digiPlan.constraints.consensus?' / commun '+result.digiPlan.constraints.consensus:''):'')
+    +(result.weightResolution?' · poids lu départagé par le calcul (écart '+result.weightResolution.delta+' g)':'')
+    +(result.weightSuggestion?.eligible&&result.weightSuggestion.observed!==result.weightSuggestion.suggested?' · poids théorique '+(result.weightSuggestion.suggested/1000).toFixed(3)+' kg à vérifier ('+result.weightSuggestion.min+'–'+result.weightSuggestion.max+' g)':'')
     +(result.digiPlan?.positions?.length?' · EAN positions '+result.digiPlan.positions.join(', '):'')
     +(result.digiPlan?.ranges?.weight?' · plage poids '+result.digiPlan.ranges.weight.min+'–'+result.digiPlan.ranges.weight.max+' g':'')
     +(result.digiPlan?.ranges?.rate?' · plage tarif '+result.digiPlan.ranges.rate.min+'–'+result.digiPlan.ranges.rate.max+' ct/kg':'')
@@ -1746,7 +1715,7 @@
   let conflict=false,opticallyConfirmed=false,eanRechecked=false,nameRechecked=false;
   let recovery=original?.digiRecovery,observed=original?.eanObserved;
   let guidedEAN=Boolean(original?.guidedEAN),guidedPrefixVerified=Boolean(original?.guidedPrefixVerified);
-  let provenance=original?.recoveryProvenance,weightResolution=original?.weightResolution;
+  let provenance=original?.recoveryProvenance;
   for(const kind of targets){
    const key=fieldKeys[kind],next=recheck?.fields?.[key];
    if(!readableValue(kind,next))continue;
@@ -1761,28 +1730,15 @@
     }
     continue;
    }
-   if(kind==='total'&&(recovery?.sources?.total==='calculated'||provenance?.total==='calculated')){
-    // A printed total is evidence; a calculated total is not a competing
-    // reading. Revalidate arithmetic after replacing it.
+   if(kind==='total'&&(recovery?.sources?.total==='calculated'||provenance?.total==='calculated')&&
+      Math.abs(current-next)<=1){
     fields[key]=next;recovery=recovery?{...recovery,sources:{...recovery.sources,total:'read'}}:null;
     provenance=provenance?{...provenance,total:'read'}:null;
     continue;
    }
    if(current===next){
-    if(kind==='ean'){
-     // Repeating a computed candidate is not two independent readings.
-     if(!provisionalEAN(original)){observed=next;eanRechecked=!recheck?.catalogGuided&&!guidedEAN;}
-    }
+    if(kind==='ean'){observed=next;eanRechecked=!recheck?.catalogGuided&&!guidedEAN;}
     continue;
-   }
-   if(kind==='weight'&&!original?.checks?.readingConflict&&!original?.checks?.independentMismatch&&
-      // If price or amount also changed, neither weight can yet be adjudicated.
-      (!readableValue('rate',recheck?.fields?.pricePerKgCents)||recheck.fields.pricePerKgCents===fields.pricePerKgCents)&&
-      (!readableValue('total',recheck?.fields?.totalCents)||recheck.fields.totalCents===fields.totalCents)){
-    const pick=window.IUDigiCatalogLookup?.chooseObservedWeight?.(fields,next,{
-     eanVerified:independentlyObservedEAN(original),
-     printedTotal:recovery?.sources?.total!=='calculated'&&provenance?.total!=='calculated'});
-    if(pick){fields[key]=pick.value;weightResolution=pick;continue;}
    }
    // Une première proposition DIGI ne doit jamais battre un code
    // réellement relu, ni un nom officiel relu sur l'étiquette.
@@ -1796,14 +1752,7 @@
    }
    // Remplacer un EAN seulement si la seconde lecture Gemini ET le
    // décodeur optique indépendant confirment les mêmes 13 chiffres.
-   if(kind==='ean'&&provisionalEAN(original)&&!recheck?.catalogGuided&&
-      !trustedBarcodeEvidence(localBarcode)&&!localBarcode?.ambiguous){
-    // A different blind EAN must be independently confirmed, not treated
-    // as a contradiction with a calculation. Keep it for manual repair.
-    fields[key]=next;observed=next;recovery=null;guidedEAN=false;guidedPrefixVerified=false;
-    provenance={...(provenance||{}),ean:'read'};eanRechecked=false;
-    conflict=true; // block until independently confirmed
-   }else if(kind==='ean'&&trustedBarcodeEvidence(localBarcode)&&
+   if(kind==='ean'&&trustedBarcodeEvidence(localBarcode)&&
       localBarcode.ean13===next){
     fields[key]=next;opticallyConfirmed=true;observed=next;eanRechecked=true;recovery=null;guidedEAN=false;guidedPrefixVerified=false;
    }else{
@@ -1811,15 +1760,7 @@
     conflict=true;
    }
   }
-  // If measurements changed, invalidate any EAN derived from the old
-  // arithmetic; never keep it as if independently observed.
-  if(provisionalEAN(original)&&recovery?.kind==='reconstructed'&&
-    ['weightGrams','pricePerKgCents','totalCents'].some(k=>fields[k]!==original.fields?.[k])&&
-    !(trustedBarcodeEvidence(localBarcode)&&localBarcode.ean13===fields.ean13)){
-   fields.ean13=null;recovery=null;eanRechecked=false;
-   provenance={...(provenance||{}),ean:'read'};
-  }
-  return {...original,fields,printedName:original?.printedName||original?.fields?.name||recheck?.fields?.name||null,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,guidedEAN,guidedPrefixVerified,weightResolution,digiPlan:null,source:'gemini-recovery',
+  return {...original,fields,printedName:original?.printedName||original?.fields?.name||recheck?.fields?.name||null,eanObserved:observed,digiRecovery:recovery,recoveryProvenance:provenance,guidedEAN,guidedPrefixVerified,source:'gemini-recovery',
    pipelineVersion:recheck?.pipelineVersion||original?.pipelineVersion,
    elapsedMs:Number(original?.elapsedMs||0)+Number(recheck?.elapsedMs||0),
    networkStats:{attempts:Number(original?.networkStats?.attempts||0)+Number(recheck?.networkStats?.attempts||0),
@@ -1861,6 +1802,7 @@
   const guard=setTimeout(()=>currentAbort.abort(),24000);
   const start=performance.now();
   let advancedJob=null,speculativeJob=null,speculativeAbort=null,primarySettled=false,analysisRecovered=false,completedReading=null;
+  let ownedPhoto=null,earlyTimer=null,localFinished=false;
   const stopSpeculative=()=>speculativeAbort?.abort();
   currentAbort.signal.addEventListener('abort',stopSpeculative,{once:true});
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
@@ -1878,7 +1820,7 @@
    let opticalReady=null;
    void job.then(reading=>{if(id===generation)opticalReady=reading;});
    const detailTask=samePhotoTask(file,true);
-   const sourcePhoto=primaryBarcodePhoto||file;
+   const sourcePhoto=primaryBarcodePhoto||file;ownedPhoto=sourcePhoto;
    const track=promise=>{
     const since=performance.now(),task=latency?latency.track(promise):{done:false,value:null,promise:Promise.resolve(promise).catch(()=>null)};
     void task.promise.then(value=>{task.done=true;task.value=value??null;task.ms=Math.round(performance.now()-since);});
@@ -1890,7 +1832,7 @@
    const normalView={kind:'original',task:track(detailTask)};
    const enhancedView={kind:'amélioré',task:track(samePhotoEnhanced(sourcePhoto,localBarcode))};
    let printedJob=null,partialJob=null,paddleJob=null,alternateJob=null,digitJob=null,earlyPartialJob=null;
-   const stillCurrent=()=>id===generation&&active&&!currentAbort.signal.aborted;
+   const stillCurrent=()=>id===generation&&active&&!localFinished&&!currentAbort.signal.aborted;
    function startPrinted(){
     if(printedJob||!stillCurrent()||targetField||localBarcode?.ambiguous||
        trustedBarcodeEvidence(localBarcode)||!window.IUGeminiPrintedEAN)return;
@@ -1924,7 +1866,7 @@
    void opticalTask.promise.then(reading=>{
     if(stillCurrent()){opticalReady=reading;startLocalRecovery(reading);}
    });
-   const earlyTimer=setTimeout(()=>{
+   earlyTimer=setTimeout(()=>{
     if(stillCurrent()&&!opticalTask.done){
      startPrinted();
      if(!targetField&&window.IUGeminiParallel?.parallelCapacity?.()&&!trustedBarcodeEvidence(localBarcode)&&!localBarcode?.ambiguous){
@@ -1948,7 +1890,7 @@
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
     safeDetail(firstDetail?.data),targetField?[targetField]:resumeFields?.length?resumeFields:null,
     catalogHints(oldResult,opticalReady),
-    resumeFields?.includes('ean')?safeRecheckPositions(oldResult):null,13000,{difficulty});
+    resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null,13000,{difficulty});
    void receivedTask.then(()=>{primarySettled=true;},()=>{primarySettled=true;stopSpeculative();});
    // Start only after the primary Gemini request has been issued. No await
    // on Advanced, no additional cloud call and no modified cloud JPEG.
@@ -1982,7 +1924,7 @@
     say(providerName+' · seconde vue préparée…');
     received=await requestGeminiWithRecovery(encoded,access,selectedModel,currentAbort.signal,id,targetField,selectedProvider,
      recheckView?.data||null,targetField?[targetField]:resumeFields?.length?resumeFields:null,
-     catalogHints(oldResult,opticalReady),resumeFields?.includes('ean')?safeRecheckPositions(oldResult):null,
+     catalogHints(oldResult,opticalReady),resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null,
      Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))),{difficulty,recovery:true,strongRecovery:true});
    }
    const firstResponseMs=Math.round(performance.now()-start);
@@ -1991,7 +1933,9 @@
    // délai imposé si le décodeur Safari n'a pas trouvé l'EAN.
    // Une seule échéance pour les vérifications locales.
    const localDeadline=performance.now()+350;
-   if(!localBarcode){
+   // Keep Gemini and OCR parallel; collect the real optical result
+   // BEFORE any catalogue reconstruction, with the original shared deadline.
+   if(!trustedBarcodeEvidence(localBarcode)&&!localBarcode?.ambiguous){
     const independent=await until(opticalTask,localDeadline);
     if(id!==generation)return;
     if(independent)localBarcode=independent;
@@ -2032,7 +1976,8 @@
    // Comparer les chiffres indépendamment, sans jamais remplacer un
    // EAN Gemini confirmé et contradictoire par simple supposition.
    combined=reconcileBarcode(combined,localBarcode);
-   combined=applyCatalogRecovery(combined);
+   // Launch needed fallbacks from the raw observation, not an already
+   // reconstructed EAN that could suppress a useful reader.
    let targets=!targetField?recoveryTargets(combined):[];
    if(resumeFields?.length)targets=[]; // pas de deuxième reprise automatique
    const unresolvedEAN=(targets.includes('ean')||combined.digiRecovery?.kind==='confirmation')&&
@@ -2040,29 +1985,8 @@
     !combined.checks?.readingConflict&&!combined.checks?.independentMismatch;
    if(unresolvedEAN)startLocalRecovery(localBarcode);
    if((targets.includes('ean')||combined.digiRecovery?.kind==='confirmation')&&
-      !localBarcode?.ambiguous&&!trustedBarcodeEvidence(localBarcode)){
-    startPrinted();
-    const printedFast=await until(printedJob,localDeadline);
-    if(id!==generation)return;
-    if(printedFast?.ean13)combined=applyPrintedEAN(combined,printedFast);
-    if(printedFast?.pattern)combined=fuseEAN(combined,printedFast.pattern);
-    combined=applyCatalogRecovery(combined);
-    targets=targetField||resumeFields?.length?[]:recoveryTargets(combined);
-   }
-   if(!targetField&&!localBarcode&&targets.length===1&&targets[0]==='ean'){
-    const finalOptical=await until(opticalTask,localDeadline);
-    if(id!==generation)return;
-    if(finalOptical){
-     localBarcode=finalOptical;
-     combined=reconcileBarcode(combined,localBarcode);
-     combined=applyCatalogRecovery(combined);
-     targets=recoveryTargets(combined);
-    }
-   }
-   async function consumeLocalEvidence(result,deadline){
-    const [partial,paddle,alternate]=await Promise.all([
-     until(partialJob,deadline),until(paddleJob,deadline),until(alternateJob,deadline)]);
-    if(id!==generation)return result;
+      !localBarcode?.ambiguous&&!trustedBarcodeEvidence(localBarcode))startPrinted();
+   function mergeLocalEvidence(result,partial,paddle,alternate){
     if(readableValue('ean',result.fields?.ean13))return result;
     if(partial?.pattern){
      const next=fuseEAN(result,partial.pattern);
@@ -2086,13 +2010,43 @@
       if(next!==result)result={...next,weakEANSupplement:true};
      }
     }
-    return applyCatalogRecovery(result);
+    return result;
    }
-   if((partialJob||paddleJob||alternateJob)&&!readableValue('ean',combined.fields?.ean13)){
-    combined=await consumeLocalEvidence(combined,localDeadline);
-    if(id!==generation)return;
-    targets=recoveryTargets(combined);
-   }
+   // Stage observations, then merge once in fixed priority order. A
+   // partial OCR finishing first cannot lock out a later complete code.
+   const appliedLocal=new Set();
+   const collectLocal=async(result,deadline)=>{
+    const tasks=()=>[['optical',opticalTask],['printed',printedJob],['partial',partialJob],['paddle',paddleJob],['alternate',alternateJob]];
+    const staged=new Map();
+    const consume=(key,value)=>{
+     const task=tasks().find(([name])=>name===key)?.[1];
+     if(!task||appliedLocal.has(task)||!value)return;
+     staged.set(key,{task,value});
+    };
+    // Only an actually complete result may shortcut optional waiting.
+    const ready=()=>opticalTask.done&&
+     !validateResult(result).error&&recoveryTargets(result).length===0;
+    const outcome=latency?.collect?await latency.collect({tasks,consume,ready,deadline,current:stillCurrent}):null;
+    if(!outcome)for(const [key,task] of tasks())if(task)consume(key,await until(task,deadline));
+    if(id!==generation||!stillCurrent())return result;
+    const take=key=>{const item=staged.get(key);if(item)appliedLocal.add(item.task);return item?.value;};
+    const optical=take('optical');
+    if(optical){
+     if(trustedBarcodeEvidence(optical)||optical.ambiguous||!localBarcode)localBarcode=optical;
+     result=reconcileBarcode(result,localBarcode);
+    }
+    const printed=take('printed');
+    if(printed?.ean13)result=applyPrintedEAN(result,printed);
+    if(printed?.pattern)result=fuseEAN(result,printed.pattern);
+    const partial=take('partial'),paddle=take('paddle'),alternate=take('alternate');
+    if(!targetField&&!resumeFields?.length&&!readableValue('ean',result.fields?.ean13))
+     result=mergeLocalEvidence(result,partial,paddle,alternate);
+    result=applyCatalogRecovery(result);
+    return {...result,orchestration:{...(result.orchestration||{}),localStop:outcome?.reason||'fallback',localResults:(result.orchestration?.localResults||0)+staged.size}};
+   };
+   combined=await collectLocal(combined,localDeadline);
+   if(id!==generation)return;
+   targets=targetField||resumeFields?.length?[]:recoveryTargets(combined);
    if(usedComplementaryRead&&targets.length){
     // The first call returned no usable fields: a later result alone is
     // not a second independent EAN verification. Keep that gate closed.
@@ -2136,16 +2090,32 @@
      if(!recheckView)recheckView=await chooseVisualDetail(firstEnhanced?guidedView:enhancedView,
       normalView,detailEnd,until,safeDetail);
      if(id!==generation||currentAbort.signal.aborted)throw new DOMException('Analyse annulée','AbortError');
+     // Local engines may have solved the missing field while preparing
+     // the crop. Re-evaluate before spending a second cloud request.
+     combined=await collectLocal(combined,performance.now());
+     if(id!==generation)return;
+     const refreshed=recoveryTargets(combined);
+     if(!refreshed.length&&!validateResult(combined).error){
+      stopSpeculative();
+      combined={...combined,orchestration:{...combined.orchestration,cloudReadAvoided:true}};
+     }else{
+     if(refreshed.length)targets=refreshed;
+     // Refresh constraints with new evidence obtained during crop prep.
+     if(targets.includes('ean')){
+      const observations=[partialJob?.value,paddleJob?.value,alternateJob?.value,printedJob?.value,digitJob?.value,advancedJob?.value].filter(Boolean);
+      try{combined={...combined,digiPlan:window.IUDigiCatalogLookup?.solveHypotheses?.(combined,{observations,history:window.IUDigiRecentReferences?.()||[]})};}catch(_){}
+     }
      // Reuse only a completed independent confirmation of the existing valid EAN.
      // Never introduce a new identity, override a conflict or skip a planned DIGI targeted read.
      const speculativeResult=speculativeJob?.done?speculativeJob.value:null;
-     const reuse=!usedComplementaryRead&&received?.hybridRecovery!==true&&onlyEAN&&!combined.checks?.independentMismatch&&!combined.checks?.readingConflict&&!combined.checks?.digiConflict&&combined.digiRecovery?.kind!=='confirmation'&&!(combined.digiPlan?.positions?.length)&&readableValue('ean',combined.fields?.ean13)&&speculativeResult?.fields?.ean13===combined.fields.ean13;
+     const reuse=!usedComplementaryRead&&received?.hybridRecovery!==true&&targets.length===1&&targets[0]==='ean'&&!combined.checks?.independentMismatch&&!combined.checks?.readingConflict&&!combined.checks?.digiConflict&&combined.digiRecovery?.kind!=='confirmation'&&!(combined.digiPlan?.positions?.length)&&readableValue('ean',combined.fields?.ean13)&&speculativeResult?.fields?.ean13===combined.fields.ean13;
      stopSpeculative();
      const focused=reuse?speculativeResult:await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
-      safeDetail(recheckView?.data),targets,
-      targets.includes('ean')?catalogHints(combined,localBarcode):null,
-      targets.includes('ean')?safeRecheckPositions(combined):null,
+      // If local evidence changed the targets, do not send a mismatched crop.
+      safeDetail((onlyEAN&&!targets.every(k=>k==='ean'))||(onlyNumbers&&!targets.every(k=>['weight','rate','total'].includes(k)))?null:recheckView?.data),targets,
+      catalogHints(combined,localBarcode),
+      targets.includes('ean')?(combined.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(combined)?.positions):null,
       Math.max(3000,Math.min(9000,Math.floor(22500-(performance.now()-start)))),{difficulty,recovery:true,strongRecovery:targets.filter(k=>['weight','rate','total'].includes(k)&&!readableValue(k,combined.fields?.[fieldKeys[k]])).length>=2});
      if(id!==generation)return;
      combined=mergeRecoveredReading(combined,focused,targets);
@@ -2171,6 +2141,7 @@
       const conflict=combined.checks?.readingConflict||combined.checks?.independentMismatch||combined.checks?.digiConflict;
       combined={...combined,checks:{...combined.checks,recoveryInterrupted:Boolean(conflict||pending.length),recoveryInterruptedTargets:conflict?targets:pending}};
      }
+     }
     }catch(error){
      if(error?.name==='AbortError'&&id!==generation)throw error;
      // L'expiration globale de 24 s peut arriver pendant la SECONDE
@@ -2186,21 +2157,9 @@
     localDiagnostics:Object.fromEntries(Object.entries({ZXing:opticalTask,imprimé:printedJob,barres:partialJob,Nano:digitJob,Advanced:advancedJob,OCR:paddleJob,détail:enhancedView.task}).map(([k,t])=>[k,t?.done?(t.value?'lu':'sans résultat')+' '+(t.ms??0)+' ms':t?'en cours':'non lancé']))};
    if(advancedJob?.value)validated={...validated,digiAdvancedHint:advancedJob.value,
     digiAdvancedComparison:window.IUDigiCatalogLookup?.compareAdvanced?.(validated,advancedJob.value)};
-   const finalDeadline=performance.now()+110;
-   if(printedJob){
-    // Après la récupération Gemini, reprendre le résultat OCR déjà
-    // lancé, uniquement s'il est prêt : aucun traitement illimité.
-    const printed=await until(printedJob,finalDeadline);
-    if(id!==generation)return;
-    if(printed?.ean13)validated=applyPrintedEAN(validated,printed);
-    if(printed?.pattern)validated=fuseEAN(validated,printed.pattern);
-   }
-   if((partialJob||paddleJob||alternateJob)&&!readableValue('ean',validated.fields?.ean13))validated=await consumeLocalEvidence(validated,finalDeadline);
-   if(opticalTask.done&&opticalTask.value&&opticalTask.value!==localBarcode&&
-      (trustedBarcodeEvidence(opticalTask.value)||opticalTask.value.ambiguous)){
-    localBarcode=opticalTask.value;
-    validated=reconcileBarcode(validated,localBarcode);
-   }
+   const finalDeadline=performance.now()+((validateResult(validated).error||recoveryTargets(validated).length)?350:0);
+   validated=await collectLocal(validated,finalDeadline);
+   if(id!==generation)return;
    if(id!==generation)return;
    validated=applyCatalogRecovery(validated);
    // Une relecture réseau interrompue n'invalide pas un EAN que le
@@ -2220,9 +2179,14 @@
    validated.checks={...validated.checks,...localChecks,
     independentMismatch:localChecks.independentMismatch||
      (priorMismatch&&!opticalResolved)};
-   // Deductions remain advisory, outside the restored recognition flow.
-   try{validated={...validated,digiDeduction:window.IUDigiCatalogLookup?.deductionPlan?.(validated),
-    weightSuggestion:window.IUDigiCatalogLookup?.weightProposal?.(validated.fields)};}catch(_){}
+   // Keep warmed OCR workers alive between labels. Stop speculative
+   // cloud work and ignore stale local results, without killing a lane
+   // that the next capture will need.
+   if(!validateResult(validated).error&&recoveryTargets(validated).length===0){
+    localFinished=true;clearTimeout(earlyTimer);stopSpeculative();
+    validated={...validated,orchestration:{...validated.orchestration,cancelled:0,workersKeptWarm:true}};
+   }
+   if(validateResult(validated).error)validated={...validated,orchestration:{...validated.orchestration,finalProblem:validateResult(validated).error,remainingTargets:recoveryTargets(validated)}};
    repairFocus=null;
    validated.timing={preparationMs,firstResponseMs,recoveryMs,totalMs:Math.round(performance.now()-start),captureMs:Number.isFinite(file?.iuCaptureMs)?file.iuCaptureMs:null};
    display(validated,performance.now()-start);
@@ -2256,7 +2220,7 @@
     updateCardState('error');
    }
   }finally{
-   clearTimeout(guard);stopSpeculative();currentAbort.signal.removeEventListener('abort',stopSpeculative);
+   localFinished=true;clearTimeout(earlyTimer);clearTimeout(guard);stopSpeculative();currentAbort.signal.removeEventListener('abort',stopSpeculative);
    if(id===generation){
     active=false;abort=null;setAnalysisCameraClosed(false);
     updateButton();const saveReady=Boolean(validationState())&&Boolean(completedReading);refreshRepairPanel();

@@ -44,7 +44,7 @@
   const id=++nextId;
   return new Promise(resolve=>{
    const timer=setTimeout(()=>{lane.jobs.delete(id);resolve({failed:true});},name==='focus'?1700:1400);
-   lane.jobs.set(id,{resolve,timer});
+   lane.jobs.set(id,{resolve,timer,photo});
    try{lane.worker.postMessage({id,kind,photo,reading,maxBytes,mode});}catch(_){clearTimeout(timer);lane.jobs.delete(id);resolve({failed:true});}
   });
  }
@@ -205,6 +205,21 @@
   dispose(false);
   legacyCache=new WeakMap();
  }
+ // Cancel only jobs belonging to the completed capture; leave warmed,
+ // idle workers and unrelated preview work alone.
+ function cancelPhoto(photo){
+  if(!photo)return 0;
+  let count=0;
+  for(const [name,lane] of [...extraLanes]){
+   const jobs=[...lane.jobs.values()];
+   if(jobs.length&&jobs.every(job=>job.photo===photo)){count+=jobs.length;closeLane(name);}
+  }
+  if(detailPending?.photo===photo){count++;closeDetail();}
+  const jobs=[...pending.values()];
+  if(jobs.length&&jobs.every(job=>job.photo===photo)){count+=jobs.length;dispose(false);}
+  legacyCache.delete(photo);
+  return count;
+ }
  function available(){return !unavailable&&Boolean(root?.Worker&&root?.OffscreenCanvas);}
- return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,warmDetail,prepareDetail,prepareFocused,warmExtra,closeExtra,parallelCapacity:extraEnabled,closeDetail,close,available});
+ return Object.freeze({barcode,preloadBarcode,previewBarcode,partial,digits,enhancedDetail,warmDetail,prepareDetail,prepareFocused,warmExtra,closeExtra,parallelCapacity:extraEnabled,closeDetail,cancelPhoto,close,available});
 });

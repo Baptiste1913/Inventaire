@@ -1,8 +1,8 @@
 {
-  "version": "43.34",
+  "version": "43.35",
   "published": "2026-11-25",
   "assets": 78,
-  "notes": "Essai comparatif : ordonnanceur des lectures, délais et workers restaurés à la v43.20. Déducteur v43.33, contraintes EAN, suggestions de poids et protections de provenance conservés. Interface, données, Gemini et Worker Cloudflare inchangés.",
-  "bytes": 4221756,
+  "notes": "Essai comparatif inverse : déducteur et guidage historiques v43.20, orchestrateur corrigé v43.33 réactivé (collecte ordonnée, priorité optique, workers chauds). Contraintes et arbitrage du poids expérimentaux désactivés. Interface, catalogue importé, modèle et Worker inchangés.",
+  "bytes": 4212803,
   "resourceScope": "pwa-local-v1"
 }

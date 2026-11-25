@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 global.localStorage={getItem:()=>JSON.stringify({articles:[{plu:'3313',libelle:'ORANGE CAMBRIA',eanPrefix:'0203313'},{plu:'9513',libelle:'ORANGE NAVEL',eanPrefix:'2662252'}]})};
 const d=require('../digi-catalog-lookup.js');
+if(typeof d.constraintPlan!=='function'){console.log('SKIP: déducteur expérimental v43.22 désactivé pour essai comparatif');process.exit(0);}
 const e=d.amountVariants('0203313',316,316,'')[0];
 const fields={name:'ORANGE CAMBRIA',weightGrams:1058,pricePerKgCents:299,totalCents:316,ean13:e};
 const blank={...fields,ean13:null},mask='0203313??????',bits=d.encodeBars(e);

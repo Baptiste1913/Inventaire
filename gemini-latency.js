@@ -22,5 +22,31 @@
    task.promise.then(value=>{clearTimeout(timer);resolve(value);});
   });
  }
- return Object.freeze({track,until});
+ // Consume already-settled jobs in priority order and wake up as soon
+ // as any other job settles. One deadline, not one timeout per engine.
+ async function collect({tasks,consume,ready,deadline,current=()=>true,now=()=>performance.now()}){
+  const seen=new Set();let count=0;
+  while(current()){
+   const entries=tasks().filter(([,task])=>task&&!seen.has(task));
+   for(const [key,task] of entries){
+    if(!task.done)continue;
+    seen.add(task);count++;consume(key,task.value);
+    if(!current())return {count,reason:'stale'};
+   }
+   if(!current())return {count,reason:'stale'};
+   if(ready())return {count,reason:'ready'};
+   const pending=tasks().filter(([,task])=>task&&!seen.has(task)&&!task.done);
+   const remaining=deadline-now();
+   if(!pending.length){
+    if(tasks().some(([,task])=>task&&!seen.has(task)&&task.done))continue;
+    return {count,reason:'settled'};
+   }
+   if(remaining<=0)return {count,reason:'deadline'};
+   let timer;
+   await Promise.race([...pending.map(([,task])=>task.promise),new Promise(resolve=>{timer=setTimeout(resolve,remaining);})]);
+   clearTimeout(timer);
+  }
+  return {count,reason:'stale'};
+ }
+ return Object.freeze({track,until,collect});
 });
