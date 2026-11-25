@@ -181,6 +181,27 @@ function expandReading(value,compact){
  if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(compactKeys).some(k=>!Object.prototype.hasOwnProperty.call(value,compactKeys[k])))throw Error('JSON compact incomplet');
  return Object.fromEntries(Object.entries(compactKeys).map(([k,v])=>[k,value[v]]));
 }
+// No delimiter repair or positional guessing; uncertain values use ?.
+function parseDelimited(answer){
+ const line=String(answer).trim();
+ if(/[\r\n]/.test(line))throw Error('Réponse texte multiligne');
+ const parts=line.split(';').map(x=>x.trim());
+ if(parts.length!==6||parts.some(x=>!x))throw Error('Six champs requis');
+ const [name,weightKg,pricePerKgEur,totalEur,ean13,eanObserved]=parts.map(x=>x==='?'?null:x);
+ if(name!==null&&!geminiLabName(name)||weightKg!==null&&geminiLabValue(weightKg,'weight')===null||
+ pricePerKgEur!==null&&geminiLabValue(pricePerKgEur,'rate')===null||
+ totalEur!==null&&geminiLabValue(totalEur,'total')===null||
+ ean13!==null&&!validEAN13(ean13)||eanObserved!==null&&!/^[0-9?]{13}$/.test(eanObserved)||
+ ean13!==null&&eanObserved!==null&&[...eanObserved].some((v,i)=>v!=='?'&&v!==ean13[i]))throw Error('Champ texte invalide');
+ return {name,weightKg,pricePerKgEur,totalEur,ean13,eanObserved};
+}
+function configuredCache(env,mode,format){
+ const name=env.GEMINI_DIGI_CACHE||'';
+ return mode==='developer'&&format==='json'&&/^cachedContents\/[A-Za-z0-9_-]{1,180}$/.test(name)?name:null;
+}
+function speculativeEnabled(env){
+ return env.GEMINI_SPECULATIVE_EAN==='true'&&env.GEMINI_ROUTE!=='hedge';
+}
 function usageOf(data){
  const usage=data?.usageMetadata||{},out={};
  for(const k of ['promptTokenCount','candidatesTokenCount','thoughtsTokenCount','cachedContentTokenCount','totalTokenCount'])if(Number.isSafeInteger(usage[k])&&usage[k]>=0)out[k]=usage[k];
@@ -229,11 +250,11 @@ async function readStream(res,signal){
 }
 // A hedge may win only with a complete internally consistent reading.
 // The client still applies every existing identity and optical validation.
-function completeHedge(data,compact){
+function completeHedge(data,compact,delimited=false){
  try{
   const c=data?.candidates?.[0];if(c?.finishReason!=='STOP')return false;
   const raw=(c.content?.parts||[]).filter(p=>!p.thought&&typeof p.text==='string').map(p=>p.text).join('');
-  const r=expandReading(JSON.parse(raw),compact);
+  const r=delimited?parseDelimited(raw):expandReading(JSON.parse(raw),compact);
   if(!geminiLabName(r.name)||!validEAN13(r.ean13))return false;
   const w=geminiLabValue(r.weightKg,'weight'),p=geminiLabValue(r.pricePerKgEur,'rate'),t=geminiLabValue(r.totalEur,'total');
   return w!==null&&p!==null&&t!==null&&Math.abs(Math.round(w*p/1000)-t)<=1;
@@ -269,7 +290,7 @@ async function geminiPilot(request,env,origin){
  const ingressMs=Date.now()-ingressStarted,validationStarted=Date.now();
  if(payload?.type==='iu-gemini-network-warmup'){
   if(!env.GEMINI_API_KEY&&!vertexEndpoint(env,'gemini-3.5-flash-lite'))return reply({...closed,error:'Gemini non configuré.'},503,origin);
-  return reply({type:'iu-gemini-network-warmup',transport:'binary-v1',gzipEnvelope:typeof DecompressionStream==='function',requestedTier:requestedTier(env),route:routingMode(env,'gemini-3.5-flash-lite')},200,origin);
+  return reply({type:'iu-gemini-network-warmup',transport:'binary-v1',gzipEnvelope:typeof DecompressionStream==='function',requestedTier:requestedTier(env),route:routingMode(env,'gemini-3.5-flash-lite'),speculativeEAN:speculativeEnabled(env)},200,origin);
  }
  const provider='gemini',model=payload?.model;
  if((payload?.provider&&payload.provider!=='gemini')||
@@ -291,6 +312,9 @@ async function geminiPilot(request,env,origin){
     new Set(requested).size!==requested.length))
   return reply({...closed,error:'Champs de relecture incorrects.'},400,origin);
  const focusFields=Array.isArray(requested)?requested:(focus?[focus]:[]);
+ const difficulty=Number.isSafeInteger(payload.difficulty)&&payload.difficulty>=0&&payload.difficulty<=100?payload.difficulty:null;
+ const speculative=payload.speculative===true;
+ if(speculative&&(!speculativeEnabled(env)||focusFields.length!==1||focusFields[0]!=='ean'))return reply({...closed,error:'Relecture anticipée désactivée.'},400,origin);
  const positions=payload?.digiPositions;
  if(positions!==undefined&&(!Array.isArray(positions)||positions.length>13||
     positions.some(n=>!Number.isSafeInteger(n)||n<1||n>13)||new Set(positions).size!==positions.length))
@@ -346,14 +370,20 @@ async function geminiPilot(request,env,origin){
   if(detail)imageParts.push(
    {text:'Image 2 : détail de la MEME photo (étiquette entière, code-barres ou zone numérique). Utilise la première image pour situer les champs et le détail pour relire les pixels.'},
    {inline_data:{mime_type:'image/jpeg',data:detail}});
-  const compact=env.GEMINI_COMPACT_JSON==='true';
+  const delimited=env.GEMINI_OUTPUT_FORMAT==='delimited';
+  const compact=!delimited&&env.GEMINI_COMPACT_JSON==='true';
+  const format=delimited?'delimited':compact?'compact':'json';
   const streaming=env.GEMINI_STREAM==='true';
-  const thinkingLevel=focusFields.length&&env.GEMINI_RECOVERY_THINKING==='low'?'LOW':'MINIMAL';
+  const adaptive=env.GEMINI_ADAPTIVE_THINKING==='true';
+  const thinkingLevel=!speculative&&((focusFields.length&&env.GEMINI_RECOVERY_THINKING==='low')||(adaptive&&difficulty!==null&&difficulty>=75))?'LOW':'MINIMAL';
   // Preserve the literal production prompt; compact is an explicit experiment.
-  const effectivePrompt=compact?prompt+' Utilise les clés JSON courtes suivantes à la place des clés longues : '+JSON.stringify(compactKeys)+'.':prompt;
-  const body={contents:[{role:'user',parts:[{text:effectivePrompt},...imageParts]}],
-   generationConfig:{temperature:0,maxOutputTokens:1024,responseMimeType:'application/json',responseSchema:compact?compactSchema:responseSchema,thinkingConfig:{thinkingLevel}}};
   const mode=routingMode(env,model);
+  const cache=configuredCache(env,mode,format);
+  const effectivePrompt=delimited?prompt.replace('Retourne seulement un objet JSON avec les six propriétés exactes.','Retourne UNE ligne sans titre ni guillemets, exactement six champs séparés par ; dans cet ordre : name;weightKg;pricePerKgEur;totalEur;ean13;eanObserved. Remplace chaque champ inconnu ou non ciblé par ? et conserve sa position. Aucun autre texte.'):compact?prompt+' Utilise les clés JSON courtes suivantes à la place des clés longues : '+JSON.stringify(compactKeys)+'.':prompt;
+  const generationConfig={temperature:0,maxOutputTokens:1024,responseMimeType:delimited?'text/plain':'application/json',...(delimited?{}:{responseSchema:compact?compactSchema:responseSchema}),thinkingConfig:{thinkingLevel}};
+  const body={contents:[{role:'user',parts:[{text:effectivePrompt},...imageParts]}],generationConfig};
+  // Explicit cache is opt-in; the immutable original prompt stays available for fallback.
+  const cachedBody=cache?{...body,cachedContent:cache,contents:[{role:'user',parts:[{text:'Applique les instructions DIGI en cache à cette nouvelle photo uniquement. '+prompt.slice(generalPrompt.length)},...imageParts]}]}:null;
   const developer='https://generativelanguage.googleapis.com/v1beta/models/'+model;
   const vertex=vertexEndpoint(env,model);
   const method=streaming?':streamGenerateContent?alt=sse':':generateContent';
@@ -368,9 +398,18 @@ async function geminiPilot(request,env,origin){
    const url=(route==='vertex'?vertex:developer)+method;
    const key=route==='vertex'?env.VERTEX_API_KEY:env.GEMINI_API_KEY;
    const began=Date.now();
-   const attempt=await resilientGemini(url,{method:'POST',signal:control.signal,
-    headers:{'Content-Type':'application/json','x-goog-api-key':key},body:serialized},
-    {deadline:started+budgetMs,signal:control.signal,circuit:route==='vertex'?vertexCircuit:geminiCircuit,maxAttempts});
+   const opts={method:'POST',signal:control.signal,headers:{'Content-Type':'application/json','x-goog-api-key':key},body:cachedBody?JSON.stringify(cachedBody):serialized};
+   const limits={deadline:started+budgetMs,signal:control.signal,circuit:route==='vertex'?vertexCircuit:geminiCircuit,maxAttempts};
+   let attempt=await resilientGemini(url,opts,limits),cacheFallback=false;
+   // Reissue only on explicit cache rejection, not a successful or ambiguous request.
+   if(cachedBody&&[400,404].includes(attempt.response?.status)&&attempt.stats.attempts===1&&Date.now()<started+budgetMs-1500){
+    const reason=await attempt.response.text().catch(()=>'');
+    if(/cached.?content|cache/i.test(reason)&&/not found|expired|invalid|not supported|permission/i.test(reason)){
+     const initial=attempt.stats;cacheFallback=true;
+     attempt=await resilientGemini(url,{...opts,body:serialized},{...limits,maxAttempts:1});
+     attempt.stats={...attempt.stats,attempts:initial.attempts+attempt.stats.attempts};
+    }
+   }
    const res=attempt.response,headersMs=Date.now()-began;let data=null,firstTokenMs=null,bodyError=false;
    if(res?.ok){
     try{
@@ -378,12 +417,12 @@ async function geminiPilot(request,env,origin){
      else{const raw=await res.text();if(raw.length>16000)throw Error('Réponse trop volumineuse');data=JSON.parse(raw);}
     }catch(_){bodyError=true;}
    }
-   return {route,attempt,res,data,headersMs,firstTokenMs,bodyError,totalMs:Date.now()-began,control};
+   return {route,attempt,res,data,headersMs,firstTokenMs,bodyError,cacheFallback,totalMs:Date.now()-began,control};
   }
   let selected,hedgeStarted=false,hedgeWinner=false;
   try{
-   const canHedge=mode==='hedge'&&!focusFields.length&&Date.now()>=hedgeCooldown&&budgetMs>=5000;
-   if(!canHedge)selected=await call(mode==='vertex'?'vertex':'developer',3);
+   const canHedge=mode==='hedge'&&!speculative&&!focusFields.length&&Date.now()>=hedgeCooldown&&budgetMs>=5000;
+   if(!canHedge)selected=await call(mode==='vertex'?'vertex':'developer',speculative?1:3);
    else{
     // Only one extra inference, same serialized request, no stale photo.
     // Delay is configurable for a controlled comparison, not a default race.
@@ -398,7 +437,7 @@ async function geminiPilot(request,env,origin){
      hedgeStarted=true;
      const secondary=call('vertex',1);
      const raced=await Promise.race([primary,secondary]);
-     if(raced.route==='vertex'&&raced.res?.ok&&completeHedge(raced.data,compact)){
+     if(raced.route==='vertex'&&raced.res?.ok&&completeHedge(raced.data,compact,delimited)){
       selected=raced;hedgeWinner=true;
      }else if(raced.route==='developer'&&raced.res?.ok&&!raced.bodyError){
       selected=raced;
@@ -408,7 +447,7 @@ async function geminiPilot(request,env,origin){
       // If the principal failed, accept only a complete secondary response.
       if(!main.res?.ok||main.bodyError){
        const backup=await secondary;
-       if(backup.res?.ok&&completeHedge(backup.data,compact)){selected=backup;hedgeWinner=true;}
+       if(backup.res?.ok&&completeHedge(backup.data,compact,delimited)){selected=backup;hedgeWinner=true;}
       }
      }
      if(!selected.res?.ok||selected.attempt.stats.upstream503)hedgeCooldown=Date.now()+30000;
@@ -424,7 +463,7 @@ async function geminiPilot(request,env,origin){
   const processingStarted=Date.now();
   const googleMeta={requestedTier:'standard',sentTier:'standard',serviceTier:res?.headers?.get('x-gemini-service-tier')==='standard'?'standard':'unknown',
    inferenceRoute:selected.route,routingMode:mode,hedgeStarted,hedgeWinner,thinkingLevel,compact,streaming,
-   firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data)};
+   firstTokenMs:selected.firstTokenMs,usage:usageOf(selected.data),format,difficulty,speculative,cacheRequested:Boolean(cache),cacheFallback:selected.cacheFallback===true,speculativeEAN:speculativeEnabled(env)};
   if(!res){
    const status=abort.signal.aborted||networkStats.stage==='timeout'?504:503;
    return reply({...closed,provider,model,networkStats,error:networkStats.stage==='circuit_open'?
@@ -460,7 +499,8 @@ async function geminiPilot(request,env,origin){
   if(answer.length>5000)throw Error('Réponse trop longue');
   // Certaines réponses textuelles conservent des balises Markdown malgré
   // responseMimeType. Accepter le JSON strict puis, à défaut, le bloc JSON.
-  try{extracted=JSON.parse(answer)}
+  if(delimited)extracted=parseDelimited(answer);
+  else try{extracted=JSON.parse(answer)}
   catch(_){
    const match=answer.trim().match(/^(?:```(?:json)?\s*)?(\{[\s\S]*\})(?:\s*```)?$/i);
    if(!match)

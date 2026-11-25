@@ -1,6 +1,6 @@
 {
-  "version": "43.06",
-  "published": "2026-11-24",
-  "assets": 106,
-  "notes": "Gemini Standard uniquement ; réflexion minimale explicite, métriques de tokens/cache. Expériences facultatives Vertex AI, secours retardé, JSON compact, streaming et réflexion Low en relecture. Capture, contrôles d'identité et CORS préservés. Worker à déployer séparément."
+  "version": "43.07",
+  "published": "2026-11-25",
+  "assets": 107,
+  "notes": "Expériences Gemini Standard : format texte strict, score de difficulté de la photo courante, réflexion adaptative, anticipation EAN conservatrice et cache explicite facultatif. Aucun changement de modèle, capture, CORS ni contrôles d'identité. Worker à redéployer."
 }

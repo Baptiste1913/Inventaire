@@ -92,7 +92,7 @@
     const data=await res.json();
     if(!isCurrent()||data?.type!=='iu-gemini-network-warmup')return null;
     if(epoch===initialEpoch)observe(data);
-    return {ms:Math.round(clock()-started),transport:data.transport,tier:data.requestedTier};
+    return {ms:Math.round(clock()-started),transport:data.transport,tier:data.requestedTier,speculativeEAN:data.speculativeEAN===true};
    }catch(_){return null;}finally{clearTimeout(timer);warmTask=null;}
   });return warmTask;
  }

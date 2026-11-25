@@ -101,11 +101,20 @@
  const storageKey='iu-gemini-pilot-key-v1';
  const endpoint='https://inventaires-u-prix.baptistee123.workers.dev/gemini-lab';
  const networkSamples=[];let warmDiagnostic=null;
+ const photoDifficulty=new WeakMap();let speculativeEnabled=false,speculativeCooldown=0;
+ // Only contemporaneous quality metrics; never treat them as identity evidence.
+ function difficultyScore(regions,opticalDone,reading){
+  const values=['ean','weight','rate'].map(k=>regions?.[k]).filter(Number.isFinite);
+  if(!values.length&&!opticalDone)return null;
+  const visual=values.length?1-values.reduce((s,v)=>s+Math.max(0,Math.min(1,v)),0)/values.length:.5;
+  const optical=opticalDone?(trustedBarcodeEvidence(reading)?0:1):.5;
+  return Math.round(100*(.7*visual+.3*optical));
+ }
  function warmNetwork(reconnect=false){
   const key=pilotKey.value.trim();
   if(!key||document.hidden||active)return;
   const task=window.IUGeminiTransport?.warm?.(endpoint,key,{isCurrent:()=>pilotKey.value.trim()===key,reconnect});
-  if(task)void task.then(data=>{if(data){warmDiagnostic=data;renderNetworkDiagnostic();}}).catch(()=>{});
+  if(task)void task.then(data=>{if(data){warmDiagnostic=data;speculativeEnabled=data.speculativeEAN===true;renderNetworkDiagnostic();}}).catch(()=>{});
  }
  function renderNetworkDiagnostic(){
   const node=$('iuGeminiNetworkSummary');if(!node)return;
@@ -120,8 +129,11 @@
    lines.push('Gemini demandé : '+latest.requested+' · confirmé : '+latest.tier);
    lines.push('Infrastructure : '+latest.route+' · secours '+samples.filter(x=>x.hedge).length+' / '+samples.length+' · gagnés '+samples.filter(x=>x.winner).length);
    if(latest.usage)lines.push('Tokens : entrée '+(latest.usage.promptTokenCount??'—')+' · sortie '+(latest.usage.candidatesTokenCount??'—')+' · réflexion '+(latest.usage.thoughtsTokenCount??'—')+' · cache '+(latest.usage.cachedContentTokenCount??'—'));
-   if(latest.thinking)lines.push('Réflexion '+latest.thinking+' · JSON '+(latest.compact?'compact':'normal')+' · '+(latest.streaming?'streaming':'normal')+(Number.isFinite(latest.firstToken)?' · premier token '+latest.firstToken+' ms':''));
+   if(latest.thinking)lines.push('Réflexion '+latest.thinking+' · format '+(latest.format||(latest.compact?'compact':'json'))+' · '+(latest.streaming?'streaming':'normal')+(Number.isFinite(latest.firstToken)?' · premier token '+latest.firstToken+' ms':''));
    if(latest.server)lines.push('Worker : entrée '+fmt(latest.server.ingressMs)+' · préparation '+fmt(latest.server.preparationMs)+' · Google (réseau + calcul) '+fmt(latest.server.upstreamMs)+' · réponse '+fmt(latest.server.responseMs)+' · traitement '+fmt(latest.server.processingMs)+(Number.isFinite(latest.server.routingWallMs)?' · attente totale '+fmt(latest.server.routingWallMs):''));
+   if(Number.isFinite(latest.difficulty))lines.push('Difficulté estimée '+latest.difficulty+'/100');
+   if(latest.cacheRequested)lines.push('Cache explicite demandé'+(latest.cacheFallback?' · repli sans cache':''));
+   lines.push('Relectures anticipées réussies : '+samples.filter(x=>x.speculative).length);
   }
   node.textContent=lines.join(' | ');
  }
@@ -904,7 +916,7 @@
   say('');
  }
  function clear(){stopCamera();resetReading();}
- function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null,preparedEnhanced=null,guideCrop=false}={}){
+ function setPhoto(chosen,{confirmed=false,barcodePhoto=null,alternatePhoto=null,preparedBarcode=null,preparedEnhanced=null,guideCrop=false,qualityRegions=null}={}){
   if(!chosen)return false;
   if(!chosen.type.startsWith('image/')||chosen.size>15*1024*1024){
    say('Choisis une image de moins de 15 Mo.',true);return false;
@@ -928,7 +940,7 @@
   if(repairPanel)repairPanel.hidden=true;
   if(repairManual)repairManual.hidden=true;
   analyze.textContent='Analyser l’étiquette';
-  clearPreview();file=chosen;cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;attempts.clear();generation++;
+  clearPreview();file=chosen;if(qualityRegions)photoDifficulty.set(chosen,{...qualityRegions});cachedEncoding=null;cachedDetail=null;cachedEnhanced=null;cachedFocused.clear();cachedGuided=null;attempts.clear();generation++;
   // Lire l'EAN en local en parallèle du réseau, sans envoi ni bibliothèque.
   // La pleine résolution reste réservée à l'EAN LOCAL si le JPEG
   // envoyé à Gemini a été réduit pour respecter le budget Cloudflare.
@@ -1422,9 +1434,10 @@
   return attempt===1?1100:2600;
  }
  async function requestGeminiWithRecovery(encoded,access,selectedModel,signal,id,focusField=null,
-  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null,budgetMs=13000){
+  provider='gemini',detailImageBase64=null,focusFields=null,catalogCandidates=null,digiPositions=null,budgetMs=13000,experiment=null){
   const payload={type:'iu-gemini-label-test',model:selectedModel,provider,
    mimeType:'image/jpeg',imageBase64:encoded,budgetMs,
+   ...(Number.isSafeInteger(experiment?.difficulty)?{difficulty:experiment.difficulty}:{}),...(experiment?.speculative?{speculative:true}:{}),
    ...(detailImageBase64?{detailImageBase64}:{}),
    ...(focusField?{focusField}:{}),
    ...(focusFields?.length?{focusFields}:{}),
@@ -1461,13 +1474,14 @@
    throw Error('Réponse Cloudflare illisible (HTTP '+response.status+') · réessaie cette photo');
   }
   if(response.ok){
-   transport?.observe(result);
+   if(signal.aborted||id!==generation)throw new DOMException('Analyse annulée','AbortError');
+   transport?.observe(result);if(typeof result.speculativeEAN==='boolean')speculativeEnabled=result.speculativeEAN;
    const ms=Math.round(networkNow()-networkStart),parseMs=Math.round(networkNow()-parseStart);
    const protocol=packet.compressed?'gzip-binary':packet.contentType==='application/octet-stream'?'binary':'json';
    const tier=['priority','standard'].includes(result.serviceTier)?result.serviceTier:'non confirmé';
    const requested=['priority','standard'].includes(result.requestedTier)?result.requestedTier:'non communiqué';
    try{
-    networkSamples.push({ms,bytes:packet.size??null,transport:protocol,tier,requested,server:result.serverTimings||null,route:result.inferenceRoute||'developer (ancien Worker)',hedge:result.hedgeStarted===true,winner:result.hedgeWinner===true,usage:result.usage||null,thinking:result.thinkingLevel,compact:result.compact,streaming:result.streaming,firstToken:result.firstTokenMs});
+    networkSamples.push({ms,bytes:packet.size??null,transport:protocol,tier,requested,server:result.serverTimings||null,route:result.inferenceRoute||'developer (ancien Worker)',hedge:result.hedgeStarted===true,winner:result.hedgeWinner===true,usage:result.usage||null,thinking:result.thinkingLevel,compact:result.compact,streaming:result.streaming,firstToken:result.firstTokenMs,format:result.format,difficulty:result.difficulty,speculative:result.speculative,cacheRequested:result.cacheRequested,cacheFallback:result.cacheFallback});
     if(networkSamples.length>100)networkSamples.shift();
     renderNetworkDiagnostic();
    }catch(_){}
@@ -1668,7 +1682,9 @@
   const currentAbort=abort;
   const guard=setTimeout(()=>currentAbort.abort(),24000);
   const start=performance.now();
-  let advancedJob=null;
+  let advancedJob=null,speculativeJob=null,speculativeAbort=null,primarySettled=false;
+  const stopSpeculative=()=>speculativeAbort?.abort();
+  currentAbort.signal.addEventListener('abort',stopSpeculative,{once:true});
   say('Préparation puis envoi d’une seule photo à '+providerName+'…');
   try{
    // Gemini reçoit immédiatement l'image la plus complète possible.
@@ -1749,17 +1765,30 @@
    if(id!==generation||currentAbort.signal.aborted)throw new DOMException('Analyse annulée','AbortError');
    const preparationMs=Math.round(performance.now()-start);
    say(providerName+' analyse l’étiquette…');
+   const difficulty=difficultyScore(photoDifficulty.get(file),opticalTask.done,opticalReady);
    const receivedTask=requestGeminiWithRecovery(
     encoded,access,selectedModel,abort.signal,id,targetField,selectedProvider,
     safeDetail(firstDetail?.data),targetField?[targetField]:resumeFields?.length?resumeFields:null,
     catalogHints(oldResult,opticalReady),
-    resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null);
+    resumeFields?.includes('ean')?(oldResult?.digiPlan?.positions||window.IUDigiCatalogLookup?.recheckPlan?.(oldResult)?.positions):null,13000,{difficulty});
+   void receivedTask.then(()=>{primarySettled=true;},()=>{primarySettled=true;stopSpeculative();});
    // Start only after the primary Gemini request has been issued. No await
    // on Advanced, no additional cloud call and no modified cloud JPEG.
    advancedJob=track(window.IUDigiAdvanced?.read?.(sourcePhoto,guideHint(sourcePhoto,opticalReady))||null);
    // Prepare focused crops in parallel with the primary network request.
    const focusEAN={kind:'EAN ciblé',task:track(samePhotoFocus(sourcePhoto,'ean',opticalReady))};
    const focusNumbers={kind:'chiffres ciblés',task:track(samePhotoFocus(sourcePhoto,'numbers',opticalReady))};
+   // Speculation only on the triggered photo, with a different EAN detail.
+   // No extra wait before the principal request; opt-in from the Worker.
+   if(speculativeEnabled&&!targetField&&!resumeFields?.length&&Date.now()>=speculativeCooldown){
+    void Promise.all([focusEAN.task.promise,opticalTask.promise]).then(([crop,reading])=>{
+     const q=difficultyScore(photoDifficulty.get(file),true,reading);
+     if(!stillCurrent()||primarySettled||trustedBarcodeEvidence(reading)||reading?.ambiguous||q===null||q<55||!safeDetail(crop)||crop===firstDetail?.data)return;
+     speculativeAbort=new AbortController();
+     const task=requestGeminiWithRecovery(encoded,access,selectedModel,speculativeAbort.signal,id,null,selectedProvider,safeDetail(crop),['ean'],null,null,9000,{difficulty:q,speculative:true});
+     speculativeJob=track(task.catch(error=>{if(error?.transient||/quota|503|429/i.test(error?.message||''))speculativeCooldown=Date.now()+60000;return null;}));
+    }).catch(()=>{});
+   }
    let received,usedComplementaryRead=false,recheckView=null;
    try{received=await receivedTask;}
    catch(error){
@@ -1896,6 +1925,7 @@
     }catch(_){}
    }
    let recoveryMs=0;
+   if(targets.length!==1||targets[0]!=='ean')stopSpeculative();
    if(targets.length){
     const recoveryStart=performance.now();
     // Une seule relecture de tous les champs problématiques sur cette
@@ -1920,7 +1950,12 @@
      if(!recheckView)recheckView=await chooseVisualDetail(firstEnhanced?guidedView:enhancedView,
       normalView,detailEnd,until,safeDetail);
      if(id!==generation||currentAbort.signal.aborted)throw new DOMException('Analyse annulée','AbortError');
-     const focused=await requestGeminiWithRecovery(
+     // Reuse only a completed independent confirmation of the existing valid EAN.
+     // Never introduce a new identity, override a conflict or skip a planned DIGI targeted read.
+     const speculativeResult=speculativeJob?.done?speculativeJob.value:null;
+     const reuse=onlyEAN&&!combined.checks?.independentMismatch&&!combined.checks?.readingConflict&&!combined.checks?.digiConflict&&combined.digiRecovery?.kind!=='confirmation'&&!(combined.digiPlan?.positions?.length)&&readableValue('ean',combined.fields?.ean13)&&speculativeResult?.fields?.ean13===combined.fields.ean13;
+     stopSpeculative();
+     const focused=reuse?speculativeResult:await requestGeminiWithRecovery(
       encoded,access,selectedModel,abort.signal,id,null,selectedProvider,
       safeDetail(recheckView?.data),targets,
       catalogHints(combined,localBarcode),
@@ -2029,7 +2064,7 @@
     updateCardState('error');
    }
   }finally{
-   clearTimeout(guard);
+   clearTimeout(guard);stopSpeculative();currentAbort.signal.removeEventListener('abort',stopSpeculative);
    if(id===generation){
     active=false;abort=null;setAnalysisCameraClosed(false);
     updateButton();validationState();refreshRepairPanel();
@@ -2989,7 +3024,7 @@
     resetReading();
    }
    const used=setPhoto(nextPhoto,{confirmed:true,guideCrop:true,
-    barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null});
+    barcodePhoto:barcodeOriginal!==blob?barcodeOriginal:null,qualityRegions:chosen.rating?.regions||null});
    if(used===false)setAutoHint('Capture non utilisée · réessaie','waiting');
   }catch(_){
    say('Photo impossible · recommence la capture.',true);
