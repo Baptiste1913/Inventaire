@@ -1,6 +1,6 @@
 {
-  "version": "43.15",
+  "version": "43.16",
   "published": "2026-11-25",
-  "assets": 108,
-  "notes": "Bilans d’inventaires enrichis : couverture AI, références et poids, montants au prix de vente après tare, classement par article et traçabilité des doublons/corrections. Aucun changement de stockage, de calcul métier ni du Worker."
+  "assets": 109,
+  "notes": "Mes paniers : fiches individuelles neumorphiques, tare mise en valeur, commandes réorganisées, formulaire harmonisé et dégradé continu. Gestion, stockage, calculs et Worker inchangés."
 }
